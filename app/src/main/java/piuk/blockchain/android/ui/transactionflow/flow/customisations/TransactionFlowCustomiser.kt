@@ -837,8 +837,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit,
             AssetAction.Withdraw ->
                 SimpleInfoHeaderView(ctx).also {
-                    it.showExchange(true)
                     frame.addView(it)
+                    it.shouldShowExchange = false
                 }
             else -> SimpleInfoHeaderView(ctx).also { frame.addView(it) }
         }
