@@ -824,7 +824,10 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> SwapInfoHeaderView(ctx).also { frame.addView(it) }
             AssetAction.FiatDeposit,
             AssetAction.Withdraw ->
-                SimpleInfoHeaderView(ctx, false).also { frame.addView(it) }
+                SimpleInfoHeaderView(ctx).also {
+                    frame.addView(it)
+                    it.shouldShowExchange = false
+                }
             else -> SimpleInfoHeaderView(ctx).also { frame.addView(it) }
         }
 
