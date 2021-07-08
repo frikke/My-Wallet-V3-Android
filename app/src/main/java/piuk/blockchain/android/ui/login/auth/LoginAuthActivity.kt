@@ -270,7 +270,11 @@ class LoginAuthActivity :
             if (!alphaNumericRegex.matches(chr.toString())) {
                 crashLogger.logState(
                     INVALID_PAYLOAD_CHARACTER, "" +
-                        "$chr at index $index part ${encodedData.safeSubstring(index, index + 3)}"
+                        "$chr at index $index part ${
+                            encodedData.safeSubstring(
+                                startIndex = index, endIndex = index + 3
+                            )
+                        }"
                 )
             }
         }
@@ -305,9 +309,9 @@ class LoginAuthActivity :
     }
 }
 
-private fun String.safeSubstring(startIndex: Int, i: Int): String {
+private fun String.safeSubstring(startIndex: Int, endIndex: Int): String {
     return try {
-        substring(startIndex, startIndex + i)
+        substring(startIndex = startIndex, endIndex = endIndex)
     } catch (e: StringIndexOutOfBoundsException) {
         ""
     }
