@@ -27,7 +27,8 @@ enum class AuthStatus {
     Invalid2FACode,
     AuthRequired,
     AuthFailed,
-    InitialError
+    InitialError,
+    ShowManualPairing
 }
 
 data class LoginAuthState(
