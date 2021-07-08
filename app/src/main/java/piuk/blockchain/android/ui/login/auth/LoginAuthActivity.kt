@@ -306,6 +306,9 @@ class LoginAuthActivity :
 }
 
 private fun String.safeSubstring(startIndex: Int, i: Int): String {
-    return if (startIndex + i >= length) ""
-    else substring(startIndex, i)
+    return try {
+        substring(startIndex, startIndex + i)
+    } catch (e: StringIndexOutOfBoundsException) {
+        ""
+    }
 }
