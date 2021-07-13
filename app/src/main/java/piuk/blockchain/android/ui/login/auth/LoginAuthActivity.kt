@@ -21,6 +21,7 @@ import com.google.android.material.textfield.TextInputLayout
 import io.reactivex.rxkotlin.subscribeBy
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
@@ -78,6 +79,7 @@ class LoginAuthActivity :
         intent.data?.let { uri ->
             uri.fragment?.let { fragment ->
                 try {
+                    validateAndLogDeeplinkHost(uri.host)
                     val json = decodeJson(fragment)
                     val guid = json.getString(GUID)
 
@@ -265,6 +267,30 @@ class LoginAuthActivity :
         return JSONObject(String(data))
     }
 
+    private fun validateAndLogDeeplinkHost(host: String?) {
+        host?.let {
+            when (host) {
+                BuildConfig.LOGIN_HOST_LINK -> {
+                    crashLogger.logState(
+                        VALID_DEEPLINK_HOST,
+                        BuildConfig.LOGIN_HOST_LINK
+                    )
+                }
+                else -> {
+                    crashLogger.logState(
+                        INVALID_DEEPLINK_HOST,
+                        host
+                    )
+                }
+            }
+        } ?: kotlin.run {
+            crashLogger.logState(
+                INVALID_DEEPLINK_HOST,
+                "Host is null"
+            )
+        }
+    }
+
     private fun logInvalidCharacters(encodedData: String) {
         encodedData.mapIndexed { index, chr ->
             if (!alphaNumericRegex.matches(chr.toString())) {
@@ -281,7 +307,7 @@ class LoginAuthActivity :
     }
 
     companion object {
-        private const val LINK_DELIMITER = "/login/"
+        const val LINK_DELIMITER = "/login/"
         private const val GUID = "guid"
         private const val EMAIL = "email"
         private const val EMAIL_CODE = "email_code"
@@ -289,6 +315,8 @@ class LoginAuthActivity :
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
         private const val INVALID_PAYLOAD_CHARACTER = "invalid_payload_character"
+        private const val VALID_DEEPLINK_HOST = "valid_deeplink_host"
+        private const val INVALID_DEEPLINK_HOST = "invalid_deeplink_host"
         private val alphaNumericRegex = Regex("[a-zA-Z0-9]")
         private val unEscapedCharactersMap = mapOf(
             "%2B" to "+",
