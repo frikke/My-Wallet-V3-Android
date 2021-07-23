@@ -141,6 +141,11 @@ Build to run on CI. Optional flags: copy_credentials, build_bundle (APK is defau
 fastlane android ci_lint
 ```
 Checks to run on CI
+### android edit_github_release
+```
+fastlane android edit_github_release
+```
+
 
 ----
 
