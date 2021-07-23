@@ -447,6 +447,40 @@ platform :android do
       "
     end
 
+    lane :edit_github_release do
+        # Get the current and last release to be able to generate the changelog
+        sh("git fetch --tags")
+        current_tag = last_git_tag
+        previous_tag = sh("git describe --abbrev=0 --tags #{current_tag}^").strip
+        output_file_name = "result"
+        # Generate the changelog from the last release to head
+        changelog = Dir.chdir("..") do
+          sh("printf '%s\n\n' \"#{current_tag}\" > changelog.txt")
+          sh("git log --no-merges #{previous_tag}..HEAD --oneline >> changelog.txt")
+        end
+        # Find the AAB file
+        aab_file = Dir.chdir("..") do
+          aab_file = Dir.glob("app/build/outputs/**/*.aab").select { |e| File.file?(e) }
+        end
+        # Find the APK file
+        apk_file = Dir.chdir("..") do
+          Dir.glob("app/build/outputs/**/*.apk").select { |e| File.file?(e) }
+        end
+        # Find the mapping file for the generated AAB
+        mapping_file = Dir.chdir("..") do
+          Dir.glob("app/build/outputs/mapping/**/mapping.txt").select { |e| File.file?(e) }
+        end
+        # Generate the Hub CLI command to attach the files
+        attach_files_cmd = ""
+        files_to_attach = aab_file + apk_file + mapping_file
+        for file in files_to_attach do
+          attach_files_cmd.concat(" --attach ").concat("#{file}")
+        end
+        # Use Hub CLI to update the GitHub release
+        Dir.chdir("..") do
+          sh("hub release edit --file changelog.txt #{attach_files_cmd} #{current_tag}")
+        end
+    end
 
     after_all do |lane|
       # This block is called, only if the executed lane was successful
@@ -457,5 +491,4 @@ platform :android do
     error do |lane, exception|
       # This block is called, only if the executed lane failed with an exception
     end
-    
 end
