@@ -455,8 +455,9 @@ platform :android do
         output_file_name = "result"
         # Generate the changelog from the last release to head
         changelog = Dir.chdir("..") do
-          sh("printf '%s\n\n' \"#{current_tag}\" > changelog.md")
-          sh("git-changelog -t #{previous_tag_hash}")
+          sh("printf '%s\n\n' \"#{current_tag}\" > changelog.txt")
+          sh("git-changelog -x -t #{previous_tag_hash} >> changelog.txt")
+          sh("cat changelog.txt")
         end
         # Find the AAB file
         aab_file = Dir.chdir("..") do
@@ -478,7 +479,7 @@ platform :android do
         end
         # Use Hub CLI to update the GitHub release
         Dir.chdir("..") do
-          sh("hub release edit --file changelog.md #{attach_files_cmd} #{current_tag}")
+          sh("hub release edit --file changelog.txt #{attach_files_cmd} #{current_tag}")
         end
     end
 
