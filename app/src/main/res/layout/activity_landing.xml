@@ -8,43 +8,34 @@
     android:background="@color/white">
 
     <ImageView
-        android:id="@+id/icon_blockchain"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="134dp"
-        app:layout_constraintDimensionRatio="h,1:1"
+        android:id="@+id/blockchain_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_blockchain_logo_with_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_blockchain_logo" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/text_title"
-        style="@style/Text.Semibold.Centered.20"
+    <com.blockchain.coreui.carousel.CarouselView
+        android:id="@+id/carousel"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        tools:listitem="@layout/view_carousel_value"
+        app:layout_constraintBottom_toBottomOf="@id/btn_login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/blockchain_logo" />
+
+    <ImageView
+        android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/standard_margin"
-        android:layout_marginTop="48dp"
-        android:layout_marginRight="@dimen/standard_margin"
-        android:contentDescription="@string/landing_title"
-        android:text="@string/landing_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/icon_blockchain" />
-
-    <TextView
-        android:id="@+id/text_body"
-        style="@style/Text.Standard.Centered.16"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/standard_margin"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="@dimen/standard_margin"
-        android:contentDescription="@string/landing_body"
-        android:text="@string/landing_body"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_title" />
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/background_gradient"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <include
         android:id="@+id/layout_warning"
@@ -56,60 +47,41 @@
         app:layout_constraintBottom_toTopOf="@id/btn_create"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_body"
         tools:visibility="visible" />
 
-    <Button
+    <com.blockchain.coreui.PillButton
         android:id="@+id/btn_create"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/standard_margin"
         android:layout_marginBottom="16dp"
         android:contentDescription="@string/landing_create_wallet"
         android:text="@string/landing_create_wallet"
         app:layout_constraintBottom_toTopOf="@+id/btn_login"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
+    <com.blockchain.coreui.SplitButton
         android:id="@+id/btn_login"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/landing_log_in"
-        android:text="@string/landing_log_in"
-        app:layout_constraintBottom_toTopOf="@+id/btn_recover"
+        android:layout_marginHorizontal="@dimen/standard_margin"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/carousel_indicators"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:leftButtonText="@string/restore_wallet_cta"
+        app:rightButtonText="Log In →" />
 
-    <Button
-        android:id="@+id/btn_recover"
-        style="@style/CtaButton.White.Borderless"
+    <com.blockchain.coreui.carousel.CarouselIndicatorView
+        android:id="@+id/carousel_indicators"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/small_margin"
-        android:contentDescription="@string/recover_funds"
-        android:text="@string/recover_funds"
+        android:layout_marginBottom="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/text_version"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/text_version"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        android:text="2.14 b1"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_recover"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btn_recover"
-        app:layout_constraintTop_toTopOf="@+id/btn_recover" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:numberOfIndicators="4" />
 
     <FrameLayout
         android:id="@+id/content_frame"
@@ -119,5 +91,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

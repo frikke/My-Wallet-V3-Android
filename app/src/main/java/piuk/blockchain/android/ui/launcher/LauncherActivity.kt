@@ -142,7 +142,7 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
     }
 
     override fun updateProgressVisibility(show: Boolean) {
-        binding.progress.visibleIf { show }
+        //binding.progress.visibleIf { show }
     }
 
     private fun startSingleActivity(clazz: Class<*>, extras: Bundle?, uri: Uri? = null) {
