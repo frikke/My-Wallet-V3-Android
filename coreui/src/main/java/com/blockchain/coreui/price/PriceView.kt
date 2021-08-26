@@ -14,7 +14,7 @@ import com.blockchain.coreui.utils.toPx
 import com.bumptech.glide.Glide
 import java.text.NumberFormat
 
-class PriceView: ConstraintLayout {
+class PriceView : ConstraintLayout {
     private val binding = ViewPriceRowBinding.inflate(LayoutInflater.from(context), this)
 
     data class Price(val icon: String, val name: String, val ticker: String, val price: String, val gain: Double)
@@ -60,9 +60,9 @@ class PriceView: ConstraintLayout {
         val percent = percentFormatter.format(gain)
 
         val spannableString = if (gain < 0) {
-            SpannableString( "↓ $percent")
+            SpannableString("↓ $percent")
         } else {
-            SpannableString( "↑ $percent")
+            SpannableString("↑ $percent")
         }
 
         val foregroundSpan = if (gain < 0) {

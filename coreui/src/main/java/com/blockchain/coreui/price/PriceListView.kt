@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class PriceListView: RecyclerView {
+class PriceListView : RecyclerView {
     constructor(context: Context) : super(context) {
         init()
     }
@@ -51,10 +51,10 @@ class PriceAdapter(
         ): Boolean {
             return oldItem == newItem
         }
-    },
-): ListAdapter<PriceView.Price, PriceAdapter.ViewHolder>(diffCallback) {
+    }
+) : ListAdapter<PriceView.Price, PriceAdapter.ViewHolder>(diffCallback) {
 
-    class ViewHolder(val priceView: PriceView): RecyclerView.ViewHolder(priceView.rootView)
+    class ViewHolder(val priceView: PriceView) : RecyclerView.ViewHolder(priceView.rootView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(PriceView(parent.context))
@@ -63,5 +63,4 @@ class PriceAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.priceView.price = getItem(position)
     }
-
 }

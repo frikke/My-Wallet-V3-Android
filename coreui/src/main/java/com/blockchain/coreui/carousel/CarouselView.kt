@@ -19,7 +19,7 @@ import com.blockchain.coreui.databinding.ViewCarouselListBinding
 import com.blockchain.coreui.databinding.ViewCarouselValueBinding
 import com.blockchain.coreui.price.PriceView
 
-class CarouselView: RecyclerView {
+class CarouselView : RecyclerView {
 
     constructor(context: Context) : super(context) {
         initWithAttributes()
@@ -48,12 +48,12 @@ class CarouselView: RecyclerView {
         val helper: SnapHelper = PagerSnapHelper()
         helper.attachToRecyclerView(this)
     }
-
 }
 
 sealed class CarouselViewType {
-    data class ValuePropView(@DrawableRes val image: Int, val text: String): CarouselViewType()
-    data class PriceListView(val text: String, val prices: List<PriceView.Price>): CarouselViewType()
+    data class ValueProp(@DrawableRes val image: Int, val text: String) : CarouselViewType()
+    data class PriceList(val text: String, val secondaryText: String, val prices: List<PriceView.Price>) :
+        CarouselViewType()
 }
 
 class CarouselAdapter(
@@ -63,7 +63,7 @@ class CarouselAdapter(
             oldItem: CarouselViewType,
             newItem: CarouselViewType
         ): Boolean {
-            if (oldItem is CarouselViewType.ValuePropView && newItem is CarouselViewType.ValuePropView) {
+            if (oldItem is CarouselViewType.ValueProp && newItem is CarouselViewType.ValueProp) {
                 return oldItem.text == newItem.text
             }
 
@@ -77,10 +77,10 @@ class CarouselAdapter(
         ): Boolean {
             return oldItem == newItem
         }
-    },
-): ListAdapter<CarouselViewType, CarouselAdapter.ViewHolder>(diffCallback) {
+    }
+) : ListAdapter<CarouselViewType, CarouselAdapter.ViewHolder>(diffCallback) {
 
-    class ViewHolder(view: View): RecyclerView.ViewHolder(view)
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return when (viewType) {
@@ -98,12 +98,13 @@ class CarouselAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is CarouselViewType.PriceListView -> {
+            is CarouselViewType.PriceList -> {
                 val itemBinding = ViewCarouselListBinding.bind(holder.itemView)
                 itemBinding.valueText.text = item.text
+                itemBinding.livePriceText.text = item.secondaryText
                 itemBinding.priceList.listAdapter.submitList(item.prices)
             }
-            is CarouselViewType.ValuePropView -> {
+            is CarouselViewType.ValueProp -> {
                 val itemBinding = ViewCarouselValueBinding.bind(holder.itemView)
                 itemBinding.valueImage.setImageResource(item.image)
                 itemBinding.valueText.text = item.text
@@ -113,13 +114,12 @@ class CarouselAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is CarouselViewType.PriceListView -> ViewType.List.ordinal
-            is CarouselViewType.ValuePropView -> ViewType.ValueProp.ordinal
+            is CarouselViewType.PriceList -> ViewType.List.ordinal
+            is CarouselViewType.ValueProp -> ViewType.ValueProp.ordinal
         }
     }
 
     enum class ViewType {
         ValueProp, List
     }
-
 }

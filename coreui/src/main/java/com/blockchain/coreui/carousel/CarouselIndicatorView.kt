@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coreui.R
 import com.blockchain.coreui.databinding.ViewCarouselIndicatorBinding
 
-class CarouselIndicatorView: RecyclerView {
+class CarouselIndicatorView : RecyclerView {
 
     constructor(context: Context) : super(context) {
         initWithAttributes(null)
@@ -33,7 +33,7 @@ class CarouselIndicatorView: RecyclerView {
     var layout = R.layout.view_carousel_indicator
     private var numberOfRows = 4
     private var indicatorColor = ContextCompat.getColor(context, R.color.paletteBaseWhite)
-    private lateinit var baseAdapter : CarouselIndicatorAdapter
+    private lateinit var baseAdapter: CarouselIndicatorAdapter
     var selectedIndicator = 0
         set(value) {
             field = value
@@ -54,10 +54,10 @@ class CarouselIndicatorView: RecyclerView {
         adapter = baseAdapter
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
     }
-
 }
 
-private class CarouselIndicatorAdapter(private val numberOfIndicators: Int): RecyclerView.Adapter<CarouselIndicatorAdapter.ViewHolder>() {
+private class CarouselIndicatorAdapter(private val numberOfIndicators: Int) :
+    RecyclerView.Adapter<CarouselIndicatorAdapter.ViewHolder>() {
 
     var selectedIndicator: Int = 0
         set(value) {
@@ -65,7 +65,7 @@ private class CarouselIndicatorAdapter(private val numberOfIndicators: Int): Rec
             notifyDataSetChanged()
         }
 
-    class ViewHolder(binding: ViewCarouselIndicatorBinding): RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(binding: ViewCarouselIndicatorBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -86,6 +86,4 @@ private class CarouselIndicatorAdapter(private val numberOfIndicators: Int): Rec
     }
 
     override fun getItemCount(): Int = numberOfIndicators
-
-
 }

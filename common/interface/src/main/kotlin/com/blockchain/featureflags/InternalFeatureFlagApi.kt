@@ -13,4 +13,5 @@ enum class GatedFeature(val readableName: String, val enabledForCompanyInternalB
     ACCOUNT_RECOVERY("Enable New Account Recovery Flow"),
     FULL_SCREEN_TXS("Enable full screen tx flow"),
     LOCALISATION_SIGN_UP("Enable localisation sign up screen"),
+    NEW_ONBOARDING("New onboarding design")
 }

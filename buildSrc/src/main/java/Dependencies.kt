@@ -23,6 +23,7 @@ object Versions {
 
     // Androidx Libraries
     const val appCompat = "1.2.0"
+    const val androidXCore = "1.6.0"
     const val recyclerview = "1.1.0"
     const val cardview = "1.0.0"
     const val gridlayout = "1.0.0"
@@ -143,6 +144,7 @@ object Libraries {
 
     // Support Libraries
     const val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
+    const val androidXCore = "androidx.core:core-ktx:${Versions.androidXCore}"
     const val recyclerView = "androidx.recyclerview:recyclerview:${Versions.recyclerview}"
     const val cardView = "androidx.cardview:cardview:${Versions.cardview}"
     const val gridLayout = "androidx.gridlayout:gridlayout:${Versions.gridlayout}"

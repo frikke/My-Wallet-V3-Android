@@ -166,6 +166,13 @@
     <string name="landing_log_in">Log in</string>
     <string name="landing_version">v%1$s (%2$d) %3$s</string>
 
+    <!-- Value Props -->
+    <string name="landing_value_prop_one">Buy, Sell and Swap Crypto in Seconds.</string>
+    <string name="landing_value_prop_two">Earn Interest on Your Crypto.</string>
+    <string name="landing_value_prop_three">Control Your Crypto with Private Keys.</string>
+    <string name="landing_value_prop_four">Never Miss a Crypto Moment.</string>
+    <string name="landing_live_prices">Live Prices</string>
+
     <!-- Recover Funds -->
     <string name="pair_wallet_step_3">Click Show Pairing Code to reveal a QR Code, a square black
         &amp; white barcode. Scan the code with your camera.

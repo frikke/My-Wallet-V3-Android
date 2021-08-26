@@ -4,28 +4,29 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import androidx.annotation.DrawableRes
+import android.widget.Button
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.getResourceIdOrThrow
 import com.blockchain.coreui.databinding.ViewSplitButtonBinding
 
-class SplitButton: ConstraintLayout {
+class SplitButton : ConstraintLayout {
     private val binding = ViewSplitButtonBinding.inflate(LayoutInflater.from(context), this)
 
-    var leftButtonText: CharSequence? = null
+    private var leftButtonText: CharSequence? = null
         set(value) {
             binding.leftButton.text = value
             binding.leftButton.contentDescription = value
             field = value
         }
 
-    var rightButtonText: CharSequence? = null
+    private var rightButtonText: CharSequence? = null
         set(value) {
             binding.rightButton.text = value
             binding.rightButton.contentDescription = value
             field = value
         }
+
+    var leftButton: Button = binding.leftButton
+    var rightButton: Button = binding.rightButton
 
     constructor(context: Context) : super(context) {
         initWithAttributes(null)
