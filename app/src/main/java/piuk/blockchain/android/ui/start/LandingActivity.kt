@@ -62,12 +62,10 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         ActivityLandingOnboardingBinding.inflate(layoutInflater)
     }
 
-    private val tempFeatureFlag = true
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (tempFeatureFlag) {
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
             setContentView(onboardingBinding.root)
 
             with(onboardingBinding) {
@@ -136,7 +134,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     override fun onStart() {
         super.onStart()
-        if (tempFeatureFlag) {
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
             setupSSOControls(
                 onboardingBinding.btnLoginRestore.rightButton, onboardingBinding.btnLoginRestore.leftButton
             )
@@ -230,7 +228,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         )
 
     override fun showApiOutageMessage() {
-        val warningLayout = if (tempFeatureFlag) {
+        val warningLayout = if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
             onboardingBinding.layoutWarning
         } else {
             binding.layoutWarning
