@@ -4,6 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
@@ -82,18 +83,6 @@ internal abstract class CryptoAssetBase(
             }
         )
 
-    override val isEnabled: Boolean
-        get() = true
-
-    // Init token, set up accounts and fetch a few activities
-    override fun init(): Completable =
-        initToken()
-            .doOnError { throwable ->
-                crashLogger.logException(throwable, "Coincore: Failed to load $asset wallet")
-            }
-            .doOnComplete { Timber.d("Coincore: Init $asset Complete") }
-            .doOnError { Timber.d("Coincore: Init $asset Failed") }
-
     private fun loadAccounts(): Single<SingleAccountList> =
         Single.zip(
             loadNonCustodialAccounts(labels),
@@ -115,8 +104,6 @@ internal abstract class CryptoAssetBase(
     final override fun forceAccountsRefresh() {
         activeAccounts.setForceRefresh()
     }
-
-    abstract fun initToken(): Completable
 
     abstract fun loadCustodialAccounts(): Single<SingleAccountList>
     abstract fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList>
@@ -160,11 +147,8 @@ internal abstract class CryptoAssetBase(
     final override fun exchangeRate(): Single<ExchangeRate> =
         Single.fromCallable { exchangeRates.getLastCryptoToUserFiatRate(asset) }
 
-    final override fun exchangeRateYesterday(): Single<ExchangeRate> {
-        // TODO: Make this a distinct call on ExchangeRates, because we're going to want to cache it
-        val yesterday = (System.currentTimeMillis() / 1000) - SECONDS_PER_DAY
-        return exchangeRates.getHistoricRate(asset, yesterday)
-    }
+    final override fun getPricesWith24hDelta(): Single<Prices24HrWithDelta> =
+        exchangeRates.getPricesWith24hDelta(asset)
 
     final override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
         exchangeRates.getHistoricRate(asset, epochWhen)
@@ -257,10 +241,6 @@ internal abstract class CryptoAssetBase(
             }
             else -> Single.just(emptyList())
         }
-    }
-
-    companion object {
-        private const val SECONDS_PER_DAY = 24 * 60 * 60
     }
 }
 

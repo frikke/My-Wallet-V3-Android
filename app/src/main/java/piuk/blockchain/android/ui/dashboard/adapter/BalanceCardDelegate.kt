@@ -13,7 +13,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.databinding.ItemDashboardBalanceCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.BalanceState
+import piuk.blockchain.android.ui.dashboard.model.BalanceState
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -117,7 +117,7 @@ private class BalanceCardViewHolder(
     private fun populatePieChart(state: BalanceState) {
         with(binding) {
             val entries = ArrayList<PieEntry>().apply {
-                coincore.cryptoAssets.forEach {
+                coincore.activeCryptoAssets().forEach {
                     val asset = state[it.asset]
                     val point = asset.fiatBalance?.toFloat() ?: 0f
                     add(PieEntry(point))
@@ -130,7 +130,7 @@ private class BalanceCardViewHolder(
             if (entries.all { it.value == 0.0f }) {
                 populateEmptyPieChart()
             } else {
-                val sliceColours = coincore.cryptoAssets.map {
+                val sliceColours = coincore.activeCryptoAssets().map {
                     assetResources.assetColor(it.asset)
                 }.toMutableList()
 

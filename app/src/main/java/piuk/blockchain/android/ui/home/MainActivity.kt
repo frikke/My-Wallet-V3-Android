@@ -16,6 +16,8 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
@@ -31,13 +33,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.Database
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
@@ -62,6 +65,7 @@ import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.DashboardFragment
+import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.home.analytics.SideNavEvent
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -100,6 +104,7 @@ import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -120,6 +125,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private val qrProcessor: QrScanResultProcessor by scopedInject()
     private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
     private val txLauncher: TransactionLauncher by inject()
+    private val database: Database by inject()
+
+    @Suppress("unused")
+    private val gatedFeatures: InternalFeatureFlagApi by inject()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -194,6 +203,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             intent.getBooleanExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
+        }
+
+        if (savedInstanceState == null) {
+            presenter.checkForPendingLinks(intent)
         }
 
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
@@ -275,11 +288,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
 
         handlingResult = false
-
-        intent.data?.let {
-            presenter.handleDeepLink(it)
-            intent.data = null
-        }
     }
 
     override fun onDestroy() {
@@ -365,7 +373,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private fun launchDashboardFlow(action: AssetAction, currency: String?) {
         currency?.let {
             launchDashboard()
-            val fragment = DashboardFragment.newInstance(action, it)
+            val fragment = createDashboardFragment(action, it)
             showFragment(fragment)
         }
     }
@@ -378,7 +386,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 true
             }
 
-            f is DashboardFragment -> f.onBackPressed()
+            f is DashboardFragment -> false
+            f is PortfolioFragment -> f.onBackPressed()
 
             else -> {
                 // Switch to dashboard fragment
@@ -415,6 +424,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             R.id.nav_support -> onSupportClicked()
             R.id.nav_logout -> showLogoutDialog()
             R.id.nav_interest -> launchInterestDashboard()
+            R.id.nav_debug_menu -> startActivity(Intent(this, FeatureFlagsHandlingActivity::class.java))
         }
         binding.drawerLayout.closeDrawers()
     }
@@ -436,6 +446,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             .setPositiveButton(R.string.btn_logout) { _, _ ->
                 analytics.logEvent(AnalyticsEvents.Logout)
                 presenter.unPair()
+                database.historicRateQueries.clear()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -450,7 +461,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         // Set selected appropriately.
         with(binding.bottomNavigation) {
             val currentItem = when (currentFragment) {
-                is DashboardFragment -> R.id.nav_home
+                is DashboardFragment,
+                is PortfolioFragment -> R.id.nav_home
                 is ActivitiesFragment -> R.id.nav_activity
                 is TransferFragment -> R.id.nav_transfer
                 is BuySellFragment -> R.id.nav_buy_and_sell
@@ -477,10 +489,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun hideProgressDialog() {
         super.dismissProgressDialog()
-    }
-
-    override fun getStartIntent(): Intent {
-        return intent
     }
 
     override fun clearAllDynamicShortcuts() {
@@ -576,8 +584,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             )
     }
 
-    override fun showHomebrewDebugMenu() {
-        menu.findItem(R.id.nav_debug_swap).isVisible = true
+    override fun showDebugMenu() {
+        menu.findItem(R.id.nav_debug_menu).isVisible = true
     }
 
     override fun launchTransfer() {
@@ -642,12 +650,22 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun startDashboardFragment(reload: Boolean = true) {
         runOnUiThread {
-            val fragment = DashboardFragment.newInstance()
+            val fragment = createDashboardFragment()
             showFragment(fragment, reload)
             setCurrentTabItem(R.id.nav_home)
             toolbar.title = getString(R.string.dashboard_title)
         }
     }
+
+    private fun createDashboardFragment(
+        action: AssetAction? = null,
+        currency: String? = null
+    ): Fragment =
+        if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+            DashboardFragment.newInstance(action, currency)
+        } else {
+            PortfolioFragment.newInstance(action, currency)
+        }
 
     private fun startBuyAndSellFragment(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,

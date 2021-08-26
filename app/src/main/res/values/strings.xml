@@ -78,7 +78,7 @@
     <string name="item_backup">Backup funds</string>
     <string name="item_the_exchange">Exchange</string>
     <string name="item_airdrops">Airdrops</string>
-    <string name="item_debug_homebrew" translatable="false">Debug Homebrew</string>
+    <string name="item_debug_menu" translatable="false">Debug Menu</string>
 
     <!-- toolbar -->
     <string name="toolbar_cmd_home">Home</string>
@@ -302,6 +302,8 @@
 
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
+    <string name="portfolio">Portfolio</string>
+    <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
     <string name="receive_copy">Copy Address</string>
@@ -748,6 +750,7 @@
     <string name="fee_options_fee_too_low">Low fee not recommended</string>
     <string name="fee_options_fee_too_high">Unnecessarily high fee</string>
     <string name="fee_options_sat_byte_hint">sat/b</string>
+    <string name="fee_options_sat_byte_hint_1">Enter sat/b</string>
     <string name="fee_options_sat_byte_inline_hint">Regular: %1$s, Priority: %2$s</string>
     <string name="fee_options_sat_byte_min_error">Minimum 1 sat/byte required</string>
     <string name="fee_options_invalid_amount">Invalid fee</string>
@@ -796,6 +799,8 @@
     <string name="asset_details_chart_load_failed_toast">Failed to load chart details, please try again</string>
     <string name="asset_details_load_failed_toast">Failed to load wallet details, please try again</string>
     <string name="asset_details_exchange_load_failed_toast">Failed to exchange rate information, please try again</string>
+    <string name="asset_details_exchange_load_failed_toast_1">Failed to load exchange rate information, please try again</string>
+    <string name="asset_details_delta_load_failed_toast">Failed to load price information, please try again</string>
     <string name="dashboard_asset_actions_tx_in_progress">There is already a transaction in progress, please wait until it completes</string>
 
     <string name="force_upgrade_message">The version of the app you are using is no longer
@@ -959,6 +964,11 @@
     <string name="rb_announcement_title">Recurring buys are now available</string>
     <string name="rb_announcement_description">It’s really hard to time the market, which is why many investors use dollar cost averaging. Set up a recurring buy to leverage dollar cost averaging.</string>
     <string name="rb_announcement_action">Learn more</string>
+
+    <!-- ReVerify user identity announcement -->
+    <string name="re_verify_identity_card_title">Verification Needed</string>
+    <string name="re_verify_identity_card_body">Please re-verify your identity to access our full products and services</string>
+    <string name="re_verify_identity_card_cta">Reverify Account</string>
 
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
@@ -1447,6 +1457,7 @@
     <string name="card_info_description">At this time, we don’t support buying crypto with virtual credit and debit cards. You must use a physical card’s number, date and security code.</string>
 
     <string name="invalid_cvv">Invalid CVV</string>
+    <string name="card_verification">Card Verification</string>
     <string name="invalid_date">Invalid Date</string>
     <string name="invalid_card_number">Invalid Card Number</string>
     <string name="full_name">Full Name</string>

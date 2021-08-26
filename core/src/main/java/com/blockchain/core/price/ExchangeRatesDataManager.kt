@@ -4,6 +4,7 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.Calendar
 
 enum class HistoricalTimeSpan {
     DAY,
@@ -19,6 +20,12 @@ data class HistoricalRate(
 )
 
 typealias HistoricalRateList = List<HistoricalRate>
+
+data class Prices24HrWithDelta(
+    val delta24h: Double,
+    val previousRate: ExchangeRate,
+    val currentRate: ExchangeRate
+)
 
 interface ExchangeRates {
     fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat
@@ -41,10 +48,12 @@ interface ExchangeRatesDataManager : ExchangeRates {
     fun fiatToRateFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate>
 
     fun getHistoricRate(fromAsset: AssetInfo, secSinceEpoch: Long): Single<ExchangeRate>
+    fun getPricesWith24hDelta(fromAsset: AssetInfo): Single<Prices24HrWithDelta>
 
     fun getHistoricPriceSeries(
         asset: AssetInfo,
-        span: HistoricalTimeSpan
+        span: HistoricalTimeSpan,
+        now: Calendar = Calendar.getInstance()
     ): Single<HistoricalRateList>
 
     // Specialised call to historic rates for sparkline caching

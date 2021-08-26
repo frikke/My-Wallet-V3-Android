@@ -75,19 +75,9 @@
                     android:host="${DYNAMIC_LINK_HOST_2}"
                     android:scheme="https" />
             </intent-filter>
-
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:host="flow"
-                    android:scheme="blockchain" />
-            </intent-filter>
         </activity>
         <activity
-            android:name="piuk.blockchain.com.FeatureFlagsHandlingActivity"
+            android:name=".ui.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
             android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"

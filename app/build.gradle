@@ -8,6 +8,7 @@ apply from: '../quality/ktlint.gradle'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.squareup.sqldelight'
 
 buildProperties {
     secrets {
@@ -308,6 +309,7 @@ dependencies {
 
     // Google core
     implementation Libraries.googlePlayCore
+    implementation Libraries.installReferrer
 
     implementation Libraries.appCompat
     implementation Libraries.navigationControllerCore
@@ -345,6 +347,10 @@ dependencies {
     implementation Libraries.yearclass
     implementation Libraries.stetho
     implementation Libraries.stethoOkHttp
+
+    // Database
+    implementation Libraries.sqlDelight
+    implementation Libraries.rxSqlDelight
 
     // Navigation
     implementation Libraries.navigationControllerCore

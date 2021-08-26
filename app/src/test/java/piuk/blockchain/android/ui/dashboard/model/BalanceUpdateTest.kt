@@ -1,10 +1,12 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.ether
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
+import piuk.blockchain.android.coincore.AccountBalance
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
@@ -14,7 +16,7 @@ class BalanceUpdateTest {
     @Test(expected = IllegalStateException::class)
     fun `Updating a mismatched currency throws an exception`() {
 
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
@@ -25,7 +27,7 @@ class BalanceUpdateTest {
 
         val subject = BalanceUpdate(
             CryptoCurrency.BTC,
-            1.bitcoinCash()
+            AccountBalance(1.bitcoinCash(), 1.bitcoinCash(), 1.bitcoinCash(), mock())
         )
 
         subject.reduce(initialState)
@@ -33,7 +35,7 @@ class BalanceUpdateTest {
 
     @Test
     fun `update changes effects correct asset`() {
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
@@ -44,7 +46,7 @@ class BalanceUpdateTest {
 
         val subject = BalanceUpdate(
             CryptoCurrency.BTC,
-            1.bitcoin()
+            AccountBalance(1.bitcoin(), 1.bitcoin(), 1.bitcoin(), mock())
         )
 
         val result = subject.reduce(initialState)
@@ -59,7 +61,7 @@ class BalanceUpdateTest {
 
     @Test
     fun `receiving a valid balance update clears any balance errors`() {
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState.copy(hasBalanceError = true),
@@ -70,7 +72,7 @@ class BalanceUpdateTest {
 
         val subject = BalanceUpdate(
             CryptoCurrency.ETHER,
-            1.ether()
+            AccountBalance(1.ether(), 1.ether(), 1.ether(), mock())
         )
 
         val result = subject.reduce(initialState)
