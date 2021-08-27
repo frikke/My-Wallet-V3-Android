@@ -1,4 +1,4 @@
-package piuk.blockchain.android.data.biometrics
+package com.blockchain.biometrics
 
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
@@ -29,25 +29,26 @@ interface CryptographyManager {
     /**
      * The Cipher created with [getInitializedCipherForEncryption] is used here
      */
-    fun encryptData(plaintext: String, cipher: Cipher): EncryptedData
+    fun encryptData(byteArray: ByteArray, cipher: Cipher): EncryptedData
 
     /**
      * The Cipher created with [getInitializedCipherForDecryption] is used here
      */
-    fun decryptData(ciphertext: ByteArray, cipher: Cipher): String
+    fun decryptData(ciphertext: ByteArray, cipher: Cipher): ByteArray
 
     fun clearData(secretKeyName: String)
 }
 
 data class EncryptedData(val ciphertext: ByteArray, val initializationVector: ByteArray)
 
-sealed class CipherState
-data class CipherSuccess(val cipher: Cipher) : CipherState()
-data class CipherInvalidatedError(val e: Throwable) : CipherState()
-data class CipherNoSuitableBiometrics(val e: Throwable) : CipherState()
-data class CipherOtherError(val e: Throwable) : CipherState()
+sealed class CipherState {
+    data class CipherSuccess(val cipher: Cipher) : CipherState()
+    data class CipherInvalidatedError(val e: Throwable) : CipherState()
+    data class CipherNoSuitableBiometrics(val e: Throwable) : CipherState()
+    data class CipherOtherError(val e: Throwable) : CipherState()
+}
 
-class CryptographyManagerImpl : CryptographyManager {
+class CryptographyManagerImpl() : CryptographyManager {
     private val KEY_SIZE: Int = 256
     private val ANDROID_KEYSTORE = "AndroidKeyStore"
     private val ENCRYPTION_BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC
@@ -70,15 +71,15 @@ class CryptographyManagerImpl : CryptographyManager {
                 require(initializationVector != null)
                 cipher.init(mode, secretKey, IvParameterSpec(initializationVector))
             }
-            CipherSuccess(cipher)
+            CipherState.CipherSuccess(cipher)
         } catch (e: KeyPermanentlyInvalidatedException) {
             removeKey(keyName)
-            CipherInvalidatedError(e)
+            CipherState.CipherInvalidatedError(e)
         } catch (e: InvalidAlgorithmParameterException) {
             removeKey(keyName)
-            CipherNoSuitableBiometrics(e)
+            CipherState.CipherNoSuitableBiometrics(e)
         } catch (e: Exception) {
-            CipherOtherError(e)
+            CipherState.CipherOtherError(e)
         }
     }
 
@@ -94,15 +95,13 @@ class CryptographyManagerImpl : CryptographyManager {
         removeKey(secretKeyName)
     }
 
-    override fun encryptData(plaintext: String, cipher: Cipher): EncryptedData {
-        val ciphertext = cipher.doFinal(plaintext.toByteArray(Charset.forName("UTF-8")))
+    override fun encryptData(byteArray: ByteArray, cipher: Cipher): EncryptedData {
+        val ciphertext = cipher.doFinal(byteArray)
         return EncryptedData(ciphertext, cipher.iv)
     }
 
-    override fun decryptData(ciphertext: ByteArray, cipher: Cipher): String {
-        val plaintext = cipher.doFinal(ciphertext)
-        return String(plaintext, Charset.forName("UTF-8"))
-    }
+    override fun decryptData(ciphertext: ByteArray, cipher: Cipher): ByteArray =
+        cipher.doFinal(ciphertext)
 
     private fun getCipher(): Cipher {
         val transformation = "$ENCRYPTION_ALGORITHM/$ENCRYPTION_BLOCK_MODE/$ENCRYPTION_PADDING"

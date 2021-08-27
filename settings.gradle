@@ -11,4 +11,7 @@ include ':app',
         ':testutils',
         ':testutils-android',
         ':veriff',
-        ':componentlib'
+        ':componentlib',
+        ':common-mp:utils',
+        ':common-mp:interface',
+        ':biometrics'
