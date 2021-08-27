@@ -1,4 +1,4 @@
-package com.blockchain.coreui
+package com.blockchain.componentlib
 
 import android.content.Context
 import android.util.AttributeSet
@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.blockchain.coreui.databinding.ViewSplitButtonBinding
+import com.blockchain.componentlib.databinding.ViewSplitButtonBinding
 
 class SplitButton : ConstraintLayout {
     private val binding = ViewSplitButtonBinding.inflate(LayoutInflater.from(context), this)

@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/value_text"
+        android:id="@+id/title"
         style="@style/TextAppearance.Blockchain.Title2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -42,18 +42,26 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Live Prices"
-        app:layout_constraintBottom_toTopOf="@id/price_list"
+        app:layout_constraintBottom_toTopOf="@id/price_list_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/live_price_icon"
-        app:layout_constraintTop_toBottomOf="@id/value_text"
+        app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="Live Prices" />
 
-    <com.blockchain.coreui.price.PriceListView
-        android:id="@+id/price_list"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/price_list_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/live_price_text"
-        tools:listitem="@layout/view_price_row" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/live_price_text">
+
+        <com.blockchain.componentlib.price.DummyPriceListView
+            android:id="@+id/price_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/view_price_row" />
+    </androidx.core.widget.NestedScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.blockchain.coreui.carousel.CarouselView
+    <com.blockchain.componentlib.carousel.CarouselView
         android:id="@+id/carousel"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -47,7 +47,7 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:visibility="visible" />
 
-    <com.blockchain.coreui.PillButton
+    <com.blockchain.componentlib.PillButton
         android:id="@+id/btn_create"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.blockchain.coreui.SplitButton
+    <com.blockchain.componentlib.SplitButton
         android:id="@+id/btn_login_restore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
         app:leftButtonText="@string/restore_wallet_cta"
         app:rightButtonText="Log In →" />
 
-    <com.blockchain.coreui.carousel.CarouselIndicatorView
+    <com.blockchain.componentlib.carousel.CarouselIndicatorView
         android:id="@+id/carousel_indicators"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

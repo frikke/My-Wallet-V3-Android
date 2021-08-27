@@ -290,7 +290,7 @@ dependencies {
     implementation project(':notifications')
     implementation project(':veriff')
     implementation project(':blockchainApi')
-    implementation project(':coreui')
+    implementation project(':componentlib')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

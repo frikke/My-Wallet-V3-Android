@@ -1,4 +1,4 @@
-package com.blockchain.coreui.price
+package com.blockchain.componentlib.price
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class PriceListView : RecyclerView {
+class DummyPriceListView : RecyclerView {
     constructor(context: Context) : super(context) {
         init()
     }
@@ -26,15 +26,19 @@ class PriceListView : RecyclerView {
         init()
     }
 
-    val listAdapter = PriceAdapter()
+    private val listAdapter = PriceAdapter()
 
     private fun init() {
         layoutManager = LinearLayoutManager(context, VERTICAL, false)
         adapter = listAdapter
     }
+
+    fun submitList(priceViews: List<PriceView.Price>) {
+        listAdapter.submitList(priceViews)
+    }
 }
 
-class PriceAdapter(
+private class PriceAdapter(
     diffCallback: DiffUtil.ItemCallback<PriceView.Price> = object :
         DiffUtil.ItemCallback<PriceView.Price>() {
         override fun areItemsTheSame(
@@ -52,15 +56,15 @@ class PriceAdapter(
             return oldItem == newItem
         }
     }
-) : ListAdapter<PriceView.Price, PriceAdapter.ViewHolder>(diffCallback) {
+) : ListAdapter<PriceView.Price, PriceAdapter.PriceViewHolder>(diffCallback) {
 
-    class ViewHolder(val priceView: PriceView) : RecyclerView.ViewHolder(priceView.rootView)
+    class PriceViewHolder(val priceView: PriceView) : RecyclerView.ViewHolder(priceView.rootView)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(PriceView(parent.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PriceViewHolder {
+        return PriceViewHolder(PriceView(parent.context))
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PriceViewHolder, position: Int) {
         holder.priceView.price = getItem(position)
     }
 }

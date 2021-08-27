@@ -1,10 +1,10 @@
-package com.blockchain.coreui
+package com.blockchain.componentlib
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.blockchain.coreui.databinding.SplashScreenBinding
+import com.blockchain.componentlib.databinding.SplashScreenBinding
 
 class SplashScreen : ConstraintLayout {
 

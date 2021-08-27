@@ -1,4 +1,4 @@
-package com.blockchain.coreui.carousel
+package com.blockchain.componentlib.carousel
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -14,10 +14,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
-import com.blockchain.coreui.R
-import com.blockchain.coreui.databinding.ViewCarouselListBinding
-import com.blockchain.coreui.databinding.ViewCarouselValueBinding
-import com.blockchain.coreui.price.PriceView
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.databinding.ViewCarouselListBinding
+import com.blockchain.componentlib.databinding.ViewCarouselValueBinding
+import com.blockchain.componentlib.price.PriceView
 
 class CarouselView : RecyclerView {
 
@@ -40,13 +40,17 @@ class CarouselView : RecyclerView {
     @LayoutRes
     var layout = R.layout.view_carousel_value
 
-    val listAdapter = CarouselAdapter()
+    private val listAdapter = CarouselAdapter()
 
     private fun initWithAttributes() {
         layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
         adapter = listAdapter
         val helper: SnapHelper = PagerSnapHelper()
         helper.attachToRecyclerView(this)
+    }
+
+    fun submitList(carouselItems: List<CarouselViewType>) {
+        listAdapter.submitList(carouselItems)
     }
 }
 
@@ -56,7 +60,7 @@ sealed class CarouselViewType {
         CarouselViewType()
 }
 
-class CarouselAdapter(
+private class CarouselAdapter(
     diffCallback: DiffUtil.ItemCallback<CarouselViewType> = object :
         DiffUtil.ItemCallback<CarouselViewType>() {
         override fun areItemsTheSame(
@@ -78,17 +82,17 @@ class CarouselAdapter(
             return oldItem == newItem
         }
     }
-) : ListAdapter<CarouselViewType, CarouselAdapter.ViewHolder>(diffCallback) {
+) : ListAdapter<CarouselViewType, CarouselAdapter.CarouselViewHolder>(diffCallback) {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
+    class CarouselViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarouselViewHolder {
         return when (viewType) {
-            ViewType.ValueProp.ordinal -> ViewHolder(
+            ViewType.ValueProp.ordinal -> CarouselViewHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.view_carousel_value, parent, false)
             )
-            ViewType.List.ordinal -> ViewHolder(
+            ViewType.List.ordinal -> CarouselViewHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.view_carousel_list, parent, false)
             )
@@ -96,13 +100,13 @@ class CarouselAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: CarouselViewHolder, position: Int) {
         when (val item = getItem(position)) {
             is CarouselViewType.PriceList -> {
                 val itemBinding = ViewCarouselListBinding.bind(holder.itemView)
-                itemBinding.valueText.text = item.text
+                itemBinding.title.text = item.text
                 itemBinding.livePriceText.text = item.secondaryText
-                itemBinding.priceList.listAdapter.submitList(item.prices)
+                itemBinding.priceList.submitList(item.prices)
             }
             is CarouselViewType.ValueProp -> {
                 val itemBinding = ViewCarouselValueBinding.bind(holder.itemView)

@@ -1,4 +1,4 @@
-package com.blockchain.coreui.price
+package com.blockchain.componentlib.price
 
 import android.content.Context
 import android.text.Spannable
@@ -8,9 +8,9 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import com.blockchain.coreui.R
-import com.blockchain.coreui.databinding.ViewPriceRowBinding
-import com.blockchain.coreui.utils.toPx
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.databinding.ViewPriceRowBinding
+import com.blockchain.componentlib.utils.toPx
 import com.bumptech.glide.Glide
 import java.text.NumberFormat
 

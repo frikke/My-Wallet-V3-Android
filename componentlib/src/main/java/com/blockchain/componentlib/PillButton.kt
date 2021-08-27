@@ -1,4 +1,4 @@
-package com.blockchain.coreui
+package com.blockchain.componentlib
 
 import android.content.Context
 import android.util.AttributeSet
@@ -9,7 +9,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import com.blockchain.coreui.databinding.ViewPillButtonBinding
+import com.blockchain.componentlib.databinding.ViewPillButtonBinding
 
 class PillButton : ConstraintLayout {
     private val binding = ViewPillButtonBinding.inflate(LayoutInflater.from(context), this)

@@ -1,4 +1,4 @@
-package com.blockchain.coreui.carousel
+package com.blockchain.componentlib.carousel
 
 import android.content.Context
 import android.util.AttributeSet
@@ -8,8 +8,8 @@ import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.coreui.R
-import com.blockchain.coreui.databinding.ViewCarouselIndicatorBinding
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.databinding.ViewCarouselIndicatorBinding
 
 class CarouselIndicatorView : RecyclerView {
 

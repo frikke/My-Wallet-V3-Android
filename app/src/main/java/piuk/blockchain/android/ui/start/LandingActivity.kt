@@ -8,8 +8,9 @@ import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.blockchain.coreui.carousel.CarouselViewType
-import com.blockchain.coreui.price.PriceView
+import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.carousel.CarouselViewType
+import com.blockchain.componentlib.price.PriceView
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
@@ -73,18 +74,18 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 btnCreate.setOnClickListener { launchCreateWalletActivity() }
 
                 // Mock prices for now
-                carousel.listAdapter.submitList(
+                carousel.submitList(
                     listOf(
                         CarouselViewType.ValueProp(
-                            com.blockchain.coreui.R.drawable.carousel_placeholder_1,
+                            com.blockchain.componentlib.R.drawable.carousel_placeholder_1,
                             this@LandingActivity.getString(R.string.landing_value_prop_one)
                         ),
                         CarouselViewType.ValueProp(
-                            com.blockchain.coreui.R.drawable.carousel_placeholder_2,
+                            com.blockchain.componentlib.R.drawable.carousel_placeholder_2,
                             this@LandingActivity.getString(R.string.landing_value_prop_two)
                         ),
                         CarouselViewType.ValueProp(
-                            com.blockchain.coreui.R.drawable.carousel_placeholder_3,
+                            com.blockchain.componentlib.R.drawable.carousel_placeholder_3,
                             this@LandingActivity.getString(R.string.landing_value_prop_three)
                         ),
                         CarouselViewType.PriceList(
@@ -104,12 +105,15 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                                 ),
                                 PriceView.Price(ETC.logo, ETC.name, ETC.ticker, "$4540.21", 0.05)
                             )
-                        )
+                        ),
                     ))
 
                 carousel.setOnScrollChangeListener { _, _, _, _, _ ->
-                    carouselIndicators.selectedIndicator =
-                        (carousel.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: 0
+                    val currentItem =
+                        (carousel.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition()
+                    if (currentItem != RecyclerView.NO_POSITION) {
+                        carouselIndicators.selectedIndicator = currentItem ?: 0
+                    }
                 }
             }
         } else {
