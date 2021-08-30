@@ -41,6 +41,7 @@ class CarouselView : RecyclerView {
     var layout = R.layout.view_carousel_value
 
     private val listAdapter = CarouselAdapter()
+    private var carouselIndicatorView: CarouselIndicatorView? = null
 
     private fun initWithAttributes() {
         layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
@@ -51,12 +52,27 @@ class CarouselView : RecyclerView {
 
     fun submitList(carouselItems: List<CarouselViewType>) {
         listAdapter.submitList(carouselItems)
+        carouselIndicatorView?.numberOfIndicators = listAdapter.itemCount
+    }
+
+    fun setCarouselIndicator(carouselIndicator: CarouselIndicatorView) {
+        carouselIndicatorView = carouselIndicator
+
+        this.setOnScrollChangeListener { _, _, _, _, _ ->
+            val currentItem =
+                (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition()
+            if (currentItem != NO_POSITION) {
+                carouselIndicatorView?.selectedIndicator = currentItem ?: 0
+            }
+        }
+
+        carouselIndicatorView?.numberOfIndicators = listAdapter.itemCount
     }
 }
 
 sealed class CarouselViewType {
     data class ValueProp(@DrawableRes val image: Int, val text: String) : CarouselViewType()
-    data class PriceList(val text: String, val secondaryText: String, val prices: List<PriceView.Price>) :
+    data class PriceList(val text: String, val secondaryText: String) :
         CarouselViewType()
 }
 
@@ -106,7 +122,6 @@ private class CarouselAdapter(
                 val itemBinding = ViewCarouselListBinding.bind(holder.itemView)
                 itemBinding.title.text = item.text
                 itemBinding.livePriceText.text = item.secondaryText
-                itemBinding.priceList.submitList(item.prices)
             }
             is CarouselViewType.ValueProp -> {
                 val itemBinding = ViewCarouselValueBinding.bind(holder.itemView)

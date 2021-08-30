@@ -6,6 +6,7 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.R
@@ -17,7 +18,7 @@ import java.text.NumberFormat
 class PriceView : ConstraintLayout {
     private val binding = ViewPriceRowBinding.inflate(LayoutInflater.from(context), this)
 
-    data class Price(val icon: String, val name: String, val ticker: String, val price: String, val gain: Double)
+    data class Price(@DrawableRes val icon: Int, val name: String, val ticker: String, val price: String, val gain: Double)
 
     constructor(context: Context) : super(context) {
         init()

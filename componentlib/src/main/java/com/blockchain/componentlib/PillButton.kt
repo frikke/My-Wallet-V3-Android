@@ -8,7 +8,6 @@ import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
-import androidx.core.view.isVisible
 import com.blockchain.componentlib.databinding.ViewPillButtonBinding
 
 class PillButton : ConstraintLayout {
@@ -23,7 +22,7 @@ class PillButton : ConstraintLayout {
     var showProgress: Boolean = false
         set(value) {
             field = value
-            binding.pillButtonProgress.isVisible = value
+            binding.pillButtonProgress.visibility = if (value) View.VISIBLE else View.GONE
             binding.pillButtonButton.text = if (value) null else (text)
         }
 

@@ -34,9 +34,11 @@ android {
 }
 
 dependencies {
-    implementation Libraries.androidXCore
     implementation Libraries.appCompat
     implementation Libraries.design
     implementation Libraries.glide
     implementation Libraries.constraintLayout
+
+    implementation Libraries.lifecycleViewModel
+    implementation Libraries.lifecycleExtensions
 }

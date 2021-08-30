@@ -7,16 +7,12 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.carousel.CarouselViewType
-import com.blockchain.componentlib.price.PriceView
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
-import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -24,14 +20,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.loader.ALGO
-import piuk.blockchain.android.coincore.loader.CLOUT
-import piuk.blockchain.android.coincore.loader.DOGE
-import piuk.blockchain.android.coincore.loader.DOT
-import piuk.blockchain.android.coincore.loader.ETC
-import piuk.blockchain.android.coincore.loader.MOB
-import piuk.blockchain.android.coincore.loader.STX
-import piuk.blockchain.android.coincore.loader.THETA
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingBinding
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
@@ -43,8 +31,8 @@ import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.copyHashOnLongClick
+import piuk.blockchain.android.util.visible
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
@@ -90,31 +78,10 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                         ),
                         CarouselViewType.PriceList(
                             this@LandingActivity.getString(R.string.landing_value_prop_four),
-                            this@LandingActivity.getString(R.string.landing_live_prices),
-                            listOf(
-                                PriceView.Price(CLOUT.logo, CLOUT.name, CLOUT.ticker, "$4.00", -0.045),
-                                PriceView.Price(ALGO.logo, ALGO.name, ALGO.ticker, "$451.00", 0.052),
-                                PriceView.Price(DOT.logo, DOT.name, DOT.ticker, "$4.23", -0.02),
-                                PriceView.Price(DOGE.logo, DOGE.name, DOGE.ticker, "$0.52", 0.42),
-                                PriceView.Price(STX.logo, STX.name, STX.ticker, "$4523.11", 0.2134),
-                                PriceView.Price(MOB.logo, MOB.name, MOB.ticker, "$3.40", -0.0523),
-                                PriceView.Price(THETA.logo, THETA.name, THETA.ticker, "$4.00", -0.4),
-                                PriceView.Price(
-                                    CryptoCurrency.BTC.logo, CryptoCurrency.BTC.name, CryptoCurrency.BTC.ticker,
-                                    "$42114.23", 0.21
-                                ),
-                                PriceView.Price(ETC.logo, ETC.name, ETC.ticker, "$4540.21", 0.05)
-                            )
-                        ),
+                            this@LandingActivity.getString(R.string.landing_live_prices)
+                        )
                     ))
-
-                carousel.setOnScrollChangeListener { _, _, _, _, _ ->
-                    val currentItem =
-                        (carousel.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition()
-                    if (currentItem != RecyclerView.NO_POSITION) {
-                        carouselIndicators.selectedIndicator = currentItem ?: 0
-                    }
-                }
+                carousel.setCarouselIndicator(carouselIndicators)
             }
         } else {
             setContentView(binding.root)
@@ -163,17 +130,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { isAccountRecoveryEnabled ->
-                    recoverButton.apply {
-                        if (isAccountRecoveryEnabled &&
-                            internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)
-                        ) {
-                            text = getString(R.string.restore_wallet_cta)
-                            setOnClickListener { launchSSOAccountRecoveryFlow() }
-                        } else {
-                            text = getString(R.string.recover_funds)
-                            setOnClickListener { showFundRecoveryWarning() }
-                        }
-                    }
+                    setupRecoverButton(recoverButton, isAccountRecoveryEnabled)
                 },
                 onError = {
                     loginButton.setOnClickListener { launchLoginActivity() }
@@ -183,6 +140,20 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                     }
                 }
             )
+    }
+
+    private fun setupRecoverButton(recoverButton: Button, isAccountRecoveryEnabled: Boolean) {
+        recoverButton.apply {
+            if (isAccountRecoveryEnabled &&
+                internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)
+            ) {
+                text = getString(R.string.restore_wallet_cta)
+                setOnClickListener { launchSSOAccountRecoveryFlow() }
+            } else {
+                text = getString(R.string.recover_funds)
+                setOnClickListener { showFundRecoveryWarning() }
+            }
+        }
     }
 
     private fun launchCreateWalletActivity() {
