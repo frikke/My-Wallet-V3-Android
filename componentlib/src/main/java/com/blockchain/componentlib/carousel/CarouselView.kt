@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.SnapHelper
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.databinding.ViewCarouselListBinding
 import com.blockchain.componentlib.databinding.ViewCarouselValueBinding
-import com.blockchain.componentlib.price.PriceView
 
 class CarouselView : RecyclerView {
 

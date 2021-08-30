@@ -18,7 +18,13 @@ import java.text.NumberFormat
 class PriceView : ConstraintLayout {
     private val binding = ViewPriceRowBinding.inflate(LayoutInflater.from(context), this)
 
-    data class Price(@DrawableRes val icon: Int, val name: String, val ticker: String, val price: String, val gain: Double)
+    data class Price(
+        @DrawableRes val icon: Int,
+        val name: String,
+        val ticker: String,
+        val price: String,
+        val gain: Double
+    )
 
     constructor(context: Context) : super(context) {
         init()
