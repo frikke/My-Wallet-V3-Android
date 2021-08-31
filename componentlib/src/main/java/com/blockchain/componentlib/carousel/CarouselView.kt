@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
-import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -35,9 +34,6 @@ class CarouselView : RecyclerView {
     ) {
         initWithAttributes()
     }
-
-    @LayoutRes
-    var layout = R.layout.view_carousel_value
 
     private val listAdapter = CarouselAdapter()
     private var carouselIndicatorView: CarouselIndicatorView? = null
