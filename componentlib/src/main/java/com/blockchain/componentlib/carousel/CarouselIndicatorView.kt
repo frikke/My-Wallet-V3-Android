@@ -104,7 +104,7 @@ private class CarouselIndicatorAdapter : RecyclerView.Adapter<CarouselIndicatorA
         indicatorColor?.let {
             holder.itemView.background.setTint(ContextCompat.getColor(holder.itemView.context, it))
         }
-        holder.itemView.alpha = if (position == selectedIndicator) {
+        holder.itemView.alpha = if (position != selectedIndicator) {
             0.4f
         } else {
             1f
