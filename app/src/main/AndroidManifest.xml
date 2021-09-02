@@ -83,6 +83,11 @@
             android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"
             android:theme="@style/AppTheme" />
         <activity
+            android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
+            android:clearTaskOnLaunch="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name=".ui.home.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.MainActivity"

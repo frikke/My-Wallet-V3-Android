@@ -16,5 +16,6 @@ enum class GatedFeature(
     ACCOUNT_RECOVERY("Enable New Account Recovery Flow"),
     FULL_SCREEN_TXS("Enable full screen tx flow", true),
     LOCALISATION_SIGN_UP("Enable localisation sign up screen"),
-    NEW_SPLIT_DASHBOARD("Enable New Dashboard"),
+    NEW_ONBOARDING("New onboarding design"),
+    NEW_SPLIT_DASHBOARD("Enable New Dashboard")
 }

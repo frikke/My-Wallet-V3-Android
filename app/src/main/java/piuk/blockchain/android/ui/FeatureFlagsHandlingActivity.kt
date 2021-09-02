@@ -1,10 +1,12 @@
 package piuk.blockchain.android.ui
 
 import android.app.LauncherActivity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import com.blockchain.componentlib.demo.ComponentLibDemoActivity
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
@@ -67,6 +69,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
             btnResetPrefs.setOnClickListener { onResetPrefs() }
             clearSimpleBuyState.setOnClickListener { clearSimpleBuyState() }
             btnStoreLinkId.setOnClickListener { prefs.pitToWalletLinkId = "11111111-2222-3333-4444-55556666677" }
+            btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
             firebaseToken.text = prefs.firebaseToken
 
@@ -128,6 +131,10 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
         loginState.clearPin()
 
         showToast("Prefs Reset")
+    }
+
+    private fun onComponentLib() {
+        startActivity(Intent(this, ComponentLibDemoActivity::class.java))
     }
 
     override fun onPause() {

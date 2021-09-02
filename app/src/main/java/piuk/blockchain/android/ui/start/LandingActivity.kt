@@ -5,7 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
@@ -20,6 +22,7 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingBinding
+import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.createwallet.NewCreateWalletActivity
@@ -44,29 +47,71 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         ActivityLandingBinding.inflate(layoutInflater)
     }
 
+    private val onboardingBinding: ActivityLandingOnboardingBinding by lazy {
+        ActivityLandingOnboardingBinding.inflate(layoutInflater)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
 
-        with(binding) {
-            btnCreate.setOnClickListener { launchCreateWalletActivity() }
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            setContentView(onboardingBinding.root)
 
-            if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
-                showConnectivityWarning()
-            } else {
-                presenter.checkForRooted()
+            with(onboardingBinding) {
+
+                btnCreate.setOnClickListener { launchCreateWalletActivity() }
+
+                // Mock prices for now
+                carousel.submitList(
+                    listOf(
+                        CarouselViewType.ValueProp(
+                            com.blockchain.componentlib.R.drawable.carousel_placeholder_1,
+                            this@LandingActivity.getString(R.string.landing_value_prop_one)
+                        ),
+                        CarouselViewType.ValueProp(
+                            com.blockchain.componentlib.R.drawable.carousel_placeholder_2,
+                            this@LandingActivity.getString(R.string.landing_value_prop_two)
+                        ),
+                        CarouselViewType.ValueProp(
+                            com.blockchain.componentlib.R.drawable.carousel_placeholder_3,
+                            this@LandingActivity.getString(R.string.landing_value_prop_three)
+                        ),
+                        CarouselViewType.PriceList(
+                            this@LandingActivity.getString(R.string.landing_value_prop_four),
+                            this@LandingActivity.getString(R.string.landing_live_prices)
+                        )
+                    ))
+                carousel.setCarouselIndicator(carouselIndicators)
             }
+        } else {
+            setContentView(binding.root)
 
-            textVersion.text =
-                "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) ${BuildConfig.COMMIT_HASH}"
+            with(binding) {
+                btnCreate.setOnClickListener { launchCreateWalletActivity() }
 
-            textVersion.copyHashOnLongClick(this@LandingActivity)
+                if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
+                    showConnectivityWarning()
+                } else {
+                    presenter.checkForRooted()
+                }
+
+                textVersion.text =
+                    "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) ${BuildConfig.COMMIT_HASH}"
+
+                textVersion.copyHashOnLongClick(this@LandingActivity)
+            }
         }
     }
 
     override fun onStart() {
         super.onStart()
-        setupSSOControls()
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            setupSSOControls(
+                onboardingBinding.btnLoginRestore.rightButton, onboardingBinding.btnLoginRestore.leftButton
+            )
+        } else {
+            setupSSOControls(binding.btnLogin, binding.btnRecover)
+        }
     }
 
     override fun onStop() {
@@ -77,35 +122,37 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     private fun launchSSOAccountRecoveryFlow() =
         startActivity(Intent(this, AccountRecoveryActivity::class.java))
 
-    private fun setupSSOControls() {
-        with(binding) {
-            btnLogin.setOnClickListener {
-                launchSSOLoginActivity()
-            }
-            compositeDisposable += ssoARFF.enabled
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onSuccess = { isAccountRecoveryEnabled ->
-                        btnRecover.apply {
-                            if (isAccountRecoveryEnabled &&
-                                internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)
-                            ) {
-                                text = getString(R.string.restore_wallet_cta)
-                                setOnClickListener { launchSSOAccountRecoveryFlow() }
-                            } else {
-                                text = getString(R.string.recover_funds)
-                                setOnClickListener { showFundRecoveryWarning() }
-                            }
-                        }
-                    },
-                    onError = {
-                        btnLogin.setOnClickListener { launchLoginActivity() }
-                        btnRecover.apply {
-                            text = getString(R.string.recover_funds)
-                            setOnClickListener { showFundRecoveryWarning() }
-                        }
+    private fun setupSSOControls(loginButton: Button, recoverButton: Button) {
+        loginButton.setOnClickListener {
+            launchSSOLoginActivity()
+        }
+        compositeDisposable += ssoARFF.enabled
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = { isAccountRecoveryEnabled ->
+                    setupRecoverButton(recoverButton, isAccountRecoveryEnabled)
+                },
+                onError = {
+                    loginButton.setOnClickListener { launchLoginActivity() }
+                    recoverButton.apply {
+                        text = getString(R.string.recover_funds)
+                        setOnClickListener { showFundRecoveryWarning() }
                     }
-                )
+                }
+            )
+    }
+
+    private fun setupRecoverButton(recoverButton: Button, isAccountRecoveryEnabled: Boolean) {
+        recoverButton.apply {
+            if (isAccountRecoveryEnabled &&
+                internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)
+            ) {
+                text = getString(R.string.restore_wallet_cta)
+                setOnClickListener { launchSSOAccountRecoveryFlow() }
+            } else {
+                text = getString(R.string.recover_funds)
+                setOnClickListener { showFundRecoveryWarning() }
+            }
         }
     }
 
@@ -156,9 +203,14 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         )
 
     override fun showApiOutageMessage() {
-        binding.layoutWarning.root.visible()
+        val warningLayout = if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            onboardingBinding.layoutWarning
+        } else {
+            binding.layoutWarning
+        }
+        warningLayout.root.visible()
         val learnMoreMap = mapOf<String, Uri>("learn_more" to Uri.parse(WALLET_STATUS_URL))
-        binding.layoutWarning.warningMessage.apply {
+        warningLayout.warningMessage.apply {
             movementMethod = LinkMovementMethod.getInstance()
             text = StringUtils.getStringWithMappedAnnotations(
                 this@LandingActivity, R.string.wallet_issue_message, learnMoreMap
