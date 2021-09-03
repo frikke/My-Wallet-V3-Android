@@ -207,12 +207,20 @@ class SimpleBuyCryptoFragment :
                 check(lastState?.maxFiatAmount != null)
                 check(lastState?.selectedCryptoAsset != null)
 
+                val paymentMethodDetails = lastState?.selectedPaymentMethodDetails
+                check(paymentMethodDetails != null)
+
                 analytics.logEvent(
                     BuyAmountEntered(
-                        lastState?.recurringBuyFrequency?.name ?: return,
-                        lastState?.order?.amount ?: return,
-                        lastState?.maxFiatAmount ?: return,
-                        lastState?.selectedCryptoAsset?.ticker ?: return
+                        frequency = lastState?.recurringBuyFrequency?.name ?: return,
+                        inputAmount = lastState?.order?.amount ?: return,
+                        maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
+                            paymentMethodDetails.limits.max
+                            lastState?.order?.amount
+                        } else null,
+                        outputCurrency = lastState?.selectedCryptoAsset?.ticker ?: return,
+                        paymentMethod = lastState?.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString()
+                            ?: return
                     )
                 )
             }

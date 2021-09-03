@@ -184,17 +184,19 @@ class CurrencyChangedFromBuyForm(fiatCurrency: String) : AnalyticsEvent {
 class BuyAmountEntered(
     frequency: String,
     inputAmount: Money,
-    maxAmount: Money,
-    outputCurrency: String
+    maxCardLimit: Money?,
+    outputCurrency: String,
+    paymentMethod: String
 ) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_AMOUNT_ENTERED.eventName
     override val params: Map<String, Serializable> = mapOf(
         "frequency" to frequency,
         "input_amount" to inputAmount.toBigDecimal(),
         "input_currency" to inputAmount.currencyCode,
-        "input_amount_max" to maxAmount.toBigDecimal(),
-        "output_currency" to outputCurrency
-    )
+        "max_card_limit" to maxCardLimit?.toBigDecimal(),
+        "output_currency" to outputCurrency,
+        "payment_method" to paymentMethod
+    ).withoutNullValues()
 }
 
 class BuySellViewedEvent(private val type: BuySellType? = null) : AnalyticsEvent {

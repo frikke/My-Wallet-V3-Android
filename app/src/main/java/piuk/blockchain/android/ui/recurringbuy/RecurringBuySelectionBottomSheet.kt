@@ -105,13 +105,13 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         with(binding) {
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
+            }
+            recurringBuySelectCta.setOnClickListener {
                 analytics.logEvent(
                     BuyFrequencySelected(
                         frequency = selectedFrequency.name
                     )
                 )
-            }
-            recurringBuySelectCta.setOnClickListener {
                 host.onIntervalSelected(selectedFrequency)
                 dismiss()
             }
@@ -196,7 +196,6 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         }
 
     companion object {
-        const val PREVIOUS_SELECTED_STATE = "recurring_buy_check"
         const val FIAT_AMOUNT_SPENT = "fiat_amount_spent"
         const val CRYPTO_CODE = "crypto_asset_selected"
         fun newInstance(
