@@ -14,7 +14,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.utils.extensions.UnknownErrorException
+import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
 
 class LoginAuthModelTest {
     private lateinit var model: LoginAuthModel
@@ -48,7 +48,6 @@ class LoginAuthModelTest {
         val sessionId = "SESSION_ID"
         val guid = "GUID"
         val authToken = "TOKEN"
-        val responseBody = EMPTY_RESPONSE.toResponseBody(JSON_HEADER.toMediaTypeOrNull())
 
         whenever(interactor.getSessionId()).thenReturn(sessionId)
         whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
@@ -92,28 +91,51 @@ class LoginAuthModelTest {
         whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
             Single.just(mock())
         )
-        whenever(interactor.getPayload(guid, sessionId)).thenReturn(Single.error(UnknownErrorException()))
+        whenever(interactor.getPayload(guid, sessionId)).thenReturn(Single.error(AuthRequiredException()))
+        whenever(interactor.reset2FaRetries()).thenReturn(Completable.complete())
+        whenever(interactor.getRemaining2FaRetries()).thenReturn(3)
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.GetSessionId(guid, authToken))
 
         // Assert
-        testState.assertValues(
-            LoginAuthState(),
-            LoginAuthState(guid = guid, authToken = authToken, authStatus = AuthStatus.GetSessionId),
-            LoginAuthState(
+        testState.assertValueAt(0) {
+            it == LoginAuthState()
+        }.assertValueAt(1) {
+            it == LoginAuthState(
+                guid = guid,
+                authToken = authToken,
+                authStatus = AuthStatus.GetSessionId
+            )
+        }.assertValueAt(2) {
+            it == LoginAuthState(
                 guid = guid,
                 sessionId = sessionId,
                 authToken = authToken,
                 authStatus = AuthStatus.AuthorizeApproval
-            ),
-            LoginAuthState(
+            )
+        }.assertValueAt(3) {
+            it == LoginAuthState(
                 guid = guid,
                 sessionId = sessionId,
                 authToken = authToken,
                 authStatus = AuthStatus.GetPayload
             )
-        )
+        }.assertValueAt(4) {
+            it == LoginAuthState(
+                guid = guid,
+                sessionId = sessionId,
+                authToken = authToken,
+                authStatus = AuthStatus.AuthRequired
+            )
+        }.assertValueAt(5) {
+            it.guid == guid &&
+                it.sessionId == sessionId &&
+                it.authToken == authToken &&
+                it.authStatus == AuthStatus.AuthRequired &&
+                it.twoFaState is TwoFaCodeState.TwoFaRemainingTries &&
+                (it.twoFaState as TwoFaCodeState.TwoFaRemainingTries).remainingRetries == 3
+        }
     }
 
     @Test
