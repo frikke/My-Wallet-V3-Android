@@ -33,7 +33,7 @@
                 android:layout_marginLeft="@dimen/small_margin"
                 android:layout_marginTop="@dimen/small_margin"
                 android:layout_marginRight="@dimen/small_margin"
-                android:hint="@string/email"
+                android:hint="@string/sign_up_email"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -42,7 +42,7 @@
                     android:id="@+id/email_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:contentDescription="@string/sign_up_email"
+                    android:contentDescription="@string/email"
                     android:imeOptions="actionNext"
                     android:inputType="textEmailAddress"
                     android:maxLines="1" />
