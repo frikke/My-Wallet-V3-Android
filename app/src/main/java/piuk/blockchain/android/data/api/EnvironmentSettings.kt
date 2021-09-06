@@ -1,8 +1,8 @@
 package piuk.blockchain.android.data.api
 
+import com.blockchain.bitpay.BITPAY_LIVE_BASE
 import info.blockchain.wallet.api.Environment
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.data.api.bitpay.BITPAY_LIVE_BASE
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class EnvironmentSettings : EnvironmentConfig {

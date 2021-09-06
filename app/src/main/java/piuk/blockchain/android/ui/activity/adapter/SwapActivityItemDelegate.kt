@@ -7,7 +7,7 @@ import com.blockchain.nabu.datamanagers.CurrencyPair
 import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -53,23 +53,23 @@ private class SwapActivityItemViewHolder(
     ) {
         with(binding) {
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
-            (tx.currencyPair as? CurrencyPair.CryptoCurrencyPair)?.let {
+            (tx.currencyPair as? CurrencyPair.CryptoCurrencyPair)?.let { pair ->
                 txType.text = context.resources.getString(
                     R.string.tx_title_swap,
-                    it.source.ticker,
-                    it.destination.ticker
+                    pair.source.ticker,
+                    pair.destination.ticker
                 )
                 when {
                     tx.state.isPending -> icon.setTransactionIsConfirming()
                     tx.state.hasFailed -> icon.setTransactionHasFailed()
                     else -> {
                         icon.setImageResource(R.drawable.ic_tx_swap)
-                        icon.setAssetIconColoursWithTint(it.source)
+                        icon.setAssetIconColoursWithTint(pair.source)
                     }
                 }
                 txRoot.setOnClickListener {
                     onAccountClicked(
-                        tx.currencyPair.source, tx.txId, CryptoActivityType.SWAP
+                        pair.source, tx.txId, CryptoActivityType.SWAP
                     )
                 }
             }

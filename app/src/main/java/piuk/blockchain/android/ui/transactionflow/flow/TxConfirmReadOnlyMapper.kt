@@ -7,15 +7,14 @@ import piuk.blockchain.android.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import piuk.blockchain.android.urllinks.NETWORK_ERC20_EXPLANATION
 import piuk.blockchain.android.urllinks.NETWORK_FEE_EXPLANATION
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.FeeLevel
-import piuk.blockchain.android.coincore.TxConfirmationValue
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FeeInfo
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl
 import piuk.blockchain.android.util.StringUtils
 
@@ -61,12 +60,6 @@ enum class ConfirmationPropertyKey {
     FEE_ITEM_RECEIVING
 }
 
-class FeeInfo(
-    val feeAmount: Money,
-    val fiatAmount: Money,
-    val asset: AssetInfo
-)
-
 class ExchangePriceFormatter(
     private val context: Context
 ) : TxOptionsFormatterCheckout {
@@ -98,7 +91,7 @@ class ToPropertyFormatter(
             )
         } else {
             require(property.sourceAccount is CryptoAccount)
-            val asset = property.sourceAccount.asset
+            val asset = (property.sourceAccount as CryptoAccount).asset
             mapOf(
                 ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_send_to),
                 ConfirmationPropertyKey.TITLE to getLabel(

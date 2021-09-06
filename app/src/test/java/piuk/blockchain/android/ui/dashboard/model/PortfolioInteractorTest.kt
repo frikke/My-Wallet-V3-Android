@@ -16,10 +16,10 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.FiatAccount
-import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
-import piuk.blockchain.android.coincore.fiat.LinkedBanksFactory
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.fiat.LinkedBanksFactory
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 
 class PortfolioInteractorTest {

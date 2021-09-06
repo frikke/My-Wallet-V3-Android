@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import piuk.blockchain.android.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemSendConfirmNoteBinding
 import piuk.blockchain.android.ui.activity.detail.adapter.INPUT_FIELD_FLAGS
 import piuk.blockchain.android.ui.activity.detail.adapter.MAX_NOTE_LENGTH

@@ -14,10 +14,10 @@ import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.FeeLevel
-import piuk.blockchain.android.coincore.FeeSelection
-import piuk.blockchain.android.coincore.FeeState
-import piuk.blockchain.android.coincore.toUserFiat
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.FeeState
+import com.blockchain.coincore.toUserFiat
 import piuk.blockchain.android.databinding.DialogSheetFeeSelectionBinding
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics

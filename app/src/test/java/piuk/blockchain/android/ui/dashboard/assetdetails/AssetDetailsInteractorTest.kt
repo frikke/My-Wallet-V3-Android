@@ -18,10 +18,10 @@ import io.reactivex.rxjava3.core.Observable
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.AccountBalance
-import piuk.blockchain.android.coincore.AccountGroup
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.CryptoAsset
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.CryptoAsset
 import java.util.Locale
 
 class AssetDetailsInteractorTest {
@@ -66,24 +66,24 @@ class AssetDetailsInteractorTest {
             delta24h = 100.0
         )
 
-        val walletBalance = AccountBalance(
-            total = CryptoValue(TEST_ASSET, 2500.toBigInteger()),
-            actionable = CryptoValue(TEST_ASSET, 2500.toBigInteger()),
-            pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = currentRate
-        )
-        val custodialBalance = AccountBalance(
-            total = CryptoValue.zero(TEST_ASSET),
-            actionable = CryptoValue.zero(TEST_ASSET),
-            pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = currentRate
-        )
-        val interestBalance = AccountBalance(
-            total = CryptoValue.zero(TEST_ASSET),
-            actionable = CryptoValue.zero(TEST_ASSET),
-            pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = currentRate
-        )
+        val walletBalance = mock<AccountBalance> {
+            on { total }.thenReturn(CryptoValue(TEST_ASSET, 2500.toBigInteger()))
+            on { actionable }.thenReturn(CryptoValue(TEST_ASSET, 2500.toBigInteger()))
+            on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { exchangeRate }.thenReturn(currentRate)
+        }
+        val custodialBalance = mock<AccountBalance> {
+            on { total }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { actionable }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { exchangeRate }.thenReturn(currentRate)
+        }
+        val interestBalance = mock<AccountBalance> {
+            on { total }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { actionable }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { exchangeRate }.thenReturn(currentRate)
+        }
 
         val walletFiat = FiatValue.fromMinor(TEST_FIAT, 2500 * 30)
         val custodialFiat = FiatValue.fromMinor(TEST_FIAT, 0)

@@ -22,7 +22,7 @@ import androidx.appcompat.widget.AppCompatSpinner
 import androidx.recyclerview.widget.RecyclerView
 import piuk.blockchain.android.urllinks.URL_XLM_MIN_BALANCE
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemSendConfirmXlmMemoBinding
 import piuk.blockchain.android.ui.activity.detail.adapter.INPUT_FIELD_FLAGS
 import piuk.blockchain.android.ui.adapters.AdapterDelegate

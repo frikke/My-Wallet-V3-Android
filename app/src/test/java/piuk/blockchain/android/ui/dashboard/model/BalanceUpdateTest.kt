@@ -6,7 +6,6 @@ import com.blockchain.testutils.ether
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
-import piuk.blockchain.android.coincore.AccountBalance
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
@@ -27,7 +26,12 @@ class BalanceUpdateTest {
 
         val subject = BalanceUpdate(
             CryptoCurrency.BTC,
-            AccountBalance(1.bitcoinCash(), 1.bitcoinCash(), 1.bitcoinCash(), mock())
+            mock {
+                on { total }.thenReturn(1.bitcoinCash())
+                on { actionable }.thenReturn(1.bitcoinCash())
+                on { pending }.thenReturn(1.bitcoinCash())
+                on { exchangeRate }.thenReturn(mock())
+            }
         )
 
         subject.reduce(initialState)
@@ -46,7 +50,12 @@ class BalanceUpdateTest {
 
         val subject = BalanceUpdate(
             CryptoCurrency.BTC,
-            AccountBalance(1.bitcoin(), 1.bitcoin(), 1.bitcoin(), mock())
+            mock {
+                on { total }.thenReturn(1.bitcoin())
+                on { actionable }.thenReturn(1.bitcoin())
+                on { pending }.thenReturn(1.bitcoin())
+                on { exchangeRate }.thenReturn(mock())
+            }
         )
 
         val result = subject.reduce(initialState)
@@ -72,7 +81,12 @@ class BalanceUpdateTest {
 
         val subject = BalanceUpdate(
             CryptoCurrency.ETHER,
-            AccountBalance(1.ether(), 1.ether(), 1.ether(), mock())
+            mock {
+                on { total }.thenReturn(1.ether())
+                on { actionable }.thenReturn(1.ether())
+                on { pending }.thenReturn(1.ether())
+                on { exchangeRate }.thenReturn(mock())
+            }
         )
 
         val result = subject.reduce(initialState)

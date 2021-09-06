@@ -5,7 +5,7 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 
 internal class PricesInteractor(

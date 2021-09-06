@@ -14,7 +14,8 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
@@ -247,10 +248,16 @@ class ActivityDetailsModel(
         interactor.getRecurringBuyTransactionCacheDetails(
             txHash = intent.txHash
         )?.let { cacheTransaction ->
-            check(cacheTransaction.recurringBuyId != null) { "No recurring buy id for transaction" }
+            checkNotNull(cacheTransaction.recurringBuyId) { "No recurring buy id for transaction" }
             process(LoadRecurringBuyDetailsHeaderDataIntent(cacheTransaction))
-            interactor.loadRecurringBuysById(cacheTransaction.recurringBuyId)
-                .map { cacheTransaction to it }
+
+            loadRecurringBuysById(cacheTransaction)
+        } ?: process(ActivityDetailsLoadFailedIntent)
+
+    private fun loadRecurringBuysById(cacheTx: RecurringBuyActivitySummaryItem): Disposable? =
+        cacheTx.recurringBuyId?.let { recurringBuyId ->
+            interactor.loadRecurringBuysById(recurringBuyId)
+                .map { cacheTx to it }
                 .flatMap { (cacheTransaction, recurringBuy) ->
                     interactor.loadRecurringBuyItems(cacheTransaction, recurringBuy)
                 }.subscribeBy(
@@ -259,8 +266,9 @@ class ActivityDetailsModel(
                     },
                     onError = {
                         process(ListItemsFailedToLoadIntent)
-                    })
-        } ?: process(ActivityDetailsLoadFailedIntent)
+                    }
+                )
+        }
 
     private fun loadCustodialInterestActivityDetails(intent: LoadActivityDetailsIntent) =
         interactor.getCustodialInterestActivityDetails(

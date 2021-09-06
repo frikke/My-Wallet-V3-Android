@@ -12,7 +12,7 @@ import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.toFormattedDate
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.data.activity.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType

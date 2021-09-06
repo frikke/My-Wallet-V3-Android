@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
 import android.app.Activity
 import com.blockchain.core.price.ExchangeRates
-import piuk.blockchain.android.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel

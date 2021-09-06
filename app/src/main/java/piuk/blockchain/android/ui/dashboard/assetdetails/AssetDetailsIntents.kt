@@ -7,10 +7,10 @@ import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AvailableActions
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAsset
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AvailableActions
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAsset
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class AssetDetailsIntent : MviIntent<AssetDetailsState>

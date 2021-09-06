@@ -4,10 +4,10 @@ import android.app.Activity
 import androidx.fragment.app.FragmentManager
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.NullCryptoAccount
-import piuk.blockchain.android.coincore.TransactionTarget
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.TransactionTarget
 import piuk.blockchain.android.ui.transactionflow.fullscreen.TransactionFlowActivity
 
 class TransactionLauncher(private val flags: InternalFeatureFlagApi) {

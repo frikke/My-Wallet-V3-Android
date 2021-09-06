@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import piuk.blockchain.android.urllinks.URL_XLM_MEMO
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.CryptoAddress
+import com.blockchain.coincore.CryptoAddress
 import piuk.blockchain.android.databinding.ViewReceiveMemoBinding
 import piuk.blockchain.android.util.StringUtils
 

@@ -18,7 +18,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries.Companion.NEW_ASSET_TICKER

@@ -18,25 +18,25 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CustodialInterestActivitySummaryItem
-import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
-import piuk.blockchain.android.coincore.CustodialTransferActivitySummaryItem
-import piuk.blockchain.android.coincore.FiatActivitySummaryItem
-import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
-import piuk.blockchain.android.coincore.NullCryptoAccount
-import piuk.blockchain.android.coincore.RecurringBuyActivitySummaryItem
-import piuk.blockchain.android.coincore.TradeActivitySummaryItem
-import piuk.blockchain.android.coincore.bch.BchActivitySummaryItem
-import piuk.blockchain.android.coincore.btc.BtcActivitySummaryItem
-import piuk.blockchain.android.coincore.erc20.Erc20ActivitySummaryItem
-import piuk.blockchain.android.coincore.eth.EthActivitySummaryItem
-import piuk.blockchain.android.coincore.xlm.XlmActivitySummaryItem
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
+import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
+import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.bch.BchActivitySummaryItem
+import com.blockchain.coincore.btc.BtcActivitySummaryItem
+import com.blockchain.coincore.erc20.Erc20ActivitySummaryItem
+import com.blockchain.coincore.eth.EthActivitySummaryItem
+import com.blockchain.coincore.selectFirstAccount
+import com.blockchain.coincore.xlm.XlmActivitySummaryItem
 import com.blockchain.data.activity.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
-import piuk.blockchain.android.ui.dashboard.assetdetails.selectFirstAccount
 import piuk.blockchain.android.util.StringUtils
 import java.text.ParseException
 import java.util.Date
@@ -267,13 +267,13 @@ class ActivityDetailsInteractor(
     }
 
     private fun getSwapFromField(tradeActivity: TradeActivitySummaryItem): From {
-        require(tradeActivity.currencyPair is CurrencyPair.CryptoCurrencyPair)
-        return From("${tradeActivity.currencyPair.source.ticker} ${tradeActivity.sendingAccount.label}")
+        val pair = tradeActivity.currencyPair as CurrencyPair.CryptoCurrencyPair
+        return From("${pair.source.ticker} ${tradeActivity.sendingAccount.label}")
     }
 
     private fun getSellFromField(tradeActivity: TradeActivitySummaryItem): From {
-        require(tradeActivity.currencyPair is CurrencyPair.CryptoToFiatCurrencyPair)
-        return From("${tradeActivity.currencyPair.source.ticker} ${tradeActivity.sendingAccount.label}")
+        val pair = tradeActivity.currencyPair as CurrencyPair.CryptoToFiatCurrencyPair
+        return From("${pair.source.ticker} ${tradeActivity.sendingAccount.label}")
     }
 
     fun loadSellItems(
@@ -302,15 +302,14 @@ class ActivityDetailsInteractor(
 
     private fun buildReceivingLabel(item: TradeActivitySummaryItem): Single<To> {
         require(item.currencyPair is CurrencyPair.CryptoCurrencyPair)
-        val cryptoPair = item.currencyPair
+        val cryptoPair = item.currencyPair as CurrencyPair.CryptoCurrencyPair
         return when (item.direction) {
             TransferDirection.ON_CHAIN -> coincore.findAccountByAddress(
                 cryptoPair.destination, item.receivingAddress!!
-            )
-                .toSingle().map {
-                    val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
-                    getToField(it.label, defaultLabel, cryptoPair.destination.ticker)
-                }
+            ).toSingle().map {
+                val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
+                getToField(it.label, defaultLabel, cryptoPair.destination.ticker)
+            }
             TransferDirection.INTERNAL,
             TransferDirection.FROM_USERKEY -> coincore[cryptoPair.destination].accountGroup(AssetFilter.Custodial)
                 .toSingle()

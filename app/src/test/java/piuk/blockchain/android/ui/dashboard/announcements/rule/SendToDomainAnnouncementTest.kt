@@ -6,9 +6,9 @@ import io.reactivex.rxjava3.core.Single
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.btc.BtcCryptoWalletAccount
-import piuk.blockchain.android.coincore.impl.CryptoAccountNonCustodialGroup
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
+import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 
 class SendToDomainAnnouncementTest {

@@ -15,7 +15,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.FiatAccount
+import com.blockchain.coincore.FiatAccount
 import piuk.blockchain.android.databinding.DialogSheetLinkBankAccountBinding
 import piuk.blockchain.android.simplebuy.BankDetailField
 import piuk.blockchain.android.simplebuy.CopyFieldListener

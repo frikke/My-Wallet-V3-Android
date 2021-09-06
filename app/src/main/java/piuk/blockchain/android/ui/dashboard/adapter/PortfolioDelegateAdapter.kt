@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.dashboard.adapter
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.coincore.FiatAccount
+import com.blockchain.coincore.FiatAccount
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.dashboard.announcements.MiniAnnouncementDelegate

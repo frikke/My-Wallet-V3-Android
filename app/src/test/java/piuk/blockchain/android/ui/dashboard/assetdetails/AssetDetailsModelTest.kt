@@ -19,33 +19,15 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.CryptoAsset
-import piuk.blockchain.android.coincore.btc.BtcAsset
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.CryptoAsset
 import piuk.blockchain.android.ui.dashboard.model.FIAT_CURRENCY
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class AssetDetailsModelTest {
 
     private val defaultState = AssetDetailsState(
-        asset = BtcAsset(
-            payloadManager = mock(),
-            sendDataManager = mock(),
-            feeDataManager = mock(),
-            custodialManager = mock(),
-            tradingBalances = mock(),
-            interestBalances = mock(),
-            exchangeRates = mock(),
-            currencyPrefs = mock(),
-            labels = mock(),
-            pitLinking = mock(),
-            crashLogger = mock(),
-            walletPreferences = mock(),
-            notificationUpdater = mock(),
-            identity = mock(),
-            coinsWebsocket = mock(),
-            features = mock()
-        )
+        asset = mock()
     )
 
     private val environmentConfig: EnvironmentConfig = mock {

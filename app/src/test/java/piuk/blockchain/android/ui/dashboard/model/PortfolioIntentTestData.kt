@@ -7,8 +7,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import org.mockito.Mock
-import piuk.blockchain.android.coincore.AccountBalance
-import piuk.blockchain.android.coincore.FiatAccount
+import com.blockchain.coincore.FiatAccount
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 
@@ -28,33 +27,42 @@ private val pricesWith24HrBtc = Prices24HrWithDelta(
 
 val initialBtcState = CryptoAssetState(
     currency = CryptoCurrency.BTC,
-    accountBalance = AccountBalance(
-        CryptoValue.zero(CryptoCurrency.BTC), CryptoValue.zero(CryptoCurrency.BTC),
-        CryptoValue.zero(CryptoCurrency.BTC),
-        ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal())
-    ),
+    accountBalance = mock {
+        on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.BTC))
+        on { actionable }.thenReturn(CryptoValue.zero(CryptoCurrency.BTC))
+        on { pending }.thenReturn(CryptoValue.zero(CryptoCurrency.BTC))
+        on { exchangeRate }.thenReturn(
+            ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal())
+        )
+    },
     prices24HrWithDelta = pricesWith24HrBtc,
     priceTrend = emptyList()
 )
 
 val initialEthState = CryptoAssetState(
     currency = CryptoCurrency.ETHER,
-    accountBalance = AccountBalance(
-        CryptoValue.zero(CryptoCurrency.ETHER), CryptoValue.zero(CryptoCurrency.ETHER),
-        CryptoValue.zero(CryptoCurrency.ETHER),
-        ExchangeRate.CryptoToFiat(CryptoCurrency.ETHER, FIAT_CURRENCY, 200.toBigDecimal())
-    ),
+    accountBalance = mock {
+        on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.ETHER))
+        on { actionable }.thenReturn(CryptoValue.zero(CryptoCurrency.ETHER))
+        on { pending }.thenReturn(CryptoValue.zero(CryptoCurrency.ETHER))
+        on { exchangeRate }.thenReturn(
+            ExchangeRate.CryptoToFiat(CryptoCurrency.ETHER, FIAT_CURRENCY, 200.toBigDecimal())
+        )
+    },
     prices24HrWithDelta = mock(),
     priceTrend = emptyList()
 )
 
 val initialXlmState = CryptoAssetState(
     currency = CryptoCurrency.XLM,
-    accountBalance = AccountBalance(
-        CryptoValue.zero(CryptoCurrency.XLM), CryptoValue.zero(CryptoCurrency.XLM),
-        CryptoValue.zero(CryptoCurrency.XLM),
-        ExchangeRate.CryptoToFiat(CryptoCurrency.XLM, FIAT_CURRENCY, 100.toBigDecimal())
-    ),
+    accountBalance = mock {
+        on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.XLM))
+        on { actionable }.thenReturn(CryptoValue.zero(CryptoCurrency.XLM))
+        on { pending }.thenReturn(CryptoValue.zero(CryptoCurrency.XLM))
+        on { exchangeRate }.thenReturn(
+            ExchangeRate.CryptoToFiat(CryptoCurrency.XLM, FIAT_CURRENCY, 100.toBigDecimal())
+        )
+    },
     prices24HrWithDelta = mock(),
     priceTrend = emptyList()
 )
@@ -73,12 +81,14 @@ val testAnnouncementCard_2 = StandardAnnouncementCard(
 
 val testBtcState = CryptoAssetState(
     currency = CryptoCurrency.BTC,
-    accountBalance = AccountBalance(
-        CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()),
-        CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()),
-        CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()),
-        ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal())
-    ),
+    accountBalance = mock {
+        on { total }.thenReturn(CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()))
+        on { actionable }.thenReturn(CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()))
+        on { pending }.thenReturn(CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()))
+        on { exchangeRate }.thenReturn(
+            ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal())
+        )
+    },
     prices24HrWithDelta = pricesWith24HrBtc,
     priceTrend = emptyList()
 )

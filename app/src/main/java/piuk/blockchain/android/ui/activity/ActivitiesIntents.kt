@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.activity
 
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.coincore.ActivitySummaryList
-import piuk.blockchain.android.coincore.BlockchainAccount
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.BlockchainAccount
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class ActivitiesIntent : MviIntent<ActivitiesState>

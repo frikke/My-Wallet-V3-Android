@@ -292,9 +292,9 @@ kapt {
 
 dependencies {
     implementation project(':notifications')
-    implementation project(':sunriver')
+    implementation project(':sunriver') // Just for pit linking TODO: Fix that
+    implementation project(':coincore')
     implementation project(':core')
-    implementation project(':notifications')
     implementation project(':veriff')
     implementation project(':blockchainApi')
     implementation project(':componentlib')

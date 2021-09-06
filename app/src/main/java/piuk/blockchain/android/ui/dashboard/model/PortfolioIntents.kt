@@ -6,11 +6,11 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import piuk.blockchain.android.coincore.AccountBalance
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.FiatAccount
-import piuk.blockchain.android.coincore.InterestAccount
-import piuk.blockchain.android.coincore.SingleAccount
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.SingleAccount
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails

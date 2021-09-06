@@ -16,6 +16,8 @@ import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
 import com.blockchain.api.blockchainApiModule
+import com.blockchain.bitpay.bitpayModule
+import com.blockchain.coincore.coincoreModule
 import com.blockchain.koin.modules.featureActivitiesModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -25,7 +27,6 @@ import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.campaign.campaignModule
-import piuk.blockchain.android.coincore.coincoreModule
 import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
@@ -57,6 +58,7 @@ object KoinStarter {
                 applicationModule,
                 dashboardModule,
                 campaignModule,
+                bitpayModule,
                 coincoreModule,
                 transactionModule,
                 okHttpModule,

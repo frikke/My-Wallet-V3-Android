@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.RecyclerView
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TxConfirmation
-import piuk.blockchain.android.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxConfirmation
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemSendConfirmCountdownBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context

@@ -10,7 +10,7 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.utils.toFormattedString
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.FiatActivitySummaryItem
+import com.blockchain.coincore.FiatActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.activity.detail.adapter.FiatDetailsSheetAdapter

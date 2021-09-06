@@ -2,6 +2,7 @@ package com.blockchain.koin.modules
 
 import android.content.Context
 import androidx.biometric.BiometricManager
+import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
@@ -9,7 +10,6 @@ import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
-import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
@@ -24,6 +24,7 @@ import com.blockchain.network.websocket.newBlockchainWebSocket
 import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
@@ -37,8 +38,6 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.Database
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
-import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
-import piuk.blockchain.android.data.api.bitpay.BitPayService
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
 import piuk.blockchain.android.data.biometrics.BiometricsDataRepositoryImpl
@@ -65,7 +64,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
 import piuk.blockchain.android.sunriver.SunriverDeepLinkHelper
-import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.android.thepit.PitLinkingImpl
 import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 import piuk.blockchain.android.ui.addresses.AccountPresenter
@@ -103,9 +101,9 @@ import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapp
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.Mapper
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
-import piuk.blockchain.android.simplebuy.BankPartnerCallbackProvider
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
@@ -135,6 +133,7 @@ import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
+import thepit.PitLinking
 
 val applicationModule = module {
 
@@ -264,7 +263,7 @@ val applicationModule = module {
                 accessState = get(),
                 assetCatalogue = get()
             )
-        }
+        }.bind(CoinsWebSocketInterface::class)
 
         factory {
             GsonBuilder().create()
@@ -627,20 +626,6 @@ val applicationModule = module {
         }.bind(PitLinking::class)
 
         factory {
-            BitPayDataManager(
-                bitPayService = get()
-            )
-        }
-
-        factory {
-            BitPayService(
-                environmentConfig = get(),
-                retrofit = get(moshiExplorerRetrofit),
-                rxBus = get()
-            )
-        }
-
-        factory {
             PitPermissionsPresenter(
                 nabu = get(),
                 nabuToken = get(),
@@ -766,6 +751,12 @@ val applicationModule = module {
 
         factory {
             EmailVerifyInteractor(emailUpdater = get())
+        }
+
+        scoped {
+            AssetActivityRepository(
+                coincore = get()
+            )
         }
     }
 

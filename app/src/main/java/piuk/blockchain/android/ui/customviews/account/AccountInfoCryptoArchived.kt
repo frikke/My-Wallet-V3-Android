@@ -8,8 +8,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.TradingAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.TradingAccount
 import piuk.blockchain.android.databinding.ViewAccountCryptoOverviewArchivedBinding
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible

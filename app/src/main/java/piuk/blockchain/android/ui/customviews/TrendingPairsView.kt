@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.coincore.TrendingPair
+import com.blockchain.coincore.TrendingPair
 import piuk.blockchain.android.databinding.ItemTrendingPairRowBinding
 import piuk.blockchain.android.databinding.ViewTrendingPairsBinding
 import piuk.blockchain.android.util.context

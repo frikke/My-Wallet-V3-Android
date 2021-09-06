@@ -55,7 +55,9 @@ class TransactionProgressSheet : TransactionFlowSheet<DialogTxFlowInProgressBind
                 )
                 startActivity(
                     BankAuthActivity.newInstance(
-                        newState.executionStatus.approvalData, BankAuthSource.DEPOSIT, requireContext()
+                        newState.executionStatus.approvalData,
+                        BankAuthSource.DEPOSIT,
+                        requireContext()
                     )
                 )
                 dismiss()

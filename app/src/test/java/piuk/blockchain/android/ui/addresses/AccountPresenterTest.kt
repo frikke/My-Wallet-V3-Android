@@ -22,10 +22,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.verifyNoMoreInteractions
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.bch.BchAsset
-import piuk.blockchain.android.coincore.btc.BtcAsset
-import piuk.blockchain.android.coincore.btc.BtcCryptoWalletAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.bch.BchAsset
+import com.blockchain.coincore.btc.BtcAsset
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 

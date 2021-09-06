@@ -1,6 +1,7 @@
 package piuk.blockchain.android.linkbank
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.banking.BankTransferAction
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkBankTransfer
@@ -8,6 +9,7 @@ import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.LinkedBankErrorState
 import com.blockchain.nabu.models.data.LinkedBankState
 import com.blockchain.nabu.models.data.YapilyAttributes
+import com.blockchain.network.PollResult
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -18,7 +20,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.networking.PollResult
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
@@ -27,7 +28,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthModel
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankAuthState
 import piuk.blockchain.android.ui.linkbank.BankLinkingProcessState
-import piuk.blockchain.android.ui.linkbank.BankTransferAction
 
 class BankAuthModelTest {
 

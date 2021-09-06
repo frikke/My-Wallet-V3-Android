@@ -9,6 +9,7 @@ import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.websocket.MessagesSocketHandler
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import io.reactivex.rxjava3.disposables.CompositeDisposable

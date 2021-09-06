@@ -13,8 +13,8 @@ import com.blockchain.core.price.ExchangeRates
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TxConfirmationValue
-import piuk.blockchain.android.coincore.toFiat
+import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.toFiat
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementTransferBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent

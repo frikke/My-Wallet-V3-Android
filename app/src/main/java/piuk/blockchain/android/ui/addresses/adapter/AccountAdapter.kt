@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.addresses.adapter
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.util.autoNotify
 import kotlin.properties.Delegates
 

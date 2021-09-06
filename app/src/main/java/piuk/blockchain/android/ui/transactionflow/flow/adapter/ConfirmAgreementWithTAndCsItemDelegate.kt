@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import piuk.blockchain.android.urllinks.INTEREST_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.INTEREST_TERMS_OF_SERVICE
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TxConfirmation
-import piuk.blockchain.android.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxConfirmation
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementTcsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent

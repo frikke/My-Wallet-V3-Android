@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.linkbank
 
+import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.nabu.models.data.YapilyAttributes
 import com.blockchain.nabu.models.data.YapilyInstitution
 import com.blockchain.nabu.models.data.YodleeAttributes

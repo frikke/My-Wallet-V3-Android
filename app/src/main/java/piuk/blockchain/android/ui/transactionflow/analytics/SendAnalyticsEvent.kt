@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
+import com.blockchain.coincore.FeeLevel
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsNames
-import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.FEE_SCHEDULE
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.PARAM_ASSET
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.PARAM_ERROR

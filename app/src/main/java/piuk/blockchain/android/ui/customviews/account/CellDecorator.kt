@@ -10,7 +10,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.BlockchainAccount
+import com.blockchain.coincore.BlockchainAccount
 import piuk.blockchain.android.databinding.PendingBalanceRowBinding
 
 interface CellDecorator {

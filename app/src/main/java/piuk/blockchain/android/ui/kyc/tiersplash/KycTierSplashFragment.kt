@@ -31,7 +31,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.coincore.AssetAction
+import com.blockchain.coincore.AssetAction
 import piuk.blockchain.android.databinding.FragmentKycTierSplashBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate

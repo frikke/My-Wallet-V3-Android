@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.linkbank
 
+import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.google.gson.Gson
-import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 import piuk.blockchain.android.ui.base.mvi.MviState
@@ -43,13 +43,6 @@ enum class BankAuthSource {
     WITHDRAW
 }
 
-data class BankPaymentApproval(
-    val paymentId: String,
-    val authorisationUrl: String,
-    val linkedBank: LinkedBank,
-    val orderValue: FiatValue
-) : Serializable
-
 data class BankAuthDeepLinkState(
     val bankAuthFlow: BankAuthFlowState = BankAuthFlowState.NONE,
     val bankPaymentData: BankPaymentApproval? = null,
@@ -68,10 +61,6 @@ enum class BankAuthFlowState {
     BANK_APPROVAL_PENDING,
     BANK_APPROVAL_COMPLETE,
     NONE
-}
-
-enum class BankTransferAction {
-    LINK, PAY
 }
 
 enum class FiatTransactionState {

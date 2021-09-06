@@ -3,8 +3,8 @@ package piuk.blockchain.android.util
 import android.content.Intent
 import android.os.Binder
 import android.os.Bundle
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.TransactionTarget
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.TransactionTarget
 
 fun Bundle.putAccount(key: String, account: BlockchainAccount) =
     putBinder(key, ParamBinder(account))

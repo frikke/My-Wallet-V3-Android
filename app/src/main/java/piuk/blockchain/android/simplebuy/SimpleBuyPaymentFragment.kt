@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -32,7 +33,6 @@ import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
-import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import java.util.Locale
@@ -178,7 +178,10 @@ class SimpleBuyPaymentFragment :
         startActivityForResult(
             BankAuthActivity.newInstance(
                 BankPaymentApproval(
-                    paymentId, authorisationUrl, linkedBank, orderValue
+                    paymentId = paymentId,
+                    authorisationUrl = authorisationUrl,
+                    linkedBank = linkedBank,
+                    orderValue = orderValue
                 ), BankAuthSource.SIMPLE_BUY, requireContext()
             ), BANK_APPROVAL
         )

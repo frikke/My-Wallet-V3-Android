@@ -1,18 +1,16 @@
 package piuk.blockchain.android.ui.transfer
 
+import com.blockchain.coincore.AccountsSorter
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.NonCustodialAccount
 import io.reactivex.rxjava3.core.Single
 import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.NonCustodialAccount
-import piuk.blockchain.android.coincore.SingleAccount
 
 interface AccountsSorting {
     fun sorter(): AccountsSorter
 }
-
-typealias AccountsSorter = (List<SingleAccount>) -> Single<List<SingleAccount>>
 
 class DashboardAccountsSorting(
     private val dashboardPrefs: DashboardPrefs,

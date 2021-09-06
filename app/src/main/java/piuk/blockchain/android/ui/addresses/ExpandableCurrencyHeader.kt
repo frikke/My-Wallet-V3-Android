@@ -27,7 +27,7 @@ import info.blockchain.balance.CryptoCurrency
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.databinding.ViewExpandingCurrencyHeaderBinding
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.invisible

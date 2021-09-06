@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.customviews.account
 
 import androidx.recyclerview.widget.DiffUtil
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.FiatAccount
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FiatAccount
 
 internal class AccountsDiffUtil(
     private val oldAccounts: List<SelectableAccountItem>,

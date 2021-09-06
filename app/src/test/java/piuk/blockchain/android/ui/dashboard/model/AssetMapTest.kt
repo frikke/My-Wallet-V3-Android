@@ -7,7 +7,7 @@ import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
-import piuk.blockchain.android.coincore.AccountBalance
+import com.blockchain.coincore.AccountBalance
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
@@ -33,10 +33,14 @@ class AssetMapTest {
     fun `copy with patchAsset works as expected`() {
         val newAsset = CryptoAssetState(
             currency = CryptoCurrency.BTC,
-            accountBalance = AccountBalance(
-                20.bitcoin(), 20.bitcoin(), 20.bitcoin(),
-                ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal())
-            ),
+            accountBalance = mock<AccountBalance> {
+                on { total }.thenReturn(20.bitcoin())
+                on { actionable }.thenReturn(20.bitcoin())
+                on { pending }.thenReturn(20.bitcoin())
+                on { exchangeRate }.thenReturn(
+                    ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal())
+                )
+            },
             prices24HrWithDelta = mock(),
             priceTrend = emptyList()
         )
@@ -52,7 +56,12 @@ class AssetMapTest {
     @Test
     fun `copy with patchBalance works as expected`() {
         val newBalance = 20.ether()
-        val newAccountBalance = AccountBalance(newBalance, newBalance, newBalance, mock())
+        val newAccountBalance = mock<AccountBalance> {
+            on { total }.thenReturn(newBalance)
+            on { actionable }.thenReturn(newBalance)
+            on { pending }.thenReturn(newBalance)
+            on { exchangeRate }.thenReturn(mock())
+        }
 
         val copy = subject.copy(patchBalance = newAccountBalance)
 

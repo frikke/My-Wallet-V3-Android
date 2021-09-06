@@ -11,9 +11,9 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
-import piuk.blockchain.android.coincore.NullCryptoAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.NullCryptoAccount
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 

@@ -11,8 +11,8 @@ import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.RecurringBuyActivitySummaryItem
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate

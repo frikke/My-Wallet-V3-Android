@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.NullAddress
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.NullAddress
 import piuk.blockchain.android.databinding.ViewTxFlowFromAndToBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
