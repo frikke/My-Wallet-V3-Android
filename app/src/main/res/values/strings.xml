@@ -2127,7 +2127,10 @@
     <string name="login_google_sign_in_failed">Google Sign in failed</string>
     <string name="verify_device_title">Verify Device</string>
     <string name="verify_device_desc">If you have an account registered with this email address, you will receive an email with a link to verify your device.</string>
+    <string name="verify_device_resend_blocked">Please wait 30 seconds before requesting a new email</string>
+    <string name="verify_device_email_resent">New Email Sent</string>
     <string name="open_email_cta">Open Email App</string>
+    <string name="resend_email_cta">Send Again</string>
     <string name="login_wallet_id_text">Wallet: %s</string>
     <string name="login_password_hint">Password</string>
     <string name="forgot_password_label">Trouble logging in?</string>
