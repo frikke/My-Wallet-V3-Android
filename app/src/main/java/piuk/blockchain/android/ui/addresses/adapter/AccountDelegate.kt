@@ -30,7 +30,7 @@ class AccountDelegate(
         holder: RecyclerView.ViewHolder
     ) {
         val accountViewHolder = holder as AccountViewHolder
-        accountViewHolder.bind(items[position] as AccountListItem.Account, listener)
+        accountViewHolder.bind(items[position] as AccountListItem.Account, listener, position)
     }
 
     override fun isForViewType(items: List<AccountListItem>, position: Int) =
@@ -42,7 +42,8 @@ class AccountDelegate(
 
         fun bind(
             item: AccountListItem.Account,
-            listener: AccountAdapter.Listener
+            listener: AccountAdapter.Listener,
+            position: Int
         ) {
             with(binding) {
                 if (item.account.isArchived) {

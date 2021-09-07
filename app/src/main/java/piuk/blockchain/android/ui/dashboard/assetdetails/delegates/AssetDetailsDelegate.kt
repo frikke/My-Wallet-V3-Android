@@ -60,7 +60,10 @@ private class AssetWalletViewHolder(
     private val labels: DefaultLabels
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: AssetDetailsItem.CryptoDetailsInfo, isFirstItemOfCategory: Boolean) {
+    fun bind(
+        item: AssetDetailsItem.CryptoDetailsInfo,
+        isFirstItemOfCategory: Boolean
+    ) {
         with(binding) {
             walletHeaderGroup.visibleIf { isFirstItemOfCategory }
 

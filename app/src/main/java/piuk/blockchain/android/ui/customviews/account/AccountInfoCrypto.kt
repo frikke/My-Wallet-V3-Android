@@ -8,13 +8,13 @@ import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import org.koin.core.component.KoinComponent
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.R
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
@@ -139,14 +139,22 @@ class AccountInfoCrypto @JvmOverloads constructor(
                 )
             compositeDisposable += cellDecorator.view(container.context)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    container.addViewToBottomWithConstraints(
-                        view = it,
-                        bottomOfView = assetSubtitle,
-                        startOfView = assetSubtitle,
-                        endOfView = walletBalanceCrypto
-                    )
-                }
+                .subscribeBy(
+                    onSuccess = {
+                        container.addViewToBottomWithConstraints(
+                            view = it,
+                            bottomOfView = assetSubtitle,
+                            startOfView = assetSubtitle,
+                            endOfView = walletBalanceCrypto
+                        )
+                    },
+                    onComplete = {
+                        container.removePossibleBottomView()
+                    },
+                    onError = {
+                        container.removePossibleBottomView()
+                    }
+                )
 
             container.alpha = 1f
             compositeDisposable += cellDecorator.isEnabled()
@@ -170,8 +178,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
                         }
                     }
                 )
-
-            container.removePossibleBottomView()
         }
     }
 

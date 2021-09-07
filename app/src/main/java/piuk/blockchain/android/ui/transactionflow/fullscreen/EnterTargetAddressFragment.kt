@@ -62,9 +62,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                     if (it) hideTransferList()
                 }
             }
-            //            addressSheetBack.setOnClickListener {
-            //                model.process(TransactionIntent.ReturnToPreviousStep)
-            //            }
         }
     }
 

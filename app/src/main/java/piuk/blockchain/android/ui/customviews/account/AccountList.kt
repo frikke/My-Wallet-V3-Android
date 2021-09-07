@@ -65,6 +65,7 @@ class AccountList @JvmOverloads constructor(
         addItemDecoration(
             BlockchainListDividerDecor(context)
         )
+        itemAnimator = null
     }
 
     fun initialise(
@@ -113,8 +114,8 @@ class AccountList @JvmOverloads constructor(
                     }
                     onListLoaded(it.isEmpty())
 
-                    lastSelectedAccount?.let {
-                        updatedSelectedAccount(it)
+                    lastSelectedAccount?.let { account ->
+                        updatedSelectedAccount(account)
                         lastSelectedAccount = null
                     }
                 },
@@ -125,13 +126,22 @@ class AccountList @JvmOverloads constructor(
     }
 
     fun updatedSelectedAccount(selectedAccount: BlockchainAccount) {
-        (adapter as AccountsDelegateAdapter).items.let {
-            if (it.isNotEmpty()) {
-                (adapter as AccountsDelegateAdapter).items = it.map { sAccount ->
-                    SelectableAccountItem(
-                        sAccount.account,
-                        selectedAccount == sAccount.account
-                    )
+        with(adapter as AccountsDelegateAdapter) {
+            if (items.isNotEmpty()) {
+                val previouslySelectedPosition = items.indexOfFirst { account ->
+                    account.isSelected
+                }
+                if (previouslySelectedPosition != -1) {
+                    items[previouslySelectedPosition].isSelected = false
+                    notifyItemChanged(previouslySelectedPosition)
+                }
+
+                val positionToSelect = items.indexOfFirst { account ->
+                    account.account == selectedAccount
+                }
+                if (positionToSelect != -1) {
+                    items[positionToSelect].isSelected = true
+                    notifyItemChanged(positionToSelect)
                 }
             } else {
                 // if list is empty, we're in a race condition between loading and selecting, so store value and check
@@ -260,8 +270,9 @@ private class CryptoSingleAccountViewHolder(
                 }
             }
             cryptoAccount.updateAccount(
-                selectableAccountItem.account as CryptoAccount, onAccountClicked,
-                statusDecorator(selectableAccountItem.account)
+                account = selectableAccountItem.account as CryptoAccount,
+                onAccountClicked = onAccountClicked,
+                cellDecorator = statusDecorator(selectableAccountItem.account)
             )
         }
     }
