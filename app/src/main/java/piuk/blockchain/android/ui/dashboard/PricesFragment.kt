@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard
 
 import android.os.Bundle
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +31,7 @@ import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -112,7 +114,11 @@ internal class PricesFragment :
     }
 
     private fun updateDisplayList(newState: PricesState) {
-        val newList = newState.availablePrices.values.map {
+        val newList = newState.availablePrices.filter { assetInfo ->
+            newState.filterBy.isBlank() ||
+                assetInfo.key.name.contains(newState.filterBy, ignoreCase = true) ||
+                assetInfo.key.ticker.contains(newState.filterBy, ignoreCase = true)
+        }.values.map {
             PricesItem(
                 asset = it.assetInfo,
                 priceWithDelta = it.prices
@@ -136,6 +142,7 @@ internal class PricesFragment :
 
         setupSwipeRefresh()
         setupRecycler()
+        setupSearchBox()
     }
 
     private fun setupRecycler() {
@@ -160,6 +167,16 @@ internal class PricesFragment :
                 R.color.blue_200
             )
         }
+    }
+
+    private fun setupSearchBox() {
+        binding.searchEditText.addTextChangedListener(object : AfterTextChangedWatcher() {
+            override fun afterTextChanged(s: Editable?) {
+                s?.let { editable ->
+                    model.process(PricesIntent.FilterAssets(editable.toString()))
+                }
+            }
+        })
     }
 
     override fun onResume() {

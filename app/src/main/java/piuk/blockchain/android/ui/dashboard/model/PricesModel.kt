@@ -19,7 +19,8 @@ internal data class AssetPriceState(
 internal data class PricesState(
     val availablePrices: Map<AssetInfo, AssetPriceState> = emptyMap(),
     val activeFlow: DialogFlow? = null,
-    val selectedAsset: AssetInfo? = null
+    val selectedAsset: AssetInfo? = null,
+    val filterBy: String = ""
 ) : MviState {
     val availableAssets = availablePrices.keys.toList()
 }
@@ -44,11 +45,8 @@ internal class PricesModel(
         return when (intent) {
             is PricesIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)
             is PricesIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
-            is PricesIntent.AssetListUpdate,
-            is PricesIntent.AssetPriceUpdate -> null
             is PricesIntent.LaunchAssetDetailsFlow -> interactor.getAssetDetailsFlow(this, intent.asset)
-            is PricesIntent.UpdateLaunchDetailsFlow -> null
-            is PricesIntent.ClearBottomSheet -> null
+            else -> null
         }
     }
 }

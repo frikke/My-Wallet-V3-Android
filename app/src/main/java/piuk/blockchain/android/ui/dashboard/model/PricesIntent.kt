@@ -72,4 +72,11 @@ sealed class PricesIntent : MviIntent<PricesState> {
                 selectedAsset = null
             )
     }
+
+    internal class FilterAssets(private val searchString: String) : PricesIntent() {
+        override fun reduce(oldState: PricesState): PricesState =
+            oldState.copy(
+                filterBy = searchString
+            )
+    }
 }

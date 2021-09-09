@@ -2247,4 +2247,7 @@
     <string name="zendesk_subject_option2">Wallet</string>
     <string name="zendesk_subject_option3">Security Concern</string>
     <string name="zendesk_subject_option4">My Wallet Recovery Failed</string>
+
+    <!-- Prices Screen -->
+    <string name="search_coins_hint">Search Coins</string>
 </resources>
