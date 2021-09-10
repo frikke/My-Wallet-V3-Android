@@ -51,6 +51,7 @@
     <string name="common_wallets">Wallets</string>
     <string name="common_go_back">Go Back</string>
     <string name="common_reset_password">Reset Password</string>
+    <string name="common_buy_crypto">Buy Crypto</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -2247,6 +2248,10 @@
     <string name="zendesk_subject_option2">Wallet</string>
     <string name="zendesk_subject_option3">Security Concern</string>
     <string name="zendesk_subject_option4">My Wallet Recovery Failed</string>
+
+    <!-- Portfolio Screen -->
+    <string name="empty_portfolio_title">Welcome to Blockchain.com!</string>
+    <string name="empty_portfolio_description">All your crypto balances will show up here once you buy or receive.</string>
 
     <!-- Prices Screen -->
     <string name="search_coins_hint">Search Coins</string>

@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -34,6 +36,10 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
+import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.BuySellType
@@ -120,6 +126,8 @@ class PortfolioFragment :
     private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
     private val txLauncher: TransactionLauncher by inject()
+    private val gatedFeatures: InternalFeatureFlagApi by inject()
+    private val userIdentity: NabuUserIdentity by scopedInject()
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
@@ -229,6 +237,12 @@ class PortfolioFragment :
                 compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
                     .thenBy { it.currency.name }
             )
+            if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+                val hasBalanceOrIsLoading = assets.any { it.accountBalance?.total?.isPositive == true } ||
+                    newState.hasLongCallInProgress
+                binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
+                binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
+            }
 
             newList.addAll(assets)
             clear()
@@ -369,6 +383,7 @@ class PortfolioFragment :
 
         setupSwipeRefresh()
         setupRecycler()
+        setupCtaButtons()
 
         if (flowToLaunch != null && flowCurrency != null) {
             compositeDisposable += coincore.fiatAssets.accountGroup().subscribeBy(
@@ -396,6 +411,43 @@ class PortfolioFragment :
                 }
             )
         }
+    }
+
+    private fun setupCtaButtons() {
+        with(binding) {
+            buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
+            receiveDepositButton.apply {
+                leftButton.setOnClickListener { navigator().launchReceive() }
+                rightButton.setOnClickListener { handleDepositClicked() }
+            }
+        }
+    }
+
+    private fun handleDepositClicked() {
+        compositeDisposable += userIdentity.isEligibleFor(Feature.SimpleBuy)
+            .zipWith(coincore.fiatAssets.accountGroup().toSingle())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = { (isEligible, fiatGroup) ->
+                    model.process(
+                        if (isEligible) {
+                            val selectedAccount = fiatGroup.accounts.first {
+                                (it as FiatAccount).fiatCurrency == currencyPrefs.selectedFiatCurrency
+                            }
+                            LaunchBankTransferFlow(
+                                selectedAccount, AssetAction.FiatDeposit, false
+                            )
+                        } else {
+                            ShowPortfolioSheet(DashboardNavigationAction.FiatFundsNoKyc)
+                        }
+                    )
+                },
+                onError = {
+                    Timber.e(it)
+                    model.process(ShowPortfolioSheet(DashboardNavigationAction.FiatFundsNoKyc))
+                }
+            )
     }
 
     private fun setupRecycler() {
