@@ -143,9 +143,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     private fun setupRecoverButton(recoverButton: Button, isAccountRecoveryEnabled: Boolean) {
         recoverButton.apply {
-            if (isAccountRecoveryEnabled &&
-                internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)
-            ) {
+            if (isAccountRecoveryEnabled) {
                 text = getString(R.string.restore_wallet_cta)
                 setOnClickListener { launchSSOAccountRecoveryFlow() }
             } else {

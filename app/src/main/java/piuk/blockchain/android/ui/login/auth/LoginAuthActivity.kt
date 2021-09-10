@@ -14,8 +14,6 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.logging.CrashLogger
@@ -62,8 +60,6 @@ class LoginAuthActivity :
 
     private val crashLogger: CrashLogger by inject()
     private val walletPrefs: WalletStatus by inject()
-
-    private val internalFlags: InternalFeatureFlagApi by inject()
 
     private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
 
@@ -351,7 +347,7 @@ class LoginAuthActivity :
     }
 
     private fun launchPasswordRecoveryFlow() {
-        if (internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY) && isAccountRecoveryEnabled) {
+        if (isAccountRecoveryEnabled) {
             val intent = Intent(this, AccountRecoveryActivity::class.java).apply {
                 putExtra(EMAIL, email)
                 putExtra(USER_ID, userId)
