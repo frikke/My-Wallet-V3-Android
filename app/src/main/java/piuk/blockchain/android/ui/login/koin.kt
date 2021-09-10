@@ -27,7 +27,9 @@ val loginUiModule = module {
                 payloadDataManager = get(),
                 prefs = get(),
                 appUtil = get(),
-                ssoAccountRecoveryFF = get(ssoAccountRecoveryFeatureFlag)
+                ssoAccountRecoveryFF = get(ssoAccountRecoveryFeatureFlag),
+                accessState = get(),
+                persistentPrefs = get()
             )
         }
 

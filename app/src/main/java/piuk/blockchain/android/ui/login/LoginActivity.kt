@@ -52,6 +52,15 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recaptchaClient.initReCaptcha()
+        checkExistingSessionOrDeeplink()
+    }
+
+    private fun checkExistingSessionOrDeeplink() {
+        val action = intent.action
+        val data = intent.data
+        if (action != null && data != null) {
+            model.process(LoginIntents.CheckForExistingSessionOrDeepLink(action, data))
+        }
     }
 
     override fun onStart() {
@@ -116,14 +125,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        intent.data?.let { uri ->
-            uri.fragment?.let { fragment ->
-                if (fragment.split(LoginAuthActivity.LINK_DELIMITER).size > 1) {
-                    // Navigate to the LoginAuthActivity when there's encoded data in the URI.
-                    startActivity(Intent(intent.action, uri, this, LoginAuthActivity::class.java))
-                }
-            }
-        }
+        checkExistingSessionOrDeeplink()
     }
 
     override fun initBinding(): ActivityLoginNewBinding = ActivityLoginNewBinding.inflate(layoutInflater)
@@ -151,7 +153,14 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice()
             LoginStep.SHOW_SESSION_ERROR -> toast(R.string.login_failed_session_id_error, ToastCustom.TYPE_ERROR)
             LoginStep.SHOW_EMAIL_ERROR -> toast(R.string.login_send_email_error, ToastCustom.TYPE_ERROR)
+            LoginStep.NAVIGATE_FROM_DEEPLINK -> {
+                newState.intentUri?.let { uri ->
+                    startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))
+                }
+            }
+            LoginStep.UNKNOWN_ERROR -> toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
             else -> {
+                // do nothing
             }
         }
     }
