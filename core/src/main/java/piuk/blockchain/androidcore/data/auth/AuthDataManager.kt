@@ -60,12 +60,16 @@ class AuthDataManager(
      * the user that authentication (ie checking your email, 2FA etc) is required
      * @see .getSessionId
      */
-    fun getEncryptedPayload(guid: String, sessionId: String): Observable<Response<ResponseBody>> =
-        walletAuthService.getEncryptedPayload(guid, sessionId)
+    fun getEncryptedPayload(
+        guid: String,
+        sessionId: String,
+        resend2FASms: Boolean
+    ): Observable<Response<ResponseBody>> =
+        walletAuthService.getEncryptedPayload(guid, sessionId, resend2FASms)
             .applySchedulers()
 
-    fun getEncryptedPayloadObject(guid: String, sessionId: String): Single<JsonObject> =
-        walletAuthService.getEncryptedPayload(guid, sessionId)
+    fun getEncryptedPayloadObject(guid: String, sessionId: String, resend2FASms: Boolean): Single<JsonObject> =
+        walletAuthService.getEncryptedPayload(guid, sessionId, resend2FASms)
             .applySchedulers()
             .firstOrError()
             .flatMap {
@@ -130,11 +134,11 @@ class AuthDataManager(
         // Emit tick every 2 seconds
         return Observable.interval(2, TimeUnit.SECONDS)
             // For each emission from the timer, try to get the payload
-            .map { getEncryptedPayload(guid, sessionId).blockingFirst() }
+            .map { getEncryptedPayload(guid, sessionId, false).blockingFirst() }
             // If auth not required, emit payload
             .filter { s ->
                 s.errorBody() == null ||
-                        !s.errorBody()!!.string().contains(AUTHORIZATION_REQUIRED)
+                    !s.errorBody()!!.string().contains(AUTHORIZATION_REQUIRED)
             }
             // Return message in response
             .map { responseBodyResponse -> responseBodyResponse.body()!!.string() }
@@ -311,13 +315,13 @@ class AuthDataManager(
             .applySchedulers()
 
     /**
-    * Send email to verify device
-    *
-    * @param sessionId The token for the current session
-    * @param email The user's email
-    * @param captcha Captcha token
-    * @return A [Single] wrapping the result
-    */
+     * Send email to verify device
+     *
+     * @param sessionId The token for the current session
+     * @param email The user's email
+     * @param captcha Captcha token
+     * @return A [Single] wrapping the result
+     */
     fun sendEmailForDeviceVerification(sessionId: String, email: String, captcha: String): Single<ResponseBody> =
         walletAuthService.sendEmailForDeviceVerification(sessionId, email, captcha)
 

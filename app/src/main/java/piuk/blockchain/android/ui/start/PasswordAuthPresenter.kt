@@ -115,7 +115,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
                 view?.showProgressDialog(R.string.validating_password)
             }
             .doOnNext { s -> sessionId = s }
-            .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, sessionId) }
+            .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, sessionId, resend2FASms = false) }
             .subscribe(
                 { response -> handleResponse(password, guid, response) },
                 { throwable -> handleSessionError(throwable) }
@@ -128,7 +128,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
                 view?.showProgressDialog(R.string.two_fa_new_request)
             }
             .doOnNext { s -> sessionId = s }
-            .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, sessionId) }
+            .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, sessionId, resend2FASms = true) }
             .subscribe(
                 { response -> handleResponse(password, guid, response) },
                 { throwable -> handleSessionError(throwable) }

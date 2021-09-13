@@ -29,8 +29,9 @@ class WalletAuthService(private val walletApi: WalletApi) {
      */
     fun getEncryptedPayload(
         guid: String,
-        sessionId: String
-    ): Observable<Response<ResponseBody>> = walletApi.fetchEncryptedPayload(guid, sessionId)
+        sessionId: String,
+        resend2FASms: Boolean
+    ): Observable<Response<ResponseBody>> = walletApi.fetchEncryptedPayload(guid, sessionId, resend2FASms)
 
     /**
      * Posts a user's 2FA code to the server. Will return an encrypted copy of the Payload if
