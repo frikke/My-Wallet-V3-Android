@@ -78,7 +78,7 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
             .setMessage(getString(R.string.not_sane_error))
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                presenter.clearCredentialsAndRestart()
+                presenter?.clearCredentialsAndRestart()
             }
             .show()
     }
@@ -135,7 +135,7 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 ViewUtils.hideKeyboard(this)
-                presenter.decryptAndSetupMetadata(editText.text.toString())
+                presenter?.decryptAndSetupMetadata(editText.text.toString())
             }
             .create()
             .show()
@@ -174,11 +174,11 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
     }
 
     override fun onEmailVerified() {
-        presenter.onEmailVerificationFinished()
+        presenter?.onEmailVerificationFinished()
     }
 
     override fun onEmailVerificationSkipped() {
-        presenter.onEmailVerificationFinished()
+        presenter?.onEmailVerificationFinished()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 }

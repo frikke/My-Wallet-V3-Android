@@ -118,7 +118,11 @@ class YapilyPermissionFragment : Fragment() {
                 } else {
                     navigator().yapilyAgreementAccepted(institution)
                     analytics.logEvent(
-                        BankAuthAnalytics.LinkBankConditionsApproved(institution.name, entity.toAnalyticsBankProvider())
+                        BankAuthAnalytics.LinkBankConditionsApproved(
+                            bankName = institution.name,
+                            provider = entity.toAnalyticsBankProvider(),
+                            partner = "YAPILY"
+                        )
                     )
                 }
             }

@@ -219,7 +219,7 @@ class SimpleBuyCryptoFragment :
                             lastState?.order?.amount
                         } else null,
                         outputCurrency = lastState?.selectedCryptoAsset?.ticker ?: return,
-                        paymentMethod = lastState?.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString()
+                        paymentMethod = lastState?.selectedPaymentMethod?.paymentMethodType
                             ?: return
                     )
                 )

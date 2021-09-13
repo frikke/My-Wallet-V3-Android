@@ -13,6 +13,7 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.AnalyticsImpl
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.InjectableLogging
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import com.blockchain.notifications.analytics.UserAnalytics
 import com.blockchain.notifications.analytics.UserAnalyticsImpl
 import com.blockchain.notifications.links.DynamicLinkHandler
@@ -61,7 +62,9 @@ val notificationModule = module {
             nabuAnalytics = get(nabu),
             store = get()
         )
-    }.bind(Analytics::class)
+    }
+        .bind(Analytics::class)
+        .bind(ProviderSpecificAnalytics::class)
 
     factory { UserAnalyticsImpl(get()) }
         .bind(UserAnalytics::class)

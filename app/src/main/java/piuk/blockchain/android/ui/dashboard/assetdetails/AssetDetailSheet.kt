@@ -177,7 +177,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
         clearList()
 
-        recurringBuy.asset?.let {
+        recurringBuy.asset.let {
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
                     LaunchOrigin.CURRENCY_PAGE,

@@ -438,7 +438,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             )
             R.id.nav_support -> onSupportClicked()
             R.id.nav_logout -> showLogoutDialog()
-            R.id.nav_interest -> launchInterestDashboard()
+            R.id.nav_interest -> launchInterestDashboard(LaunchOrigin.NAVIGATION)
             R.id.nav_debug_menu -> startActivity(Intent(this, FeatureFlagsHandlingActivity::class.java))
         }
         binding.drawerLayout.closeDrawers()
@@ -920,11 +920,11 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         launchBuySell()
     }
 
-    override fun launchInterestDashboard() {
+    override fun launchInterestDashboard(origin: LaunchOrigin) {
         startActivityForResult(
             InterestDashboardActivity.newInstance(this), INTEREST_DASHBOARD
         )
-        analytics.logEvent(InterestAnalytics.InterestClicked)
+        analytics.logEvent(InterestAnalytics.InterestClicked(origin = LaunchOrigin.DASHBOARD_PROMO))
     }
 
     override fun resumeSimpleBuyKyc() {

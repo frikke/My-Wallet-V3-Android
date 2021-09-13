@@ -37,7 +37,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
     }
 
     private val txLauncher: TransactionLauncher by inject()
-    private val presenter: KycStatusPresenter by scopedInject()
+    private val statusPresenter: KycStatusPresenter by scopedInject()
     private val campaignType by unsafeLazy { intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType }
     private var progressDialog: MaterialProgressDialog? = null
 
@@ -128,7 +128,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
     private fun displayNotificationButton() {
         binding.buttonKycStatusNext.apply {
             setText(R.string.kyc_status_button_notify_me)
-            setOnClickListener { presenter.onClickNotifyUser() }
+            setOnClickListener { presenter?.onClickNotifyUser() }
             visible()
         }
         binding.textViewKycStatusNoThanks.apply {
@@ -155,7 +155,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
             textViewVerificationMessage.setText(R.string.kyc_status_message_verified)
             buttonKycStatusNext.apply {
                 setText(R.string.kyc_status_button_get_started)
-                setOnClickListener { presenter.onClickContinue() }
+                setOnClickListener { presenter?.onClickContinue() }
                 ConstraintSet().apply {
                     clone(constraintLayoutKycStatus)
                     setMargin(
@@ -186,7 +186,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
 
     override fun showProgressDialog() {
         progressDialog = MaterialProgressDialog(this).apply {
-            setOnCancelListener { presenter.onProgressCancelled() }
+            setOnCancelListener { presenter?.onProgressCancelled() }
             setMessage(R.string.kyc_country_selection_please_wait)
             show()
         }
@@ -204,7 +204,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
 
     override fun onSupportNavigateUp(): Boolean = consume { finish() }
 
-    override fun createPresenter(): KycStatusPresenter = presenter
+    override fun createPresenter(): KycStatusPresenter = statusPresenter
 
     override fun getView(): KycStatusView = this
 

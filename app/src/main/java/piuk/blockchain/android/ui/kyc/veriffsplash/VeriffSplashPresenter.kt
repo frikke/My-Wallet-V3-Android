@@ -14,8 +14,8 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.kyc.navhost.models.UiState
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.android.ui.kyc.splash.UiState
 
 import timber.log.Timber
 

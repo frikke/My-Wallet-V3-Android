@@ -111,7 +111,6 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.settings.SettingsPresenter
-import piuk.blockchain.android.ui.shortcuts.receive.ReceiveQrPresenter
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
@@ -284,7 +283,8 @@ val applicationModule = module {
                 crashLogger = get(),
                 qrCodeDataManager = get(),
                 payloadDataManager = get(),
-                authDataManager = get()
+                authDataManager = get(),
+                analytics = get()
             )
         }
 
@@ -298,7 +298,8 @@ val applicationModule = module {
                 analytics = get(),
                 environmentConfig = get(),
                 formatChecker = get(),
-                nabuUserDataManager = get()
+                nabuUserDataManager = get(),
+                specificAnalytics = get()
             )
         }
 
@@ -420,13 +421,6 @@ val applicationModule = module {
                 privateKeyFactory = get(),
                 analytics = get(),
                 coincore = get()
-            )
-        }
-
-        factory {
-            ReceiveQrPresenter(
-                payloadDataManager = get(),
-                qrCodeDataManager = get()
             )
         }
 
@@ -605,6 +599,7 @@ val applicationModule = module {
                 accessState = get(),
                 walletOptionsDataManager = get(),
                 prngFixer = get(),
+                specificAnalytics = get(),
                 mobileNoticeRemoteConfig = get(),
                 crashLogger = get(),
                 analytics = get(),
@@ -808,7 +803,8 @@ val applicationModule = module {
 
     factory {
         ReceiveIntentHelper(
-            context = get()
+            context = get(),
+            specificAnalytics = get()
         )
     }
 

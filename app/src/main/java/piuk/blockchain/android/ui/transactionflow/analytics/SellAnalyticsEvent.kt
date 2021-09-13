@@ -75,4 +75,4 @@ class SellSourceAccountSelected(
 private const val FROM_ACCOUNT_TYPE = "from_account_type"
 private const val INPUT_CURRENCY = "input_currency"
 private const val OUTPUT_CURRENCY = "output_currency"
-private const val INPUT_AMOUNT = "output_currency"
+private const val INPUT_AMOUNT = "input_amount"

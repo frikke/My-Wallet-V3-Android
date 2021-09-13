@@ -6,7 +6,7 @@ import com.blockchain.api.services.Geolocation
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -42,6 +42,7 @@ class CreateWalletPresenter(
     private val appUtil: AppUtil,
     private val accessState: AccessState,
     private val prngFixer: PrngFixer,
+    private val specificAnalytics: ProviderSpecificAnalytics,
     private val analytics: Analytics,
     private val environmentConfig: EnvironmentConfig,
     private val formatChecker: FormatChecker,
@@ -143,13 +144,13 @@ class CreateWalletPresenter(
                     }
                     analytics.logEvent(AnalyticsEvents.WalletCreation)
                     view.startPinEntryActivity()
-                    Logging.logSignUp(true)
+                    specificAnalytics.logSingUp(true)
                 },
                 onError = {
                     Timber.e(it)
                     view.showError(R.string.hd_error)
                     appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
-                    Logging.logSignUp(false)
+                    specificAnalytics.logSingUp(false)
                 }
             )
     }

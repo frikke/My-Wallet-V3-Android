@@ -26,7 +26,8 @@ class AnalyticsImplTest {
         val mockStore = mock<SharedPreferences>()
 
         AnalyticsImpl(
-            firebaseAnalytics = mockFirebase, store = mockStore,
+            firebaseAnalytics = mockFirebase,
+            store = mockStore,
             nabuAnalytics = mock()
         ).logEvent(event)
 

@@ -52,12 +52,13 @@ class KycNavHostPresenterTest {
     @Before
     fun setUp() {
         subject = KycNavHostPresenter(
-            nabuToken,
-            nabuDataManager,
-            sunriverCampaign,
-            reentryDecision,
-            ReentryDecisionKycNavigator(nabuToken, nabuDataManager, reentryDecision, analytics),
-            tierUpdater
+            nabuToken = nabuToken,
+            nabuDataManager = nabuDataManager,
+            sunriverCampaign = sunriverCampaign,
+            reentryDecision = reentryDecision,
+            kycNavigator = ReentryDecisionKycNavigator(nabuToken, nabuDataManager, reentryDecision, analytics),
+            tierUpdater = tierUpdater,
+            analytics = mock()
         )
         subject.initView(view)
     }

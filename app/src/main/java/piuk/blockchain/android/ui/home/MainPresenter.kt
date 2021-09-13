@@ -36,6 +36,8 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
+import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.notifications.analytics.SecondPasswordEvent
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
 import piuk.blockchain.android.deeplink.LinkState
@@ -59,8 +61,6 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.secondPasswordEvent
 import com.blockchain.utils.capitalizeFirstChar
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -506,7 +506,7 @@ class MainPresenter internal constructor(
 
     private fun logEvents() {
         analytics.logEventOnce(AnalyticsEvents.WalletSignupFirstLogIn)
-        Logging.logEvent(secondPasswordEvent(payloadDataManager.isDoubleEncrypted))
+        analytics.logEvent(SecondPasswordEvent(payloadDataManager.isDoubleEncrypted))
     }
 
     internal fun clearLoginState() {
@@ -577,7 +577,7 @@ class MainPresenter internal constructor(
             BlockchainLinkState.TwoFa -> view?.launchSetup2Fa()
             BlockchainLinkState.VerifyEmail -> view?.launchVerifyEmail()
             BlockchainLinkState.SetupFingerprint -> view?.launchSetupFingerprintLogin()
-            BlockchainLinkState.Interest -> view?.launchInterestDashboard()
+            BlockchainLinkState.Interest -> view?.launchInterestDashboard(LaunchOrigin.DEEPLINK)
             BlockchainLinkState.Receive -> view?.launchReceive()
             BlockchainLinkState.Send -> view?.launchSend()
             is BlockchainLinkState.Sell -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL, link.ticker)

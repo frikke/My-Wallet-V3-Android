@@ -71,7 +71,8 @@ class PairingModelTest {
             crashLogger = mock(),
             qrCodeDataManager = qrCodeDataManager,
             payloadDataManager = payloadDataManager,
-            authDataManager = authDataManager
+            authDataManager = authDataManager,
+            analytics = mock()
         )
     }
 

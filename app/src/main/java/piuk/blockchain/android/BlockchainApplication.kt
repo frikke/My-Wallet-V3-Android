@@ -19,9 +19,9 @@ import com.blockchain.koin.apiRetrofit
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.appLaunchEvent
+import com.blockchain.notifications.analytics.AppLaunchEvent
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppInfoPrefs.Companion.DEFAULT_APP_VERSION_CODE
 import com.facebook.stetho.Stetho
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -131,9 +131,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         registerActivityLifecycleCallbacks(activityCallback)
 
         // Report Google Play Services availability
-        Logging.init(this)
-        Logging.logEvent(appLaunchEvent(isGooglePlayServicesAvailable(this)))
-
+        analytics.logEvent(AppLaunchEvent(isGooglePlayServicesAvailable(this)))
         // Register the notification channel if necessary
         initNotifications()
 
@@ -146,17 +144,28 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         AppVersioningChecks(
             context = this,
             appInfoPrefs = appInfoPrefs,
-            onAppInstalled = { onAppInstalled() },
-            onAppAppUpdated = { onAppUpdated() }
+            onAppInstalled = { code, name -> onAppInstalled(code, name) },
+            onAppAppUpdated = { appUpdated -> onAppUpdated(appUpdated) }
         ).checkForPotentialNewInstallOrUpdate()
     }
 
-    private fun onAppUpdated() {
-        analytics.logEvent(AppAnalytics.AppUpdated)
+    private fun onAppUpdated(updateInfo: AppUpdateInfo) {
+        analytics.logEvent(
+            AppAnalytics.AppUpdated(
+                previousVersionCode = updateInfo.previousVersionCode,
+                installedVersion = updateInfo.installedVersionName,
+                currentVersionCode = updateInfo.versionCode,
+                currentVersionName = updateInfo.versionName
+            )
+        )
     }
 
-    private fun onAppInstalled() {
-        analytics.logEvent(AppAnalytics.AppInstalled)
+    private fun onAppInstalled(versionCode: Int, versionName: String) {
+        analytics.logEvent(
+            AppAnalytics.AppInstalled(
+                versionCode = versionCode, versionName = versionName
+            )
+        )
     }
 
     @SuppressLint("CheckResult")
@@ -330,8 +339,8 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 private class AppVersioningChecks(
     private val context: Context,
     private val appInfoPrefs: AppInfoPrefs,
-    private val onAppInstalled: () -> Unit,
-    private val onAppAppUpdated: () -> Unit
+    private val onAppInstalled: (versionCode: Int, versionName: String) -> Unit,
+    private val onAppAppUpdated: (appUpdated: AppUpdateInfo) -> Unit
 ) {
 
     fun checkForPotentialNewInstallOrUpdate() {
@@ -355,7 +364,7 @@ private class AppVersioningChecks(
                                 appInfoPrefs.installationVersionName = it
                                 val runningVersionIsTheInstalled = it == BuildConfig.VERSION_NAME
                                 if (runningVersionIsTheInstalled) {
-                                    onAppInstalled()
+                                    onAppInstalled(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
                                 } else {
                                     checkForPotentialUpdate(it)
                                 }
@@ -388,10 +397,26 @@ private class AppVersioningChecks(
         val appHasJustBeenUpdated = runningVersionName != installedVersion && versionCodeUpdated
 
         if (appHasJustBeenUpdated) {
-            onAppAppUpdated()
+            onAppAppUpdated(
+                AppUpdateInfo(
+                    versionCode = runningVersionCode,
+                    versionName = runningVersionName,
+                    installedVersionName = installedVersion,
+                    previousVersionCode = appInfoPrefs.currentStoredVersionCode.takeIf {
+                        it != DEFAULT_APP_VERSION_CODE
+                    }
+                )
+            )
         }
         if (versionCodeUpdated) {
             appInfoPrefs.currentStoredVersionCode = runningVersionCode
         }
     }
 }
+
+data class AppUpdateInfo(
+    val versionCode: Int,
+    val versionName: String,
+    val previousVersionCode: Int?,
+    val installedVersionName: String
+)

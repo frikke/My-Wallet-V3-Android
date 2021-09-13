@@ -4,7 +4,7 @@ plugins {
     id("kotlin-android-extensions")
 }
 
-apply(from="../../quality/ktlint.gradle")
+apply(from = "../../quality/ktlint.gradle")
 
 kotlin {
     android("android") {
@@ -27,13 +27,11 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-
             }
         }
 
         val androidTest by getting {
             dependencies {
-
             }
         }
 

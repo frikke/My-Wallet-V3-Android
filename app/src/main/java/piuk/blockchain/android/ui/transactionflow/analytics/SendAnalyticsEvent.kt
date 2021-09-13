@@ -116,7 +116,7 @@ sealed class SendAnalyticsEvent(
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "currency" to currency,
-                "fee_type" to feeType.name,
+                "fee_rate" to feeType.name,
                 "from_account_type" to fromAccountType.name,
                 "to_account_type" to toAccountType.name
             )

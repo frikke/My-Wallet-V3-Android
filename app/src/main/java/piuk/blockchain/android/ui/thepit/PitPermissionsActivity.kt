@@ -66,9 +66,9 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
         analytics.logEvent(PitAnalyticsEvent.ConnectNowEvent)
         if (intent.isPitToWalletLink) {
             val linkId = intent.pitToWalletLinkId ?: throw IllegalStateException("Link id is missing")
-            presenter.tryToConnectPitToWallet(linkId)
+            presenter?.tryToConnectPitToWallet(linkId)
         } else {
-            presenter.tryToConnectWalletToPit()
+            presenter?.tryToConnectWalletToPit()
         }
     }
 
@@ -137,7 +137,7 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_VERIFY_EMAIL) {
-            presenter.checkEmailIsVerified()
+            presenter?.checkEmailIsVerified()
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
@@ -192,7 +192,7 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
 
     override fun onBackPressed() {
         super.onBackPressed()
-        presenter?.clearLinkPrefs()
+        pitPermissionsPresenter.clearLinkPrefs()
     }
 
     override fun onDestroy() {

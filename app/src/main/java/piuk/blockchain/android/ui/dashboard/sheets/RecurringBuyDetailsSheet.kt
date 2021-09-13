@@ -79,7 +79,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
         state.selectedRecurringBuy?.let {
             val paymentMethodType = it.paymentDetails?.paymentDetails
                 ?: throw IllegalStateException("Missing Payment Method on RecurringBuy")
-            it.asset?.let { assetInfo ->
+            it.asset.let { assetInfo ->
                 analytics.logEvent(
                     RecurringBuyAnalytics
                         .RecurringBuyCancelClicked(

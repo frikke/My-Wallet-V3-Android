@@ -6,6 +6,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.notifications.analytics.LaunchOrigin
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -40,7 +41,7 @@ interface HomeNavigator {
         ticker: String? = null
     )
     fun launchSimpleBuy(ticker: String)
-    fun launchInterestDashboard()
+    fun launchInterestDashboard(origin: LaunchOrigin)
     fun launchFiatDeposit(currency: String)
     fun launchTransfer()
     fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo)

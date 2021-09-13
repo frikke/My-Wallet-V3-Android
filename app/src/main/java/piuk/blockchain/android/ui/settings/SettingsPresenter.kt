@@ -272,7 +272,6 @@ class SettingsPresenter(
                 throw IllegalStateException("PIN code not found in AccessState")
             }
         }
-        analytics.logEvent(SettingsAnalytics.BiometricsOptionUpdated(isFingerprintUnlockEnabled))
     }
 
     fun updateKyc() {

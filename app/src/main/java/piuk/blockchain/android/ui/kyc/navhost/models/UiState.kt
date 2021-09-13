@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.kyc.splash
+package piuk.blockchain.android.ui.kyc.navhost.models
 
 import androidx.annotation.IntDef
 

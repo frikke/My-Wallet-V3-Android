@@ -32,6 +32,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.coincore.AssetAction
+import com.blockchain.notifications.analytics.LaunchOrigin
 import piuk.blockchain.android.databinding.FragmentKycTierSplashBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
@@ -314,6 +315,11 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
     override fun navigateTo(directions: NavDirections, tier: Int) {
         logEvent(kycTierStart(tier))
         navigate(directions)
+        analytics.logEvent(
+            KYCAnalyticsEvents.UpgradeKycVeriffClicked(
+                LaunchOrigin.SETTINGS, tier = com.blockchain.nabu.Tier.values()[tier]
+            )
+        )
     }
 
     override fun showError(message: Int) =

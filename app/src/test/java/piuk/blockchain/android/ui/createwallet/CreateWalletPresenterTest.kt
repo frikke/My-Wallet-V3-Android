@@ -45,6 +45,7 @@ class CreateWalletPresenterTest {
             prefs = prefsUtil,
             appUtil = appUtil,
             accessState = accessState,
+            specificAnalytics = mock(),
             prngFixer = prngFixer,
             analytics = analytics,
             environmentConfig = environmentConfig,

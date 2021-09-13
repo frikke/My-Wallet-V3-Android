@@ -7,6 +7,8 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierUpdater
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -17,11 +19,9 @@ import piuk.blockchain.android.campaign.CampaignRegistration
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
-import piuk.blockchain.android.ui.kyc.logging.kycResumedEvent
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
-import com.blockchain.notifications.analytics.Logging
 import timber.log.Timber
 
 class KycNavHostPresenter(
@@ -30,7 +30,8 @@ class KycNavHostPresenter(
     private val sunriverCampaign: SunriverCampaignRegistration,
     private val reentryDecision: ReentryDecision,
     private val kycNavigator: KycNavigator,
-    private val tierUpdater: TierUpdater
+    private val tierUpdater: TierUpdater,
+    private val analytics: Analytics
 ) : BaseKycPresenter<KycNavHostView>(nabuToken) {
 
     override fun onViewReady() {
@@ -116,7 +117,7 @@ class KycNavHostPresenter(
                     val reentryPoint = reentryDecision.findReentryPoint(user)
                     val directions = kycNavigator.userAndReentryPointToDirections(user, reentryPoint)
                     view.navigate(directions)
-                    Logging.logEvent(kycResumedEvent(reentryPoint))
+                    analytics.logEvent(KYCAnalyticsEvents.KycResumedEvent(reentryPoint.entryPoint))
                 }
             }
             view.campaignType == CampaignType.Sunriver -> {

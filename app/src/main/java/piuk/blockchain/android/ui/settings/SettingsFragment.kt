@@ -51,7 +51,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
@@ -187,6 +187,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
     private val biometricsController: BiometricsController by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val analytics: Analytics by inject()
+    private val specificAnalytics: ProviderSpecificAnalytics by inject()
     private val rxBus: RxBus by inject()
     private val formatChecker: FormatChecker by inject()
     private val environmentConfig: EnvironmentConfig by inject()
@@ -205,8 +206,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
         settingsPresenter.onViewReady()
 
         analytics.logEvent(AnalyticsEvents.Settings)
-        Logging.logContentView(javaClass.simpleName)
-
+        specificAnalytics.logContentView(javaClass.simpleName)
         initReviews()
     }
 
@@ -266,6 +266,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
             onFingerprintClicked()
             analytics.logEvent(SettingsAnalytics.BiometryAuthSwitch)
         }
+
         findPreference<Preference>("pin").onClick {
             showDialogChangePin()
             analytics.logEvent(SettingsAnalytics.ChangePinClicked_Old)
@@ -699,13 +700,14 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     override fun updateFingerprintPreferenceStatus() {
         fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
+        analytics.logEvent(SettingsAnalytics.BiometricsOptionUpdated(fingerprintPref.isChecked))
     }
 
     override fun showFingerprintDialog(pincode: String) {
         biometricsController.authenticate(
             this, BiometricsType.TYPE_REGISTER, object : BiometricsCallback<WalletBiometricData> {
-                override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
-                    fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
+                override fun onAuthSuccess(data: WalletBiometricData) {
+                    updateFingerprintPreferenceStatus()
                 }
 
                 override fun onAuthFailed(error: BiometricAuthError) {
@@ -714,7 +716,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
                 override fun onAuthCancelled() {
                     settingsPresenter.setFingerprintUnlockDisabled()
-                    fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
+                    updateFingerprintPreferenceStatus()
                 }
             })
     }
@@ -746,7 +748,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
             }
         }
         settingsPresenter.setFingerprintUnlockDisabled()
-        fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
+        updateFingerprintPreferenceStatus()
     }
 
     override fun showDialogSmsVerified() {

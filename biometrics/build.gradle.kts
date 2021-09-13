@@ -4,7 +4,7 @@ plugins {
     id("kotlin-android-extensions")
 }
 
-apply(from="../quality/ktlint.gradle")
+apply(from = "../quality/ktlint.gradle")
 
 kotlin {
     android("android") {

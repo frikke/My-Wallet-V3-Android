@@ -7,9 +7,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import com.blockchain.annotations.CommonCode
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecoverFundsBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
@@ -22,12 +20,11 @@ import java.util.Locale
 
 internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverFundsPresenter>(), RecoverFundsView {
 
-    private val presenter: RecoverFundsPresenter by scopedInject()
+    private val recoverFundsPresenter: RecoverFundsPresenter by scopedInject()
 
     private val binding: ActivityRecoverFundsBinding by lazy {
         ActivityRecoverFundsBinding.inflate(layoutInflater)
     }
-    private val internalFeatureFlagApi: InternalFeatureFlagApi by inject()
     private var progressDialog: MaterialProgressDialog? = null
     private val recoveryPhrase: String
         get() = binding.fieldPassphrase.text.toString().toLowerCase(Locale.US).trim()
@@ -42,10 +39,10 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         with(binding) {
-            buttonContinue.setOnClickListener { presenter.onContinueClicked(recoveryPhrase) }
-            fieldPassphrase?.setOnEditorActionListener { _, i, _ ->
+            buttonContinue.setOnClickListener { presenter?.onContinueClicked(recoveryPhrase) }
+            fieldPassphrase.setOnEditorActionListener { _, i, _ ->
                 if (i == EditorInfo.IME_ACTION_GO) {
-                    presenter.onContinueClicked(recoveryPhrase)
+                    presenter?.onContinueClicked(recoveryPhrase)
                 }
                 true
             }
@@ -104,7 +101,7 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
 
     override fun enforceFlagSecure(): Boolean = true
 
-    override fun createPresenter(): RecoverFundsPresenter = presenter
+    override fun createPresenter(): RecoverFundsPresenter = recoverFundsPresenter
     override fun getView(): RecoverFundsView = this
 
     companion object {

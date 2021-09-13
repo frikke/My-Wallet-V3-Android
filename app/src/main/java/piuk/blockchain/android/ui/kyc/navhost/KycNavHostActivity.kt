@@ -11,6 +11,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.Tier
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -46,7 +47,7 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
         ActivityKycNavHostBinding.inflate(layoutInflater)
     }
 
-    private val presenter: KycNavHostPresenter by scopedInject()
+    private val kycNavHastPresenter: KycNavHostPresenter by scopedInject()
     private val analytics: Analytics by inject()
     private var navInitialDestination: NavDestination? = null
     private val navController: NavController by lazy {
@@ -67,11 +68,14 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
         setContentView(binding.root)
         val title = R.string.identity_verification
         setupToolbar(binding.toolbarKyc, title)
-        analytics.logEvent(
-            KYCAnalyticsEvents.UpgradeKycVeriffClicked(
-                campaignType.toLaunchOrigin()
+        if (!showTiersLimitsSplash) {
+            analytics.logEvent(
+                KYCAnalyticsEvents.UpgradeKycVeriffClicked(
+                    campaignType.toLaunchOrigin(),
+                    Tier.GOLD
+                )
             )
-        )
+        }
         navController.setGraph(R.navigation.kyc_nav, intent.extras)
 
         onViewReady()
@@ -158,7 +162,7 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
             // If not coming from settings, we want the 1st launched screen to be the 1st screen in the stack
             (navInitialDestination != null && navInitialDestination?.id == navController.currentDestination?.id)
 
-    override fun createPresenter(): KycNavHostPresenter = presenter
+    override fun createPresenter(): KycNavHostPresenter = kycNavHastPresenter
 
     override fun getView(): KycNavHostView = this
 

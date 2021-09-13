@@ -20,8 +20,8 @@ import junit.framework.Assert.assertEquals
 import okhttp3.ResponseBody
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.kyc.navhost.models.UiState
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.android.ui.kyc.splash.UiState
 import retrofit2.HttpException
 import retrofit2.Response
 

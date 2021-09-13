@@ -112,6 +112,7 @@ class PinEntryPresenterTest {
         crashLogger = crashLogger,
         apiStatus = apiStatus,
         credentialsWiper = credentialsWiper,
+        specificAnalytics = mock(),
         biometricsController = biometricsController
     )
 

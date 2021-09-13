@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import com.blockchain.sunriver.StellarPayment
 import com.blockchain.sunriver.fromStellarUri
 import info.blockchain.balance.AssetInfo
@@ -17,7 +18,6 @@ import io.reactivex.rxjava3.core.Single
 import info.blockchain.wallet.util.FormatsUtil
 import org.bitcoinj.uri.BitcoinURI
 import piuk.blockchain.android.R
-import com.blockchain.notifications.analytics.Logging
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
@@ -27,7 +27,8 @@ import java.util.ArrayList
 import java.util.HashMap
 
 class ReceiveIntentHelper(
-    private val context: Context
+    private val context: Context,
+    private val specificAnalytics: ProviderSpecificAnalytics
 ) {
 
     internal fun getIntentDataList(
@@ -103,8 +104,7 @@ class ReceiveIntentHelper(
                 it.remove()
             }
 
-            Logging.logShare("QR Code + URI")
-
+            specificAnalytics.logShare("QR Code + URI")
             return Single.just(dataList)
         } else {
             return Single.just(emptyList())

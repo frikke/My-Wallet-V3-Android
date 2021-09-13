@@ -642,7 +642,7 @@ class PortfolioFragment :
         }
 
         override fun startInterestDashboard() {
-            navigator().launchInterestDashboard()
+            navigator().launchInterestDashboard(LaunchOrigin.DASHBOARD_PROMO)
         }
 
         override fun showFiatFundsKyc() {
@@ -744,7 +744,7 @@ class PortfolioFragment :
     }
 
     override fun goToInterestDashboard() {
-        navigator().launchInterestDashboard()
+        navigator().launchInterestDashboard(LaunchOrigin.CURRENCY_PAGE)
     }
 
     override fun goToBuy(asset: AssetInfo) {

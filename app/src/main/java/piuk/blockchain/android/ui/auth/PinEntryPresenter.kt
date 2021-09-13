@@ -9,8 +9,8 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.walletUpgradeEvent
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
+import com.blockchain.notifications.analytics.WalletUpgradeEvent
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.exceptions.AccountLockedException
@@ -45,6 +45,7 @@ import java.net.SocketTimeoutException
 
 class PinEntryPresenter(
     private val analytics: Analytics,
+    private val specificAnalytics: ProviderSpecificAnalytics,
     private val authDataManager: AuthDataManager,
     private val appUtil: AppUtil,
     private val prefs: PersistentPrefs,
@@ -277,7 +278,7 @@ class PinEntryPresenter(
 
         setAccountLabelIfNecessary()
 
-        Logging.logLogin(true)
+        specificAnalytics.logLogin(true)
 
         if (payloadDataManager.isWalletUpgradeRequired) {
             view?.walletUpgradeRequired(SECOND_PASSWORD_ATTEMPTS)
@@ -299,10 +300,10 @@ class PinEntryPresenter(
                 onComplete = {
                     view.dismissProgressDialog()
                     onUpdateFinished(false)
-                    Logging.logEvent(walletUpgradeEvent((true)))
+                    analytics.logEvent(WalletUpgradeEvent(true))
                 },
                 onError = { throwable ->
-                    Logging.logEvent(walletUpgradeEvent((false)))
+                    analytics.logEvent(WalletUpgradeEvent(false))
                     crashLogger.logException(throwable)
                     view.onWalletUpgradeFailed()
                 })
@@ -323,8 +324,7 @@ class PinEntryPresenter(
     }
 
     private fun handlePayloadUpdateError(t: Throwable) {
-        Logging.logLogin(false)
-
+        specificAnalytics.logLogin(false)
         when (t) {
             is InvalidCredentialsException -> view.goToPasswordRequiredActivity()
             is ServerConnectionException,

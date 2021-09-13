@@ -86,9 +86,9 @@ fun PaymentMethod.toNabuAnalyticsString(): String =
 
 fun PaymentMethodType.toAnalyticsString() =
     when (this) {
-        PaymentMethodType.PAYMENT_CARD -> "CARD"
+        PaymentMethodType.PAYMENT_CARD -> "PAYMENT_CARD"
         PaymentMethodType.FUNDS -> "FUNDS"
-        PaymentMethodType.BANK_TRANSFER -> "LINK_BANK"
+        PaymentMethodType.BANK_TRANSFER -> "BANK_TRANSFER"
         else -> ""
     }
 
@@ -186,7 +186,7 @@ class BuyAmountEntered(
     inputAmount: Money,
     maxCardLimit: Money?,
     outputCurrency: String,
-    paymentMethod: String
+    paymentMethod: PaymentMethodType
 ) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_AMOUNT_ENTERED.eventName
     override val params: Map<String, Serializable> = mapOf(
@@ -195,7 +195,7 @@ class BuyAmountEntered(
         "input_currency" to inputAmount.currencyCode,
         "max_card_limit" to maxCardLimit?.toBigDecimal(),
         "output_currency" to outputCurrency,
-        "payment_method" to paymentMethod
+        "payment_method" to paymentMethod.name
     ).withoutNullValues()
 }
 

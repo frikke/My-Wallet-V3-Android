@@ -45,11 +45,11 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.kyc.splash.UiState
-import piuk.blockchain.android.ui.kyc.splash.UiState.CONTENT
-import piuk.blockchain.android.ui.kyc.splash.UiState.EMPTY
-import piuk.blockchain.android.ui.kyc.splash.UiState.FAILURE
-import piuk.blockchain.android.ui.kyc.splash.UiState.LOADING
+import piuk.blockchain.android.ui.kyc.navhost.models.UiState
+import piuk.blockchain.android.ui.kyc.navhost.models.UiState.CONTENT
+import piuk.blockchain.android.ui.kyc.navhost.models.UiState.EMPTY
+import piuk.blockchain.android.ui.kyc.navhost.models.UiState.FAILURE
+import piuk.blockchain.android.ui.kyc.navhost.models.UiState.LOADING
 import timber.log.Timber
 
 class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresenter>(),

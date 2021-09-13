@@ -74,7 +74,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         setContentView(binding.root)
         applyConstraintSet.clone(binding.mainConstraintLayout)
 
-        presenter.getUserGeolocation()
+        createWalletPresenter.getUserGeolocation()
 
         initializeCountrySpinner()
         initializeStatesSpinner()
@@ -93,7 +93,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
             walletPass.afterTextChangeEvents()
                 .doOnNext {
                     showEntropyContainer()
-                    presenter.logEventPasswordOneClicked()
+                    createWalletPresenter.logEventPasswordOneClicked()
                     binding.entropyContainerNew.updatePassword(it.editable.toString())
                     updateCreateButtonState(
                         it.editable.toString().length,
@@ -105,7 +105,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
 
             walletPassConfirm.afterTextChangeEvents()
                 .doOnNext {
-                    presenter.logEventPasswordTwoClicked()
+                    createWalletPresenter.logEventPasswordTwoClicked()
                     updateCreateButtonState(
                         walletPass.getTextString().length,
                         it.editable.toString().length,
@@ -122,7 +122,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
                 )
             }
 
-            emailAddress.setOnClickListener { presenter.logEventEmailClicked() }
+            emailAddress.setOnClickListener { createWalletPresenter.logEventEmailClicked() }
             commandNext.setOnClickListener { onNextClicked() }
 
             updatePasswordDisclaimer()
@@ -271,11 +271,11 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
             val stateCode = statePickerItem?.code
 
             if (walletPasswordCheckbox.isChecked &&
-                presenter.validateCredentials(email, password1, password2) &&
-                presenter.validateGeoLocation(countryCode, stateCode)
+                createWalletPresenter.validateCredentials(email, password1, password2) &&
+                createWalletPresenter.validateGeoLocation(countryCode, stateCode)
             ) {
                 countryCode?.let {
-                    presenter.createOrRestoreWallet(email, password1, recoveryPhrase, it, stateCode)
+                    createWalletPresenter.createOrRestoreWallet(email, password1, recoveryPhrase, it, stateCode)
                 }
             }
         }
