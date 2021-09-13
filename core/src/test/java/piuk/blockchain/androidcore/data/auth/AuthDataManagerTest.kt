@@ -3,6 +3,7 @@ package piuk.blockchain.androidcore.data.auth
 import com.blockchain.api.services.AuthApiService
 import com.blockchain.logging.CrashLogger
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
@@ -16,9 +17,9 @@ import junit.framework.TestCase.assertTrue
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -60,13 +61,14 @@ class AuthDataManagerTest : RxTest() {
         whenever(
             walletAuthService.getEncryptedPayload(
                 anyString(),
-                anyString()
+                anyString(),
+                anyBoolean()
             )
         ).thenReturn(Observable.just(Response.success(mockResponseBody)))
         // Act
-        val observer = subject.getEncryptedPayload("1234567890", "1234567890").test()
+        val observer = subject.getEncryptedPayload("1234567890", "1234567890", false).test()
         // Assert
-        verify(walletAuthService).getEncryptedPayload(anyString(), anyString())
+        verify(walletAuthService).getEncryptedPayload("1234567890", "1234567890", false)
         observer.assertComplete()
         observer.assertNoErrors()
         assertTrue(observer.values()[0].isSuccessful)
@@ -338,13 +340,13 @@ class AuthDataManagerTest : RxTest() {
         // Arrange
         val sessionId = "SESSION_ID"
         val guid = "GUID"
-        whenever(walletAuthService.getEncryptedPayload(guid, sessionId))
+        whenever(walletAuthService.getEncryptedPayload(guid, sessionId, false))
             .thenReturn(Observable.error(Throwable()))
         // Act
         val testObserver = subject.startPollingAuthStatus(guid, sessionId).test()
         testScheduler.advanceTimeBy(3, TimeUnit.SECONDS)
         // Assert
-        verify(walletAuthService).getEncryptedPayload(guid, sessionId)
+        verify(walletAuthService).getEncryptedPayload(guid, sessionId, false)
         testObserver.assertComplete()
         testObserver.assertValue(AuthDataManager.AUTHORIZATION_REQUIRED)
         testObserver.assertNoErrors()
@@ -360,13 +362,13 @@ class AuthDataManagerTest : RxTest() {
         val guid = "GUID"
         val responseBody = ERROR_BODY.toResponseBody(("application/json").toMediaTypeOrNull())
 
-        whenever(walletAuthService.getEncryptedPayload(guid, sessionId))
+        whenever(walletAuthService.getEncryptedPayload(guid, sessionId, false))
             .thenReturn(Observable.just(Response.error(500, responseBody)))
         // Act
         val testObserver = subject.startPollingAuthStatus(guid, sessionId).test()
         testScheduler.advanceTimeBy(2, TimeUnit.SECONDS)
         // Assert
-        verify(walletAuthService).getEncryptedPayload(guid, sessionId)
+        verify(walletAuthService).getEncryptedPayload(guid, sessionId, false)
         testObserver.assertNotComplete()
         testObserver.assertNoValues()
         testObserver.assertNoErrors()

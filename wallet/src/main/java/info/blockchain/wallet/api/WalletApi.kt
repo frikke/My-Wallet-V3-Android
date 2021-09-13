@@ -1,10 +1,10 @@
 package info.blockchain.wallet.api
 
+import com.blockchain.api.ApiException
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.blockchain.api.ApiException
 import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
@@ -27,7 +27,8 @@ class WalletApi(
         guid: String?,
         sharedKey: String?
     ): Observable<ResponseBody> {
-        return explorerInstance.postToWallet("update-firebase",
+        return explorerInstance.postToWallet(
+            "update-firebase",
             guid,
             sharedKey,
             token,
@@ -49,11 +50,13 @@ class WalletApi(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    @JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.NONE,
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         setterVisibility = JsonAutoDetect.Visibility.NONE,
         creatorVisibility = JsonAutoDetect.Visibility.NONE,
-        isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+    )
     class IPResponse {
         @JsonProperty("ip")
         var ip: String = ""
@@ -162,15 +165,18 @@ class WalletApi(
         return explorerInstance.getSessionId(guid)
     }
 
-    fun fetchEncryptedPayload(guid: String?, sessionId: String): Observable<Response<ResponseBody>> {
-        return explorerInstance.fetchEncryptedPayload(
+    fun fetchEncryptedPayload(
+        guid: String?,
+        sessionId: String,
+        resend2FASms: Boolean
+    ): Observable<Response<ResponseBody>> =
+        explorerInstance.fetchEncryptedPayload(
             guid,
             "SID=$sessionId",
             "json",
-            true,
+            resend2FASms,
             getApiCode()
         )
-    }
 
     fun fetchPairingEncryptionPasswordCall(guid: String?): Call<ResponseBody> {
         return explorerInstance.fetchPairingEncryptionPasswordCall(
