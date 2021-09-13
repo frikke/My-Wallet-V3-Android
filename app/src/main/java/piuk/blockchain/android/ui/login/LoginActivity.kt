@@ -52,10 +52,10 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recaptchaClient.initReCaptcha()
-        checkExistingSessionOrDeeplink()
+        checkExistingSessionOrDeeplink(intent)
     }
 
-    private fun checkExistingSessionOrDeeplink() {
+    private fun checkExistingSessionOrDeeplink(intent: Intent) {
         val action = intent.action
         val data = intent.data
         if (action != null && data != null) {
@@ -125,7 +125,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        checkExistingSessionOrDeeplink()
+        checkExistingSessionOrDeeplink(intent)
     }
 
     override fun initBinding(): ActivityLoginNewBinding = ActivityLoginNewBinding.inflate(layoutInflater)
