@@ -5,15 +5,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.data.activity.historicRate.HistoricRateFetcher
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import com.blockchain.utils.toFormattedDate
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
-import com.blockchain.coincore.CustodialTradingActivitySummaryItem
-import com.blockchain.data.activity.historicRate.HistoricRateFetcher
+import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -81,7 +81,7 @@ private class CustodialTradingActivityItemViewHolder(
             statusDate.setTxStatus(tx)
             setTextColours(tx.status)
 
-            assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
+            assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, tx.fundedFiat.currencyCode, historicRateFetcher)
 
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
 
@@ -125,7 +125,7 @@ private fun ImageView.setIcon(status: OrderState, type: OrderType) =
 
 private fun TextView.setTxLabel(asset: AssetInfo, type: OrderType) {
     text = context.resources.getString(
-        if (type == OrderType.BUY) R.string.tx_title_buy else R.string.tx_title_sell, asset.ticker
+        if (type == OrderType.BUY) R.string.tx_title_bought else R.string.tx_title_sold, asset.ticker
     )
 }
 

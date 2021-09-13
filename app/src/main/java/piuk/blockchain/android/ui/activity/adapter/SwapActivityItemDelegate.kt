@@ -16,7 +16,6 @@ import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.setTransactionIsConfirming
-import piuk.blockchain.android.util.visible
 import java.util.Date
 
 class SwapActivityItemDelegate<in T>(
@@ -55,7 +54,7 @@ private class SwapActivityItemViewHolder(
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
             (tx.currencyPair as? CurrencyPair.CryptoCurrencyPair)?.let { pair ->
                 txType.text = context.resources.getString(
-                    R.string.tx_title_swap,
+                    R.string.tx_title_swapped,
                     pair.source.ticker,
                     pair.destination.ticker
                 )
@@ -78,7 +77,6 @@ private class SwapActivityItemViewHolder(
 
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.text = tx.fiatValue.toStringWithSymbol()
-            assetBalanceFiat.visible()
         }
     }
 

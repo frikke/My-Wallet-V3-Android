@@ -187,7 +187,9 @@ class TransactionFlowCustomiserImpl(
                 R.string.send_enter_amount_title, state.sendingAsset.ticker
             )
             AssetAction.Swap -> resources.getString(
-                R.string.tx_title_swap, state.sendingAsset.ticker, (state.selectedTarget as CryptoAccount).asset.ticker
+                R.string.tx_title_swap,
+                state.sendingAsset.ticker,
+                (state.selectedTarget as CryptoAccount).asset.ticker
             )
             AssetAction.InterestDeposit -> resources.getString(
                 R.string.tx_title_deposit,
@@ -198,7 +200,7 @@ class TransactionFlowCustomiserImpl(
                 state.sendingAsset.ticker
             )
             AssetAction.FiatDeposit -> resources.getString(
-                R.string.tx_title_fiat_deposit,
+                R.string.tx_title_deposit,
                 (state.selectedTarget as FiatAccount).fiatCurrency
             )
             AssetAction.Withdraw -> resources.getString(

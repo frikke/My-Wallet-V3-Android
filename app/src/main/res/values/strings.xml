@@ -619,17 +619,23 @@
     </string>
 
     <!-- TRANSACTIONS -->
-    <string name="tx_title_send">Send %1s</string>
-    <string name="tx_title_receive">Receive %1s</string>
-    <string name="tx_title_sell">Sell %1s</string>
+    <string name="tx_title_send">Send %s</string>
+    <string name="tx_title_sent">Sent %s</string>
+    <string name="tx_title_receive">Receive %s</string>
+    <string name="tx_title_received">Received %s</string>
+    <string name="tx_title_sell">Sell %s</string>
+    <string name="tx_title_sold">Sold %s</string>
     <string name="tx_title_buy">Buy %1s</string>
-    <string name="tx_title_deposit">Deposit %1s</string>
-    <string name="tx_title_withdraw">Withdraw %1s</string>
+    <string name="tx_title_bought">Bought %1s</string>
+    <string name="tx_title_deposit">Deposit %s</string>
+    <string name="tx_title_deposited">Deposited %s</string>
+    <string name="tx_title_withdrew">Withdrew %s</string>
+    <string name="tx_title_withdraw">Withdraw %s</string>
     <string name="tx_title_swap">Swap %1$s → %2$s</string>
-    <string name="tx_title_transfer">Transfer %1s</string>
-    <string name="tx_title_fee">Fee %1s</string>
-    <string name="tx_title_interest">%1s Interest Earned</string>
-    <string name="tx_title_fiat_deposit">Deposit %1$s</string>
+    <string name="tx_title_swapped">Swapped %1$s → %2$s</string>
+    <string name="tx_title_transferred">Transferred %s</string>
+    <string name="tx_title_fee">Fee %s</string>
+    <string name="tx_title_interest">%s Interest Earned</string>
 
     <!-- TRANSACTION DETAILS -->
     <string name="transaction_detail_coinbase">No Inputs (Newly Generated Coins)</string>

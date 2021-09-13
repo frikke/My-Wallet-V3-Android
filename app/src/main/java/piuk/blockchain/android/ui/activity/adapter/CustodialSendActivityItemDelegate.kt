@@ -19,7 +19,6 @@ import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionIsConfirming
 import java.util.Date
@@ -77,9 +76,8 @@ private class CustodialTradeActivityItemViewHolder(
 
             txType.setDirectionText(tx)
 
-            assetBalanceFiat.gone()
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
-            assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
+            assetBalanceFiat.text = tx.fiatValue.toStringWithSymbol()
 
             binding.root.setOnClickListener {
                 onAccountClicked(
@@ -92,10 +90,10 @@ private class CustodialTradeActivityItemViewHolder(
     private fun TextView.setDirectionText(tx: CustodialTransferActivitySummaryItem) =
         when (tx.type) {
             TransactionType.DEPOSIT -> text = context.getString(
-                R.string.tx_title_receive, tx.asset.ticker
+                R.string.tx_title_received, tx.asset.ticker
             )
             TransactionType.WITHDRAWAL -> text = context.getString(
-                R.string.tx_title_send, tx.asset.ticker
+                R.string.tx_title_sent, tx.asset.ticker
             )
         }
 

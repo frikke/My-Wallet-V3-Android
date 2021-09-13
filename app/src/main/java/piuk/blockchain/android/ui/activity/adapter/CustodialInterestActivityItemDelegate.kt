@@ -20,7 +20,6 @@ import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import java.util.Date
@@ -77,7 +76,6 @@ private class CustodialInterestActivityItemViewHolder(
                 }
             }
 
-            assetBalanceFiat.gone()
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
 
@@ -139,7 +137,7 @@ private fun TextView.setTxLabel(
 ) {
     text = when (type) {
         TransactionSummary.TransactionType.DEPOSIT -> context.resources.getString(
-            R.string.tx_title_transfer,
+            R.string.tx_title_transferred,
             asset.ticker
         )
         TransactionSummary.TransactionType.INTEREST_EARNED -> context.resources.getString(
@@ -147,11 +145,11 @@ private fun TextView.setTxLabel(
             asset.ticker
         )
         TransactionSummary.TransactionType.WITHDRAW -> context.resources.getString(
-            R.string.tx_title_withdraw,
+            R.string.tx_title_withdrew,
             asset.ticker
         )
         else -> context.resources.getString(
-            R.string.tx_title_transfer,
+            R.string.tx_title_transferred,
             asset.ticker
         )
     }

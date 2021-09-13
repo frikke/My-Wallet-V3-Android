@@ -16,7 +16,6 @@ import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.setTransactionIsConfirming
-import piuk.blockchain.android.util.visible
 import java.util.Date
 
 class SellActivityItemDelegate<in T>(
@@ -55,7 +54,7 @@ private class SellActivityItemViewHolder(
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
             (tx.currencyPair as? CurrencyPair.CryptoToFiatCurrencyPair)?.let { pair ->
                 txType.text = context.resources.getString(
-                    R.string.tx_title_sell,
+                    R.string.tx_title_sold,
                     pair.source.ticker
                 )
                 when {
@@ -74,8 +73,7 @@ private class SellActivityItemViewHolder(
             }
             setTextColours(tx.state.isPending)
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
-            assetBalanceFiat.text = tx.fiatValue.toStringWithSymbol()
-            assetBalanceFiat.visible()
+            assetBalanceFiat.text = tx.receivingValue.toStringWithSymbol()
         }
     }
 

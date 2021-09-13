@@ -111,7 +111,7 @@ private class FiatActivityItemViewHolder(
 
 private fun AppCompatTextView.setTxLabel(currency: String, type: TransactionType) {
     text = when (type) {
-        TransactionType.DEPOSIT -> context.getString(R.string.tx_title_deposit, currency)
-        else -> context.getString(R.string.tx_title_withdraw, currency)
+        TransactionType.DEPOSIT -> context.getString(R.string.tx_title_deposited, currency)
+        else -> context.getString(R.string.tx_title_withdrew, currency)
     }
 }
