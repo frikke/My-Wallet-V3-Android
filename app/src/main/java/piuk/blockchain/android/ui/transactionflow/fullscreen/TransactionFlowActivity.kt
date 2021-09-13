@@ -3,8 +3,13 @@ package piuk.blockchain.android.ui.transactionflow.fullscreen
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import androidx.lifecycle.Lifecycle
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.TransactionTarget
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -12,10 +17,6 @@ import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.coincore.TransactionTarget
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.addAnimationTransaction
@@ -87,6 +88,11 @@ class TransactionFlowActivity :
         startModel()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_tx_flow, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
     override fun initBinding(): ActivityTransactionFlowBinding =
         ActivityTransactionFlowBinding.inflate(layoutInflater)
 
@@ -151,6 +157,10 @@ class TransactionFlowActivity :
                 }
                 true
             }
+            R.id.action_close -> {
+                dismissFlow()
+                true
+            }
             else -> {
                 super.onOptionsItemSelected(item)
             }
@@ -158,7 +168,9 @@ class TransactionFlowActivity :
     }
 
     override fun onBackPressed() {
-        finish()
+        navigateOnBackPressed {
+            finish()
+        }
     }
 
     private fun navigateOnBackPressed(finalAction: () -> Unit) {

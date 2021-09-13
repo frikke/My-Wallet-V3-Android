@@ -180,7 +180,7 @@ class SimpleBuyCheckoutFragment :
 
             val sb = SpannableStringBuilder()
             val privateKeyExplanation =
-                getString(R.string.checkout_item_private_key_wallet_explanation, selectedCryptoAsset.ticker)
+                getString(R.string.checkout_item_private_key_wallet_explanation_1, selectedCryptoAsset.ticker)
             sb.append(privateKeyExplanation)
                 .append(learnMoreLink)
                 .setSpan(
