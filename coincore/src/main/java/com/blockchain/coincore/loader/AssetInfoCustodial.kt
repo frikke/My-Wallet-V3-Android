@@ -296,7 +296,7 @@ internal object UNI : CryptoCurrency(
 
 internal object DAI : CryptoCurrency(
     ticker = "DAI",
-    name = "Multi-collateral DAI",
+    name = "Dai Stablecoin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
     l2chain = ETHER,
