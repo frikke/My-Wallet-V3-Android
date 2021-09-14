@@ -61,8 +61,8 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
     )
 
     private var _binding: FragmentKycTierSplashBinding? = null
-
     private val binding get() = _binding!!
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -105,8 +105,6 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
 
         onViewReady()
     }
-
-    private val disposable = CompositeDisposable()
 
     override fun renderTiersList(tiers: KycTiers) {
         // Logic is now limited to 2 tiers, future refactor to traverse tiersList
@@ -254,7 +252,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
 
     override fun onResume() {
         super.onResume()
-        disposable += binding.cardTier1
+        compositeDisposable += binding.cardTier1
             .throttledClicks()
             .subscribeBy(
                 onNext = {
@@ -263,7 +261,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                 },
                 onError = { Timber.e(it) }
             )
-        disposable += binding.cardTier2
+        compositeDisposable += binding.cardTier2
             .throttledClicks()
             .subscribeBy(
                 onNext = {
@@ -272,7 +270,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                 },
                 onError = { Timber.e(it) }
             )
-        disposable += binding.buttonSwapNow
+        compositeDisposable += binding.buttonSwapNow
             .throttledClicks()
             .subscribeBy(
                 onNext = {
@@ -280,13 +278,13 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                 },
                 onError = { Timber.e(it) }
             )
-        disposable += binding.buttonLearnMore
+        compositeDisposable += binding.buttonLearnMore
             .throttledClicks()
             .subscribeBy(
                 onNext = { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_LEARN_MORE_REJECTED))) },
                 onError = { Timber.e(it) }
             )
-        disposable += binding.textContactSupport
+        compositeDisposable += binding.textContactSupport
             .throttledClicks()
             .subscribeBy(
                 onNext = { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_CONTACT_SUPPORT))) },
@@ -299,12 +297,13 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
             activity = requireActivity(),
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
-            flowHost = this@KycTierSplashFragment
+            flowHost = this@KycTierSplashFragment,
+            compositeDisposable = compositeDisposable
         )
     }
 
     override fun onPause() {
-        disposable.clear()
+        compositeDisposable.clear()
         super.onPause()
     }
 

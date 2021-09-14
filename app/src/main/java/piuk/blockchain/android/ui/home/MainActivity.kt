@@ -560,7 +560,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                             action = AssetAction.Send,
                             flowHost = this@MainActivity,
                             sourceAccount = sourceAccount,
-                            target = targetAddress
+                            target = targetAddress,
+                            compositeDisposable = compositeDisposable
                         )
                     },
                     onComplete = {
@@ -681,7 +682,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 target = destinationAccount ?: NullCryptoAccount(),
                 action = AssetAction.Swap,
                 fragmentManager = supportFragmentManager,
-                flowHost = this@MainActivity
+                flowHost = this@MainActivity,
+                compositeDisposable = compositeDisposable
             )
         }
     }

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
+import com.blockchain.koin.fullScreenTxFlowFeatureFlag
 import com.blockchain.koin.payloadScope
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.core.qualifier.named
@@ -44,8 +45,7 @@ val transactionModule = module {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
             assetResources = get(),
-            stringUtils = get(),
-            featureFlags = get()
+            stringUtils = get()
         )
     }.bind(TransactionFlowCustomiser::class)
         .bind(EnterAmountCustomisations::class)
@@ -57,7 +57,7 @@ val transactionModule = module {
 
     factory {
         TransactionLauncher(
-            flags = get()
+            fullScreenTxFeatureFlag = get(fullScreenTxFlowFeatureFlag)
         )
     }
 

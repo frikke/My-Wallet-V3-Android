@@ -53,7 +53,7 @@ class InterestDashboardFragment : Fragment() {
     private val binding: FragmentInterestDashboardBinding
         get() = _binding!!
 
-    private val disposables = CompositeDisposable()
+    private val compositeDisposable = CompositeDisposable()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val interestBalances: InterestBalanceDataManager by scopedInject()
     private val kycTierService: TierService by scopedInject()
@@ -64,7 +64,7 @@ class InterestDashboardFragment : Fragment() {
     private val listAdapter: InterestDashboardAdapter by lazy {
         InterestDashboardAdapter(
             assetResources = assetResources,
-            disposables = disposables,
+            disposables = compositeDisposable,
             custodialWalletManager = custodialWalletManager,
             interestBalance = interestBalances,
             verificationClicked = ::startKyc,
@@ -93,7 +93,7 @@ class InterestDashboardFragment : Fragment() {
     }
 
     private fun loadInterestDetails() {
-        disposables +=
+        compositeDisposable +=
             Singles.zip(
                 kycTierService.tiers(),
                 custodialWalletManager.getInterestEnabledAssets()
@@ -115,7 +115,7 @@ class InterestDashboardFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        disposables.clear()
+        compositeDisposable.clear()
         _binding = null
     }
 
@@ -165,7 +165,7 @@ class InterestDashboardFragment : Fragment() {
     }
 
     private fun interestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
-        disposables += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
+        compositeDisposable += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
             val interestAccount = it.accounts.first()
             if (hasBalance) {
                 host.showInterestSummarySheet(interestAccount, cryptoCurrency)
@@ -175,7 +175,8 @@ class InterestDashboardFragment : Fragment() {
                     target = it.accounts.first(),
                     action = AssetAction.InterestDeposit,
                     fragmentManager = parentFragmentManager,
-                    flowHost = activity as DialogFlow.FlowHost
+                    flowHost = activity as DialogFlow.FlowHost,
+                    compositeDisposable = compositeDisposable
                 )
             }
         }

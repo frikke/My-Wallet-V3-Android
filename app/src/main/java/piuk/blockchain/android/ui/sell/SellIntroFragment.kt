@@ -279,7 +279,8 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
             sourceAccount = it,
             action = AssetAction.Sell,
             fragmentManager = fragmentManager ?: return,
-            flowHost = this@SellIntroFragment
+            flowHost = this@SellIntroFragment,
+            compositeDisposable = compositeDisposable
         )
         analytics.logEvent(BuySellViewedEvent(BuySellType.SELL))
     }

@@ -242,7 +242,8 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
             fragmentManager = supportFragmentManager,
             action = AssetAction.Send,
             flowHost = this@AccountActivity,
-            sourceAccount = sourceAccount
+            sourceAccount = sourceAccount,
+            compositeDisposable = compositeDisposable
         )
     }
 

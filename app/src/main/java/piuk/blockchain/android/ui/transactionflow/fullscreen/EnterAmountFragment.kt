@@ -250,7 +250,8 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             lowerSlot = customiser.installEnterAmountLowerSlotView(
                 requireContext(),
                 frameLowerSlot,
-                newState
+                newState,
+                isFullScreenParent = true
             ).apply {
                 initControl(model, customiser, analyticsHooks)
             }

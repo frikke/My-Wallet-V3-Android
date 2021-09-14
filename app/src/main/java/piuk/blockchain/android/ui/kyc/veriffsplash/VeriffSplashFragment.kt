@@ -29,6 +29,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.coincore.AssetAction
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.databinding.FragmentKycVeriffSplashBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
@@ -69,6 +70,8 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
     override val countryCode by unsafeLazy {
         VeriffSplashFragmentArgs.fromBundle(arguments ?: Bundle()).countryCode
     }
+
+    private val compositeDisposable = CompositeDisposable()
     private var progressDialog: MaterialProgressDialog? = null
 
     override val nextClick: Observable<Unit>
@@ -98,6 +101,11 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onPause() {
+        compositeDisposable.clear()
+        super.onPause()
     }
 
     private fun setupTextLinks() {
@@ -190,7 +198,8 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
             activity = requireActivity(),
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
-            flowHost = this@VeriffSplashFragment
+            flowHost = this@VeriffSplashFragment,
+            compositeDisposable = compositeDisposable
         )
     }
 

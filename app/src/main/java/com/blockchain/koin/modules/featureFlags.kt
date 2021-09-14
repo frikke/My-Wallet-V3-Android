@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.achDepositWithdrawFeatureFlag
+import com.blockchain.koin.fullScreenTxFlowFeatureFlag
 import com.blockchain.koin.interestAccountFeatureFlag
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.obFeatureFlag
@@ -27,10 +28,16 @@ val featureFlagsModule = module {
     factory(sddFeatureFlag) {
         get<RemoteConfig>().featureFlag("sdd_enabled")
     }
+
     factory(mwaFeatureFlag) {
         get<RemoteConfig>().featureFlag("mwa_enabled")
     }
+
     factory(ssoAccountRecoveryFeatureFlag) {
         get<RemoteConfig>().featureFlag("sso_account_recovery_enabled")
+    }
+
+    factory(fullScreenTxFlowFeatureFlag) {
+        get<RemoteConfig>().featureFlag("android_full_screen_tx_flow")
     }
 }

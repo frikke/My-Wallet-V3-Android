@@ -196,7 +196,8 @@ class PortfolioFragment :
                         action = it.txAction,
                         flowHost = this@PortfolioFragment,
                         sourceAccount = it.txSource,
-                        target = it.txTarget
+                        target = it.txTarget,
+                        compositeDisposable = compositeDisposable
                     )
                 } else {
                     it.startFlow(childFragmentManager, this)
@@ -739,7 +740,8 @@ class PortfolioFragment :
             sourceAccount = account,
             action = AssetAction.Sell,
             fragmentManager = childFragmentManager,
-            flowHost = this@PortfolioFragment
+            flowHost = this@PortfolioFragment,
+            compositeDisposable = compositeDisposable
         )
     }
 

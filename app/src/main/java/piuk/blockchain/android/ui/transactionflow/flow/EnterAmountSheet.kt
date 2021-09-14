@@ -7,6 +7,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.PendingTx
 import com.blockchain.core.price.ExchangeRate
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -18,11 +23,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.PendingTx
 import piuk.blockchain.android.databinding.DialogTxFlowEnterAmountBinding
 import piuk.blockchain.android.ui.customviews.CurrencyType
 import piuk.blockchain.android.ui.customviews.FiatCryptoInputView
@@ -177,7 +177,8 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
             lowerSlot = customiser.installEnterAmountLowerSlotView(
                 requireContext(),
                 frameLowerSlot,
-                newState
+                newState,
+                isFullScreenParent = false
             ).apply {
                 initControl(model, customiser, analyticsHooks)
             }

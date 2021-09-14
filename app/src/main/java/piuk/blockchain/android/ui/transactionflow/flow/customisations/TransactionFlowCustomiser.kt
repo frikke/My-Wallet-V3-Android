@@ -6,8 +6,6 @@ import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -64,8 +62,7 @@ interface TransactionFlowCustomiser :
 class TransactionFlowCustomiserImpl(
     private val resources: Resources,
     private val assetResources: AssetResources,
-    private val stringUtils: StringUtils,
-    private val featureFlags: InternalFeatureFlagApi
+    private val stringUtils: StringUtils
 ) : TransactionFlowCustomiser {
     override fun enterAmountActionIcon(state: TransactionState): Int {
         return when (state.action) {
@@ -664,14 +661,15 @@ class TransactionFlowCustomiserImpl(
     override fun installEnterAmountLowerSlotView(
         ctx: Context,
         frame: FrameLayout,
-        state: TransactionState
+        state: TransactionState,
+        isFullScreenParent: Boolean // temp boolean for full screen, remove once old flow is killed
     ): EnterAmountWidget =
         when (state.action) {
             AssetAction.Send,
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.Sell,
-            AssetAction.Swap -> if (featureFlags.isFeatureEnabled(GatedFeature.FULL_SCREEN_TXS)) {
+            AssetAction.Swap -> if (isFullScreenParent) {
                 FullScreenBalanceAndFeeView(ctx)
             } else {
                 BalanceAndFeeView(ctx)

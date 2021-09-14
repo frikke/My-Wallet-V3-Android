@@ -9,6 +9,7 @@ import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
@@ -25,6 +26,7 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
 
     private val analytics: Analytics by inject()
     private val txLauncher: TransactionLauncher by inject()
+    private val compositeDisposable = CompositeDisposable()
 
     override val fragmentAction: AssetAction
         get() = AssetAction.Send
@@ -32,6 +34,11 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         renderList()
+    }
+
+    override fun onPause() {
+        compositeDisposable.clear()
+        super.onPause()
     }
 
     private fun renderList() {
@@ -82,7 +89,8 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
             sourceAccount = fromAccount,
             action = AssetAction.Send,
             fragmentManager = childFragmentManager,
-            flowHost = this@TransferSendFragment
+            flowHost = this@TransferSendFragment,
+            compositeDisposable = compositeDisposable
         )
     }
 

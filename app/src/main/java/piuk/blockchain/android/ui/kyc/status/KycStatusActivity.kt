@@ -5,14 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
+import com.blockchain.coincore.AssetAction
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import com.blockchain.coincore.AssetAction
 import piuk.blockchain.android.databinding.ActivityKycStatusBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -40,6 +41,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
     private val statusPresenter: KycStatusPresenter by scopedInject()
     private val campaignType by unsafeLazy { intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType }
     private var progressDialog: MaterialProgressDialog? = null
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +63,11 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
         onViewReady()
     }
 
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
+
     override fun startExchange() {
         startSwapFlow()
     }
@@ -70,7 +77,8 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
             activity = this,
             action = AssetAction.Swap,
             fragmentManager = supportFragmentManager,
-            flowHost = this@KycStatusActivity
+            flowHost = this@KycStatusActivity,
+            compositeDisposable = compositeDisposable
         )
     }
 

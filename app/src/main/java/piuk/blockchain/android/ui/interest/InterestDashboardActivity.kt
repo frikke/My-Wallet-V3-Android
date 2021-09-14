@@ -14,6 +14,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
@@ -34,6 +35,7 @@ class InterestDashboardActivity : BlockchainActivity(),
     }
 
     private val txLauncher: TransactionLauncher by inject()
+    private val compositeDisposable = CompositeDisposable()
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -65,6 +67,11 @@ class InterestDashboardActivity : BlockchainActivity(),
         finish()
     }
 
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
+
     override fun goToInterestDeposit(toAccount: InterestAccount) {
         clearBottomSheet()
         require(toAccount is CryptoAccount)
@@ -73,7 +80,8 @@ class InterestDashboardActivity : BlockchainActivity(),
             target = toAccount,
             action = AssetAction.InterestDeposit,
             fragmentManager = supportFragmentManager,
-            flowHost = this
+            flowHost = this,
+            compositeDisposable = compositeDisposable
         )
     }
 
@@ -85,7 +93,8 @@ class InterestDashboardActivity : BlockchainActivity(),
             sourceAccount = fromAccount,
             action = AssetAction.InterestWithdraw,
             fragmentManager = supportFragmentManager,
-            flowHost = this
+            flowHost = this,
+            compositeDisposable = compositeDisposable
         )
     }
 
@@ -135,7 +144,8 @@ class InterestDashboardActivity : BlockchainActivity(),
             target = toAccount,
             action = AssetAction.InterestDeposit,
             fragmentManager = supportFragmentManager,
-            flowHost = this
+            flowHost = this,
+            compositeDisposable = compositeDisposable
         )
     }
 

@@ -117,7 +117,8 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
             activity = requireActivity(),
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
-            flowHost = this@SwapFragment
+            flowHost = this@SwapFragment,
+            compositeDisposable = compositeDisposable
         )
     }
 
@@ -238,7 +239,8 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
             target = pair.destinationAccount,
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
-            flowHost = this@SwapFragment
+            flowHost = this@SwapFragment,
+            compositeDisposable = compositeDisposable
         )
         analytics.logEvent(
             SwapAnalyticsEvents.SwapAccountsSelected(

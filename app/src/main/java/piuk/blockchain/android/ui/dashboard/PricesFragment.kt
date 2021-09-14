@@ -103,7 +103,8 @@ internal class PricesFragment :
                         action = it.txAction,
                         flowHost = this@PricesFragment,
                         sourceAccount = it.txSource,
-                        target = it.txTarget
+                        target = it.txTarget,
+                        compositeDisposable = compositeDisposable
                     )
                 } else {
                     it.startFlow(childFragmentManager, this)
