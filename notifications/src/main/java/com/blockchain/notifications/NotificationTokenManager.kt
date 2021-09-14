@@ -4,11 +4,10 @@ import android.annotation.SuppressLint
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.NotificationPrefs
 import com.google.common.base.Optional
-import com.google.firebase.iid.FirebaseInstanceId
 import info.blockchain.wallet.payload.PayloadManager
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.data.access.AuthEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
@@ -18,7 +17,7 @@ class NotificationTokenManager(
     private val notificationService: NotificationService,
     private val payloadManager: PayloadManager,
     private val prefs: NotificationPrefs,
-    private val firebaseInstanceId: FirebaseInstanceId,
+    private val notificationTokenProvider: NotificationTokenProvider,
     private val rxBus: RxBus,
     private val crashLogger: CrashLogger
 ) {
@@ -29,24 +28,16 @@ class NotificationTokenManager(
      *
      * @return The Firebase token
      */
-    private val storedFirebaseToken: Observable<Optional<String>>
+    private val storedFirebaseToken: Single<Optional<String>>
         get() {
             val storedToken = prefs.firebaseToken
-
             return if (storedToken.isNotEmpty()) {
-                Observable.just(Optional.of(storedToken))
+                Single.just(Optional.of(storedToken))
             } else {
-                Observable.create { subscriber ->
-                    FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener { instanceIdResult ->
-                        val newToken = instanceIdResult.token
-                        prefs.firebaseToken = newToken
-                        subscriber.onNext(Optional.of(newToken))
-                        subscriber.onComplete()
-                    }
-                    FirebaseInstanceId.getInstance().instanceId.addOnFailureListener {
-                        if (!subscriber.isDisposed)
-                            subscriber.onError(it)
-                    }
+                notificationTokenProvider.notificationToken().doOnSuccess {
+                    prefs.firebaseToken = it
+                }.flatMap {
+                    Single.just(Optional.of(it))
                 }
             }
         }
@@ -100,8 +91,7 @@ class NotificationTokenManager(
      */
     private fun revokeAccessToken(): Completable {
         return Completable.fromCallable {
-            firebaseInstanceId.deleteInstanceId()
-            Void.TYPE
+            notificationTokenProvider.deleteToken()
         }.andThen(removeNotificationToken())
             .doOnComplete { this.clearStoredToken() }
             .subscribeOn(Schedulers.io())

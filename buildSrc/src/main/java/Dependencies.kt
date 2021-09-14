@@ -12,7 +12,7 @@ object Versions {
     const val buildTools = "29.0.2"
 
     // Build tools and languages
-    const val androidPlugin = "4.1.2"
+    const val androidPlugin = "7.0.2"
     const val kotlin = "1.5.20"
 
     const val googleServicesPlugin = "4.3.3"
@@ -34,7 +34,7 @@ object Versions {
     const val multidex = "2.0.1"
     const val desugaring = "1.1.5"
     const val installReferrer = "2.2"
-    const val navigation = "2.1.0"
+    const val navigation = "2.3.5"
     const val lifecycle = "2.1.0"
     const val camera = "1.0.0-rc04"
     const val cameraView = "1.0.0-alpha23"
@@ -45,10 +45,7 @@ object Versions {
     const val googleServicesPlaces = "17.0.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googlePlayCore = "1.8.2"
-    const val firebaseMessaging = "20.2.0"
-    const val firebaseCore = "17.4.2"
-    const val firebaseConfig = "19.1.0"
-    const val firebaseDynamicLink = "19.0.0"
+    const val firebaseBom = "28.4.0"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
 
@@ -116,20 +113,19 @@ object Versions {
     // Logging
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
-    const val firebaseCrashlytics = "17.0.0"
-    const val firebaseCrashlyticsPlugin = "2.1.0"
-    const val firebaseAnalytics = "17.4.2"
+
+    const val firebaseCrashlyticsPlugin = "2.7.1"
 
     // Debugging
     const val stetho = "1.5.1"
 
     // Testing
-    const val mockito = "2.23.0"
+    const val mockito = "3.12.4"
     const val mockitoKotlin = "2.0.0"
     const val kluent = "1.66"
     const val hamcrestJunit = "2.0.0.0"
     const val junit = "4.12"
-    const val robolectric = "4.3"
+    const val robolectric = "4.4"
     const val json = "20140107"
     const val espresso = "3.2.0"
     const val androidxTesting = "1.3.0"
@@ -171,12 +167,10 @@ object Libraries {
     const val cameraLifecycle = "androidx.camera:camera-lifecycle:${Versions.camera}"
 
     // Google & Firebase
-    const val firebaseCore = "com.google.firebase:firebase-core:${Versions.firebaseCore}"
-    const val firebaseConfig = "com.google.firebase:firebase-config:${Versions.firebaseConfig}"
-    const val firebaseMessaging =
-        "com.google.firebase:firebase-messaging:${Versions.firebaseMessaging}"
-    const val firebaseDynamicLink =
-        "com.google.firebase:firebase-dynamic-links:${Versions.firebaseDynamicLink}"
+    const val firebaseBom = "com.google.firebase:firebase-bom:${Versions.firebaseBom}"
+    const val firebaseConfig = "com.google.firebase:firebase-config"
+    const val firebaseMessaging = "com.google.firebase:firebase-messaging"
+    const val firebaseDynamicLink = "com.google.firebase:firebase-dynamic-links"
     const val googlePlayServicesBase =
         "com.google.android.gms:play-services-base:${Versions.googleServices}"
     const val googlePlayServicesAuth =
@@ -268,10 +262,10 @@ object Libraries {
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"
     const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
     const val slf4jNoOp = "org.slf4j:slf4j-nop:${Versions.slf4j}"
-    const val firebaseCrashlytics = "com.google.firebase:firebase-crashlytics:${Versions.firebaseCrashlytics}"
+    const val firebaseCrashlytics = "com.google.firebase:firebase-crashlytics"
     const val firebaseCrashlyticsPlugin =
         "com.google.firebase:firebase-crashlytics-gradle:${Versions.firebaseCrashlyticsPlugin}"
-    const val firebaseAnalytics = "com.google.firebase:firebase-analytics:${Versions.firebaseAnalytics}"
+    const val firebaseAnalytics = "com.google.firebase:firebase-analytics"
 
     // Debugging
     const val stetho = "com.facebook.stetho:stetho:${Versions.stetho}"

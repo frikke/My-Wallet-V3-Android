@@ -17,6 +17,7 @@ import com.blockchain.notifications.analytics.NotificationAppOpened
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLauncherBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.toast
@@ -25,6 +26,7 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
+import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -40,8 +42,9 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
         ActivityLauncherBinding.inflate(layoutInflater)
     }
 
-    private val toolbar: Toolbar
-        get() = binding.toolbarGeneral.toolbarGeneral
+    private val toolbar: Toolbar by lazy {
+        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +67,19 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
 
     override fun getView() = this
 
-    override fun getPageIntent(): Intent = intent
+    override fun getViewIntentData(): ViewIntentData =
+        ViewIntentData(
+            action = intent.action,
+            scheme = intent.scheme,
+            dataString = intent.dataString,
+            data = intent.data?.toString(),
+            isAfterWalletCreation = intent.getBooleanExtra(
+                AppUtil.INTENT_EXTRA_IS_AFTER_WALLET_CREATION,
+                false
+            ),
+            isPinValidated = intent.extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false,
+            isAutomationTesting = intent.extras?.getBoolean(INTENT_AUTOMATION_TEST, false) ?: false
+        )
 
     override fun onNoGuid() = LandingActivity.start(this)
 
@@ -180,5 +195,10 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
     override fun onEmailVerificationSkipped() {
         presenter?.onEmailVerificationFinished()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
+    }
+
+    companion object {
+        const val INTENT_EXTRA_VERIFIED = "verified"
+        const val INTENT_AUTOMATION_TEST = "IS_AUTOMATION_TESTING"
     }
 }

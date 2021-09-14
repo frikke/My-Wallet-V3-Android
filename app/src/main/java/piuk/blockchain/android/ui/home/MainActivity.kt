@@ -53,6 +53,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import piuk.blockchain.android.databinding.ActivityMainBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.BuySellClicked
@@ -152,8 +153,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     val refreshAnnouncements: Observable<Unit>
         get() = _refreshAnnouncements
 
-    private val toolbar: Toolbar
-        get() = binding.toolbarGeneral.toolbarGeneral
+    private val toolbar: Toolbar by lazy {
+        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
+    }
 
     private var activityResultAction: () -> Unit = {}
 

@@ -57,36 +57,35 @@ class LauncherPresenter(
 
     override fun onViewReady() {
         analytics.logEventOnce(AnalyticsEvents.WalletSignupOpen)
-        val intent = view.getPageIntent()
-        val action = intent.action
-        val scheme = intent.scheme
-        val intentData = intent.dataString
-        val extras = intent.extras
+
+        val viewIntentData = view.getViewIntentData()
         val hasLoggedOut = prefs.isLoggedOut
-        var isPinValidated = false
-
         // Store incoming bitcoin URI if needed
-        if (action != null && Intent.ACTION_VIEW == action && scheme != null && scheme == "bitcoin") {
-            prefs.setValue(PersistentPrefs.KEY_SCHEME_URL, intent.data.toString())
+        if (
+            viewIntentData.action == Intent.ACTION_VIEW &&
+            viewIntentData.scheme == "bitcoin" &&
+            viewIntentData.data != null
+        ) {
+            prefs.setValue(
+                PersistentPrefs.KEY_SCHEME_URL,
+                viewIntentData.data
+            )
+        }
+        if (viewIntentData.action == Intent.ACTION_VIEW && viewIntentData.data != null) {
+            deepLinkPersistence.pushDeepLink(viewIntentData.data)
         }
 
-        if (Intent.ACTION_VIEW == action) {
-            deepLinkPersistence.pushDeepLink(intent.data)
+        if (
+            Intent.ACTION_VIEW == viewIntentData.action &&
+            viewIntentData.dataString?.contains("blockchain") == true
+        ) {
+            prefs.setValue(PersistentPrefs.KEY_METADATA_URI, viewIntentData.dataString)
         }
 
-        // Store incoming Contacts URI if needed
-        if (action != null && Intent.ACTION_VIEW == action && intentData?.contains("blockchain") == true) {
-            prefs.setValue(PersistentPrefs.KEY_METADATA_URI, intentData)
-        }
+        val isPinValidated = viewIntentData.isPinValidated
 
-        if (extras != null && extras.containsKey(INTENT_EXTRA_VERIFIED)) {
-            isPinValidated = extras.getBoolean(INTENT_EXTRA_VERIFIED)
-        }
-
-        if (extras?.containsKey("IS_AUTOMATION_TESTING") == true) {
-            if (extras.getBoolean(INTENT_AUTOMATION_TEST) && Environment.STAGING == envSettings.environment) {
-                prefs.setIsUnderTest()
-            }
+        if (viewIntentData.isAutomationTesting && Environment.STAGING == envSettings.environment) {
+            prefs.setIsUnderTest()
         }
 
         val hasBackup = prefs.hasBackup()
@@ -219,10 +218,7 @@ class LauncherPresenter(
     private fun isNewAccount(): Boolean = accessState.isNewlyCreated
 
     private fun walletJustCreated() =
-        view?.getPageIntent()?.getBooleanExtra(
-            AppUtil.INTENT_EXTRA_IS_AFTER_WALLET_CREATION,
-            false
-        ) == true
+        view?.getViewIntentData()?.isAfterWalletCreation ?: false
 
     internal fun decryptAndSetupMetadata(secondPassword: String) {
         if (!payloadDataManager.validateSecondPassword(secondPassword)) {
@@ -282,11 +278,6 @@ class LauncherPresenter(
                     view.onStartMainActivity(null, it)
                 }, onError = {}
             )
-    }
-
-    companion object {
-        const val INTENT_EXTRA_VERIFIED = "verified"
-        const val INTENT_AUTOMATION_TEST = "IS_AUTOMATION_TESTING"
     }
 }
 

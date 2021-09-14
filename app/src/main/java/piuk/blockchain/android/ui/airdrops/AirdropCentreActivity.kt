@@ -15,6 +15,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.databinding.ActivityAirdropsBinding
 import piuk.blockchain.android.databinding.ItemAirdropHeaderBinding
 import piuk.blockchain.android.databinding.ItemAirdropStatusBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.util.context
@@ -37,9 +38,9 @@ class AirdropCentreActivity : MvpActivity<AirdropCentreView, AirdropCentrePresen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.airdrop_activity_title)
+        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.airdrop_activity_title)
 
-        binding.toolbarGeneral.toolbarGeneral.setNavigationOnClickListener { finish() }
+        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral.setNavigationOnClickListener { finish() }
 
         binding.airdropList.layoutManager = LinearLayoutManager(this)
     }

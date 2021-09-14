@@ -6,7 +6,6 @@
     android:background="@color/white">
 
     <include
-        android:id="@+id/toolbar_general"
         layout="@layout/toolbar_general"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

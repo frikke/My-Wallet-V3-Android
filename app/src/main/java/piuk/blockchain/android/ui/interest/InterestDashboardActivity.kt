@@ -16,6 +16,7 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -45,7 +46,7 @@ class InterestDashboardActivity : BlockchainActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
+        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
         setTitle(R.string.interest_dashboard_title)
         analytics.logEvent(InterestAnalytics.InterestViewed)
 

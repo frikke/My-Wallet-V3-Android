@@ -24,7 +24,7 @@ fun <T : Any> Single<T>.logAnalyticsError(analytics: Analytics): Single<T> =
 private fun HttpException.logError(analytics: Analytics) {
     val url = response()?.raw()?.request?.url ?: return
     val host = url.host
-    val scheme = url.scheme ?: ""
+    val scheme = url.scheme
     val path = url.toString().removePrefix("$scheme://$host")
     if (this is SocketTimeoutException || this is IOException) {
         analytics.logEvent(networkError(host,

@@ -22,6 +22,7 @@ import piuk.blockchain.android.cards.PickerItemListener
 import piuk.blockchain.android.cards.SearchPickerItemBottomSheet
 import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.databinding.ViewPasswordStrengthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
@@ -80,10 +81,10 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         initializeStatesSpinner()
 
         if (recoveryPhrase.isNotEmpty()) {
-            setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.recover_funds)
+            setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.recover_funds)
             binding.commandNext.setText(R.string.dialog_continue)
         } else {
-            setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.new_account_title_1)
+            setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.new_account_title_1)
             binding.commandNext.setText(R.string.new_account_cta_text)
         }
 

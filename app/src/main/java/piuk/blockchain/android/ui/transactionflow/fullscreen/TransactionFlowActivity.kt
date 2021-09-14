@@ -18,6 +18,7 @@ import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.mvi.MviActivity
@@ -76,7 +77,7 @@ class TransactionFlowActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
+        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
 
         supportActionBar?.run {
             title = ""

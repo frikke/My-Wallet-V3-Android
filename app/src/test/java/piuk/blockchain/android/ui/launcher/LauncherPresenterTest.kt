@@ -2,8 +2,7 @@ package piuk.blockchain.android.ui.launcher
 
 import android.app.LauncherActivity
 import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
+import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
@@ -21,12 +20,9 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import piuk.blockchain.android.BlockchainTestApplication
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
@@ -36,8 +32,6 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
-@Config(sdk = [24], application = BlockchainTestApplication::class)
-@RunWith(RobolectricTestRunner::class)
 class LauncherPresenterTest {
     private val launcherActivity: LauncherView = mock()
     private val prefsUtil: PersistentPrefs = mock()
@@ -46,8 +40,6 @@ class LauncherPresenterTest {
     private val deepLinkPersistence: DeepLinkPersistence = mock()
     private val settingsDataManager: SettingsDataManager = mock()
     private val accessState: AccessState = mock()
-    private val intent: Intent = mock()
-    private val extras: Bundle = mock()
     private val wallet: Wallet = mock()
     private val notificationTokenManager: NotificationTokenManager = mock()
     private val environmentConfig: EnvironmentConfig = mock()
@@ -81,6 +73,12 @@ class LauncherPresenterTest {
         nabuUserDataManager
     )
 
+    @get:Rule
+    val rx = rxInit {
+        mainTrampoline()
+        ioTrampoline()
+    }
+
     @Before
     fun setUp() {
         subject.initView(launcherActivity)
@@ -103,10 +101,12 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyVerifiedEmailVerified() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-        whenever(extras.getBoolean(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
+        val pinValidatedData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(true)
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinValidatedData
+        )
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.isLoggedOut).thenReturn(false)
@@ -139,10 +139,12 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyNonVerifiedEmailSettingsFailure() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-        whenever(extras.getBoolean(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
+        val pinValidatedData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(true)
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinValidatedData
+        )
 
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
@@ -169,13 +171,15 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyBitcoinUri() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.action).thenReturn(Intent.ACTION_VIEW)
-        whenever(intent.scheme).thenReturn("bitcoin")
-        whenever(intent.data).thenReturn(Uri.parse("bitcoin uri"))
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-        whenever(extras.getBoolean(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
+        val pinValidatedWithBitcoinUriData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(true)
+            on { action }.thenReturn(Intent.ACTION_VIEW)
+            on { scheme }.thenReturn("bitcoin")
+            on { data }.thenReturn("bitcoin uri")
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinValidatedWithBitcoinUriData
+        )
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(prefsUtil.isLoggedOut).thenReturn(false)
@@ -209,9 +213,12 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyNotVerified() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
+        val pinUnValidatedData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(false)
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinUnValidatedData
+        )
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(prefsUtil.isLoggedOut).thenReturn(false)
@@ -232,9 +239,12 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyPinNotValidatedButLoggedIn() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
+        val pinUnValidatedData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(false)
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinUnValidatedData
+        )
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(prefsUtil.isLoggedOut).thenReturn(false)
@@ -266,9 +276,12 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyNoGuid() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
+        val pinUnValidatedData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(false)
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinUnValidatedData
+        )
         whenever(prefsUtil.walletGuid).thenReturn("")
 
         // Act
@@ -284,9 +297,12 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyNoPin() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
+        val pinUnValidatedData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(false)
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinUnValidatedData
+        )
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn("")
 
@@ -300,9 +316,12 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyNotSane() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
+        val pinUnValidatedData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(false)
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinUnValidatedData
+        )
         whenever(prefsUtil.pinId).thenReturn("1234")
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(appUtil.isSane).thenReturn(false)
@@ -320,9 +339,12 @@ class LauncherPresenterTest {
     @Test
     fun onViewReadyUserLoggedOut() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
+        val pinUnValidatedData: ViewIntentData = mock {
+            on { isPinValidated }.thenReturn(false)
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(
+            pinUnValidatedData
+        )
         whenever(prefsUtil.isLoggedOut).thenReturn(true)
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
 

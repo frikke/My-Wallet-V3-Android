@@ -16,8 +16,6 @@ android {
     defaultConfig {
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode Versions.versionCode
-        versionName Versions.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -80,6 +78,7 @@ dependencies {
     implementation Libraries.timber
 
     // Firebase
+    implementation platform(Libraries.firebaseBom)
     implementation (Libraries.firebaseConfig) {
         exclude group:'com.google.protobuf', module: 'protobuf-lite'
     }

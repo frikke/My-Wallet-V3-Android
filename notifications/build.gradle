@@ -52,14 +52,15 @@ dependencies {
     implementation project(':wallet')
     implementation project(':balance')
 
-    api Libraries.firebaseCore
-    api Libraries.firebaseMessaging
-    implementation Libraries.firebaseDynamicLink
+    api platform(Libraries.firebaseBom)
+
+    implementation(Libraries.firebaseConfig) {
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+    }
     implementation Libraries.firebaseCrashlytics
     implementation Libraries.firebaseAnalytics
-    implementation (Libraries.firebaseConfig) {
-        exclude group:'com.google.protobuf', module: 'protobuf-lite'
-    }
+    implementation Libraries.firebaseDynamicLink
+    api Libraries.firebaseMessaging
 
     implementation Libraries.koinAndroid
     implementation Libraries.timber

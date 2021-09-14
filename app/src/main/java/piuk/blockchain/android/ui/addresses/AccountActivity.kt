@@ -20,6 +20,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.databinding.ActivityAccountsBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.addresses.adapter.AccountAdapter
 import piuk.blockchain.android.ui.addresses.adapter.AccountListItem
 import piuk.blockchain.android.ui.base.MvpActivity
@@ -61,7 +62,7 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.drawer_addresses)
+        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.drawer_addresses)
 
         with(binding.currencyHeader) {
             setCurrentlySelectedCurrency(CryptoCurrency.BTC)

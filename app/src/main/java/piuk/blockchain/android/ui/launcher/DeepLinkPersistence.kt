@@ -8,9 +8,9 @@ private const val KEY_DEEP_LINK_URI = "deeplink_uri"
 
 class DeepLinkPersistence(private val prefs: PersistentPrefs) {
 
-    fun pushDeepLink(data: Uri?) {
+    fun pushDeepLink(data: String) {
         Timber.d("DeepLink: Saving uri: $data")
-        prefs.setValue(KEY_DEEP_LINK_URI, data.toString())
+        prefs.setValue(KEY_DEEP_LINK_URI, data)
     }
 
     fun popUriFromSharedPrefs(): Uri? {

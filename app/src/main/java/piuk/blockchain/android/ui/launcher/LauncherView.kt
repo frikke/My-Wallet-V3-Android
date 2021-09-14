@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.launcher
 
-import android.content.Intent
 import android.net.Uri
 import androidx.annotation.StringRes
 import piuk.blockchain.android.ui.base.View
@@ -8,7 +7,7 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 
 interface LauncherView : View {
 
-    fun getPageIntent(): Intent
+    fun getViewIntentData(): ViewIntentData
 
     fun onNoGuid()
 
@@ -30,3 +29,13 @@ interface LauncherView : View {
 
     fun updateProgressVisibility(show: Boolean)
 }
+
+data class ViewIntentData(
+    val action: String?,
+    val scheme: String?,
+    val dataString: String?,
+    val data: String?,
+    val isAfterWalletCreation: Boolean,
+    val isPinValidated: Boolean,
+    val isAutomationTesting: Boolean
+)

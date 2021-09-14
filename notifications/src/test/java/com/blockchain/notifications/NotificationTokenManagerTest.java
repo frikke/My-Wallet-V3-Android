@@ -2,21 +2,17 @@ package com.blockchain.notifications;
 
 import com.blockchain.logging.CrashLogger;
 import com.blockchain.preferences.NotificationPrefs;
-import com.google.firebase.iid.FirebaseInstanceId;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.data.Wallet;
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.observers.TestObserver;
 import piuk.blockchain.android.testutils.RxTest;
 import piuk.blockchain.androidcore.data.rxjava.RxBus;
-import piuk.blockchain.androidcore.utils.PersistentPrefs;
-
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -27,12 +23,18 @@ import static org.mockito.Mockito.when;
 public class NotificationTokenManagerTest extends RxTest {
 
     private NotificationTokenManager subject;
-    @Mock private NotificationService notificationService;
-    @Mock private PayloadManager payloadManager;
-    @Mock private NotificationPrefs prefs;
-    @Mock private FirebaseInstanceId firebaseInstanceId;
-    @Mock private RxBus rxBus;
-    @Mock private CrashLogger crashLogger;
+    @Mock
+    private NotificationService notificationService;
+    @Mock
+    private PayloadManager payloadManager;
+    @Mock
+    private NotificationPrefs prefs;
+    @Mock
+    private RxBus rxBus;
+    @Mock
+    private NotificationTokenProvider notificationTokenProvider;
+    @Mock
+    private CrashLogger crashLogger;
 
     @Before
     public void setUp() {
@@ -42,7 +44,7 @@ public class NotificationTokenManagerTest extends RxTest {
             notificationService,
             payloadManager,
             prefs,
-            firebaseInstanceId,
+            notificationTokenProvider,
             rxBus,
             crashLogger
         );
@@ -93,7 +95,7 @@ public class NotificationTokenManagerTest extends RxTest {
         // Assert
         verify(prefs).getArePushNotificationsEnabled();
         verify(prefs).setFirebaseToken("token");
-        verify(notificationService).sendNotificationToken("token","guid","sharedKey");
+        verify(notificationService).sendNotificationToken("token", "guid", "sharedKey");
         verifyNoMoreInteractions(prefs);
     }
 
@@ -101,8 +103,7 @@ public class NotificationTokenManagerTest extends RxTest {
     public void enableNotifications_requestToken() {
         // Arrange
         when(prefs.getFirebaseToken()).thenReturn("");
-
-        when(firebaseInstanceId.getToken()).thenReturn("token");
+        when(notificationTokenProvider.notificationToken()).thenReturn(Single.just("token"));
 
         // Act
         subject.enableNotifications();
@@ -145,8 +146,8 @@ public class NotificationTokenManagerTest extends RxTest {
         // Assert
         testObservable.assertComplete();
         testObservable.assertNoErrors();
+        verify(notificationTokenProvider).deleteToken();
         verify(prefs).setArePushNotificationsEnabled(false);
-        verify(firebaseInstanceId).deleteInstanceId();
         verifyNoMoreInteractions(notificationService);
     }
 }

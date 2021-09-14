@@ -30,8 +30,8 @@ class MoneyFormattingTests {
         Locale.setDefault(Locale.US)
 
         val money: Money = 123.jpy()
-        money.symbol `should be equal to` "JPY"
-        money.toStringWithSymbol() `should be equal to` "JPY123"
+        money.symbol `should be equal to` "¥"
+        money.toStringWithSymbol() `should be equal to` "¥123"
         money.toStringWithoutSymbol() `should be equal to` "123"
     }
 

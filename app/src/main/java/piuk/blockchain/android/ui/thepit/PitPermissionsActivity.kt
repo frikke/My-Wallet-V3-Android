@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPitKycPromoLayoutBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.thepit.PitAnalyticsEvent
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
@@ -40,7 +41,7 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.the_exchange_title)
+        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.the_exchange_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.connectNow.setOnClickListener {

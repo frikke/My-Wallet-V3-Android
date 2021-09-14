@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -76,5 +77,6 @@ class NotificationsUtil(
     }
 }
 
+@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
 private fun isAndroid26orHigher(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.O

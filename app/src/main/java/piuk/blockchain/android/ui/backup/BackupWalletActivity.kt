@@ -11,6 +11,7 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import org.koin.android.ext.android.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityBackupWalletBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedFragment
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.android.ui.base.BlockchainActivity
@@ -33,7 +34,7 @@ class BackupWalletActivity : BlockchainActivity() {
         setContentView(binding.root)
         get<Analytics>().logEvent(AnalyticsEvents.Backup)
 
-        setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.backup_wallet_title)
+        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.backup_wallet_title)
 
         if (isBackedUp()) {
             startFragment(

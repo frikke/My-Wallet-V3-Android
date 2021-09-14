@@ -49,9 +49,7 @@ android {
     defaultConfig {
         minSdkVersion(Versions.minSdk)
         targetSdkVersion(Versions.targetSdk)
-        versionCode(Versions.versionCode)
-        versionName(Versions.versionName)
-        testInstrumentationRunner("android.support.test.runner.AndroidJUnitRunner")
+        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
     }
     sourceSets {
         // Change 'main' to 'androidMain' for clarity in multiplatform environment

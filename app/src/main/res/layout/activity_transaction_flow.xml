@@ -6,7 +6,6 @@
     android:layout_height="match_parent">
 
     <include
-        android:id="@+id/toolbar_general"
         layout="@layout/toolbar_general"
         app:layout_constraintTop_toTopOf="parent" />
 

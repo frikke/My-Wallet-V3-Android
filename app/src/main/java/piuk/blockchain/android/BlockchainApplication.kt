@@ -286,7 +286,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
      */
     internal fun onProviderInstallerNotAvailable() {
         // TODO: 05/08/2016 Decide if we should take action here or not
-        Timber.wtf("Security Provider Installer not available")
+        // Timber.wtf("Security Provider Installer not available")
     }
 
     /**

@@ -177,7 +177,7 @@ class TransactionModel(
     crashLogger
 ) {
     override fun performAction(previousState: TransactionState, intent: TransactionIntent): Disposable? {
-        Timber.v("!TRANSACTION!> Transaction Model: performAction: ${intent.javaClass.simpleName}")
+        Timber.v("!TRANSACTION!> Transaction Model: performAction: %s", intent.javaClass.simpleName)
 
         return when (intent) {
             is TransactionIntent.InitialiseWithSourceAccount -> processAccountsListUpdate(
@@ -339,12 +339,12 @@ class TransactionModel(
 
     override fun onScanLoopError(t: Throwable) {
         super.onScanLoopError(TxFlowLogError.LoopFail(t))
-        Timber.v("!TRANSACTION!> Transaction Model: state error -> $t")
+        Timber.e(t, "!TRANSACTION!> Transaction Model: state error")
         throw t
     }
 
     override fun onStateUpdate(s: TransactionState) {
-        Timber.v("!TRANSACTION!> Transaction Model: state update -> $s")
+        Timber.v("!TRANSACTION!> Transaction Model: state update -> %s", s)
     }
 
     private fun processInvalidateTransaction(): Disposable =

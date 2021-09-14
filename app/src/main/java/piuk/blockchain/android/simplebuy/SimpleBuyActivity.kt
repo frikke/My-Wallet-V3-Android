@@ -15,6 +15,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentActivityBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.setupToolbar
@@ -72,7 +73,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
+        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
         setupToolbar("")
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
