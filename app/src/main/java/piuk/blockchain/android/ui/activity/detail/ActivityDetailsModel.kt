@@ -38,6 +38,11 @@ data class HistoricValue(
     val transactionType: TransactionSummary.TransactionType
 ) : ActivityDetailsType()
 
+data class HistoricCryptoPrice(
+    val price: FiatValue?,
+    val cryptoCurrency: String
+) : ActivityDetailsType()
+
 data class From(val fromAddress: String?) : ActivityDetailsType()
 data class FeeForTransaction(
     val transactionType: TransactionSummary.TransactionType,

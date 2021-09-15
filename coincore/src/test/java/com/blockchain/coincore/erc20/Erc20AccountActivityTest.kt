@@ -76,7 +76,8 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
             currencyPair = CurrencyPair.CryptoCurrencyPair(ERC20_TOKEN, CryptoCurrency.BTC),
-            apiFiatValue = FiatValue.zero("USD")
+            apiFiatValue = FiatValue.zero("USD"),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)

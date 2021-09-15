@@ -133,7 +133,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         with(binding) {
             if (composite.balance.isPositive) {
                 interestDetailsWithdrawCta.text =
-                    getString(R.string.tx_title_withdrew, asset.ticker)
+                    getString(R.string.tx_title_withdrawn, asset.ticker)
                 interestDetailsWithdrawCta.visible()
                 interestDetailsWithdrawCta.setOnClickListener {
                     analytics.logEvent(InterestAnalytics.InterestWithdrawalClicked(

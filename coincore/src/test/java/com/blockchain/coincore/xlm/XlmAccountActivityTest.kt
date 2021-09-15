@@ -84,7 +84,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
             currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
-            apiFiatValue = FiatValue.zero(TEST_API_FIAT)
+            apiFiatValue = FiatValue.zero(TEST_API_FIAT),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)
@@ -168,7 +169,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
             currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
-            apiFiatValue = FiatValue.zero(TEST_API_FIAT)
+            apiFiatValue = FiatValue.zero(TEST_API_FIAT),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)
@@ -245,7 +247,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
             currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
-            apiFiatValue = FiatValue.zero(TEST_API_FIAT)
+            apiFiatValue = FiatValue.zero(TEST_API_FIAT),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)

@@ -13,6 +13,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
 
 interface SwapActivityProvider {
     fun getSwapActivity(): Single<List<TradeTransactionItem>>
@@ -33,7 +34,7 @@ class SwapActivityProviderImpl(
                 ) ?: return@mapNotNull null
 
                 val apiFiat = FiatValue.fromMinor(it.fiatCurrency, it.fiatValue.toLong())
-
+                val receivingValue = pair.toDestinationMoney(it.priceFunnel.outputMoney.toBigInteger())
                 TradeTransactionItem(
                     txId = it.kind.depositTxHash ?: it.id,
                     timeStampMs = it.createdAt.fromIso8601ToUtc()?.toLocalTime()?.time
@@ -43,10 +44,12 @@ class SwapActivityProviderImpl(
                     receivingAddress = it.kind.withdrawalAddress,
                     state = it.state.toCustodialOrderState(),
                     sendingValue = pair.toSourceMoney(it.priceFunnel.inputMoney.toBigInteger()),
-                    receivingValue = pair.toDestinationMoney(it.priceFunnel.outputMoney.toBigInteger()),
+                    receivingValue = receivingValue,
                     withdrawalNetworkFee = pair.toDestinationMoney(it.priceFunnel.networkFee.toBigInteger()),
                     currencyPair = pair,
-                    apiFiatValue = apiFiat
+                    apiFiatValue = apiFiat,
+                    price = FiatValue.fromMajor(receivingValue.currencyCode, BigDecimal(it.priceFunnel.price))
+                    // priceFunnel.price comes as Major Value
                 )
             }.filter {
                 it.state.displayableState
@@ -74,5 +77,6 @@ data class TradeTransactionItem(
     val receivingValue: Money,
     val withdrawalNetworkFee: Money,
     val currencyPair: CurrencyPair,
-    val apiFiatValue: FiatValue
+    val apiFiatValue: FiatValue,
+    val price: FiatValue
 )

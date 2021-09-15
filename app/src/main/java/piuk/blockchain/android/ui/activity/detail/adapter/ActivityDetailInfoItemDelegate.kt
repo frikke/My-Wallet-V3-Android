@@ -21,6 +21,7 @@ import piuk.blockchain.android.ui.activity.detail.BuyPurchaseAmount
 import piuk.blockchain.android.ui.activity.detail.Copyable
 import piuk.blockchain.android.ui.activity.detail.Created
 import piuk.blockchain.android.ui.activity.detail.Description
+import piuk.blockchain.android.ui.activity.detail.HistoricCryptoPrice
 import piuk.blockchain.android.ui.activity.detail.Fee
 import piuk.blockchain.android.ui.activity.detail.FeeAmount
 import piuk.blockchain.android.ui.activity.detail.FeeForTransaction
@@ -115,6 +116,7 @@ private class InfoItemViewHolder(
                     else -> context.getString(R.string.empty)
                 }
             }
+            is HistoricCryptoPrice -> context.getString(R.string.activity_details_exchange_rate)
             is To -> context.getString(R.string.activity_details_to)
             is From -> context.getString(R.string.activity_details_from)
             is FeeForTransaction -> context.getString(R.string.activity_details_transaction_fee)
@@ -141,11 +143,17 @@ private class InfoItemViewHolder(
         when (infoType) {
             is Created -> infoType.date.toFormattedString()
             is NextPayment -> infoType.date.toFormattedString()
-            is RecurringBuyFrequency -> "${
-                infoType.frequency.toHumanReadableRecurringBuy(context)
-            } ${infoType.frequency.toHumanReadableRecurringDate(context,
-                ZonedDateTime.ofInstant(infoType.nextPayment.toInstant(),
-                ZoneId.systemDefault()))}"
+            is RecurringBuyFrequency -> {
+                val recurringFrequency = infoType.frequency.toHumanReadableRecurringBuy(context)
+                val recurringDate = infoType.frequency.toHumanReadableRecurringDate(
+                    context,
+                    ZonedDateTime.ofInstant(
+                        infoType.nextPayment.toInstant(),
+                        ZoneId.systemDefault()
+                    )
+                )
+                context.getString(R.string.common_spaced_strings, recurringFrequency, recurringDate)
+            }
             is Amount -> infoType.value.toStringWithSymbol()
             is Fee -> infoType.feeValue?.toStringWithSymbol() ?: context.getString(
                 R.string.activity_details_fee_load_fail
@@ -157,6 +165,11 @@ private class InfoItemViewHolder(
                 ?: context.getString(
                     R.string.activity_details_historic_value_load_fail
                 )
+            is HistoricCryptoPrice -> context.getString(
+                R.string.activity_details_exchange_rate_value,
+                infoType.price?.toStringWithSymbol(),
+                infoType.cryptoCurrency
+            )
             is To -> infoType.toAddress ?: context.getString(
                 R.string.activity_details_to_load_fail
             )

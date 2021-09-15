@@ -55,10 +55,18 @@ class ActivityDetailsInteractor(
     fun loadCustodialTradingItems(
         summaryItem: CustodialTradingActivitySummaryItem
     ): Single<List<ActivityDetailsType>> {
+        val currentTransactionType = summaryItem.type
         val list = mutableListOf(
             TransactionId(summaryItem.txId),
             Created(Date(summaryItem.timeStampMs)),
-            if (summaryItem.type == OrderType.BUY)
+            HistoricCryptoPrice(
+                summaryItem.price, if (currentTransactionType == OrderType.BUY) {
+                    summaryItem.asset.ticker
+                } else {
+                    summaryItem.fundedFiat.currencyCode
+                }
+            ),
+            if (currentTransactionType == OrderType.BUY)
                 BuyPurchaseAmount(summaryItem.fundedFiat)
             else
                 SellPurchaseAmount(summaryItem.fundedFiat),
@@ -130,12 +138,12 @@ class ActivityDetailsInteractor(
                 .map {
                     it.toPaymentMethod()
                 }.map { paymentMethod ->
-                addPaymentDetailsToList(list, paymentMethod, cacheTransaction)
-                list.toList()
-            }.onErrorReturn {
-                addPaymentDetailsToList(list, null, cacheTransaction)
-                list.toList()
-            }
+                    addPaymentDetailsToList(list, paymentMethod, cacheTransaction)
+                    list.toList()
+                }.onErrorReturn {
+                    addPaymentDetailsToList(list, null, cacheTransaction)
+                    list.toList()
+                }
             else -> {
                 list.add(
                     BuyPaymentMethod(
@@ -283,6 +291,7 @@ class ActivityDetailsInteractor(
             listOf(
                 TransactionId(item.txId),
                 Created(Date(item.timeStampMs)),
+                HistoricCryptoPrice(item.price, item.sendingValue.currencyCode),
                 getSellFromField(item),
                 Amount(item.sendingValue),
                 NetworkFee(fee),

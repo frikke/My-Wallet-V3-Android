@@ -60,7 +60,8 @@ class ActivityDetailsModelTest {
         paymentMethodId = "123",
         paymentMethodType = PaymentMethodType.PAYMENT_CARD,
         type = OrderType.BUY,
-        depositPaymentId = ""
+        depositPaymentId = "",
+        price = mock()
     )
 
     private val environmentConfig: EnvironmentConfig = mock {

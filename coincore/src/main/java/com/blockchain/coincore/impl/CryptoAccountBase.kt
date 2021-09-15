@@ -115,7 +115,8 @@ abstract class CryptoAccountBase : CryptoAccount {
                 withdrawalNetworkFee = withdrawalNetworkFee,
                 currencyPair = item.currencyPair,
                 fiatValue = userFiat,
-                fiatCurrency = userFiat.currencyCode
+                fiatCurrency = userFiat.currencyCode,
+                price = item.price
             )
         }
     }

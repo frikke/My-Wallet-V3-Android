@@ -81,19 +81,21 @@ class BtcAccountActivityTest : CoincoreTestBase() {
         )
 
         val transactionSummaries = listOf(summary)
-
+        val receivingValue = CryptoValue.zero(CryptoCurrency.ETHER)
+        val sendingValue = CryptoValue.zero(CryptoCurrency.BTC)
         val swapSummary = TradeTransactionItem(
-            TX_HASH_SWAP,
-            1L,
-            TransferDirection.ON_CHAIN,
+            txId = TX_HASH_SWAP,
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
             "sendingAddress",
             "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.ETHER),
-            CryptoValue.zero(CryptoCurrency.ETHER),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            FiatValue.zero("USD")
+            state = CustodialOrderState.FINISHED,
+            sendingValue = sendingValue,
+            receivingValue = receivingValue,
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.ETHER),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
+            apiFiatValue = FiatValue.zero("USD"),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)
@@ -139,18 +141,21 @@ class BtcAccountActivityTest : CoincoreTestBase() {
 
         val transactionSummaries = listOf(summary)
 
+        val receivingValue = CryptoValue.zero(CryptoCurrency.ETHER)
+        val sendingValue = CryptoValue.zero(CryptoCurrency.BTC)
         val swapSummary = TradeTransactionItem(
-            TX_HASH_SWAP,
-            1L,
-            TransferDirection.ON_CHAIN,
+            txId = TX_HASH_SWAP,
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
             "sendingAddress",
             "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.ETHER),
-            CryptoValue.zero(CryptoCurrency.ETHER),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            FiatValue.zero(TEST_USER_FIAT)
+            state = CustodialOrderState.FINISHED,
+            sendingValue = sendingValue,
+            receivingValue = receivingValue,
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.ETHER),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
+            apiFiatValue = FiatValue.zero(TEST_USER_FIAT),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)
@@ -169,16 +174,18 @@ class BtcAccountActivityTest : CoincoreTestBase() {
                 val swapItem = it[0]
 
                 it.size == 1 &&
-                        swapItem is TradeActivitySummaryItem &&
-                        swapItem.txId == swapSummary.txId &&
-                        swapItem.direction == swapSummary.direction &&
-                        swapItem.currencyPair == CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC,
-                    CryptoCurrency.ETHER) &&
-                        swapItem.sendingAddress == swapSummary.sendingAddress &&
-                        swapItem.receivingAddress == swapSummary.receivingAddress &&
-                        swapItem.state == swapSummary.state &&
-                        swapItem.fiatValue == swapSummary.apiFiatValue &&
-                        swapItem.fiatCurrency == TEST_USER_FIAT
+                    swapItem is TradeActivitySummaryItem &&
+                    swapItem.txId == swapSummary.txId &&
+                    swapItem.direction == swapSummary.direction &&
+                    swapItem.currencyPair == CurrencyPair.CryptoCurrencyPair(
+                    CryptoCurrency.BTC,
+                    CryptoCurrency.ETHER
+                ) &&
+                    swapItem.sendingAddress == swapSummary.sendingAddress &&
+                    swapItem.receivingAddress == swapSummary.receivingAddress &&
+                    swapItem.state == swapSummary.state &&
+                    swapItem.fiatValue == swapSummary.apiFiatValue &&
+                    swapItem.fiatCurrency == TEST_USER_FIAT
             }
 
         verify(payloadDataManager).getAccountTransactions(any(), any(), any())
@@ -202,18 +209,21 @@ class BtcAccountActivityTest : CoincoreTestBase() {
 
         val transactionSummaries = listOf(summary)
 
+        val receivingValue = CryptoValue.zero(CryptoCurrency.ETHER)
+        val sendingValue = CryptoValue.zero(CryptoCurrency.BTC)
         val swapSummary = TradeTransactionItem(
-            TX_HASH_SWAP,
-            1L,
-            TransferDirection.ON_CHAIN,
+            txId = TX_HASH_SWAP,
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
             "sendingAddress",
             "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.ETHER),
-            CryptoValue.zero(CryptoCurrency.ETHER),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            FiatValue.zero(TEST_USER_FIAT)
+            state = CustodialOrderState.FINISHED,
+            sendingValue = sendingValue,
+            receivingValue = receivingValue,
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.ETHER),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
+            apiFiatValue = FiatValue.zero(TEST_USER_FIAT),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)
@@ -232,10 +242,10 @@ class BtcAccountActivityTest : CoincoreTestBase() {
                 val btcItem = it[0]
 
                 it.size == 1 &&
-                        btcItem is BtcActivitySummaryItem &&
-                        btcItem.txId == summary.hash &&
-                        btcItem.confirmations == summary.confirmations &&
-                        btcItem.transactionType == summary.transactionType
+                    btcItem is BtcActivitySummaryItem &&
+                    btcItem.txId == summary.hash &&
+                    btcItem.confirmations == summary.confirmations &&
+                    btcItem.transactionType == summary.transactionType
             }
 
         verify(payloadDataManager).getAccountTransactions(any(), any(), any())

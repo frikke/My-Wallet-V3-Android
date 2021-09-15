@@ -145,7 +145,7 @@ private fun TextView.setTxLabel(
             asset.ticker
         )
         TransactionSummary.TransactionType.WITHDRAW -> context.resources.getString(
-            R.string.tx_title_withdrew,
+            R.string.tx_title_withdrawn,
             asset.ticker
         )
         else -> context.resources.getString(

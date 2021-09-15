@@ -94,7 +94,8 @@ class EthAccountActivityTest : CoincoreTestBase() {
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
             currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
-            apiFiatValue = FiatValue.zero(TEST_USER_FIAT)
+            apiFiatValue = FiatValue.zero(TEST_USER_FIAT),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)
@@ -161,7 +162,8 @@ class EthAccountActivityTest : CoincoreTestBase() {
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
             currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
-            apiFiatValue = FiatValue.zero(TEST_USER_FIAT)
+            apiFiatValue = FiatValue.zero(TEST_USER_FIAT),
+            price = mock()
         )
 
         val summaryList = listOf(swapSummary)

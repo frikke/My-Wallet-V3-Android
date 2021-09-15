@@ -81,8 +81,7 @@ private class CustodialTradingActivityItemViewHolder(
             statusDate.setTxStatus(tx)
             setTextColours(tx.status)
 
-            assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, tx.fundedFiat.currencyCode, historicRateFetcher)
-
+            assetBalanceFiat.text = tx.fundedFiat.toStringWithSymbol()
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
 
             txRoot.setOnClickListener {
