@@ -2171,6 +2171,12 @@
     <string name="reset_password_optional_label">Would you like to reset your password? You can always do this later in Settings.</string>
     <string name="reset_password_hint">New Password</string>
     <string name="reset_password_confirm_hint">Confirm New Password</string>
+    <string name="reset_password_wallet_failed_title">There was an issue when resetting</string>
+    <string name="reset_password_wallet_failed_message">Please try to set your new password again.</string>
+    <string name="reset_password_kyc_reset_failed_message">Recovering your account failed, please try again</string>
+    <string name="fund_recovery_failed_title">Fund Recovery Failed</string>
+    <string name="fund_recovery_failed_blurb">Don’t worry, your account is safe.  Please contact support to finish the Account Recovery process. Your account will not show balances or transaction history until you complete the recovery process.</string>
+    <string name="fund_recovery_failed_label">Fund recovery failures can happen for a number of reasons. Our support team is able to help recover your account.&#160;</string>
     <string name="restore_wallet_cta">Restore Wallet</string>
     <string name="account_wallet_mismatch_title">Your Trading Account Is Linked To Another Wallet</string>
     <string name="account_wallet_mismatch_notice">Your Blockchain.com trading account is associated with another wallet. Please log into your wallet referenced below for account access.</string>

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.reset.password
 
+import android.app.AlertDialog
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
@@ -16,6 +18,8 @@ import piuk.blockchain.android.ui.base.mvi.MviActivity.Companion.start
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.urllinks.CONTACT_SUPPORT_FUNDS_RECOVERY
+import piuk.blockchain.android.urllinks.FUNDS_RECOVERY_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
@@ -63,6 +67,10 @@ class ResetPasswordFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initScreen()
+    }
+
+    private fun initScreen() {
         binding.apply {
             initUI(shouldResetKyc)
             initControls()
@@ -83,10 +91,64 @@ class ResetPasswordFragment :
             ResetPasswordStatus.RECOVER_ACCOUNT,
             ResetPasswordStatus.SET_PASSWORD,
             ResetPasswordStatus.RESET_KYC -> binding.progressBar.visible()
+            ResetPasswordStatus.SHOW_WALLET_CREATION_FAILED -> {
+                binding.progressBar.gone()
+                showResetPasswordAgainDialog()
+            }
+            ResetPasswordStatus.SHOW_ACCOUNT_RESET_FAILED -> {
+                binding.progressBar.gone()
+                showFundRecoveryFailureUI()
+            }
+            ResetPasswordStatus.SHOW_RESET_KYC_FAILED -> {
+                toast(getString(R.string.reset_password_kyc_reset_failed_message), ToastCustom.TYPE_ERROR)
+                for (i in 0 until parentFragmentManager.backStackEntryCount) {
+                    parentFragmentManager.popBackStack()
+                }
+            }
             else -> {
                 binding.progressBar.gone()
             }
         }
+    }
+
+    private fun showFundRecoveryFailureUI() {
+        with(binding) {
+            contactSupportCta.setOnClickListener {
+                requireContext().startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(CONTACT_SUPPORT_FUNDS_RECOVERY)
+                    )
+                )
+            }
+
+            fundRecoveryFailedNotice.apply {
+                text = StringUtils.getResolvedStringWithAppendedMappedLearnMore(
+                    getString(R.string.fund_recovery_failed_label), R.string.common_linked_learn_more,
+                    FUNDS_RECOVERY_INFO, requireContext(), R.color.blue_600
+                )
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+
+            fundRecoveryBack.setOnClickListener {
+                initScreen()
+                fundRecoveryFailureParent.gone()
+            }
+
+            fundRecoveryFailureParent.visible()
+        }
+    }
+
+    private fun showResetPasswordAgainDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.reset_password_wallet_failed_title)
+            .setMessage(R.string.reset_password_wallet_failed_message)
+            .setPositiveButton(R.string.common_try_again) { di, _ ->
+                initScreen()
+                di.dismiss()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun processPassword(password: String) {

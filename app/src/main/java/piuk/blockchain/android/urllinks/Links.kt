@@ -71,3 +71,7 @@ const val DOLLAR_COST_AVERAGING =
 
 const val TRADING_ACCOUNT_LOCKS =
     "https://support.blockchain.com/hc/en-us/articles/360051018131-Trading-Account-Withdrawal-Holds"
+
+const val CONTACT_SUPPORT_FUNDS_RECOVERY =
+    "https://support.blockchain.com/hc/en-us/requests/new?ticket_form_id=360003112491"
+const val FUNDS_RECOVERY_INFO = "https://support.blockchain.com/hc/en-us/articles/4404679303700"
