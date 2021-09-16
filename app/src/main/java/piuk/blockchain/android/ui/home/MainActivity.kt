@@ -287,6 +287,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 },
                 onError = { throwable -> presenter.checkForAccountWalletLinkErrors(throwable) }
             )
+
+        launchKyc(CampaignType.None)
     }
 
     override fun onResume() {

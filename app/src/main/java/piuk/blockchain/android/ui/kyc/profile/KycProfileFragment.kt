@@ -146,7 +146,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
 
     override fun continueSignUp(profileModel: ProfileModel) {
         navigate(
-            KycProfileFragmentDirections.actionKycProfileFragmentToKycHomeAddressFragment(
+            KycProfileFragmentDirections.actionKycProfileFragmentToKycAutocompleteAddressFragment(
                 profileModel
             )
         )

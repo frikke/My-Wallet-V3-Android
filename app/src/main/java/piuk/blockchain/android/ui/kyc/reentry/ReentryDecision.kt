@@ -53,7 +53,7 @@ class ReentryDecisionKycNavigator(
             ReentryPoint.Profile -> KycNavXmlDirections.actionStartProfile(
                 user.requireCountryCode(), user.address?.state ?: "", user.address?.state ?: ""
             )
-            ReentryPoint.Address -> KycNavXmlDirections.actionStartAddressEntry(user.toProfileModel())
+            ReentryPoint.Address -> KycNavXmlDirections.actionStartAutocompleteAddressEntry(user.toProfileModel())
             ReentryPoint.MobileEntry -> KycNavXmlDirections.actionStartMobileVerification(user.requireCountryCode())
             ReentryPoint.Veriff -> {
                 val countryCode = user.requireCountryCode()

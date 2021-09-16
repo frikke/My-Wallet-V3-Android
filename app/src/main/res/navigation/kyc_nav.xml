@@ -17,12 +17,6 @@
             android:id="@+id/action_kycCountrySelectionFragment_to_kycInvalidCountryFragment"
             app:destination="@id/kycInvalidCountryFragment" />
     </fragment>
-
-    <fragment
-        android:id="@+id/kycSplashFragment"
-        android:name="piuk.blockchain.android.ui.kyc.splash.KycSplashFragment"
-        android:label="KycSplashFragment"
-        tools:layout="@layout/fragment_kyc_splash" />
     <fragment
         android:id="@+id/kycCountrySelectionFragment"
         android:name="piuk.blockchain.android.ui.kyc.countryselection.KycCountrySelectionFragment"
@@ -44,6 +38,9 @@
         android:label="KycProfileFragment"
         tools:layout="@layout/fragment_kyc_profile">
         <action
+            android:id="@+id/action_kycProfileFragment_to_kycAutocompleteAddressFragment"
+            app:destination="@id/kycAutocompleteAddressFragment" />
+        <action
             android:id="@+id/action_kycProfileFragment_to_kycHomeAddressFragment"
             app:destination="@id/kycHomeAddressFragment" />
         <argument
@@ -55,6 +52,18 @@
         <argument
             android:name="stateName"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/kycAutocompleteAddressFragment"
+        android:name="piuk.blockchain.android.ui.kyc.autocomplete.KycAutocompleteAddressFragment"
+        android:label="KycAutocompleteAddressFragment"
+        tools:layout="@layout/fragment_kyc_autocomplete">
+        <action
+            android:id="@+id/action_kycAutocompleteAddressFragment_to_kycHomeAddressFragment"
+            app:destination="@id/kycHomeAddressFragment" />
+        <argument
+            android:name="profileModel"
+            app:argType="piuk.blockchain.android.ui.kyc.profile.models.ProfileModel" />
     </fragment>
     <fragment
         android:id="@+id/kycInvalidCountryFragment"
@@ -189,7 +198,7 @@
         app:popUpTo="@+id/kycTierSplashFragment" />
     <action
         android:id="@+id/action_displayKycSplash"
-        app:destination="@id/kycSplashFragment" />
+        app:destination="@id/kycTierSplashFragment" />
     <action
         android:id="@+id/action_startCountrySelection"
         app:destination="@id/kycCountrySelectionFragment"
@@ -201,6 +210,9 @@
     <action
         android:id="@+id/action_startAddressEntry"
         app:destination="@id/kycHomeAddressFragment" />
+    <action
+        android:id="@+id/action_startAutocompleteAddressEntry"
+        app:destination="@id/kycAutocompleteAddressFragment" />
 
     <fragment
         android:id="@+id/kycResubmissionSplashFragment"
