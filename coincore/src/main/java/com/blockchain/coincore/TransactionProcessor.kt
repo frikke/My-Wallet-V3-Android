@@ -238,14 +238,10 @@ abstract class TxEngine : KoinComponent {
 
         return when (sourceAccount) {
             is CryptoAccount -> {
-                Observable.fromCallable {
-                    exchangeRates.getLastCryptoToUserFiatRate((sourceAccount as CryptoAccount).asset)
-                }
+                exchangeRates.cryptoToUserFiatRate((sourceAccount as CryptoAccount).asset)
             }
             is FiatAccount -> {
-                Observable.fromCallable {
-                    exchangeRates.getLastFiatToUserFiatRate((sourceAccount as FiatAccount).fiatCurrency)
-                }
+                exchangeRates.fiatToUserFiatRate((sourceAccount as FiatAccount).fiatCurrency)
             }
             else -> {
                 Timber.e("Attempting to use exchange rate for non crypto or fiat sources")

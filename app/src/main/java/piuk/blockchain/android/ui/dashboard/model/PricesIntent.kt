@@ -25,6 +25,15 @@ sealed class PricesIntent : MviIntent<PricesState> {
         }
     }
 
+    internal object StopUpdates : PricesIntent() {
+        override fun reduce(oldState: PricesState): PricesState {
+            val assetList = oldState.availablePrices.keys
+            return oldState.copy(
+                availablePrices = assetList.map { it to AssetPriceState(assetInfo = it) }.toMap()
+            )
+        }
+    }
+
     internal class GetAssetPrice(
         val asset: AssetInfo
     ) : PricesIntent() {

@@ -312,7 +312,9 @@ val coreModule = module {
 
     factory {
         AssetPriceStore(
-            assetPriceService = get()
+            assetPriceService = get(),
+            assetCatalogue = get(),
+            prefs = get()
         )
     }
 

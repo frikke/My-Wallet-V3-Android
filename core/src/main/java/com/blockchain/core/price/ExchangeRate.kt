@@ -5,6 +5,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.ValueTypeMismatchException
+import java.lang.IllegalStateException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Currency
@@ -141,6 +142,23 @@ sealed class ExchangeRate {
             )
     }
 
+    object InvalidRate : ExchangeRate() {
+        override val rate: BigDecimal
+            get() = BigDecimal.ZERO
+
+        override fun convert(value: Money, round: Boolean): Money {
+            throw IllegalStateException("Convert called on Invalid Exchange Rate")
+        }
+
+        override fun price(): Money {
+            throw IllegalStateException("Convert called on Invalid Exchange Rate")
+        }
+
+        override fun inverse(roundingMode: RoundingMode, scale: Int): ExchangeRate {
+            return this
+        }
+    }
+
     companion object {
         private fun validateCurrency(expected: AssetInfo, got: AssetInfo) {
             if (expected != got)
@@ -178,6 +196,7 @@ fun ExchangeRate.hasSameSourceAndTarget(other: ExchangeRate): Boolean =
         is ExchangeRate.FiatToCrypto -> (other as? ExchangeRate.FiatToCrypto)?.from == from && other.to == to
         is ExchangeRate.FiatToFiat -> (other as? ExchangeRate.FiatToFiat)?.from == from && other.to == to
         is ExchangeRate.CryptoToCrypto -> (other as? ExchangeRate.CryptoToCrypto)?.from == from && other.to == to
+        is ExchangeRate.InvalidRate -> throw IllegalStateException("Use of Invalid Rate")
     }
 
 fun ExchangeRate.hasOppositeSourceAndTarget(other: ExchangeRate): Boolean =
@@ -189,4 +208,5 @@ fun ExchangeRate.canConvert(value: Money): Boolean =
         is ExchangeRate.CryptoToFiat -> (value is CryptoValue && value.currency == this.from)
         is ExchangeRate.FiatToFiat -> (value is FiatValue && value.currencyCode == this.from)
         is ExchangeRate.CryptoToCrypto -> (value is CryptoValue && value.currency == this.from)
+        is ExchangeRate.InvalidRate -> false
     }

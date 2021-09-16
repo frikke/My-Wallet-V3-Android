@@ -34,8 +34,8 @@ internal interface AssetPriceApiInterface {
     // Get a series of historical price index which covers a range of time represents in specific scale
     @GET("price/index-series")
     fun getHistoricPriceSince(
-        @Query("base") crypto: String,
-        @Query("quote") fiat: String,
+        @Query("base") base: String,
+        @Query("quote") quote: String,
         @Query("start") start: Long, // Epoch seconds
         @Query("scale") scale: Int,
         @Query("api_key") apiKey: String

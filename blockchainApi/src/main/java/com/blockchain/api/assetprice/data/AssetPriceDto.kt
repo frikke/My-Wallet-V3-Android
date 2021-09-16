@@ -38,7 +38,7 @@ internal data class AssetPriceDto(
 @Serializable
 internal data class PriceRequestPairDto(
     @SerialName("base")
-    val crypto: String,
+    val base: String,
     @SerialName("quote")
-    val fiat: String
+    val quote: String
 )

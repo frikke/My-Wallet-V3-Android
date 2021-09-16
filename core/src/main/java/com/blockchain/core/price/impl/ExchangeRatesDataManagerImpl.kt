@@ -8,17 +8,9 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.androidcore.utils.extensions.then
-import java.math.RoundingMode
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
@@ -27,38 +19,48 @@ internal class ExchangeRatesDataManagerImpl(
     private val currencyPrefs: CurrencyPrefs
 ) : ExchangeRatesDataManager {
 
-    // TEMP Methods, for compatibility while changing client code
-    @Synchronized
-    override fun prefetchCache(assetList: List<AssetInfo>, fiatList: List<String>): Completable =
-        priceStore.preloadCache(assetList, fiatList, currencyPrefs.selectedFiatCurrency)
+    private val userFiat: String
+        get() = currencyPrefs.selectedFiatCurrency
 
-    // We need to reload the cache if the user fiat has changed in this version of the implementation
-    // This can go, down the road when we no longer fetch prices synchronously, but that's a big change
-    // and out of scope for this PR. Balance calls need to be changed first
-    @Synchronized
-    override fun refetchCache(): Completable {
-        sparklineCall.flush()
-        return priceStore.populateCache(currencyPrefs.selectedFiatCurrency)
-    }
+    override fun init(): Single<SupportedFiatTickerList> =
+        priceStore.init()
 
     override fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate> =
-        Observable.fromCallable { getLastCryptoToUserFiatRate(fromAsset) as ExchangeRate }
-            .onErrorReturn { getStubbedUnknownAssetRate(fromAsset) }
+        priceStore.getPriceForAsset(fromAsset.ticker, userFiat)
+            .map {
+                ExchangeRate.CryptoToFiat(
+                    from = fromAsset,
+                    to = it.quote,
+                    rate = it.currentRate
+                )
+            }
 
     override fun fiatToUserFiatRate(fromFiat: String): Observable<ExchangeRate> =
-        Observable.fromCallable { getLastFiatToUserFiatRate(fromFiat) }
+        priceStore.getPriceForAsset(fromFiat, userFiat)
+            .map {
+                ExchangeRate.FiatToFiat(
+                    from = fromFiat,
+                    to = it.quote,
+                    rate = it.currentRate
+                )
+            }
 
     override fun fiatToRateFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate> =
-        Observable.fromCallable { getLastFiatToFiatRate(fromFiat, toFiat) }
+        priceStore.getPriceForAsset(fromFiat, toFiat)
+            .map {
+                ExchangeRate.FiatToFiat(
+                    from = fromFiat,
+                    to = it.quote,
+                    rate = it.currentRate
+                )
+            }
 
     override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat {
-        checkAndTriggerPriceRefresh()
-        val userFiat = currencyPrefs.selectedFiatCurrency
-        val price = priceStore.getCachedPrice(sourceCrypto, userFiat)
+        val price = priceStore.getCachedAssetPrice(sourceCrypto, userFiat)
         return ExchangeRate.CryptoToFiat(
             from = sourceCrypto,
-            to = userFiat,
-            rate = price ?: throw IllegalStateException("Unknown crypto $sourceCrypto")
+            to = price.quote,
+            rate = price.currentRate
         )
     }
 
@@ -66,8 +68,6 @@ internal class ExchangeRatesDataManagerImpl(
         sourceCrypto: AssetInfo,
         targetFiat: String
     ): ExchangeRate.CryptoToFiat {
-        checkAndTriggerPriceRefresh()
-        val userFiat = currencyPrefs.selectedFiatCurrency
         return when (targetFiat) {
             userFiat -> getLastCryptoToUserFiatRate(sourceCrypto)
             else -> getCryptoToFiatRate(sourceCrypto, targetFiat)
@@ -78,10 +78,8 @@ internal class ExchangeRatesDataManagerImpl(
         sourceFiat: String,
         targetCrypto: AssetInfo
     ): ExchangeRate.FiatToCrypto {
-        checkAndTriggerPriceRefresh()
-        val userFiat = currencyPrefs.selectedFiatCurrency
-        return when {
-            sourceFiat == userFiat -> getLastCryptoToUserFiatRate(targetCrypto).inverse()
+        return when (sourceFiat) {
+            userFiat -> getLastCryptoToUserFiatRate(targetCrypto).inverse()
             else -> getCryptoToFiatRate(targetCrypto, sourceFiat).inverse()
         }
     }
@@ -90,31 +88,26 @@ internal class ExchangeRatesDataManagerImpl(
         sourceCrypto: AssetInfo,
         targetFiat: String
     ): ExchangeRate.CryptoToFiat {
-        checkAndTriggerPriceRefresh()
         // Target fiat should always be one of userFiat or in the "api" fiat list, so we should
         // always have it. TODO: Add some checking for this case
-        val price = priceStore.getCachedPrice(sourceCrypto, targetFiat)
+        val price = priceStore.getCachedAssetPrice(sourceCrypto, targetFiat)
         return ExchangeRate.CryptoToFiat(
             from = sourceCrypto,
-            to = targetFiat,
-            rate = price ?: throw IllegalStateException("Unknown crypto $sourceCrypto")
+            to = price.quote,
+            rate = price.currentRate
         )
     }
 
     override fun getLastFiatToUserFiatRate(sourceFiat: String): ExchangeRate.FiatToFiat {
-        checkAndTriggerPriceRefresh()
-        val userFiat = currencyPrefs.selectedFiatCurrency
         val price = priceStore.getCachedFiatPrice(sourceFiat, userFiat)
         return ExchangeRate.FiatToFiat(
             from = sourceFiat,
-            to = userFiat,
-            rate = price ?: throw IllegalStateException("Unknown fiat $sourceFiat")
+            to = price.quote,
+            rate = price.currentRate
         )
     }
 
     override fun getLastFiatToFiatRate(sourceFiat: String, targetFiat: String): ExchangeRate.FiatToFiat {
-        checkAndTriggerPriceRefresh()
-        val userFiat = currencyPrefs.selectedFiatCurrency
         return when {
             sourceFiat == targetFiat -> ExchangeRate.FiatToFiat(
                 from = sourceFiat,
@@ -127,113 +120,44 @@ internal class ExchangeRatesDataManagerImpl(
         }
     }
 
-    private var refresher = AtomicReference<Disposable?>()
-
-    @Synchronized
-    private fun checkAndTriggerPriceRefresh() {
-        // This should be in the price store, but it's a temp hack and can live here for now for simplicity
-        // Ideally, we'd auto-refresh every minute, but we have no hook to know if the app
-        // is BG or FG at this level, so we check on access and trigger a background refresh based on that.
-        // once we have 'active prices' support upstack, which we'll need for full-dynamic,this can be removed.
-        // And the checks themselves can trigger as required.
-        // In this case we may have the occasional glitch, if requests to this cache are made across refreshes.
-        // we know, however, that prices access tend to batch, so we can mitigate a little
-        if (priceStore.shouldRefreshCache() && refresher.get() == null) {
-            // I know. Ewwwww!
-            refresher.set(
-                Completable.timer(
-                    AssetPriceStore.CACHE_REFRESH_DELAY_MILLIS,
-                    TimeUnit.MILLISECONDS,
-                    Schedulers.computation()
-                ).then { priceStore.populateCache(currencyPrefs.selectedFiatCurrency) }
-                    .subscribeBy { refresher.set(null) }
-            )
-        }
-    }
-
-    //    override fun getCurrentRate(fromAsset: AssetInfo, toFiat: String): Single<ExchangeRate> {
-    //        return assetPriceService.getCurrentAssetPrice(fromAsset.ticker, toFiat)
-    //            .map { price ->
-    //                ExchangeRate.CryptoToFiat(
-    //                    from = fromAsset,
-    //                    to = toFiat,
-    //                    rate = price.price.toBigDecimal()
-    //                )
-    //            }
-    //    }
-    //
-    //    override fun getCurrentRateFiat(fromFiat: String, toFiat: String): Single<ExchangeRate> {
-    //        return assetPriceService.getCurrentAssetPrice(fromFiat, toFiat)
-    //            .map { price ->
-    //                ExchangeRate.FiatToFiat(
-    //                    from = fromFiat,
-    //                    to = toFiat,
-    //                    rate = price.price.toBigDecimal()
-    //                )
-    //            }
-    //    }
-
     override fun getHistoricRate(
         fromAsset: AssetInfo,
         secSinceEpoch: Long
     ): Single<ExchangeRate> {
-        val fiat = currencyPrefs.selectedFiatCurrency
-        return assetPriceService.getHistoricPrice(
-            crypto = fromAsset.ticker,
-            fiat = fiat,
+        return assetPriceService.getHistoricPrices(
+            baseTickers = setOf(fromAsset.ticker),
+            quoteTickers = setOf(userFiat),
             time = secSinceEpoch
-        ).map { price ->
-            ExchangeRate.CryptoToFiat(
-                from = fromAsset,
-                to = fiat,
-                rate = price.price.toBigDecimal()
-            )
+        ).map { prices ->
+            prices.first().let {
+                ExchangeRate.CryptoToFiat(
+                    from = fromAsset,
+                    to = it.quote,
+                    rate = it.price.toBigDecimal()
+                )
+            }
         }
     }
 
-    override fun getPricesWith24hDelta(fromAsset: AssetInfo): Single<Prices24HrWithDelta> {
-        val yesterday = (System.currentTimeMillis() / 1000) - SECONDS_PER_DAY
-
-        return Single.zip(
-            cryptoToUserFiatRate(fromAsset).firstOrError(),
-            getHistoricRate(fromAsset, yesterday)
-        ) { priceToday, priceYesterday ->
+    override fun getPricesWith24hDelta(fromAsset: AssetInfo): Observable<Prices24HrWithDelta> =
+        priceStore.getPriceForAsset(
+            fromAsset.ticker,
+            userFiat
+        ).map { price ->
             Prices24HrWithDelta(
-                delta24h = priceToday.priceDelta(priceYesterday),
-                previousRate = priceYesterday,
-                currentRate = priceToday
-            )
-        }.onErrorReturn {
-            // TODO: Add fetch on demand for 'unknown' assets
-            Prices24HrWithDelta(
-                delta24h = 20.0,
+                delta24h = price.priceDelta(),
                 previousRate = ExchangeRate.CryptoToFiat(
                     from = fromAsset,
-                    to = currencyPrefs.selectedFiatCurrency,
-                    8.00.toBigDecimal()
+                    to = price.quote,
+                    rate = price.yesterdayRate
                 ),
-                currentRate = getStubbedUnknownAssetRate(fromAsset)
+                currentRate = ExchangeRate.CryptoToFiat(
+                    from = fromAsset,
+                    to = price.quote,
+                    rate = price.currentRate
+                )
             )
         }
-    }
-
-    private fun ExchangeRate.priceDelta(previous: ExchangeRate): Double {
-        return try {
-            if (previous.rate.signum() != 0) {
-                val current = rate
-                val prev = previous.rate
-
-                (current - prev)
-                    .divide(prev, 4, RoundingMode.HALF_EVEN)
-                    .movePointRight(2)
-                    .toDouble()
-            } else {
-                Double.NaN
-            }
-        } catch (t: ArithmeticException) {
-            Double.NaN
-        }
-    }
 
     override fun getHistoricPriceSeries(
         asset: AssetInfo,
@@ -245,9 +169,9 @@ internal class ExchangeRatesDataManagerImpl(
         val scale = span.suggestTimescaleInterval()
         val startTime = now.getStartTimeForTimeSpan(span, asset)
 
-        return assetPriceService.getHistoricPriceSince(
-            crypto = asset.ticker,
-            fiat = currencyPrefs.selectedFiatCurrency,
+        return assetPriceService.getHistoricPriceSeriesSince(
+            base = asset.ticker,
+            quote = userFiat,
             start = startTime,
             scale = scale
         ).toHistoricalRateList()
@@ -256,20 +180,8 @@ internal class ExchangeRatesDataManagerImpl(
     override fun get24hPriceSeries(
         asset: AssetInfo
     ): Single<HistoricalRateList> =
-        sparklineCall.fetch(asset, currencyPrefs.selectedFiatCurrency)
+        sparklineCall.fetch(asset, userFiat)
 
     override val fiatAvailableForRates: List<String>
         get() = priceStore.fiatQuoteTickers
-
-    // STUB results, will be updated with the next prices caching PR
-    private fun getStubbedUnknownAssetRate(asset: AssetInfo): ExchangeRate =
-        ExchangeRate.CryptoToFiat(
-            from = asset,
-            to = currencyPrefs.selectedFiatCurrency,
-            10.00.toBigDecimal()
-        )
-
-    companion object {
-        private const val SECONDS_PER_DAY = 24 * 60 * 60
-    }
 }

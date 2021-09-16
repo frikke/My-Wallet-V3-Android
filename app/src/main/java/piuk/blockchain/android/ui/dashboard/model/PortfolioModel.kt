@@ -82,23 +82,47 @@ interface BalanceState : DashboardItem {
 }
 
 data class FiatBalanceInfo(
-    val balance: Money,
-    val userFiat: Money,
-    val account: FiatAccount
+    val account: FiatAccount,
+    val balance: Money = FiatValue.zero(account.fiatCurrency),
+    val userFiat: Money? = null
 )
 
 data class FiatAssetState(
-    val fiatAccounts: List<FiatBalanceInfo> = emptyList()
+    val fiatAccounts: Map<String, FiatBalanceInfo> = emptyMap()
 ) : DashboardItem {
 
-    val totalBalance: Money? =
+    fun updateWith(
+        currencyCode: String,
+        balance: FiatValue,
+        userFiatBalance: FiatValue
+    ): FiatAssetState {
+        val newBalanceInfo = fiatAccounts[currencyCode]?.copy(
+            balance = balance,
+            userFiat = userFiatBalance
+        )
+
+        return newBalanceInfo?.let {
+            val newMap = fiatAccounts.toMutableMap()
+            newMap[currencyCode] = it
+            FiatAssetState(newMap)
+        } ?: this
+    }
+
+    fun reset(): FiatAssetState =
+        FiatAssetState(fiatAccounts.mapValues { old -> FiatBalanceInfo(old.value.account) })
+
+    val totalBalance: Money? by lazy {
         if (fiatAccounts.isEmpty()) {
             null
         } else {
-            fiatAccounts.map {
-                it.userFiat
-            }.total()
+            val fiatList = fiatAccounts.values.mapNotNull { it.userFiat }
+            if (fiatList.isNotEmpty()) {
+                fiatList.total()
+            } else {
+                null
+            }
         }
+    }
 }
 
 sealed class DashboardNavigationAction {
@@ -126,10 +150,10 @@ interface LinkBankNavigationAction {
 
 data class PortfolioState(
     val assets: AssetMap = AssetMap(emptyMap()),
+    val fiatAssets: FiatAssetState = FiatAssetState(),
     val dashboardNavigationAction: DashboardNavigationAction? = null,
     val activeFlow: DialogFlow? = null,
     val announcement: AnnouncementCard? = null,
-    val fiatAssets: FiatAssetState? = null,
     val selectedFiatAccount: FiatAccount? = null,
     val selectedCryptoAccount: SingleAccount? = null,
     val selectedAsset: AssetInfo? = null,
@@ -162,7 +186,7 @@ data class PortfolioState(
         .ifEmpty { null }?.total()
 
     private fun addFiatBalance(balance: Money?): Money? {
-        val fiatAssetBalance = fiatAssets?.totalBalance
+        val fiatAssetBalance = fiatAssets.totalBalance
 
         return if (balance != null) {
             if (fiatAssetBalance != null) {
@@ -192,7 +216,7 @@ data class PortfolioState(
         assets[currency]
 
     override fun getFundsFiat(fiat: String): Money =
-        fiatAssets?.totalBalance ?: FiatValue.zero(fiat)
+        fiatAssets.totalBalance ?: FiatValue.zero(fiat)
 
     val assetMapKeys = assets.keys
 
@@ -208,7 +232,7 @@ data class CryptoAssetState(
     val hasCustodialBalance: Boolean = false
 ) : DashboardItem {
     val fiatBalance: Money? by unsafeLazy {
-        accountBalance?.exchangeRate?.let { p -> accountBalance.total.let { p.convert(it) } }
+        prices24HrWithDelta?.currentRate?.let { p -> accountBalance?.total?.let { p.convert(it) } }
     }
 
     val fiatBalance24h: Money? by unsafeLazy {
@@ -245,7 +269,7 @@ sealed class LinkablePaymentMethodsForAction(
 class PortfolioModel(
     initialState: PortfolioState,
     mainScheduler: Scheduler,
-    private val interactor: PortfolioInteractor,
+    private val actionAdapter: PortfolioActionAdapter,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<PortfolioState, PortfolioIntent>(
@@ -262,16 +286,19 @@ class PortfolioModel(
 
         return when (intent) {
             is GetAvailableAssets -> {
-                interactor.getAvailableAssets(this)
+                actionAdapter.getAvailableAssets(this)
             }
-            is RefreshAllIntent -> {
-                interactor.refreshBalances(this, AssetFilter.All, previousState)
+            is GetAvailableFiatAssets -> {
+                actionAdapter.getAvailableFiatAssets(this)
+            }
+            is RefreshAllBalancesIntent -> {
+                actionAdapter.refreshBalances(this, AssetFilter.All, previousState)
             }
             is BalanceUpdate -> {
                 process(CheckForCustodialBalanceIntent(intent.asset))
                 null
             }
-            is CheckForCustodialBalanceIntent -> interactor.checkForCustodialBalance(
+            is CheckForCustodialBalanceIntent -> actionAdapter.checkForCustodialBalance(
                 this,
                 intent.asset
             )
@@ -279,17 +306,17 @@ class PortfolioModel(
                 process(RefreshPrices(intent.asset))
                 null
             }
-            is RefreshPrices -> interactor.refreshPrices(this, intent.asset)
-            is PriceUpdate -> interactor.refreshPriceHistory(this, intent.asset)
+            is RefreshPrices -> actionAdapter.refreshPrices(this, intent.asset)
+            is PriceUpdate -> actionAdapter.refreshPriceHistory(this, intent.asset)
             is CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
-            is CancelSimpleBuyOrder -> interactor.cancelSimpleBuyOrder(intent.orderId)
-            is LaunchAssetDetailsFlow -> interactor.getAssetDetailsFlow(this, intent.asset)
+            is CancelSimpleBuyOrder -> actionAdapter.cancelSimpleBuyOrder(intent.orderId)
+            is LaunchAssetDetailsFlow -> actionAdapter.getAssetDetailsFlow(this, intent.asset)
             is LaunchInterestDepositFlow ->
-                interactor.getInterestDepositFlow(this, intent.toAccount)
+                actionAdapter.getInterestDepositFlow(this, intent.toAccount)
             is LaunchInterestWithdrawFlow ->
-                interactor.getInterestWithdrawFlow(this, intent.fromAccount)
+                actionAdapter.getInterestWithdrawFlow(this, intent.fromAccount)
             is LaunchBankTransferFlow -> processBankTransferFlow(intent)
-            is LaunchSendFlow -> interactor.getSendFlow(this, intent.fromAccount, intent.action)
+            is LaunchSendFlow -> actionAdapter.getSendFlow(this, intent.fromAccount, intent.action)
             is FiatBalanceUpdate,
             is BalanceUpdateError,
             is PriceHistoryUpdate,
@@ -302,7 +329,8 @@ class PortfolioModel(
             is ClearBottomSheet,
             is UpdateSelectedCryptoAccount,
             is ShowBackupSheet,
-            is UpdatePortfolioCurrencies,
+            is UpdatePortfolioAssetList,
+            is UpdatePortfolioFiatAssetList,
             is LaunchBankLinkFlow,
             is ResetPortfolioNavigation,
             is ShowLinkablePaymentMethodsSheet,
@@ -314,7 +342,7 @@ class PortfolioModel(
     private fun processBankTransferFlow(intent: LaunchBankTransferFlow) =
         when (intent.action) {
             AssetAction.FiatDeposit -> {
-                interactor.getBankDepositFlow(
+                actionAdapter.getBankDepositFlow(
                     this,
                     intent.account,
                     intent.action,
@@ -322,7 +350,7 @@ class PortfolioModel(
                 )
             }
             AssetAction.Withdraw -> {
-                interactor.getBankWithdrawalFlow(
+                actionAdapter.getBankWithdrawalFlow(
                     this,
                     intent.account,
                     intent.action,
@@ -335,7 +363,7 @@ class PortfolioModel(
         }
 
     private fun checkBackupStatus(account: SingleAccount, action: AssetAction): Disposable =
-        interactor.hasUserBackedUp()
+        actionAdapter.hasUserBackedUp()
             .subscribeBy(
                 onSuccess = { isBackedUp ->
                     if (isBackedUp) {

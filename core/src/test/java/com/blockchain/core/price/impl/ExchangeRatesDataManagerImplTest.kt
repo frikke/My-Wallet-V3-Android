@@ -24,11 +24,12 @@ class ExchangeRatesDataManagerImplTest {
         computationTrampoline()
         ioTrampoline()
     }
+
     private val priceService: AssetPriceService = mock {
         on {
-            getHistoricPriceSince(
-                crypto = any(),
-                fiat = any(),
+            getHistoricPriceSeriesSince(
+                base = any(),
+                quote = any(),
                 start = any(),
                 scale = any()
             )
@@ -60,9 +61,9 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
-            crypto = OLD_ASSET.ticker,
-            fiat = SELECTED_FIAT,
+        verify(priceService).getHistoricPriceSeriesSince(
+            base = OLD_ASSET.ticker,
+            quote = SELECTED_FIAT,
             start = OLD_ASSET.startDate!!,
             scale = PriceTimescale.FIVE_DAYS
         )
@@ -79,7 +80,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
+        verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.ticker,
             SELECTED_FIAT,
             DATE_ONE_YEAR_AGO_SECS,
@@ -99,7 +100,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
+        verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.ticker,
             SELECTED_FIAT,
             DATE_ONE_MONTH_AGO_SECS,
@@ -118,7 +119,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
+        verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.ticker,
             SELECTED_FIAT,
             DATE_ONE_WEEK_AGO_SECS,
@@ -137,7 +138,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
+        verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.ticker,
             SELECTED_FIAT,
             DATE_ONE_DAY_AGO_SECS,
@@ -156,7 +157,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
+        verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.ticker,
             SELECTED_FIAT,
             NEW_ASSET.startDate!!,
@@ -195,7 +196,10 @@ class ExchangeRatesDataManagerImplTest {
 
         private val PRICE_DATA = listOf(
             AssetPrice(
-                100.toDouble(), 200000
+                base = OLD_ASSET.ticker,
+                quote = SELECTED_FIAT,
+                price = 100.toDouble(),
+                timestamp = 200000
             )
         )
     }

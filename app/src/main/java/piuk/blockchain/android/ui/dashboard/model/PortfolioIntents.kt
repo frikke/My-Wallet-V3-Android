@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.model
 
-// todo Ideally we want to map this at the coincore layer to some new object, so that the dashboard doesn't have a dependency on core. Since there are a couple of others that are just passed through, though, this can be for later.
+// todo Ideally we want to map this at the coincore layer to some new object, so that the dashboard doesn't
+// todo have a dependency on core. Since there are a couple of others that are just passed through, though,
+// todo this can be for later.
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.models.data.LinkBankTransfer
@@ -11,6 +13,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
@@ -19,16 +23,22 @@ import piuk.blockchain.android.ui.transactionflow.DialogFlow
 sealed class PortfolioIntent : MviIntent<PortfolioState>
 
 class FiatBalanceUpdate(
-    private val fiatAssetList: List<FiatBalanceInfo>
+    private val balance: Money,
+    private val fiatBalance: Money
 ) : PortfolioIntent() {
     override fun reduce(oldState: PortfolioState): PortfolioState {
+        val oldFiatValues = oldState.fiatAssets
         return oldState.copy(
-            fiatAssets = FiatAssetState(fiatAssetList)
+            fiatAssets = oldFiatValues.updateWith(
+                balance.currencyCode,
+                balance as FiatValue,
+                fiatBalance as FiatValue
+            )
         )
     }
 }
 
-class UpdatePortfolioCurrencies(
+class UpdatePortfolioAssetList(
     private val assetList: List<AssetInfo>
 ) : PortfolioIntent() {
     override fun reduce(oldState: PortfolioState): PortfolioState {
@@ -43,10 +53,34 @@ class UpdatePortfolioCurrencies(
     }
 }
 
+class UpdatePortfolioFiatAssetList(
+    private val fiatAssetList: List<FiatAccount>
+) : PortfolioIntent() {
+    override fun reduce(oldState: PortfolioState): PortfolioState {
+        val fiatState = FiatAssetState(
+            fiatAssetList.associateBy(
+                keySelector = { it.fiatCurrency },
+                valueTransform = { FiatBalanceInfo(it) }
+            )
+        )
+        return oldState.copy(
+            fiatAssets = fiatState
+        )
+    }
+}
+
 object GetAvailableAssets : PortfolioIntent() {
     override fun reduce(oldState: PortfolioState): PortfolioState {
         return oldState.copy(
             assets = AssetMap(mapOf())
+        )
+    }
+}
+
+object GetAvailableFiatAssets : PortfolioIntent() {
+    override fun reduce(oldState: PortfolioState): PortfolioState {
+        return oldState.copy(
+            fiatAssets = FiatAssetState()
         )
     }
 }
@@ -58,9 +92,9 @@ object ResetPortfolioNavigation : PortfolioIntent() {
         )
 }
 
-object RefreshAllIntent : PortfolioIntent() {
+object RefreshAllBalancesIntent : PortfolioIntent() {
     override fun reduce(oldState: PortfolioState): PortfolioState {
-        return oldState.copy(assets = oldState.assets.reset(), fiatAssets = FiatAssetState())
+        return oldState.copy(assets = oldState.assets.reset(), fiatAssets = oldState.fiatAssets.reset())
     }
 }
 

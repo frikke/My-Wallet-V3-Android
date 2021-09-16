@@ -74,7 +74,7 @@ import piuk.blockchain.android.ui.dashboard.model.LaunchInterestWithdrawFlow
 import piuk.blockchain.android.ui.dashboard.model.LaunchSendFlow
 import piuk.blockchain.android.ui.dashboard.model.LinkBankNavigationAction
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
-import piuk.blockchain.android.ui.dashboard.model.RefreshAllIntent
+import piuk.blockchain.android.ui.dashboard.model.RefreshAllBalancesIntent
 import piuk.blockchain.android.ui.dashboard.model.ResetPortfolioNavigation
 import piuk.blockchain.android.ui.dashboard.model.ShowAnnouncement
 import piuk.blockchain.android.ui.dashboard.model.ShowBankLinkingSheet
@@ -463,7 +463,7 @@ class PortfolioFragment :
 
     private fun setupSwipeRefresh() {
         with(binding) {
-            swipe.setOnRefreshListener { model.process(RefreshAllIntent) }
+            swipe.setOnRefreshListener { model.process(RefreshAllBalancesIntent) }
 
             // Configure the refreshing colors
             swipe.setColorSchemeResources(
@@ -499,7 +499,7 @@ class PortfolioFragment :
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) {
-            model.process(RefreshAllIntent)
+            model.process(RefreshAllBalancesIntent)
         }
     }
 
@@ -507,7 +507,7 @@ class PortfolioFragment :
         if (displayList.isEmpty()) {
             model.process(GetAvailableAssets)
         } else {
-            model.process(RefreshAllIntent)
+            model.process(RefreshAllBalancesIntent)
         }
     }
 
@@ -529,7 +529,7 @@ class PortfolioFragment :
 
         when (requestCode) {
             MainActivity.SETTINGS_EDIT,
-            MainActivity.ACCOUNT_EDIT -> model.process(RefreshAllIntent)
+            MainActivity.ACCOUNT_EDIT -> model.process(RefreshAllBalancesIntent)
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
                     model.process(CheckBackupStatus(it.account, it.action))

@@ -11,11 +11,11 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.databinding.FragmentPricesBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.dashboard.adapter.PricesDelegateAdapter
@@ -192,7 +192,7 @@ internal class PricesFragment :
     }
 
     override fun onPause() {
-        compositeDisposable.clear()
+        model.process(PricesIntent.StopUpdates)
         super.onPause()
     }
 

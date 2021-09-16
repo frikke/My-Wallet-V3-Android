@@ -21,7 +21,7 @@ val TEST_ASSETS = listOf(
 
 private val pricesWith24HrBtc = Prices24HrWithDelta(
     previousRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
-    currentRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+    currentRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal()),
     delta24h = 0.0
 )
 
@@ -85,9 +85,6 @@ val testBtcState = CryptoAssetState(
         on { total }.thenReturn(CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()))
         on { actionable }.thenReturn(CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()))
         on { pending }.thenReturn(CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()))
-        on { exchangeRate }.thenReturn(
-            ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal())
-        )
     },
     prices24HrWithDelta = pricesWith24HrBtc,
     priceTrend = emptyList()
@@ -98,7 +95,16 @@ val testFiatBalance = FiatValue.fromMajor(FIAT_CURRENCY, 1000.toBigDecimal())
 @Mock
 private val fiatAccount: FiatAccount = mock()
 val fiatAssetState_1 = FiatAssetState()
-val fiatAssetState_2 = FiatAssetState(listOf(FiatBalanceInfo(testFiatBalance, testFiatBalance, fiatAccount)))
+val fiatAssetState_2 = FiatAssetState(
+    mapOf(
+        testFiatBalance.currencyCode to
+            FiatBalanceInfo(
+                account = fiatAccount,
+                balance = testFiatBalance,
+                userFiat = testFiatBalance
+            )
+        )
+)
 
 val initialState = PortfolioState(
     assets = mapOfAssets(

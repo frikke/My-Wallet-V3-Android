@@ -22,9 +22,9 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 
-class PortfolioInteractorTest {
+class PortfolioActionAdapterTest {
 
-    private lateinit var interactor: PortfolioInteractor
+    private lateinit var actionAdapter: PortfolioActionAdapter
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val model: PortfolioModel = mock()
@@ -43,11 +43,9 @@ class PortfolioInteractorTest {
 
     @Before
     fun setUp() {
-        interactor = PortfolioInteractor(
+        actionAdapter = PortfolioActionAdapter(
             coincore = mock(),
             payloadManager = mock(),
-            exchangeRates = mock(),
-            currencyPrefs = mock(),
             custodialWalletManager = custodialWalletManager,
             linkedBanksFactory = linkedBanksFactory,
             crashLogger = mock(),
@@ -72,7 +70,7 @@ class PortfolioInteractorTest {
 
         whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
 
-        interactor.getBankDepositFlow(
+        actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -114,7 +112,7 @@ class PortfolioInteractorTest {
         )
         whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
 
-        interactor.getBankDepositFlow(
+        actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -144,7 +142,7 @@ class PortfolioInteractorTest {
             )
         )
 
-        interactor.getBankDepositFlow(
+        actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -176,7 +174,7 @@ class PortfolioInteractorTest {
 
         whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
 
-        interactor.getBankDepositFlow(
+        actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -209,7 +207,7 @@ class PortfolioInteractorTest {
 
         whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
 
-        interactor.getBankDepositFlow(
+        actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
