@@ -214,22 +214,6 @@ class ActivityDetailsInteractor(
                 Created(Date(summaryItem.timeStampMs)),
                 when (summaryItem.type) {
                     TransactionType.DEPOSIT -> {
-                        when {
-                            summaryItem.recipientAddress.isBlank() -> {
-                                null
-                            }
-                            else -> {
-                                From(summaryItem.recipientAddress)
-                            }
-                        }
-                    }
-                    TransactionType.WITHDRAWAL -> {
-                        From(summaryItem.account.label)
-                    }
-                    else -> null
-                },
-                when (summaryItem.type) {
-                    TransactionType.DEPOSIT -> {
                         To(summaryItem.account.label)
                     }
                     TransactionType.WITHDRAWAL -> {
@@ -241,6 +225,22 @@ class ActivityDetailsInteractor(
                                 To(summaryItem.recipientAddress)
                             }
                         }
+                    }
+                    else -> null
+                },
+                when (summaryItem.type) {
+                    TransactionType.DEPOSIT -> {
+                        when {
+                            summaryItem.recipientAddress.isBlank() -> {
+                                null
+                            }
+                            else -> {
+                                From(summaryItem.recipientAddress)
+                            }
+                        }
+                    }
+                    TransactionType.WITHDRAWAL -> {
+                        From(summaryItem.account.label)
                     }
                     else -> null
                 },
