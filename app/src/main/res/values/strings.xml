@@ -1575,7 +1575,6 @@
     <string name="fiat_funds_detail_deposit_details">Add Cash from Your Bank</string>
     <string name="fiat_funds_detail_withdraw_details">Cash Out to Your Bank</string>
     <string name="fiat_funds_detail_pending_withdrawal">You already have a Withdrawal in progress, please wait until that completes before starting a new one.</string>
-    <string name="withdraw_currency">Withdraw %1$s</string>
     <string name="withdraw_title">Withdraw</string>
     <string name="withdraw_to">Withdraw to</string>
     <string name="withdraw_confirmation_cta_button">Withdraw %1$s</string>
