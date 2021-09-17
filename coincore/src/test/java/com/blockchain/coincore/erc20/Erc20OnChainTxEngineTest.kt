@@ -568,7 +568,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         @Suppress("ClassName")
         private object DUMMY_ERC20 : CryptoCurrency(
-            ticker = "DUMMY",
+            networkTicker = "DUMMY",
+            displayTicker = "DUMMY",
             name = "Dummies",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,

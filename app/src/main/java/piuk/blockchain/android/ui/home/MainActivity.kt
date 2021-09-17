@@ -579,7 +579,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     private fun showNoAccountFromScanToast(asset: AssetInfo) {
-        val msg = getString(R.string.scan_no_available_account, asset.ticker)
+        val msg = getString(R.string.scan_no_available_account, asset.displayTicker)
         toast(msg)
     }
 
@@ -711,12 +711,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun startBuyAndSellFragment(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        ticker: String? = null,
+        asset: AssetInfo? = null,
         reload: Boolean = true
     ) {
         setCurrentTabItem(R.id.nav_buy_and_sell)
         toolbar.title = getString(R.string.buy_and_sell)
-        val buySellFragment = BuySellFragment.newInstance(ticker, viewType)
+        val buySellFragment = BuySellFragment.newInstance(asset, viewType)
         showFragment(buySellFragment, reload)
     }
 
@@ -781,7 +781,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 state.fiatCurrency, getString(R.string.yapily_payment_to_fiat_wallet_title, state.fiatCurrency),
                 getString(
                     R.string.yapily_payment_to_fiat_wallet_subtitle,
-                    state.selectedCryptoAsset?.ticker ?: getString(
+                    state.selectedCryptoAsset?.displayTicker ?: getString(
                         R.string.yapily_payment_to_fiat_wallet_default
                     ),
                     state.fiatCurrency
@@ -940,12 +940,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         )
     }
 
-    override fun launchSimpleBuy(ticker: String) {
+    override fun launchSimpleBuy(asset: AssetInfo) {
         startActivity(
             SimpleBuyActivity.newInstance(
                 context = this,
                 launchFromNavigationBar = true,
-                ticker = ticker
+                asset = asset
             )
         )
     }
@@ -989,8 +989,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         startActivity(SimpleBuyActivity.newInstance(this, launchFromApprovalDeepLink = true))
     }
 
-    override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, ticker: String?) {
-        startBuyAndSellFragment(viewType, ticker)
+    override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
+        startBuyAndSellFragment(viewType, asset)
     }
 
     override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) =

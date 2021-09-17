@@ -42,7 +42,7 @@ class NewAssetAnnouncementTest {
 
     @Test
     fun `should show, when not already shown, and is a known asset`() {
-        val assetDismissKey = "${NewAssetAnnouncement.DISMISS_KEY}${CryptoCurrency.BTC.ticker}"
+        val assetDismissKey = "${NewAssetAnnouncement.DISMISS_KEY}${CryptoCurrency.BTC.networkTicker}"
 
         whenever(dismissEntry.prefsKey).thenReturn(assetDismissKey)
         whenever(dismissEntry.isDismissed).thenReturn(false)

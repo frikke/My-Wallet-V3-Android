@@ -13,8 +13,8 @@ data class CryptoValue(
 
     override val userDecimalPlaces: Int = DISPLAY_DP
 
-    override val currencyCode = currency.ticker
-    override val symbol = currency.ticker
+    override val currencyCode = currency.displayTicker
+    override val symbol = currency.displayTicker
 
     override fun toStringWithSymbol() = formatWithUnit(Locale.getDefault())
 

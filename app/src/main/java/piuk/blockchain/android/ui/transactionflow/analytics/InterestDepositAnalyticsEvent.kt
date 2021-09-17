@@ -13,17 +13,25 @@ sealed class InterestDepositAnalyticsEvent(
 
     data class ConfirmationsCtaClick(
         val asset: AssetInfo
-    ) : InterestDepositAnalyticsEvent("earn_deposit_confirm_click", params = mapOf("asset" to asset.ticker))
+    ) : InterestDepositAnalyticsEvent(
+        "earn_deposit_confirm_click", params = mapOf("asset" to asset.networkTicker)
+    )
 
     data class EnterAmountCtaClick(
         val asset: AssetInfo
-    ) : InterestDepositAnalyticsEvent("earn_amount_screen_confirm", params = mapOf("asset" to asset.ticker))
+    ) : InterestDepositAnalyticsEvent(
+        "earn_amount_screen_confirm", params = mapOf("asset" to asset.networkTicker)
+    )
 
     data class TransactionSuccess(
         val asset: AssetInfo
-    ) : InterestDepositAnalyticsEvent("earn_checkout_success", params = mapOf("asset" to asset.ticker))
+    ) : InterestDepositAnalyticsEvent(
+        "earn_checkout_success", params = mapOf("asset" to asset.networkTicker)
+    )
 
     data class TransactionFailed(
         val asset: AssetInfo
-    ) : InterestDepositAnalyticsEvent("earn_checkout_error", params = mapOf("asset" to asset.ticker))
+    ) : InterestDepositAnalyticsEvent(
+        "earn_checkout_error", params = mapOf("asset" to asset.networkTicker)
+    )
 }

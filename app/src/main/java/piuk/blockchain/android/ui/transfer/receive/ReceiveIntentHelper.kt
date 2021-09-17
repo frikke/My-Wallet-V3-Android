@@ -70,11 +70,11 @@ class ReceiveIntentHelper(
                 asset == CryptoCurrency.ETHER ||
                     asset.isErc20() ->
                     emailIntent.setupIntentForEmailERC20(
-                        ticker = asset.ticker,
+                        ticker = asset.displayTicker,
                         displayName = displayName,
                         uri = uri
                     )
-                else -> throw NotImplementedError("${asset.ticker} is not fully supported yet")
+                else -> throw NotImplementedError("${asset.networkTicker} is not fully supported yet")
             }
 
             val imageIntent = Intent().apply { setupIntentForImage(type, file) }

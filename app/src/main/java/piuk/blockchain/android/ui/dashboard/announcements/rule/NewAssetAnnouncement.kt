@@ -18,7 +18,7 @@ class NewAssetAnnouncement(
     private var newAsset: AssetInfo? = null
 
     override val dismissKey: String
-        get() = DISMISS_KEY.plus(newAsset?.ticker.orEmpty())
+        get() = DISMISS_KEY.plus(newAsset?.networkTicker.orEmpty())
 
     override val name: String
         get() = "new_asset"
@@ -41,11 +41,11 @@ class NewAssetAnnouncement(
                     dismissRule = DismissRule.CardOneTime,
                     dismissEntry = dismissEntry,
                     titleText = R.string.new_asset_card_title,
-                    titleFormatParams = arrayOf(it.name, it.ticker),
+                    titleFormatParams = arrayOf(it.name, it.displayTicker),
                     bodyText = R.string.new_asset_card_body,
-                    bodyFormatParams = arrayOf(it.ticker),
+                    bodyFormatParams = arrayOf(it.displayTicker),
                     ctaText = R.string.new_asset_card_cta,
-                    ctaFormatParams = arrayOf(it.ticker),
+                    ctaFormatParams = arrayOf(it.displayTicker),
                     iconUrl = it.logo,
                     dismissFunction = {
                         host.dismissAnnouncementCard()

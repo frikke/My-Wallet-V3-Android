@@ -94,7 +94,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                     if (accounts.isNotEmpty()) {
                         interestDetailsDepositCta.visible()
                         interestDetailsDepositCta.text =
-                            getString(R.string.tx_title_deposit, asset.ticker)
+                            getString(R.string.tx_title_deposit, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(InterestAnalytics.InterestSummaryDepositCta)
                             host.goToInterestDeposit(account as InterestAccount)
@@ -133,7 +133,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         with(binding) {
             if (composite.balance.isPositive) {
                 interestDetailsWithdrawCta.text =
-                    getString(R.string.tx_title_withdrawn, asset.ticker)
+                    getString(R.string.tx_title_withdrawn, asset.displayTicker)
                 interestDetailsWithdrawCta.visible()
                 interestDetailsWithdrawCta.setOnClickListener {
                     analytics.logEvent(InterestAnalytics.InterestWithdrawalClicked(

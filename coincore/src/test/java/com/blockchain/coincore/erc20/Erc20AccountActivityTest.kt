@@ -124,7 +124,8 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
 
         @Suppress("ClassName")
         private object ERC20_TOKEN : CryptoCurrency(
-            ticker = "DUMMY",
+            displayTicker = "DUMMY",
+            networkTicker = "DUMMY",
             name = "Dummies",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,

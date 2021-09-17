@@ -305,7 +305,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                         BuySellClicked(origin = LaunchOrigin.TRANSACTION_DETAILS, type = BuySellType.BUY)
                     )
                     startActivity(
-                        SimpleBuyActivity.newInstance(requireContext(), asset.ticker, true)
+                        SimpleBuyActivity.newInstance(requireContext(), asset, true)
                     )
                     dismiss()
                 }
@@ -482,7 +482,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
             TransactionSummary.TransactionType.BUY -> getString(R.string.activity_details_title_bought)
             TransactionSummary.TransactionType.SELL -> getString(
                 R.string.activity_details_title_sold,
-                asset.ticker
+                asset.displayTicker
             )
             TransactionSummary.TransactionType.SWAP -> getString(R.string.activity_details_title_swapped)
             TransactionSummary.TransactionType.DEPOSIT -> getString(
@@ -556,7 +556,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         ): CryptoActivityDetailsBottomSheet {
             return CryptoActivityDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_CRYPTO_ASSET, asset.ticker)
+                    putString(ARG_CRYPTO_ASSET, asset.networkTicker)
                     putString(ARG_TRANSACTION_HASH, txHash)
                     putSerializable(ARG_ACTIVITY_TYPE, activityType)
                 }

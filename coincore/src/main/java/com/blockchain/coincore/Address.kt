@@ -84,13 +84,13 @@ class AddressFactoryImpl(
                 }
             }
 
-    private fun resolveDomainAddress(address: String, ccy: AssetInfo): Maybe<ReceiveAddress> =
-        addressResolver.resolveAssetAddress(address, ccy.ticker)
+    private fun resolveDomainAddress(address: String, asset: AssetInfo): Maybe<ReceiveAddress> =
+        addressResolver.resolveAssetAddress(address, asset.networkTicker)
             .flatMapMaybe { resolved ->
                 if (resolved.isEmpty())
                     Maybe.empty()
                 else
-                    coincore[ccy].parseAddress(resolved, address)
+                    coincore[asset].parseAddress(resolved, address)
             }.onErrorResumeNext(::handleResolutionApiError)
 
     private fun handleResolutionApiError(t: Throwable): Maybe<ReceiveAddress> =

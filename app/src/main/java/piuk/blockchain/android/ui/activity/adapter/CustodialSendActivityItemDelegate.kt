@@ -90,10 +90,10 @@ private class CustodialTradeActivityItemViewHolder(
     private fun TextView.setDirectionText(tx: CustodialTransferActivitySummaryItem) =
         when (tx.type) {
             TransactionType.DEPOSIT -> text = context.getString(
-                R.string.tx_title_received, tx.asset.ticker
+                R.string.tx_title_received, tx.asset.displayTicker
             )
             TransactionType.WITHDRAWAL -> text = context.getString(
-                R.string.tx_title_sent, tx.asset.ticker
+                R.string.tx_title_sent, tx.asset.displayTicker
             )
         }
 

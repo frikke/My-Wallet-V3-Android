@@ -36,7 +36,7 @@ sealed class SendAnalyticsEvent(
     ) : SendAnalyticsEvent(
         "send_summary_confirm",
         mapOf(
-            PARAM_ASSET to asset.ticker,
+            PARAM_ASSET to asset.networkTicker,
             PARAM_SOURCE to source,
             PARAM_TARGET to target,
             FEE_SCHEDULE to feeLevel
@@ -47,7 +47,7 @@ sealed class SendAnalyticsEvent(
         SendAnalyticsEvent(
             "send_confirm_success",
             mapOf(
-                PARAM_ASSET to asset.ticker,
+                PARAM_ASSET to asset.networkTicker,
                 PARAM_TARGET to target,
                 PARAM_SOURCE to source
             )
@@ -61,7 +61,7 @@ sealed class SendAnalyticsEvent(
     ) : SendAnalyticsEvent(
         "send_confirm_error",
         mapOf(
-            PARAM_ASSET to asset.ticker,
+            PARAM_ASSET to asset.networkTicker,
             PARAM_TARGET to target,
             PARAM_SOURCE to source,
             PARAM_ERROR to error

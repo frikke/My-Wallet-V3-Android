@@ -26,7 +26,7 @@ internal class ExchangeRatesDataManagerImpl(
         priceStore.init()
 
     override fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate> =
-        priceStore.getPriceForAsset(fromAsset.ticker, userFiat)
+        priceStore.getPriceForAsset(fromAsset.networkTicker, userFiat)
             .map {
                 ExchangeRate.CryptoToFiat(
                     from = fromAsset,
@@ -125,7 +125,7 @@ internal class ExchangeRatesDataManagerImpl(
         secSinceEpoch: Long
     ): Single<ExchangeRate> {
         return assetPriceService.getHistoricPrices(
-            baseTickers = setOf(fromAsset.ticker),
+            baseTickers = setOf(fromAsset.networkTicker),
             quoteTickers = setOf(userFiat),
             time = secSinceEpoch
         ).map { prices ->
@@ -141,7 +141,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getPricesWith24hDelta(fromAsset: AssetInfo): Observable<Prices24HrWithDelta> =
         priceStore.getPriceForAsset(
-            fromAsset.ticker,
+            fromAsset.networkTicker,
             userFiat
         ).map { price ->
             Prices24HrWithDelta(
@@ -170,7 +170,7 @@ internal class ExchangeRatesDataManagerImpl(
         val startTime = now.getStartTimeForTimeSpan(span, asset)
 
         return assetPriceService.getHistoricPriceSeriesSince(
-            base = asset.ticker,
+            base = asset.networkTicker,
             quote = userFiat,
             start = startTime,
             scale = scale

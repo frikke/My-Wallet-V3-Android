@@ -4,7 +4,8 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 
 internal object PAX : CryptoCurrency(
-    ticker = "PAX",
+    displayTicker = "PAX",
+    networkTicker = "PAX",
     name = "Paxos Standard",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -17,7 +18,8 @@ internal object PAX : CryptoCurrency(
 )
 
 internal object USDT : CryptoCurrency(
-    ticker = "USDT",
+    displayTicker = "USDT",
+    networkTicker = "USDT",
     name = "Tether",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 6,
@@ -31,7 +33,8 @@ internal object USDT : CryptoCurrency(
 )
 
 internal object WDGLD : CryptoCurrency(
-    ticker = "WDGLD",
+    displayTicker = "WDGLD",
+    networkTicker = "WDGLD",
     name = "Wrapped-DGLD",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 8,
@@ -45,7 +48,8 @@ internal object WDGLD : CryptoCurrency(
 )
 
 internal object AAVE : CryptoCurrency(
-    ticker = "AAVE",
+    displayTicker = "AAVE",
+    networkTicker = "AAVE",
     name = "Aave",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -59,7 +63,8 @@ internal object AAVE : CryptoCurrency(
 )
 
 internal object YFI : CryptoCurrency(
-    ticker = "YFI",
+    displayTicker = "YFI",
+    networkTicker = "YFI",
     name = "YFI", // TODO Check name
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,

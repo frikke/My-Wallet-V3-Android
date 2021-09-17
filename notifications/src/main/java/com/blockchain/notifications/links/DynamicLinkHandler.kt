@@ -42,7 +42,7 @@ internal class DynamicLinkHandler internal constructor(
                 "$uri$DEEPLINK_TICKER_QUERY${
                     originalIntent.data?.getQueryParameter(
                         TICKER_QUERY_PARAM
-                    ) ?: CryptoCurrency.BTC.ticker
+                    ) ?: CryptoCurrency.BTC.networkTicker
                 }"
             )
             uri.isCampaignTypeQueryParamSupportedUri() -> Uri.parse(

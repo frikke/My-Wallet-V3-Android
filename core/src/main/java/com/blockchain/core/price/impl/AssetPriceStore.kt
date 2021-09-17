@@ -186,9 +186,9 @@ internal class AssetPriceStore(
 
     @Synchronized
     fun getCachedAssetPrice(fromAsset: AssetInfo, toFiat: String): AssetPriceRecord {
-        val pair = AssetPair(fromAsset.ticker, toFiat)
+        val pair = AssetPair(fromAsset.networkTicker, toFiat)
         return pricesCache.value?.get(pair) ?: throw IllegalStateException(
-            "Unknown pair: ${fromAsset.ticker} - $toFiat"
+            "Unknown pair: ${fromAsset.networkTicker} - $toFiat"
         )
     }
 

@@ -207,6 +207,7 @@ val applicationModule = module {
             MainPresenter(
                 prefs = get(),
                 accessState = get(),
+                assetCatalogue = get(),
                 credentialsWiper = get(),
                 payloadDataManager = get(),
                 qrProcessor = get(),

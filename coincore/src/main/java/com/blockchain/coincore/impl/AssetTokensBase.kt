@@ -91,7 +91,7 @@ interface AccountRefreshTrigger {
         ) { nc, c, i ->
             nc + c + i
         }.doOnError {
-            val errorMsg = "Error loading accounts for ${asset.ticker}"
+            val errorMsg = "Error loading accounts for ${asset.networkTicker}"
             Timber.e("$errorMsg: $it")
             crashLogger.logException(it, errorMsg)
         }

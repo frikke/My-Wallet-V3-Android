@@ -166,7 +166,7 @@ class CustodialTradingAccount(
         custodialWalletManager: CustodialWalletManager,
         asset: AssetInfo,
         summaryList: List<ActivitySummaryItem>
-    ) = custodialWalletManager.getCustodialCryptoTransactions(asset.ticker, Product.BUY)
+    ) = custodialWalletManager.getCustodialCryptoTransactions(asset.networkTicker, Product.BUY)
         .map { txs ->
             txs.map {
                 it.toSummaryItem()

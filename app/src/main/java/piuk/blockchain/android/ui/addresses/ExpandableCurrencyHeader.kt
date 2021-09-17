@@ -205,7 +205,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         when (asset) {
             CryptoCurrency.BTC -> R.drawable.vector_bitcoin_white
             CryptoCurrency.BCH -> R.drawable.vector_bitcoin_cash_white
-            else -> throw NotImplementedError("${asset.ticker} Not implemented")
+            else -> throw NotImplementedError("${asset.networkTicker} Not implemented")
         }
 
     /**

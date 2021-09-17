@@ -27,7 +27,7 @@ class InterestRepository(
     fun getLimitForAsset(asset: AssetInfo): Single<InterestLimits> =
         limitsCache.getCachedSingle().map { limitsList ->
             limitsList.list.find { it.cryptoCurrency == asset }
-                ?: throw NoSuchElementException("Unable to get limits for ${asset.ticker}")
+                ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
         }
 
     fun getAvailabilityForAsset(ccy: AssetInfo): Single<Boolean> =

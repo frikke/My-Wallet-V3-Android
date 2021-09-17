@@ -50,7 +50,7 @@ private class CryptoCurrencyFormatter(private val locale: Locale) {
     ) =
         cryptoValue.currency.decimalFormat(precision).formatWithUnit(
             cryptoValue.toBigDecimal(),
-            cryptoValue.currency.ticker
+            cryptoValue.currency.displayTicker
         )
 
     private fun AssetInfo.decimalFormat(displayMode: FormatPrecision) =

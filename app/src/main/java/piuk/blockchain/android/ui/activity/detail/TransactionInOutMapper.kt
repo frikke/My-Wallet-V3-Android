@@ -124,7 +124,7 @@ class TransactionInOutMapper(
             val coinbase =
                 TransactionDetailModel(
                     address = stringUtils.getString(R.string.transaction_detail_coinbase),
-                    displayUnits = currency.ticker
+                    displayUnits = currency.displayTicker
                 )
             inputs.add(coinbase)
         }
@@ -163,7 +163,7 @@ class TransactionInOutMapper(
         TransactionDetailModel(
             label,
             value.toStringWithoutSymbol(),
-            cryptoCurrency.ticker
+            cryptoCurrency.displayTicker
         ).apply {
             if (address == TransactionSummary.ADDRESS_DECODE_ERROR) {
                 address = stringUtils.getString(R.string.tx_decode_error)

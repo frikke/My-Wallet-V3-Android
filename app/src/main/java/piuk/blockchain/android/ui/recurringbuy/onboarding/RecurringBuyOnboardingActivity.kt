@@ -99,7 +99,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         startActivity(
             SimpleBuyActivity.newInstance(
                 context = this,
-                ticker = asset?.ticker
+                asset = asset
             )
         )
     }
@@ -148,7 +148,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
             asset: AssetInfo? = null
         ): Intent = Intent(context, RecurringBuyOnboardingActivity::class.java).apply {
             putExtra(ORIGIN_ON_BOARDING_RBS, fromCoinView)
-            putExtra(ASSET, asset?.ticker)
+            putExtra(ASSET, asset?.networkTicker)
         }
     }
 }

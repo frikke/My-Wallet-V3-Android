@@ -77,7 +77,7 @@ private class InterestAssetItemViewHolder(
             itemInterestAssetTitle.text = item.asset.name
 
             itemInterestAccBalanceTitle.text =
-                context.getString(R.string.interest_dashboard_item_balance_title, item.asset.ticker)
+                context.getString(R.string.interest_dashboard_item_balance_title, item.asset.displayTicker)
         }
 
         disposables += Single.zip(
@@ -167,7 +167,7 @@ private class InterestAssetItemViewHolder(
     ) {
         val rateIntro = context.getString(R.string.interest_dashboard_item_rate_1)
         val rateInfo = "${details.interestRate}%"
-        val rateOutro = context.getString(R.string.interest_dashboard_item_rate_2, item.asset.ticker)
+        val rateOutro = context.getString(R.string.interest_dashboard_item_rate_2, item.asset.displayTicker)
 
         val sb = SpannableStringBuilder()
             .append(rateIntro)

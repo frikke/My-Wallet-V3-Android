@@ -122,7 +122,7 @@ class InterestDashboardActivity : BlockchainActivity(),
                     startDeposit(account as SingleAccount, toAccount)
                     analytics.logEvent(
                         InterestAnalytics.InterestDepositClicked(
-                            currency = (toAccount as CryptoAccount).asset.ticker,
+                            currency = (toAccount as CryptoAccount).asset.networkTicker,
                             origin = LaunchOrigin.SAVINGS_PAGE
                         )
                     )

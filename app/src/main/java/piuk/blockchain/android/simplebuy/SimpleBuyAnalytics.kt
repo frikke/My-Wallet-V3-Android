@@ -140,7 +140,7 @@ class BuyFrequencySelected(frequency: String) : AnalyticsEvent {
 class CustodialBalanceClicked(asset: AssetInfo) : AnalyticsEvent {
     override val event: String = "sb_trading_wallet_clicked"
     override val params: Map<String, String> = mapOf(
-        "asset" to asset.ticker
+        "asset" to asset.networkTicker
     )
 }
 

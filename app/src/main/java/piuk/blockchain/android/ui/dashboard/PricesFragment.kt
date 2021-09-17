@@ -40,7 +40,6 @@ data class PricesItem(
     val priceWithDelta: Prices24HrWithDelta? = null
     // Etc
 ) {
-    val assetTicker = asset.ticker
     val assetName = asset.name
 }
 
@@ -118,7 +117,7 @@ internal class PricesFragment :
         val newList = newState.availablePrices.filter { assetInfo ->
             newState.filterBy.isBlank() ||
                 assetInfo.key.name.contains(newState.filterBy, ignoreCase = true) ||
-                assetInfo.key.ticker.contains(newState.filterBy, ignoreCase = true)
+                assetInfo.key.displayTicker.contains(newState.filterBy, ignoreCase = true)
         }.values.map {
             PricesItem(
                 asset = it.assetInfo,
@@ -201,7 +200,7 @@ internal class PricesFragment :
     }
 
     private fun onAssetClicked(asset: AssetInfo) {
-        analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset.ticker))
+        analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset))
         model.process(PricesIntent.LaunchAssetDetailsFlow(asset))
     }
 
@@ -215,7 +214,7 @@ internal class PricesFragment :
     }
 
     override fun goToBuy(asset: AssetInfo) {
-        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset.ticker)
+        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
     }
 
     companion object {

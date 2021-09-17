@@ -106,25 +106,25 @@ class PitLinkingImpl(
                 1
             )
         }
-            .map { Pair(CryptoCurrency.BTC.ticker, it ?: throw IllegalStateException("address is null")) }
+            .map { Pair(CryptoCurrency.BTC.networkTicker, it ?: throw IllegalStateException("address is null")) }
             .onErrorReturn { Pair("", "") }
     }
 
     private fun getBchReceiveAddress(): Single<Pair<String, String>> {
         val pos = bchDataManager.getDefaultAccountPosition()
         return bchDataManager.getNextCashReceiveAddress(pos)
-            .map { Pair(CryptoCurrency.BCH.ticker, it) }
+            .map { Pair(CryptoCurrency.BCH.networkTicker, it) }
             .singleOrError()
             .onErrorReturn { Pair("", "") }
     }
 
     private fun getEthReceiveAddress(): Single<Pair<String, String>> =
         Single.fromCallable { ethDataManager.accountAddress }
-            .map { Pair(CryptoCurrency.ETHER.ticker, it.orEmpty()) }
+            .map { Pair(CryptoCurrency.ETHER.networkTicker, it.orEmpty()) }
             .onErrorReturn { Pair("", "") }
 
     private fun getXlmReceiveAddress(): Single<Pair<String, String>> =
         xlmDataManager.defaultAccount()
-            .map { Pair(CryptoCurrency.XLM.ticker, it.accountId) }
+            .map { Pair(CryptoCurrency.XLM.networkTicker, it.accountId) }
             .onErrorReturn { Pair("", "") }
 }

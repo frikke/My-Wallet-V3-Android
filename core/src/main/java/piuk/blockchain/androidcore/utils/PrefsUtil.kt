@@ -266,10 +266,10 @@ class PrefsUtil(
     override fun setBitPaySuccess() = setValue(BITPAY_TRANSACTION_SUCCEEDED, true)
 
     override fun setFeeTypeForAsset(asset: AssetInfo, type: Int) =
-        setValue(NETWORK_FEE_PRIORITY_KEY + asset.ticker, type)
+        setValue(NETWORK_FEE_PRIORITY_KEY + asset.networkTicker, type)
 
     override fun getFeeTypeForAsset(asset: AssetInfo): Int =
-        getValue(NETWORK_FEE_PRIORITY_KEY + asset.ticker, -1)
+        getValue(NETWORK_FEE_PRIORITY_KEY + asset.networkTicker, -1)
 
     override val hasSeenSwapPromo: Boolean
         get() = getValue(SWAP_KYC_PROMO, false)

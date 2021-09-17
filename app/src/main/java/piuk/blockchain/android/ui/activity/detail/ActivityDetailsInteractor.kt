@@ -61,7 +61,7 @@ class ActivityDetailsInteractor(
             Created(Date(summaryItem.timeStampMs)),
             HistoricCryptoPrice(
                 summaryItem.price, if (currentTransactionType == OrderType.BUY) {
-                    summaryItem.asset.ticker
+                    summaryItem.asset.displayTicker
                 } else {
                     summaryItem.fundedFiat.currencyCode
                 }
@@ -169,7 +169,7 @@ class ActivityDetailsInteractor(
             TransactionSummary.TransactionType.DEPOSIT -> {
                 list.add(
                     getToField(
-                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset.ticker
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset
                     )
                 )
             }
@@ -180,7 +180,7 @@ class ActivityDetailsInteractor(
                 list.add(From(stringUtils.getString(R.string.common_company_name)))
                 list.add(
                     getToField(
-                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset.ticker
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset
                     )
                 )
             }
@@ -194,7 +194,7 @@ class ActivityDetailsInteractor(
                 summaryItem.accountRef
             ).map {
                 if (it !is NullCryptoAccount) {
-                    list.add(getToField(it.label, it.label, summaryItem.asset.ticker))
+                    list.add(getToField(it.label, it.label, summaryItem.asset))
                 } else if (summaryItem.accountRef.isNotBlank()) {
                     list.add(To(summaryItem.accountRef))
                 }
@@ -277,12 +277,12 @@ class ActivityDetailsInteractor(
 
     private fun getSwapFromField(tradeActivity: TradeActivitySummaryItem): From {
         val pair = tradeActivity.currencyPair as CurrencyPair.CryptoCurrencyPair
-        return From("${pair.source.ticker} ${tradeActivity.sendingAccount.label}")
+        return From("${pair.source.displayTicker} ${tradeActivity.sendingAccount.label}")
     }
 
     private fun getSellFromField(tradeActivity: TradeActivitySummaryItem): From {
         val pair = tradeActivity.currencyPair as CurrencyPair.CryptoToFiatCurrencyPair
-        return From("${pair.source.ticker} ${tradeActivity.sendingAccount.label}")
+        return From("${pair.source.displayTicker} ${tradeActivity.sendingAccount.label}")
     }
 
     fun loadSellItems(
@@ -301,10 +301,10 @@ class ActivityDetailsInteractor(
         }
     }
 
-    private fun getToField(label: String, defaultLabel: String, displayTicker: String): To =
+    private fun getToField(label: String, defaultLabel: String, asset: AssetInfo): To =
         To(
             if (label.isEmpty() || label == defaultLabel) {
-                "$displayTicker $defaultLabel"
+                "${asset.displayTicker} $defaultLabel"
             } else {
                 label
             }
@@ -318,14 +318,14 @@ class ActivityDetailsInteractor(
                 cryptoPair.destination, item.receivingAddress!!
             ).toSingle().map {
                 val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
-                getToField(it.label, defaultLabel, cryptoPair.destination.ticker)
+                getToField(it.label, defaultLabel, cryptoPair.destination)
             }
             TransferDirection.INTERNAL,
             TransferDirection.FROM_USERKEY -> coincore[cryptoPair.destination].accountGroup(AssetFilter.Custodial)
                 .toSingle()
                 .map {
                     val defaultLabel = it.selectFirstAccount().label
-                    getToField(defaultLabel, defaultLabel, cryptoPair.destination.ticker)
+                    getToField(defaultLabel, defaultLabel, cryptoPair.destination)
                 }
             TransferDirection.TO_USERKEY -> throw IllegalStateException("TO_USERKEY swap direction not supported")
         }

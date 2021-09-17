@@ -84,8 +84,10 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `asset ticker raw json returns known ticker`() {
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(CryptoCurrency.BTC.ticker))
-        whenever(assetCatalogue.fromNetworkTicker(CryptoCurrency.BTC.ticker)).thenReturn(CryptoCurrency.BTC)
+        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER))
+            .thenReturn(Single.just(CryptoCurrency.BTC.networkTicker))
+        whenever(assetCatalogue.fromNetworkTicker(CryptoCurrency.BTC.networkTicker))
+            .thenReturn(CryptoCurrency.BTC)
 
         subject.getAssetFromCatalogue().test().assertValue(CryptoCurrency.BTC)
     }

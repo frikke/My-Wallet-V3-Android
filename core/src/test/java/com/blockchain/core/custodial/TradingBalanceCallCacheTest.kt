@@ -97,7 +97,8 @@ class TradingBalanceCallCacheTest {
         private const val UNKNOWN_TICKER = "NOPE!"
 
         private val CRYPTO_ASSET_1 = object : CryptoCurrency(
-            ticker = CRYPTO_TICKER_1,
+            networkTicker = CRYPTO_TICKER_1,
+            displayTicker = CRYPTO_TICKER_1,
             name = "Crypto_1",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
@@ -106,7 +107,8 @@ class TradingBalanceCallCacheTest {
         ) { }
 
         private val CRYPTO_ASSET_2 = object : CryptoCurrency(
-            ticker = CRYPTO_TICKER_2,
+            networkTicker = CRYPTO_TICKER_2,
+            displayTicker = CRYPTO_TICKER_2,
             name = "Crypto_2",
             categories = setOf(AssetCategory.CUSTODIAL),
             precisionDp = 8,

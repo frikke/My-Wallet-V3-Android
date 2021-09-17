@@ -105,7 +105,7 @@ class SimpleBuyCryptoFragment :
         super.onViewCreated(view, savedInstanceState)
 
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        activity.setupToolbar(getString(R.string.tx_title_buy, asset.ticker))
+        activity.setupToolbar(getString(R.string.tx_title_buy, asset.displayTicker))
 
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
         model.process(
@@ -218,7 +218,7 @@ class SimpleBuyCryptoFragment :
                             paymentMethodDetails.limits.max
                             lastState?.order?.amount
                         } else null,
-                        outputCurrency = lastState?.selectedCryptoAsset?.ticker ?: return,
+                        outputCurrency = lastState?.selectedCryptoAsset?.networkTicker ?: return,
                         paymentMethod = lastState?.selectedPaymentMethod?.paymentMethodType
                             ?: return
                     )
@@ -640,7 +640,7 @@ class SimpleBuyCryptoFragment :
         fun newInstance(asset: AssetInfo, preselectedMethodId: String? = null): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_CRYPTO_ASSET, asset.ticker)
+                    putString(ARG_CRYPTO_ASSET, asset.networkTicker)
                     preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, preselectedMethodId) }
                 }
             }

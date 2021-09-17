@@ -14,7 +14,7 @@ sealed class BitPayEvent(
             PAYMENT_SUCCESS,
             mapOf(
                 PARAM_AMOUNT to amount.toString(),
-                PARAM_ASSET to amount.currency.ticker
+                PARAM_ASSET to amount.currency.networkTicker
             )
         )
 
@@ -29,7 +29,7 @@ sealed class BitPayEvent(
     data class QrCodeScanned(val asset: AssetInfo) :
         BitPayEvent(
             ADDRESS_SCANNED,
-            mapOf(PARAM_ASSET to asset.ticker)
+            mapOf(PARAM_ASSET to asset.networkTicker)
         )
 
     companion object {

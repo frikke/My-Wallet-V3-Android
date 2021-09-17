@@ -162,7 +162,7 @@ sealed class ExchangeRate {
     companion object {
         private fun validateCurrency(expected: AssetInfo, got: AssetInfo) {
             if (expected != got)
-                throw ValueTypeMismatchException("exchange", expected.ticker, got.ticker)
+                throw ValueTypeMismatchException("exchange", expected.networkTicker, got.networkTicker)
         }
 
         private fun validateCurrency(expected: String, got: String) {

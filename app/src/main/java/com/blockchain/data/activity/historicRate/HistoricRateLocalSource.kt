@@ -8,18 +8,24 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.Database
 
 class HistoricRateLocalSource(private val database: Database) {
-    fun get(selectedFiat: String, asset: AssetInfo, requestedTimestamp: Long): Single<ExchangeRate> {
-        return database.historicRateQueries.selectByKeys(asset.ticker, selectedFiat, requestedTimestamp).asObservable()
-            .mapToOne().map {
-            ExchangeRate.CryptoToFiat(
-                from = asset,
-                to = selectedFiat,
-                rate = it.price.toBigDecimal()
-            ) as ExchangeRate
-        }.firstOrError()
-    }
+    fun get(
+        selectedFiat: String,
+        asset: AssetInfo,
+        requestedTimestamp: Long
+    ): Single<ExchangeRate> =
+        database.historicRateQueries
+            .selectByKeys(asset.networkTicker, selectedFiat, requestedTimestamp)
+            .asObservable()
+            .mapToOne()
+            .map {
+                ExchangeRate.CryptoToFiat(
+                    from = asset,
+                    to = selectedFiat,
+                    rate = it.price.toBigDecimal()
+                ) as ExchangeRate
+            }.firstOrError()
 
     fun insert(selectedFiat: String, asset: AssetInfo, requestedTimestamp: Long, price: Double) {
-        database.historicRateQueries.insert(asset.ticker, selectedFiat, price, requestedTimestamp)
+        database.historicRateQueries.insert(asset.networkTicker, selectedFiat, price, requestedTimestamp)
     }
 }

@@ -121,7 +121,7 @@ import thepit.PitLinking
         }
 
         val notify = NotificationAddresses(
-            assetTicker = asset.ticker,
+            assetTicker = asset.networkTicker,
             addressList = addressList
         )
         return notificationUpdater.updateNotificationBackend(notify)

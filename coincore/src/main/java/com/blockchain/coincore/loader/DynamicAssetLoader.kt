@@ -63,7 +63,7 @@ internal class DynamicAssetLoader(
         when {
             assetInfo.isErc20() -> loadErc20Asset(assetInfo)
             assetInfo.isCustodialOnly -> loadCustodialOnlyAsset(assetInfo)
-            else -> throw IllegalStateException("Unknown asset type enabled: ${assetInfo.ticker}")
+            else -> throw IllegalStateException("Unknown asset type enabled: ${assetInfo.networkTicker}")
         }.also {
             check(!assetMap.containsKey(assetInfo)) { "Asset already loaded" }
             assetMap[assetInfo] = it
@@ -89,7 +89,7 @@ internal class DynamicAssetLoader(
                     Completable.defer { asset.initToken() }
                         .doOnError {
                             crashLogger.logException(
-                                CoincoreInitFailure("Failed init: ${(asset as CryptoAsset).asset.ticker}", it)
+                                CoincoreInitFailure("Failed init: ${(asset as CryptoAsset).asset.networkTicker}", it)
                         )
                     }
             }.toList()

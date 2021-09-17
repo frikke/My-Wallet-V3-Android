@@ -59,7 +59,7 @@ internal class StaticAssetLoader(
         assetMap[asset] ?: attemptLoadAsset(asset)
 
     private fun attemptLoadAsset(asset: AssetInfo): CryptoAsset {
-        throw IllegalArgumentException("Unknown CryptoCurrency ${asset.ticker}")
+        throw IllegalArgumentException("Unknown CryptoCurrency ${asset.networkTicker}")
     }
 
     override fun initAndPreload(): Completable =
@@ -77,7 +77,7 @@ internal class StaticAssetLoader(
                     Completable.defer { asset.initToken() }
                         .doOnError {
                             crashLogger.logException(
-                                CoincoreInitFailure("Failed init: ${(asset as CryptoAsset).asset.ticker}", it)
+                                CoincoreInitFailure("Failed init: ${(asset as CryptoAsset).asset.networkTicker}", it)
                         )
                     }
             }.toList()
@@ -98,7 +98,7 @@ internal class StaticAssetLoader(
             when {
                 it.isErc20() -> loadErc20Asset(it)
                 it.isCustodialOnly -> loadCustodialOnlyAsset(it)
-                else -> throw IllegalStateException("Unknown asset type enabled: ${it.ticker}")
+                else -> throw IllegalStateException("Unknown asset type enabled: ${it.networkTicker}")
             }
         }
 

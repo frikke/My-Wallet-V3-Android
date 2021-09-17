@@ -131,11 +131,11 @@ class PortfolioActionAdapter(
                     .logBalanceLoadError(asset, balanceFilter)
             }
             .doOnError { e ->
-                Timber.e("Failed getting balance for ${asset.ticker}: $e")
+                Timber.e("Failed getting balance for ${asset.networkTicker}: $e")
                 model.process(BalanceUpdateError(asset))
             }
             .doOnNext { accountBalance ->
-                Timber.d("Got balance for ${asset.ticker}")
+                Timber.d("Got balance for ${asset.networkTicker}")
                 model.process(BalanceUpdate(asset, accountBalance))
             }
             .retryOnError()
@@ -169,7 +169,7 @@ class PortfolioActionAdapter(
         model: PortfolioModel,
         state: PortfolioState
     ) = this.doOnError {
-        if (asset.ticker == CryptoCurrency.ETHER.ticker) {
+        if (asset.networkTicker == CryptoCurrency.ETHER.networkTicker) {
             state.erc20Assets.forEach {
                 model.process(BalanceUpdateError(it))
             }
@@ -179,14 +179,14 @@ class PortfolioActionAdapter(
     private fun Maybe<AccountGroup>.logGroupLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
             crashLogger.logException(
-                DashboardGroupLoadFailure("Cannot load group for ${asset.ticker} - $filter:", e)
+                DashboardGroupLoadFailure("Cannot load group for ${asset.networkTicker} - $filter:", e)
             )
         }
 
     private fun Observable<AccountBalance>.logBalanceLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
             crashLogger.logException(
-                DashboardBalanceLoadFailure("Cannot load balance for ${asset.ticker} - $filter:", e)
+                DashboardBalanceLoadFailure("Cannot load balance for ${asset.networkTicker} - $filter:", e)
             )
         }
 

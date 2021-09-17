@@ -133,7 +133,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
         }
 
         val notify = NotificationAddresses(
-            assetTicker = asset.ticker,
+            assetTicker = asset.networkTicker,
             addressList = result
         )
         return beNotifyUpdate.updateNotificationBackend(notify)

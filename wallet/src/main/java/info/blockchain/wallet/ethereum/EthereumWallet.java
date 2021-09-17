@@ -173,7 +173,7 @@ public class EthereumWallet {
         HashMap<String, Erc20TokenData> map = walletData.getErc20Tokens();
         List<AssetInfo> erc20Tokens = assetCatalogue.supportedL2Assets(CryptoCurrency.ETHER.INSTANCE);
         for(AssetInfo token: erc20Tokens) {
-            String name = token.getTicker().toLowerCase();
+            String name = token.getNetworkTicker().toLowerCase();
 
             if (!map.containsKey(name) || !map.get(name).hasLabelAndAddressStored()) {
                 map.put(

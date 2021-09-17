@@ -55,7 +55,7 @@ private class SellActivityItemViewHolder(
             (tx.currencyPair as? CurrencyPair.CryptoToFiatCurrencyPair)?.let { pair ->
                 txType.text = context.resources.getString(
                     R.string.tx_title_sold,
-                    pair.source.ticker
+                    pair.source.displayTicker
                 )
                 when {
                     tx.state.isPending -> icon.setTransactionIsConfirming()

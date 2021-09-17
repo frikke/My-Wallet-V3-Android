@@ -41,19 +41,21 @@ class BitPayInvoiceTarget(
                 FormatsUtil.getPaymentRequestUrl(linkData)
                     .replace(INVOICE_PREFIX, "")
 
-            return bitPayDataManager.getRawPaymentRequest(invoiceId = invoiceId, currencyCode = asset.ticker)
-                .map { rawRequest ->
-                    BitPayInvoiceTarget(
-                        asset = asset,
-                        amount = CryptoValue.fromMinor(asset, rawRequest.instructions[0].outputs[0].amount),
-                        invoiceId = invoiceId,
-                        merchant = rawRequest.memo.split(MERCHANT_PATTERN)[1],
-                        address = rawRequest.instructions[0].outputs[0].address,
-                        expires = rawRequest.expires
-                    ) as CryptoTarget
-                }.doOnError { e ->
-                    Timber.e("Error loading invoice: $e")
-                }
+            return bitPayDataManager.getRawPaymentRequest(
+                invoiceId = invoiceId,
+                currencyCode = asset.networkTicker
+            ).map { rawRequest ->
+                BitPayInvoiceTarget(
+                    asset = asset,
+                    amount = CryptoValue.fromMinor(asset, rawRequest.instructions[0].outputs[0].amount),
+                    invoiceId = invoiceId,
+                    merchant = rawRequest.memo.split(MERCHANT_PATTERN)[1],
+                    address = rawRequest.instructions[0].outputs[0].address,
+                    expires = rawRequest.expires
+                ) as CryptoTarget
+            }.doOnError { e ->
+                Timber.e("Error loading invoice: $e")
+            }
         }
     }
 }

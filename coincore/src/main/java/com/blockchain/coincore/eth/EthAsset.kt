@@ -114,7 +114,7 @@ internal class EthAsset(
 
     private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
         val notify = NotificationAddresses(
-            assetTicker = asset.ticker,
+            assetTicker = asset.networkTicker,
             addressList = listOf(account.address)
         )
         return notificationUpdater.updateNotificationBackend(notify)

@@ -99,7 +99,7 @@ sealed class QrExpected : Parcelable {
         val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr /*, WebLoginQr */, BitPayQr)
 
         @Suppress("FunctionName")
-        fun ASSET_ADDRESS_QR(asset: AssetInfo) = setOf(AssetAddressQr(asset.ticker))
+        fun ASSET_ADDRESS_QR(asset: AssetInfo) = setOf(AssetAddressQr(asset.networkTicker))
     }
 }
 

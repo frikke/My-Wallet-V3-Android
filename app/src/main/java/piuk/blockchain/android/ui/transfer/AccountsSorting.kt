@@ -39,5 +39,5 @@ class DashboardAccountsSorting(
         dashboardPrefs.dashboardAssetOrder
             .takeIf { it.isNotEmpty() }?.let {
                 it.mapNotNull { ticker -> assetCatalogue.fromNetworkTicker(ticker) }
-            } ?: assetCatalogue.supportedCryptoAssets.sortedBy { it.ticker }
+            } ?: assetCatalogue.supportedCryptoAssets.sortedBy { it.displayTicker }
 }

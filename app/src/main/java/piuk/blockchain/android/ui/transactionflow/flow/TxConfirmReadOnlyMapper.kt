@@ -67,7 +67,7 @@ class ExchangePriceFormatter(
         require(property is TxConfirmationValue.ExchangePriceConfirmation)
         return mapOf(
             ConfirmationPropertyKey.LABEL to context.resources.getString(
-                R.string.quote_price, property.asset.ticker
+                R.string.quote_price, property.asset.displayTicker
             ),
             ConfirmationPropertyKey.TITLE to property.money.toStringWithSymbol(),
             ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
@@ -97,7 +97,7 @@ class ToPropertyFormatter(
                 ConfirmationPropertyKey.TITLE to getLabel(
                     property.txTarget.label,
                     defaultLabel.getDefaultNonCustodialWalletLabel(),
-                    asset.ticker
+                    asset.displayTicker
                 )
             )
         }
@@ -163,7 +163,7 @@ class FromPropertyFormatter(
                 ConfirmationPropertyKey.TITLE to getLabel(
                     property.sourceAccount.label,
                     defaultLabel.getDefaultNonCustodialWalletLabel(),
-                    it.ticker
+                    it.displayTicker
                 )
             } ?: ConfirmationPropertyKey.TITLE to property.sourceAccount.label
         )
@@ -189,7 +189,7 @@ class NetworkFormatter(
         require(property is TxConfirmationValue.NetworkFee)
         return mapOf(
             ConfirmationPropertyKey.LABEL to context.resources.getString(
-                R.string.checkout_item_network_fee, property.asset.ticker
+                R.string.checkout_item_network_fee, property.asset.displayTicker
             ),
             ConfirmationPropertyKey.TITLE to property.exchange.toStringWithSymbol(),
             ConfirmationPropertyKey.SUBTITLE to property.feeAmount.toStringWithSymbol(),

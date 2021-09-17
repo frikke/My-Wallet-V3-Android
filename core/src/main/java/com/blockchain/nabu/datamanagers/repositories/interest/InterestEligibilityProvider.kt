@@ -32,7 +32,7 @@ class InterestEligibilityProviderImpl(
                 .map { response ->
                     assetCatalogue.supportedCustodialAssets
                         .map { asset ->
-                            val eligible = response.getEligibleFor(asset.ticker)
+                            val eligible = response.getEligibleFor(asset.networkTicker)
                             AssetInterestEligibility(
                                 asset,
                                 Eligibility(

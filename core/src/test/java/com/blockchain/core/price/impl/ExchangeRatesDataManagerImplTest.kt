@@ -62,7 +62,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertNoErrors()
 
         verify(priceService).getHistoricPriceSeriesSince(
-            base = OLD_ASSET.ticker,
+            base = OLD_ASSET.networkTicker,
             quote = SELECTED_FIAT,
             start = OLD_ASSET.startDate!!,
             scale = PriceTimescale.FIVE_DAYS
@@ -81,7 +81,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertNoErrors()
 
         verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.ticker,
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             DATE_ONE_YEAR_AGO_SECS,
             PriceTimescale.ONE_DAY
@@ -101,7 +101,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertNoErrors()
 
         verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.ticker,
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             DATE_ONE_MONTH_AGO_SECS,
             PriceTimescale.TWO_HOURS
@@ -120,7 +120,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertNoErrors()
 
         verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.ticker,
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             DATE_ONE_WEEK_AGO_SECS,
             PriceTimescale.ONE_HOUR
@@ -139,7 +139,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertNoErrors()
 
         verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.ticker,
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             DATE_ONE_DAY_AGO_SECS,
             PriceTimescale.FIFTEEN_MINUTES
@@ -158,7 +158,7 @@ class ExchangeRatesDataManagerImplTest {
             .assertNoErrors()
 
         verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.ticker,
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             NEW_ASSET.startDate!!,
             PriceTimescale.ONE_HOUR
@@ -175,7 +175,8 @@ class ExchangeRatesDataManagerImplTest {
         private const val SELECTED_FIAT = "USD"
 
         private val OLD_ASSET = object : CryptoCurrency(
-            ticker = "DUMMY",
+            displayTicker = "DUMMY",
+            networkTicker = "DUMMY",
             name = "Dummies",
             startDate = 1000000001,
             categories = emptySet(),
@@ -185,7 +186,8 @@ class ExchangeRatesDataManagerImplTest {
         ) { }
 
         private val NEW_ASSET = object : CryptoCurrency(
-            ticker = "DUMMY",
+            displayTicker = "DUMMY",
+            networkTicker = "DUMMY",
             name = "Dummies",
             startDate = DATE_ONE_WEEK_AGO_SECS,
             categories = emptySet(),
@@ -196,7 +198,7 @@ class ExchangeRatesDataManagerImplTest {
 
         private val PRICE_DATA = listOf(
             AssetPrice(
-                base = OLD_ASSET.ticker,
+                base = OLD_ASSET.networkTicker,
                 quote = SELECTED_FIAT,
                 price = 100.toDouble(),
                 timestamp = 200000

@@ -134,7 +134,7 @@ class BuyIntroFragment : ViewPagerFragment() {
                         startActivity(
                             SimpleBuyActivity.newInstance(
                                 activity as Context,
-                                pair.cryptoCurrency.ticker,
+                                pair.cryptoCurrency,
                                 launchFromNavigationBar = true,
                                 launchKycResume = false
                             )
