@@ -1512,7 +1512,7 @@
     <string name="activity_details_title_sent">Send</string>
     <string name="activity_details_title_bought">Bought</string>
     <string name="activity_details_title_sold">Sold %s</string>
-    <string name="activity_details_title_swap">Swap</string>
+    <string name="activity_details_title_swapped">Swapped</string>
     <string name="activity_details_title_deposit">Transfer</string>
     <string name="activity_details_title_interest_earned">Interest Earned</string>
     <string name="activity_details_title_recurring_buy">Recurring Buy</string>

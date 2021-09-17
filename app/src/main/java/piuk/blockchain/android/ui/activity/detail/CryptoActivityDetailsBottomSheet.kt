@@ -484,7 +484,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                 R.string.activity_details_title_sold,
                 asset.ticker
             )
-            TransactionSummary.TransactionType.SWAP -> getString(R.string.activity_details_title_swap)
+            TransactionSummary.TransactionType.SWAP -> getString(R.string.activity_details_title_swapped)
             TransactionSummary.TransactionType.DEPOSIT -> getString(
                 R.string.activity_details_title_deposit
             )

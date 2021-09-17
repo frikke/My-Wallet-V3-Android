@@ -256,6 +256,7 @@ class ActivityDetailsInteractor(
         val list = mutableListOf(
             TransactionId(item.txId),
             Created(Date(item.timeStampMs)),
+            HistoricCryptoPrice(item.price, item.sendingValue.currencyCode),
             getSwapFromField(item),
             Amount(item.sendingValue)
         )
