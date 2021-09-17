@@ -97,6 +97,7 @@ class PortfolioActionAdapter(
             onSuccess = { assets ->
                 model.process(UpdatePortfolioAssetList(assets))
                 model.process(GetAvailableFiatAssets)
+                model.process(RefreshAllBalancesIntent)
             },
             onError = {
                 Timber.e("Error getting ordering - $it")
