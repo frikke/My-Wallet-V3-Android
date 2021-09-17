@@ -8,6 +8,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountResetBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.mvi.MviFragment
+import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
 import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
 import piuk.blockchain.android.util.visible
 
@@ -86,12 +87,16 @@ class ResetAccountFragment :
                 }
             }
             backButton.setOnClickListener {
+                analytics.logEvent(AccountRecoveryAnalytics.ResetCancelled(isCustodialAccount = true))
                 model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.SHOW_INFO))
             }
         }
     }
 
-    private fun onBackPressed() = parentFragmentManager.popBackStack()
+    private fun onBackPressed() {
+        analytics.logEvent(AccountRecoveryAnalytics.ResetCancelled(isCustodialAccount = true))
+        parentFragmentManager.popBackStack()
+    }
 
     private fun launchResetPasswordFlow() {
         parentFragmentManager.beginTransaction()

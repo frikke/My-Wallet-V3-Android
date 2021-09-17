@@ -18,6 +18,7 @@ import piuk.blockchain.android.ui.base.mvi.MviActivity.Companion.start
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
 import piuk.blockchain.android.urllinks.CONTACT_SUPPORT_FUNDS_RECOVERY
 import piuk.blockchain.android.urllinks.FUNDS_RECOVERY_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
@@ -84,6 +85,7 @@ class ResetPasswordFragment :
                 toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
             }
             ResetPasswordStatus.SHOW_SUCCESS -> {
+                analytics.logEvent(AccountRecoveryAnalytics.PasswordReset(shouldRecoverAccount))
                 binding.progressBar.gone()
                 start<PinEntryActivity>(requireContext())
             }
@@ -154,11 +156,13 @@ class ResetPasswordFragment :
     private fun processPassword(password: String) {
         model.process(
             when {
-                shouldRecoverWallet ->
+                shouldRecoverWallet -> {
+                    analytics.logEvent(AccountRecoveryAnalytics.NewPasswordSet(shouldRecoverAccount))
                     ResetPasswordIntents.SetNewPassword(
                         password = password,
                         shouldResetKyc = shouldResetKyc
                     )
+                }
                 shouldRecoverAccount ->
                     ResetPasswordIntents.CreateWalletForAccount(
                         email = email,

@@ -48,7 +48,8 @@ data class LoginAuthState(
     val code: String = "",
     val isMobileSetup: Boolean = false,
     val deviceType: Int = 0,
-    val twoFaState: TwoFaCodeState? = null
+    val twoFaState: TwoFaCodeState? = null,
+    val authInfoForAnalytics: LoginAuthInfo? = null
 ) : MviState {
     companion object {
         const val TWO_FA_COUNTDOWN = 60000L

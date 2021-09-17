@@ -66,6 +66,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     override fun onStart() {
         super.onStart()
 
+        analytics.logEvent(LoginAnalytics.LoginViewed)
         with(binding) {
             backButton.setOnClickListener { finish() }
             loginEmailText.apply {
@@ -89,6 +90,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             }
 
             continueWithGoogleButton.setOnClickListener {
+                analytics.logEvent(LoginAnalytics.LoginWithGoogleMethodSelected)
                 startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
             }
             if (environmentConfig.isRunningInDebugMode()) {
@@ -214,6 +216,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private fun verifyReCaptcha(selectedEmail: String) {
         recaptchaClient.verifyForLogin(
             onSuccess = { response ->
+                analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
                 model.process(
                     LoginIntents.ObtainSessionIdForEmail(
                         selectedEmail = selectedEmail,

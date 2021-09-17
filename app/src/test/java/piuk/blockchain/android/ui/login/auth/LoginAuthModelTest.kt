@@ -71,7 +71,8 @@ class LoginAuthModelTest {
                 email = EMAIL,
                 recoveryToken = RECOVERY_TOKEN,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.GetSessionId
+                authStatus = AuthStatus.GetSessionId,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -80,7 +81,8 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.AuthorizeApproval
+                authStatus = AuthStatus.AuthorizeApproval,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -89,7 +91,8 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.GetPayload
+                authStatus = AuthStatus.GetPayload,
+                authInfoForAnalytics = testAuthInfo
             )
         )
     }
@@ -124,7 +127,8 @@ class LoginAuthModelTest {
                 email = EMAIL,
                 recoveryToken = RECOVERY_TOKEN,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.GetSessionId
+                authStatus = AuthStatus.GetSessionId,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -133,7 +137,8 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.AuthorizeApproval
+                authStatus = AuthStatus.AuthorizeApproval,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -142,16 +147,8 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.GetPayload
-            ),
-            LoginAuthState(
-                guid = GUID,
-                userId = USER_ID,
-                email = EMAIL,
-                recoveryToken = RECOVERY_TOKEN,
-                sessionId = sessionId,
-                authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.AuthRequired
+                authStatus = AuthStatus.GetPayload,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -161,7 +158,18 @@ class LoginAuthModelTest {
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.AuthRequired,
-                twoFaState = twoFaState
+                authInfoForAnalytics = testAuthInfo
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                sessionId = sessionId,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.AuthRequired,
+                twoFaState = twoFaState,
+                authInfoForAnalytics = testAuthInfo
             )
         )
     }
@@ -379,8 +387,16 @@ class LoginAuthModelTest {
                 nabuAccountInfo = NabuAccountInfo(
                     userId = USER_ID,
                     recoveryToken = RECOVERY_TOKEN
-                )
-            )
+                ),
+                isMobileSetUp = true,
+                mobileDeviceType = 1,
+                lastMnemonicBackup = 0L,
+                hasCloudBackup = false,
+                twoFaType = 1
+            ),
+            isUpgradeable = false,
+            isMergeable = false,
+            userType = "123"
         )
 
         private const val INPUT_JSON = "{\"wallet\":{...}}"

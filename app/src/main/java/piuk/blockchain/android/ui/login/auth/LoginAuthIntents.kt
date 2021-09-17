@@ -23,7 +23,8 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
                     guid = loginAuthInfo.guid,
                     email = loginAuthInfo.email,
                     authToken = loginAuthInfo.authToken,
-                    authStatus = AuthStatus.GetSessionId
+                    authStatus = AuthStatus.GetSessionId,
+                    authInfoForAnalytics = loginAuthInfo
                 )
                 is LoginAuthInfo.ExtendedAccountInfo -> oldState.copy(
                     guid = loginAuthInfo.accountWallet.guid,
@@ -31,7 +32,8 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
                     email = loginAuthInfo.accountWallet.email,
                     authToken = loginAuthInfo.accountWallet.authToken,
                     recoveryToken = loginAuthInfo.accountWallet.nabuAccountInfo.recoveryToken,
-                    authStatus = AuthStatus.GetSessionId
+                    authStatus = AuthStatus.GetSessionId,
+                    authInfoForAnalytics = loginAuthInfo
                 )
             }
     }
