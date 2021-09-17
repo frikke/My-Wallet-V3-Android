@@ -7,7 +7,6 @@ import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -18,7 +17,6 @@ class LoginInteractor(
     private val prefs: PersistentPrefs,
     private val appUtil: AppUtil,
     private val ssoAccountRecoveryFF: FeatureFlag,
-    private val accessState: AccessState,
     private val persistentPrefs: PersistentPrefs
 ) {
 
@@ -57,7 +55,7 @@ class LoginInteractor(
 
     fun checkSessionDetails(intentAction: String, uri: Uri): LoginIntents =
         when {
-            accessState.isLoggedIn || persistentPrefs.pinId.isNotEmpty() -> {
+            persistentPrefs.pinId.isNotEmpty() -> {
                 LoginIntents.UserIsLoggedIn
             }
             uri.hasDeeplinkData() -> LoginIntents.UserAuthenticationRequired(intentAction, uri)

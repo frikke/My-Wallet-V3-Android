@@ -5,8 +5,8 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.NotificationPrefs
 import com.google.common.base.Optional
 import info.blockchain.wallet.payload.PayloadManager
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.data.access.AuthEvent
@@ -89,13 +89,11 @@ class NotificationTokenManager(
     /**
      * Resets Instance ID and revokes all tokens. Clears stored token if successful
      */
-    private fun revokeAccessToken(): Completable {
-        return Completable.fromCallable {
-            notificationTokenProvider.deleteToken()
-        }.andThen(removeNotificationToken())
+    private fun revokeAccessToken(): Completable =
+        notificationTokenProvider.deleteToken()
+            .andThen(removeNotificationToken())
             .doOnComplete { this.clearStoredToken() }
             .subscribeOn(Schedulers.io())
-    }
 
     /**
      * Enables push notifications flag.
@@ -152,8 +150,8 @@ class NotificationTokenManager(
     /**
      * Removes the stored token from back end
      */
+    // TODO BE endpoint now exists, will add in another PR
     private fun removeNotificationToken(): Completable {
-
         val token = prefs.firebaseToken
 
         return if (token.isNotEmpty()) {
