@@ -42,7 +42,7 @@ object Versions {
     // Support Libraries
     const val googleServices = "17.1.0"
     const val googleServicesAuth = "19.0.0"
-    const val googleServicesPlaces = "17.0.0"
+    const val googleServicesPlaces = "2.4.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googlePlayCore = "1.8.2"
     const val firebaseBom = "28.4.0"
@@ -176,7 +176,7 @@ object Libraries {
     const val googlePlayServicesAuth =
         "com.google.android.gms:play-services-auth:${Versions.googleServicesAuth}"
     const val googlePlaces =
-        "com.google.android.gms:play-services-places:${Versions.googleServicesPlaces}"
+        "com.google.android.libraries.places:places:${Versions.googleServicesPlaces}"
     const val googleServicesReCaptcha =
         "com.google.android.gms:play-services-recaptcha:${Versions.googleServicesReCaptcha}"
     const val googlePlayCore = "com.google.android.play:core:${Versions.googlePlayCore}"

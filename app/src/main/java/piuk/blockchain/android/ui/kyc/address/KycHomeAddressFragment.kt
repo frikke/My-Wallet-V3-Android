@@ -1,20 +1,13 @@
 package piuk.blockchain.android.ui.kyc.address
 
-import android.content.Intent
-import android.location.Geocoder
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatActivity.RESULT_CANCELED
-import androidx.appcompat.app.AppCompatActivity.RESULT_OK
-import androidx.appcompat.widget.SearchView
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.blockchain.extensions.nextAfterOrNull
 import com.blockchain.koin.scopedInject
@@ -22,11 +15,6 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException
-import com.google.android.gms.common.GooglePlayServicesRepairableException
-import com.google.android.gms.location.places.AutocompleteFilter
-import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.jakewharton.rx3.replayingShare
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -168,77 +156,6 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
         }
     }
 
-    private fun startPlacesActivityForResult() {
-        val typeFilter = AutocompleteFilter.Builder()
-            .setCountry(address.blockingFirst().country)
-            .build()
-
-        PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-            .setFilter(typeFilter)
-            .build(requireActivity())
-            .run { startActivityForResult(this, REQUEST_CODE_PLACE_AUTOCOMPLETE) }
-    }
-
-    private fun showRecoverableErrorDialog() {
-        GoogleApiAvailability.getInstance()
-            .getErrorDialog(
-                requireActivity(),
-                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
-                    context
-                ),
-                REQUEST_CODE_PLAY_SERVICES_RESOLUTION
-            )
-            .show()
-    }
-
-    private fun showUnrecoverableErrorDialog() {
-        AlertDialog.Builder(requireContext(), R.style.AlertDialogStyle)
-            .setTitle(R.string.app_name)
-            .setMessage(R.string.kyc_address_google_not_available)
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_PLACE_AUTOCOMPLETE) {
-            when (resultCode) {
-                RESULT_CANCELED -> Unit
-                RESULT_OK -> updateAddress(data)
-                PlaceAutocomplete.RESULT_ERROR -> logPlacesError(data)
-            }
-        }
-    }
-
-    private fun logPlacesError(data: Intent?) {
-        val status = PlaceAutocomplete.getStatus(requireActivity(), data)
-        Timber.e("${status.statusMessage}")
-        toast(R.string.kyc_address_error_loading_places, ToastCustom.TYPE_ERROR)
-    }
-
-    private fun updateAddress(data: Intent?) {
-        subscribeToViewObservables()
-        try {
-            val place = PlaceAutocomplete.getPlace(requireActivity(), data)
-            val address =
-                Geocoder(context, Locale.getDefault())
-                    .getFromLocation(place.latLng.latitude, place.latLng.longitude, 1)
-                    ?.firstOrNull()
-
-            if (address != null) {
-                with(binding) {
-                    editTextKycAddressFirstLine.setText(address.thoroughfare ?: address.subThoroughfare)
-                    editTextKycAddressAptName.setText(address.featureName)
-                    editTextKycAddressCity.setText(address.locality ?: address.subAdminArea)
-                    editTextKycAddressState.setText(address.adminArea)
-                    editTextKycAddressZipCode.setText(address.postalCode)
-                }
-            }
-        } catch (e: Exception) {
-            Timber.e(e)
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         subscribeToViewObservables()
@@ -283,21 +200,6 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
                     .filter { !profileModel.isInUs() }
                     .doOnNext { addressSubject.onNext(AddressIntent.State(it)) }
                     .subscribe()
-
-                compositeDisposable += searchViewKycAddress.getEditText()
-                    .apply { isFocusable = false }
-                    .throttledClicks()
-                    .subscribeBy(
-                        onNext = {
-                            try {
-                                startPlacesActivityForResult()
-                            } catch (e: GooglePlayServicesRepairableException) {
-                                showRecoverableErrorDialog()
-                            } catch (e: GooglePlayServicesNotAvailableException) {
-                                showUnrecoverableErrorDialog()
-                            }
-                        }
-                    )
             }
         }
     }
@@ -344,10 +246,6 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
     private fun localiseUi() {
         with(binding) {
             if (profileModel.isInUs()) {
-                searchViewKycAddress.queryHint = getString(
-                    R.string.kyc_address_search_hint,
-                    getString(R.string.kyc_address_search_hint_zipcode)
-                )
                 inputLayoutKycAddressFirstLine.hint = getString(R.string.kyc_address_address_line_1)
                 inputLayoutKycAddressAptName.hint = getString(R.string.kyc_address_address_line_2)
                 inputLayoutKycAddressCity.hint = getString(R.string.kyc_address_address_city_hint)
@@ -355,10 +253,6 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
                 inputLayoutKycAddressZipCode.hint = getString(R.string.kyc_address_address_zip_code_hint_1)
                 inputLayoutKycAddressState.editText?.isEnabled = false
             } else {
-                searchViewKycAddress.queryHint = getString(
-                    R.string.kyc_address_search_hint,
-                    getString(R.string.kyc_address_search_hint_postcode)
-                )
                 inputLayoutKycAddressFirstLine.hint = getString(R.string.kyc_address_address_line_1)
                 inputLayoutKycAddressAptName.hint = getString(R.string.kyc_address_address_line_2)
                 inputLayoutKycAddressCity.hint = getString(R.string.address_city)
@@ -423,11 +317,4 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
 
     override fun getMvpView(): KycHomeAddressView = this
 
-    private fun SearchView.getEditText(): EditText = this.findViewById(R.id.search_src_text)
-
-    companion object {
-
-        private const val REQUEST_CODE_PLACE_AUTOCOMPLETE = 707
-        private const val REQUEST_CODE_PLAY_SERVICES_RESOLUTION = 708
-    }
 }
