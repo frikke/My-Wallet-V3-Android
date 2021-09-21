@@ -28,10 +28,6 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
         onViewReady()
     }
 
-    override fun startLogoutTimer() {
-        // No-op
-    }
-
     override fun createPresenter() = sslSSLVerifyPresenter
 
     override fun getView() = this

@@ -21,6 +21,7 @@ import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
 import java.util.Currency
 import java.util.Locale
@@ -36,7 +37,8 @@ class PrefsUtil(
     private val backupStore: SharedPreferences,
     private val idGenerator: DeviceIdGenerator,
     private val uuidGenerator: UUIDGenerator,
-    private val crashLogger: CrashLogger
+    private val crashLogger: CrashLogger,
+    private val environmentConfig: EnvironmentConfig
 ) : PersistentPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
@@ -118,7 +120,7 @@ class PrefsUtil(
         set(v) = setValue(PersistentPrefs.KEY_ROOT_WARNING_DISABLED, v)
 
     override var trustScreenOverlay: Boolean
-        get() = getValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, false)
+        get() = getValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, environmentConfig.isRunningInDebugMode())
         set(v) = setValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, v)
 
     override val areScreenshotsEnabled: Boolean

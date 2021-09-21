@@ -21,8 +21,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
+import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 /**
@@ -131,7 +131,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     // Detect if touch events are being obscured by hidden overlays - These could be used for tapjacking
     // There is a possible problem, here, in that once overlays have been accepted, new apps could install
-    // an untrusted overlay. TODO: Think about how best to deal with this
+    // an untrusted overlay.
     private fun detectObscuredWindow(event: MotionEvent): Boolean {
         if (!securityPrefs.trustScreenOverlay && event.isObscuredTouch()) {
             showAlert(overlayAlertDlg())
@@ -146,7 +146,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             .setMessage(R.string.screen_overlay_note)
             .setCancelable(false)
             .setPositiveButton(R.string.dialog_continue) { _, _ ->
-                securityPrefs.trustScreenOverlay = true //
+                securityPrefs.trustScreenOverlay = true
             }
             .setNegativeButton(R.string.exit) { _, _ -> this.finish() }
             .create()

@@ -344,7 +344,8 @@ val coreModule = module {
             backupStore = CloudBackupAgent.backupPrefs(ctx = get()),
             idGenerator = get(),
             uuidGenerator = get(),
-            crashLogger = get()
+            crashLogger = get(),
+            environmentConfig = get()
         )
     }.bind(PersistentPrefs::class)
         .bind(CurrencyPrefs::class)

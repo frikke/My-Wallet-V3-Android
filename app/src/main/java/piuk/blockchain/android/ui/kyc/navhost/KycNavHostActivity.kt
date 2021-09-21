@@ -12,10 +12,8 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -48,7 +46,6 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     }
 
     private val kycNavHastPresenter: KycNavHostPresenter by scopedInject()
-    private val analytics: Analytics by inject()
     private var navInitialDestination: NavDestination? = null
     private val navController: NavController by lazy {
         (supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment).navController
@@ -165,8 +162,6 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     override fun createPresenter(): KycNavHostPresenter = kycNavHastPresenter
 
     override fun getView(): KycNavHostView = this
-
-    override fun startLogoutTimer() = Unit
 
     companion object {
 
