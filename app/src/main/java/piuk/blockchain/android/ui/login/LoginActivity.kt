@@ -49,6 +49,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         GoogleReCaptchaClient(this, environmentConfig)
     }
 
+    private lateinit var state: LoginState
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recaptchaClient.initReCaptcha()
@@ -133,6 +135,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     override fun initBinding(): ActivityLoginNewBinding = ActivityLoginNewBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginState) {
+        state = newState
         updateUI(newState)
         when (newState.currentStep) {
             LoginStep.SHOW_SCAN_ERROR -> {
@@ -205,7 +208,9 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             beginTransaction()
                 .replace(
                     R.id.content_frame,
-                    VerifyDeviceFragment(),
+                    VerifyDeviceFragment.newInstance(
+                        state.sessionId, state.email, state.captcha
+                    ),
                     VerifyDeviceFragment::class.simpleName
                 )
                 .addToBackStack(VerifyDeviceFragment::class.simpleName)

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
@@ -21,8 +22,6 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentVerifyDeviceBinding =
         FragmentVerifyDeviceBinding.inflate(inflater, container, false)
 
-    private lateinit var state: LoginState
-
     private val isTimerRunning = AtomicBoolean(false)
     private val timer = object : CountDownTimer(RESEND_TIMEOUT, TIMER_STEP) {
         override fun onTick(millisUntilFinished: Long) {
@@ -33,6 +32,18 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
             isTimerRunning.set(false)
             binding.resendEmailButton.isActivated = true
         }
+    }
+
+    private val email: String by lazy {
+        arguments?.getString(EMAIL) ?: throw IllegalArgumentException("No email specified")
+    }
+
+    private val sessionId: String by lazy {
+        arguments?.getString(SESSION_ID) ?: throw IllegalArgumentException("No session id specified")
+    }
+
+    private val captcha: String by lazy {
+        arguments?.getString(CAPTCHA) ?: throw IllegalArgumentException("No captcha specified")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,7 +63,7 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
             resendEmailButton.setOnClickListener {
                 if (!isTimerRunning.get()) {
                     timer.start()
-                    model.process(LoginIntents.SendEmail(state.sessionId, state.email, state.captcha))
+                    model.process(LoginIntents.SendEmail(sessionId, email, captcha))
                     ToastCustom.makeText(
                         requireContext(), getString(R.string.verify_device_email_resent), Toast.LENGTH_SHORT,
                         ToastCustom.TYPE_OK
@@ -68,11 +79,23 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
     }
 
     override fun render(newState: LoginState) {
-        state = newState
+        // do nothing
     }
 
     companion object {
         private const val RESEND_TIMEOUT = 30000L
         private const val TIMER_STEP = 1000L
+        private const val SESSION_ID = "SESSION_ID"
+        private const val EMAIL = "EMAIL"
+        private const val CAPTCHA = "CAPTCHA"
+
+        fun newInstance(sessionId: String, email: String, captcha: String): Fragment =
+            VerifyDeviceFragment().apply {
+                arguments = Bundle().apply {
+                    putString(SESSION_ID, sessionId)
+                    putString(EMAIL, email)
+                    putString(CAPTCHA, captcha)
+                }
+            }
     }
 }
