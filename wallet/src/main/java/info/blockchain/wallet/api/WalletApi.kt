@@ -9,6 +9,7 @@ import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
@@ -24,8 +25,8 @@ class WalletApi(
 ) {
     fun updateFirebaseNotificationToken(
         token: String,
-        guid: String?,
-        sharedKey: String?
+        guid: String,
+        sharedKey: String
     ): Observable<ResponseBody> {
         return explorerInstance.postToWallet(
             "update-firebase",
@@ -36,6 +37,21 @@ class WalletApi(
             getApiCode()
         )
     }
+
+    fun removeFirebaseNotificationToken(
+        guid: String,
+        sharedKey: String
+    ): Completable =
+        Completable.fromObservable<ResponseBody> {
+            explorerInstance.postToWallet(
+                "revoke-firebase",
+                guid,
+                sharedKey,
+                "",
+                0,
+                getApiCode()
+            )
+        }
 
     fun sendSecureChannel(
         message: String

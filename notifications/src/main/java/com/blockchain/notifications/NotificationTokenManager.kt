@@ -127,14 +127,12 @@ class NotificationTokenManager(
 
     private fun sendFirebaseToken(refreshedToken: String): Completable {
         return if (prefs.arePushNotificationsEnabled && payloadManager.payload != null) {
-
             val payload = payloadManager.payload
-            val guid = payload!!.guid
-            val sharedKey = payload.sharedKey
-
-            // TODO: 09/11/2016 Decide what to do if sending fails, perhaps retry?
-            notificationService.sendNotificationToken(refreshedToken, guid, sharedKey)
-                .subscribeOn(Schedulers.io())
+            payload?.let {
+                notificationService.sendNotificationToken(refreshedToken, it.guid, it.sharedKey)
+                    .retry(2)
+                    .subscribeOn(Schedulers.io())
+            } ?: Completable.complete()
         } else {
             Completable.complete()
         }
@@ -150,12 +148,14 @@ class NotificationTokenManager(
     /**
      * Removes the stored token from back end
      */
-    // TODO BE endpoint now exists, will add in another PR
     private fun removeNotificationToken(): Completable {
         val token = prefs.firebaseToken
 
         return if (token.isNotEmpty()) {
-            notificationService.removeNotificationToken(token)
+            val payload = payloadManager.payload
+            payload?.let {
+                notificationService.removeNotificationToken(it.guid, it.sharedKey)
+            } ?: Completable.complete()
         } else {
             Completable.complete()
         }
