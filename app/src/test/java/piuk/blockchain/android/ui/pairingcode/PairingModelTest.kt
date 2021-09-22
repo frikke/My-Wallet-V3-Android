@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.pairingcode
 
-import android.graphics.Bitmap
 import com.blockchain.android.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -37,11 +36,9 @@ class PairingModelTest {
         on { tempPassword }.thenReturn("password")
     }
 
-    private val bitmap: Bitmap = mock()
-
     private val qrCodeDataManager: QrCodeDataManager = mock {
-        on { generatePairingCode(any(), any(), any(), any(), any()) }.thenReturn(
-            Single.just(bitmap)
+        on { generatePairingCode(any(), any(), any(), any()) }.thenReturn(
+            Single.just(PAIRING_CODE_URI)
         )
     }
 
@@ -82,6 +79,10 @@ class PairingModelTest {
         model.process(PairingIntents.LoadQrImage)
         testState.assertValueAt(0, PairingState())
         testState.assertValueAt(1, PairingState(imageStatus = QrCodeImageStatus.Loading))
-        testState.assertValueAt(2, PairingState(imageStatus = QrCodeImageStatus.Ready(bitmap)))
+        testState.assertValueAt(2, PairingState(imageStatus = QrCodeImageStatus.Ready(PAIRING_CODE_URI)))
+    }
+
+    companion object {
+        private const val PAIRING_CODE_URI = "PAIRING_CODE_URI"
     }
 }

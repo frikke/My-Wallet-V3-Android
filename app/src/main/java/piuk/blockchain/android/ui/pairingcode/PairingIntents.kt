@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.pairingcode
 
-import android.graphics.Bitmap
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class PairingIntents : MviIntent<PairingState> {
@@ -19,10 +18,10 @@ sealed class PairingIntents : MviIntent<PairingState> {
             )
     }
 
-    data class CompleteQrImageLoading(private val qrBitmap: Bitmap) : PairingIntents() {
+    data class CompleteQrImageLoading(private val qrUri: String) : PairingIntents() {
         override fun reduce(oldState: PairingState): PairingState =
             oldState.copy(
-                imageStatus = QrCodeImageStatus.Ready(qrBitmap)
+                imageStatus = QrCodeImageStatus.Ready(qrUri)
             )
     }
 
@@ -33,8 +32,8 @@ sealed class PairingIntents : MviIntent<PairingState> {
                     QrCodeImageStatus.Error,
                     QrCodeImageStatus.Loading,
                     QrCodeImageStatus.NotInitialised -> QrCodeImageStatus.Loading
-                    is QrCodeImageStatus.Hidden -> QrCodeImageStatus.Ready(oldState.imageStatus.qrCodeBitmap)
-                    is QrCodeImageStatus.Ready -> QrCodeImageStatus.Ready(oldState.imageStatus.qrCodeBitmap)
+                    is QrCodeImageStatus.Hidden -> QrCodeImageStatus.Ready(oldState.imageStatus.qrUri)
+                    is QrCodeImageStatus.Ready -> QrCodeImageStatus.Ready(oldState.imageStatus.qrUri)
                 }
             )
         }
@@ -46,8 +45,8 @@ sealed class PairingIntents : MviIntent<PairingState> {
                     QrCodeImageStatus.Error,
                     QrCodeImageStatus.Loading,
                     QrCodeImageStatus.NotInitialised -> QrCodeImageStatus.NotInitialised
-                    is QrCodeImageStatus.Hidden -> QrCodeImageStatus.Hidden(oldState.imageStatus.qrCodeBitmap)
-                    is QrCodeImageStatus.Ready -> QrCodeImageStatus.Hidden(oldState.imageStatus.qrCodeBitmap)
+                    is QrCodeImageStatus.Hidden -> QrCodeImageStatus.Hidden(oldState.imageStatus.qrUri)
+                    is QrCodeImageStatus.Ready -> QrCodeImageStatus.Hidden(oldState.imageStatus.qrUri)
                 }
             )
     }

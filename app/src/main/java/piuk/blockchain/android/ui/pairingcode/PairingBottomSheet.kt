@@ -9,9 +9,11 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat.getColor
 import com.blockchain.koin.scopedInject
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.urllinks.WEB_WALLET_LOGIN_URI
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.PairingSheetBinding
+import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
@@ -21,6 +23,7 @@ import piuk.blockchain.android.util.visibleIf
 class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingState, PairingSheetBinding>() {
 
     override val model: PairingModel by scopedInject()
+    private val encoder: QRCodeEncoder by inject()
 
     private lateinit var currentState: PairingState
 
@@ -40,7 +43,9 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
                     toast(resources.getString(R.string.unexpected_error), ToastCustom.TYPE_ERROR)
                 }
                 is QrCodeImageStatus.Ready -> {
-                    qrCode.setImageBitmap(getScaledQrCodeBitmap(newState.imageStatus))
+                    if (qrCode.drawable == null) {
+                        qrCode.setImageBitmap(getScaledQrCodeBitmap(newState.imageStatus))
+                    }
                     updateUI(newState)
                 }
             }
@@ -74,7 +79,8 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
             val span = indexOf(WEB_WALLET_LOGIN_URI)
             setSpan(
                 ForegroundColorSpan(
-                    getColor(requireContext(), R.color.blue_600)),
+                    getColor(requireContext(), R.color.blue_600)
+                ),
                 span,
                 span + WEB_WALLET_LOGIN_URI.length,
                 Spannable.SPAN_EXCLUSIVE_INCLUSIVE
@@ -82,10 +88,12 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
         }
 
     private fun getScaledQrCodeBitmap(imageStatus: QrCodeImageStatus.Ready): Bitmap? {
-        val qrCodeBitmap = imageStatus.qrCodeBitmap
-        val width = resources.displayMetrics.widthPixels / 2 // Scale it to half of display width
-        val height = width * qrCodeBitmap.height / qrCodeBitmap.width
-        return Bitmap.createScaledBitmap(qrCodeBitmap, width, height, true)
+        val qrCodeBitmap = encoder.encodeAsBitmap(imageStatus.qrUri, QR_IMAGE_DIMENSION)
+        return qrCodeBitmap?.let {
+            val width = resources.displayMetrics.widthPixels / 2 // Scale it to half of display width
+            val height = width * it.height / it.width
+            Bitmap.createScaledBitmap(qrCodeBitmap, width, height, true)
+        }
     }
 
     private fun PairingSheetBinding.updateUI(newState: PairingState) {
@@ -100,5 +108,9 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
         progressBar.visibleIf { newState.imageStatus == QrCodeImageStatus.Loading }
         qrCode.visibleIf { newState.showQrCode }
         blockchainIcon.visibleIf { newState.showQrCode }
+    }
+
+    companion object {
+        private const val QR_IMAGE_DIMENSION = 600
     }
 }

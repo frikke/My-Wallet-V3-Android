@@ -56,7 +56,6 @@ import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
-import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QrCodeDataManager
@@ -106,6 +105,8 @@ import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
+import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -555,9 +556,7 @@ val applicationModule = module {
                 initialState = ReceiveState(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
-                qrCodeDataManager = get(),
-                receiveIntentHelper = get()
+                crashLogger = get()
             )
         }
 
@@ -802,6 +801,10 @@ val applicationModule = module {
             context = get(),
             specificAnalytics = get()
         )
+    }
+
+    factory {
+        QRCodeEncoder()
     }
 
     factory { FormatChecker() }
