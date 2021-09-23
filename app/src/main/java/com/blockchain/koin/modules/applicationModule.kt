@@ -821,5 +821,4 @@ val applicationModule = module {
     single {
         Database(get())
     }
-
 }
