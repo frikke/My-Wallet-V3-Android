@@ -16,11 +16,11 @@ import timber.log.Timber
 
 internal data class ReceiveState(
     val account: CryptoAccount = NullCryptoAccount(),
-    val address: CryptoAddress = NullCryptoAddress,
+    val cryptoAddress: CryptoAddress = NullCryptoAddress,
     val qrUri: String? = null,
     val displayMode: ReceiveScreenDisplayMode = ReceiveScreenDisplayMode.RECEIVE
 ) : MviState {
-    fun shouldShowXlmMemo() = address.memo != null
+    fun shouldShowXlmMemo() = cryptoAddress.memo != null
 
     fun shouldShowRotatingAddressInfo() = !account.hasStaticAddress
 }
@@ -32,17 +32,17 @@ internal class InitWithAccount(
     override fun reduce(oldState: ReceiveState): ReceiveState {
         return oldState.copy(
             account = cryptoAccount,
-            address = NullCryptoAddress,
+            cryptoAddress = NullCryptoAddress,
             qrUri = null,
             displayMode = ReceiveScreenDisplayMode.RECEIVE
         )
     }
 }
 
-internal class UpdateAddressAndGenerateQrCode(val address: CryptoAddress) : ReceiveIntent() {
+internal class UpdateAddressAndGenerateQrCode(val cryptoAddress: CryptoAddress) : ReceiveIntent() {
     override fun reduce(oldState: ReceiveState): ReceiveState =
         oldState.copy(
-            address = address,
+            cryptoAddress = cryptoAddress,
             displayMode = ReceiveScreenDisplayMode.RECEIVE
         )
 }
@@ -88,7 +88,7 @@ internal class ReceiveModel(
         when (intent) {
             is InitWithAccount -> handleInit(intent.cryptoAccount)
             is UpdateAddressAndGenerateQrCode -> {
-                process(UpdateQrCodeUri(intent.address.toUrl()))
+                process(UpdateQrCodeUri(intent.cryptoAddress.toUrl()))
                 null
             }
             is ShowShare,

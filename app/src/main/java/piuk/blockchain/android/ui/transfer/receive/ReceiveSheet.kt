@@ -16,7 +16,6 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.RequestAnalyticsEvents
 import piuk.blockchain.android.R
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAddress
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.DialogReceiveBinding
 import piuk.blockchain.android.databinding.ReceiveShareRowBinding
@@ -88,7 +87,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
                             )
                         )
                     )
-                    copyAddress(newState.address)
+                    copyAddress(newState.cryptoAddress.address)
                 }
             } else {
                 shareButton.setOnClickListener { }
@@ -104,7 +103,10 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
                 qrBitmap = encoder.encodeAsBitmap(newState.qrUri, DIMENSION_QR_CODE)
                 qrImage.setImageBitmap(qrBitmap)
             }
-            receivingAddress.text = newState.address.address
+            receivingAddress.apply {
+                text = newState.cryptoAddress.address
+                setTextIsSelectable(true)
+            }
         }
 
         setCustomSlot(newState)
@@ -131,7 +133,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
     private fun setCustomSlot(newState: ReceiveState) {
         when {
             newState.shouldShowXlmMemo() -> ReceiveMemoView(requireContext()).also {
-                it.updateAddress(newState.address)
+                it.updateAddress(newState.cryptoAddress)
             }
             newState.shouldShowRotatingAddressInfo() -> ReceiveInfoView(requireContext()).also {
                 it.update(newState.account) {
@@ -171,7 +173,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
         analytics.logEvent(RequestAnalyticsEvents.RequestPaymentClicked)
     }
 
-    private fun copyAddress(address: CryptoAddress) {
+    private fun copyAddress(address: String) {
         activity?.run {
             AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
@@ -179,7 +181,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
                 .setCancelable(false)
                 .setPositiveButton(R.string.common_yes) { _, _ ->
                     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText("Send address", address.toUrl())
+                    val clip = ClipData.newPlainText("Send address", address)
                     toast(R.string.copied_to_clipboard)
                     clipboard.setPrimaryClip(clip)
                 }
