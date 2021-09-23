@@ -111,13 +111,17 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) : Constrain
                     )
                 }
                 is SingleInputViewConfiguration.Crypto -> {
-                    val cryptoSymbol = newValue.cryptoCurrency.ticker
+                    val cryptoSymbol = newValue.cryptoCurrency.displayTicker
                     updateFilters(cryptoSymbol)
                     configuration = Configuration(
                         prefixOrSuffix = cryptoSymbol,
                         isPrefix = false,
                         initialText = newValue.predefinedAmount.toStringWithoutSymbol()
-                            .replace(DecimalFormatSymbols(Locale.getDefault()).groupingSeparator.toString(), "")
+                            .replace(
+                                DecimalFormatSymbols(Locale.getDefault())
+                                    .groupingSeparator.toString(),
+                                ""
+                            )
                     )
                     amountSubject.onNext(
                         newValue.predefinedAmount

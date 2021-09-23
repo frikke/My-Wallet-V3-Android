@@ -10,11 +10,9 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.Toolbar
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLauncherBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
@@ -35,7 +33,6 @@ import timber.log.Timber
 
 class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), LauncherView, EmailEntryHost {
 
-    private val analytics: Analytics by inject()
     private val launcherPresenter: LauncherPresenter by scopedInject()
 
     private val binding: ActivityLauncherBinding by lazy {

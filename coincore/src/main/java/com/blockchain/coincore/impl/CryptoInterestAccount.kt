@@ -145,7 +145,7 @@ class CryptoInterestAccount(
             }
 
     override val actions: Single<AvailableActions>
-        get() = balance.singleOrError().map { balance ->
+        get() = balance.firstOrError().map { balance ->
             setOfNotNull(
                 AssetAction.InterestWithdraw.takeIf { balance.actionable.isPositive },
                 AssetAction.ViewStatement.takeIf { hasTransactions },

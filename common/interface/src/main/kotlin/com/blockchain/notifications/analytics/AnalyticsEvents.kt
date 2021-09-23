@@ -164,10 +164,30 @@ enum class AnalyticsNames(val eventName: String) {
     RECURRING_BUY_VIEWED("Recurring Buy Viewed"),
     GET_STARTED_ON_BOARDING("Buy Sell Clicked"),
     RECURRING_BUY_UNAVAILABLE_SHOWN("Recurring Buy Unavailable Shown"),
-    WALLET_RECOVER("Recover Wallet"),
     WALLET_SIGN_UP("Wallet Signed Up"),
     WALLET_SIGN_UP_COUNTRY_SELECTED("Sign Up Country Selected"),
-    WALLET_SIGN_UP_STATE_SELECTED("Sign Up Country State Selected");
+    WALLET_SIGN_UP_STATE_SELECTED("Sign Up Country State Selected"),
+    LOGIN_DEVICE_VERIFIED("Device Verified"),
+    LOGIN_CTA_CLICKED("Login Clicked"),
+    LOGIN_HELP_CLICKED("Login Help Clicked"),
+    LOGIN_ID_ENTERED("Login Identifier Entered"),
+    LOGIN_LEARN_MORE_CLICKED("Login Learn More Clicked"),
+    LOGIN_METHOD_SELECTED("Login Method Selected"),
+    LOGIN_PASSWORD_DENIED("Login Password Denied"),
+    LOGIN_PASSWORD_ENTERED("Login Password Entered"),
+    LOGIN_REQUEST_APPROVED("Login Request Approved"),
+    LOGIN_REQUEST_DENIED("Login Request Denied"),
+    LOGIN_2FA_DENIED("Login Two Step Verification Denied"),
+    LOGIN_2FA_ENTERED("Login Two Step Verification Entered"),
+    LOGIN_VIEWED("Login Viewed"),
+    RECOVERY_PASSWORD_RESET("Account Password Reset"),
+    RECOVERY_FAILED("Account Recovery Failed"),
+    RECOVERY_CLOUD_BACKUP_SCANNED("Cloud Backup Code Scanned"),
+    RECOVERY_NEW_PASSWORD("New Account Password Entered"),
+    RECOVERY_OPTION_SELECTED("Recovery Option Selected"),
+    RECOVERY_MNEMONIC_ENTERED("Recovery Phrase Entered"),
+    RECOVERY_RESET_CANCELLED("Reset Account Cancelled"),
+    RECOVERY_RESET_CLICKED("Reset Account Clicked")
 }
 
 enum class LaunchOrigin {
@@ -194,5 +214,6 @@ enum class LaunchOrigin {
     DCA_DETAILS_LINK,
     BUY_CONFIRMATION,
     RECURRING_BUY_DETAILS,
-    RECURRING_BUY;
+    RECURRING_BUY,
+    LAUNCH_SCREEN;
 }

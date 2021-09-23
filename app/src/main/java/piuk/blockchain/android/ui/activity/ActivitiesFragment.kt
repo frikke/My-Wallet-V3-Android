@@ -153,7 +153,7 @@ class ActivitiesFragment :
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
                     LaunchOrigin.TRANSACTION_LIST,
-                    assetInfo.ticker
+                    assetInfo.networkTicker
                 )
             )
         }

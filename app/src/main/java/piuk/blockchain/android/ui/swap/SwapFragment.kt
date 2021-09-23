@@ -244,8 +244,8 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
         )
         analytics.logEvent(
             SwapAnalyticsEvents.SwapAccountsSelected(
-                inputCurrency = pair.sourceAccount.asset.ticker,
-                outputCurrency = pair.destinationAccount.asset.ticker,
+                inputCurrency = pair.sourceAccount.asset,
+                outputCurrency = pair.destinationAccount.asset,
                 sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.sourceAccount),
                 targetAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.destinationAccount),
                 werePreselected = true

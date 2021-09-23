@@ -58,8 +58,8 @@ private class AssetCardViewHolder(
         onCardClicked: (AssetInfo) -> Unit
     ) {
         with(binding) {
-            fiatBalance.contentDescription = "$FIAT_BALANCE_ID${state.currency.ticker}"
-            cryptoBalance.contentDescription = "$CRYPTO_BALANCE_ID${state.currency.ticker}"
+            fiatBalance.contentDescription = "$FIAT_BALANCE_ID${state.currency.displayTicker}"
+            cryptoBalance.contentDescription = "$CRYPTO_BALANCE_ID${state.currency.displayTicker}"
 
             assetResources.loadAssetIcon(icon, state.currency)
             currency.text = state.currency.name
@@ -126,7 +126,7 @@ private class AssetCardViewHolder(
             cardLayout.isEnabled = false
             root.setOnClickListener { }
 
-            errorMsg.text = context.resources.getString(R.string.dashboard_asset_error, state.currency.ticker)
+            errorMsg.text = context.resources.getString(R.string.dashboard_asset_error, state.currency.displayTicker)
         }
     }
 

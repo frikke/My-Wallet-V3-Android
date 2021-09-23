@@ -1,5 +1,6 @@
 package com.blockchain.coincore.fiat
 
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -44,7 +45,10 @@ class LinkedBankAccount(
         get() = FiatValue.zero(currency).let { zero ->
                 Observable.just(
                     AccountBalance(
-                        total = zero, pending = zero, actionable = zero, exchangeRate = null
+                        total = zero,
+                        pending = zero,
+                        actionable = zero,
+                        exchangeRate = ExchangeRate.InvalidRate
                 )
             )
         }

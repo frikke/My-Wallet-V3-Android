@@ -6,7 +6,10 @@ enum class AssetCategory {
 }
 
 interface AssetInfo {
-    val ticker: String
+    // Use for UI only.
+    val displayTicker: String
+    // If the ticker is NOT being directly displayed to the user in the UI, use this.
+    val networkTicker: String
     val name: String
     val categories: Set<AssetCategory>
     // token price start times in epoch-seconds. null if charting not supported
@@ -48,7 +51,8 @@ interface AssetCatalogue {
 }
 
 open class CryptoCurrency(
-    override val ticker: String,
+    override val displayTicker: String,
+    override val networkTicker: String,
     override val name: String,
     override val categories: Set<AssetCategory>,
     override val precisionDp: Int,
@@ -62,7 +66,8 @@ open class CryptoCurrency(
 ) : AssetInfo {
 
     object BTC : CryptoCurrency(
-        ticker = "BTC",
+        displayTicker = "BTC",
+        networkTicker = "BTC",
         name = "Bitcoin",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
@@ -74,7 +79,8 @@ open class CryptoCurrency(
     )
 
     object ETHER : CryptoCurrency(
-        ticker = "ETH",
+        displayTicker = "ETH",
+        networkTicker = "ETH",
         name = "Ether",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 18,
@@ -86,7 +92,8 @@ open class CryptoCurrency(
     )
 
     object BCH : CryptoCurrency(
-        ticker = "BCH",
+        displayTicker = "BCH",
+        networkTicker = "BCH",
         name = "Bitcoin Cash",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
@@ -98,7 +105,8 @@ open class CryptoCurrency(
     )
 
     object XLM : CryptoCurrency(
-        ticker = "XLM",
+        displayTicker = "XLM",
+        networkTicker = "XLM",
         name = "Stellar",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 7,

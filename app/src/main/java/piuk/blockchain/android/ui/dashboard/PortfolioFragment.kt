@@ -74,7 +74,7 @@ import piuk.blockchain.android.ui.dashboard.model.LaunchInterestWithdrawFlow
 import piuk.blockchain.android.ui.dashboard.model.LaunchSendFlow
 import piuk.blockchain.android.ui.dashboard.model.LinkBankNavigationAction
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
-import piuk.blockchain.android.ui.dashboard.model.RefreshAllIntent
+import piuk.blockchain.android.ui.dashboard.model.RefreshAllBalancesIntent
 import piuk.blockchain.android.ui.dashboard.model.ResetPortfolioNavigation
 import piuk.blockchain.android.ui.dashboard.model.ShowAnnouncement
 import piuk.blockchain.android.ui.dashboard.model.ShowBankLinkingSheet
@@ -227,7 +227,7 @@ class PortfolioFragment :
             } else {
                 newList.add(IDX_CARD_ANNOUNCE, get(IDX_CARD_ANNOUNCE))
                 newList.add(IDX_CARD_BALANCE, newState)
-                if (newState.fiatAssets?.fiatAccounts?.isNotEmpty() == true) {
+                if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
                     newList.add(IDX_FUNDS_BALANCE, newState.fiatAssets)
                 } else {
                     newList.add(IDX_FUNDS_BALANCE, get(IDX_FUNDS_BALANCE))
@@ -463,7 +463,7 @@ class PortfolioFragment :
 
     private fun setupSwipeRefresh() {
         with(binding) {
-            swipe.setOnRefreshListener { model.process(RefreshAllIntent) }
+            swipe.setOnRefreshListener { model.process(RefreshAllBalancesIntent) }
 
             // Configure the refreshing colors
             swipe.setColorSchemeResources(
@@ -499,7 +499,7 @@ class PortfolioFragment :
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) {
-            model.process(RefreshAllIntent)
+            model.process(RefreshAllBalancesIntent)
         }
     }
 
@@ -507,7 +507,7 @@ class PortfolioFragment :
         if (displayList.isEmpty()) {
             model.process(GetAvailableAssets)
         } else {
-            model.process(RefreshAllIntent)
+            model.process(RefreshAllBalancesIntent)
         }
     }
 
@@ -517,7 +517,7 @@ class PortfolioFragment :
         // want to be getting all the balances every time we want to display assets in balance order.
         // TODO This UI is due for a re-write soon, at which point this ordering should be managed better
         dashboardPrefs.dashboardAssetOrder = displayList.filterIsInstance<CryptoAssetState>()
-            .map { it.currency.ticker }
+            .map { it.currency.displayTicker }
 
         compositeDisposable.clear()
         rxBus.unregister(ActionEvent::class.java, actionEvent)
@@ -529,7 +529,7 @@ class PortfolioFragment :
 
         when (requestCode) {
             MainActivity.SETTINGS_EDIT,
-            MainActivity.ACCOUNT_EDIT -> model.process(RefreshAllIntent)
+            MainActivity.ACCOUNT_EDIT -> model.process(RefreshAllBalancesIntent)
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
                     model.process(CheckBackupStatus(it.account, it.action))
@@ -556,7 +556,7 @@ class PortfolioFragment :
     }
 
     private fun onAssetClicked(asset: AssetInfo) {
-        analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset.ticker))
+        analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset))
         model.process(LaunchAssetDetailsFlow(asset))
     }
 
@@ -612,7 +612,7 @@ class PortfolioFragment :
         }
 
         override fun startSimpleBuy(asset: AssetInfo) {
-            navigator().launchSimpleBuy(asset.ticker)
+            navigator().launchSimpleBuy(asset)
         }
 
         override fun startBuy() {
@@ -750,7 +750,7 @@ class PortfolioFragment :
     }
 
     override fun goToBuy(asset: AssetInfo) {
-        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset.ticker)
+        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
     }
 
     override fun startBackupForTransfer() {

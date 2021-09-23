@@ -103,9 +103,9 @@ class TransactionFlowCustomiserImpl(
     override fun selectTargetNoAddressMessageText(state: TransactionState): String? =
         when (state.action) {
             AssetAction.Send -> resources.getString(
-                R.string.send_internal_transfer_message_1,
+                R.string.send_internal_transfer_message_1_1,
                 state.sendingAsset.name,
-                state.sendingAsset.ticker
+                state.sendingAsset.displayTicker
             )
             else -> null
         }
@@ -181,20 +181,20 @@ class TransactionFlowCustomiserImpl(
     override fun enterAmountTitle(state: TransactionState): String {
         return when (state.action) {
             AssetAction.Send -> resources.getString(
-                R.string.send_enter_amount_title, state.sendingAsset.ticker
+                R.string.send_enter_amount_title, state.sendingAsset.displayTicker
             )
             AssetAction.Swap -> resources.getString(
                 R.string.tx_title_swap,
-                state.sendingAsset.ticker,
-                (state.selectedTarget as CryptoAccount).asset.ticker
+                state.sendingAsset.displayTicker,
+                (state.selectedTarget as CryptoAccount).asset.displayTicker
             )
             AssetAction.InterestDeposit -> resources.getString(
                 R.string.tx_title_deposit,
-                state.sendingAsset.ticker
+                state.sendingAsset.displayTicker
             )
             AssetAction.Sell -> resources.getString(
                 R.string.tx_title_sell,
-                state.sendingAsset.ticker
+                state.sendingAsset.displayTicker
             )
             AssetAction.FiatDeposit -> resources.getString(
                 R.string.tx_title_deposit,
@@ -205,7 +205,7 @@ class TransactionFlowCustomiserImpl(
                 (state.sendingAccount as FiatAccount).fiatCurrency
             )
             AssetAction.InterestWithdraw -> resources.getString(
-                R.string.tx_title_withdraw, state.sendingAsset.ticker
+                R.string.tx_title_withdraw, state.sendingAsset.displayTicker
             )
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -327,8 +327,8 @@ class TransactionFlowCustomiserImpl(
             )
             AssetAction.Swap -> resources.getString(
                 R.string.swap_confirmation_cta_button,
-                state.sendingAsset.ticker,
-                (state.selectedTarget as CryptoAccount).asset.ticker
+                state.sendingAsset.displayTicker,
+                (state.selectedTarget as CryptoAccount).asset.displayTicker
             )
             AssetAction.Sell -> resources.getString(
                 R.string.sell_confirmation_cta_button, amount
@@ -369,7 +369,7 @@ class TransactionFlowCustomiserImpl(
                 )
             }
             AssetAction.InterestWithdraw -> resources.getString(
-                R.string.checkout_interest_confirmation_disclaimer, state.sendingAsset.ticker,
+                R.string.checkout_rewards_confirmation_disclaimer, state.sendingAsset.displayTicker,
                 state.selectedTarget.label
             )
             else -> throw IllegalStateException("Disclaimer not set for asset action ${state.action}")
@@ -424,7 +424,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send -> resources.getString(R.string.send_progress_sending_subtitle)
             AssetAction.InterestDeposit -> resources.getString(
                 R.string.send_confirmation_progress_message,
-                state.sendingAsset.ticker
+                state.sendingAsset.displayTicker
             )
             AssetAction.Sell -> resources.getString(R.string.sell_confirmation_progress_message)
             AssetAction.Swap -> resources.getString(R.string.swap_confirmation_progress_message)
@@ -464,11 +464,11 @@ class TransactionFlowCustomiserImpl(
     override fun transactionCompleteMessage(state: TransactionState): String {
         return when (state.action) {
             AssetAction.Send -> resources.getString(
-                R.string.send_progress_complete_subtitle, state.sendingAsset.ticker
+                R.string.send_progress_complete_subtitle, state.sendingAsset.displayTicker
             )
             AssetAction.InterestDeposit -> resources.getString(
                 R.string.send_confirmation_success_message,
-                state.sendingAsset.ticker
+                state.sendingAsset.displayTicker
             )
             AssetAction.Sell -> resources.getString(
                 R.string.sell_confirmation_success_message,
@@ -476,7 +476,7 @@ class TransactionFlowCustomiserImpl(
             )
             AssetAction.Swap -> resources.getString(
                 R.string.swap_confirmation_success_message,
-                (state.selectedTarget as CryptoAccount).asset.ticker
+                (state.selectedTarget as CryptoAccount).asset.displayTicker
             )
             AssetAction.FiatDeposit -> resources.getString(
                 R.string.deposit_confirmation_success_message,
@@ -489,8 +489,8 @@ class TransactionFlowCustomiserImpl(
                 getEstimatedTransactionCompletionTime()
             )
             AssetAction.InterestWithdraw -> resources.getString(
-                R.string.withdraw_interest_confirmation_success_message,
-                state.sendingAsset.ticker,
+                R.string.withdraw_rewards_confirmation_success_message,
+                state.sendingAsset.displayTicker,
                 state.selectedTarget.label
             )
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
@@ -628,7 +628,7 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.TX_OPTION_INVALID -> resources.getString(R.string.send_error_tx_option_invalid)
             TransactionErrorState.UNKNOWN_ERROR -> resources.getString(R.string.send_error_tx_option_invalid)
             TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED ->
-                resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.ticker)
+                resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.displayTicker)
         }
     }
 
@@ -637,22 +637,22 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send ->
                 resources.getString(
                     R.string.send_enter_amount_error_insufficient_funds_for_fees,
-                    state.sendingAsset.ticker
+                    state.sendingAsset.displayTicker
                 )
             AssetAction.Swap ->
                 resources.getString(
                     R.string.swap_enter_amount_error_insufficient_funds_for_fees,
-                    state.sendingAsset.ticker
+                    state.sendingAsset.displayTicker
                 )
             AssetAction.Sell ->
                 resources.getString(
                     R.string.sell_enter_amount_error_insufficient_funds_for_fees,
-                    state.sendingAsset.ticker
+                    state.sendingAsset.displayTicker
                 )
             AssetAction.InterestDeposit ->
                 resources.getString(
-                    R.string.interest_enter_amount_error_insufficient_funds_for_fees,
-                    state.sendingAsset.ticker
+                    R.string.rewards_enter_amount_error_insufficient_funds_for_fees,
+                    state.sendingAsset.displayTicker
                 )
             else -> null
         }
@@ -834,7 +834,7 @@ class TransactionFlowCustomiserImpl(
                     R.string.kyc_postcode_error
                 )
                 is TransactionError.ExecutionFailed -> resources.getString(
-                    R.string.executing_transaction_error, state.sendingAsset.ticker
+                    R.string.executing_transaction_error, state.sendingAsset.displayTicker
                 )
                 TransactionError.UnexpectedError -> resources.getString(R.string.send_progress_error_title)
                 else -> resources.getString(R.string.send_progress_error_title)
@@ -976,7 +976,7 @@ class TransactionFlowCustomiserImpl(
 private fun BlockchainAccount.uiCurrency(): String {
     require(this is CryptoAccount || this is FiatAccount)
     return when (this) {
-        is CryptoAccount -> asset.ticker
+        is CryptoAccount -> asset.displayTicker
         is FiatAccount -> fiatCurrency
         else -> throw IllegalStateException("Unsupported account ttype")
     }

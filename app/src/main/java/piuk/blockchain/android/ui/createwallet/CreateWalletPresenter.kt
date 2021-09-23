@@ -183,12 +183,10 @@ class CreateWalletPresenter(
                         isOnBoardingComplete = true
                     }
                     view.startPinEntryActivity()
-                    analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(true))
                 },
                 onError = {
                     Timber.e(it)
                     view.showError(R.string.restore_failed)
-                    analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(false))
                 }
             )
     }

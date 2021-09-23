@@ -268,10 +268,10 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
 
     private fun generateQrCode(qrString: String) =
         try {
-            QRCodeEncoder(
+            QRCodeEncoder().encodeAsBitmap(
                 qrString,
                 QR_CODE_DIMENSION
-            ).encodeAsBitmap()
+            )
         } catch (e: WriterException) {
             Timber.e(e)
             null

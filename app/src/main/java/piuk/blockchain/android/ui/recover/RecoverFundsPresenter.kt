@@ -16,7 +16,6 @@ import org.bitcoinj.crypto.MnemonicException
 import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
-import piuk.blockchain.android.ui.createwallet.WalletCreationAnalytics
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadata
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -108,7 +107,6 @@ class RecoverFundsPresenter(
                 prefs.sharedKey = payloadDataManager.wallet!!.sharedKey
                 prefs.walletGuid = payloadDataManager.wallet!!.guid
                 prefs.isOnBoardingComplete = true
-                analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(true))
                 view.startPinEntryActivity()
             },
             onError = {

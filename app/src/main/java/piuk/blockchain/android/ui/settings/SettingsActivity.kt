@@ -5,9 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.base.BaseAuthActivity
+import piuk.blockchain.android.ui.base.BlockchainActivity
 
-class SettingsActivity : BaseAuthActivity() {
+class SettingsActivity : BlockchainActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,7 +15,7 @@ class SettingsActivity : BaseAuthActivity() {
         setupToolbar()
     }
 
-    override fun enforceFlagSecure(): Boolean = true
+    override val alwaysDisableScreenshots: Boolean = true
 
     private fun setupToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_general)

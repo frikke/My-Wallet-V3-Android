@@ -59,7 +59,7 @@ private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreem
 
         binding.apply {
             confirmDetailsCheckboxText.text = stringUtils.getStringWithMappedAnnotations(
-                R.string.send_confirmation_interest_tos_pp,
+                R.string.send_confirmation_rewards_tos_pp,
                 linksMap,
                 activityContext
             )

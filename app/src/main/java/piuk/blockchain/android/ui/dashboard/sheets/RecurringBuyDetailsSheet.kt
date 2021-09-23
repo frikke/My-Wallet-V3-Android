@@ -123,7 +123,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
                             getString(
                                 R.string.recurring_buy_header,
                                 it.amount.toStringWithSymbol(),
-                                it.asset?.ticker
+                                it.asset.displayTicker
                             ),
                             ""
                         )

@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.pairingcode
 
-import android.graphics.Bitmap
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.PairingEvent
@@ -38,7 +37,8 @@ class PairingModel(
 
     private fun showQrCode(qrCodeImageStatus: QrCodeImageStatus): Disposable? {
         if (qrCodeImageStatus !is QrCodeImageStatus.Ready &&
-            qrCodeImageStatus !is QrCodeImageStatus.Hidden) {
+            qrCodeImageStatus !is QrCodeImageStatus.Hidden
+        ) {
             process(PairingIntents.LoadQrImage)
         }
         return null
@@ -59,14 +59,15 @@ class PairingModel(
             Single.fromObservable(authDataManager.getPairingEncryptionPassword(wallet.guid))
         } ?: Single.error(IllegalStateException("Wallet cannot be null"))
 
-    private fun generatePairingCodeObservable(encryptionPhrase: String): Single<Bitmap> {
+    private fun generatePairingCodeObservable(encryptionPhrase: String): Single<String> {
+        check(payloadDataManager.tempPassword != null)
         return payloadDataManager.wallet?.let { wallet ->
             qrCodeDataManager.generatePairingCode(
                 wallet.guid,
-                payloadDataManager.tempPassword,
+                payloadDataManager.tempPassword
+                    ?: throw java.lang.IllegalStateException("TempPassword is missing"),
                 wallet.sharedKey,
-                encryptionPhrase,
-                600
+                encryptionPhrase
             )
         } ?: Single.error(IllegalStateException("Wallet cannot be null"))
     }

@@ -55,10 +55,9 @@ internal class DeepLinkProcessor(
                 return@fromCallable LinkState.BlockchainLink(blockchainLink)
             }
             LinkState.NoUri
-        }
-            .switchIfEmpty(Maybe.just(LinkState.NoUri))
-            .toSingle()
-            .onErrorResumeNext { Single.just(LinkState.NoUri) }
+        }.switchIfEmpty(Maybe.just(LinkState.NoUri))
+        .toSingle()
+        .onErrorResumeNext { Single.just(LinkState.NoUri) }
 }
 
 sealed class LinkState {

@@ -9,7 +9,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -22,7 +21,6 @@ class LoginInteractorTest {
     private val prefs: PersistentPrefs = mock()
     private val appUtil: AppUtil = mock()
     private val ssoAccountRecoveryFF: FeatureFlag = mock()
-    private val accessState: AccessState = mock()
     private val persistentPrefs: PersistentPrefs = mock()
 
     private val action = Intent.ACTION_VIEW
@@ -36,23 +34,12 @@ class LoginInteractorTest {
             prefs = prefs,
             appUtil = appUtil,
             ssoAccountRecoveryFF = ssoAccountRecoveryFF,
-            accessState = accessState,
             persistentPrefs = persistentPrefs
         )
     }
 
     @Test
-    fun `check session when logged in sends PIN intent`() {
-        whenever(accessState.isLoggedIn).thenReturn(true)
-        whenever(persistentPrefs.pinId).thenReturn("")
-
-        val result = subject.checkSessionDetails(action, data)
-        Assert.assertEquals(LoginIntents.UserIsLoggedIn, result)
-    }
-
-    @Test
     fun `check session when pin exists sends PIN intent`() {
-        whenever(accessState.isLoggedIn).thenReturn(false)
         whenever(persistentPrefs.pinId).thenReturn("12343")
 
         val result = subject.checkSessionDetails(action, data)
@@ -61,7 +48,6 @@ class LoginInteractorTest {
 
     @Test
     fun `check session when intent exists sends deeplink intent`() {
-        whenever(accessState.isLoggedIn).thenReturn(false)
         whenever(persistentPrefs.pinId).thenReturn("")
 
         val uri: Uri = mock {
@@ -82,7 +68,6 @@ class LoginInteractorTest {
 
     @Test
     fun `check session when no intent delimiter exists sends error intent`() {
-        whenever(accessState.isLoggedIn).thenReturn(false)
         whenever(persistentPrefs.pinId).thenReturn("")
 
         val uri: Uri = mock {

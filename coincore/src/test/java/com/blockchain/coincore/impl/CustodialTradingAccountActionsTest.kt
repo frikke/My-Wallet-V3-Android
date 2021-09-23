@@ -296,7 +296,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         )
 
         private val TEST_ASSET = object : CryptoCurrency(
-            ticker = "NOPE",
+            displayTicker = "NOPE",
+            networkTicker = "NOPE",
             name = "Not a real thing",
             categories = setOf(AssetCategory.CUSTODIAL),
             precisionDp = 8,

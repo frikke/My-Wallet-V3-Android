@@ -14,7 +14,6 @@ import com.blockchain.sunriver.fromStellarUri
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isErc20
-import io.reactivex.rxjava3.core.Single
 import info.blockchain.wallet.util.FormatsUtil
 import org.bitcoinj.uri.BitcoinURI
 import piuk.blockchain.android.R
@@ -35,7 +34,7 @@ class ReceiveIntentHelper(
         uri: String,
         bitmap: Bitmap,
         asset: AssetInfo
-    ): Single<List<SendPaymentCodeData>> {
+    ): List<SendPaymentCodeData> {
 
         val file = getQrFile()
         val outputStream = getFileOutputStream(file)
@@ -47,7 +46,7 @@ class ReceiveIntentHelper(
                 outputStream.close()
             } catch (e: IOException) {
                 Timber.e(e)
-                return Single.just(emptyList())
+                return emptyList()
             }
 
             val dataList = ArrayList<SendPaymentCodeData>()
@@ -70,11 +69,11 @@ class ReceiveIntentHelper(
                 asset == CryptoCurrency.ETHER ||
                     asset.isErc20() ->
                     emailIntent.setupIntentForEmailERC20(
-                        ticker = asset.ticker,
+                        ticker = asset.displayTicker,
                         displayName = displayName,
                         uri = uri
                     )
-                else -> throw NotImplementedError("${asset.ticker} is not fully supported yet")
+                else -> throw NotImplementedError("${asset.networkTicker} is not fully supported yet")
             }
 
             val imageIntent = Intent().apply { setupIntentForImage(type, file) }
@@ -105,9 +104,9 @@ class ReceiveIntentHelper(
             }
 
             specificAnalytics.logShare("QR Code + URI")
-            return Single.just(dataList)
+            return dataList
         } else {
-            return Single.just(emptyList())
+            return emptyList()
         }
     }
 

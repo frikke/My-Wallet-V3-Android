@@ -221,7 +221,8 @@ class AssetDetailsInteractorTest {
         private const val TEST_FIAT = "USD"
 
         private val TEST_ASSET = object : CryptoCurrency(
-            ticker = "NOPE",
+            displayTicker = "NOPE",
+            networkTicker = "NOPE",
             name = "Not a real thing",
             categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
             precisionDp = 2,

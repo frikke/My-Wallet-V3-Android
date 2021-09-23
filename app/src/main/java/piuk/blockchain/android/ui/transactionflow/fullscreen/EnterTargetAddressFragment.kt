@@ -261,7 +261,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                         onComplete = {
                             ToastCustom.makeText(
                                 requireContext(),
-                                getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.ticker),
+                                getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.displayTicker),
                                 ToastCustom.LENGTH_SHORT,
                                 ToastCustom.TYPE_GENERAL
                             )

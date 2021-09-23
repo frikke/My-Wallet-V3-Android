@@ -61,10 +61,14 @@ class PortfolioStateTest {
             announcement = null
         )
 
-        assertEquals(Pair(FiatValue.fromMajor(
-            FIAT_CURRENCY,
-            (-1000).toBigDecimal()
-        ), -25.0), subject.delta)
+        val expectedResult = Pair(
+            FiatValue.fromMajor(FIAT_CURRENCY, (-1000).toBigDecimal()),
+            -25.0
+        )
+
+        val result = subject.delta
+
+        assertEquals(expectedResult, result)
     }
 
     @Test

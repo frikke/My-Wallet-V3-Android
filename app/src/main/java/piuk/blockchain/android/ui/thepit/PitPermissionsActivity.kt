@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.Analytics
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.urllinks.URL_THE_PIT_LANDING_LEARN_MORE
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -24,7 +23,6 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
     override fun createPresenter(): PitPermissionsPresenter = pitPermissionsPresenter
     override fun getView(): PitPermissionsView = this
     private val pitPermissionsPresenter: PitPermissionsPresenter by scopedInject()
-    private val analytics: Analytics = get()
     private var loadingDialog: PitStateBottomDialog? = null
 
     private val compositeDisposable = CompositeDisposable()

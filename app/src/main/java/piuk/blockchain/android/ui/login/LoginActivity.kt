@@ -49,6 +49,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         GoogleReCaptchaClient(this, environmentConfig)
     }
 
+    private lateinit var state: LoginState
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recaptchaClient.initReCaptcha()
@@ -66,6 +68,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     override fun onStart() {
         super.onStart()
 
+        analytics.logEvent(LoginAnalytics.LoginViewed)
         with(binding) {
             backButton.setOnClickListener { finish() }
             loginEmailText.apply {
@@ -89,6 +92,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             }
 
             continueWithGoogleButton.setOnClickListener {
+                analytics.logEvent(LoginAnalytics.LoginWithGoogleMethodSelected)
                 startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
             }
             if (environmentConfig.isRunningInDebugMode()) {
@@ -131,6 +135,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     override fun initBinding(): ActivityLoginNewBinding = ActivityLoginNewBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginState) {
+        state = newState
         updateUI(newState)
         when (newState.currentStep) {
             LoginStep.SHOW_SCAN_ERROR -> {
@@ -203,7 +208,9 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             beginTransaction()
                 .replace(
                     R.id.content_frame,
-                    VerifyDeviceFragment(),
+                    VerifyDeviceFragment.newInstance(
+                        state.sessionId, state.email, state.captcha
+                    ),
                     VerifyDeviceFragment::class.simpleName
                 )
                 .addToBackStack(VerifyDeviceFragment::class.simpleName)
@@ -214,6 +221,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private fun verifyReCaptcha(selectedEmail: String) {
         recaptchaClient.verifyForLogin(
             onSuccess = { response ->
+                analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
                 model.process(
                     LoginIntents.ObtainSessionIdForEmail(
                         selectedEmail = selectedEmail,

@@ -293,7 +293,7 @@ class EthDataManager(
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData {
         require(asset.l2chain == CryptoCurrency.ETHER)
         require(asset.l2identifier != null)
-        val name = asset.ticker.lowercase()
+        val name = asset.networkTicker.lowercase()
 
         return getEthWallet()!!.getErc20TokenData(name)
     }

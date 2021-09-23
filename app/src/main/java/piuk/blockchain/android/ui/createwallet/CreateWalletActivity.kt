@@ -58,6 +58,9 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
     private var countryPickerItem: CountryPickerItem? = null
     private var statePickerItem: StatePickerItem? = null
 
+    override val alwaysDisableScreenshots: Boolean
+        get() = true
+
     private val recoveryPhrase: String by unsafeLazy {
         intent.getStringExtra(RECOVERY_PHRASE).orEmpty()
     }
@@ -234,13 +237,6 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         }
     }
 
-    override fun dismissProgressDialog() {
-        progressDialog?.apply {
-            dismiss()
-            progressDialog = null
-        }
-    }
-
     override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
 
     override fun setGeolocationInCountrySpinner(geolocation: Geolocation) {
@@ -260,8 +256,6 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         val stateItem = US.values().first { it.iSOAbbreviation == isoCode }
         return StatePickerItem(stateItem.iSOAbbreviation, stateItem.unabbreviated)
     }
-
-    override fun enforceFlagSecure() = true
 
     private fun onNextClicked() {
         with(binding) {

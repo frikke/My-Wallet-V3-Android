@@ -7,6 +7,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -38,9 +39,9 @@ interface HomeNavigator {
     fun launchSend()
     fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        ticker: String? = null
+        asset: AssetInfo? = null
     )
-    fun launchSimpleBuy(ticker: String)
+    fun launchSimpleBuy(asset: AssetInfo)
     fun launchInterestDashboard(origin: LaunchOrigin)
     fun launchFiatDeposit(currency: String)
     fun launchTransfer()

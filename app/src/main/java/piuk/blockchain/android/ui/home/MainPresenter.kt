@@ -62,6 +62,8 @@ import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import com.blockchain.utils.capitalizeFirstChar
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import thepit.PitLinking
@@ -99,6 +101,7 @@ interface MainView : MvpView, HomeNavigator {
 
 class MainPresenter internal constructor(
     private val prefs: PersistentPrefs,
+    private val assetCatalogue: AssetCatalogue,
     private val accessState: AccessState,
     private val payloadDataManager: PayloadDataManager,
     private val qrProcessor: QrScanResultProcessor,
@@ -580,14 +583,31 @@ class MainPresenter internal constructor(
             BlockchainLinkState.Interest -> view?.launchInterestDashboard(LaunchOrigin.DEEPLINK)
             BlockchainLinkState.Receive -> view?.launchReceive()
             BlockchainLinkState.Send -> view?.launchSend()
-            is BlockchainLinkState.Sell -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL, link.ticker)
+            is BlockchainLinkState.Sell -> view?.launchBuySell(
+                BuySellFragment.BuySellViewType.TYPE_SELL,
+                assetFromTicker(link.ticker)
+            )
             is BlockchainLinkState.Activities -> view?.launchAssetAction(AssetAction.ViewActivity)
-            is BlockchainLinkState.Buy -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, link.ticker)
-            is BlockchainLinkState.SimpleBuy -> view?.launchSimpleBuy(link.ticker)
+            is BlockchainLinkState.Buy -> view?.launchBuySell(
+                BuySellFragment.BuySellViewType.TYPE_BUY,
+                assetFromTicker(link.ticker)
+            )
+            is BlockchainLinkState.SimpleBuy -> view?.launchSimpleBuy(
+                assetFromTicker(
+                    link.ticker
+                ) ?: throw IllegalStateException("Unknown asset ticker ${link.ticker}")
+            )
             is BlockchainLinkState.KycCampaign ->
-                view?.launchKyc(valueOf<CampaignType>(link.campaignType.capitalizeFirstChar()) ?: CampaignType.None)
+                view?.launchKyc(valueOf<CampaignType>(
+                    link.campaignType.capitalizeFirstChar()
+                ) ?: CampaignType.None)
         }
     }
+
+    private fun assetFromTicker(ticker: String?): AssetInfo? =
+        ticker?.let {
+            assetCatalogue.fromNetworkTicker(ticker)
+        }
 
     private fun NabuApiException.getWalletIdHint(): String =
         getErrorDescription().split(NabuApiException.USER_WALLET_LINK_ERROR_PREFIX).last()

@@ -55,8 +55,8 @@ private class SwapActivityItemViewHolder(
             (tx.currencyPair as? CurrencyPair.CryptoCurrencyPair)?.let { pair ->
                 txType.text = context.resources.getString(
                     R.string.tx_title_swapped,
-                    pair.source.ticker,
-                    pair.destination.ticker
+                    pair.source.displayTicker,
+                    pair.destination.displayTicker
                 )
                 when {
                     tx.state.isPending -> icon.setTransactionIsConfirming()

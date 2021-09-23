@@ -91,7 +91,7 @@ interface AccountRefreshTrigger {
         ) { nc, c, i ->
             nc + c + i
         }.doOnError {
-            val errorMsg = "Error loading accounts for ${asset.ticker}"
+            val errorMsg = "Error loading accounts for ${asset.networkTicker}"
             Timber.e("$errorMsg: $it")
             crashLogger.logException(it, errorMsg)
         }
@@ -145,10 +145,10 @@ interface AccountRefreshTrigger {
             .defaultIfEmpty(emptyList())
 
     final override fun exchangeRate(): Single<ExchangeRate> =
-        Single.fromCallable { exchangeRates.getLastCryptoToUserFiatRate(asset) }
+        exchangeRates.cryptoToUserFiatRate(asset).firstOrError()
 
     final override fun getPricesWith24hDelta(): Single<Prices24HrWithDelta> =
-        exchangeRates.getPricesWith24hDelta(asset)
+        exchangeRates.getPricesWith24hDelta(asset).firstOrError()
 
     final override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
         exchangeRates.getHistoricRate(asset, epochWhen)

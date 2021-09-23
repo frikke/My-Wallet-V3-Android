@@ -23,25 +23,17 @@ import java.util.EnumMap
  * limitations under the License.
  */
 
-class QRCodeEncoder(
-    data: String,
-    private val dimension: Int
-) {
-    private var contents: String? = null
-    var title: String? = null
-    private val format = BarcodeFormat.QR_CODE
-    private val encoded: Boolean
-
-    init {
-        if (data.isNotEmpty()) {
-            contents = data
-            title = "Text"
-        }
-        encoded = contents?.isNotEmpty() == true
-    }
+class QRCodeEncoder {
 
     @Throws(WriterException::class)
-    fun encodeAsBitmap(): Bitmap? {
+    fun encodeAsBitmap(data: String, dimension: Int): Bitmap? {
+        var contents: String? = null
+        val format = BarcodeFormat.QR_CODE
+        if (data.isNotEmpty()) {
+            contents = data
+        }
+        val encoded: Boolean = contents?.isNotEmpty() == true
+
         if (!encoded) return null
         var hints: MutableMap<EncodeHintType?, Any?>? = null
         val encoding = guessAppropriateEncoding(contents)

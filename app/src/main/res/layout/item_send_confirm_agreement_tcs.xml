@@ -23,5 +23,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/very_small_margin"
-        tools:text="@string/send_confirmation_interest_tos_pp" />
+        tools:text="@string/send_confirmation_rewards_tos_pp" />
 </LinearLayout>

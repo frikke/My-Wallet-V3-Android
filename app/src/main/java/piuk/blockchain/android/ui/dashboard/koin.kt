@@ -8,10 +8,10 @@ import org.koin.dsl.module
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsInteractor
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
-import piuk.blockchain.android.ui.dashboard.model.PortfolioInteractor
+import piuk.blockchain.android.ui.dashboard.model.PortfolioActionAdapter
 import piuk.blockchain.android.ui.dashboard.model.PortfolioModel
 import piuk.blockchain.android.ui.dashboard.model.PortfolioState
-import piuk.blockchain.android.ui.dashboard.model.PricesInteractor
+import piuk.blockchain.android.ui.dashboard.model.PricesActionAdapter
 import piuk.blockchain.android.ui.dashboard.model.PricesModel
 import piuk.blockchain.android.ui.dashboard.model.PricesState
 import piuk.blockchain.android.ui.transfer.AccountsSorting
@@ -25,18 +25,16 @@ val dashboardModule = module {
             PortfolioModel(
                 initialState = PortfolioState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
+                actionAdapter = get(),
                 environmentConfig = get(),
                 crashLogger = get()
             )
         }
 
         factory {
-            PortfolioInteractor(
+            PortfolioActionAdapter(
                 coincore = get(),
                 payloadManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
                 custodialWalletManager = get(),
                 simpleBuyPrefs = get(),
                 analytics = get(),
@@ -50,14 +48,14 @@ val dashboardModule = module {
             PricesModel(
                 initialState = PricesState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
+                actionAdapter = get(),
                 environmentConfig = get(),
                 crashLogger = get()
             )
         }
 
         factory {
-            PricesInteractor(
+            PricesActionAdapter(
                 coincore = get(),
                 exchangeRates = get()
             )

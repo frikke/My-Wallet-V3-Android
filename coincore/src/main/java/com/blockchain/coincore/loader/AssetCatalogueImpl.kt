@@ -20,7 +20,7 @@ internal class AssetCatalogueImpl(
                 initDynamicAssets()
             }.doOnSuccess { enabledAssets ->
                 val allEnabledAssets = nonDynamicAssets + enabledAssets
-                fullAssetLookup = allEnabledAssets.associateBy { it.ticker.toUpperCase(Locale.ROOT) }
+                fullAssetLookup = allEnabledAssets.associateBy { it.networkTicker.toUpperCase(Locale.ROOT) }
             }.map {
                 it + staticAssets
             }

@@ -99,13 +99,13 @@ class SimpleBuyInteractor(
     ): Single<SimpleBuyIntent.OrderCreated> =
         custodialWalletManager.createOrder(
             custodialWalletOrder = CustodialWalletOrder(
-                pair = "${cryptoAsset.ticker}-${amount.currencyCode}",
+                pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
                 action = "BUY",
                 input = OrderInput(
                     amount.currencyCode, amount.toBigInteger().toString()
                 ),
                 output = OrderOutput(
-                    cryptoAsset.ticker, null
+                    cryptoAsset.networkTicker, null
                 ),
                 paymentMethodId = paymentMethodId,
                 paymentType = paymentMethod.name,
@@ -132,7 +132,7 @@ class SimpleBuyInteractor(
                 RecurringBuyRequestBody(
                     inputValue = amount.toBigInteger().toString(),
                     inputCurrency = amount.currencyCode,
-                    destinationCurrency = asset.ticker,
+                    destinationCurrency = asset.networkTicker,
                     paymentMethod = selectedPaymentMethod.paymentMethodType.name,
                     period = recurringBuyFrequency.name,
                     paymentMethodId = selectedPaymentMethod.takeUnless { it.isFunds() }?.id

@@ -20,6 +20,9 @@ import java.util.Locale
 
 internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverFundsPresenter>(), RecoverFundsView {
 
+    override val alwaysDisableScreenshots: Boolean
+        get() = true
+
     private val recoverFundsPresenter: RecoverFundsPresenter by scopedInject()
 
     private val binding: ActivityRecoverFundsBinding by lazy {
@@ -66,9 +69,6 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
         return true
     }
 
-    override fun startLogoutTimer() { /* No-op */
-    }
-
     override fun showError(@StringRes message: Int) {
         ToastCustom.makeText(this, getString(message), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR)
     }
@@ -90,16 +90,6 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
             show()
         }
     }
-
-    @CommonCode("Move to base")
-    override fun dismissProgressDialog() {
-        if (progressDialog?.isShowing == true) {
-            progressDialog?.dismiss()
-            progressDialog = null
-        }
-    }
-
-    override fun enforceFlagSecure(): Boolean = true
 
     override fun createPresenter(): RecoverFundsPresenter = recoverFundsPresenter
     override fun getView(): RecoverFundsView = this

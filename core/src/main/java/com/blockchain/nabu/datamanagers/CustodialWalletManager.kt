@@ -276,9 +276,9 @@ interface CustodialWalletManager {
 
     val defaultFiatCurrency: String
 
-    fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>>
+    fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>>
 
-    fun getRecurringBuyForId(assetTicker: String): Single<RecurringBuy>
+    fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>
 
     fun cancelRecurringBuy(recurringBuyId: String): Completable
 }
@@ -738,10 +738,10 @@ data class TransferQuote(
 
 sealed class CurrencyPair(val rawValue: String) {
     data class CryptoCurrencyPair(val source: AssetInfo, val destination: AssetInfo) :
-        CurrencyPair("${source.ticker}-${destination.ticker}")
+        CurrencyPair("${source.networkTicker}-${destination.networkTicker}")
 
     data class CryptoToFiatCurrencyPair(val source: AssetInfo, val destination: String) :
-        CurrencyPair("${source.ticker}-$destination")
+        CurrencyPair("${source.networkTicker}-$destination")
 
     fun toSourceMoney(value: BigInteger): Money =
         when (this) {

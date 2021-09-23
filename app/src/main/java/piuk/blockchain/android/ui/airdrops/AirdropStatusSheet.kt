@@ -62,7 +62,7 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
     @SuppressLint("SetTextI18n")
     private fun renderBlockstacks(airdrop: Airdrop) {
         with(binding) {
-            title.text = "${airdrop.asset.name} (${airdrop.asset.ticker})"
+            title.text = "${airdrop.asset.name} (${airdrop.asset.displayTicker})"
             body.setText(R.string.airdrop_sheet_stx_body)
             assetResources.loadAssetIcon(iconCrypto, airdrop.asset)
         }
@@ -83,7 +83,7 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
     @SuppressLint("SetTextI18n")
     private fun renderSunriver(airdrop: Airdrop) {
         with(binding) {
-            title.text = "${airdrop.asset.name} (${airdrop.asset.ticker})"
+            title.text = "${airdrop.asset.name} (${airdrop.asset.displayTicker})"
             body.gone()
             assetResources.loadAssetIcon(iconCrypto, airdrop.asset)
         }

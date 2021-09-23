@@ -2,126 +2,305 @@ package com.blockchain.core.price.impl
 
 import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.AssetPriceService
-import com.blockchain.api.services.AssetSymbol
+import com.blockchain.preferences.CurrencyPrefs
+import com.jakewharton.rxrelay3.BehaviorRelay
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.concurrent.TimeUnit
 
-private data class AssetPriceRecord(
+internal data class AssetPriceRecord(
     val base: String,
     val quote: String,
-    val rate: Double,
-    val fetchedAt: Long
-)
+    val currentRate: BigDecimal,
+    val yesterdayRate: BigDecimal = 0.0.toBigDecimal(),
+    val fetchedAtMillis: Long
+) {
+    fun priceDelta(): Double =
+        try {
+            if (yesterdayRate.signum() != 0) {
+                (currentRate - yesterdayRate)
+                    .divide(yesterdayRate, 4, RoundingMode.HALF_EVEN)
+                    .movePointRight(2)
+                    .toDouble()
+            } else {
+                Double.NaN
+            }
+        } catch (t: ArithmeticException) {
+            Double.NaN
+        }
+}
 
 private data class AssetPair(
     val base: String,
     val quote: String
 )
 
+private class AssetPriceNotCached(pair: AssetPair)
+    : Throwable("No cached price available for ${pair.base} to ${pair.quote}")
+
+private typealias AssetPricesMap = MutableMap<AssetPair, AssetPriceRecord>
+// TEMP to get supported user fiats. This should come from the dynamic endpoints and
+// asset catalogue once that is implemented in the client
+typealias SupportedFiatTickerList = List<String>
+
 // The price api BE refreshes it's cache every minute, so there's no point refreshing ours more than that.
-class AssetPriceStore(
-    private val assetPriceService: AssetPriceService
+internal class AssetPriceStore(
+    private val assetPriceService: AssetPriceService,
+    private val assetCatalogue: AssetCatalogue,
+    private val prefs: CurrencyPrefs
 ) {
-    private lateinit var supportedBases: List<AssetSymbol>
-    private lateinit var supportedQuotes: List<AssetSymbol>
+    private lateinit var supportedUserFiat: SupportedFiatTickerList
 
-    // TEMP to track which assets we are requesting prices for. When this store becomes active, and
-    // active - ie async - prices are supported upstack, the refresh mechanism will change and we won't need this
-    // but while assets are hardcoded to a known, limited set, we can be dumb and use this for cache refreshes
-    private val cachedBaseAssetList: MutableList<AssetInfo> = mutableListOf()
-    private val cachedBaseFiatList: MutableList<String> = mutableListOf()
+    private val pricesCache: BehaviorRelay<AssetPricesMap> =
+        BehaviorRelay.createDefault(mutableMapOf())
 
-    private val priceMap: MutableMap<AssetPair, AssetPriceRecord> = mutableMapOf()
+    private fun targetQuoteList(): List<String> =
+        assetCatalogue.supportedFiatAssets + prefs.selectedFiatCurrency
 
-    @Deprecated("TEMP For semi-dynamic assets ONLY")
-    fun preloadCache(baseAssets: List<AssetInfo>, baseFiat: List<String>, quoteFiat: String): Completable {
-        cachedBaseAssetList.clear()
-        cachedBaseAssetList.addAll(baseAssets)
-        cachedBaseFiatList.clear()
-        cachedBaseFiatList.addAll(baseFiat)
-
+    fun init(): Single<SupportedFiatTickerList> {
         return assetPriceService.getSupportedCurrencies()
             .doOnSuccess { symbols ->
-                supportedBases = symbols.base
-                supportedQuotes = symbols.quote
-            }.flatMapCompletable {
-                populateCache(quoteFiat)
+                supportedUserFiat = symbols.quote.filter { it.isFiat }.map { it.ticker }
+            }.map {
+                supportedUserFiat
             }
     }
 
-    @Deprecated("TEMP For semi-dynamic assets ONLY")
-    fun populateCache(quoteFiat: String): Completable {
-        val allBase = cachedBaseAssetList.map { it.ticker } + cachedBaseFiatList
-        val allQuote = cachedBaseFiatList.toSet() + quoteFiat
+    private fun loadAndCachePrices(
+        baseTickerSet: Set<String>,
+        quoteTickerSet: Set<String>
+    ) = assetPriceService.getCurrentPrices(
+        baseTickerList = baseTickerSet,
+        quoteTickerList = quoteTickerSet
+    ).map { pricesNow ->
+        buildTempPriceMap(pricesNow)
+    }.flatMap { tempMap ->
+        val current = tempMap.values.first().fetchedAtMillis / 1000
+        val yesterday = current - SECONDS_PER_DAY
+        assetPriceService.getHistoricPrices(
+            baseTickers = baseTickerSet,
+            quoteTickers = quoteTickerSet,
+            time = yesterday
+        ).map { yesterdayPrices ->
+            updateCachedDataWithYesterdayPrice(tempMap, yesterdayPrices)
+        }
+    }.doOnSuccess { tempMap ->
+        updatePriceMapCache(tempMap)
+    }.doOnError {
+        Timber.e("Failed to get prices: $it")
+    }
 
-        return Single.zip(
-            allQuote.map { fiat ->
-                assetPriceService.getCurrentPrices(
-                    cryptoTickerList = allBase.toSet(),
-                    fiat = fiat
-                ).doOnSuccess { prices -> updateCachedData(prices, fiat) }
+    private fun buildTempPriceMap(prices: List<AssetPrice>): AssetPricesMap {
+        val now = System.currentTimeMillis()
+        val priceMap: AssetPricesMap = mutableMapOf()
+        prices.forEach {
+            val pair = AssetPair(it.base, it.quote)
+            priceMap[pair] = it.toAssetPriceRecord(now)
+        }
+        return priceMap
+    }
+
+    private fun updateCachedDataWithYesterdayPrice(
+        priceMap: AssetPricesMap,
+        prices: List<AssetPrice>
+    ): AssetPricesMap {
+        prices.forEach {
+            val pair = AssetPair(it.base, it.quote)
+            priceMap[pair]?.let { record ->
+                priceMap[pair] = record.updateYesterdayPrice(it)
             }
-        ) { /* Empty */ }
-        .doOnError {
-            Timber.e("Failed to get prices")
-        }.doOnSuccess {
-            Timber.d("Cache loaded")
-        }.ignoreElement()
+        }
+        return priceMap
     }
 
     @Synchronized
-    private fun updateCachedData(prices: Map<String, AssetPrice>, fiat: String) {
-        val now = System.currentTimeMillis()
-        prices.forEach {
-            val pair = AssetPair(it.key, fiat)
-            priceMap[pair] = AssetPriceRecord(
-                base = it.key,
-                quote = fiat,
-                rate = it.value.price,
-                fetchedAt = now
+    private fun updatePriceMapCache(tempMap: AssetPricesMap) {
+        pricesCache.value?.let {
+            it.putAll(tempMap)
+            pricesCache.accept(it)
+        }
+    }
+
+    @Synchronized
+    private fun lookupCachedPrice(assetPair: AssetPair, map: AssetPricesMap): AssetPriceRecord =
+        if (assetPair.base == assetPair.quote) {
+            AssetPriceRecord(
+                base = assetPair.base,
+                quote = assetPair.quote,
+                currentRate = 1.0.toBigDecimal(),
+                yesterdayRate = 1.0.toBigDecimal(),
+                fetchedAtMillis = System.currentTimeMillis()
+            )
+        } else {
+            map[assetPair] ?: throw AssetPriceNotCached(assetPair)
+        }
+
+    internal fun getPriceForAsset(base: String, quote: String): Observable<AssetPriceRecord> =
+        pricesCache.map {
+            lookupCachedPrice(
+                AssetPair(base, quote),
+                it
+            )
+        }.map {
+            it.takeIf { !it.isStale() } ?: throw AssetPriceNotCached(AssetPair(base, quote))
+        }.doOnSubscribe {
+            checkStartRefreshTimer()
+        }.doOnDispose {
+            checkStopRefreshTimer()
+        }.retryWhen { errors ->
+            errors.flatMap { t ->
+                if (t is AssetPriceNotCached) {
+                    Observable.timer(RETRY_BATCH_DELAY_MILLIS, TimeUnit.MILLISECONDS)
+                        .flatMap { fetchNewPrices(base) }
+                } else {
+                    Observable.error(t)
+                }
+            }
+        }.distinctUntilChanged()
+
+    private val requestBuffer = PendingRequestBuffer()
+
+    @Synchronized
+    private fun fetchNewPrices(base: String): Observable<Int> {
+        val nextReq = requestBuffer.getNextRequestElements(base)
+        return if (nextReq.isEmpty()) {
+            Observable.just(FETCH_NOT_REQUIRED_VALUE_IGNORED)
+        } else {
+            loadAndCachePrices(
+                baseTickerSet = nextReq,
+                quoteTickerSet = targetQuoteList().toSet()
+            ).doOnSuccess {
+                requestBuffer.requestComplete()
+            }.map { FETCH_REQUIRED_VALUE_IGNORED }
+            .toObservable()
+        }
+    }
+
+    @Synchronized
+    fun getCachedAssetPrice(fromAsset: AssetInfo, toFiat: String): AssetPriceRecord {
+        val pair = AssetPair(fromAsset.networkTicker, toFiat)
+        return pricesCache.value?.get(pair) ?: throw IllegalStateException(
+            "Unknown pair: ${fromAsset.networkTicker} - $toFiat"
+        )
+    }
+
+    @Synchronized
+    fun getCachedFiatPrice(fromFiat: String, toFiat: String): AssetPriceRecord {
+        val pair = AssetPair(fromFiat, toFiat)
+        return pricesCache.value?.get(pair) ?: throw IllegalStateException("Unknown pair: $fromFiat - $toFiat")
+    }
+
+    private var liveStaleCheck: Disposable? = null
+
+    @Synchronized
+    private fun checkStartRefreshTimer() {
+        if (pricesCache.hasObservers() && liveStaleCheck == null) {
+            liveStaleCheck = Observable.interval(
+                CACHE_REFRESH_DELAY_MILLIS,
+                CACHE_REFRESH_DELAY_MILLIS,
+                TimeUnit.MILLISECONDS,
+                Schedulers.io()
+            ).subscribeBy(
+                onNext = {
+                    refreshStalePrices()
+                }
             )
         }
     }
 
     @Synchronized
-    fun getCachedPrice(fromAsset: AssetInfo, toFiat: String): BigDecimal? {
-        val pair = AssetPair(fromAsset.ticker, toFiat)
-
-        return priceMap[pair]?.let { record ->
-            check(toFiat == record.quote) { "Bad fiat! $toFiat" }
-            record.rate.toBigDecimal()
+    private fun checkStopRefreshTimer() {
+        if (!pricesCache.hasObservers()) {
+            liveStaleCheck?.dispose()
+            liveStaleCheck = null
         }
     }
 
     @Synchronized
-    fun getCachedFiatPrice(fromFiat: String, toFiat: String): BigDecimal? {
-        val pair = AssetPair(fromFiat, toFiat)
-
-        return priceMap[pair]?.let { record ->
-            check(toFiat == record.quote) { "Bad fiat! $toFiat" }
-            record.rate.toBigDecimal()
-        } ?: throw IllegalStateException("Unknown fiat $fromFiat")
+    private fun refreshStalePrices() {
+        val stale = getStalePriceBases()
+        pricesCache.value?.filterKeys { k -> k.base !in stale }?.toMutableMap()?.let {
+            requestBuffer.addPendingBatch(stale)
+            pricesCache.accept(it)
+        }
     }
 
-    @Synchronized
-    internal fun shouldRefreshCache(): Boolean {
-        // The BE prices cache is valid for one minute.
-        // Since price fetches are batched, we don't need to walk the list, the first one should be enough
-        return System.currentTimeMillis() - priceMap.values.first().fetchedAt > CACHE_REFRESH_INTERVAL_MILLIS
+    private fun getStalePriceBases(): Set<String> {
+        val now = System.currentTimeMillis()
+        return pricesCache.value?.values?.filter { it.isStale(now) }?.map { it.base }?.toSet() ?: emptySet()
     }
 
-    @Synchronized
-    fun hasPriceFor(fromAsset: AssetInfo, toFiat: String): Boolean =
-        priceMap[AssetPair(fromAsset.ticker, toFiat)] != null
-
-    val fiatQuoteTickers: List<String>
-        get() = supportedQuotes.filter { it.isFiat }.map { it.ticker }
+    val fiatQuoteTickers: SupportedFiatTickerList
+        get() = supportedUserFiat
 
     companion object {
-        private const val CACHE_REFRESH_INTERVAL_MILLIS = 59 * 1000L
-        internal const val CACHE_REFRESH_DELAY_MILLIS = 2 * 1000L
+        private const val CACHE_STALE_AGE_MILLIS = 90 * 1000L
+
+        private fun AssetPriceRecord.isStale(now: Long) =
+            this.fetchedAtMillis + CACHE_STALE_AGE_MILLIS < now
+
+        private fun AssetPriceRecord.isStale() =
+            this.fetchedAtMillis + CACHE_STALE_AGE_MILLIS < System.currentTimeMillis()
+
+        internal const val CACHE_REFRESH_DELAY_MILLIS = 30 * 1000L
+
+        private const val RETRY_BATCH_DELAY_MILLIS = 200L
+        private const val SECONDS_PER_DAY = 24 * 60 * 60
+
+        private const val FETCH_NOT_REQUIRED_VALUE_IGNORED = 0
+        private const val FETCH_REQUIRED_VALUE_IGNORED = 1
+    }
+}
+
+private fun AssetPrice.toAssetPriceRecord(nowMillis: Long) =
+    AssetPriceRecord(
+        base = this.base,
+        quote = this.quote,
+        currentRate = this.price.toBigDecimal(),
+        fetchedAtMillis = nowMillis
+    )
+
+private fun AssetPriceRecord.updateYesterdayPrice(price: AssetPrice): AssetPriceRecord =
+    this.copy(yesterdayRate = price.price.toBigDecimal())
+
+private class PendingRequestBuffer {
+
+    private val pendingRequest = mutableSetOf<String>()
+    private val executingRequest = mutableSetOf<String>()
+
+    @Synchronized
+    fun getNextRequestElements(element: String): Set<String> =
+        if (executingRequest.isNotEmpty()) {
+            if (!executingRequest.contains(element)) {
+                pendingRequest.add(element)
+            }
+
+            emptySet()
+        } else {
+            executingRequest.addAll(pendingRequest)
+            executingRequest.add(element)
+            pendingRequest.clear()
+
+            Timber.d("Clean execution, new Request: $executingRequest")
+            executingRequest.toSet()
+        }
+
+    @Synchronized
+    fun addPendingBatch(bases: Set<String>) {
+        pendingRequest.addAll(bases)
+    }
+
+    @Synchronized
+    fun requestComplete() {
+        Timber.d("Clear execution cache")
+        executingRequest.clear()
     }
 }

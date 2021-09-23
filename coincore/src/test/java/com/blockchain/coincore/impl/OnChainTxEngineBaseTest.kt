@@ -12,6 +12,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import com.nhaarman.mockitokotlin2.mock
+import io.reactivex.rxjava3.core.Observable
 
 import org.junit.Before
 import org.junit.Test
@@ -110,12 +111,14 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
     fun `exchange rate stream is returned`() {
         // Arrange
         whenever(sourceAccount.asset).thenReturn(ASSET)
-        whenever(exchangeRates.getLastCryptoToUserFiatRate(ASSET))
+        whenever(exchangeRates.cryptoToUserFiatRate(ASSET))
             .thenReturn(
-                ExchangeRate.CryptoToFiat(
-                    from = ASSET,
-                    to = TEST_USER_FIAT,
-                    rate = EXCHANGE_RATE
+                Observable.just(
+                    ExchangeRate.CryptoToFiat(
+                        from = ASSET,
+                        to = TEST_USER_FIAT,
+                        rate = EXCHANGE_RATE
+                    )
                 )
             )
 
@@ -135,7 +138,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
             .assertNoErrors()
 
         verify(sourceAccount, atLeastOnce()).asset
-        verify(exchangeRates).getLastCryptoToUserFiatRate(ASSET)
+        verify(exchangeRates).cryptoToUserFiatRate(ASSET)
 
         noMoreInteractions()
     }

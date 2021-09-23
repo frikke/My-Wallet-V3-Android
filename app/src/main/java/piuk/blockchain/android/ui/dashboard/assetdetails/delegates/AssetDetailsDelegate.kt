@@ -73,7 +73,7 @@ private class AssetWalletViewHolder(
                 AssetFilter.NonCustodial,
                 AssetFilter.Custodial -> labels.getAssetMasterWalletLabel(asset)
                 AssetFilter.Interest -> context.resources.getString(
-                    R.string.dashboard_asset_balance_interest, item.interestRate
+                    R.string.dashboard_asset_balance_rewards, item.interestRate
                 )
                 else -> throw IllegalArgumentException("Not supported filter")
             }

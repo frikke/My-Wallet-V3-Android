@@ -17,10 +17,11 @@ data class AccountBalance internal constructor(
     val total: Money,
     val actionable: Money,
     val pending: Money,
-    val exchangeRate: ExchangeRate?
+    val exchangeRate: ExchangeRate
 ) {
-    val totalFiat: Money? // TEMP nullable TODO - fix it!
-        get() = exchangeRate?.convert(total)
+    val totalFiat: Money by lazy {
+        exchangeRate.convert(total)
+    }
 
     companion object {
         internal fun from(balance: TradingAccountBalance, rate: ExchangeRate): AccountBalance {
@@ -50,7 +51,7 @@ data class AccountBalance internal constructor(
                 total = CryptoValue.zero(assetInfo),
                 actionable = CryptoValue.zero(assetInfo),
                 pending = CryptoValue.zero(assetInfo),
-                exchangeRate = null
+                exchangeRate = ExchangeRate.InvalidRate
             )
     }
 }

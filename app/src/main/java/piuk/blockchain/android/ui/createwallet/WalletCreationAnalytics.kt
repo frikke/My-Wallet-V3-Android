@@ -34,11 +34,6 @@ sealed class WalletCreationAnalytics(
         params = mapOf(STATE to stateIso)
     )
 
-    class RecoverWalletAnalytics(success: Boolean) : WalletCreationAnalytics(
-        event = AnalyticsNames.WALLET_RECOVER.eventName,
-        mapOf("Success" to success.toString())
-    )
-
     companion object {
         private const val COUNTRY = "country"
         private const val STATE = "country_state"

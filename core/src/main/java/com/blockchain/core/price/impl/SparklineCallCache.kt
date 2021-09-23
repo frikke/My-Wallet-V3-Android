@@ -26,9 +26,9 @@ internal class SparklineCallCache(
         val scale = span.suggestTimescaleInterval()
         val startTime = Calendar.getInstance().getStartTimeForTimeSpan(span, asset)
 
-        return priceService.getHistoricPriceSince(
-            crypto = asset.ticker,
-            fiat = userFiat.get(),
+        return priceService.getHistoricPriceSeriesSince(
+            base = asset.networkTicker,
+            quote = userFiat.get(),
             start = startTime,
             scale = scale
         ).toHistoricalRateList()

@@ -74,7 +74,7 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
         analytics.logEvent(TransferAnalyticsEvent.SourceWalletSelected(account))
         analytics.logEvent(
             SendAnalyticsEvent.SendSourceAccountSelected(
-                currency = account.asset.ticker,
+                currency = account.asset.networkTicker,
                 fromAccountType = TxFlowAnalyticsAccountType.fromAccount(
                     account
                 )

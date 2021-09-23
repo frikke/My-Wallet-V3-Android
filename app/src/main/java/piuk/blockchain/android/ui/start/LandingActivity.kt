@@ -26,7 +26,9 @@ import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
+import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.StringUtils
@@ -69,7 +71,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                         ),
                         CarouselViewType.ValueProp(
                             com.blockchain.componentlib.R.drawable.carousel_placeholder_2,
-                            this@LandingActivity.getString(R.string.landing_value_prop_two)
+                            this@LandingActivity.getString(R.string.landing_value_prop_two_1)
                         ),
                         CarouselViewType.ValueProp(
                             com.blockchain.componentlib.R.drawable.carousel_placeholder_3,
@@ -79,7 +81,8 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                             this@LandingActivity.getString(R.string.landing_value_prop_four),
                             this@LandingActivity.getString(R.string.landing_live_prices)
                         )
-                    ))
+                    )
+                )
                 carousel.setCarouselIndicator(carouselIndicators)
             }
         } else {
@@ -157,11 +160,15 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         CreateWalletActivity.start(this)
     }
 
-    private fun launchLoginActivity() =
+    private fun launchLoginActivity() {
+        analytics.logEvent(LoginAnalytics.LoginClicked())
         startActivity(Intent(this, LoginActivity::class.java))
+    }
 
-    private fun launchSSOLoginActivity() =
+    private fun launchSSOLoginActivity() {
+        analytics.logEvent(LoginAnalytics.LoginClicked())
         startActivity(Intent(this, piuk.blockchain.android.ui.login.LoginActivity::class.java))
+    }
 
     private fun startRecoverFundsActivity() = RecoverFundsActivity.start(this)
 
@@ -182,7 +189,10 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         showAlert(AlertDialog.Builder(this, R.style.AlertDialogStyle)
             .setTitle(R.string.app_name)
             .setMessage(R.string.recover_funds_warning_message_1)
-            .setPositiveButton(R.string.dialog_continue) { _, _ -> startRecoverFundsActivity() }
+            .setPositiveButton(R.string.dialog_continue) { _, _ ->
+                analytics.logEvent(AccountRecoveryAnalytics.RecoveryOptionSelected(isCustodialAccount = false))
+                startRecoverFundsActivity()
+            }
             .setNegativeButton(android.R.string.cancel) { _, _ -> clearAlert() }
             .create()
         )

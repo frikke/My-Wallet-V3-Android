@@ -149,8 +149,8 @@ class InterestDashboardFragment : Fragment() {
             interestDashboardProgress.gone()
 
             interestError.setDetails(
-                title = R.string.interest_error_title,
-                description = R.string.interest_error_desc,
+                title = R.string.rewards_error_title,
+                description = R.string.rewards_error_desc,
                 contactSupportEnabled = true
             ) {
                 loadInterestDetails()

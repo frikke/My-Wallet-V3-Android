@@ -138,7 +138,8 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
     companion object {
 
         private val TEST_ASSET = object : CryptoCurrency(
-            ticker = "NOPE",
+            networkTicker = "NOPE",
+            displayTicker = "NOPE",
             name = "Not a real thing",
             categories = setOf(AssetCategory.CUSTODIAL),
             precisionDp = 8,

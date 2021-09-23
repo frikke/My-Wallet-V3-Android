@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -15,9 +16,10 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.RequestAnalyticsEvents
 import piuk.blockchain.android.R
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAddress
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.DialogReceiveBinding
 import piuk.blockchain.android.databinding.ReceiveShareRowBinding
+import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
@@ -33,6 +35,10 @@ import piuk.blockchain.android.util.visibleIf
 
 internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, ReceiveState, DialogReceiveBinding>() {
     override val model: ReceiveModel by scopedInject()
+    private val encoder: QRCodeEncoder by inject()
+    private val receiveIntentHelper: ReceiveIntentHelper by inject()
+
+    private var qrBitmap: Bitmap? = null
 
     val account: CryptoAccount?
         get() = arguments?.getAccount(PARAM_ACCOUNT) as? CryptoAccount
@@ -42,7 +48,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
 
     override fun initControls(binding: DialogReceiveBinding) {
         account?.let {
-            model.process(InitWithAccount(it, DIMENSION_QR_CODE))
+            model.process(InitWithAccount(it))
             binding.receiveAccountDetails.updateAccount(it)
         } ?: dismiss()
 
@@ -58,7 +64,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
     }
 
     override fun render(newState: ReceiveState) {
-        if (newState.shareList.isNotEmpty()) {
+        if (newState.displayMode == ReceiveScreenDisplayMode.SHARE) {
             renderShare(newState)
         } else {
             renderReceive(newState)
@@ -68,20 +74,20 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
     private fun renderReceive(newState: ReceiveState) {
         with(binding) {
             switcher.displayedChild = VIEW_RECEIVE
-            receiveTitle.text = getString(R.string.tx_title_receive, newState.account.asset.ticker)
-            val addressAvailable = newState.qrBitmap != null
+            receiveTitle.text = getString(R.string.tx_title_receive, newState.account.asset.displayTicker)
+            val addressAvailable = newState.qrUri != null
             if (addressAvailable) {
                 shareButton.setOnClickListener { shareAddress() }
                 copyButton.setOnClickListener {
                     analytics.logEvent(
                         TransferAnalyticsEvent.ReceiveDetailsCopied(
                             accountType = TxFlowAnalyticsAccountType.fromAccount(newState.account),
-                            currency = account?.asset?.ticker ?: throw IllegalStateException(
+                            asset = account?.asset ?: throw IllegalStateException(
                                 "Account asset is missing"
                             )
                         )
                     )
-                    copyAddress(newState.address)
+                    copyAddress(newState.cryptoAddress.address)
                 }
             } else {
                 shareButton.setOnClickListener { }
@@ -93,8 +99,14 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
             progressbar.visibleIf { addressAvailable.not() }
             qrImage.visibleIf { addressAvailable }
 
-            qrImage.setImageBitmap(newState.qrBitmap)
-            receivingAddress.text = newState.address.address
+            if (newState.qrUri != null && qrImage.drawable == null) {
+                qrBitmap = encoder.encodeAsBitmap(newState.qrUri, DIMENSION_QR_CODE)
+                qrImage.setImageBitmap(qrBitmap)
+            }
+            receivingAddress.apply {
+                text = newState.cryptoAddress.address
+                setTextIsSelectable(true)
+            }
         }
 
         setCustomSlot(newState)
@@ -103,11 +115,15 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
     private fun renderShare(newState: ReceiveState) {
         with(binding) {
             switcher.displayedChild = VIEW_SHARE
+            check(newState.qrUri != null)
+            val dataIntent = qrBitmap?.let {
+                receiveIntentHelper.getIntentDataList(uri = newState.qrUri, bitmap = it, asset = newState.account.asset)
+            } ?: emptyList()
 
-            shareTitle.text = getString(R.string.receive_share_title, newState.account.asset.ticker)
+            shareTitle.text = getString(R.string.receive_share_title, newState.account.asset.displayTicker)
             with(shareList) {
                 layoutManager = LinearLayoutManager(context)
-                adapter = ShareListAdapter(newState.shareList).apply {
+                adapter = ShareListAdapter(dataIntent).apply {
                     itemClickedListener = { dismiss() }
                 }
             }
@@ -117,7 +133,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
     private fun setCustomSlot(newState: ReceiveState) {
         when {
             newState.shouldShowXlmMemo() -> ReceiveMemoView(requireContext()).also {
-                it.updateAddress(newState.address)
+                it.updateAddress(newState.cryptoAddress)
             }
             newState.shouldShowRotatingAddressInfo() -> ReceiveInfoView(requireContext()).also {
                 it.update(newState.account) {
@@ -157,7 +173,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
         analytics.logEvent(RequestAnalyticsEvents.RequestPaymentClicked)
     }
 
-    private fun copyAddress(address: CryptoAddress) {
+    private fun copyAddress(address: String) {
         activity?.run {
             AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
@@ -165,7 +181,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
                 .setCancelable(false)
                 .setPositiveButton(R.string.common_yes) { _, _ ->
                     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText("Send address", address.toUrl())
+                    val clip = ClipData.newPlainText("Send address", address)
                     toast(R.string.copied_to_clipboard)
                     clipboard.setPrimaryClip(clip)
                 }

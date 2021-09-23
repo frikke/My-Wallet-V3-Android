@@ -28,7 +28,6 @@ val loginUiModule = module {
                 prefs = get(),
                 appUtil = get(),
                 ssoAccountRecoveryFF = get(ssoAccountRecoveryFeatureFlag),
-                accessState = get(),
                 persistentPrefs = get()
             )
         }

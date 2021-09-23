@@ -37,7 +37,8 @@ private const val DUMMY_ERC20_1_TICKER = "DUMMY"
 private const val DUMMY_ERC20_1_CONTRACT_ADDRESS = "0xF00F00F00F00F00F00FAB"
 @Suppress("ClassName")
 private object DUMMY_ERC20_1 : CryptoCurrency(
-    ticker = DUMMY_ERC20_1_TICKER,
+    displayTicker = DUMMY_ERC20_1_TICKER,
+    networkTicker = DUMMY_ERC20_1_TICKER,
     name = "Dummies",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -50,7 +51,8 @@ private object DUMMY_ERC20_1 : CryptoCurrency(
 private const val DUMMY_ERC20_2_TICKER = "FAKE"
 @Suppress("ClassName")
 private object DUMMY_ERC20_2 : CryptoCurrency(
-    ticker = DUMMY_ERC20_2_TICKER,
+    displayTicker = DUMMY_ERC20_2_TICKER,
+    networkTicker = DUMMY_ERC20_2_TICKER,
     name = "Fakes",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,

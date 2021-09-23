@@ -1,5 +1,6 @@
 package com.blockchain.coincore.impl.txEngine
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
 import com.nhaarman.mockitokotlin2.mock
@@ -20,6 +21,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import io.reactivex.rxjava3.core.Observable
 
 class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
 
@@ -86,11 +88,13 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val expectedBalance = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
         val expectedAccountBalance = FiatValue.fromMinor(TEST_API_FIAT, 100000L)
-        val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
-            on { actionableBalance }.thenReturn(Single.just(expectedBalance))
-            on { accountBalance }.thenReturn(Single.just(expectedAccountBalance))
+        val balance: AccountBalance = mock {
+            on { total }.thenReturn(expectedAccountBalance)
+            on { actionable }.thenReturn(expectedBalance)
         }
+        val sourceAccount = mock<FiatAccount>()
+        whenever(sourceAccount.balance).thenReturn(Observable.just(balance))
+        whenever(sourceAccount.fiatCurrency).thenReturn(TEST_API_FIAT)
 
         val expectedMinAmountAndFee = FiatWithdrawalFeeAndLimit(
             minLimit = FiatValue.fromMinor(TEST_API_FIAT, 100L),
@@ -113,14 +117,14 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.amount == zeroFiat &&
-                    it.totalBalance == expectedAccountBalance &&
-                    it.availableBalance == expectedBalance &&
+                    it.totalBalance == balance.total &&
+                    it.availableBalance == balance.actionable - expectedMinAmountAndFee.fee &&
                     it.feeForFullAvailable == zeroFiat &&
                     it.feeAmount == expectedMinAmountAndFee.fee &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == expectedMinAmountAndFee.minLimit &&
-                    it.maxLimit == expectedBalance &&
+                    it.maxLimit == balance.actionable - expectedMinAmountAndFee.fee &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }

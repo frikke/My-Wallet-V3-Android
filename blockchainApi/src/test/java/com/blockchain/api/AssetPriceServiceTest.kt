@@ -16,6 +16,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class AssetPriceServiceTest {
 
@@ -102,8 +103,8 @@ class AssetPriceServiceTest {
     @Test
     fun `getCurrentAssetPrice() correctly returns a price`() {
         val expectedApiInputDto = PriceRequestPairDto(
-            crypto = TEST_CRYPTO_BTC,
-            fiat = TEST_FIAT
+            base = TEST_CRYPTO_BTC,
+            quote = TEST_FIAT
         )
 
         val timestamp = 1000001L
@@ -130,14 +131,16 @@ class AssetPriceServiceTest {
             )
         )
 
-        subject.getCurrentAssetPrice(
-            TEST_CRYPTO_BTC, TEST_FIAT
+        subject.getCurrentPrices(
+            baseTickerList = setOf(TEST_CRYPTO_BTC),
+            quoteTickerList = setOf(TEST_FIAT)
         ).test()
             .assertComplete()
             .assertNoErrors()
             .assertValue {
-                it.price == assetPrice &&
-                    it.timestamp == timestamp
+                it.count() == 1 &&
+                    it[0].price == assetPrice &&
+                    it[0].timestamp == timestamp
             }
 
         verify(mockApi).getCurrentPrices(
@@ -150,8 +153,8 @@ class AssetPriceServiceTest {
     @Test
     fun `getHistoricPrice() correctly returns a price`() {
         val expectedApiInputDto = PriceRequestPairDto(
-            crypto = TEST_CRYPTO_BTC,
-            fiat = TEST_FIAT
+            base = TEST_CRYPTO_BTC,
+            quote = TEST_FIAT
         )
 
         val timestamp = 1000001L
@@ -179,16 +182,17 @@ class AssetPriceServiceTest {
             )
         )
 
-        subject.getHistoricPrice(
-            crypto = TEST_CRYPTO_BTC,
-            fiat = TEST_FIAT,
+        subject.getHistoricPrices(
+            baseTickers = setOf(TEST_CRYPTO_BTC),
+            quoteTickers = setOf(TEST_FIAT),
             time = timestamp
         ).test()
             .assertComplete()
             .assertNoErrors()
             .assertValue {
-                it.price == assetPrice &&
-                    it.timestamp == timestamp
+                it.count() == 1 &&
+                    it[0].price == assetPrice &&
+                    it[0].timestamp == timestamp
             }
 
         verify(mockApi).getHistoricPrices(
@@ -203,13 +207,13 @@ class AssetPriceServiceTest {
     fun `getCurrentPrices() correctly returns a map of prices`() {
         // Arrange
         val expectedApiInputBtcDto = PriceRequestPairDto(
-            crypto = TEST_CRYPTO_BTC,
-            fiat = TEST_FIAT
+            base = TEST_CRYPTO_BTC,
+            quote = TEST_FIAT
         )
 
         val expectedApiInputEthDto = PriceRequestPairDto(
-            crypto = TEST_CRYPTO_ETH,
-            fiat = TEST_FIAT
+            base = TEST_CRYPTO_ETH,
+            quote = TEST_FIAT
         )
 
         val expectedApiPairNameBtc = "$TEST_CRYPTO_BTC-$TEST_FIAT"
@@ -248,17 +252,15 @@ class AssetPriceServiceTest {
         )
 
         subject.getCurrentPrices(
-            cryptoTickerList = setOf(TEST_CRYPTO_BTC, TEST_CRYPTO_ETH),
-            fiat = TEST_FIAT
+            baseTickerList = setOf(TEST_CRYPTO_BTC, TEST_CRYPTO_ETH),
+            quoteTickerList = setOf(TEST_FIAT)
         ).test()
             .assertComplete()
             .assertNoErrors()
-            .assertValue {
-                it.size == 2 &&
-                    it[TEST_CRYPTO_BTC] != null &&
-                    it[TEST_CRYPTO_BTC]?.price == assetPriceBtc &&
-                    it[TEST_CRYPTO_ETH] != null &&
-                    it[TEST_CRYPTO_ETH]?.price == assetPriceEth
+            .assertValue { list ->
+                list.size == 2 &&
+                    list.find { it.base == TEST_CRYPTO_BTC }?.price == assetPriceBtc &&
+                    list.find { it.base == TEST_CRYPTO_ETH }?.price == assetPriceEth
             }
 
         verify(mockApi).getCurrentPrices(
@@ -299,8 +301,8 @@ class AssetPriceServiceTest {
 
         whenever(
             mockApi.getHistoricPriceSince(
-                crypto = TEST_CRYPTO_BTC,
-                fiat = TEST_FIAT,
+                base = TEST_CRYPTO_BTC,
+                quote = TEST_FIAT,
                 start = timestamp1,
                 scale = PriceTimescale.ONE_DAY.intervalSeconds,
                 apiKey = API_CODE
@@ -315,9 +317,9 @@ class AssetPriceServiceTest {
             )
         )
 
-        subject.getHistoricPriceSince(
-            crypto = TEST_CRYPTO_BTC,
-            fiat = TEST_FIAT,
+        subject.getHistoricPriceSeriesSince(
+            base = TEST_CRYPTO_BTC,
+            quote = TEST_FIAT,
             start = timestamp1,
             scale = PriceTimescale.ONE_DAY
         ).test()
@@ -330,13 +332,31 @@ class AssetPriceServiceTest {
             }
 
         verify(mockApi).getHistoricPriceSince(
-            crypto = TEST_CRYPTO_BTC,
-            fiat = TEST_FIAT,
+            base = TEST_CRYPTO_BTC,
+            quote = TEST_FIAT,
             start = timestamp1,
             scale = PriceTimescale.ONE_DAY.intervalSeconds,
             apiKey = API_CODE
         )
         verifyNoMoreInteractions(mockApi)
+    }
+
+    @Test
+    fun `Check tickers lists are expanded correctly`() {
+        val sourceList = setOf("ONE", "TWO", "THREE")
+        val targetList = setOf("TWO", "FOUR")
+
+        val expectedResult = setOf(
+            PriceRequestPairDto("ONE", "TWO"),
+            PriceRequestPairDto("THREE", "TWO"),
+            PriceRequestPairDto("ONE", "FOUR"),
+            PriceRequestPairDto("TWO", "FOUR"),
+            PriceRequestPairDto("THREE", "FOUR")
+        )
+
+        val result = subject.expandToPairs(sourceList, targetList)
+
+        assertEquals(expectedResult, result.toSet())
     }
 
     companion object {

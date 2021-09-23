@@ -206,4 +206,5 @@ private fun ExchangeRate.canConvert(value: Money): Boolean =
         is ExchangeRate.CryptoToFiat -> (value is CryptoValue && value.currency == this.from)
         is ExchangeRate.FiatToFiat -> (value is FiatValue && value.currencyCode == this.from)
         is ExchangeRate.CryptoToCrypto -> (value is CryptoValue && value.currency == this.from)
+        is ExchangeRate.InvalidRate -> false
     }

@@ -13,6 +13,7 @@ import junit.framework.Assert.assertEquals
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class PrefsUtilTest {
 
@@ -23,8 +24,10 @@ class PrefsUtilTest {
     private val idGenerator: DeviceIdGenerator = mock()
     private val uuidGenerator: UUIDGenerator = mock()
     private val crashLogger: CrashLogger = mock()
+    private val environmentConfig: EnvironmentConfig = mock()
 
-    private val subject: PrefsUtil = PrefsUtil(ctx, store, backupStore, idGenerator, uuidGenerator, crashLogger)
+    private val subject: PrefsUtil =
+        PrefsUtil(ctx, store, backupStore, idGenerator, uuidGenerator, crashLogger, environmentConfig)
 
     @Before
     fun setUpSharedPrefs() {

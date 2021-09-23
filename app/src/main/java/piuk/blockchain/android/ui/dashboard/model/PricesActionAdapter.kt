@@ -8,7 +8,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 
-internal class PricesInteractor(
+internal class PricesActionAdapter(
     private val coincore: Coincore,
     private val exchangeRates: ExchangeRatesDataManager
 ) {
@@ -22,10 +22,10 @@ internal class PricesInteractor(
             }
         )
 
-    fun fetchAssetPrice(model: PricesModel, asset: AssetInfo): Disposable? =
+    fun fetchAssetPrice(model: PricesModel, asset: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(asset)
             .subscribeBy(
-                onSuccess = {
+                onNext = {
                     model.process(
                         PricesIntent.AssetPriceUpdate(
                             asset = asset,

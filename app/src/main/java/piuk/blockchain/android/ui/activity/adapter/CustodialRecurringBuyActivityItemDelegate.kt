@@ -62,7 +62,7 @@ private class CustodialRecurringBuyActivityViewHolder(
                 else -> icon.setTransactionHasFailed()
             }
 
-            txType.text = context.resources.getString(R.string.tx_title_bought, tx.asset.ticker)
+            txType.text = context.resources.getString(R.string.tx_title_bought, tx.asset.displayTicker)
             statusDate.setTxStatus(tx)
             setTextColours(tx.transactionState)
 

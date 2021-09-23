@@ -152,5 +152,5 @@ private fun TextView.setTxLabel(
         }
     }
 
-    text = context.resources.getString(resId, asset.ticker)
+    text = context.resources.getString(resId, asset.displayTicker)
 }

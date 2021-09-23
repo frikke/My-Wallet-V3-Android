@@ -146,7 +146,7 @@ class LiveCustodialWalletManager(
             nabuService.getSimpleBuyQuote(
                 sessionToken = it,
                 action = action,
-                currencyPair = "${asset.ticker}-$fiatCurrency",
+                currencyPair = "${asset.networkTicker}-$fiatCurrency",
                 currency = currency,
                 amount = amount
             )
@@ -232,11 +232,11 @@ class LiveCustodialWalletManager(
             nabuService.fetchWithdrawFeesAndLimits(it, product.toRequestString(), WithdrawFeeRequest.DEFAULT)
         }.map { response ->
             val fee = response.fees.firstOrNull {
-                it.symbol == asset.ticker
+                it.symbol == asset.networkTicker
             }?.minorValue?.toBigInteger() ?: BigInteger.ZERO
 
             val minLimit = response.minAmounts.firstOrNull {
-                it.symbol == asset.ticker
+                it.symbol == asset.networkTicker
             }?.minorValue?.toBigInteger() ?: BigInteger.ZERO
 
             CryptoWithdrawalFeeAndLimit(minLimit, fee)
@@ -366,7 +366,7 @@ class LiveCustodialWalletManager(
 
     override fun getCustodialAccountAddress(asset: AssetInfo): Single<String> =
         authenticator.authenticate {
-            nabuService.getSimpleBuyBankAccountDetails(it, asset.ticker)
+            nabuService.getSimpleBuyBankAccountDetails(it, asset.networkTicker)
         }.map { response ->
             response.address
         }
@@ -421,8 +421,8 @@ class LiveCustodialWalletManager(
 
     private fun BuyOrderListResponse.filterAndMapToOrder(asset: AssetInfo): List<BuySellOrder> =
         this.filter { order ->
-            order.outputCurrency == asset.ticker ||
-                order.inputCurrency == asset.ticker
+            order.outputCurrency == asset.networkTicker ||
+                order.inputCurrency == asset.networkTicker
         }.map { order -> order.toBuySellOrder(assetCatalogue) }
 
     override fun getBuyOrder(orderId: String): Single<BuySellOrder> =
@@ -451,7 +451,7 @@ class LiveCustodialWalletManager(
                 it,
                 TransferRequest(
                     address = walletAddress,
-                    currency = amount.currency.ticker,
+                    currency = amount.currency.networkTicker,
                     amount = amount.toBigInteger().toString()
                 )
             )
@@ -681,9 +681,9 @@ class LiveCustodialWalletManager(
             }
         }
 
-    override fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>> =
+    override fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>> =
         authenticator.authenticate { sessionToken ->
-            nabuService.getRecurringBuysForAsset(sessionToken, assetTicker).map { list ->
+            nabuService.getRecurringBuysForAsset(sessionToken, asset.networkTicker).map { list ->
                 list.mapNotNull {
                     it.toRecurringBuy(assetCatalogue)
                 }
@@ -818,7 +818,7 @@ class LiveCustodialWalletManager(
 
     override fun getInterestAccountRates(asset: AssetInfo): Single<Double> =
         authenticator.authenticate { sessionToken ->
-            nabuService.getInterestRates(sessionToken, asset.ticker)
+            nabuService.getInterestRates(sessionToken, asset.networkTicker)
                 .defaultIfEmpty(InterestRateResponse(0.0))
                 .flatMap {
                     it?.let { Single.just(it.rate) } ?: Single.just(0.0)
@@ -827,7 +827,7 @@ class LiveCustodialWalletManager(
 
     override fun getInterestAccountAddress(asset: AssetInfo): Single<String> =
         authenticator.authenticate { sessionToken ->
-            nabuService.getInterestAddress(sessionToken, asset.ticker).map {
+            nabuService.getInterestAddress(sessionToken, asset.networkTicker).map {
                 it.accountRef
             }
         }
@@ -838,7 +838,7 @@ class LiveCustodialWalletManager(
             .flatMap { eligible ->
                 if (eligible) {
                     authenticator.authenticate { sessionToken ->
-                        nabuService.getInterestActivity(sessionToken, asset.ticker)
+                        nabuService.getInterestActivity(sessionToken, asset.networkTicker)
                             .map { interestActivityResponse ->
                                 interestActivityResponse.items.map {
                                     val ccy = assetCatalogue.fromNetworkTicker(it.amount.symbol)!!
@@ -870,7 +870,7 @@ class LiveCustodialWalletManager(
                 InterestWithdrawalBody(
                     withdrawalAddress = address,
                     amount = amount.toBigInteger().toString(),
-                    currency = asset.ticker
+                    currency = asset.networkTicker
                 )
             )
         }
@@ -939,7 +939,7 @@ class LiveCustodialWalletManager(
 
     override fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String> =
         authenticator.authenticateMaybe { sessionToken ->
-            nabuService.fetchPitSendToAddressForCrypto(sessionToken, asset.ticker)
+            nabuService.fetchPitSendToAddressForCrypto(sessionToken, asset.networkTicker)
                 .flatMapMaybe { response ->
                     if (response.state == State.ACTIVE) {
                         Maybe.just(response.address)
@@ -1109,7 +1109,7 @@ class LiveCustodialWalletManager(
         authenticator.authenticateCompletable { sessionToken ->
             nabuService.createDepositTransaction(
                 sessionToken = sessionToken,
-                currency = crypto.ticker,
+                currency = crypto.networkTicker,
                 address = address,
                 hash = hash,
                 amount = amount.toBigInteger().toString(),
@@ -1280,12 +1280,12 @@ class LiveCustodialWalletManager(
             createdAt = this.createdAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
             inputMoney = CryptoValue.fromMinor(
                 assetCatalogue.fromNetworkTicker(
-                    this.pair.toCryptoCurrencyPair()?.source?.ticker.toString()
+                    this.pair.toCryptoCurrencyPair()?.source?.networkTicker.toString()
                 ) ?: return null, this.priceFunnel.inputMoney.toBigInteger()
             ),
             outputMoney = CryptoValue.fromMinor(
                 assetCatalogue.fromNetworkTicker(
-                    this.pair.toCryptoCurrencyPair()?.destination?.ticker.toString()
+                    this.pair.toCryptoCurrencyPair()?.destination?.networkTicker.toString()
                 ) ?: return null, this.priceFunnel.outputMoney.toBigInteger()
             )
         )

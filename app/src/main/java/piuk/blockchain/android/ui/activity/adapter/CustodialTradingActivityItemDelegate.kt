@@ -124,7 +124,7 @@ private fun ImageView.setIcon(status: OrderState, type: OrderType) =
 
 private fun TextView.setTxLabel(asset: AssetInfo, type: OrderType) {
     text = context.resources.getString(
-        if (type == OrderType.BUY) R.string.tx_title_bought else R.string.tx_title_sold, asset.ticker
+        if (type == OrderType.BUY) R.string.tx_title_bought else R.string.tx_title_sold, asset.displayTicker
     )
 }
 

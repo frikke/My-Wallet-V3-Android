@@ -28,7 +28,7 @@ internal data class PricesState(
 internal class PricesModel(
     initialState: PricesState,
     mainScheduler: Scheduler,
-    private val interactor: PricesInteractor,
+    private val actionAdapter: PricesActionAdapter,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<PricesState, PricesIntent>(
@@ -43,10 +43,15 @@ internal class PricesModel(
     ): Disposable? {
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
         return when (intent) {
-            is PricesIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)
-            is PricesIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
-            is PricesIntent.LaunchAssetDetailsFlow -> interactor.getAssetDetailsFlow(this, intent.asset)
-            else -> null
+            is PricesIntent.GetAvailableAssets -> actionAdapter.fetchAvailableAssets(this)
+            is PricesIntent.GetAssetPrice -> actionAdapter.fetchAssetPrice(this, intent.asset)
+            is PricesIntent.LaunchAssetDetailsFlow -> actionAdapter.getAssetDetailsFlow(this, intent.asset)
+            is PricesIntent.StopUpdates -> { disposables.dispose(); null }
+            is PricesIntent.AssetListUpdate,
+            is PricesIntent.AssetPriceUpdate,
+            is PricesIntent.UpdateLaunchDetailsFlow,
+            is PricesIntent.FilterAssets,
+            is PricesIntent.ClearBottomSheet -> null
         }
     }
 }

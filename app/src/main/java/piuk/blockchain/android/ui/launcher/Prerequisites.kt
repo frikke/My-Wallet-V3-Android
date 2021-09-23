@@ -77,15 +77,11 @@ class Prerequisites(
     )
 
     fun warmCaches(): Completable =
-        exchangeRates.prefetchCache(
-            assetList = coincore.activeCryptoAssets().map { it.asset },
-            fiatList = coincore.supportedFiatAssets()
-        ).logOnError(PRICE_CACHE_PREFETCH)
+        exchangeRates.init().ignoreElement() // TODO: Check returned result against dynamic list
 
     companion object {
         private const val METADATA_ERROR_MESSAGE = "metadata_init"
         private const val SIMPLE_BUY_SYNC = "simple_buy_sync"
         private const val WALLET_CREDENTIALS = "wallet_credentials"
-        private const val PRICE_CACHE_PREFETCH = "price_prefetch"
     }
 }

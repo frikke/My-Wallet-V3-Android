@@ -176,7 +176,7 @@ class AssetDetailsModel(
                 })
 
     private fun loadRecurringBuysForAsset(asset: CryptoAsset): Disposable =
-        interactor.loadRecurringBuysForAsset(asset.asset.ticker)
+        interactor.loadRecurringBuysForAsset(asset.asset)
             .subscribeBy(
                 onSuccess = { list ->
                     process(RecurringBuyDataLoaded(list.map { it.id to it }.toMap()))

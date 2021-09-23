@@ -6,11 +6,16 @@ import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import org.koin.android.ext.android.inject
 
 @Deprecated("Use the kotlin-friendly MvpActivity, MvpPresenter, MvpView instead")
-abstract class BaseMvpActivity<VIEW : View, PRESENTER : BasePresenter<VIEW>> : BaseAuthActivity() {
+abstract class BaseMvpActivity<VIEW : View, PRESENTER : BasePresenter<VIEW>> : BlockchainActivity() {
+
+    override val alwaysDisableScreenshots: Boolean
+        get() = false
 
     protected var presenter: PRESENTER? = null
         private set
+
     private val specificAnalytics: ProviderSpecificAnalytics by inject()
+
     @CallSuper override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         presenter = createPresenter()

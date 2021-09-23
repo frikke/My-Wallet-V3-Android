@@ -38,7 +38,7 @@ class SimpleBuyCancelOrderBottomSheet : SlidingModalBottomDialog<SimpleBuyCancel
 
                 cancelOrderToken.text = getString(
                     R.string.cancel_token_instruction,
-                    asset.ticker
+                    asset.displayTicker
                 )
                 cancelOrder.setOnClickListenerDebounced {
                     analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_CONFIRMED)

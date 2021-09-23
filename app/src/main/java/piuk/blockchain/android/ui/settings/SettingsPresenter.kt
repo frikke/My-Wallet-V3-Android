@@ -544,10 +544,6 @@ class SettingsPresenter(
                 analytics.logEvent(SettingsAnalytics.CurrencyChanged)
 
                 settings
-            }.flatMapSingle { settings ->
-                // Force the prices cache to refresh for the new user fiat
-                exchangeRates.refetchCache()
-                    .thenSingle { Single.just(settings) }
             }.observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = { updateUi(it) },

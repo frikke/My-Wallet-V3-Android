@@ -64,7 +64,6 @@ dependencies {
     api project(':balance')
 
     // Networking
-//    implementation(Libraries.retrofit) { exclude module: 'okhttp' }
     implementation Libraries.retrofitJacksonConverter
     implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
@@ -73,6 +72,7 @@ dependencies {
 
     implementation Libraries.koin
     implementation Libraries.cardForm
+    implementation Libraries.rxRelay
 
     // Logging
     implementation Libraries.timber

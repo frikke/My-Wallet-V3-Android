@@ -35,7 +35,7 @@ class BalanceCall(
 
     private fun getBalanceOfAddresses(addresses: List<String>) =
         bitcoinApi.getBalance(
-            asset.ticker.toLowerCase(Locale.ROOT),
+            asset.networkTicker.toLowerCase(Locale.ROOT),
             addresses,
             emptyList(),
             NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable
@@ -43,7 +43,7 @@ class BalanceCall(
 
     private fun getBalanceOfXpubs(legacyAddresses: List<String>, segwitAddresses: List<String>) =
         bitcoinApi.getBalance(
-            asset.ticker.toLowerCase(Locale.ROOT),
+            asset.networkTicker.toLowerCase(Locale.ROOT),
             legacyAddresses,
             segwitAddresses,
             NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable

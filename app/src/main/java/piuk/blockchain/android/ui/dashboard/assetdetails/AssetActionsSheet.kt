@@ -156,7 +156,7 @@ class AssetActionsSheet :
                     account, getString(R.string.common_send), R.drawable.ic_tx_sent,
                     getString(
                         R.string.dashboard_asset_actions_send_dsc,
-                        asset.ticker
+                        asset.displayTicker
                     ), asset, action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.SEND_CLICKED, asset)
@@ -173,7 +173,7 @@ class AssetActionsSheet :
                     getString(R.string.common_receive), R.drawable.ic_tx_receive,
                     getString(
                         R.string.dashboard_asset_actions_receive_dsc,
-                        asset.ticker
+                        asset.displayTicker
                     ), asset, action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.RECEIVE_CLICKED, asset)
@@ -188,16 +188,16 @@ class AssetActionsSheet :
             AssetAction.Swap -> AssetActionItem(
                 account, getString(R.string.common_swap),
                 R.drawable.ic_tx_swap,
-                getString(R.string.dashboard_asset_actions_swap_dsc, asset.ticker),
+                getString(R.string.dashboard_asset_actions_swap_dsc, asset.displayTicker),
                 asset, action
             ) {
                 logActionEvent(AssetDetailsAnalytics.SWAP_CLICKED, asset)
                 processAction(AssetAction.Swap)
             }
             AssetAction.ViewStatement -> AssetActionItem(
-                getString(R.string.dashboard_asset_actions_summary_title),
+                getString(R.string.dashboard_asset_actions_summary_title_1),
                 R.drawable.ic_tx_interest,
-                getString(R.string.dashboard_asset_actions_summary_dsc, asset.ticker),
+                getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker),
                 asset, action
             ) {
                 goToSummary()
@@ -205,13 +205,13 @@ class AssetActionsSheet :
             AssetAction.InterestDeposit -> AssetActionItem(
                 getString(R.string.common_transfer),
                 R.drawable.ic_tx_deposit_arrow,
-                getString(R.string.dashboard_asset_actions_deposit_dsc, asset.ticker),
+                getString(R.string.dashboard_asset_actions_deposit_dsc_1, asset.displayTicker),
                 asset, action
             ) {
                 processAction(AssetAction.InterestDeposit)
                 analytics.logEvent(
                     InterestAnalytics.InterestDepositClicked(
-                        currency = asset.ticker,
+                        currency = asset.networkTicker,
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
                 )
@@ -219,13 +219,13 @@ class AssetActionsSheet :
             AssetAction.InterestWithdraw -> AssetActionItem(
                 getString(R.string.common_withdraw),
                 R.drawable.ic_tx_withdraw,
-                getString(R.string.dashboard_asset_actions_withdraw_dsc, asset.ticker),
+                getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
                 asset, action
             ) {
                 processAction(AssetAction.InterestWithdraw)
                 analytics.logEvent(
                     InterestAnalytics.InterestWithdrawalClicked(
-                        currency = asset.ticker,
+                        currency = asset.networkTicker,
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
                 )
@@ -242,7 +242,7 @@ class AssetActionsSheet :
             AssetAction.Buy -> AssetActionItem(
                 getString(R.string.common_buy),
                 R.drawable.ic_tx_buy,
-                getString(R.string.dashboard_asset_actions_buy_dsc, asset.ticker),
+                getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
                 asset, action
             ) {
                 processAction(AssetAction.Buy)
@@ -253,7 +253,7 @@ class AssetActionsSheet :
         }
 
     private fun logActionEvent(event: AssetDetailsAnalytics, asset: AssetInfo) {
-        analytics.logEvent(assetActionEvent(event, asset.ticker))
+        analytics.logEvent(assetActionEvent(event, asset))
     }
 
     private fun goToSummary() {

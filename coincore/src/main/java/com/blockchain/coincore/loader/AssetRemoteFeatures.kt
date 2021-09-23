@@ -92,12 +92,12 @@ internal class AssetRemoteFeatureLookup(
     ): Map<String, Set<RemoteFeature>> =
         dynamicAssets.toMutableMap().apply {
             staticAssets.forEach { asset ->
-                put(asset.ticker, fullSupport)
+                put(asset.networkTicker, fullSupport)
             }
         }
 
     fun featuresFor(ticker: AssetInfo) =
-        featureMap[ticker.ticker] ?: emptySet()
+        featureMap[ticker.networkTicker] ?: emptySet()
 
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
@@ -112,8 +112,8 @@ internal class AssetRemoteFeatureLookup(
             RemoteFeature.CanReceive
         )
         private val defaultFallbackMap = mapOf(
-            DOT.ticker to fullSupport,
-            ALGO.ticker to fullSupport
+            DOT.networkTicker to fullSupport,
+            ALGO.networkTicker to fullSupport
         )
     }
 }

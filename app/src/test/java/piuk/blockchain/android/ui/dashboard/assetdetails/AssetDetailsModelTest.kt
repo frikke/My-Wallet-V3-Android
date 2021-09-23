@@ -94,7 +94,7 @@ class AssetDetailsModelTest {
 
         whenever(interactor.loadAssetDetails(asset)).thenReturn(Single.just(assetDisplayMap))
         whenever(interactor.loadHistoricPrices(asset, timeSpan)).thenReturn(Single.just(priceSeries))
-        whenever(interactor.loadRecurringBuysForAsset(asset.asset.ticker)).thenReturn(Single.just(recurringBuys))
+        whenever(interactor.loadRecurringBuysForAsset(asset.asset)).thenReturn(Single.just(recurringBuys))
         whenever(interactor.load24hPriceDelta(asset.asset)).thenReturn(Single.just(expectedDeltaDetails))
 
         subject.process(LoadAsset(asset))
@@ -148,7 +148,7 @@ class AssetDetailsModelTest {
             }
 
         verify(interactor).loadAssetDetails(asset)
-        verify(interactor).loadRecurringBuysForAsset(asset.asset.ticker)
+        verify(interactor).loadRecurringBuysForAsset(asset.asset)
         verify(interactor).loadHistoricPrices(asset, timeSpan)
         verify(interactor).load24hPriceDelta(asset.asset)
 

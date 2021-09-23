@@ -2,6 +2,7 @@ package com.blockchain.coincore.bch
 
 import com.blockchain.bitpay.BitPayClientEngine
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.CryptoCurrency
@@ -34,7 +35,6 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
-import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -195,11 +195,12 @@ class BchOnChainTxEngine(
         availableBalance >= amount && unspentOutputBundle.spendableOutputs.isNotEmpty()
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        Single.just(
-            buildConfirmations(pendingTx)
-        )
+        exchangeRates.cryptoToUserFiatRate(sourceAsset)
+            .firstOrError()
+            .map { it as ExchangeRate.CryptoToFiat }
+            .map { fiatRate -> buildConfirmations(pendingTx, fiatRate) }
 
-    private fun buildConfirmations(pendingTx: PendingTx): PendingTx =
+    private fun buildConfirmations(pendingTx: PendingTx, fiatRate: ExchangeRate.CryptoToFiat): PendingTx =
         pendingTx.copy(
             confirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
@@ -210,7 +211,7 @@ class BchOnChainTxEngine(
                     sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
                         FeeInfo(
                             pendingTx.feeAmount,
-                            pendingTx.feeAmount.toUserFiat(exchangeRates),
+                            fiatRate.convert(pendingTx.feeAmount),
                             sourceAsset
                         )
                     } else null,
@@ -220,8 +221,8 @@ class BchOnChainTxEngine(
                     totalWithFee = (pendingTx.amount as CryptoValue).plus(
                         pendingTx.feeAmount as CryptoValue
                     ),
-                    exchange = pendingTx.amount.toUserFiat(exchangeRates)
-                        .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
+                    exchange = fiatRate.convert(pendingTx.amount)
+                        .plus(fiatRate.convert(pendingTx.feeAmount))
                 )
             )
         )

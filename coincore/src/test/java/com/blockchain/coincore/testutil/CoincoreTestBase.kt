@@ -80,7 +80,8 @@ open class CoincoreTestBase {
 
         // do not modify these objects, as they're shared between tests
         val TEST_ASSET = object : CryptoCurrency(
-            ticker = "NOPE",
+            displayTicker = "NOPE",
+            networkTicker = "NOPE",
             name = "Not a real thing",
             categories = setOf(AssetCategory.CUSTODIAL),
             precisionDp = 8,
@@ -89,7 +90,8 @@ open class CoincoreTestBase {
         ) {}
 
         val SECONDARY_TEST_ASSET = object : CryptoCurrency(
-            ticker = "NOPE2",
+            displayTicker = "NOPE2",
+            networkTicker = "NOPE2",
             name = "Not a real thing",
             categories = setOf(AssetCategory.CUSTODIAL),
             precisionDp = 8,

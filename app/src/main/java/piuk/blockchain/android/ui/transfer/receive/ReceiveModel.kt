@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.transfer.receive
 
-import android.graphics.Bitmap
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -9,7 +8,6 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.NullCryptoAddress
-import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
@@ -18,61 +16,51 @@ import timber.log.Timber
 
 internal data class ReceiveState(
     val account: CryptoAccount = NullCryptoAccount(),
-    val address: CryptoAddress = NullCryptoAddress,
-    val qrBitmap: Bitmap? = null,
-    val qrDimension: Int = 0,
-    val shareList: List<SendPaymentCodeData> = emptyList()
+    val cryptoAddress: CryptoAddress = NullCryptoAddress,
+    val qrUri: String? = null,
+    val displayMode: ReceiveScreenDisplayMode = ReceiveScreenDisplayMode.RECEIVE
 ) : MviState {
-    fun shouldShowXlmMemo() = address.memo != null
+    fun shouldShowXlmMemo() = cryptoAddress.memo != null
 
     fun shouldShowRotatingAddressInfo() = !account.hasStaticAddress
 }
 
 internal sealed class ReceiveIntent : MviIntent<ReceiveState>
 internal class InitWithAccount(
-    val cryptoAccount: CryptoAccount,
-    private val qrSize: Int
+    val cryptoAccount: CryptoAccount
 ) : ReceiveIntent() {
     override fun reduce(oldState: ReceiveState): ReceiveState {
         return oldState.copy(
             account = cryptoAccount,
-            qrDimension = qrSize,
-            address = NullCryptoAddress,
-            qrBitmap = null,
-            shareList = emptyList()
+            cryptoAddress = NullCryptoAddress,
+            qrUri = null,
+            displayMode = ReceiveScreenDisplayMode.RECEIVE
         )
     }
 }
 
-internal class UpdateAddress(private val address: CryptoAddress) : ReceiveIntent() {
+internal class UpdateAddressAndGenerateQrCode(val cryptoAddress: CryptoAddress) : ReceiveIntent() {
     override fun reduce(oldState: ReceiveState): ReceiveState =
         oldState.copy(
-            address = address,
-            shareList = emptyList()
+            cryptoAddress = cryptoAddress,
+            displayMode = ReceiveScreenDisplayMode.RECEIVE
         )
 }
 
-internal object GenerateQrCode : ReceiveIntent() {
-    override fun reduce(oldState: ReceiveState): ReceiveState = oldState
-}
-
-internal class UpdateQrCode(private val bmp: Bitmap) : ReceiveIntent() {
+internal class UpdateQrCodeUri(private val qrUri: String) : ReceiveIntent() {
     override fun reduce(oldState: ReceiveState): ReceiveState =
         oldState.copy(
-            qrBitmap = bmp,
-            shareList = emptyList()
+            qrUri = qrUri,
+            displayMode = ReceiveScreenDisplayMode.RECEIVE
         )
 }
 
 internal object ShowShare : ReceiveIntent() {
-    override fun isValidFor(oldState: ReceiveState): Boolean = oldState.qrBitmap != null
+    override fun isValidFor(oldState: ReceiveState): Boolean = oldState.qrUri != null
 
-    override fun reduce(oldState: ReceiveState): ReceiveState = oldState
-}
-
-internal class UpdateShareList(val list: List<SendPaymentCodeData>) : ReceiveIntent() {
-    override fun reduce(oldState: ReceiveState): ReceiveState =
-        oldState.copy(shareList = list)
+    override fun reduce(oldState: ReceiveState): ReceiveState = oldState.copy(
+        displayMode = ReceiveScreenDisplayMode.SHARE
+    )
 }
 
 internal object AddressError : ReceiveIntent() {
@@ -80,12 +68,11 @@ internal object AddressError : ReceiveIntent() {
 }
 
 internal object ClearShareList : ReceiveIntent() {
-    override fun reduce(oldState: ReceiveState): ReceiveState = oldState.copy(shareList = emptyList())
+    override fun reduce(oldState: ReceiveState): ReceiveState =
+        oldState.copy(displayMode = ReceiveScreenDisplayMode.RECEIVE)
 }
 
 internal class ReceiveModel(
-    private val qrCodeDataManager: QrCodeDataManager,
-    private val receiveIntentHelper: ReceiveIntentHelper,
     initialState: ReceiveState,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
@@ -100,11 +87,12 @@ internal class ReceiveModel(
     override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? =
         when (intent) {
             is InitWithAccount -> handleInit(intent.cryptoAccount)
-            is GenerateQrCode -> handleGenerateQrCode(previousState.address, previousState.qrDimension)
-            is ShowShare -> handleGetShareList(previousState)
-            is UpdateShareList,
-            is UpdateAddress,
-            is UpdateQrCode,
+            is UpdateAddressAndGenerateQrCode -> {
+                process(UpdateQrCodeUri(intent.cryptoAddress.toUrl()))
+                null
+            }
+            is ShowShare,
+            is UpdateQrCodeUri,
             is AddressError,
             is ClearShareList -> null
         }
@@ -114,28 +102,15 @@ internal class ReceiveModel(
             .map { it as CryptoAddress }
             .subscribeBy(
                 onSuccess = {
-                    process(UpdateAddress(it))
-                    process(GenerateQrCode)
+                    process(UpdateAddressAndGenerateQrCode(it))
                 },
                 onError = {
                     Timber.e("Unable to fetch ${account.asset} address from account")
                     process(AddressError)
                 }
             )
+}
 
-    private fun handleGenerateQrCode(address: CryptoAddress, qrDimension: Int) =
-        qrCodeDataManager.generateQrCode(address.toUrl(), qrDimension)
-            .subscribeBy(
-                onSuccess = { process(UpdateQrCode(it)) },
-                onError = { process(AddressError) }
-            )
-
-    private fun handleGetShareList(state: ReceiveState) =
-        state.qrBitmap?.let {
-            receiveIntentHelper.getIntentDataList(state.address.toUrl(), it, state.account.asset)
-                .subscribeBy(
-                    onSuccess = { process(UpdateShareList(it)) },
-                    onError = { process(AddressError) }
-                )
-        }
+enum class ReceiveScreenDisplayMode {
+    RECEIVE, SHARE
 }

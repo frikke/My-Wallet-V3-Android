@@ -188,6 +188,6 @@ class AssetDetailsInteractor(
         }
     }
 
-    fun loadRecurringBuysForAsset(assetTicker: String) =
+    fun loadRecurringBuysForAsset(assetTicker: AssetInfo) =
         custodialWalletManager.getRecurringBuysForAsset(assetTicker)
 }

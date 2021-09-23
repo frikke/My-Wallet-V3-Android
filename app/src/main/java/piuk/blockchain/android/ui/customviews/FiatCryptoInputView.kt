@@ -389,13 +389,13 @@ private fun CurrencyType.zeroValue(): Money =
 private fun CurrencyType.symbol(): String =
     when (this) {
         is CurrencyType.Fiat -> Currency.getInstance(fiatCurrency).getSymbol(Locale.getDefault())
-        is CurrencyType.Crypto -> cryptoCurrency.ticker
+        is CurrencyType.Crypto -> cryptoCurrency.displayTicker
     }
 
 private fun CurrencyType.rawCurrency(): String =
     when (this) {
         is CurrencyType.Fiat -> fiatCurrency
-        is CurrencyType.Crypto -> cryptoCurrency.ticker
+        is CurrencyType.Crypto -> cryptoCurrency.networkTicker
     }
 
 sealed class CurrencyType {

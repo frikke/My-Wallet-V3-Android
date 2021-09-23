@@ -65,9 +65,9 @@ internal data class NotificationReceiveAddresses(
 
     companion object {
         private val REQUIRED_ASSETS = setOf(
-            CryptoCurrency.BTC.ticker,
-            CryptoCurrency.BCH.ticker,
-            CryptoCurrency.ETHER.ticker
+            CryptoCurrency.BTC.networkTicker,
+            CryptoCurrency.BCH.networkTicker,
+            CryptoCurrency.ETHER.networkTicker
         )
     }
 }

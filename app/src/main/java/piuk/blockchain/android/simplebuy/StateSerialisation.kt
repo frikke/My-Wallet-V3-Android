@@ -65,7 +65,7 @@ private class AssetTickerSerializer : JsonSerializer<AssetInfo> {
         src: AssetInfo,
         typeOfSrc: Type,
         context: JsonSerializationContext
-    ): JsonElement = JsonPrimitive(src.ticker)
+    ): JsonElement = JsonPrimitive(src.networkTicker)
 }
 
 private class AssetTickerDeserializer(

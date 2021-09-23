@@ -97,7 +97,7 @@ class StatusViewHolder(private val binding: ItemAirdropStatusBinding) :
     fun bind(item: ListItem.AirdropItem, assetResources: AssetResources, onClick: (String) -> Unit) {
         with(binding) {
             assetResources.loadAssetIcon(icon, item.airdrop.asset)
-            currency.text = item.airdrop.asset.ticker
+            currency.text = item.airdrop.asset.displayTicker
             val formatted = DateFormat.getDateInstance(DateFormat.SHORT).format(item.airdrop.date)
             binding.root.setOnClickListenerDebounced { onClick(item.airdrop.name) }
             date.text = context.resources.getString(

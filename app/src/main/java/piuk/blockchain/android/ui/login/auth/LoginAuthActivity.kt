@@ -30,9 +30,11 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
+import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
@@ -84,6 +86,9 @@ class LoginAuthActivity :
         }
     }
 
+    private val analyticsInfo: LoginAuthInfo?
+        get() = if (::currentState.isInitialized) currentState.authInfoForAnalytics else null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -113,6 +118,8 @@ class LoginAuthActivity :
     }
 
     private fun processIntentData() {
+        analytics.logEvent(LoginAnalytics.DeviceVerified(analyticsInfo))
+
         val fragment = intent.data?.fragment ?: kotlin.run {
             model.process(LoginAuthIntents.ShowAuthRequired)
             return
@@ -153,9 +160,12 @@ class LoginAuthActivity :
                     codeTextLayout.clearErrorState()
                 }
             })
-            forgotPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
+            forgotPasswordButton.setOnClickListener {
+                launchPasswordRecoveryFlow()
+            }
 
             continueButton.setOnClickListener {
+                analytics.logEvent(LoginAnalytics.LoginPasswordEntered(analyticsInfo))
                 if (currentState.authMethod != TwoFAMethod.OFF) {
                     model.process(
                         LoginAuthIntents.SubmitTwoFactorCode(
@@ -163,6 +173,7 @@ class LoginAuthActivity :
                             code = codeText.text.toString()
                         )
                     )
+                    analytics.logEvent(LoginAnalytics.LoginTwoFaEntered(analyticsInfo))
                     analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
                 } else {
                     model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
@@ -195,16 +206,24 @@ class LoginAuthActivity :
             AuthStatus.Submit2FA,
             AuthStatus.VerifyPassword,
             AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
-            AuthStatus.Complete -> startActivity(Intent(this, PinEntryActivity::class.java))
+            AuthStatus.Complete -> {
+                analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
+                startActivity(Intent(this, PinEntryActivity::class.java))
+            }
             AuthStatus.PairingFailed -> showErrorToast(R.string.pairing_failed)
             AuthStatus.InvalidPassword -> {
+                analytics.logEvent(LoginAnalytics.LoginPasswordDenied(analyticsInfo))
                 binding.progressBar.gone()
                 binding.passwordTextLayout.setErrorState(getString(R.string.invalid_password))
             }
-            AuthStatus.AuthFailed -> showErrorToast(R.string.auth_failed)
+            AuthStatus.AuthFailed -> {
+                analytics.logEvent(LoginAnalytics.LoginRequestDenied(analyticsInfo))
+                showErrorToast(R.string.auth_failed)
+            }
             AuthStatus.InitialError -> showErrorToast(R.string.common_error)
             AuthStatus.AuthRequired -> showToast(getString(R.string.auth_required))
             AuthStatus.Invalid2FACode -> {
+                analytics.logEvent(LoginAnalytics.LoginTwoFaDenied(analyticsInfo))
                 binding.progressBar.gone()
                 binding.codeTextLayout.setErrorState(getString(R.string.invalid_two_fa_code))
             }
@@ -329,7 +348,9 @@ class LoginAuthActivity :
         binding.twoFaNotice.apply {
             visible()
             val links = mapOf(annotationForLink to Uri.parse(url))
-            text = StringUtils.getStringWithMappedAnnotations(context, textId, links)
+            text = StringUtils.getStringWithMappedAnnotations(context, textId, links) {
+                analytics.logEvent(LoginAnalytics.LoginLearnMoreClicked(analyticsInfo))
+            }
             movementMethod = LinkMovementMethod.getInstance()
         }
     }
@@ -347,6 +368,7 @@ class LoginAuthActivity :
     }
 
     private fun launchPasswordRecoveryFlow() {
+        analytics.logEvent(LoginAnalytics.LoginHelpClicked(analyticsInfo))
         if (isAccountRecoveryEnabled) {
             val intent = Intent(this, AccountRecoveryActivity::class.java).apply {
                 putExtra(EMAIL, email)
@@ -355,6 +377,7 @@ class LoginAuthActivity :
             }
             startActivity(intent)
         } else {
+            analytics.logEvent(AccountRecoveryAnalytics.RecoveryOptionSelected(isCustodialAccount = false))
             RecoverFundsActivity.start(this)
         }
     }

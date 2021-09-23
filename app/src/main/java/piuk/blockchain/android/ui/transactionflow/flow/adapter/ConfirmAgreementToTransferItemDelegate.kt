@@ -84,11 +84,11 @@ private class AgreementTextItemViewHolder(
         selectedCurrency: String,
         resources: Resources
     ): SpannableStringBuilder {
-        val introToHolding = resources.getString(R.string.send_confirmation_interest_holding_period_1)
+        val introToHolding = resources.getString(R.string.send_confirmation_rewards_holding_period_1)
         val amountInBold =
             amount.toFiat(selectedCurrency, exchangeRates).toStringWithSymbol()
         val outroToHolding = context.resources.getString(
-            R.string.send_confirmation_interest_holding_period_2,
+            R.string.send_confirmation_rewards_holding_period_2,
             amount.toStringWithSymbol(),
             (amount as CryptoValue).currency.name
         )

@@ -128,7 +128,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                         startActivityForResult(
                             SimpleBuyActivity.newInstance(
                                 context = activity as Context,
-                                ticker = action.selectedAsset.ticker,
+                                asset = action.selectedAsset,
                                 launchFromNavigationBar = true
                             ), SB_ACTIVITY
                         )
@@ -225,13 +225,13 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         private const val SB_ACTIVITY = 321
 
         fun newInstance(
-            ticker: String?,
+            asset: AssetInfo?,
             viewType: BuySellViewType = BuySellViewType.TYPE_BUY
         ) = BuySellFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(VIEW_TYPE, viewType)
-                ticker?.let {
-                    putString(SELECTED_ASSET, it)
+                asset?.let {
+                    putString(SELECTED_ASSET, it.networkTicker)
                 }
             }
         }

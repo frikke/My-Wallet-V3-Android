@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.dashboard.model
 
-import com.blockchain.core.price.ExchangeRates
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -9,7 +8,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -34,7 +32,6 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.coincore.toFiat
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
@@ -47,11 +44,9 @@ import java.util.concurrent.TimeUnit
 private class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 private class DashboardBalanceLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 
-class PortfolioInteractor(
+class PortfolioActionAdapter(
     private val coincore: Coincore,
     private val payloadManager: PayloadDataManager,
-    private val exchangeRates: ExchangeRates,
-    private val currencyPrefs: CurrencyPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val analytics: Analytics,
@@ -83,7 +78,10 @@ class PortfolioInteractor(
                     .emptySubscribe()
             }
 
-        cd += checkForFiatBalances(model, currencyPrefs.selectedFiatCurrency)
+        state.fiatAssets.fiatAccounts
+            .values.forEach {
+                cd += refreshFiatAssetBalance(it.account, model)
+            }
 
         return cd
     }
@@ -97,13 +95,29 @@ class PortfolioInteractor(
             }
         }.subscribeBy(
             onSuccess = { assets ->
-                model.process(UpdatePortfolioCurrencies(assets))
-                model.process(RefreshAllIntent)
+                model.process(UpdatePortfolioAssetList(assets))
+                model.process(GetAvailableFiatAssets)
+                model.process(RefreshAllBalancesIntent)
             },
             onError = {
                 Timber.e("Error getting ordering - $it")
             }
         )
+
+    fun getAvailableFiatAssets(model: PortfolioModel): Disposable =
+        coincore.fiatAssets.accountGroup()
+            .map { g -> g.accounts }
+            .subscribeBy(
+                onSuccess = { accounts ->
+                    model.process(
+                        UpdatePortfolioFiatAssetList(accounts.filterIsInstance<FiatAccount>())
+                    )
+                    model.process(RefreshAllBalancesIntent)
+                },
+                onError = {
+                    Timber.e("Error while loading fiat balances $it")
+                }
+            )
 
     private fun refreshAssetBalance(
         asset: AssetInfo,
@@ -117,11 +131,11 @@ class PortfolioInteractor(
                     .logBalanceLoadError(asset, balanceFilter)
             }
             .doOnError { e ->
-                Timber.e("Failed getting balance for ${asset.ticker}: $e")
+                Timber.e("Failed getting balance for ${asset.networkTicker}: $e")
                 model.process(BalanceUpdateError(asset))
             }
             .doOnNext { accountBalance ->
-                Timber.d("Got balance for ${asset.ticker}")
+                Timber.d("Got balance for ${asset.networkTicker}")
                 model.process(BalanceUpdate(asset, accountBalance))
             }
             .retryOnError()
@@ -155,7 +169,7 @@ class PortfolioInteractor(
         model: PortfolioModel,
         state: PortfolioState
     ) = this.doOnError {
-        if (asset.ticker == CryptoCurrency.ETHER.ticker) {
+        if (asset.networkTicker == CryptoCurrency.ETHER.networkTicker) {
             state.erc20Assets.forEach {
                 model.process(BalanceUpdateError(it))
             }
@@ -165,35 +179,27 @@ class PortfolioInteractor(
     private fun Maybe<AccountGroup>.logGroupLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
             crashLogger.logException(
-                DashboardGroupLoadFailure("Cannot load group for ${asset.ticker} - $filter:", e)
+                DashboardGroupLoadFailure("Cannot load group for ${asset.networkTicker} - $filter:", e)
             )
         }
 
     private fun Observable<AccountBalance>.logBalanceLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
             crashLogger.logException(
-                DashboardBalanceLoadFailure("Cannot load balance for ${asset.ticker} - $filter:", e)
+                DashboardBalanceLoadFailure("Cannot load balance for ${asset.networkTicker} - $filter:", e)
             )
         }
 
-    private fun checkForFiatBalances(model: PortfolioModel, fiatCurrency: String): Disposable =
-        coincore.fiatAssets.accountGroup()
-            .flattenAsObservable { g -> g.accounts }
-            .flatMapSingle { a ->
-                a.accountBalance.map { balance ->
-                    FiatBalanceInfo(
-                        balance,
-                        balance.toFiat(fiatCurrency, exchangeRates),
-                        a as FiatAccount
-                    )
-                }
-            }
-            .toList()
+    private fun refreshFiatAssetBalance(
+        account: FiatAccount,
+        model: PortfolioModel
+    ): Disposable =
+        account.balance
+            .firstOrError() // Ideally we shouldn't need this, but we need to kill existing subs on refresh first TODO
             .subscribeBy(
                 onSuccess = { balances ->
-                    if (balances.isNotEmpty()) {
-                        model.process(FiatBalanceUpdate(balances))
-                    }
+                    model.process(
+                        FiatBalanceUpdate(balances.total, balances.totalFiat))
                 },
                 onError = {
                     Timber.e("Error while loading fiat balances $it")
@@ -447,13 +453,14 @@ class PortfolioInteractor(
                     )
                 )
             }
-            paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_TRANSFER) -> {
-                linkBankTransfer(targetAccount.fiatCurrency).map {
-                    FiatTransactionRequestResult.LaunchBankLink(it) as FiatTransactionRequestResult
-                }.onErrorReturn {
-                    FiatTransactionRequestResult.NotSupportedPartner
+            paymentMethodForAction.linkablePaymentMethods
+                .linkMethods.contains(PaymentMethodType.BANK_TRANSFER) -> {
+                    linkBankTransfer(targetAccount.fiatCurrency).map {
+                        FiatTransactionRequestResult.LaunchBankLink(it) as FiatTransactionRequestResult
+                    }.onErrorReturn {
+                        FiatTransactionRequestResult.NotSupportedPartner
+                    }
                 }
-            }
             paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_ACCOUNT) -> {
                 Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
             }

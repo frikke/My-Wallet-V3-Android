@@ -6,7 +6,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -37,19 +36,18 @@ class FiatWithdrawalTxEngine(
         check(txTarget is LinkedBankAccount)
         check(sourceAccount is FiatAccount)
 
-        return Singles.zip(
-            sourceAccount.actionableBalance,
-            sourceAccount.accountBalance,
+        return Single.zip(
+            sourceAccount.balance.singleOrError(),
             (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit(),
-            { actionableBalance, accountBalance, limitAndFee ->
+            { balance, limitAndFee ->
                 val zeroFiat = FiatValue.zero((sourceAccount as FiatAccount).fiatCurrency)
                 PendingTx(
                     amount = zeroFiat,
-                    maxLimit = actionableBalance,
+                    maxLimit = balance.actionable - limitAndFee.fee,
                     minLimit = limitAndFee.minLimit,
-                    availableBalance = actionableBalance,
+                    availableBalance = balance.actionable - limitAndFee.fee,
                     feeForFullAvailable = zeroFiat,
-                    totalBalance = accountBalance,
+                    totalBalance = balance.total,
                     feeAmount = limitAndFee.fee,
                     selectedFiat = userFiat,
                     feeSelection = FeeSelection()
@@ -84,7 +82,7 @@ class FiatWithdrawalTxEngine(
                     if (pendingTx.feeAmount.isPositive) {
                         TxConfirmationValue.TransactionFee(pendingTx.feeAmount)
                     } else null,
-                    TxConfirmationValue.Amount(pendingTx.amount.minus(pendingTx.feeAmount), true)
+                    TxConfirmationValue.Amount(pendingTx.amount.plus(pendingTx.feeAmount), true)
                 )
             )
         )

@@ -47,7 +47,7 @@ class InterestDashboardActivity : BlockchainActivity(),
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-        setTitle(R.string.interest_dashboard_title)
+        setTitle(R.string.rewards_dashboard_title)
         analytics.logEvent(InterestAnalytics.InterestViewed)
 
         supportFragmentManager.beginTransaction()
@@ -122,7 +122,7 @@ class InterestDashboardActivity : BlockchainActivity(),
                     startDeposit(account as SingleAccount, toAccount)
                     analytics.logEvent(
                         InterestAnalytics.InterestDepositClicked(
-                            currency = (toAccount as CryptoAccount).asset.ticker,
+                            currency = (toAccount as CryptoAccount).asset.networkTicker,
                             origin = LaunchOrigin.SAVINGS_PAGE
                         )
                     )

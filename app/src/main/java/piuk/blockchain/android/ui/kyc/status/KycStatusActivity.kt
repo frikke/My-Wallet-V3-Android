@@ -200,11 +200,6 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
         }
     }
 
-    override fun dismissProgressDialog() {
-        progressDialog?.apply { dismiss() }
-        progressDialog = null
-    }
-
     override fun finishPage() {
         toast(R.string.kyc_status_error, ToastCustom.TYPE_ERROR)
         finish()

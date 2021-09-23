@@ -4,7 +4,8 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 
 internal object ALGO : CryptoCurrency(
-    ticker = "ALGO",
+    displayTicker = "ALGO",
+    networkTicker = "ALGO",
     name = "Algorand",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 6,
@@ -16,7 +17,8 @@ internal object ALGO : CryptoCurrency(
 )
 
 internal object DOT : CryptoCurrency(
-    ticker = "DOT",
+    displayTicker = "DOT",
+    networkTicker = "DOT",
     name = "Polkadot",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 10,
@@ -28,7 +30,8 @@ internal object DOT : CryptoCurrency(
 )
 
 internal object DOGE : CryptoCurrency(
-    ticker = "DOGE",
+    displayTicker = "DOGE",
+    networkTicker = "DOGE",
     name = "Dogecoin",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 8,
@@ -39,7 +42,8 @@ internal object DOGE : CryptoCurrency(
 )
 
 internal object CLOUT : CryptoCurrency(
-    ticker = "CLOUT",
+    displayTicker = "CLOUT",
+    networkTicker = "CLOUT",
     name = "BitClout",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 9,
@@ -50,7 +54,8 @@ internal object CLOUT : CryptoCurrency(
 )
 
 internal object LTC : CryptoCurrency(
-    ticker = "LTC",
+    displayTicker = "LTC",
+    networkTicker = "LTC",
     name = "Litecoin",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 8,
@@ -61,7 +66,8 @@ internal object LTC : CryptoCurrency(
 )
 
 internal object ETC : CryptoCurrency(
-    ticker = "ETC",
+    displayTicker = "ETC",
+    networkTicker = "ETC",
     name = "Ethereum Classic",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 8,
@@ -74,7 +80,8 @@ internal object ETC : CryptoCurrency(
 /*
 Not supported in this pass.
 internal object ZEN : CryptoCurrency(
-    ticker = "ZEN",
+    displayTicker = "ZEN",
+    networkTicker = "ZEN",
     name = "Horizen",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 8, // TODO: This is unknown ATM - get the real value
@@ -86,7 +93,8 @@ internal object ZEN : CryptoCurrency(
 */
 
 internal object XTZ : CryptoCurrency(
-    ticker = "XTZ",
+    displayTicker = "XTZ",
+    networkTicker = "XTZ",
     name = "Tezos",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 6,
@@ -97,7 +105,8 @@ internal object XTZ : CryptoCurrency(
 )
 
 internal object STX : CryptoCurrency(
-    ticker = "STX",
+    displayTicker = "STX",
+    networkTicker = "STX",
     name = "Stacks",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 6,
@@ -108,7 +117,8 @@ internal object STX : CryptoCurrency(
 )
 
 internal object MOB : CryptoCurrency(
-    ticker = "MOB",
+    displayTicker = "MOB",
+    networkTicker = "MOB",
     name = "Mobile Coin",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 12,
@@ -119,7 +129,8 @@ internal object MOB : CryptoCurrency(
 )
 
 internal object THETA : CryptoCurrency(
-    ticker = "THETA",
+    displayTicker = "THETA",
+    networkTicker = "THETA",
     name = "Theta Network",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 18,
@@ -130,7 +141,8 @@ internal object THETA : CryptoCurrency(
 )
 
 internal object NEAR : CryptoCurrency(
-    ticker = "NEAR",
+    displayTicker = "NEAR",
+    networkTicker = "NEAR",
     name = "NEAR Protocol",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 24,
@@ -141,7 +153,8 @@ internal object NEAR : CryptoCurrency(
 )
 
 internal object EOS : CryptoCurrency(
-    ticker = "EOS",
+    displayTicker = "EOS",
+    networkTicker = "EOS",
     name = "EOS",
     categories = setOf(AssetCategory.CUSTODIAL),
     precisionDp = 4,
@@ -153,7 +166,8 @@ internal object EOS : CryptoCurrency(
 
 // ERC20 custodial assets. Will need integrating with dynamic erc20
 internal object OGN : CryptoCurrency(
-    ticker = "OGN",
+    displayTicker = "OGN",
+    networkTicker = "OGN",
     name = "Origin Token (OGN)",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -166,7 +180,8 @@ internal object OGN : CryptoCurrency(
 )
 
 internal object ENJ : CryptoCurrency(
-    ticker = "ENJ",
+    displayTicker = "ENJ",
+    networkTicker = "ENJ",
     name = "Enjin Coin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -179,7 +194,8 @@ internal object ENJ : CryptoCurrency(
 )
 
 internal object COMP : CryptoCurrency(
-    ticker = "COMP",
+    displayTicker = "COMP",
+    networkTicker = "COMP",
     name = "Compound",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -192,7 +208,8 @@ internal object COMP : CryptoCurrency(
 )
 
 internal object LINK : CryptoCurrency(
-    ticker = "LINK",
+    displayTicker = "LINK",
+    networkTicker = "LINK",
     name = "Chainlink",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -205,7 +222,8 @@ internal object LINK : CryptoCurrency(
 )
 
 internal object TBTC : CryptoCurrency(
-    ticker = "TBTC",
+    displayTicker = "TBTC",
+    networkTicker = "TBTC",
     name = "tBTC",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -218,7 +236,8 @@ internal object TBTC : CryptoCurrency(
 )
 
 internal object WBTC : CryptoCurrency(
-    ticker = "WBTC",
+    displayTicker = "WBTC",
+    networkTicker = "WBTC",
     name = "Wrapped Bitcoin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 8,
@@ -231,7 +250,8 @@ internal object WBTC : CryptoCurrency(
 )
 
 internal object SNX : CryptoCurrency(
-    ticker = "SNX",
+    displayTicker = "SNX",
+    networkTicker = "SNX",
     name = "Synthetix Network Token",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -244,7 +264,8 @@ internal object SNX : CryptoCurrency(
 )
 
 internal object SUSHI : CryptoCurrency(
-    ticker = "SUSHI",
+    displayTicker = "SUSHI",
+    networkTicker = "SUSHI",
     name = "Sushi",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -257,7 +278,8 @@ internal object SUSHI : CryptoCurrency(
 )
 
 internal object ZRX : CryptoCurrency(
-    ticker = "ZRX",
+    displayTicker = "ZRX",
+    networkTicker = "ZRX",
     name = "ZRX",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -270,7 +292,8 @@ internal object ZRX : CryptoCurrency(
 )
 
 internal object USDC : CryptoCurrency(
-    ticker = "USDC",
+    displayTicker = "USDC",
+    networkTicker = "USDC",
     name = "USD Coin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 6,
@@ -282,7 +305,8 @@ internal object USDC : CryptoCurrency(
 )
 
 internal object UNI : CryptoCurrency(
-    ticker = "UNI",
+    displayTicker = "UNI",
+    networkTicker = "UNI",
     name = "Uniswap",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -295,7 +319,8 @@ internal object UNI : CryptoCurrency(
 )
 
 internal object DAI : CryptoCurrency(
-    ticker = "DAI",
+    displayTicker = "DAI",
+    networkTicker = "DAI",
     name = "Dai Stablecoin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
@@ -308,7 +333,8 @@ internal object DAI : CryptoCurrency(
 )
 
 internal object BAT : CryptoCurrency(
-    ticker = "BAT",
+    displayTicker = "BAT",
+    networkTicker = "BAT",
     name = "Basic Attention Token",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,

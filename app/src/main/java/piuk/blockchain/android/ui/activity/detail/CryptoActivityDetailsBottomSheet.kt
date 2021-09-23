@@ -305,7 +305,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                         BuySellClicked(origin = LaunchOrigin.TRANSACTION_DETAILS, type = BuySellType.BUY)
                     )
                     startActivity(
-                        SimpleBuyActivity.newInstance(requireContext(), asset.ticker, true)
+                        SimpleBuyActivity.newInstance(requireContext(), asset, true)
                     )
                     dismiss()
                 }
@@ -478,13 +478,13 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
             TransactionSummary.TransactionType.RECEIVED -> getString(
                 R.string.activity_details_title_received
             )
-            TransactionSummary.TransactionType.SENT -> getString(R.string.activity_details_title_sent)
+            TransactionSummary.TransactionType.SENT -> getString(R.string.activity_details_title_sent_1)
             TransactionSummary.TransactionType.BUY -> getString(R.string.activity_details_title_bought)
             TransactionSummary.TransactionType.SELL -> getString(
                 R.string.activity_details_title_sold,
-                asset.ticker
+                asset.displayTicker
             )
-            TransactionSummary.TransactionType.SWAP -> getString(R.string.activity_details_title_swap)
+            TransactionSummary.TransactionType.SWAP -> getString(R.string.activity_details_title_swapped)
             TransactionSummary.TransactionType.DEPOSIT -> getString(
                 R.string.activity_details_title_deposit
             )
@@ -492,7 +492,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                 R.string.activity_details_title_withdraw
             )
             TransactionSummary.TransactionType.INTEREST_EARNED -> getString(
-                R.string.activity_details_title_interest_earned
+                R.string.activity_details_title_rewards_earned
             )
             TransactionSummary.TransactionType.RECURRING_BUY -> getString(
                 R.string.activity_details_title_recurring_buy
@@ -556,7 +556,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         ): CryptoActivityDetailsBottomSheet {
             return CryptoActivityDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_CRYPTO_ASSET, asset.ticker)
+                    putString(ARG_CRYPTO_ASSET, asset.networkTicker)
                     putString(ARG_TRANSACTION_HASH, txHash)
                     putSerializable(ARG_ACTIVITY_TYPE, activityType)
                 }
