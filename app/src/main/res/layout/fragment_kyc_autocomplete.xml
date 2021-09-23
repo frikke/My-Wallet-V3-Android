@@ -13,7 +13,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="@dimen/standard_margin"
         android:layout_marginBottom="16dp"
-        android:hint="Search"
+        android:hint="@string/kyc_enter_address"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -21,7 +21,7 @@
             android:id="@+id/field_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="Search"
+            android:contentDescription="@string/kyc_enter_address"
             android:imeOptions="actionGo"
             android:inputType="textNoSuggestions|textVisiblePassword"
             android:maxLines="1"
@@ -33,6 +33,7 @@
         android:id="@+id/search_results"
         app:layout_constraintTop_toBottomOf="@id/address_text_layout"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="12dp"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
 

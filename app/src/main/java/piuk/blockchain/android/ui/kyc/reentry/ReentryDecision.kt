@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
 import androidx.navigation.NavDirections
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import piuk.blockchain.android.ui.kyc.navhost.toProfileModel
@@ -32,7 +34,8 @@ class ReentryDecisionKycNavigator(
     private val token: NabuToken,
     private val dataManager: NabuDataManager,
     private val reentryDecision: ReentryDecision,
-    private val analytics: Analytics
+    private val analytics: Analytics,
+    private val internalFlags: InternalFeatureFlagApi
 ) : KycNavigator {
 
     override fun findNextStep(): Single<NavDirections> =
@@ -53,7 +56,13 @@ class ReentryDecisionKycNavigator(
             ReentryPoint.Profile -> KycNavXmlDirections.actionStartProfile(
                 user.requireCountryCode(), user.address?.state ?: "", user.address?.state ?: ""
             )
-            ReentryPoint.Address -> KycNavXmlDirections.actionStartAutocompleteAddressEntry(user.toProfileModel())
+            ReentryPoint.Address -> {
+                if (internalFlags.isFeatureEnabled(GatedFeature.AUTOCOMPLETE_ADDRESS)) {
+                    KycNavXmlDirections.actionStartAutocompleteAddressEntry(user.toProfileModel())
+                } else {
+                    KycNavXmlDirections.actionStartAddressEntry(user.toProfileModel())
+                }
+            }
             ReentryPoint.MobileEntry -> KycNavXmlDirections.actionStartMobileVerification(user.requireCountryCode())
             ReentryPoint.Veriff -> {
                 val countryCode = user.requireCountryCode()

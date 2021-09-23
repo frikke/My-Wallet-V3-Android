@@ -8,8 +8,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.koin.scopedInject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAutocompleteBinding
 import piuk.blockchain.android.ui.base.mvi.MviFragment
+import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
+import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.AfterTextChangedWatcher
@@ -25,6 +28,10 @@ class KycAutocompleteAddressFragment :
         KycAutocompleteAddressFragmentArgs.fromBundle(arguments ?: Bundle()).profileModel
     }
 
+    private val progressListener: KycProgressListener by ParentActivityDelegate(
+        this
+    )
+
     private val adapter = KycAutocompleteAddressAdapter(onClick = this::onSearchResultClicked)
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentKycAutocompleteBinding =
@@ -32,6 +39,7 @@ class KycAutocompleteAddressFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        progressListener.setHostTitle(R.string.kyc_address_title)
         setupRecyclerView()
         setupSearch()
         model.actions.handleEvents(this, this::handleActions)
