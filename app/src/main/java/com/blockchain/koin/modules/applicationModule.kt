@@ -106,8 +106,8 @@ import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
-import piuk.blockchain.android.ui.kyc.autocomplete.PlacesManager
 import piuk.blockchain.android.scan.QRCodeEncoder
+import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -753,6 +753,12 @@ val applicationModule = module {
                 coincore = get()
             )
         }
+
+        scoped {
+            PlacesClientProvider(
+                    context = get()
+            )
+        }
     }
 
     factory {
@@ -816,9 +822,4 @@ val applicationModule = module {
         Database(get())
     }
 
-    single {
-        PlacesManager(
-            applicationContext = get()
-        )
-    }
 }

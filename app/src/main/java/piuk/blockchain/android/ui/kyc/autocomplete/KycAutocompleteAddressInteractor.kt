@@ -2,27 +2,28 @@ package piuk.blockchain.android.ui.kyc.autocomplete
 
 import android.graphics.Typeface
 import android.text.style.StyleSpan
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.api.net.FetchPlaceRequest
-import com.google.android.libraries.places.api.net.FetchPlaceResponse
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
+import com.google.android.libraries.places.api.net.*
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
 
-class KycAutocompleteAddressInteractor(val placesManager: PlacesManager) {
+class KycAutocompleteAddressInteractor(val placesClientProvider: PlacesClientProvider) {
 
     fun searchForAddresses(searchText: String, countryCode: String): Single<List<KycAddressResult>> {
+        val client = placesClientProvider.getClient()
+        val token = AutocompleteSessionToken.newInstance()
+
         return Single.create { emitter ->
             val request =
                 FindAutocompletePredictionsRequest.builder()
                     .setCountries(countryCode)
                     .setTypeFilter(TypeFilter.ADDRESS)
-                    .setSessionToken(placesManager.token)
+                    .setSessionToken(token)
                     .setQuery(searchText)
                     .build()
-            placesManager.client.findAutocompletePredictions(request)
+            client.findAutocompletePredictions(request)
                 .addOnSuccessListener { response: FindAutocompletePredictionsResponse ->
                     val results = response.autocompletePredictions.map {
                         KycAddressResult(it.getFullText(StyleSpan(Typeface.NORMAL)).toString(), searchText, it.placeId)
@@ -35,13 +36,16 @@ class KycAutocompleteAddressInteractor(val placesManager: PlacesManager) {
     }
 
     fun getAddressDetails(placeId: String): Single<AddressDetailsModel> {
+        val client = placesClientProvider.getClient()
+        val token = AutocompleteSessionToken.newInstance()
+
         return Single.create { emitter ->
             val placeFields = listOf(Place.Field.ADDRESS, Place.Field.ADDRESS_COMPONENTS, Place.Field.LAT_LNG)
             val request =
                 FetchPlaceRequest.builder(placeId, placeFields)
-                    .setSessionToken(placesManager.token)
+                    .setSessionToken(token)
                     .build()
-            placesManager.client.fetchPlace(request)
+            client.fetchPlace(request)
                 .addOnSuccessListener { response: FetchPlaceResponse ->
                     val addressComponents = response.place.addressComponents?.asList()
                     val postalCode = addressComponents?.find {

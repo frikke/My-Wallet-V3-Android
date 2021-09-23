@@ -20,7 +20,7 @@ val kycAutocompleteModule = module {
 
         factory {
             KycAutocompleteAddressInteractor(
-                placesManager = get()
+                placesClientProvider = get()
             )
         }
     }
