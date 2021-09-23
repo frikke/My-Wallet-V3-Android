@@ -1111,8 +1111,8 @@ Veuillez réessayer plus tard.</string>
     <string name="send_confirmation_fee">Frais - Standard</string>
     <string name="send_confirmation_add_note_hint">Ajouter une note</string>
     <string name="send_confirmation_cta_button">Envoyer %1$s</string>
-    <string name="send_confirmation_interest_tos_pp">J\'ai lu et j\'accepte les <annotation link="interest_tos">Conditions d\'utilisation</annotation> et la <annotation link="interest_pp">politique de confidentialité</annotation>.</string>
-    <string name="send_confirmation_interest_holding_period_1">En acceptant cela, vous acceptez de transférer </string>
+    <string name="send_confirmation_rewards_tos_pp">J\'ai lu et j\'accepte les <annotation link="interest_tos">Conditions d\'utilisation</annotation> et la <annotation link="interest_pp">politique de confidentialité</annotation>.</string>
+    <string name="send_confirmation_rewards_holding_period_1">En acceptant cela, vous acceptez de transférer </string>
     <string name="send_confirmation_interest_holding_period_2">  %1$sde votre Portefeuille %2$s vers votre compte d\'intérêts. Une période de retenue initiale de 7 jours sera appliquée à vos fonds.</string>
     <string name="send_confirmation_progress_title">Transfert de %1$s</string>
     <string name="send_confirmation_progress_message">Nous transférons votre %1$s en ce moment.</string>
@@ -1140,7 +1140,7 @@ Veuillez réessayer plus tard.</string>
     <string name="convert_your_crypto_to_cash">Convertissez votre crypto en espèces</string>
     <string name="deposit_enter_amount_limit_title">Limite journalière</string>
     <string name="interest_dashboard_verify_title">Gagnez des intérêts sur votre Crypto</string>
-    <string name="interest_summary_hold_period">Période de conservation initiale</string>
+    <string name="rewards_summary_hold_period">Période de conservation initiale</string>
     <string name="interest_summary_rate">Taux d\'intérêt</string>
     <string name="interest_summary_next_payment">Prochain paiement des intérêts</string>
     <string name="sell_enter_amount_max">Vendre Max</string>
@@ -1149,7 +1149,7 @@ Veuillez réessayer plus tard.</string>
   </string>
     <string name="interest_announcement_title">Gagnez des intérêts sur votre crypto aujourd\'hui !</string>
     <string name="interest_announcement_description">Transférez de la crypto et commencez à gagner des intérêts sur les BTC, ETH et bien d\'autres.</string>
-    <string name="interest_announcement_action">En savoir plus</string>
+    <string name="rewards_announcement_action">En savoir plus</string>
     <string name="purchase_card_note_2">Votre crypto sera disponible pour retrait dans un délai de</string>
     <string name="select_send_sheet_title">Envoyer à partir de</string>
     <string name="select_send_source_title">Envoyer à partir de</string>
@@ -1179,22 +1179,22 @@ Veuillez réessayer plus tard.</string>
     <string name="sell_progress_complete_title">%1$s Vendu</string>
     <string name="earn_interest">Gagnez des intérêts</string>
     <string name="interest_summary_total">Total des intérêts gagnés</string>
-    <string name="interest_summary_hold_period_days">%1$d Jours</string>
+    <string name="rewards_summary_hold_period_days">%1$d Jours</string>
     <string name="interest_dashboard_title">Compte d\'intérêt</string>
-    <string name="interest_dashboard_item_balance_title">%1$s Solde</string>
+    <string name="rewards_dashboard_item_balance_title">%1$s Solde</string>
     <string name="interest_dashboard_item_accrued_title">Total des intérêts gagnés</string>
     <string name="interest_dashboard_item_action_earn">Gagnez des intérêts</string>
-    <string name="interest_dashboard_item_action_view">Afficher</string>
-    <string name="interest_dashboard_item_rate_1">Gagnez jusqu\'à </string>
-    <string name="interest_dashboard_item_rate_2"> annuellement sur votre %1$s</string>
+    <string name="rewards_dashboard_item_action_view">Afficher</string>
+    <string name="rewards_dashboard_item_rate_1">Gagnez jusqu\'à </string>
+    <string name="rewards_dashboard_item_rate_2"> annuellement sur votre %1$s</string>
     <string name="interest_dashboard_verify_label">Gagnez jusqu\'à 12\% par an lorsque vous transférez un crypto dans votre compte d\'intérêts.</string>
-    <string name="interest_dashboard_verify_point_one_title">Faites vérifier votre Identité</string>
-    <string name="interest_dashboard_verify_point_one_label">Pour éviter l\'usurpation d\'identité ou la fraude, nous devons nous assurer qu\'il s\'agit bien de vous en important une pièce d\'identité.</string>
-    <string name="interest_dashboard_verify_point_two_title">Acheter de la Crypto</string>
-    <string name="interest_dashboard_verify_point_two_label">Utilisez votre carte bancaire, de débit ou de crédit pour financer tout achat de crypto.</string>
+    <string name="rewards_dashboard_verify_point_one_title">Faites vérifier votre Identité</string>
+    <string name="rewards_dashboard_verify_point_one_label">Pour éviter l\'usurpation d\'identité ou la fraude, nous devons nous assurer qu\'il s\'agit bien de vous en important une pièce d\'identité.</string>
+    <string name="rewards_dashboard_verify_point_two_title">Acheter de la Crypto</string>
+    <string name="rewards_dashboard_verify_point_two_label">Utilisez votre carte bancaire, de débit ou de crédit pour financer tout achat de crypto.</string>
     <string name="interest_dashboard_verify_point_three_title">Gagnez des intérêts</string>
     <string name="interest_dashboard_verify_point_three_label">Transférez sur votre compte d\'intérêts et recevez des paiements d\'intérêts mensuels.</string>
-    <string name="interest_summary_disclaimer_label">Utilisez le portefeuille Web pour retirer vos fonds</string>
+    <string name="rewards_summary_disclaimer_label">Utilisez le portefeuille Web pour retirer vos fonds</string>
     <string name="buy">Acheter </string>
     <string name="sell">Vendre</string>
     <string name="buy_and_sell">Acheter vendre</string>
@@ -1302,9 +1302,9 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter le suppor
     <string name="tx_confirmation_free_fee_learn_more_1">Frais de réseau lorsqu\'on utilise</string>
     <string name="tx_confirmation_free_fee_learn_more_2">Portefeuilles de trading</string>
     <string name="tx_confirmation_free_fee_learn_more_3">sont GRATUITS ! <annotation link="send_tx_fees">En savoir plus sur les frais</annotation>.</string>
-    <string name="interest_item_issue_region">Indisponible dans votre région</string>
+    <string name="rewards_item_issue_region">Indisponible dans votre région</string>
     <string name="interest_item_issue_kyc">Vous devez être certifié Gold pour commencer à Gagner des intérêts</string>
-    <string name="interest_item_issue_other">Actuellement indisponible, veuillez vérifier à nouveau plus tard</string>
+    <string name="rewards_item_issue_other">Actuellement indisponible, veuillez vérifier à nouveau plus tard</string>
     <string name="swap_header_title">Échangez votre crypto</string>
     <string name="swap_header_label">Échangez instantanément votre crypto dans n\'importe quelle devise que nous proposons pour votre portefeuille.</string>
     <string name="swap_kyc_title">Faites vérifier votre identité. Échangez aujourd\'hui.</string>
@@ -1596,7 +1596,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="cash_accounts">Comptes de caisse</string>
     <string name="cash_accounts_description">Stockez des USD, GBP ou EUR dans votre portefeuille. Utilisez le solde pour acheter de la crypto. Vendez de la crypto contre de l\'argent à tout moment.</string>
     <string name="link_a_bank_description">Stockez des USD, GBP ou EUR dans votre portefeuille. Utilisez le solde pour acheter de la crypto. Vendez de la crypto contre de l\'argent à tout moment.</string>
-    <string name="earn_interest_description" formatted="false">Faites travailler votre crypto. Gagnez jusqu\'à 10 % par mois sans faire quoi que ce soit. Déposez instantanément et commencez à gagner.</string>
+    <string name="earn_rewards_description" formatted="false">Faites travailler votre crypto. Gagnez jusqu\'à 10 % par mois sans faire quoi que ce soit. Déposez instantanément et commencez à gagner.</string>
     <string name="sb_checkout_daily_limit_title">Plafond journalier dépassé</string>
     <string name="sb_checkout_daily_limit_blurb">Oups, il semble que vous ayez atteint votre plafond journalier de transactions pour les Achats et les Dépôts, veuillez réessayer demain.</string>
     <string name="sb_checkout_weekly_limit_title">Plafond hebdomadaire dépassé</string>
@@ -1646,7 +1646,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="deposit_confirmation_timeout_subtitle">Le traitement des paiements peut parfois prendre un certain temps. Si vous avez approuvé la transaction, vous pouvez la fermer en toute sécurité et vérifier la progression du dépôt sous l\'onglet Activité.</string>
     <string name="deposit_confirmation_error_title">Oups, on dirait que quelque chose a mal tourné !</string>
     <string name="deposit_confirmation_error_subtitle">Il y a eu un problème avec votre Dépôt, veuillez réessayer ou contacter l\'assistance si le problème persiste.</string>
-    <string name="interest_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour transférer avec les frais de réseau actuels.</string>
+    <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour transférer avec les frais de réseau actuels.</string>
     <string name="send_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour envoyer avec les frais de réseau actuels.</string>
     <string name="swap_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour échanger avec les frais de réseau actuels.</string>
     <string name="approve_payment">Approuvez votre paiement</string>
@@ -1752,7 +1752,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="upgrading_wallet">Mise à niveau du portefeuille</string>
     <string name="custodial_wallet_default_label_2">Compte de trading %s</string>
     <string name="select_withdraw_target_title">Retirer vers</string>
-    <string name="withdraw_interest_confirmation_success_message">Votre %1$s sera disponible dans votre %2$s dans les 2 jours.</string>
+    <string name="withdraw_rewards_confirmation_success_message">Votre %1$s sera disponible dans votre %2$s dans les 2 jours.</string>
     <string name="simple_buy_confirmation_error">Il y a eu un problème avec votre paiement, veuillez réessayer ou contacter l\'assistance si le problème persiste.</string>
     <string name="send_enter_amount_error_invalid_amount_1">Envoyez %1$s ou plus.</string>
     <string name="send_internal_transfer_message_1">À l\'heure actuelle, vous pouvez transférer %1$s de votre compte de trading %2$s vers vos portefeuilles à clé privée %2$s ou votre compte d\'intérêt. Si vous souhaitez effectuer un transfert vers des adresses externes, vous pouvez le faire à partir de votre portefeuille à clé privée.</string>

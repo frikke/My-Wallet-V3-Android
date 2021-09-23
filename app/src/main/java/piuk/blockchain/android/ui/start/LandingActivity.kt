@@ -71,7 +71,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                         ),
                         CarouselViewType.ValueProp(
                             com.blockchain.componentlib.R.drawable.carousel_placeholder_2,
-                            this@LandingActivity.getString(R.string.landing_value_prop_two)
+                            this@LandingActivity.getString(R.string.landing_value_prop_two_1)
                         ),
                         CarouselViewType.ValueProp(
                             com.blockchain.componentlib.R.drawable.carousel_placeholder_3,

@@ -52,7 +52,7 @@ class ResetAccountFragment :
         with(binding) {
             resetImage.setImageResource(R.drawable.ic_reset_round)
             resetAccountLabel.text = getString(R.string.reset_account_title)
-            resetAccountDesc.text = getString(R.string.reset_account_description)
+            resetAccountDesc.text = getString(R.string.reset_account_description_1)
             resetButton.apply {
                 text = getString(R.string.reset_account_cta)
                 setOnClickListener {

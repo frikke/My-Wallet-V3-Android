@@ -492,7 +492,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                 R.string.activity_details_title_withdraw
             )
             TransactionSummary.TransactionType.INTEREST_EARNED -> getString(
-                R.string.activity_details_title_interest_earned
+                R.string.activity_details_title_rewards_earned
             )
             TransactionSummary.TransactionType.RECURRING_BUY -> getString(
                 R.string.activity_details_title_recurring_buy

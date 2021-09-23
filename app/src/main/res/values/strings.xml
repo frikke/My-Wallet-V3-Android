@@ -169,7 +169,7 @@
 
     <!-- Value Props -->
     <string name="landing_value_prop_one">Buy, Sell and Swap Crypto in Seconds.</string>
-    <string name="landing_value_prop_two">Earn Interest on Your Crypto.</string>
+    <string name="landing_value_prop_two_1">Earn Rewards on Your Crypto.</string>
     <string name="landing_value_prop_three">Control Your Crypto with Private Keys.</string>
     <string name="landing_value_prop_four">Never Miss a Crypto Moment.</string>
     <string name="landing_live_prices">Live Prices</string>
@@ -635,7 +635,7 @@
     <string name="tx_title_swapped">Swapped %1$s → %2$s</string>
     <string name="tx_title_transferred">Transferred %s</string>
     <string name="tx_title_fee">Fee %s</string>
-    <string name="tx_title_interest">%s Interest Earned</string>
+    <string name="tx_title_rewards">%s Rewards Earned</string>
 
     <!-- TRANSACTION DETAILS -->
     <string name="transaction_detail_coinbase">No Inputs (Newly Generated Coins)</string>
@@ -792,17 +792,17 @@
     <string name="dashboard_asset_balance_total">Total Balance</string>
     <string name="dashboard_asset_balance_wallet">Wallet Balance</string>
     <string name="dashboard_asset_balance_custodial">Trading Wallet</string>
-    <string name="dashboard_asset_balance_interest">Earn %1$.1f%% APY</string>
+    <string name="dashboard_asset_balance_rewards">Earn %1$.1f%% annually</string>
 
     <string name="dashboard_asset_actions_send_dsc">Transfer %1$s to any Wallet</string>
     <string name="dashboard_asset_actions_receive_dsc">Accept or Share Your %1$s Address</string>
     <string name="dashboard_asset_actions_swap_dsc">Exchange %1$s for Another Crypto</string>
-    <string name="dashboard_asset_actions_deposit_dsc">Add %1$s to your Interest Account</string>
-    <string name="dashboard_asset_actions_withdraw_dsc">Withdraw %1$s from your Interest Account</string>
+    <string name="dashboard_asset_actions_deposit_dsc_1">Add %1$s to your Rewards Account</string>
+    <string name="dashboard_asset_actions_withdraw_dsc_1">Withdraw %1$s from your Rewards Account</string>
     <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Trading Account</string>
-    <string name="dashboard_asset_actions_summary_title">Interest Summary</string>
-    <string name="dashboard_asset_actions_summary_dsc">View your accrued %1$s Interest</string>
-    <string name="dashboard_asset_actions_interest_dsc_failed">Could not load Interest details</string>
+    <string name="dashboard_asset_actions_summary_title_1">Rewards Summary</string>
+    <string name="dashboard_asset_actions_summary_dsc_1">View your accrued %1$s Rewards</string>
+    <string name="dashboard_asset_actions_rewards_dsc_failed">Could not load Rewards details</string>
     <string name="asset_details_chart_load_failed_toast">Failed to load chart details, please try again</string>
     <string name="asset_details_load_failed_toast">Failed to load wallet details, please try again</string>
     <string name="asset_details_exchange_load_failed_toast">Failed to exchange rate information, please try again</string>
@@ -947,10 +947,10 @@
     <string name="sell_announcement_description">Sell directly from your Trading Wallets to your Cash Wallet.</string>
     <string name="sell_announcement_action">Sell now</string>
 
-    <!-- Interest announcement -->
-    <string name="interest_announcement_title">Earn interest on your crypto today!</string>
-    <string name="interest_announcement_description">Transfer Crypto and start earning Interest on BTC, ETH and many more.</string>
-    <string name="interest_announcement_action">Learn More</string>
+    <!-- Rewards announcement -->
+    <string name="rewards_announcement_title">Earn rewards on your crypto today!</string>
+    <string name="rewards_announcement_description">Transfer Crypto and start earning Rewards on BTC, ETH and many more.</string>
+    <string name="rewards_announcement_action">Learn More</string>
 
     <!-- WDGLD announcement -->
     <string name="wdgld_available_card_title">Trade wDGLD Now</string>
@@ -1413,7 +1413,7 @@
     <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
     <string name="old_default_non_custodial_wallet_label">My %1s Wallet</string>
     <string name="default_label_all_wallets">All Wallets</string>
-    <string name="default_label_interest_wallet_1">Interest Account</string>
+    <string name="default_label_rewards_wallet">Rewards Account</string>
     <string name="exchange_default_account_label_1">Exchange Account</string>
     <string name="approximately_symbol">~ %1$s</string>
     <string name="custodial_wallet_default_label_1">Trading Account</string>
@@ -1514,7 +1514,7 @@
     <string name="activity_details_title_sold">Sold %s</string>
     <string name="activity_details_title_swapped">Swapped</string>
     <string name="activity_details_title_deposit">Transfer</string>
-    <string name="activity_details_title_interest_earned">Interest Earned</string>
+    <string name="activity_details_title_rewards_earned">Rewards Earned</string>
     <string name="activity_details_title_recurring_buy">Recurring Buy</string>
     <string name="activity_details_title_withdraw">Withdrawal</string>
     <string name="activity_details_label_confirming">Confirming</string>
@@ -1582,7 +1582,7 @@
     <string name="withdraw_confirmation_progress_title">Withdrawing %1$s</string>
     <string name="withdraw_confirmation_success_title">%1$s Withdrawn!</string>
     <string name="withdraw_confirmation_success_message">We are sending the cash now. Expect the cash to hit your bank on %1$s. Check the status of your Withdrawal at anytime from your Activity Screen</string>
-    <string name="withdraw_interest_confirmation_success_message">Your %1$s will be available in your %2$s within 2 days.</string>
+    <string name="withdraw_rewards_confirmation_success_message">Your %1$s will be available in your %2$s within 2 days.</string>
     <string name="withdraw_target_select_title">Withdraw to…</string>
     <string name="add_a_bank">Add a Bank</string>
     <string name="fiat_funds_detail_activity_title">Activity</string>
@@ -1672,9 +1672,9 @@
     <string name="sell_confirmation_success_message">Your cash is now available in your %1$s Wallet.</string>
     <string name="swap_confirmation_success_message">Your %1$s is now available in your Wallet.</string>
     <string name="send_confirmation_deposit_cta_button">Confirm Transfer</string>
-    <string name="send_confirmation_interest_tos_pp">I have read and agree to the <annotation link="interest_tos">Terms of Service</annotation> &amp; <annotation link="interest_pp">Privacy Policy</annotation>.</string>
-    <string name="send_confirmation_interest_holding_period_1">By accepting this, you agree to transfer&#160;</string>
-    <string name="send_confirmation_interest_holding_period_2">&#160; (%1$s) from your %2$s Wallet to your Interest Account. An initial hold period of 7 days will be applied to your funds.</string>
+    <string name="send_confirmation_rewards_tos_pp">I have read and agree to the <annotation link="interest_tos">Terms of Service</annotation> &amp; <annotation link="interest_pp">Privacy Policy</annotation>.</string>
+    <string name="send_confirmation_rewards_holding_period_1">By accepting this, you agree to transfer&#160;</string>
+    <string name="send_confirmation_rewards_holding_period_2">&#160; (%1$s) from your %2$s Wallet to your Rewards Account. An initial hold period of 7 days will be applied to your funds.</string>
     <string name="send_confirmation_progress_title">Transferring %1$s</string>
     <string name="send_confirmation_progress_message">We’re transferring your %1$s now.</string>
     <string name="send_confirmation_success_title">%1$s Transferred</string>
@@ -1690,7 +1690,7 @@
     <string name="send_progress_complete_title">%1$s Sent</string>
     <string name="sell_progress_complete_title">%1$s Sold</string>
     <string name="swap_progress_complete_title">Swap Complete</string>
-    <string name="interest_enter_amount_error_insufficient_funds_for_fees">Not enough %1$s in your wallet to transfer with current network fees.</string>
+    <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Not enough %1$s in your wallet to transfer with current network fees.</string>
     <string name="send_progress_complete_subtitle">Your %1$s has been successfully sent.</string>
     <string name="send_progress_error_title">Oops! Something Went Wrong. Please try again.</string>
     <string name="send_progress_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Support Team for help.</string>
@@ -1707,7 +1707,7 @@
     <string name="send_enter_unexpected_error">An unexpected error has occurred. Please try again.</string>
     <string name="send_enter_insufficient_gas">You do not have enough ETH to process this transaction.</string>
     <string name="send_select_a_wallet_title">or Select a Wallet</string>
-    <string name="send_internal_transfer_message_1">At this time you can transfer %1$s from your %2$s Trading Account to your %2$s Private Key Wallets or Interest Account. If you want to transfer to external addresses you can do so from your Private Key Wallet.</string>
+    <string name="send_internal_transfer_message_1_1">At this time you can transfer %1$s from your %2$s Trading Account to your %2$s Private Key Wallets or Rewards Account. If you want to transfer to external addresses you can do so from your Private Key Wallet.</string>
     <string name="send_to_exchange_xlm_title">Sending to an exchange?</string>
     <string name="send_to_exchange_xlm_blurb">&#160;Add a Memo to avoid losing funds.&#160;</string>
     <string name="send_to_exchange_xlm_link"><annotation link="send_memo_link">Learn more about balance requirements.</annotation></string>
@@ -1729,35 +1729,35 @@
     <string name="tx_confirmation_free_fee_learn_more_2_1">&#160;Trading Accounts&#160;</string>
     <string name="tx_confirmation_free_fee_learn_more_3">are FREE! <annotation link="send_tx_fees">Learn more about fees</annotation>.</string>
 
-    <!-- Interest -->
-    <string name="earn_interest">Earn Interest</string>
-    <string name="interest_summary_total">Total Interest Earned</string>
-    <string name="interest_summary_next_payment">Next Interest Payment</string>
-    <string name="interest_summary_accrued">Accrued Interest This Month</string>
-    <string name="interest_summary_hold_period">Initial Hold Period</string>
-    <string name="interest_summary_hold_period_days">%1$d Days</string>
-    <string name="interest_summary_rate">Interest Rate</string>
-    <string name="interest_dashboard_title">Interest Account</string>
-    <string name="interest_dashboard_item_balance_title">%1$s Balance</string>
-    <string name="interest_dashboard_item_accrued_title">Total Interest Earned</string>
-    <string name="interest_dashboard_item_action_earn">Earn Interest</string>
-    <string name="interest_dashboard_item_action_view">View</string>
-    <string name="interest_item_issue_region">Not available in your region</string>
-    <string name="interest_item_issue_kyc">You need to be Gold verified to start Earning Interest</string>
-    <string name="interest_item_issue_other">Currently unavailable, please check again later</string>
-    <string name="interest_dashboard_item_rate_1">Earn up to&#160;</string>
-    <string name="interest_dashboard_item_rate_2">&#160;annually on your %1$s</string>
-    <string name="interest_dashboard_verify_title">Earn Interest on Your Crypto</string>
-    <string name="interest_dashboard_verify_label">Earn up to 12\% instantly when you transfer crypto to your Interest Account.</string>
-    <string name="interest_dashboard_verify_point_one_title">Verify Your Identity</string>
-    <string name="interest_dashboard_verify_point_one_label">To prevent identity theft or fraud, we’ll need to make sure it’s really you by uploading an ID.</string>
-    <string name="interest_dashboard_verify_point_two_title">Buy Crypto</string>
-    <string name="interest_dashboard_verify_point_two_label">Use your Bank, Debit or Credit card to fund any crypto purchase.</string>
-    <string name="interest_dashboard_verify_point_three_title">Earn Interest</string>
-    <string name="interest_dashboard_verify_point_three_label">Transfer to your Interest Account and get monthly Interest Payments.</string>
-    <string name="interest_summary_disclaimer_label">Use the Web wallet to withdraw your funds</string>
-    <string name="interest_error_title">Can’t load Interest Details</string>
-    <string name="interest_error_desc">An error occurred while loading Interest Account details.\nPlease check your internet connection and try again or Contact Support if the issue persists.</string>
+    <!-- Rewards -->
+    <string name="earn_rewards">Earn Rewards</string>
+    <string name="rewards_summary_total">Total Rewards Earned</string>
+    <string name="rewards_summary_next_payment">Next Rewards Payment</string>
+    <string name="rewards_summary_accrued">Accrued Rewards This Month</string>
+    <string name="rewards_summary_hold_period">Initial Hold Period</string>
+    <string name="rewards_summary_hold_period_days">%1$d Days</string>
+    <string name="rewards_summary_rate">Rewards Rate</string>
+    <string name="rewards_dashboard_title">Rewards Account</string>
+    <string name="rewards_dashboard_item_balance_title">%1$s Balance</string>
+    <string name="rewards_dashboard_item_accrued_title">Total Rewards Earned</string>
+    <string name="rewards_dashboard_item_action_earn">Earn Rewards</string>
+    <string name="rewards_dashboard_item_action_view">View</string>
+    <string name="rewards_item_issue_region">Not available in your region</string>
+    <string name="rewards_item_issue_kyc">You need to be Gold verified to start Earning Rewards</string>
+    <string name="rewards_item_issue_other">Currently unavailable, please check again later</string>
+    <string name="rewards_dashboard_item_rate_1">Earn up to&#160;</string>
+    <string name="rewards_dashboard_item_rate_2">&#160;annually on your %1$s</string>
+    <string name="rewards_dashboard_verify_title">Earn Rewards on Your Crypto</string>
+    <string name="rewards_dashboard_verify_label">Earn up to 12\% instantly when you transfer crypto to your Rewards Account.</string>
+    <string name="rewards_dashboard_verify_point_one_title">Verify Your Identity</string>
+    <string name="rewards_dashboard_verify_point_one_label">To prevent identity theft or fraud, we’ll need to make sure it’s really you by uploading an ID.</string>
+    <string name="rewards_dashboard_verify_point_two_title">Buy Crypto</string>
+    <string name="rewards_dashboard_verify_point_two_label">Use your Bank, Debit or Credit card to fund any crypto purchase.</string>
+    <string name="rewards_dashboard_verify_point_three_title">Earn Rewards</string>
+    <string name="rewards_dashboard_verify_point_three_label">Transfer to your Rewards Account and get monthly Rewards Payments.</string>
+    <string name="rewards_summary_disclaimer_label">Use the Web wallet to withdraw your funds</string>
+    <string name="rewards_error_title">Can’t load Rewards Details</string>
+    <string name="rewards_error_desc">An error occurred while loading Rewards Account details.\nPlease check your internet connection and try again or Contact Support if the issue persists.</string>
 
     <!-- Buy & Sell -->
     <string name="buy_and_sell">Buy &amp; Sell</string>
@@ -1979,12 +1979,12 @@
     <string name="send_again">Send Again</string>
     <string name="want_to_buy_more">Want to buy more?</string>
     <string name="unlock_gold_level_trading">Unlock Gold Level Trading</string>
-    <string name="verify_your_identity_limits">Verify your identity, earn interest and trade up to %1$s a day.</string>
+    <string name="verify_your_identity_limits_1">Verify your identity, earn rewards and trade up to %1$s a day.</string>
     <string name="apply_and_unlock">Apply &amp; Unlock Now></string>
     <string name="cash_accounts">Cash Accounts</string>
     <string name="cash_accounts_description">Store USD, GBP or EUR in your wallet. Use the balance to buy crypto. Sell crypto for cash at anytime.</string>
     <string name="link_a_bank_description">Store USD, GBP or EUR in your wallet. Use the balance to buy crypto. Sell crypto for cash at anytime.</string>
-    <string name="earn_interest_description" formatted="false">Put your crypto to work. Earn up to 10% monthly by simply doing nothing. Instantly deposit and start earning.</string>
+    <string name="earn_rewards_description" formatted="false">Put your crypto to work. Earn up to 10% monthly by simply doing nothing. Instantly deposit and start earning.</string>
 
     <string name="sb_checkout_daily_limit_title">Daily limit exceeded</string>
     <string name="sb_checkout_daily_limit_blurb">Oops, looks like you’ve used up your daily transaction limit for Buys and Deposits, please try again tomorrow.</string>
@@ -2112,7 +2112,7 @@
     <string name="checkout_fee_link"><annotation link="learn_more_link">Learn more about fees.</annotation></string>
     <string name="checkout_fee_free">When using Trading Accounts, there are no network fees</string>
     <string name="private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
-    <string name="checkout_interest_confirmation_disclaimer">After confirming this withdrawal, you will not continue to earn interest on the amount withdrawn.\n\nYour %1$s will be available in your \"%2$s\" Account within 2 days.</string>
+    <string name="checkout_rewards_confirmation_disclaimer">After confirming this withdrawal, you will not continue to earn rewards on the amount withdrawn.\n\nYour %1$s will be available in your \"%2$s\" Account within 2 days.</string>
 
     <!-- New pairing -->
     <string name="pairing_wallet_title">Pair your wallet</string>
@@ -2159,10 +2159,10 @@
     <string name="enter_recovery_phrase_hint">Enter your secret recovery phrase</string>
     <string name="recovery_phrase_word_count_error">The Recovery Phrase must be exactly 12 words</string>
     <string name="reset_account_notice">Can’t find your recovery phrase? <annotation link="reset_account">Reset your account</annotation></string>
-    <string name="reset_kyc_notice">For your security, you may have to re-verify your identity before accessing your trading or interest account.</string>
+    <string name="reset_kyc_notice_1">For your security, you may have to re-verify your identity before accessing your trading or rewards account.</string>
     <string name="reset_kyc_failed">Restoring account failed. Please try again.</string>
     <string name="reset_account_title">Reset Your Account?</string>
-    <string name="reset_account_description">Resetting will restore your Trading, Interest, and Exchange accounts.</string>
+    <string name="reset_account_description_1">Resetting will restore your Trading, Rewards, and Exchange accounts.</string>
     <string name="reset_account_cta">Reset Account</string>
     <string name="retry_recovery_phrase_cta">Retry Recovery Phrase</string>
     <string name="reset_account_warning_title">Resetting Account May Result In Lost Funds</string>

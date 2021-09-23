@@ -7,7 +7,7 @@
         <item
             android:id="@+id/nav_interest"
             android:icon="@drawable/ic_interest_grey_circle"
-            android:title="@string/earn_interest"
+            android:title="@string/earn_rewards"
             android:visible="true" />
 
         <item

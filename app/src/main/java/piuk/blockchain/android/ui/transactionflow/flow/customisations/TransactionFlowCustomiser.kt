@@ -103,7 +103,7 @@ class TransactionFlowCustomiserImpl(
     override fun selectTargetNoAddressMessageText(state: TransactionState): String? =
         when (state.action) {
             AssetAction.Send -> resources.getString(
-                R.string.send_internal_transfer_message_1,
+                R.string.send_internal_transfer_message_1_1,
                 state.sendingAsset.name,
                 state.sendingAsset.displayTicker
             )
@@ -369,7 +369,7 @@ class TransactionFlowCustomiserImpl(
                 )
             }
             AssetAction.InterestWithdraw -> resources.getString(
-                R.string.checkout_interest_confirmation_disclaimer, state.sendingAsset.displayTicker,
+                R.string.checkout_rewards_confirmation_disclaimer, state.sendingAsset.displayTicker,
                 state.selectedTarget.label
             )
             else -> throw IllegalStateException("Disclaimer not set for asset action ${state.action}")
@@ -489,7 +489,7 @@ class TransactionFlowCustomiserImpl(
                 getEstimatedTransactionCompletionTime()
             )
             AssetAction.InterestWithdraw -> resources.getString(
-                R.string.withdraw_interest_confirmation_success_message,
+                R.string.withdraw_rewards_confirmation_success_message,
                 state.sendingAsset.displayTicker,
                 state.selectedTarget.label
             )
@@ -651,7 +651,7 @@ class TransactionFlowCustomiserImpl(
                 )
             AssetAction.InterestDeposit ->
                 resources.getString(
-                    R.string.interest_enter_amount_error_insufficient_funds_for_fees,
+                    R.string.rewards_enter_amount_error_insufficient_funds_for_fees,
                     state.sendingAsset.displayTicker
                 )
             else -> null

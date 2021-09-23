@@ -88,11 +88,11 @@ class AccountInfoCrypto @JvmOverloads constructor(
                 }.startWithValueIfCondition(value = interestRate, condition = accountsAreTheSame)
                 .subscribeBy(
                     onNext = {
-                        assetSubtitle.text = resources.getString(R.string.dashboard_asset_balance_interest, it)
+                        assetSubtitle.text = resources.getString(R.string.dashboard_asset_balance_rewards, it)
                     },
                     onError = {
                         assetSubtitle.text = resources.getString(
-                            R.string.dashboard_asset_actions_interest_dsc_failed
+                            R.string.dashboard_asset_actions_rewards_dsc_failed
                         )
 
                         Timber.e("AssetActions error loading Interest rate: $it")

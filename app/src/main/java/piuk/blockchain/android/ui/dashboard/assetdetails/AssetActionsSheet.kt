@@ -195,9 +195,9 @@ class AssetActionsSheet :
                 processAction(AssetAction.Swap)
             }
             AssetAction.ViewStatement -> AssetActionItem(
-                getString(R.string.dashboard_asset_actions_summary_title),
+                getString(R.string.dashboard_asset_actions_summary_title_1),
                 R.drawable.ic_tx_interest,
-                getString(R.string.dashboard_asset_actions_summary_dsc, asset.displayTicker),
+                getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker),
                 asset, action
             ) {
                 goToSummary()
@@ -205,7 +205,7 @@ class AssetActionsSheet :
             AssetAction.InterestDeposit -> AssetActionItem(
                 getString(R.string.common_transfer),
                 R.drawable.ic_tx_deposit_arrow,
-                getString(R.string.dashboard_asset_actions_deposit_dsc, asset.displayTicker),
+                getString(R.string.dashboard_asset_actions_deposit_dsc_1, asset.displayTicker),
                 asset, action
             ) {
                 processAction(AssetAction.InterestDeposit)
@@ -219,7 +219,7 @@ class AssetActionsSheet :
             AssetAction.InterestWithdraw -> AssetActionItem(
                 getString(R.string.common_withdraw),
                 R.drawable.ic_tx_withdraw,
-                getString(R.string.dashboard_asset_actions_withdraw_dsc, asset.displayTicker),
+                getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
                 asset, action
             ) {
                 processAction(AssetAction.InterestWithdraw)

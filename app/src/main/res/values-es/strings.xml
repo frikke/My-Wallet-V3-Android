@@ -1092,8 +1092,8 @@ Esto le permitirá restaurar su Wallet si perdiera este dispositivo.</string>
     <string name="send_confirmation_fee">Tarifa - Regular</string>
     <string name="send_confirmation_add_note_hint">Añadir una nota</string>
     <string name="send_confirmation_cta_button">Enviar %1$s</string>
-    <string name="send_confirmation_interest_tos_pp">He leído y acepto las <annotation link="interest_tos">Condiciones de servicio</annotation> y <annotation link="interest_pp"> la Política de privacidad</annotation>.</string>
-    <string name="send_confirmation_interest_holding_period_1">Al aceptar esto, usted acepta transferir </string>
+    <string name="send_confirmation_rewards_tos_pp">He leído y acepto las <annotation link="interest_tos">Condiciones de servicio</annotation> y <annotation link="interest_pp"> la Política de privacidad</annotation>.</string>
+    <string name="send_confirmation_rewards_holding_period_1">Al aceptar esto, usted acepta transferir </string>
     <string name="send_confirmation_interest_holding_period_2">  (%1$s) de su monedero de %2$s a su cuenta de intereses. Se aplicará a sus fondos un período inicial de retención de 7 días.</string>
     <string name="send_confirmation_progress_title">Transfiriendo %1$s</string>
     <string name="send_confirmation_progress_message">Estamos transfiriendo su %1$s ahora mismo.</string>
@@ -1121,7 +1121,7 @@ Esto le permitirá restaurar su Wallet si perdiera este dispositivo.</string>
     <string name="convert_your_crypto_to_cash">Convierta sus criptomonedas en efectivo</string>
     <string name="deposit_enter_amount_limit_title">Límite diario</string>
     <string name="interest_dashboard_verify_title">Gane intereses en sus criptomonedas</string>
-    <string name="interest_summary_hold_period">Período de retención inicial</string>
+    <string name="rewards_summary_hold_period">Período de retención inicial</string>
     <string name="interest_summary_rate">Tasa de interés</string>
     <string name="interest_summary_next_payment">Próximo pago de intereses</string>
     <string name="sell_enter_amount_max">Vender Max</string>
@@ -1130,7 +1130,7 @@ Esto le permitirá restaurar su Wallet si perdiera este dispositivo.</string>
   </string>
     <string name="interest_announcement_title">¡Gane intereses en sus criptomonedas al instante!</string>
     <string name="interest_announcement_description">Transfiera criptomonedas y comience a ganar intereses en BTC, ETH y muchas más.</string>
-    <string name="interest_announcement_action">Aprende más</string>
+    <string name="rewards_announcement_action">Aprende más</string>
     <string name="purchase_card_note_2">Sus criptomonedas estarán disponibles para retirarse en</string>
     <string name="select_send_sheet_title">Enviado desde</string>
     <string name="select_send_source_title">Enviado desde</string>
@@ -1160,22 +1160,22 @@ Esto le permitirá restaurar su Wallet si perdiera este dispositivo.</string>
     <string name="sell_progress_complete_title">%1$s vendido</string>
     <string name="earn_interest">Ganar intereses</string>
     <string name="interest_summary_total">Interés total ganado</string>
-    <string name="interest_summary_hold_period_days">%1$d días</string>
+    <string name="rewards_summary_hold_period_days">%1$d días</string>
     <string name="interest_dashboard_title">Cuenta de intereses</string>
-    <string name="interest_dashboard_item_balance_title">Saldo de %1$s</string>
+    <string name="rewards_dashboard_item_balance_title">Saldo de %1$s</string>
     <string name="interest_dashboard_item_accrued_title">Interés total ganado</string>
     <string name="interest_dashboard_item_action_earn">Ganar intereses</string>
-    <string name="interest_dashboard_item_action_view">Ver</string>
-    <string name="interest_dashboard_item_rate_1">Ganar hasta</string>
-    <string name="interest_dashboard_item_rate_2">anualmente en su %1$s</string>
+    <string name="rewards_dashboard_item_action_view">Ver</string>
+    <string name="rewards_dashboard_item_rate_1">Ganar hasta</string>
+    <string name="rewards_dashboard_item_rate_2">anualmente en su %1$s</string>
     <string name="interest_dashboard_verify_label">Gane hasta un 12 \% instantáneamente cuando transfiera criptomonedas a su cuenta de intereses.</string>
-    <string name="interest_dashboard_verify_point_one_title">Verifique su identidad</string>
-    <string name="interest_dashboard_verify_point_one_label">Para evitar el robo de identidad o el fraude, necesitaremos asegurarnos de que es usted solicitando su identificación.</string>
-    <string name="interest_dashboard_verify_point_two_title">Comprar Cripto</string>
-    <string name="interest_dashboard_verify_point_two_label">Utilice su tarjeta bancaria, de débito o de crédito para financiar cualquier compra de criptomonedas.</string>
+    <string name="rewards_dashboard_verify_point_one_title">Verifique su identidad</string>
+    <string name="rewards_dashboard_verify_point_one_label">Para evitar el robo de identidad o el fraude, necesitaremos asegurarnos de que es usted solicitando su identificación.</string>
+    <string name="rewards_dashboard_verify_point_two_title">Comprar Cripto</string>
+    <string name="rewards_dashboard_verify_point_two_label">Utilice su tarjeta bancaria, de débito o de crédito para financiar cualquier compra de criptomonedas.</string>
     <string name="interest_dashboard_verify_point_three_title">Ganar intereses</string>
     <string name="interest_dashboard_verify_point_three_label">Transfiera a su Cuenta de Intereses y obtenga Pagos de Intereses mensuales.</string>
-    <string name="interest_summary_disclaimer_label">Utilice la billetera web para retirar sus fondos</string>
+    <string name="rewards_summary_disclaimer_label">Utilice la billetera web para retirar sus fondos</string>
     <string name="buy">Comprar</string>
     <string name="sell">Vender</string>
     <string name="buy_and_sell">Compra y Venda</string>
@@ -1283,9 +1283,9 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el so
     <string name="tx_confirmation_free_fee_learn_more_1">Tarifas de red al usar</string>
     <string name="tx_confirmation_free_fee_learn_more_2">Monederos comerciales</string>
     <string name="tx_confirmation_free_fee_learn_more_3">¡GRATIS! <annotation link="send_tx_fees">Más información sobre las tarifas</annotation>.</string>
-    <string name="interest_item_issue_region">No disponible en su región</string>
+    <string name="rewards_item_issue_region">No disponible en su región</string>
     <string name="interest_item_issue_kyc">Necesita verificar el nivel Oro para poder ganar intereses</string>
-    <string name="interest_item_issue_other">Actualmente no disponible. Vuelva a comprobarlo más tarde.</string>
+    <string name="rewards_item_issue_other">Actualmente no disponible. Vuelva a comprobarlo más tarde.</string>
     <string name="swap_header_title">Cambie su criptomoneda</string>
     <string name="swap_header_label">Intercambie al momento criptomonedas a cualquier otra moneda de las que ofrecemos para su monedero.</string>
     <string name="swap_kyc_title">Verifique su ID. Intercambie hoy.</string>
@@ -1577,7 +1577,7 @@ Sus fondos estarán disponibles para ser retirados una vez que la transferencia 
     <string name="cash_accounts">Cuentas de caja</string>
     <string name="cash_accounts_description">Guarde USD, GBP o EUR en su monedero. Utilice el saldo para comprar criptomonedas. Venda criptomonedas por dinero en efectivo en cualquier momento.</string>
     <string name="link_a_bank_description">Guarde USD, GBP o EUR en su monedero. Utilice el saldo para comprar criptomonedas. Venda criptomonedas por dinero en efectivo en cualquier momento.</string>
-    <string name="earn_interest_description" formatted="false">Opere con su criptomoneda. Gane hasta un 10 % al mes sin hacer nada. Haga su depósito y comience a ganar al instante.</string>
+    <string name="earn_rewards_description" formatted="false">Opere con su criptomoneda. Gane hasta un 10 % al mes sin hacer nada. Haga su depósito y comience a ganar al instante.</string>
     <string name="sb_checkout_daily_limit_title">Se ha superado el límite diario</string>
     <string name="sb_checkout_daily_limit_blurb">Vaya, parece que ha agotado su límite diario de transacciones para compras y depósitos. Vuelva a intentarlo mañana.</string>
     <string name="sb_checkout_weekly_limit_title">Se ha superado el límite semanal</string>
@@ -1626,7 +1626,7 @@ autenticarse y acceder a su monedero.</string>
     <string name="deposit_confirmation_timeout_subtitle">A veces los pagos pueden tardar en realizarse. Si aprobó la transacción, puede cerrar de manera segura y verificar el progreso del depósito en la pestaña Actividad.</string>
     <string name="deposit_confirmation_error_title">Vaya, parece que algo ha salido mal</string>
     <string name="deposit_confirmation_error_subtitle">Ha habido un problema con su depósito. Inténtelo de nuevo o póngase en contacto con el equipo de asistencia si el problema continúa.</string>
-    <string name="interest_enter_amount_error_insufficient_funds_for_fees">No hay suficientes %1$s en su monedero para transferir con las tarifas de red actuales.</string>
+    <string name="rewards_enter_amount_error_insufficient_funds_for_fees">No hay suficientes %1$s en su monedero para transferir con las tarifas de red actuales.</string>
     <string name="send_enter_amount_error_insufficient_funds_for_fees">No hay suficientes %1$s en su monedero para enviar con las tarifas de red actuales.</string>
     <string name="swap_enter_amount_error_insufficient_funds_for_fees">No hay suficientes %1$s en su monedero para intercambiar con las tarifas de red actuales.</string>
     <string name="approve_payment">Aprobar su pago</string>
@@ -1732,7 +1732,7 @@ Sus fondos estarán disponibles para ser retirados una vez que la transferencia 
     <string name="upgrading_wallet">Actualizando la cartera</string>
     <string name="custodial_wallet_default_label_2">Cuenta de operaciones %s</string>
     <string name="select_withdraw_target_title">Retirar en</string>
-    <string name="withdraw_interest_confirmation_success_message">Su %1$s estará disponible en su %2$s en periodo de dos días.</string>
+    <string name="withdraw_rewards_confirmation_success_message">Su %1$s estará disponible en su %2$s en periodo de dos días.</string>
     <string name="simple_buy_confirmation_error">Ha habido un problema con su pago. Inténtelo de nuevo o póngase en contacto con el equipo de asistencia si el problema continúa.</string>
     <string name="send_enter_amount_error_invalid_amount_1">Enviar %1$s o más.</string>
     <string name="send_internal_transfer_message_1">En este momento puede transferir %1$s desde su cuenta de operaciones %2$s a sus carteras de clave privada %2$s o cuenta de intereses. Si desea transferir a direcciones externas, puede hacerlo a través de su cartera de clave privada.</string>

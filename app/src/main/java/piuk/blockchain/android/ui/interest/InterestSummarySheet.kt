@@ -150,30 +150,30 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         itemList.apply {
             add(
                 InterestSummaryInfoItem(
-                    getString(R.string.interest_summary_total),
+                    getString(R.string.rewards_summary_total),
                     composite.totalInterest.toStringWithSymbol()
                 )
             )
 
             val sdf = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
             val formattedDate = sdf.format(composite.nextInterestPayment)
-            add(InterestSummaryInfoItem(getString(R.string.interest_summary_next_payment), formattedDate))
+            add(InterestSummaryInfoItem(getString(R.string.rewards_summary_next_payment), formattedDate))
 
             add(
                 InterestSummaryInfoItem(
-                    getString(R.string.interest_summary_accrued),
+                    getString(R.string.rewards_summary_accrued),
                     composite.pendingInterest.toStringWithSymbol()
                 )
             )
 
             add(
                 InterestSummaryInfoItem(
-                    getString(R.string.interest_summary_hold_period),
-                    getString(R.string.interest_summary_hold_period_days, composite.lockupDuration)
+                    getString(R.string.rewards_summary_hold_period),
+                    getString(R.string.rewards_summary_hold_period_days, composite.lockupDuration)
                 )
             )
 
-            add(InterestSummaryInfoItem(getString(R.string.interest_summary_rate), "${composite.interestRate}%"))
+            add(InterestSummaryInfoItem(getString(R.string.rewards_summary_rate), "${composite.interestRate}%"))
         }
 
         composite.balance.run {

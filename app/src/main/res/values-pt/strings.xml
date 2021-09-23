@@ -1198,8 +1198,8 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="send_confirmation_fee">Taxa - normal</string>
     <string name="send_confirmation_add_note_hint">Adicione uma anotação</string>
     <string name="send_confirmation_cta_button">Envie %1$s</string>
-    <string name="send_confirmation_interest_tos_pp">Li e concordo com os <annotation link="interest_tos"> Termos de Serviço </annotation> e a <annotation link="interest_pp"> Política de Privacidade </annotation>.</string>
-    <string name="send_confirmation_interest_holding_period_1">Ao aceitar isso, concorda em transferir</string>
+    <string name="send_confirmation_rewards_tos_pp">Li e concordo com os <annotation link="interest_tos"> Termos de Serviço </annotation> e a <annotation link="interest_pp"> Política de Privacidade </annotation>.</string>
+    <string name="send_confirmation_rewards_holding_period_1">Ao aceitar isso, concorda em transferir</string>
     <string name="send_confirmation_interest_holding_period_2">  (%1$s) da sua Carteira %2$s para a sua Conta de Juros. Um período inicial de retenção de 7 dias será aplicado aos seus fundos.</string>
     <string name="send_confirmation_progress_title">Transferindo %1$s</string>
     <string name="send_confirmation_progress_message">Estamos a transferir o seu %1$s agora.</string>
@@ -1227,7 +1227,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="convert_your_crypto_to_cash">Converter a sua crypto em dinheiro</string>
     <string name="deposit_enter_amount_limit_title">Limite diário</string>
     <string name="interest_dashboard_verify_title">Ganhe juros sobre a sua crypto</string>
-    <string name="interest_summary_hold_period">Período inicial de retenção</string>
+    <string name="rewards_summary_hold_period">Período inicial de retenção</string>
     <string name="interest_summary_rate">Taxa de juros</string>
     <string name="interest_summary_next_payment">Próximo pagamento de juros</string>
     <string name="sell_enter_amount_max">Vender Max</string>
@@ -1236,7 +1236,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
   </string>
     <string name="interest_announcement_title">Ganhe juros sobre o seu crypto hoje!</string>
     <string name="interest_announcement_description">Transfira Crypto e comece a ganhar juros em BTC, ETH e muito mais.</string>
-    <string name="interest_announcement_action">Saber mais</string>
+    <string name="rewards_announcement_action">Saber mais</string>
     <string name="purchase_card_note_2">O seu crypto estará disponível para levantamento dentro de</string>
     <string name="select_send_sheet_title">Enviar de</string>
     <string name="select_send_source_title">Enviar de</string>
@@ -1266,22 +1266,22 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="sell_progress_complete_title">%1$s Vendido</string>
     <string name="earn_interest">Ganhe juros</string>
     <string name="interest_summary_total">Total de juros ganhos</string>
-    <string name="interest_summary_hold_period_days">%1$d Dias</string>
+    <string name="rewards_summary_hold_period_days">%1$d Dias</string>
     <string name="interest_dashboard_title">Conta de juros</string>
-    <string name="interest_dashboard_item_balance_title">%1$s Saldo</string>
+    <string name="rewards_dashboard_item_balance_title">%1$s Saldo</string>
     <string name="interest_dashboard_item_accrued_title">Total de juros ganhos</string>
     <string name="interest_dashboard_item_action_earn">Ganhe juros</string>
-    <string name="interest_dashboard_item_action_view">Visualizar</string>
-    <string name="interest_dashboard_item_rate_1">Ganhe até </string>
-    <string name="interest_dashboard_item_rate_2"> anualmente no seu %1$s</string>
+    <string name="rewards_dashboard_item_action_view">Visualizar</string>
+    <string name="rewards_dashboard_item_rate_1">Ganhe até </string>
+    <string name="rewards_dashboard_item_rate_2"> anualmente no seu %1$s</string>
     <string name="interest_dashboard_verify_label">Ganhe até 12\% instantaneamente quando transferir crypto para a sua Conta de Juros.</string>
-    <string name="interest_dashboard_verify_point_one_title">Verifique a sua identidade</string>
-    <string name="interest_dashboard_verify_point_one_label">Para evitar roubo de identidade ou fraude, temos de nos certificar de que é você mesmo, enviando um documento de identificação.</string>
-    <string name="interest_dashboard_verify_point_two_title">Comprar Crypto</string>
-    <string name="interest_dashboard_verify_point_two_label">Use o seu banco, cartão de débito ou crédito para financiar qualquer compra de criptomoedas.</string>
+    <string name="rewards_dashboard_verify_point_one_title">Verifique a sua identidade</string>
+    <string name="rewards_dashboard_verify_point_one_label">Para evitar roubo de identidade ou fraude, temos de nos certificar de que é você mesmo, enviando um documento de identificação.</string>
+    <string name="rewards_dashboard_verify_point_two_title">Comprar Crypto</string>
+    <string name="rewards_dashboard_verify_point_two_label">Use o seu banco, cartão de débito ou crédito para financiar qualquer compra de criptomoedas.</string>
     <string name="interest_dashboard_verify_point_three_title">Ganhe juros</string>
     <string name="interest_dashboard_verify_point_three_label">Transfira para a sua Conta de Juros e receba pagamentos de juros mensais.</string>
-    <string name="interest_summary_disclaimer_label">Utilize a carteira Web para levantar os seus fundos</string>
+    <string name="rewards_summary_disclaimer_label">Utilize a carteira Web para levantar os seus fundos</string>
     <string name="buy">Comprar </string>
     <string name="sell">Vender</string>
     <string name="buy_and_sell">Compra venda</string>
@@ -1391,9 +1391,9 @@ Verifique a sua ligação à Internet e tente novamente ou contacte o Apoio ao C
     <string name="tx_confirmation_free_fee_learn_more_1">Taxas de rede ao utilizar</string>
     <string name="tx_confirmation_free_fee_learn_more_2"> Carteiras de Negociação </string>
     <string name="tx_confirmation_free_fee_learn_more_3">são GRATUITAS! <annotation link="send_tx_fees">Saiba mais sobre taxas</annotation>.</string>
-    <string name="interest_item_issue_region">Não está disponível na sua região</string>
+    <string name="rewards_item_issue_region">Não está disponível na sua região</string>
     <string name="interest_item_issue_kyc">Precisa de verificação Gold para começar a ganhar juros</string>
-    <string name="interest_item_issue_other">Atualmente indisponível, verifique novamente mais tarde</string>
+    <string name="rewards_item_issue_other">Atualmente indisponível, verifique novamente mais tarde</string>
     <string name="swap_header_title">Trocar a sua crypto</string>
     <string name="swap_header_label">Troque instantaneamente as suas crypto por qualquer moeda que oferecemos para a sua carteira.</string>
     <string name="swap_kyc_title">Verifique a sua identidade. Troque ainda hoje.</string>
@@ -1689,7 +1689,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="cash_accounts">Contas de caixa</string>
     <string name="cash_accounts_description">Guarde USD, GBP ou EUR na sua carteira. Utilize o saldo para comprar criptomoedas. Venda criptomoedas por dinheiro a qualquer momento.</string>
     <string name="link_a_bank_description">Guarde USD, GBP ou EUR na sua carteira. Utilize o saldo para comprar criptomoedas. Venda criptomoedas por dinheiro a qualquer momento.</string>
-    <string name="earn_interest_description" formatted="false">Ponha o seu crypto a funcionar. Ganhe até 10% mensalmente sem fazer nada. Deposite instantaneamente e comece a ganhar.</string>
+    <string name="earn_rewards_description" formatted="false">Ponha o seu crypto a funcionar. Ganhe até 10% mensalmente sem fazer nada. Deposite instantaneamente e comece a ganhar.</string>
     <string name="sb_checkout_daily_limit_title">Limite diário excedido</string>
     <string name="sb_checkout_daily_limit_blurb">Ups, parece que já chegou ao seu limite de transações diário para Compras e Depósitos, tente novamente amanhã.</string>
     <string name="sb_checkout_weekly_limit_title">Limite semanal excedido</string>
@@ -1739,7 +1739,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="deposit_confirmation_timeout_subtitle">Por vezes, os pagamentos podem demorar algum tempo a ser efetuados. Se tiver aprovado a transação, pode fechar em segurança e verificar o progresso do Depósito no separador Atividade.</string>
     <string name="deposit_confirmation_error_title">Ups, parece que ocorreu um erro!</string>
     <string name="deposit_confirmation_error_subtitle">Ocorreu um problema no seu Depósito. Tente novamente ou contacte o apoio ao cliente se o problema continuar.</string>
-    <string name="interest_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para transferir com as taxas de rede atuais.</string>
+    <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para transferir com as taxas de rede atuais.</string>
     <string name="send_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para enviar com as taxas de rede atuais.</string>
     <string name="swap_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para trocar com as taxas de rede atuais.</string>
     <string name="approve_payment">Aprovar o seu pagamento</string>
@@ -1845,7 +1845,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="upgrading_wallet">A atualizar a carteira</string>
     <string name="custodial_wallet_default_label_2">%s Conta de negociação</string>
     <string name="select_withdraw_target_title">Levantar para</string>
-    <string name="withdraw_interest_confirmation_success_message">O seu %1$s estará disponível na sua %2$s dentro de 2 dias.</string>
+    <string name="withdraw_rewards_confirmation_success_message">O seu %1$s estará disponível na sua %2$s dentro de 2 dias.</string>
     <string name="simple_buy_confirmation_error">Ocorreu um problema com o seu pagamento. Tente novamente ou contacte o apoio ao cliente se o problema continuar.</string>
     <string name="send_enter_amount_error_invalid_amount_1">Envie %1$s ou mais.</string>
     <string name="send_internal_transfer_message_1">Neste momento pode transferir %1$s da sua %2$s Conta de Negociação para as suas %2$s Carteiras de Chave Privada ou Conta de juros. Se desejar transferir para endereços externos, pode fazê-lo a partir da sua Carteira de Chaves Privadas.</string>

@@ -47,7 +47,7 @@ class InterestDashboardActivity : BlockchainActivity(),
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-        setTitle(R.string.interest_dashboard_title)
+        setTitle(R.string.rewards_dashboard_title)
         analytics.logEvent(InterestAnalytics.InterestViewed)
 
         supportFragmentManager.beginTransaction()

@@ -204,7 +204,7 @@ class ResetPasswordFragment :
             visibleIf { shouldResetKyc }
         }
         resetKycNotice.apply {
-            text = getString(R.string.reset_kyc_notice)
+            text = getString(R.string.reset_kyc_notice_1)
             visibleIf { shouldResetKyc }
         }
         continueButton.text = if (!shouldResetKyc) {

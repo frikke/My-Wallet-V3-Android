@@ -99,7 +99,7 @@ class AccountRecoveryActivity :
                 )
                 movementMethod = LinkMovementMethod.getInstance()
             }
-            resetKycLabel.text = getString(R.string.reset_kyc_notice)
+            resetKycLabel.text = getString(R.string.reset_kyc_notice_1)
 
             verifyButton.setOnClickListener {
                 analytics.logEvent(AccountRecoveryAnalytics.MnemonicEntered(isCustodialAccount = false))

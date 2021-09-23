@@ -77,7 +77,7 @@ private class InterestAssetItemViewHolder(
             itemInterestAssetTitle.text = item.asset.name
 
             itemInterestAccBalanceTitle.text =
-                context.getString(R.string.interest_dashboard_item_balance_title, item.asset.displayTicker)
+                context.getString(R.string.rewards_dashboard_item_balance_title, item.asset.displayTicker)
         }
 
         disposables += Single.zip(
@@ -107,9 +107,9 @@ private class InterestAssetItemViewHolder(
     private fun showDisabledState() {
         with(binding) {
             itemInterestCta.isEnabled = false
-            itemInterestCta.text = context.getString(R.string.interest_dashboard_item_action_earn)
+            itemInterestCta.text = context.getString(R.string.rewards_dashboard_item_action_earn)
             itemInterestExplainer.visible()
-            itemInterestExplainer.text = context.getString(R.string.interest_item_issue_other)
+            itemInterestExplainer.text = context.getString(R.string.rewards_item_issue_other)
         }
     }
 
@@ -138,9 +138,9 @@ private class InterestAssetItemViewHolder(
     ) {
         itemInterestCta.isEnabled = item.isKycGold && details.available
         itemInterestCta.text = if (details.balance.isPositive) {
-            context.getString(R.string.interest_dashboard_item_action_view)
+            context.getString(R.string.rewards_dashboard_item_action_view)
         } else {
-            context.getString(R.string.interest_dashboard_item_action_earn)
+            context.getString(R.string.rewards_dashboard_item_action_earn)
         }
 
         itemInterestCta.setOnClickListener {
@@ -151,10 +151,10 @@ private class InterestAssetItemViewHolder(
     private fun ItemInterestDashboardAssetInfoBinding.setDisabledExplanation(details: InterestDetails) {
         itemInterestExplainer.text = context.getString(
             when (details.disabledReason) {
-                IneligibilityReason.REGION -> R.string.interest_item_issue_region
-                IneligibilityReason.KYC_TIER -> R.string.interest_item_issue_kyc
+                IneligibilityReason.REGION -> R.string.rewards_item_issue_region
+                IneligibilityReason.KYC_TIER -> R.string.rewards_item_issue_kyc
                 IneligibilityReason.NONE -> R.string.empty
-                else -> R.string.interest_item_issue_other
+                else -> R.string.rewards_item_issue_other
             }
         )
 
@@ -165,9 +165,9 @@ private class InterestAssetItemViewHolder(
         details: InterestDetails,
         item: InterestAssetInfoItem
     ) {
-        val rateIntro = context.getString(R.string.interest_dashboard_item_rate_1)
+        val rateIntro = context.getString(R.string.rewards_dashboard_item_rate_1)
         val rateInfo = "${details.interestRate}%"
-        val rateOutro = context.getString(R.string.interest_dashboard_item_rate_2, item.asset.displayTicker)
+        val rateOutro = context.getString(R.string.rewards_dashboard_item_rate_2, item.asset.displayTicker)
 
         val sb = SpannableStringBuilder()
             .append(rateIntro)
