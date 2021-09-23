@@ -107,6 +107,7 @@ import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateU
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.ui.kyc.autocomplete.PlacesManager
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -814,5 +815,11 @@ val applicationModule = module {
 
     single {
         Database(get())
+    }
+
+    single {
+        PlacesManager(
+            applicationContext = get()
+        )
     }
 }

@@ -70,11 +70,11 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
     }
     private val initialState by unsafeLazy {
         AddressModel(
-            "",
+            profileModel.addressDetails?.address ?: "",
             null,
-            "",
+            profileModel.addressDetails?.locality ?: "",
             profileModel.stateCode ?: "",
-            "",
+            profileModel.addressDetails?.postalCode ?: "",
             profileModel.countryCode
         )
     }
@@ -271,6 +271,10 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
             editTextKycAddressState.setText(
                 profileModel.stateName ?: ""
             )
+
+            editTextKycAddressFirstLine.setText(initialState.firstLine)
+            editTextKycAddressCity.setText(initialState.city)
+            editTextKycAddressZipCode.setText(initialState.postCode)
         }
     }
 

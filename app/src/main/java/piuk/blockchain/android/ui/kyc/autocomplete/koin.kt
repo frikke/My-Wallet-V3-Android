@@ -10,7 +10,7 @@ val kycAutocompleteModule = module {
 
         factory {
             KycAutocompleteAddressModel(
-                initialState = KycAutocompleteAddressState(),
+                initialState = KycAutocompleteAddressState,
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 crashLogger = get(),
@@ -19,7 +19,9 @@ val kycAutocompleteModule = module {
         }
 
         factory {
-            KycAutocompleteAddressInteractor()
+            KycAutocompleteAddressInteractor(
+                placesManager = get()
+            )
         }
     }
 }
