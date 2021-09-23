@@ -320,5 +320,4 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
     override fun createPresenter(): KycHomeAddressPresenter = presenter
 
     override fun getMvpView(): KycHomeAddressView = this
-
 }

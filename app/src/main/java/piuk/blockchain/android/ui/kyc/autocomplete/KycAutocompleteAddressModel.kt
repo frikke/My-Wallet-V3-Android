@@ -65,9 +65,6 @@ open class Event<out T : Any>(private val content: T) {
 
     private var hasBeenHandled = false
 
-    /**
-     * Returns the content and prevents its use again.
-     */
     fun getIfNotHandled(): T? {
         if (hasBeenHandled) {
             return null
@@ -78,10 +75,6 @@ open class Event<out T : Any>(private val content: T) {
     }
 }
 
-/**
- * Similar to [LiveData.observe], but only calls [onChanged] if the value
- * emitted is non-null.
- */
 inline fun <T : Any> LiveData<T>.observeNonNull(
     owner: LifecycleOwner,
     crossinline onChanged: (T) -> Unit

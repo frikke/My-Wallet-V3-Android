@@ -9,9 +9,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
-import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 
 class KycAutocompleteAddressInteractor(val placesManager: PlacesManager) {
 

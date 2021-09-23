@@ -16,7 +16,8 @@ import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycAutocompleteAddressFragment :
-    MviFragment<KycAutocompleteAddressModel, KycAutocompleteAddressIntents, KycAutocompleteAddressState, FragmentKycAutocompleteBinding>() {
+    MviFragment<KycAutocompleteAddressModel, KycAutocompleteAddressIntents, KycAutocompleteAddressState,
+        FragmentKycAutocompleteBinding>() {
 
     override val model: KycAutocompleteAddressModel by scopedInject()
 
@@ -62,9 +63,10 @@ class KycAutocompleteAddressFragment :
         when (action) {
             is KycAutocompleteAddressModel.Action.NavigateToAddressFragment -> {
                 navigate(
-                    KycAutocompleteAddressFragmentDirections.actionKycAutocompleteAddressFragmentToKycHomeAddressFragment(
-                        profileModel.copy(addressDetails = action.addressDetails)
-                    )
+                    KycAutocompleteAddressFragmentDirections
+                        .actionKycAutocompleteAddressFragmentToKycHomeAddressFragment(
+                            profileModel.copy(addressDetails = action.addressDetails)
+                        )
                 )
             }
             is KycAutocompleteAddressModel.Action.UpdateSearchList -> adapter.submitList(action.addresses)
