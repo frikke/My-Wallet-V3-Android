@@ -149,7 +149,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
     }
 
     override fun continueSignUp(profileModel: ProfileModel) {
-        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+        if (internalFlags.isFeatureEnabled(GatedFeature.AUTOCOMPLETE_ADDRESS)) {
             navigate(
                 KycProfileFragmentDirections.actionKycProfileFragmentToKycAutocompleteAddressFragment(
                     profileModel
