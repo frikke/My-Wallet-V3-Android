@@ -42,5 +42,6 @@ data class NabuAnalyticsEvent(
     val type: String,
     val originalTimestamp: String,
     val properties: Map<String, String>,
-    val numericProperties: Map<String, BigDecimal>
+    val numericProperties: Map<String, BigDecimal>,
+    val booleanProperties: Map<String, Boolean>
 )

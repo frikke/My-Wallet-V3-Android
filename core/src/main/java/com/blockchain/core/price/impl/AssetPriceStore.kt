@@ -43,8 +43,8 @@ private data class AssetPair(
     val quote: String
 )
 
-private class AssetPriceNotCached(pair: AssetPair)
-    : Throwable("No cached price available for ${pair.base} to ${pair.quote}")
+private class AssetPriceNotCached(pair: AssetPair) :
+    Throwable("No cached price available for ${pair.base} to ${pair.quote}")
 
 private typealias AssetPricesMap = MutableMap<AssetPair, AssetPriceRecord>
 // TEMP to get supported user fiats. This should come from the dynamic endpoints and
@@ -180,7 +180,7 @@ internal class AssetPriceStore(
             ).doOnSuccess {
                 requestBuffer.requestComplete()
             }.map { FETCH_REQUIRED_VALUE_IGNORED }
-            .toObservable()
+                .toObservable()
         }
     }
 

@@ -82,5 +82,6 @@ sealed class InterestAnalytics(
         private const val CURRENCY = "currency"
         private const val SOURCE_ACCOUNT_TYPE = "from_account_type"
         private const val INPUT_AMOUNT = "input_amount"
+        private const val INTEREST_RATE = "interest_rate"
     }
 }
