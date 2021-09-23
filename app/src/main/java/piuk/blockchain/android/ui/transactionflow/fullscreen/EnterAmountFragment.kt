@@ -307,7 +307,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             inputCurrency is CurrencyType.Fiat && inputCurrency.fiatCurrency != selectedFiat -> {
                 configuration = FiatCryptoViewConfiguration(
                     inputCurrency = inputCurrency,
-                    outputCurrency = CurrencyType.Fiat(selectedFiat),
+                    outputCurrency = inputCurrency,
                     exchangeCurrency = CurrencyType.Fiat(selectedFiat),
                     predefinedAmount = state.amount
                 )

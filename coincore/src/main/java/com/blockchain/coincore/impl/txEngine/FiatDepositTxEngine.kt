@@ -80,7 +80,7 @@ class FiatDepositTxEngine(
                         AssetAction.FiatDeposit
                     ),
                     TxConfirmationValue.To(txTarget, AssetAction.FiatDeposit),
-                    if (!pendingTx.isOpenBankingCurrency()) {
+                    if (!isOpenBankingCurrency()) {
                         TxConfirmationValue.EstimatedCompletion
                     } else null,
                     TxConfirmationValue.Amount(pendingTx.amount, true)
@@ -127,7 +127,7 @@ class FiatDepositTxEngine(
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         sourceAccount.receiveAddress.flatMap {
             walletManager.startBankTransfer(
-                it.address, pendingTx.amount, pendingTx.amount.currencyCode, if (pendingTx.isOpenBankingCurrency()) {
+                it.address, pendingTx.amount, pendingTx.amount.currencyCode, if (isOpenBankingCurrency()) {
                     bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
                 } else null
             )
@@ -136,7 +136,7 @@ class FiatDepositTxEngine(
         }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        if (pendingTx.isOpenBankingCurrency()) {
+        if (isOpenBankingCurrency()) {
             val paymentId = (txResult as TxResult.HashedTxResult).txId
             PollService(walletManager.getBankTransferCharge(paymentId)) {
                 it.authorisationUrl != null
@@ -158,6 +158,8 @@ class FiatDepositTxEngine(
             Completable.complete()
         }
 
-    private fun PendingTx.isOpenBankingCurrency() =
-        this.selectedFiat == "EUR" || this.selectedFiat == "GBP"
+    private fun isOpenBankingCurrency(): Boolean {
+        val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
+        return sourceAccountCurrency == "EUR" || sourceAccountCurrency == "GBP"
+    }
 }

@@ -37,7 +37,7 @@ class FiatWithdrawalTxEngine(
         check(sourceAccount is FiatAccount)
 
         return Single.zip(
-            sourceAccount.balance.singleOrError(),
+            sourceAccount.balance.firstOrError(),
             (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit(),
             { balance, limitAndFee ->
                 val zeroFiat = FiatValue.zero((sourceAccount as FiatAccount).fiatCurrency)
