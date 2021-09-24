@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.interest
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -14,19 +20,14 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.SingleAccount
 import piuk.blockchain.android.databinding.FragmentInterestDashboardBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
@@ -119,6 +120,7 @@ class InterestDashboardFragment : Fragment() {
         _binding = null
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun renderInterestDetails(
         tiers: KycTiers,
         enabledAssets: List<AssetInfo>
@@ -130,7 +132,10 @@ class InterestDashboardFragment : Fragment() {
             items.add(InterestIdentityVerificationItem)
         }
 
-        enabledAssets.map {
+        // we load balance per item, so at least ensure some consistency when loading the list
+        enabledAssets.sortedBy {
+            it.name
+        }.map {
             items.add(InterestAssetInfoItem(isKycGold, it))
         }
 
