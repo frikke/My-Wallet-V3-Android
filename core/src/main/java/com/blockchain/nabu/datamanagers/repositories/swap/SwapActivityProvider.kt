@@ -35,6 +35,9 @@ class SwapActivityProviderImpl(
 
                 val apiFiat = FiatValue.fromMinor(it.fiatCurrency, it.fiatValue.toLong())
                 val receivingValue = pair.toDestinationMoney(it.priceFunnel.outputMoney.toBigInteger())
+                // priceFunnel.price comes as Major Value
+                val price = FiatValue.fromMajor(it.fiatCurrency, BigDecimal(it.priceFunnel.price))
+
                 TradeTransactionItem(
                     txId = it.kind.depositTxHash ?: it.id,
                     timeStampMs = it.createdAt.fromIso8601ToUtc()?.toLocalTime()?.time
@@ -48,8 +51,7 @@ class SwapActivityProviderImpl(
                     withdrawalNetworkFee = pair.toDestinationMoney(it.priceFunnel.networkFee.toBigInteger()),
                     currencyPair = pair,
                     apiFiatValue = apiFiat,
-                    price = FiatValue.fromMajor(receivingValue.currencyCode, BigDecimal(it.priceFunnel.price))
-                    // priceFunnel.price comes as Major Value
+                    price = price
                 )
             }.filter {
                 it.state.displayableState
