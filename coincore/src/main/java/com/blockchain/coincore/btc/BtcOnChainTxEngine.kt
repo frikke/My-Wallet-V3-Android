@@ -1,6 +1,24 @@
 package com.blockchain.coincore.btc
 
 import com.blockchain.bitpay.BitPayClientEngine
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.EngineTransaction
+import com.blockchain.coincore.FeeInfo
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeLevelRates
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TxConfirmation
+import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxResult
+import com.blockchain.coincore.TxValidationFailure
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.copyAndPut
+import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
+import com.blockchain.coincore.toFiat
+import com.blockchain.coincore.toUserFiat
+import com.blockchain.coincore.updateTxValidity
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
@@ -21,24 +39,6 @@ import org.bitcoinj.core.Transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.spongycastle.util.encoders.Hex
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.EngineTransaction
-import com.blockchain.coincore.FeeInfo
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FeeLevelRates
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TxConfirmation
-import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.coincore.TxResult
-import com.blockchain.coincore.TxValidationFailure
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.copyAndPut
-import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
-import com.blockchain.coincore.toFiat
-import com.blockchain.coincore.toUserFiat
-import com.blockchain.coincore.updateTxValidity
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
@@ -170,9 +170,17 @@ class BtcOnChainTxEngine(
         feeOptions: FeeOptions,
         coins: List<Utxo>
     ): PendingTx {
+        val regularFee = feesPerKb[FeeLevel.Regular]
+        val priorityFee = feesPerKb[FeeLevel.Priority]
+
+        require(regularFee != null) { "Regular fee per kb is null" }
+        require(priorityFee != null) { "Priority fee per kb is null" }
+
         val targetOutputType = btcDataManager.getAddressOutputType(btcTarget.address)
         val changeOutputType = btcDataManager.getXpubFormatOutputType(btcSource.xpubs.default.derivation)
-        val feeForLevel = feesPerKb[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAsset)
+        val selectedFeeLevel = pendingTx.feeSelection.selectedLevel
+
+        val feeForLevel = feesPerKb[selectedFeeLevel] ?: CryptoValue.zero(sourceAsset)
 
         val available = sendDataManager.getMaximumAvailable(
             asset = sourceAsset,
@@ -181,13 +189,42 @@ class BtcOnChainTxEngine(
             feePerKb = feeForLevel
         ) // This is total balance, with fees deducted
 
-        val utxoBundle = sendDataManager.getSpendableCoins(
+        val coinsSelectedForRegularFee = sendDataManager.getSpendableCoins(
             unspentCoins = coins,
             targetOutputType = targetOutputType,
             changeOutputType = changeOutputType,
             paymentAmount = amount,
-            feePerKb = feeForLevel
+            feePerKb = regularFee
         )
+
+        val coinsSelectedForPriorityFee = sendDataManager.getSpendableCoins(
+            unspentCoins = coins,
+            targetOutputType = targetOutputType,
+            changeOutputType = changeOutputType,
+            paymentAmount = amount,
+            feePerKb = priorityFee
+        )
+
+        val utxoBundle = when (selectedFeeLevel) {
+            FeeLevel.Priority -> coinsSelectedForPriorityFee
+            FeeLevel.Regular -> coinsSelectedForRegularFee
+            else -> sendDataManager.getSpendableCoins(
+                unspentCoins = coins,
+                targetOutputType = targetOutputType,
+                changeOutputType = changeOutputType,
+                paymentAmount = amount,
+                feePerKb = feeForLevel
+            )
+        }
+
+        val updatedFees = feesPerKb.mapValues {
+            when (it.key) {
+                FeeLevel.None -> it.value
+                FeeLevel.Regular -> CryptoValue.fromMinor(sourceAsset, coinsSelectedForRegularFee.absoluteFee)
+                FeeLevel.Priority -> CryptoValue.fromMinor(sourceAsset, coinsSelectedForPriorityFee.absoluteFee)
+                FeeLevel.Custom -> it.value
+            }
+        }
 
         return pendingTx.copy(
             amount = amount,
@@ -197,7 +234,7 @@ class BtcOnChainTxEngine(
             feeAmount = CryptoValue.fromMinor(sourceAsset, utxoBundle.absoluteFee),
             feeSelection = pendingTx.feeSelection.copy(
                 customLevelRates = feeOptions.toLevelRates(),
-                feesForLevels = feesPerKb
+                feesForLevels = updatedFees
             ),
             engineState = pendingTx.engineState
                 .copyAndPut(STATE_UTXO, utxoBundle)

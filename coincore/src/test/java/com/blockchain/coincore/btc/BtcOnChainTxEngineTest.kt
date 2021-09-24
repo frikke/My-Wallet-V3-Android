@@ -2,12 +2,21 @@
 
 package com.blockchain.coincore.btc
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.satoshi
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.atMost
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -25,18 +34,10 @@ import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.NetworkParameters
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.BlockchainAccount
-import kotlin.test.assertEquals
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
+import kotlin.test.assertEquals
 
 class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
@@ -191,6 +192,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         // Arrange
         val inputAmount = 2.bitcoin()
         val feePerKb = (FEE_REGULAR * 1000).satoshi()
+        val feePerKbPriority = (FEE_PRIORITY * 1000).satoshi()
         val totalFee = (FEE_REGULAR * 1000 * 3).satoshi()
 
         val txTarget: CryptoAddress = mock {
@@ -227,14 +229,29 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         val utxoBundle: SpendableUnspentOutputs = mock {
             on { absoluteFee }.thenReturn(totalFee.toBigInteger())
         }
+        val utxoBundlePriority: SpendableUnspentOutputs = mock {
+            on { absoluteFee }.thenReturn(feePerKbPriority.toBigInteger())
+        }
 
-        whenever(sendDataManager.getSpendableCoins(
-            unspentOutputs,
-            TARGET_OUTPUT_TYPE,
-            CHANGE_OUTPUT_TYPE,
-            inputAmount,
-            feePerKb
-        )).thenReturn(utxoBundle)
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKb
+            )
+        ).thenReturn(utxoBundle)
+
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKbPriority
+            )
+        ).thenReturn(utxoBundlePriority)
 
         subject.start(
             sourceAccount,
@@ -265,9 +282,9 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == totalSweepable &&
-                it.feeAmount == totalFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == totalSweepable &&
+                    it.feeAmount == totalFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
@@ -283,9 +300,12 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(btcFeeOptions, atLeastOnce()).regularFee
         verify(sendDataManager).getUnspentBtcOutputs(SOURCE_XPUBS)
         verify(sendDataManager).getMaximumAvailable(ASSET, unspentOutputs, TARGET_OUTPUT_TYPE, feePerKb)
-        verify(utxoBundle).absoluteFee
+        verify(utxoBundlePriority).absoluteFee
+        verify(utxoBundle, times(2)).absoluteFee
         verify(sendDataManager)
             .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKb)
+        verify(sendDataManager)
+            .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKbPriority)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -294,6 +314,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
     fun `update amount modifies the pendingTx correctly for priority fees`() {
         // Arrange
         val inputAmount = 2.bitcoin()
+        val feePerKbRegular = (FEE_REGULAR * 1000).satoshi()
         val feePerKb = (FEE_PRIORITY * 1000).satoshi()
         val totalFee = (FEE_REGULAR * 1000 * 3).satoshi()
 
@@ -329,17 +350,33 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             )
         )
 
+        val utxoBundleRegular: SpendableUnspentOutputs = mock {
+            on { absoluteFee }.thenReturn(feePerKbRegular.toBigInteger())
+        }
+
         val utxoBundle: SpendableUnspentOutputs = mock {
             on { absoluteFee }.thenReturn(totalFee.toBigInteger())
         }
 
-        whenever(sendDataManager.getSpendableCoins(
-            unspentOutputs,
-            TARGET_OUTPUT_TYPE,
-            CHANGE_OUTPUT_TYPE,
-            inputAmount,
-            feePerKb
-        )).thenReturn(utxoBundle)
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKbRegular
+            )
+        ).thenReturn(utxoBundleRegular)
+
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKb
+            )
+        ).thenReturn(utxoBundle)
 
         subject.start(
             sourceAccount,
@@ -388,7 +425,10 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(btcFeeOptions, atLeastOnce()).priorityFee
         verify(sendDataManager).getUnspentBtcOutputs(SOURCE_XPUBS)
         verify(sendDataManager).getMaximumAvailable(ASSET, unspentOutputs, TARGET_OUTPUT_TYPE, feePerKb)
-        verify(utxoBundle).absoluteFee
+        verify(utxoBundleRegular).absoluteFee
+        verify(utxoBundle, times(2)).absoluteFee
+        verify(sendDataManager)
+            .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKbRegular)
         verify(sendDataManager)
             .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKb)
 
@@ -418,6 +458,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         whenever(sendDataManager.getUnspentBtcOutputs(SOURCE_XPUBS))
             .thenReturn(Single.just(unspentOutputs))
 
+        val feePerKbRegular = (FEE_REGULAR * 1000).satoshi()
         val feePerKb = (FEE_PRIORITY * 1000).satoshi()
         val priorityFee = (FEE_PRIORITY * 1000 * 3).satoshi()
         val prioritySweepable = totalBalance - priorityFee
@@ -436,17 +477,32 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             )
         )
 
+        val utxoBundleRegular: SpendableUnspentOutputs = mock {
+            on { absoluteFee }.thenReturn(regularFee.toBigInteger())
+        }
         val utxoBundle: SpendableUnspentOutputs = mock {
             on { absoluteFee }.thenReturn(priorityFee.toBigInteger())
         }
 
-        whenever(sendDataManager.getSpendableCoins(
-            unspentOutputs,
-            TARGET_OUTPUT_TYPE,
-            CHANGE_OUTPUT_TYPE,
-            inputAmount,
-            feePerKb
-        )).thenReturn(utxoBundle)
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKbRegular
+            )
+        ).thenReturn(utxoBundleRegular)
+
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKb
+            )
+        ).thenReturn(utxoBundle)
 
         subject.start(
             sourceAccount,
@@ -478,10 +534,10 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == prioritySweepable &&
-                it.feeForFullAvailable == priorityFee &&
-                it.feeAmount == priorityFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == prioritySweepable &&
+                    it.feeForFullAvailable == priorityFee &&
+                    it.feeAmount == priorityFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
@@ -497,7 +553,10 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(btcFeeOptions, atLeastOnce()).priorityFee
         verify(sendDataManager).getUnspentBtcOutputs(SOURCE_XPUBS)
         verify(sendDataManager).getMaximumAvailable(ASSET, unspentOutputs, TARGET_OUTPUT_TYPE, feePerKb)
-        verify(utxoBundle).absoluteFee
+        verify(utxoBundleRegular).absoluteFee
+        verify(utxoBundle, times(2)).absoluteFee
+        verify(sendDataManager)
+            .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKbRegular)
         verify(sendDataManager)
             .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKb)
         verify(walletPreferences).setFeeTypeForAsset(ASSET, FeeLevel.Priority.ordinal)
@@ -596,9 +655,9 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == regularSweepable &&
-                it.feeAmount == regularFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == regularSweepable &&
+                    it.feeAmount == regularFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
@@ -606,10 +665,11 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `update fee level from REGULAR to CUSTOM is updates the pendingTx correctly`() {
+    fun `update fee level from REGULAR to CUSTOM updates the pendingTx correctly`() {
         // Arrange
         val inputAmount = 2.bitcoin()
-        val regularFee = (FEE_REGULAR * 1000 * 3).satoshi()
+        val regularFee = (FEE_REGULAR * 1000).satoshi()
+        val priorityFee = (FEE_PRIORITY * 1000).satoshi()
         val totalBalance = 21.bitcoin()
         val actionableBalance = 19.bitcoin()
         val regularSweepable = totalBalance - regularFee
@@ -647,17 +707,45 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             )
         )
 
+        val utxoBundleRegular: SpendableUnspentOutputs = mock {
+            on { absoluteFee }.thenReturn(regularFee.toBigInteger())
+        }
+        val utxoBundlePriority: SpendableUnspentOutputs = mock {
+            on { absoluteFee }.thenReturn(priorityFee.toBigInteger())
+        }
         val utxoBundle: SpendableUnspentOutputs = mock {
             on { absoluteFee }.thenReturn(expectedFee.toBigInteger())
         }
 
-        whenever(sendDataManager.getSpendableCoins(
-            unspentOutputs,
-            TARGET_OUTPUT_TYPE,
-            CHANGE_OUTPUT_TYPE,
-            inputAmount,
-            feePerKb
-        )).thenReturn(utxoBundle)
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                regularFee
+            )
+        ).thenReturn(utxoBundleRegular)
+
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                priorityFee
+            )
+        ).thenReturn(utxoBundlePriority)
+
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKb
+            )
+        ).thenReturn(utxoBundle)
 
         subject.start(
             sourceAccount,
@@ -689,10 +777,10 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == expectedSweepable &&
-                it.feeForFullAvailable == expectedFee &&
-                it.feeAmount == expectedFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == expectedSweepable &&
+                    it.feeForFullAvailable == expectedFee &&
+                    it.feeAmount == expectedFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Custom, feeCustom) }
 
@@ -709,7 +797,13 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(btcFeeOptions, atLeastOnce()).limits
         verify(sendDataManager).getUnspentBtcOutputs(SOURCE_XPUBS)
         verify(sendDataManager).getMaximumAvailable(ASSET, unspentOutputs, TARGET_OUTPUT_TYPE, feePerKb)
+        verify(utxoBundleRegular).absoluteFee
+        verify(utxoBundlePriority).absoluteFee
         verify(utxoBundle).absoluteFee
+        verify(sendDataManager)
+            .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, regularFee)
+        verify(sendDataManager)
+            .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, priorityFee)
         verify(sendDataManager)
             .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKb)
         verify(walletPreferences).setFeeTypeForAsset(ASSET, FeeLevel.Custom.ordinal)
@@ -744,6 +838,8 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
         val feeCustom = 15L
         val feePerKb = (feeCustom * 1000).satoshi()
+        val feePerKbRegular = (FEE_REGULAR * 1000).satoshi()
+        val feePerKbPriority = (FEE_PRIORITY * 1000).satoshi()
         val expectedFee = (feeCustom * 1000 * 3).satoshi()
         val expectedSweepable = totalBalance - expectedFee
 
@@ -765,13 +861,43 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             on { absoluteFee }.thenReturn(expectedFee.toBigInteger())
         }
 
-        whenever(sendDataManager.getSpendableCoins(
-            unspentOutputs,
-            TARGET_OUTPUT_TYPE,
-            CHANGE_OUTPUT_TYPE,
-            inputAmount,
-            feePerKb
-        )).thenReturn(utxoBundle)
+        val utxoBundleRegular: SpendableUnspentOutputs = mock {
+            on { absoluteFee }.thenReturn(feePerKbRegular.toBigInteger())
+        }
+
+        val utxoBundlePriority: SpendableUnspentOutputs = mock {
+            on { absoluteFee }.thenReturn(feePerKbPriority.toBigInteger())
+        }
+
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKbRegular
+            )
+        ).thenReturn(utxoBundleRegular)
+
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKbPriority
+            )
+        ).thenReturn(utxoBundlePriority)
+
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKb
+            )
+        ).thenReturn(utxoBundle)
 
         subject.start(
             sourceAccount,
@@ -803,12 +929,11 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertComplete()
             .assertNoErrors()
             .assertValue {
-                val v = 1
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == expectedSweepable &&
-                it.feeForFullAvailable == expectedFee &&
-                it.feeAmount == expectedFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == expectedSweepable &&
+                    it.feeForFullAvailable == expectedFee &&
+                    it.feeAmount == expectedFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Custom, feeCustom) }
 
@@ -826,6 +951,12 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(sendDataManager).getUnspentBtcOutputs(SOURCE_XPUBS)
         verify(sendDataManager).getMaximumAvailable(ASSET, unspentOutputs, TARGET_OUTPUT_TYPE, feePerKb)
         verify(utxoBundle).absoluteFee
+        verify(utxoBundleRegular).absoluteFee
+        verify(utxoBundlePriority).absoluteFee
+        verify(sendDataManager)
+            .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKbRegular)
+        verify(sendDataManager)
+            .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKbPriority)
         verify(sendDataManager)
             .getSpendableCoins(unspentOutputs, TARGET_OUTPUT_TYPE, CHANGE_OUTPUT_TYPE, inputAmount, feePerKb)
         verify(walletPreferences).setFeeTypeForAsset(ASSET, FeeLevel.Custom.ordinal)
