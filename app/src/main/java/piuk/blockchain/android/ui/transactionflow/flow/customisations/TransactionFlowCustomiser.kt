@@ -481,7 +481,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(
                 R.string.deposit_confirmation_success_message,
                 state.pendingTx?.amount?.toStringWithSymbol() ?: "",
-                state.pendingTx?.selectedFiat ?: "",
+                (state.sendingAccount as? FiatAccount)?.fiatCurrency ?: "",
                 getEstimatedTransactionCompletionTime()
             )
             AssetAction.Withdraw -> resources.getString(
@@ -766,9 +766,11 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> R.drawable.swap_masked_asset
             AssetAction.Withdraw,
             AssetAction.FiatDeposit -> {
-                when (state.pendingTx?.selectedFiat) {
+                val sendingCurrency = (state.sendingAccount as? FiatAccount)?.fiatCurrency
+                when (sendingCurrency) {
                     "GBP" -> R.drawable.ic_funds_gbp_masked
                     "EUR" -> R.drawable.ic_funds_euro_masked
+                    "USD" -> R.drawable.ic_funds_usd_masked
                     else -> R.drawable.ic_funds_usd_masked
                 }
             }

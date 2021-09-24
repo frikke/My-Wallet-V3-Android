@@ -516,7 +516,8 @@ class PrefsUtil(
 
         val versionCode = store.getInt(APP_CURRENT_VERSION_CODE, AppInfoPrefs.DEFAULT_APP_VERSION_CODE)
         val installedVersion = store.getString(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
-                ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
+            ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
+        val firebaseToken = store.getString(KEY_FIREBASE_TOKEN, "").orEmpty()
 
         store.edit().clear().apply()
 
@@ -525,6 +526,7 @@ class PrefsUtil(
         }
         setValue(APP_CURRENT_VERSION_CODE, versionCode)
         setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
+        setValue(KEY_FIREBASE_TOKEN, firebaseToken)
 
         clearBackup()
     }

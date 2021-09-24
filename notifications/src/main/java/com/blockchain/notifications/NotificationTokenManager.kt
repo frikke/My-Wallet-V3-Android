@@ -11,6 +11,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.data.access.AuthEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
+import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class NotificationTokenManager(
@@ -91,7 +92,7 @@ class NotificationTokenManager(
      */
     private fun revokeAccessToken(): Completable =
         notificationTokenProvider.deleteToken()
-            .andThen(removeNotificationToken())
+            .then { removeNotificationToken() }
             .doOnComplete { this.clearStoredToken() }
             .subscribeOn(Schedulers.io())
 
