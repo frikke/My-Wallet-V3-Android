@@ -508,13 +508,12 @@ class ActivityDetailsInteractor(
         fiatValue: Money?,
         transactionInOutDetails: TransactionInOutDetails?
     ) = listOfNotNull(
-        Amount(item.value),
+        TransactionId(item.txId),
         Value(item.fiatValue(currencyPrefs.selectedFiatCurrency)),
         HistoricValue(fiatValue, item.transactionType),
         addSingleOrMultipleFromAddresses(transactionInOutDetails),
         addSingleOrMultipleToAddresses(transactionInOutDetails),
         checkIfShouldAddMemo(item),
-        checkIfShouldAddDescription(item),
         Action()
     )
 

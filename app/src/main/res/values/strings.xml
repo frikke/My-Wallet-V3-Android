@@ -1508,10 +1508,10 @@
     <string name="activity_details_label_complete">Complete</string>
     <string name="activity_details_label_failed">Failed</string>
     <string name="activity_details_title_transferred">Transfer</string>
-    <string name="activity_details_title_received">Receive</string>
+    <string name="activity_details_title_received_1">Received</string>
     <string name="activity_details_title_sent_1">Sent</string>
     <string name="activity_details_title_bought">Bought</string>
-    <string name="activity_details_title_sold">Sold %s</string>
+    <string name="activity_details_title_sold">Sold</string>
     <string name="activity_details_title_swapped">Swapped</string>
     <string name="activity_details_title_deposit">Transfer</string>
     <string name="activity_details_title_rewards_earned">Rewards Earned</string>
