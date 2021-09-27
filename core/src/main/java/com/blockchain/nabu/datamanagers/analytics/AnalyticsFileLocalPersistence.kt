@@ -28,6 +28,10 @@ interface AnalyticsLocalPersistence {
 
 class AnalyticsFileLocalPersistence(context: Context) : AnalyticsLocalPersistence {
 
+    private val json = Json {
+        encodeDefaults = true
+    }
+
     private val queueFile: QueueFile by lazy {
         val folder: File = context.getDir(DIR_NAME, Context.MODE_PRIVATE)
         createQueueFile(folder) ?: throw IllegalStateException("File system failed to initialised")
@@ -36,7 +40,7 @@ class AnalyticsFileLocalPersistence(context: Context) : AnalyticsLocalPersistenc
     override fun size(): Single<Long> = Single.just(queueFile.size())
 
     override fun save(item: NabuAnalyticsEvent): Completable = Completable.fromAction {
-        queueFile.add(Json.encodeToString(item).toByteArray())
+        queueFile.add(json.encodeToString(item).toByteArray())
     }
 
     override fun removeOldestItems(n: Int): Completable = Completable.fromAction {
@@ -50,7 +54,7 @@ class AnalyticsFileLocalPersistence(context: Context) : AnalyticsLocalPersistenc
     override fun getAllItems(): Single<List<NabuAnalyticsEvent>> {
         return Single.fromCallable {
             queueFile.read(queueFile.size()).map {
-                Json.decodeFromString<NabuAnalyticsEvent>(it)
+                json.decodeFromString(it)
             }
         }
     }
@@ -58,7 +62,7 @@ class AnalyticsFileLocalPersistence(context: Context) : AnalyticsLocalPersistenc
     override fun getOldestItems(n: Int): Single<List<NabuAnalyticsEvent>> {
         return Single.fromCallable {
             queueFile.read(n.toLong()).map {
-                Json.decodeFromString<NabuAnalyticsEvent>(it)
+                json.decodeFromString(it)
             }
         }
     }

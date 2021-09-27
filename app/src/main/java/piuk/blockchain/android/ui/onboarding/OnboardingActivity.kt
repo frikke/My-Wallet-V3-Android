@@ -144,7 +144,10 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
         presenter?.disableAutoLogout()
         emailLaunched = true
         val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_APP_EMAIL)
+        intent.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addCategory(Intent.CATEGORY_APP_EMAIL)
+        }
         startActivity(Intent.createChooser(intent, getString(R.string.security_centre_email_check)))
     }
 
