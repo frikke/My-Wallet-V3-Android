@@ -103,7 +103,10 @@ class ActivityDetailsInteractor(
             else -> {
                 list.add(
                     BuyPaymentMethod(
-                        PaymentDetails(summaryItem.paymentMethodId)
+                        PaymentDetails(
+                            paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
+                            label = summaryItem.fundedFiat.currencyCode
+                        )
                     )
                 )
                 Single.just(list.toList())
@@ -285,6 +288,11 @@ class ActivityDetailsInteractor(
         return From("${pair.source.displayTicker} ${tradeActivity.sendingAccount.label}")
     }
 
+    private fun getSellToField(tradeActivity: TradeActivitySummaryItem): To {
+        val pair = tradeActivity.currencyPair as CurrencyPair.CryptoToFiatCurrencyPair
+        return To("${pair.destination} ${tradeActivity.sendingAccount.label}")
+    }
+
     fun loadSellItems(
         item: TradeActivitySummaryItem
     ): Single<List<ActivityDetailsType>> {
@@ -293,6 +301,7 @@ class ActivityDetailsInteractor(
                 TransactionId(item.txId),
                 Created(Date(item.timeStampMs)),
                 HistoricCryptoPrice(item.price, item.sendingValue.currencyCode),
+                getSellToField(item),
                 getSellFromField(item),
                 Amount(item.sendingValue),
                 NetworkFee(fee),
@@ -344,7 +353,14 @@ class ActivityDetailsInteractor(
                     )
                 )
             )
-        } ?: list.add(BuyPaymentMethod(PaymentDetails(summaryItem.paymentMethodId)))
+        } ?: list.add(
+            BuyPaymentMethod(
+                PaymentDetails(
+                    paymentMethodId = summaryItem.paymentMethodId,
+                    label = summaryItem.fundedFiat.currencyCode
+                )
+            )
+        )
     }
 
     private fun addPaymentDetailsToList(
@@ -360,7 +376,14 @@ class ActivityDetailsInteractor(
                     )
                 )
             )
-        } ?: list.add(BuyPaymentMethod(PaymentDetails(summaryItem.paymentMethodId)))
+        } ?: list.add(
+            BuyPaymentMethod(
+                PaymentDetails(
+                    paymentMethodId = summaryItem.paymentMethodId,
+                    label = summaryItem.fundedFiat.currencyCode
+                )
+            )
+        )
     }
 
     fun loadRecurringBuysById(recurringBuyId: String) =

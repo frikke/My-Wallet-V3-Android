@@ -1076,10 +1076,11 @@ class LiveCustodialWalletManager(
         )
 
     private fun LinkedBankTransferResponse.toLinkedBank(): LinkedBank? {
+        val bankPartner = partner.toLinkingBankPartner(BankPartner.values().toList()) ?: return null
         return LinkedBank(
             id = id,
             currency = currency,
-            partner = partner.toLinkingBankPartner(BankPartner.values().toList()) ?: return null,
+            partner = bankPartner,
             state = state.toLinkedBankState(),
             bankName = details?.bankName.orEmpty(),
             accountName = details?.accountName.orEmpty(),
@@ -1092,7 +1093,12 @@ class LiveCustodialWalletManager(
             bic = details?.bic.orEmpty(),
             entity = attributes?.entity.orEmpty(),
             iconUrl = attributes?.media?.find { it.source == ICON }?.source.orEmpty(),
-            callbackPath = attributes?.callbackPath ?: throw IllegalArgumentException("Missing callbackPath")
+            callbackPath = if (bankPartner == BankPartner.YAPILY) {
+                attributes?.callbackPath ?: throw IllegalArgumentException("Missing callbackPath")
+            } else {
+                attributes?.callbackPath.orEmpty()
+            }
+
         )
     }
 

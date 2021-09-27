@@ -121,7 +121,7 @@ private class InfoItemViewHolder(
             is From -> context.getString(R.string.activity_details_from)
             is FeeForTransaction -> context.getString(R.string.activity_details_transaction_fee)
             is BuyFee -> context.getString(R.string.activity_details_buy_fee)
-            is BuyPurchaseAmount -> context.getString(R.string.activity_details_buy_purchase_amount)
+            is BuyPurchaseAmount -> context.getString(R.string.activity_details_buy_purchase_amount_1)
             is TotalCostAmount -> context.getString(R.string.common_total)
             is FeeAmount -> context.getString(R.string.recurring_buy_details_fee)
             is SellPurchaseAmount -> context.getString(R.string.common_total)
@@ -225,11 +225,7 @@ private class InfoItemViewHolder(
                             }
                         }
                         paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
-                            if (label.isNullOrBlank()) {
-                                context.getString(R.string.checkout_funds_label)
-                            } else {
-                                context.getString(R.string.recurring_buy_funds_label, label)
-                            }
+                            context.getString(R.string.checkout_funds_label_1, label)
                         }
                         else -> {
                             context.getString(R.string.activity_details_payment_load_fail)
