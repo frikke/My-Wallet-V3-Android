@@ -1198,8 +1198,8 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="send_confirmation_fee">Taxa - normal</string>
     <string name="send_confirmation_add_note_hint">Adicione uma anotação</string>
     <string name="send_confirmation_cta_button">Envie %1$s</string>
-    <string name="send_confirmation_rewards_tos_pp">Li e concordo com os <annotation link="interest_tos"> Termos de Serviço </annotation> e a <annotation link="interest_pp"> Política de Privacidade </annotation>.</string>
-    <string name="send_confirmation_rewards_holding_period_1">Ao aceitar isso, concorda em transferir</string>
+    <string name="send_confirmation_interest_tos_pp">Li e concordo com os <annotation link="interest_tos"> Termos de Serviço </annotation> e a <annotation link="interest_pp"> Política de Privacidade </annotation>.</string>
+    <string name="send_confirmation_interest_holding_period_1">Ao aceitar isso, concorda em transferir</string>
     <string name="send_confirmation_interest_holding_period_2">  (%1$s) da sua Carteira %2$s para a sua Conta de Juros. Um período inicial de retenção de 7 dias será aplicado aos seus fundos.</string>
     <string name="send_confirmation_progress_title">Transferindo %1$s</string>
     <string name="send_confirmation_progress_message">Estamos a transferir o seu %1$s agora.</string>
@@ -1227,7 +1227,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="convert_your_crypto_to_cash">Converter a sua crypto em dinheiro</string>
     <string name="deposit_enter_amount_limit_title">Limite diário</string>
     <string name="interest_dashboard_verify_title">Ganhe juros sobre a sua crypto</string>
-    <string name="rewards_summary_hold_period">Período inicial de retenção</string>
+    <string name="interest_summary_hold_period">Período inicial de retenção</string>
     <string name="interest_summary_rate">Taxa de juros</string>
     <string name="interest_summary_next_payment">Próximo pagamento de juros</string>
     <string name="sell_enter_amount_max">Vender Max</string>
@@ -1236,7 +1236,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
   </string>
     <string name="interest_announcement_title">Ganhe juros sobre o seu crypto hoje!</string>
     <string name="interest_announcement_description">Transfira Crypto e comece a ganhar juros em BTC, ETH e muito mais.</string>
-    <string name="rewards_announcement_action">Saber mais</string>
+    <string name="interest_announcement_action">Saber mais</string>
     <string name="purchase_card_note_2">O seu crypto estará disponível para levantamento dentro de</string>
     <string name="select_send_sheet_title">Enviar de</string>
     <string name="select_send_source_title">Enviar de</string>
@@ -1266,22 +1266,21 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="sell_progress_complete_title">%1$s Vendido</string>
     <string name="earn_interest">Ganhe juros</string>
     <string name="interest_summary_total">Total de juros ganhos</string>
-    <string name="rewards_summary_hold_period_days">%1$d Dias</string>
     <string name="interest_dashboard_title">Conta de juros</string>
-    <string name="rewards_dashboard_item_balance_title">%1$s Saldo</string>
+    <string name="interest_dashboard_item_balance_title">%1$s Saldo</string>
     <string name="interest_dashboard_item_accrued_title">Total de juros ganhos</string>
     <string name="interest_dashboard_item_action_earn">Ganhe juros</string>
-    <string name="rewards_dashboard_item_action_view">Visualizar</string>
-    <string name="rewards_dashboard_item_rate_1">Ganhe até </string>
-    <string name="rewards_dashboard_item_rate_2"> anualmente no seu %1$s</string>
+    <string name="interest_dashboard_item_action_view">Visualizar</string>
+    <string name="interest_dashboard_item_rate_1">Ganhe até </string>
+    <string name="interest_dashboard_item_rate_2"> anualmente no seu %1$s</string>
     <string name="interest_dashboard_verify_label">Ganhe até 12\% instantaneamente quando transferir crypto para a sua Conta de Juros.</string>
-    <string name="rewards_dashboard_verify_point_one_title">Verifique a sua identidade</string>
-    <string name="rewards_dashboard_verify_point_one_label">Para evitar roubo de identidade ou fraude, temos de nos certificar de que é você mesmo, enviando um documento de identificação.</string>
-    <string name="rewards_dashboard_verify_point_two_title">Comprar Crypto</string>
-    <string name="rewards_dashboard_verify_point_two_label">Use o seu banco, cartão de débito ou crédito para financiar qualquer compra de criptomoedas.</string>
+    <string name="interest_dashboard_verify_point_one_title">Verifique a sua identidade</string>
+    <string name="interest_dashboard_verify_point_one_label">Para evitar roubo de identidade ou fraude, temos de nos certificar de que é você mesmo, enviando um documento de identificação.</string>
+    <string name="interest_dashboard_verify_point_two_title">Comprar Crypto</string>
+    <string name="interest_dashboard_verify_point_two_label">Use o seu banco, cartão de débito ou crédito para financiar qualquer compra de criptomoedas.</string>
     <string name="interest_dashboard_verify_point_three_title">Ganhe juros</string>
     <string name="interest_dashboard_verify_point_three_label">Transfira para a sua Conta de Juros e receba pagamentos de juros mensais.</string>
-    <string name="rewards_summary_disclaimer_label">Utilize a carteira Web para levantar os seus fundos</string>
+    <string name="interest_summary_disclaimer_label">Utilize a carteira Web para levantar os seus fundos</string>
     <string name="buy">Comprar </string>
     <string name="sell">Vender</string>
     <string name="buy_and_sell">Compra venda</string>
@@ -1391,9 +1390,9 @@ Verifique a sua ligação à Internet e tente novamente ou contacte o Apoio ao C
     <string name="tx_confirmation_free_fee_learn_more_1">Taxas de rede ao utilizar</string>
     <string name="tx_confirmation_free_fee_learn_more_2"> Carteiras de Negociação </string>
     <string name="tx_confirmation_free_fee_learn_more_3">são GRATUITAS! <annotation link="send_tx_fees">Saiba mais sobre taxas</annotation>.</string>
-    <string name="rewards_item_issue_region">Não está disponível na sua região</string>
+    <string name="interest_item_issue_region">Não está disponível na sua região</string>
     <string name="interest_item_issue_kyc">Precisa de verificação Gold para começar a ganhar juros</string>
-    <string name="rewards_item_issue_other">Atualmente indisponível, verifique novamente mais tarde</string>
+    <string name="interest_item_issue_other">Atualmente indisponível, verifique novamente mais tarde</string>
     <string name="swap_header_title">Trocar a sua crypto</string>
     <string name="swap_header_label">Troque instantaneamente as suas crypto por qualquer moeda que oferecemos para a sua carteira.</string>
     <string name="swap_kyc_title">Verifique a sua identidade. Troque ainda hoje.</string>
@@ -1526,8 +1525,7 @@ Nota: não poderá Enviar ou Levantar estes fundos da sua Carteira durante os pr
     <string name="lockbox_landing_get_yours_message">Armazene a sua criptomoeda offline com segurança.</string>
     <string name="lockbox_landing_get_yours_button">Compre agora</string>
     <string name="lockbox_landing_already_owned_message">A partir do seu computador, inicie sessão no blockchain.com e ligue-se ao seu Lockbox.</string>
-    <string name="lockbox_landing_learn_more">Quer aprender mais? Toque aqui para visitar
- %1$s</string>
+    <string name="lockbox_landing_learn_more">Quer aprender mais? Toque aqui para visitar %1$s</string>
     <string name="lockbox_landing_coming_soon_message">Não podemos apresentar o seu saldo do Lockbox neste momento. Não se preocupe, pois os seus fundos estão seguros. Estaremos a adicionar essa funcionalidade em breve. Enquanto aguarda, pode verificar o seu saldo no website.</string>
     <string name="lockbox_landing_coming_soon_button">Verificar o meu saldo</string>
     <string name="trading_order_limit">Tem demasiadas transações %1$s pendentes. Depois de concluídas, pode criar uma nova.</string>
@@ -1577,7 +1575,7 @@ Nota: não poderá Enviar ou Levantar estes fundos da sua Carteira durante os pr
     <string name="backup_subtitle">Frase de Recuperação de Chave Privada Secreta</string>
     <string name="backup_instructions_3">1. Escreva a frase de 12 palavras no ecrã seguinte, na ordem exata em que aparece</string>
     <string name="backup_complete_message_1">Pode utilizar a sua Frase de Recuperação de Chave Privada Secreta para restaurar os seus fundos caso
-        perca a sua palavra-passe. Qualquer pessoa com acesso à sua Frase de Recuperação de Chave Privada Secreta pode aceder aos seus fundos. Por isso, 
+        perca a sua palavra-passe. Qualquer pessoa com acesso à sua Frase de Recuperação de Chave Privada Secreta pode aceder aos seus fundos. Por isso,
         lembre-se de a manter offline num lugar seguro e protegido.
     </string>
     <string name="backup_verify_heading_1">Introduza as seguintes palavras da sua Frase de Recuperação de Chave Privada Secreta para
@@ -1689,7 +1687,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="cash_accounts">Contas de caixa</string>
     <string name="cash_accounts_description">Guarde USD, GBP ou EUR na sua carteira. Utilize o saldo para comprar criptomoedas. Venda criptomoedas por dinheiro a qualquer momento.</string>
     <string name="link_a_bank_description">Guarde USD, GBP ou EUR na sua carteira. Utilize o saldo para comprar criptomoedas. Venda criptomoedas por dinheiro a qualquer momento.</string>
-    <string name="earn_rewards_description" formatted="false">Ponha o seu crypto a funcionar. Ganhe até 10% mensalmente sem fazer nada. Deposite instantaneamente e comece a ganhar.</string>
+    <string name="earn_interest_description" formatted="false">Ponha o seu crypto a funcionar. Ganhe até 10% mensalmente sem fazer nada. Deposite instantaneamente e comece a ganhar.</string>
     <string name="sb_checkout_daily_limit_title">Limite diário excedido</string>
     <string name="sb_checkout_daily_limit_blurb">Ups, parece que já chegou ao seu limite de transações diário para Compras e Depósitos, tente novamente amanhã.</string>
     <string name="sb_checkout_weekly_limit_title">Limite semanal excedido</string>
@@ -1739,7 +1737,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="deposit_confirmation_timeout_subtitle">Por vezes, os pagamentos podem demorar algum tempo a ser efetuados. Se tiver aprovado a transação, pode fechar em segurança e verificar o progresso do Depósito no separador Atividade.</string>
     <string name="deposit_confirmation_error_title">Ups, parece que ocorreu um erro!</string>
     <string name="deposit_confirmation_error_subtitle">Ocorreu um problema no seu Depósito. Tente novamente ou contacte o apoio ao cliente se o problema continuar.</string>
-    <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para transferir com as taxas de rede atuais.</string>
+    <string name="interest_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para transferir com as taxas de rede atuais.</string>
     <string name="send_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para enviar com as taxas de rede atuais.</string>
     <string name="swap_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para trocar com as taxas de rede atuais.</string>
     <string name="approve_payment">Aprovar o seu pagamento</string>
@@ -1845,7 +1843,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="upgrading_wallet">A atualizar a carteira</string>
     <string name="custodial_wallet_default_label_2">%s Conta de negociação</string>
     <string name="select_withdraw_target_title">Levantar para</string>
-    <string name="withdraw_rewards_confirmation_success_message">O seu %1$s estará disponível na sua %2$s dentro de 2 dias.</string>
+    <string name="withdraw_interest_confirmation_success_message">O seu %1$s estará disponível na sua %2$s dentro de 2 dias.</string>
     <string name="simple_buy_confirmation_error">Ocorreu um problema com o seu pagamento. Tente novamente ou contacte o apoio ao cliente se o problema continuar.</string>
     <string name="send_enter_amount_error_invalid_amount_1">Envie %1$s ou mais.</string>
     <string name="send_internal_transfer_message_1">Neste momento pode transferir %1$s da sua %2$s Conta de Negociação para as suas %2$s Carteiras de Chave Privada ou Conta de juros. Se desejar transferir para endereços externos, pode fazê-lo a partir da sua Carteira de Chaves Privadas.</string>
@@ -1867,7 +1865,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="receive_memo_title">%1$s Memorando:</string>
     <string name="kyc_upsell_custodial_dlg_title">Verificar para utilizar a Conta de Negociação</string>
     <string name="kyc_upsell_custodial_dlg_body">Obtenha acesso à Conta de Negociação em segundos, completando o seu perfil e obtendo acesso Silver.</string>
-    <string name="kyc_upsell_custodial_dlg_item_title_1">Verifique o seu e-mail</string>
+    <string name="kyc_upsell_custodial_dlg_item_title_1">Verifique o seu E-mail</string>
     <string name="kyc_upsell_custodial_dlg_item_title_2">Adicione o seu nome e morada</string>
     <string name="kyc_upsell_custodial_dlg_item_title_3">Utilize a Conta de Negociação</string>
     <string name="kyc_upsell_custodial_dlg_item_body_3">Receba, compre e troque criptomoedas com a sua Conta de negociação.</string>
@@ -1897,13 +1895,13 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <annotation link="learn_more_link">Saiba mais sobre taxas.</annotation>
   </string>
     <string name="checkout_fee_free">Ao utilizar contas de negociação, não há taxas de rede</string>
-    <string name="private_key_wallet_explanation">%s As carteiras de chaves privadas, enviar, e receber, não são suportadas neste momento.</string>
+    <string name="private_key_wallet_explanation">%s As carteiras de Chaves Privadas, enviar, e receber, não são suportadas neste momento.</string>
     <string name="pairing_wallet_title">Emparelhe a sua carteira</string>
     <string name="pairing_wallet_description">Pode emparelhar a sua carteira com outra propriedade Blockchain.com, usando o seu código de emparelhamento. Se estiver a emparelhar a sua aplicação com o portal da web (em %1$s), terá de utilizar a webcam do seu computador.</string>
     <string name="pairing_wallet_qr_code_description">Este é o seu código QR exclusivo.</string>
     <string name="pairing_wallet_warning">Nunca partilhe este código com ninguém. Qualquer pessoa que possa visualizar este código QR pode levantar fundos. A Blockchain.com nunca pedirá para visualizar ou receber o seu código QR de emparelhamento móvel.</string>
     <string name="pairing_wallet_instruction_1">Vá para %1$s no seu computador.</string>
-    <string name="pairing_wallet_instruction_3">Utilizando a câmera do seu computador, digitalize o código QR abaixo.</string>
+    <string name="pairing_wallet_instruction_3">Utilizando a câmara do seu computador, digitalize o código QR abaixo.</string>
     <string name="pairing_wallet_show_qr">Mostrar o código QR</string>
     <string name="pairing_wallet_hide_qr">Ocultar o código QR</string>
     <string name="common_or">OU</string>
@@ -1934,9 +1932,9 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="recurring_buy_bi_weekly">A cada 2 semanas</string>
     <string name="recurring_buy_monthly">Todos os meses</string>
     <string name="recurring_buy_frequency_label">Recorrente</string>
-    <string name="recurring_buy_frequency_subtitle">em %1$s</string>
+    <string name="recurring_buy_frequency_subtitle">Em %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">cerca de %s</string>
-    <string name="recurring_buy_frequency_subtitle_monthly">no dia %s</string>
+    <string name="recurring_buy_frequency_subtitle_monthly">No dia %s</string>
     <string name="recurring_buy_frequency_subtitle_monthly_last_day">no último dia</string>
     <string name="recurring_buy_frequency_subtitle_today">Hoje</string>
     <string name="recurring_buy_unavailable_title">Compra recorrente indisponível</string>
@@ -1983,24 +1981,23 @@ Os seus %1$s estarão disponíveis na sua conta \"%2$s\" no prazo de 2 dias.</st
     <string name="second_password_hint">Segunda palavra-passe</string>
     <string name="second_password_notice">Estamos a deixar de utilizar as segundas palavras-passe. Ative a autenticação de dois fatores (2FA) nas definições de segurança. <annotation link="learn_more">Saber mais</annotation></string>
     <string name="account_recover_title">Verifique a sua conta</string>
-    <string name="enter_recovery_phrase_desc">Digite sua Frase de Recuperação de Chave Privada secreta de doze palavras para concluir o início de sessão.</string>
+    <string name="enter_recovery_phrase_desc">Introduza a sua Frase de Recuperação de Chave Privada Secreta de doze palavras para iniciar sessão. Separe cada palavra com um espaço.</string>
     <string name="enter_recovery_phrase_hint">Introduza a sua frase de recuperação secreta</string>
     <string name="recovery_phrase_word_count_error">A Frase de Recuperação deve ter exatamente 12 palavras</string>
     <string name="reset_account_notice">Não encontra a sua frase de recuperação? <annotation link="reset_account">Reponha a sua conta</annotation></string>
-    <string name="reset_kyc_notice">Para sua segurança, poderá ter de voltar a verificar a sua identidade antes de aceder à sua conta de negociação ou de juros.
-<annotation link="learn_more">Saber mais</annotation></string>
+    <string name="reset_kyc_notice">Para sua segurança, poderá ter de voltar a verificar a sua identidade antes de aceder à sua conta de negociação ou de juros.</string>
     <string name="reset_kyc_failed">Falha ao restaurar a conta. Tente novamente.</string>
     <string name="reset_account_title">Repor conta?</string>
     <string name="reset_account_description">A reposição irá restaurar as suas contas de Negociação, Juros e Exchange.</string>
     <string name="reset_account_cta">Repor conta</string>
     <string name="retry_recovery_phrase_cta">Tentar novamente a frase de recuperação</string>
-    <string name="reset_account_warning_title">A reposição da Conta pode resultar em perda de fundos</string>
+    <string name="reset_account_warning_title">A Reposição da Conta Pode Resultar em Perda de Fundos</string>
     <string name="reset_account_warning_description">Isto significa que, se perder a sua frase de recuperação, perderá o acesso aos fundos da sua Carteira de Chaves Privada. Poderá sempre restaurar os fundos da sua Carteira de Chaves Privada mais tarde, se encontrar a sua frase de recuperação.</string>
     <string name="dashboard_title_recurring_buy">Não tem a certeza de quando deve comprar?</string>
     <string name="dashboard_recurring_buy_description">Saber os momentos certos do mercado é difícil e é por isso que muitos investidores utilizam a média de custo em dólares.</string>
     <string name="dashboard_recurring_buy_learn_more">Saber mais →</string>
     <string name="dashboard_recurring_buy_item_title">Comprar %1$s em %2$s %3$s</string>
-    <string name="dashboard_recurring_buy_item_label">Próxima compra: %1$s</string>
+    <string name="dashboard_recurring_buy_item_label">Próxima compra em %s</string>
     <string name="dashboard_recurring_buy_item_label_error">Saldo baixo. Adicionar fundos</string>
     <string name="dashboard_recurring_buy_title">Compras recorrentes</string>
     <string name="recurring_buy_info_cta">Cancelar compra recorrentes</string>
@@ -2028,36 +2025,36 @@ Os seus %1$s estarão disponíveis na sua conta \"%2$s\" no prazo de 2 dias.</st
     <string name="common_parametrised_confirm">Confirmar %1$s</string>
     <string name="common_search">Pesquisa</string>
     <string name="password">Palavra-passe</string>
-    <string name="email">O seu e-mail</string>
+    <string name="email">O seu E-mail</string>
     <string name="sign_up_email">E-mail</string>
     <string name="password_disclaimer_1">Compreendo que a Blockchain.com nunca armazena palavras-passe e, portanto, não pode recuperar ou repor a minha palavra-passe. Se eu perder o acesso à minha carteira, devo utilizar a minha <annotation link="backup">Frase Secreta de Recuperação de Chave Privada</annotation> para aceder aos meus fundos. Ao criar uma conta, concorda com os <annotation link="terms">Termos de Serviço</annotation> e <annotation link="privacy">Política de Privacidade</annotation> da Blockchain.</string>
     <string name="new_account_title_1">Nova conta</string>
     <string name="create_wallet_state">Estado</string>
-    <string name="create_wallet_country">País de residência</string>
-    <string name="bitpay_invoice_expired">Fatura BitPay expirada</string>
+    <string name="create_wallet_country">País de Residência</string>
+    <string name="bitpay_invoice_expired">Fatura BitPay Expirada</string>
     <string name="fee">Taxa</string>
     <string name="address">Endereço</string>
     <string name="amount">Montante</string>
-    <string name="the_exchange_open_email_app">Abrir aplicação de e-mail</string>
+    <string name="the_exchange_open_email_app">Abrir aplicação de E-mail</string>
     <string name="pax_renamed_card_title">USD Digital é agora Paxos Standard</string>
     <string name="pax_renamed_card_body">Atualizámos o nome de USD Digital (USD-D) para Paxos Standard (PAX). Quaisquer fundos detidos não são afetados.</string>
     <string name="airdrop_received_sheet_amount_label">Montante</string>
-    <string name="kyc_email_hint_focused">O seu e-mail</string>
+    <string name="kyc_email_hint_focused">O seu E-mail</string>
     <string name="available">Disponível</string>
     <string name="need_some_help">Precisa de alguma ajuda?</string>
-    <string name="xlm_memo_text">Texto de memorando</string>
-    <string name="xlm_memo_id">ID do memorando</string>
-    <string name="cancel_order">Cancelar ordem</string>
+    <string name="xlm_memo_text">Texto de Memorando</string>
+    <string name="xlm_memo_id">ID do Memorando</string>
+    <string name="cancel_order">Cancelar Ordem</string>
     <string name="activity_details_title_received">Receber</string>
     <string name="activity_details_label_cancelled">Cancelado</string>
     <string name="activity_details_buy_fee">Taxa</string>
     <string name="custodial_only_asset_label">A funcionalidade para levantar %1$s da sua conta de negociação não está disponível neste momento, mas estará em breve.</string>
     <string name="enter_amount_not_enough_balance">Saldo insuficiente para taxa</string>
-    <string name="send_enter_unexpected_error">Ocorreu um erro inesperado. Tente novamente.</string>
+    <string name="send_enter_unexpected_error">Ocorreu um erro inesperado. Por favor, tente novamente.</string>
     <string name="scan_no_available_account">Não há contas de origem financiadas disponíveis para enviar %1$s</string>
     <string name="confirm_status_memo_invalid">Adicione um memorando.</string>
     <string name="receive">Receber</string>
-    <string name="restore_wallet_cta">Restaurar Wallet</string>
+    <string name="restore_wallet_cta">Restaurar Carteira</string>
     <string name="recurring_buy_cta_1">Iniciar</string>
     <string name="recurring_buy_title_1_1">Em vez de cronometrar o mercado, muitos investidores inteligentes utilizam</string>
     <string name="recurring_buy_title_1_2">
@@ -2076,7 +2073,7 @@ Nos últimos 5 anos, comprar Bitcoin todas as semanas teve um desempenho melhor 
     <string name="recurring_buy_title_5_2">
 86% das vezes.</string>
     <string name="recurring_buy_note">O cálculo é baseado numa compra de 30 dólares por semana num dia aleatório. \"Timing the market\" é definido como a compra de Bitcoin em cada descida de 6%.
-<annotation link="learn_more">Saiba mais -></annotation></string>
+<annotation link="learn_more">Saiba mais →</annotation></string>
     <string name="recurring_buy_daily_1">Todos os dias</string>
     <string name="recurring_buy_daily_selector">Diariamente</string>
     <string name="recurring_buy_weekly_1">Uma vez por semana</string>
@@ -2086,14 +2083,14 @@ Nos últimos 5 anos, comprar Bitcoin todas as semanas teve um desempenho melhor 
     <string name="recurring_buy_monthly_selector">Mensalmente</string>
     <string name="recurring_buy_frequency_label_1">Frequência</string>
     <string name="recurring_buy_frequency_subtitle_biweekly">A cada outro %s</string>
-    <string name="recurring_buy_sheet_title_1">Compra recorrente</string>
+    <string name="recurring_buy_sheet_title_1">Compra Recorrente</string>
     <string name="recurring_buy_header">%1$s de %2$s</string>
     <string name="recurring_buy_info_purchase_label_1">Próxima compra</string>
     <string name="recurring_buy_details_fee">Taxa</string>
     <string name="recurring_buy_insufficient_funds_error_1">O saldo do seu método de pagamento é demasiado baixo. Adicione mais dinheiro agora.</string>
     <string name="recurring_buy_on_boarding_header">Defina uma Compra Recorrente fácil e automática para todos os dias, semanas ou meses. Aproveite o poder da Média de Custo em Dólares.</string>
     <string name="recurring_buy_set_up_title">Configurar uma compra recorrente</string>
-    <string name="recurring_buy_first_time_toolbar">Compra recorrente</string>
+    <string name="recurring_buy_first_time_toolbar">Compra Recorrente</string>
     <string name="recurring_buy_first_time_title">Comprar %1$s de %2$s</string>
     <string name="recurring_buy_first_time_success_title">Compra recorrente iniciada!</string>
     <string name="recurring_buy_first_time_info">Compre %1$s de %2$s todos os dias, semanas ou meses com uma Compra Recorrente. Não há necessidade de cronometrar o mercado.</string>
@@ -2110,7 +2107,126 @@ Nos últimos 5 anos, comprar Bitcoin todas as semanas teve um desempenho melhor 
     <string name="rb_announcement_action">Saber mais</string>
     <string name="wallet_issue_message">Há um aviso na nossa página de estado. A funcionalidade completa de carteira pode não estar disponível. Não se preocupe, os seus fundos estão seguros. <annotation link="learn_more">Saber mais →</annotation></string>
     <string name="reset_password_optional_label">Gostaria de repor a sua palavra-passe? Pode sempre fazê-lo mais tarde em Definições.</string>
-    <string name="reset_password_hint">Nova palavra-passe</string>
-    <string name="reset_password_confirm_hint">Confirmar a nova palavra-passe</string>
+    <string name="reset_password_hint">Nova Palavra-passe</string>
+    <string name="reset_password_confirm_hint">Confirmar a nova Palavra-passe</string>
     <string name="recurring_buy_frequency_subtitle_last_day_selector">No último dia do mês</string>
+    <string name="landing_value_prop_one">Compre, venda e troque criptomoeda em segundos.</string>
+    <string name="landing_value_prop_two">Ganhe juros sobre a sua criptomoeda.</string>
+    <string name="landing_value_prop_three">Controle a sua criptomoeda com chaves privadas.</string>
+    <string name="landing_value_prop_four">Nunca perca um momento de criptomoeda.</string>
+    <string name="landing_live_prices">Preços ao vivo</string>
+    <string name="portfolio">Portefólio</string>
+    <string name="prices">Preços</string>
+    <string name="fee_options_sat_byte_hint_1">Introduzir sat/b</string>
+    <string name="kyc_postcode_error">Código postal inválido</string>
+    <string name="asset_details_exchange_load_failed_toast_1">Falha ao carregar informações sobre a taxa de câmbio, tente novamente</string>
+    <string name="asset_details_delta_load_failed_toast">Falha ao carregar informações sobre o preço, tente novamente</string>
+    <string name="re_verify_identity_card_title">Verificação necessária</string>
+    <string name="re_verify_identity_card_body">Verifique novamente a sua identidade para aceder aos nossos produtos e serviços completos</string>
+    <string name="re_verify_identity_card_cta">Verificar novamente a conta</string>
+    <string name="order_error_subtitle_rb">Não se preocupe. O seu dinheiro está seguro. Falha ao guardar a sua conta recorrente de %1$s de %2$s. Tente novamente ou entre em contacto com a nossa equipa de apoio técnico para obter ajuda.</string>
+    <string name="completing_card_buy_1">A encomenda inicial de %1$s de %2$s está a ser processada, avisá-lo-emos quando estiver pronta.</string>
+    <string name="completing_card_buy_rb">Sua compra de %1$s de %2$s de %3$s foi configurada.</string>
+    <string name="card_verification">Verificação de cartão</string>
+    <string name="security_locked_card_funds_explanation_1">Para sua segurança, as primeiras compras com cartão estão sujeitas a um período de retenção de %1$s dias antes que possa enviar ou levantar a sua criptomoeda comprada. Notificá-lo-emos quando a retenção for levantada.
+
+Enquanto isso, pode vender em dinheiro, trocar e negociar em Blockchain.com.</string>
+    <string name="security_locked_funds_bank_transfer_explanation_1">O seu montante final pode mudar devido à atividade do mercado. Um período inicial de retenção de %s dias será aplicado aos seus fundos. Pode vender e trocar durante este período. Notificá-lo-emos assim que os fundos estiverem disponíveis para serem levantados.</string>
+    <string name="security_no_lock_bank_transfer_explanation">O seu valor final pode mudar devido à atividade do mercado. Os seus fundos estarão disponíveis para vender, trocar ou levantar instantaneamente.</string>
+    <string name="account_wallet_mismatch_title">A sua conta de negociação está vinculada a outra Carteira</string>
+    <string name="account_wallet_mismatch_notice">A sua conta de negociação Blockchain.com está associada a outra carteira. Inicie sessão na sua carteira indicada abaixo para obter acesso à conta.</string>
+    <string name="account_wallet_mismatch_label">ID da Carteira: %s</string>
+    <string name="account_wallet_mismatch_wallet_id_not_found">ID da Carteira não recebido</string>
+    <string name="zendesk_window_title">Suporte ao vivo da Blockchain.com</string>
+    <string name="zendesk_bot_name">Blocky</string>
+    <string name="zendesk_subject_title">Com que tópico precisa de ajuda?</string>
+    <string name="zendesk_subject_option1">Verificação de Identidade</string>
+    <string name="zendesk_subject_option2">Carteira</string>
+    <string name="zendesk_subject_option3">Preocupação de segurança</string>
+    <string name="zendesk_subject_option4">Falha na recuperação da minha Carteira</string>
+    <string name="common_buy_crypto">Comprar Criptomoedas</string>
+    <string name="tx_title_sent">Enviado %s</string>
+    <string name="tx_title_received">Recebido %s</string>
+    <string name="tx_title_sold">Vendido %s</string>
+    <string name="tx_title_bought">Comprado %1s</string>
+    <string name="tx_title_deposited">Depositado %s</string>
+    <string name="tx_title_withdrawn">Levantado %s</string>
+    <string name="tx_title_swapped">Trocado %1$s → %2$s</string>
+    <string name="tx_title_transferred">Transferido %s</string>
+    <string name="activity_details_title_bought">Comprado</string>
+    <string name="activity_details_title_sold">Vendido %s</string>
+    <string name="activity_details_title_swapped">Trocado</string>
+    <string name="activity_details_exchange_rate">Taxa de Câmbio</string>
+    <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
+    <string name="checkout_item_private_key_wallet_explanation_1">%s As carteiras de Chaves Privadas não são suportadas neste momento. </string>
+    <string name="verify_device_resend_blocked">Por favor aguarde 30 segundos antes de solicitar um novo e-mail</string>
+    <string name="verify_device_email_resent">Novo E-mail Enviado</string>
+    <string name="resend_email_cta">Enviar Novamente</string>
+    <string name="reset_password_wallet_failed_title">Surgiu um problema ao reiniciar</string>
+    <string name="reset_password_wallet_failed_message">Por favor, tente definir novamente a sua nova palavra-passe.</string>
+    <string name="reset_password_kyc_reset_failed_message">Falha ao recuperar a sua conta, por favor tente novamente.</string>
+    <string name="fund_recovery_failed_title">A Recuperação de Fundos Falhou</string>
+    <string name="fund_recovery_failed_blurb">Não se preocupe, a sua conta está segura. Por favor contacte o suporte para terminar o processo de Recuperação de Conta. A sua conta não mostrará saldos ou histórico de transações até concluir o processo de recuperação.</string>
+    <string name="fund_recovery_failed_label">As falhas na recuperação de fundos podem acontecer por uma série de razões. A nossa equipa de apoio pode ajudar a recuperar a sua conta.</string>
+    <string name="empty_portfolio_title">Bem-vindo ao Blockchain.com!</string>
+    <string name="empty_portfolio_description">Todos os seus criptosaldos serão apresentados aqui assim que comprar ou receber.</string>
+    <string name="search_coins_hint">Procurar Moedas</string>
+    <string name="activity_details_title_sent_1">Enviado</string>
+    <string name="landing_value_prop_two_1">Ganhe Recompensas na Sua Criptomoeda.</string>
+    <string name="tx_title_rewards">%s Recompensas Ganhas</string>
+    <string name="dashboard_asset_balance_rewards">Ganhe %1$.1f %% anualmente</string>
+    <string name="dashboard_asset_actions_deposit_dsc_1">Adicione %1$s à sua Conta Recompensas</string>
+    <string name="dashboard_asset_actions_withdraw_dsc_1">Levante %1$s da sua Conta Recompensas</string>
+    <string name="dashboard_asset_actions_summary_title_1">Resumo de Recompensas</string>
+    <string name="dashboard_asset_actions_summary_dsc_1">Visualize as suas %1$s Recompensas acumuladas</string>
+    <string name="dashboard_asset_actions_rewards_dsc_failed">Não foi possível carregar os detalhes de Recompensas</string>
+    <string name="rewards_announcement_title">Ganhe recompensas na sua criptomoeda hoje!</string>
+    <string name="rewards_announcement_description">Transfira Criptomoedas e comece a ganhar Recompensas em BTC, ETH e muitos mais.</string>
+    <string name="rewards_announcement_action">Saber mais</string>
+    <string name="default_label_rewards_wallet">Conta Recompensas</string>
+    <string name="activity_details_title_rewards_earned">Recompensas Ganhas</string>
+    <string name="withdraw_rewards_confirmation_success_message">O seu %1$s estará disponível na sua %2$s dentro de 2 dias.</string>
+    <string name="send_confirmation_rewards_tos_pp">Li e concordo com os <annotation link="interest_tos"> Termos de Serviço </annotation> e a <annotation link="interest_pp"> Política de Privacidade </annotation>.</string>
+    <string name="send_confirmation_rewards_holding_period_1">Ao aceitar isso, concorda em transferir</string>
+    <string name="send_confirmation_rewards_holding_period_2">(%1$s) da sua %2$s Carteira para a sua Conta Recompensas. Um período inicial de retenção de 7 dias será aplicado aos seus fundos.</string>
+    <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para transferir com as taxas de rede atuais.</string>
+    <string name="send_internal_transfer_message_1_1">Neste momento, pode transferir %1$s da sua %2$s Conta de Negociação para a sua %2$s Conta Carteira de Chave Privada ou Recompensas. Se deseja transferir para endereços externos, pode fazê-lo a partir da sua Carteira de Chave Privada.</string>
+    <string name="earn_rewards">Ganhe Recompensas</string>
+    <string name="rewards_summary_total">Total de Recompensas Ganhas</string>
+    <string name="rewards_summary_next_payment">Próximo Pagamento de Recompensas</string>
+    <string name="rewards_summary_accrued">Recompensas Acumuladas Este Mês</string>
+    <string name="rewards_summary_hold_period">Período inicial de retenção</string>
+    <string name="rewards_summary_hold_period_days">%1$d Dias</string>
+    <string name="rewards_summary_rate">Taxa de Recompensas</string>
+    <string name="rewards_dashboard_title">Conta Recompensas</string>
+    <string name="rewards_dashboard_item_balance_title">%1$s Saldo</string>
+    <string name="rewards_dashboard_item_accrued_title">Total de Recompensas Ganhas</string>
+    <string name="rewards_dashboard_item_action_earn">Ganhe Recompensas</string>
+    <string name="rewards_dashboard_item_action_view">Visualizar</string>
+    <string name="rewards_item_issue_region">Não está disponível na sua região</string>
+    <string name="rewards_item_issue_kyc">Precisa de ter o Gold verificado para começar a Ganhar Recompensas</string>
+    <string name="rewards_item_issue_other">Atualmente indisponível, verifique novamente mais tarde</string>
+    <string name="rewards_dashboard_item_rate_1">Ganhe até </string>
+    <string name="rewards_dashboard_item_rate_2"> anualmente no seu %1$s</string>
+    <string name="rewards_dashboard_verify_title">Ganhe Recompensas na Sua Criptomoeda</string>
+    <string name="rewards_dashboard_verify_label">Ganhe até 12 \% instantaneamente ao transferir criptomoedas para sua Conta Recompensas.</string>
+    <string name="rewards_dashboard_verify_point_one_title">Verifique a sua identidade</string>
+    <string name="rewards_dashboard_verify_point_one_label">Para evitar roubo de identidade ou fraude, temos de nos certificar de que é você mesmo, enviando um documento de identificação.</string>
+    <string name="rewards_dashboard_verify_point_two_title">Comprar Crypto</string>
+    <string name="rewards_dashboard_verify_point_two_label">Use o seu banco, cartão de débito ou crédito para financiar qualquer compra de criptomoedas.</string>
+    <string name="rewards_dashboard_verify_point_three_title">Ganhe Recompensas</string>
+    <string name="rewards_dashboard_verify_point_three_label">Transfira para a sua Conta Recompensas e receba pagamentos de Recompensas Mensais.</string>
+    <string name="rewards_summary_disclaimer_label">Utilize a carteira Web para levantar os seus fundos</string>
+    <string name="rewards_error_title">Não é possível carregar os Detalhes das Recompensas</string>
+    <string name="rewards_error_desc">Ocorreu um erro ao carregar os detalhes da Conta Recompensas.
+Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com o Suporte se o problema persistir.</string>
+    <string name="verify_your_identity_limits_1">Verifique sua identidade, ganhe recompensas e negocie até %1$s por dia.</string>
+    <string name="earn_rewards_description" formatted="false">Ponha o seu crypto a funcionar. Ganhe até 10% mensalmente sem fazer nada. Deposite instantaneamente e comece a ganhar.</string>
+    <string name="checkout_rewards_confirmation_disclaimer">Depois de confirmar esta retirada, você não continuará a ganhar recompensas sobre o valor retirado.
+
+ Seu %1$s estará disponível em sua conta \" %2$s \" dentro de 2 dias.</string>
+    <string name="reset_kyc_notice_1">Para sua segurança, pode ser necessário verificar novamente sua identidade antes de acessar sua conta de negociação ou de recompensas.</string>
+    <string name="reset_account_description_1">A redefinição irá restaurar suas contas de negociação, recompensas e câmbio.</string>
+    <string name="checkout_funds_label_1">Carteira %s</string>
+    <string name="activity_details_buy_purchase_amount_1">Total</string>
 </resources>
