@@ -1,14 +1,10 @@
 package piuk.blockchain.android.ui.kyc.autocomplete
 
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class KycAutocompleteAddressModel(
@@ -24,14 +20,6 @@ class KycAutocompleteAddressModel(
     crashLogger
 ) {
 
-    sealed class Action {
-        data class NavigateToAddressFragment(val addressDetails: AddressDetailsModel) : Action()
-        data class UpdateSearchList(val addresses: List<KycAddressResult>) : Action()
-    }
-
-    private val _actions = MutableLiveData<Event<Action>>()
-    val actions: LiveData<Event<Action>> = _actions
-
     override fun performAction(
         previousState: KycAutocompleteAddressState,
         intent: KycAutocompleteAddressIntents
@@ -41,7 +29,7 @@ class KycAutocompleteAddressModel(
                 interactor.getAddressDetails(intent.selectedAddress.placeId)
                     .subscribeBy(
                         onSuccess = {
-                            _actions.value = Event(Action.NavigateToAddressFragment(it))
+                            process(KycAutocompleteAddressIntents.NavigateToAddress(it))
                         },
                         onError = { }
                     )
@@ -50,7 +38,7 @@ class KycAutocompleteAddressModel(
                 return interactor.searchForAddresses(intent.addressSearchText, intent.countryCode)
                     .subscribeBy(
                         onSuccess = {
-                            _actions.value = Event(Action.UpdateSearchList(it))
+                            process(KycAutocompleteAddressIntents.UpdateAddresses(it))
                         },
                         onError = { }
                     )
@@ -58,45 +46,5 @@ class KycAutocompleteAddressModel(
         }
 
         return null
-    }
-}
-
-open class Event<out T : Any>(private val content: T) {
-
-    private var hasBeenHandled = false
-
-    fun getIfNotHandled(): T? {
-        if (hasBeenHandled) {
-            return null
-        }
-
-        hasBeenHandled = true
-        return content
-    }
-}
-
-inline fun <T : Any> LiveData<T>.observeNonNull(
-    owner: LifecycleOwner,
-    crossinline onChanged: (T) -> Unit
-) {
-    observe(
-        owner,
-        { t ->
-            if (t != null) {
-                onChanged(t)
-            }
-        }
-    )
-}
-
-inline fun <T : Any> LiveData<Event<T>>.handleEvents(
-    owner: LifecycleOwner,
-    crossinline onEvent: (T) -> Unit
-) {
-    observeNonNull(owner) {
-        val content = it.getIfNotHandled()
-        if (content != null) {
-            onEvent(content)
-        }
     }
 }

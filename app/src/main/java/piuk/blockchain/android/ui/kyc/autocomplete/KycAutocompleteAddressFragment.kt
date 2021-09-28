@@ -42,7 +42,6 @@ class KycAutocompleteAddressFragment :
         progressListener.setHostTitle(R.string.kyc_address_title)
         setupRecyclerView()
         setupSearch()
-        model.actions.handleEvents(this, this::handleActions)
     }
 
     private fun setupRecyclerView() {
@@ -65,19 +64,19 @@ class KycAutocompleteAddressFragment :
         model.process(KycAutocompleteAddressIntents.SelectAddress(result))
     }
 
-    override fun render(newState: KycAutocompleteAddressState) {}
-
-    private fun handleActions(action: KycAutocompleteAddressModel.Action) {
-        when (action) {
-            is KycAutocompleteAddressModel.Action.NavigateToAddressFragment -> {
+    override fun render(newState: KycAutocompleteAddressState) {
+        when (val step = newState.autocompleteAddressStep) {
+            is AutocompleteAddressStep.Address -> {
                 navigate(
                     KycAutocompleteAddressFragmentDirections
                         .actionKycAutocompleteAddressFragmentToKycHomeAddressFragment(
-                            profileModel.copy(addressDetails = action.addressDetails)
+                            profileModel.copy(addressDetails = step.addressDetailsModel)
                         )
                 )
             }
-            is KycAutocompleteAddressModel.Action.UpdateSearchList -> adapter.submitList(action.addresses)
+            null -> { }
         }
+
+        adapter.submitList(newState.addresses)
     }
 }
