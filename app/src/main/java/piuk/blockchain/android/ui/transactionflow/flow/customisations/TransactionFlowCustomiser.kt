@@ -738,7 +738,7 @@ class TransactionFlowCustomiserImpl(
                 amount
             )
             AssetAction.FiatDeposit -> resources.getString(
-                R.string.swap_enter_amount_min_swap,
+                R.string.deposit_enter_amount_min_swap,
                 amount
             )
             AssetAction.Withdraw,
