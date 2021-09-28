@@ -17,26 +17,10 @@ import com.blockchain.componentlib.databinding.ViewSearchResultBinding
 
 data class KycAddressResult(val text: String, val searchText: String, val placeId: String)
 
-class KycAutocompleteAddressAdapter(
-    diffCallback: DiffUtil.ItemCallback<KycAddressResult> = object :
-        DiffUtil.ItemCallback<KycAddressResult>() {
-        override fun areItemsTheSame(
-            oldItem: KycAddressResult,
-            newItem: KycAddressResult
-        ): Boolean {
-            return oldItem == newItem
-        }
-
-        @SuppressLint("DiffUtilEquals")
-        override fun areContentsTheSame(
-            oldItem: KycAddressResult,
-            newItem: KycAddressResult
-        ): Boolean {
-            return oldItem.placeId == newItem.placeId && oldItem.searchText == newItem.searchText
-        }
-    },
-    val onClick: (KycAddressResult) -> Unit
-) : ListAdapter<KycAddressResult, KycAutocompleteAddressAdapter.AddressViewHolder>(diffCallback) {
+class KycAutocompleteAddressAdapter(val onClick: (KycAddressResult) -> Unit) :
+    ListAdapter<KycAddressResult, KycAutocompleteAddressAdapter.AddressViewHolder>(
+        KycAutocompleteAddressAdapterDiffUtil()
+    ) {
 
     class AddressViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
@@ -70,5 +54,22 @@ class KycAutocompleteAddressAdapter(
         }
 
         itemBinding.searchResultText.text = spannable
+    }
+}
+
+internal class KycAutocompleteAddressAdapterDiffUtil : DiffUtil.ItemCallback<KycAddressResult>() {
+    override fun areItemsTheSame(
+        oldItem: KycAddressResult,
+        newItem: KycAddressResult
+    ): Boolean {
+        return oldItem == newItem
+    }
+
+    @SuppressLint("DiffUtilEquals")
+    override fun areContentsTheSame(
+        oldItem: KycAddressResult,
+        newItem: KycAddressResult
+    ): Boolean {
+        return oldItem.placeId == newItem.placeId && oldItem.searchText == newItem.searchText
     }
 }
