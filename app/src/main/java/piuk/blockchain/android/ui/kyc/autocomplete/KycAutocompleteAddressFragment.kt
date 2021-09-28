@@ -14,8 +14,10 @@ import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
+import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.AfterTextChangedWatcher
+import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycAutocompleteAddressFragment :
@@ -42,6 +44,10 @@ class KycAutocompleteAddressFragment :
         progressListener.setHostTitle(R.string.kyc_address_title)
         setupRecyclerView()
         setupSearch()
+
+        binding.enterManuallyButton.setOnClickListener {
+            navigateToAddress(null)
+        }
     }
 
     private fun setupRecyclerView() {
@@ -64,17 +70,23 @@ class KycAutocompleteAddressFragment :
         model.process(KycAutocompleteAddressIntents.SelectAddress(result))
     }
 
+    private fun navigateToAddress(addressDetails: AddressDetailsModel?) {
+        navigate(
+            KycAutocompleteAddressFragmentDirections
+                .actionKycAutocompleteAddressFragmentToKycHomeAddressFragment(
+                    profileModel.copy(addressDetails = addressDetails)
+                )
+        )
+    }
+
     override fun render(newState: KycAutocompleteAddressState) {
         when (val step = newState.autocompleteAddressStep) {
-            is AutocompleteAddressStep.Address -> {
-                navigate(
-                    KycAutocompleteAddressFragmentDirections
-                        .actionKycAutocompleteAddressFragmentToKycHomeAddressFragment(
-                            profileModel.copy(addressDetails = step.addressDetailsModel)
-                        )
-                )
-            }
+            is AutocompleteAddressStep.Address -> navigateToAddress(step.addressDetailsModel)
             null -> { }
+        }
+
+        binding.enterManuallyButton.visibleIf {
+            newState.shouldShowManualButton
         }
 
         adapter.submitList(newState.addresses)

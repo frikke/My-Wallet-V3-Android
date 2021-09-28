@@ -16,12 +16,18 @@ sealed class KycAutocompleteAddressIntents : MviIntent<KycAutocompleteAddressSta
 
     data class UpdateAddresses(val addresses: List<KycAddressResult>) :
         KycAutocompleteAddressIntents() {
-        override fun reduce(oldState: KycAutocompleteAddressState) = oldState.copy(addresses = addresses)
+        override fun reduce(oldState: KycAutocompleteAddressState) =
+            oldState.copy(addresses = addresses, shouldShowManualButton = addresses.isEmpty())
     }
 
     data class NavigateToAddress(val addressDetailsModel: AddressDetailsModel) :
         KycAutocompleteAddressIntents() {
         override fun reduce(oldState: KycAutocompleteAddressState) =
             oldState.copy(autocompleteAddressStep = AutocompleteAddressStep.Address(addressDetailsModel))
+    }
+
+    object ClearNavigation : KycAutocompleteAddressIntents() {
+        override fun reduce(oldState: KycAutocompleteAddressState) =
+            oldState.copy(autocompleteAddressStep = null)
     }
 }

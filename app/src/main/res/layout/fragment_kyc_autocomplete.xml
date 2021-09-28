@@ -37,4 +37,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp" />
 
+    <TextView
+        android:id="@+id/enter_manually_button"
+        android:layout_marginBottom="24dp"
+        android:textColor="@color/primary_blue_accent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/kyc_enter_address_manually"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

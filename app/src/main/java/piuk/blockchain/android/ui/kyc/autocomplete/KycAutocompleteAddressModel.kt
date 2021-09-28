@@ -30,6 +30,7 @@ class KycAutocompleteAddressModel(
                     .subscribeBy(
                         onSuccess = {
                             process(KycAutocompleteAddressIntents.NavigateToAddress(it))
+                            process(KycAutocompleteAddressIntents.ClearNavigation)
                         },
                         onError = { }
                     )

@@ -8,5 +8,6 @@ sealed class AutocompleteAddressStep {
 }
 data class KycAutocompleteAddressState(
     val autocompleteAddressStep: AutocompleteAddressStep? = null,
-    val addresses: List<KycAddressResult> = emptyList()
+    val addresses: List<KycAddressResult> = emptyList(),
+    val shouldShowManualButton: Boolean = addresses.isEmpty()
 ) : MviState
