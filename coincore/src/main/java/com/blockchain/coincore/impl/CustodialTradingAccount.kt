@@ -186,7 +186,8 @@ class CustodialTradingAccount(
             txHash = txHash,
             state = state,
             type = type,
-            fiatValue = amount.toFiat(currency, exchangeRates) as FiatValue
+            fiatValue = amount.toFiat(currency, exchangeRates) as FiatValue,
+            paymentMethodId = paymentId
         )
 
     private fun orderToSummary(order: BuySellOrder): ActivitySummaryItem =

@@ -212,6 +212,7 @@ data class TransactionResponse(
     val insertedAt: String,
     val type: String,
     val state: String,
+    val beneficiaryId: String? = null,
     val extraAttributes: TransactionAttributesResponse,
     val txHash: String?
 ) {

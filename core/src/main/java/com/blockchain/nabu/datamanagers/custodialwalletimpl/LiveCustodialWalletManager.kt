@@ -311,7 +311,8 @@ class LiveCustodialWalletManager(
                         amount = FiatValue.fromMinor(it.amount.symbol, it.amountMinor.toLong()),
                         date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
                         state = state,
-                        type = txType
+                        type = txType,
+                        paymentId = it.beneficiaryId
                     )
                 }
             }
@@ -340,7 +341,8 @@ class LiveCustodialWalletManager(
                         } ?: CryptoValue.zero(crypto),
                         receivingAddress = it.extraAttributes.beneficiary?.accountRef.orEmpty(),
                         txHash = it.txHash.orEmpty(),
-                        currency = currencyPrefs.selectedFiatCurrency
+                        currency = currencyPrefs.selectedFiatCurrency,
+                        paymentId = it.beneficiaryId
                     )
                 }
             }

@@ -35,7 +35,8 @@ class FiatActivitySummaryItem(
     override val value: Money,
     override val account: FiatAccount,
     val type: TransactionType,
-    val state: TransactionState
+    val state: TransactionState,
+    val paymentMethodId: String?
 ) : ActivitySummaryItem() {
     override fun toString(): String = "currency = $currency " +
         "transactionType  = $type " +
@@ -153,7 +154,8 @@ data class CustodialTransferActivitySummaryItem(
     val txHash: String,
     val state: TransactionState,
     val fiatValue: FiatValue,
-    val type: TransactionType
+    val type: TransactionType,
+    val paymentMethodId: String?
 ) : CryptoActivitySummaryItem() {
     val isConfirmed: Boolean by lazy {
         state == TransactionState.COMPLETED

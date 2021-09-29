@@ -74,7 +74,8 @@ import java.util.concurrent.atomic.AtomicBoolean
                         value = fiatTransaction.amount,
                         account = this,
                         state = fiatTransaction.state,
-                        type = fiatTransaction.type
+                        type = fiatTransaction.type,
+                        paymentMethodId = fiatTransaction.paymentId
                     )
                 }
             }
