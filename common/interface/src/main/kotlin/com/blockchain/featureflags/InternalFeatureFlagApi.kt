@@ -16,5 +16,6 @@ enum class GatedFeature(
     FULL_SCREEN_TXS("Enable full screen tx flow", true),
     NEW_ONBOARDING("New onboarding design"),
     NEW_SPLIT_DASHBOARD("Enable New Dashboard"),
+    AUTOCOMPLETE_ADDRESS("Enable autocomplete address kyc flow"),
     WITHDRAWAL_LOCKS("Enable Withdrawal locks warning")
 }

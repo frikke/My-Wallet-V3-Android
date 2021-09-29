@@ -20,19 +20,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/search_view_kyc_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:visibility="gone"
-            app:iconifiedByDefault="false"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_view_address_title"
-            app:queryHint="@string/kyc_address_search_hint" />
-
         <!-- Address -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_kyc_address_first_line"
@@ -45,7 +32,7 @@
             android:hint="@string/address_line_1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_view_kyc_address">
+            app:layout_constraintTop_toBottomOf="@+id/text_view_address_title">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_kyc_address_first_line"

@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.kyc.navhost
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.exceptions.MetadataNotFoundException
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.Address
@@ -41,6 +42,7 @@ class KycNavHostPresenterTest {
     private val analytics: Analytics = mock()
     private val reentryDecision: ReentryDecision = mock()
     private val tierUpdater: TierUpdater = mock()
+    private val internalFlags: InternalFeatureFlagApi = mock()
 
     @Suppress("unused")
     @get:Rule
@@ -56,7 +58,9 @@ class KycNavHostPresenterTest {
             nabuDataManager = nabuDataManager,
             sunriverCampaign = sunriverCampaign,
             reentryDecision = reentryDecision,
-            kycNavigator = ReentryDecisionKycNavigator(nabuToken, nabuDataManager, reentryDecision, analytics),
+            kycNavigator = ReentryDecisionKycNavigator(
+                nabuToken, nabuDataManager, reentryDecision, analytics, internalFlags
+            ),
             tierUpdater = tierUpdater,
             analytics = mock()
         )
