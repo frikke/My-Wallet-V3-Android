@@ -7,7 +7,9 @@ import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.PickerLayoutBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.util.AfterTextChangedWatcher
@@ -27,6 +29,11 @@ class SearchPickerItemBottomSheet : SlidingModalBottomDialog<PickerLayoutBinding
             )
             dismiss()
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.FloatingBottomSheet)
     }
 
     private val items: List<PickerItem> by unsafeLazy {

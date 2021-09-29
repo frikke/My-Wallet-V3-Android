@@ -403,7 +403,8 @@ data class FiatTransaction(
     val id: String,
     val date: Date,
     val type: TransactionType,
-    val state: TransactionState
+    val state: TransactionState,
+    val paymentId: String?
 )
 
 data class CryptoTransaction(
@@ -415,7 +416,8 @@ data class CryptoTransaction(
     val receivingAddress: String,
     val fee: Money,
     val txHash: String,
-    val currency: String
+    val currency: String,
+    val paymentId: String?
 )
 
 enum class TransactionType {

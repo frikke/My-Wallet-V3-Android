@@ -52,7 +52,8 @@ class YapilyBankSelectionFragment : Fragment() {
                 analytics.logEvent(
                     BankAuthAnalytics.BankSelected(
                         bankName = it.name,
-                        provider = attributes.entity.toAnalyticsBankProvider()
+                        provider = attributes.entity.toAnalyticsBankProvider(),
+                        partner = "YAPILY"
                     )
                 )
             },

@@ -1,18 +1,28 @@
 package com.blockchain.koin
 
 import android.preference.PreferenceManager
+import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
-import com.blockchain.core.custodial.TradingBalanceCallCache
-import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.custodial.TradingBalanceCallCache
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
+import com.blockchain.core.paymentMethods.PaymentMethodsDataManager
+import com.blockchain.core.paymentMethods.PaymentMethodsDataManagerImpl
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.impl.AssetPriceStore
+import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
+import com.blockchain.core.price.impl.SparklineCallCache
+import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
@@ -21,6 +31,7 @@ import com.blockchain.logging.NullLogger
 import com.blockchain.logging.TimberLogger
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.payload.PayloadDecrypt
+import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -41,21 +52,11 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.core.BuildConfig
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
-import com.blockchain.core.price.ExchangeRates
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.price.impl.AssetPriceStore
-import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
-import com.blockchain.core.price.impl.SparklineCallCache
-import com.blockchain.core.user.NabuUserDataManager
-import com.blockchain.core.user.NabuUserDataManagerImpl
-import com.blockchain.common.util.AndroidDeviceIdGenerator
-import com.blockchain.preferences.AppInfoPrefs
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -91,6 +92,7 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
+import piuk.blockchain.core.BuildConfig
 import java.util.UUID
 
 val coreModule = module {
@@ -292,6 +294,13 @@ val coreModule = module {
                 authenticator = get()
             )
         }.bind(NabuUserDataManager::class)
+
+        scoped {
+            PaymentMethodsDataManagerImpl(
+                paymentMethodService = get(),
+                authenticator = get()
+            )
+        }.bind(PaymentMethodsDataManager::class)
     }
 
     factory {

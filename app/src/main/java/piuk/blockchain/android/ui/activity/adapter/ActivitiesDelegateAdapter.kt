@@ -30,7 +30,7 @@ class ActivitiesDelegateAdapter(
             addAdapterDelegate(SwapActivityItemDelegate(onCryptoItemClicked))
             addAdapterDelegate(CustodialTradingActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))
             addAdapterDelegate(SellActivityItemDelegate(onCryptoItemClicked))
-            addAdapterDelegate(CustodialFiatActivityItemDelegate(onFiatItemClicked))
+            addAdapterDelegate(CustodialFiatActivityItemDelegate(prefs, onFiatItemClicked))
             addAdapterDelegate(CustodialInterestActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))
             addAdapterDelegate(CustodialRecurringBuyActivityItemDelegate(onCryptoItemClicked))
             addAdapterDelegate(CustodialSendActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))

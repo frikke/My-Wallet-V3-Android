@@ -59,13 +59,15 @@ enum class BankAuthAnalytics(
             get() = mapOf()
     }
 
-    class BankSelected(private val bankName: String, private val provider: String) : AnalyticsEvent {
+    class BankSelected(private val bankName: String, private val provider: String, private val partner: String) :
+        AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.BANK_SELECTED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "bank_name" to bankName,
-                "provider" to provider
+                "provider" to provider,
+                "partner" to partner
             )
     }
 }

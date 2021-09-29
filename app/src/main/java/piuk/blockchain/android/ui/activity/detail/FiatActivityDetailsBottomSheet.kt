@@ -5,12 +5,17 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import com.blockchain.api.services.PaymentMethodDetails
+import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.core.paymentMethods.PaymentMethodsDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.utils.toFormattedString
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
-import com.blockchain.coincore.FiatActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.activity.detail.adapter.FiatDetailsSheetAdapter
@@ -18,10 +23,12 @@ import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import timber.log.Timber
 import java.util.Date
 
 class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActivityDetailsBinding>() {
     private val assetActivityRepository: AssetActivityRepository by scopedInject()
+    private val paymentMethodsDataManager: PaymentMethodsDataManager by scopedInject()
     private val fiatDetailsSheetAdapter = FiatDetailsSheetAdapter()
     private val currency: String by unsafeLazy {
         arguments?.getString(CURRENCY_KEY) ?: throw IllegalStateException("No currency  provided")
@@ -34,29 +41,44 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetActivityDetailsBinding =
         DialogSheetActivityDetailsBinding.inflate(inflater, container, false)
 
+    private fun initView(fiatActivitySummaryItem: FiatActivitySummaryItem) {
+        with(binding) {
+
+            title.text = if (fiatActivitySummaryItem.type == TransactionType.DEPOSIT) {
+                getString(R.string.common_deposit)
+            } else {
+                getString(R.string.fiat_funds_detail_withdraw_title)
+            }
+            amount.text = fiatActivitySummaryItem.value.toStringWithSymbol()
+            status.configureForState(fiatActivitySummaryItem.state)
+
+            with(detailsList) {
+                addItemDecoration(BlockchainListDividerDecor(requireContext()))
+                adapter = fiatDetailsSheetAdapter
+            }
+        }
+    }
+
     override fun initControls(binding: DialogSheetActivityDetailsBinding) {
         with(binding) {
             confirmationProgress.gone()
             confirmationLabel.gone()
             custodialTxButton.gone()
 
-            assetActivityRepository.findCachedItem(currency, txHash)?.let {
-                title.text = if (it.type == TransactionType.DEPOSIT) {
-                    getString(R.string.common_deposit)
-                } else {
-                    getString(R.string.fiat_funds_detail_withdraw_title)
-                }
-                amount.text = it.value.toStringWithSymbol()
-
-                status.apply {
-                    configureForState(it.state)
-                }
-
-                with(detailsList) {
-                    addItemDecoration(BlockchainListDividerDecor(requireContext()))
-                    adapter = fiatDetailsSheetAdapter
-                }
-                fiatDetailsSheetAdapter.items = getItemsForSummaryItem(it)
+            assetActivityRepository.findCachedItem(currency, txHash)?.let { fiatActivitySummaryItem ->
+                initView((fiatActivitySummaryItem))
+                paymentMethodsDataManager.getPaymentMethodDetailsForId(
+                    fiatActivitySummaryItem.paymentMethodId.orEmpty()
+                ).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(
+                        onSuccess = {
+                            fiatDetailsSheetAdapter.items = getItemsForSummaryItem(fiatActivitySummaryItem, it)
+                        },
+                        onError = {
+                            Timber.e(it.localizedMessage)
+                            fiatDetailsSheetAdapter.items = getItemsForSummaryItem(fiatActivitySummaryItem)
+                        })
             }
         }
     }
@@ -84,19 +106,46 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
         }
     }
 
-    private fun getItemsForSummaryItem(item: FiatActivitySummaryItem): List<FiatDetailItem> =
-        listOf(
-            FiatDetailItem(getString(R.string.activity_details_buy_tx_id), item.txId),
-            FiatDetailItem(getString(R.string.date), Date(item.timeStampMs).toFormattedString()),
+    private fun getItemsForSummaryItem(
+        item: FiatActivitySummaryItem,
+        paymentDetails: PaymentMethodDetails? = null
+    ): List<FiatDetailItem> =
+        listOfNotNull(
             FiatDetailItem(
-                if (item.type == TransactionType.DEPOSIT) {
+                key = getString(R.string.activity_details_buy_tx_id),
+                value = item.txId
+            ),
+            FiatDetailItem(
+                key = getString(R.string.date),
+                value = Date(item.timeStampMs).toFormattedString()
+            ),
+            FiatDetailItem(
+                key = if (item.type == TransactionType.DEPOSIT) {
                     getString(R.string.common_to)
                 } else {
                     getString(R.string.common_from)
-                }, item.account.label
+                },
+                value = item.account.label
             ),
-            FiatDetailItem(getString(R.string.amount), item.value.toStringWithSymbol())
+            FiatDetailItem(
+                key = getString(R.string.amount),
+                value = item.value.toStringWithSymbol()
+            ),
+            if (paymentDetails != null) {
+                FiatDetailItem(
+                    key = getString(R.string.activity_details_buy_payment_method),
+                    value = paymentDetails.mapPaymentDetailsToString()
+                )
+            } else null
         )
+
+    private fun PaymentMethodDetails.mapPaymentDetailsToString(): String {
+        return if (label.isNullOrBlank()) {
+            getString(R.string.checkout_funds_label_1, currency)
+        } else {
+            """${this.label} ${this.endDigits}"""
+        }
+    }
 
     companion object {
         private const val CURRENCY_KEY = "CURRENCY_KEY"

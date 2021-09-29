@@ -86,6 +86,7 @@ sealed class LoginAnalytics(
         private const val MERGEABLE = "mergeable"
         private const val SITE_REDIRECT = "site_redirect"
         private const val UPGRADEABLE = "upgradeable"
+        private const val REQUEST_PLATFORM = "request_platform"
         private const val WALLET = "wallet"
         private const val AUTH_TYPE = "auth_type"
         private const val GUID_FIRST_FOUR = "guid_first_four"
@@ -106,6 +107,7 @@ sealed class LoginAnalytics(
                     mapOf(
                         MERGEABLE to isMergeable,
                         SITE_REDIRECT to PLATFORM_WALLET,
+                        REQUEST_PLATFORM to PLATFORM_WALLET,
                         UPGRADEABLE to isUpgradeable,
                         WALLET to NestedData(
                             mapOf(

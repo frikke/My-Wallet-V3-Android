@@ -56,6 +56,7 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
             verifyDeviceDescription.text = getString(R.string.verify_device_desc)
             openEmailButton.setOnClickListener {
                 Intent(Intent.ACTION_MAIN).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     addCategory(Intent.CATEGORY_APP_EMAIL)
                     startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
                 }

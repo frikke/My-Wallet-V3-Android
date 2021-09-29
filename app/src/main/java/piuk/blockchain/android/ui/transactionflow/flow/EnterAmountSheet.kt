@@ -297,7 +297,7 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
         else if (inputCurrency is CurrencyType.Fiat && inputCurrency.fiatCurrency != selectedFiat) {
             configuration = FiatCryptoViewConfiguration(
                 inputCurrency = inputCurrency,
-                outputCurrency = CurrencyType.Fiat(selectedFiat),
+                outputCurrency = inputCurrency,
                 exchangeCurrency = CurrencyType.Fiat(selectedFiat),
                 predefinedAmount = newState.amount
             )

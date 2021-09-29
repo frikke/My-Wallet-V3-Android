@@ -29,11 +29,12 @@
         android:icon="@mipmap/ic_launcher"
         android:resizeableActivity="false"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:launchMode="singleTask"
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.launcher.LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask">
+           >
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
@@ -105,6 +106,7 @@
             android:name=".ui.login.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize"
+            android:noHistory="true"
             android:launchMode="singleTask" >
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />

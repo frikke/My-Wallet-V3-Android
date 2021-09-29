@@ -99,12 +99,21 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun getLastFiatToUserFiatRate(sourceFiat: String): ExchangeRate.FiatToFiat {
-        val price = priceStore.getCachedFiatPrice(sourceFiat, userFiat)
-        return ExchangeRate.FiatToFiat(
-            from = sourceFiat,
-            to = price.quote,
-            rate = price.currentRate
-        )
+        return when (sourceFiat) {
+            userFiat -> ExchangeRate.FiatToFiat(
+                from = sourceFiat,
+                to = userFiat,
+                rate = 1.0.toBigDecimal()
+            )
+            else -> {
+                val price = priceStore.getCachedFiatPrice(sourceFiat, userFiat)
+                return ExchangeRate.FiatToFiat(
+                    from = sourceFiat,
+                    to = price.quote,
+                    rate = price.currentRate
+                )
+            }
+        }
     }
 
     override fun getLastFiatToFiatRate(sourceFiat: String, targetFiat: String): ExchangeRate.FiatToFiat {

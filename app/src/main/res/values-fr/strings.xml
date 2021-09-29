@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string-array name="mnemonic_word_requests">
         <item>premier mot</item>
         <item>deuxième mot</item>
@@ -971,7 +971,6 @@ Confirmations</string>
     <string name="activity_details_title_fee">Frais de gaz</string>
     <string name="activity_details_transaction_fee">Gaz pour</string>
     <string name="activity_details_label_pending_execution">En attente d\'exécution</string>
-    <string name="activity_details_buy_sending_to">Envoi à</string>
     <string name="activity_details_buy_purchase_amount">Achats</string>
     <string name="activity_details_buy_fees">Honoraires</string>
     <string name="activity_details_buy_payment_method">Mode de paiement</string>
@@ -1006,8 +1005,8 @@ Confirmations</string>
     <string name="fiat_funds_no_kyc_announcement_description">Vérifiez votre identité pour verser de l\'argent dans le Portefeuille et acheter de la crypto.</string>
     <string name="received_usdt">Tether reçue</string>
     <string name="watch_only_not_supported">L\'importation d\'une adresse non utilisable (une adresse ou un script de clé publique
- sans la clé privée correspondante) n\'est pas pris en charge. Veuillez réessayer avec 
- une adresse et une clé privée. 
+ sans la clé privée correspondante) n\'est pas pris en charge. Veuillez réessayer avec
+ une adresse et une clé privée.
 </string>
     <string name="linked_banks">Banques liées</string>
     <string name="tx_title_deposit">Dépôt %1s</string>
@@ -1111,8 +1110,8 @@ Veuillez réessayer plus tard.</string>
     <string name="send_confirmation_fee">Frais - Standard</string>
     <string name="send_confirmation_add_note_hint">Ajouter une note</string>
     <string name="send_confirmation_cta_button">Envoyer %1$s</string>
-    <string name="send_confirmation_rewards_tos_pp">J\'ai lu et j\'accepte les <annotation link="interest_tos">Conditions d\'utilisation</annotation> et la <annotation link="interest_pp">politique de confidentialité</annotation>.</string>
-    <string name="send_confirmation_rewards_holding_period_1">En acceptant cela, vous acceptez de transférer </string>
+    <string name="send_confirmation_interest_tos_pp">J\'ai lu et j\'accepte les <annotation link="interest_tos">Conditions d\'utilisation</annotation> et la <annotation link="interest_pp">politique de confidentialité</annotation>.</string>
+    <string name="send_confirmation_interest_holding_period_1">En acceptant cela, vous acceptez de transférer </string>
     <string name="send_confirmation_interest_holding_period_2">  %1$sde votre Portefeuille %2$s vers votre compte d\'intérêts. Une période de retenue initiale de 7 jours sera appliquée à vos fonds.</string>
     <string name="send_confirmation_progress_title">Transfert de %1$s</string>
     <string name="send_confirmation_progress_message">Nous transférons votre %1$s en ce moment.</string>
@@ -1140,7 +1139,7 @@ Veuillez réessayer plus tard.</string>
     <string name="convert_your_crypto_to_cash">Convertissez votre crypto en espèces</string>
     <string name="deposit_enter_amount_limit_title">Limite journalière</string>
     <string name="interest_dashboard_verify_title">Gagnez des intérêts sur votre Crypto</string>
-    <string name="rewards_summary_hold_period">Période de conservation initiale</string>
+    <string name="interest_summary_hold_period">Période de conservation initiale</string>
     <string name="interest_summary_rate">Taux d\'intérêt</string>
     <string name="interest_summary_next_payment">Prochain paiement des intérêts</string>
     <string name="sell_enter_amount_max">Vendre Max</string>
@@ -1149,7 +1148,7 @@ Veuillez réessayer plus tard.</string>
   </string>
     <string name="interest_announcement_title">Gagnez des intérêts sur votre crypto aujourd\'hui !</string>
     <string name="interest_announcement_description">Transférez de la crypto et commencez à gagner des intérêts sur les BTC, ETH et bien d\'autres.</string>
-    <string name="rewards_announcement_action">En savoir plus</string>
+    <string name="interest_announcement_action">En savoir plus</string>
     <string name="purchase_card_note_2">Votre crypto sera disponible pour retrait dans un délai de</string>
     <string name="select_send_sheet_title">Envoyer à partir de</string>
     <string name="select_send_source_title">Envoyer à partir de</string>
@@ -1179,22 +1178,21 @@ Veuillez réessayer plus tard.</string>
     <string name="sell_progress_complete_title">%1$s Vendu</string>
     <string name="earn_interest">Gagnez des intérêts</string>
     <string name="interest_summary_total">Total des intérêts gagnés</string>
-    <string name="rewards_summary_hold_period_days">%1$d Jours</string>
     <string name="interest_dashboard_title">Compte d\'intérêt</string>
-    <string name="rewards_dashboard_item_balance_title">%1$s Solde</string>
+    <string name="interest_dashboard_item_balance_title">%1$s Solde</string>
     <string name="interest_dashboard_item_accrued_title">Total des intérêts gagnés</string>
     <string name="interest_dashboard_item_action_earn">Gagnez des intérêts</string>
-    <string name="rewards_dashboard_item_action_view">Afficher</string>
-    <string name="rewards_dashboard_item_rate_1">Gagnez jusqu\'à </string>
-    <string name="rewards_dashboard_item_rate_2"> annuellement sur votre %1$s</string>
+    <string name="interest_dashboard_item_action_view">Afficher</string>
+    <string name="interest_dashboard_item_rate_1">Gagnez jusqu\'à </string>
+    <string name="interest_dashboard_item_rate_2"> annuellement sur votre %1$s</string>
     <string name="interest_dashboard_verify_label">Gagnez jusqu\'à 12\% par an lorsque vous transférez un crypto dans votre compte d\'intérêts.</string>
-    <string name="rewards_dashboard_verify_point_one_title">Faites vérifier votre Identité</string>
-    <string name="rewards_dashboard_verify_point_one_label">Pour éviter l\'usurpation d\'identité ou la fraude, nous devons nous assurer qu\'il s\'agit bien de vous en important une pièce d\'identité.</string>
-    <string name="rewards_dashboard_verify_point_two_title">Acheter de la Crypto</string>
-    <string name="rewards_dashboard_verify_point_two_label">Utilisez votre carte bancaire, de débit ou de crédit pour financer tout achat de crypto.</string>
+    <string name="interest_dashboard_verify_point_one_title">Faites vérifier votre Identité</string>
+    <string name="interest_dashboard_verify_point_one_label">Pour éviter l\'usurpation d\'identité ou la fraude, nous devons nous assurer qu\'il s\'agit bien de vous en important une pièce d\'identité.</string>
+    <string name="interest_dashboard_verify_point_two_title">Acheter de la Crypto</string>
+    <string name="interest_dashboard_verify_point_two_label">Utilisez votre carte bancaire, de débit ou de crédit pour financer tout achat de crypto.</string>
     <string name="interest_dashboard_verify_point_three_title">Gagnez des intérêts</string>
     <string name="interest_dashboard_verify_point_three_label">Transférez sur votre compte d\'intérêts et recevez des paiements d\'intérêts mensuels.</string>
-    <string name="rewards_summary_disclaimer_label">Utilisez le portefeuille Web pour retirer vos fonds</string>
+    <string name="interest_summary_disclaimer_label">Utilisez le portefeuille Web pour retirer vos fonds</string>
     <string name="buy">Acheter </string>
     <string name="sell">Vendre</string>
     <string name="buy_and_sell">Acheter vendre</string>
@@ -1302,9 +1300,9 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter le suppor
     <string name="tx_confirmation_free_fee_learn_more_1">Frais de réseau lorsqu\'on utilise</string>
     <string name="tx_confirmation_free_fee_learn_more_2">Portefeuilles de trading</string>
     <string name="tx_confirmation_free_fee_learn_more_3">sont GRATUITS ! <annotation link="send_tx_fees">En savoir plus sur les frais</annotation>.</string>
-    <string name="rewards_item_issue_region">Indisponible dans votre région</string>
+    <string name="interest_item_issue_region">Indisponible dans votre région</string>
     <string name="interest_item_issue_kyc">Vous devez être certifié Gold pour commencer à Gagner des intérêts</string>
-    <string name="rewards_item_issue_other">Actuellement indisponible, veuillez vérifier à nouveau plus tard</string>
+    <string name="interest_item_issue_other">Actuellement indisponible, veuillez vérifier à nouveau plus tard</string>
     <string name="swap_header_title">Échangez votre crypto</string>
     <string name="swap_header_label">Échangez instantanément votre crypto dans n\'importe quelle devise que nous proposons pour votre portefeuille.</string>
     <string name="swap_kyc_title">Faites vérifier votre identité. Échangez aujourd\'hui.</string>
@@ -1380,7 +1378,7 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter le suppor
     <string name="swap_faster_cheaper_better">Plus rapide. Moins cher. Meilleur. Notre nouvelle expérience Swap vous permet d\'échanger de la crypto en moins de clics.</string>
     <string name="common_continue">Continuer</string>
     <plurals name="transfer_label_plural">
-        <item quantity="one">1 adresse importée</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">1 adresse importée</item>
         <item quantity="other">%d adresses importées</item>
     </plurals>
     <string name="remote_save_failed">Échec de l\'enregistrement</string>
@@ -1486,8 +1484,8 @@ Remarque : Vous ne pourrez pas envoyer ou retirer ces fonds de votre Portefeuill
     <string name="backup_subtitle">Phrase de récupération de clé privée secrète</string>
     <string name="backup_instructions_3">1. Notez la phrase de 12 mots qui s\'affiche sur l\'écran suivant dans l\'ordre exact où elle apparaît.</string>
     <string name="backup_complete_message_1">Vous pouvez utiliser votre phrase privée de récupération de clé pour restaurer vos fonds si
- vous perdez votre mot de passe. Toute personne ayant accès à votre phrase de récupération peut accéder à vos fonds, 
- alors n\'oubliez pas de le garder hors ligne dans un endroit sûr et sécurisé. 
+ vous perdez votre mot de passe. Toute personne ayant accès à votre phrase de récupération peut accéder à vos fonds,
+ alors n\'oubliez pas de le garder hors ligne dans un endroit sûr et sécurisé.
 </string>
     <string name="backup_verify_heading_1">Entrez les mots suivants de votre phrase secrète de récupération pour
         terminer le processus de sauvegarde.
@@ -1596,7 +1594,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="cash_accounts">Comptes de caisse</string>
     <string name="cash_accounts_description">Stockez des USD, GBP ou EUR dans votre portefeuille. Utilisez le solde pour acheter de la crypto. Vendez de la crypto contre de l\'argent à tout moment.</string>
     <string name="link_a_bank_description">Stockez des USD, GBP ou EUR dans votre portefeuille. Utilisez le solde pour acheter de la crypto. Vendez de la crypto contre de l\'argent à tout moment.</string>
-    <string name="earn_rewards_description" formatted="false">Faites travailler votre crypto. Gagnez jusqu\'à 10 % par mois sans faire quoi que ce soit. Déposez instantanément et commencez à gagner.</string>
+    <string name="earn_interest_description" formatted="false">Faites travailler votre crypto. Gagnez jusqu\'à 10 % par mois sans faire quoi que ce soit. Déposez instantanément et commencez à gagner.</string>
     <string name="sb_checkout_daily_limit_title">Plafond journalier dépassé</string>
     <string name="sb_checkout_daily_limit_blurb">Oups, il semble que vous ayez atteint votre plafond journalier de transactions pour les Achats et les Dépôts, veuillez réessayer demain.</string>
     <string name="sb_checkout_weekly_limit_title">Plafond hebdomadaire dépassé</string>
@@ -1646,7 +1644,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="deposit_confirmation_timeout_subtitle">Le traitement des paiements peut parfois prendre un certain temps. Si vous avez approuvé la transaction, vous pouvez la fermer en toute sécurité et vérifier la progression du dépôt sous l\'onglet Activité.</string>
     <string name="deposit_confirmation_error_title">Oups, on dirait que quelque chose a mal tourné !</string>
     <string name="deposit_confirmation_error_subtitle">Il y a eu un problème avec votre Dépôt, veuillez réessayer ou contacter l\'assistance si le problème persiste.</string>
-    <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour transférer avec les frais de réseau actuels.</string>
+    <string name="interest_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour transférer avec les frais de réseau actuels.</string>
     <string name="send_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour envoyer avec les frais de réseau actuels.</string>
     <string name="swap_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour échanger avec les frais de réseau actuels.</string>
     <string name="approve_payment">Approuvez votre paiement</string>
@@ -1752,7 +1750,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="upgrading_wallet">Mise à niveau du portefeuille</string>
     <string name="custodial_wallet_default_label_2">Compte de trading %s</string>
     <string name="select_withdraw_target_title">Retirer vers</string>
-    <string name="withdraw_rewards_confirmation_success_message">Votre %1$s sera disponible dans votre %2$s dans les 2 jours.</string>
+    <string name="withdraw_interest_confirmation_success_message">Votre %1$s sera disponible dans votre %2$s dans les 2 jours.</string>
     <string name="simple_buy_confirmation_error">Il y a eu un problème avec votre paiement, veuillez réessayer ou contacter l\'assistance si le problème persiste.</string>
     <string name="send_enter_amount_error_invalid_amount_1">Envoyez %1$s ou plus.</string>
     <string name="send_internal_transfer_message_1">À l\'heure actuelle, vous pouvez transférer %1$s de votre compte de trading %2$s vers vos portefeuilles à clé privée %2$s ou votre compte d\'intérêt. Si vous souhaitez effectuer un transfert vers des adresses externes, vous pouvez le faire à partir de votre portefeuille à clé privée.</string>
@@ -1983,7 +1981,7 @@ Vous achèterez moins de crypto.</string>
 Au cours des cinq dernières années, l\'achat de bitcoins chaque semaine a donné de meilleurs résultats que les prévisions du marché.</string>
     <string name="recurring_buy_title_5_2">
 86 % du temps.</string>
-    <string name="recurring_buy_note">Le calcul est basé sur un achat de 30 dollars par semaine, indépendamment du jour d\'achat. «L\'anticipation du marché » se définit comme l\'achat de Bitcoin à chaque baisse de 6%.
+    <string name="recurring_buy_note">Le calcul est basé sur un achat de 30 dollars par semaine, indépendamment du jour d\'achat. «L\'anticipation du marché » se définit comme l\'achat de Bitcoin à chaque baisse de 6 %.
 <annotation link="learn_more">En savoir plus -></annotation></string>
     <string name="recurring_buy_daily_1">Tous les jours</string>
     <string name="recurring_buy_daily_selector">Par jour</string>
@@ -2021,4 +2019,123 @@ Au cours des cinq dernières années, l\'achat de bitcoins chaque semaine a donn
     <string name="reset_password_hint">Nouveau mot de passe</string>
     <string name="reset_password_confirm_hint">Confirmez le nouveau mot de passe</string>
     <string name="recurring_buy_frequency_subtitle_last_day_selector">Le dernier jour du mois</string>
+    <string name="landing_value_prop_one">Achetez, vendez et échangez de la crypto en quelques secondes.</string>
+    <string name="landing_value_prop_two">Gagnez des intérêts sur votre Crypto.</string>
+    <string name="landing_value_prop_three">Contrôlez votre Crypto avec des clés privées</string>
+    <string name="landing_value_prop_four">Ne manquez jamais un moment de Crypto.</string>
+    <string name="landing_live_prices">Prix en direct</string>
+    <string name="portfolio">Portefeuille</string>
+    <string name="prices">Prix</string>
+    <string name="fee_options_sat_byte_hint_1">Entrer sat/b</string>
+    <string name="kyc_postcode_error">Code postal invalide</string>
+    <string name="asset_details_exchange_load_failed_toast_1">Échec du chargement des informations sur les taux de change, veuillez réessayer</string>
+    <string name="asset_details_delta_load_failed_toast">Échec du chargement des informations sur les prix, veuillez réessayer</string>
+    <string name="re_verify_identity_card_title">Vérification requise</string>
+    <string name="re_verify_identity_card_body">Veuillez revérifier votre identité pour accéder à l\'intégralité de nos produits et services.</string>
+    <string name="re_verify_identity_card_cta">Revérifier le compte</string>
+    <string name="order_error_subtitle_rb">Ne vous inquiétez pas. Votre argent est en sécurité. Votre achat %1$s récurrent de %2$s n\'a pas pu être enregistré. Veuillez réessayer ou contacter notre Équipe d\'assistance pour obtenir de l\'aide.</string>
+    <string name="completing_card_buy_1">L\'ordre %1$s initial de %2$s est en cours de traitement, nous vous enverrons une notification quand ce sera terminé.</string>
+    <string name="completing_card_buy_rb">Votre achat %1$s de %2$s sur %3$s a été configuré.</string>
+    <string name="card_verification">Vérification de carte</string>
+    <string name="security_locked_card_funds_explanation_1">Pour votre sécurité, les premiers achats par carte sont soumis à une période de blocage de %1$s jours avant que vous puissiez envoyer ou retirer la crypto achetée. Nous vous informerons lorsque la suspension sera levée.
+
+Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur Blockchain.com.</string>
+    <string name="security_locked_funds_bank_transfer_explanation_1">Votre montant final peut changer en raison de l\'activité du marché. Une période de détention initiale de %s jours sera appliquée à vos fonds. Vous pouvez vendre et échanger pendant cette période. Nous vous informerons lorsque les fonds seront disponibles pour être retirés.</string>
+    <string name="security_no_lock_bank_transfer_explanation">Votre montant final peut changer en raison de l\'activité du marché. Vos fonds seront disponibles pour Vente, Conversion ou Retrait instantané.</string>
+    <string name="account_wallet_mismatch_title">Votre compte de trading est lié à un autre Portefeuille</string>
+    <string name="account_wallet_mismatch_notice">Votre compte de trading Blockchain.com est lié à un autre portefeuille. Veuillez vous connecter à votre portefeuille référencé ci-dessous pour accéder à votre compte.</string>
+    <string name="account_wallet_mismatch_label">Identifiant du Portefeuille : %s</string>
+    <string name="account_wallet_mismatch_wallet_id_not_found">Identifiant de Portefeuille non reçu</string>
+    <string name="zendesk_window_title">Assistance en direct Blockchain</string>
+    <string name="zendesk_bot_name">Blocky</string>
+    <string name="zendesk_subject_title">Sur quel sujet avez-vous besoin d\'aide ?</string>
+    <string name="zendesk_subject_option1">Vérification d\'identité</string>
+    <string name="zendesk_subject_option2">Portefeuille</string>
+    <string name="zendesk_subject_option3">Souci de sécurité</string>
+    <string name="zendesk_subject_option4">Échec de la récupération de mon Portefeuille</string>
+    <string name="common_buy_crypto">A acheté de la crypto</string>
+    <string name="tx_title_sent">A envoyé %s</string>
+    <string name="tx_title_received">A reçu %s</string>
+    <string name="tx_title_sold">A vendu %s</string>
+    <string name="tx_title_bought">A acheté %1s</string>
+    <string name="tx_title_deposited">Dépôt de %s</string>
+    <string name="tx_title_withdrawn">Retrait de %s</string>
+    <string name="tx_title_swapped">Échange %1$s → %2$s</string>
+    <string name="tx_title_transferred">Transfert de %s</string>
+    <string name="activity_details_title_bought">Acheté</string>
+    <string name="activity_details_title_sold">A vendu %s</string>
+    <string name="activity_details_title_swapped">Échangé</string>
+    <string name="activity_details_exchange_rate">Taux de change</string>
+    <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
+    <string name="checkout_item_private_key_wallet_explanation_1">%sLes portefeuilles de clés privées ne sont pas pris en charge pour l\'instant.</string>
+    <string name="verify_device_resend_blocked">Veuillez attendre 30 secondes avant de demander un nouveau courriel</string>
+    <string name="verify_device_email_resent">Nouveau courriel envoyé</string>
+    <string name="resend_email_cta">Envoyer à nouveau</string>
+    <string name="reset_password_wallet_failed_title">Un problème est survenu lors de la réinitialisation</string>
+    <string name="reset_password_wallet_failed_message">Veuillez essayer de définir votre nouveau mot de passe.</string>
+    <string name="reset_password_kyc_reset_failed_message">Échec de la récupération de votre compte, veuillez réessayer</string>
+    <string name="fund_recovery_failed_title">Échec de la récupération des fonds</string>
+    <string name="fund_recovery_failed_blurb">Ne vous inquiétez pas, votre compte est en sécurité. Veuillez contacter l\'assistance pour terminer le processus de récupération du compte. Votre compte n\'affichera ni les soldes, ni l\'historique des transactions tant que vous n\'aurez pas terminé le processus de récupération.</string>
+    <string name="fund_recovery_failed_label">Les échecs de récupération de fonds peuvent se produire pour un certain nombre de raisons. Notre équipe d\'assistance est en mesure de vous aider à récupérer votre compte.</string>
+    <string name="empty_portfolio_title">Bienvenue sur Blockchain.com !</string>
+    <string name="empty_portfolio_description">Tous vos soldes de crypto-monnaies apparaîtront ici une fois que vous aurez acheté ou reçu.</string>
+    <string name="search_coins_hint">Rechercher des jetons</string>
+    <string name="activity_details_title_sent_1">Envoyé</string>
+    <string name="landing_value_prop_two_1">Gagnez des récompenses sur votre crypto.</string>
+    <string name="tx_title_rewards">%s récompenses gagnées</string>
+    <string name="dashboard_asset_balance_rewards">Gagnez %1$.1f %% an</string>
+    <string name="dashboard_asset_actions_deposit_dsc_1">Ajoutez %1$s à votre compte de récompenses</string>
+    <string name="dashboard_asset_actions_withdraw_dsc_1">Retirez %1$s de votre compte de récompenses</string>
+    <string name="dashboard_asset_actions_summary_title_1">Résumé des récompenses</string>
+    <string name="dashboard_asset_actions_summary_dsc_1">Afficher vos récompenses %1$s</string>
+    <string name="dashboard_asset_actions_rewards_dsc_failed">Impossible de charger les détails des récompenses</string>
+    <string name="rewards_announcement_title">Gagnez des récompenses sur votre crypto aujourd\'hui !</string>
+    <string name="rewards_announcement_description">Transférez Crypto et commencez à gagner des récompenses sur BTC, ETH et bien d\'autres.</string>
+    <string name="rewards_announcement_action">En savoir plus</string>
+    <string name="default_label_rewards_wallet">Compte de récompenses</string>
+    <string name="activity_details_title_rewards_earned">Récompenses gagnées</string>
+    <string name="withdraw_rewards_confirmation_success_message">Votre %1$s sera disponible dans votre %2$s dans les 2 jours.</string>
+    <string name="send_confirmation_rewards_tos_pp">J\'ai lu et j\'accepte les <annotation link="interest_tos">Conditions d\'utilisation</annotation> et la <annotation link="interest_pp">politique de confidentialité</annotation>.</string>
+    <string name="send_confirmation_rewards_holding_period_1">En acceptant cela, vous acceptez de transférer </string>
+    <string name="send_confirmation_rewards_holding_period_2">( %1$s ) de votre %2$s vers votre compte Rewards. Une période de retenue initiale de 7 jours sera appliquée à vos fonds.</string>
+    <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour transférer avec les frais de réseau actuels.</string>
+    <string name="send_internal_transfer_message_1_1">À ce stade, vous pouvez transférer %1$s de votre compte de trading %2$s vers vos portefeuilles de clés privées ou votre compte de récompenses %2$s Si vous souhaitez transférer vers des adresses externes, vous pouvez le faire à partir de votre Private Key Wallet.</string>
+    <string name="earn_rewards">Gagner des récompenses</string>
+    <string name="rewards_summary_total">Total des récompenses gagnées</string>
+    <string name="rewards_summary_next_payment">Paiement de récompenses suivant</string>
+    <string name="rewards_summary_accrued">Récompenses accumulées ce mois-ci</string>
+    <string name="rewards_summary_hold_period">Période de conservation initiale</string>
+    <string name="rewards_summary_hold_period_days">%1$d Jours</string>
+    <string name="rewards_summary_rate">Taux de récompenses</string>
+    <string name="rewards_dashboard_title">Compte de récompenses</string>
+    <string name="rewards_dashboard_item_balance_title">%1$s Solde</string>
+    <string name="rewards_dashboard_item_accrued_title">Total des récompenses gagnées</string>
+    <string name="rewards_dashboard_item_action_earn">Gagner des récompenses</string>
+    <string name="rewards_dashboard_item_action_view">Afficher</string>
+    <string name="rewards_item_issue_region">Indisponible dans votre région</string>
+    <string name="rewards_item_issue_kyc">Vous devez être certifié Gold pour commencer à gagner des récompenses</string>
+    <string name="rewards_item_issue_other">Actuellement indisponible, veuillez vérifier à nouveau plus tard</string>
+    <string name="rewards_dashboard_item_rate_1">Gagnez jusqu\'à </string>
+    <string name="rewards_dashboard_item_rate_2"> annuellement sur votre %1$s</string>
+    <string name="rewards_dashboard_verify_title">Gagnez des récompenses sur votre crypto</string>
+    <string name="rewards_dashboard_verify_label">Gagnez jusqu\'à 12\% instantanément lorsque vous transférez des cryptos sur votre compte Rewards.</string>
+    <string name="rewards_dashboard_verify_point_one_title">Faites vérifier votre Identité</string>
+    <string name="rewards_dashboard_verify_point_one_label">Pour éviter l\'usurpation d\'identité ou la fraude, nous devons nous assurer qu\'il s\'agit bien de vous en important une pièce d\'identité.</string>
+    <string name="rewards_dashboard_verify_point_two_title">Acheter de la Crypto</string>
+    <string name="rewards_dashboard_verify_point_two_label">Utilisez votre carte bancaire, de débit ou de crédit pour financer tout achat de crypto.</string>
+    <string name="rewards_dashboard_verify_point_three_title">Gagner des récompenses</string>
+    <string name="rewards_dashboard_verify_point_three_label">Transférez sur votre compte de récompenses et obtenez des paiements de récompenses mensuels.</string>
+    <string name="rewards_summary_disclaimer_label">Utilisez le portefeuille Web pour retirer vos fonds</string>
+    <string name="rewards_error_title">Impossible de charger les détails des récompenses</string>
+    <string name="rewards_error_desc">Une erreur s\'est produite lors du chargement des détails du compte Rewards.
+ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assistance si le problème persiste.</string>
+    <string name="verify_your_identity_limits_1">Vérifiez votre identité, gagnez des récompenses et échangez jusqu\'à %1$s par jour.</string>
+    <string name="earn_rewards_description" formatted="false">Faites travailler votre crypto. Gagnez jusqu\'à 10 % par mois sans faire quoi que ce soit. Déposez instantanément et commencez à gagner.</string>
+    <string name="checkout_rewards_confirmation_disclaimer">Après avoir confirmé ce retrait, vous ne continuerez pas à gagner des récompenses sur le montant retiré.
+
+ Vos %1$s seront disponibles sur votre compte \" %2$s \" sous 2 jours.</string>
+    <string name="reset_kyc_notice_1">Pour votre sécurité, vous devrez peut-être revérifier votre identité avant d\'accéder à votre compte de trading ou de récompenses.</string>
+    <string name="reset_account_description_1">La réinitialisation restaurera vos comptes de trading, de récompenses et d\'échange.</string>
+    <string name="checkout_funds_label_1">Portefeuille %s</string>
+    <string name="activity_details_buy_purchase_amount_1">Total</string>
 </resources>

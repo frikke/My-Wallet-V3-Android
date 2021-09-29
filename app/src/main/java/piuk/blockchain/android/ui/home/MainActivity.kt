@@ -904,6 +904,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun launchVerifyEmail() {
         Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_APP_EMAIL)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
         }
     }

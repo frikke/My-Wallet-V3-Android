@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/interest_details_sheet_indicator"
@@ -102,7 +101,6 @@
         android:fadingEdge="vertical"
         android:fadingEdgeLength="@dimen/very_small_margin"
         android:requiresFadingEdge="vertical"
-        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@id/interest_details_withdraw_cta"
         app:layout_constraintTop_toBottomOf="@id/interest_details_separator" />
 

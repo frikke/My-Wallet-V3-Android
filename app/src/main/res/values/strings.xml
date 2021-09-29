@@ -1487,7 +1487,7 @@
     <string name="activity_custodial_pending_value">Bank Transfer</string>
     <string name="checkout_bank_transfer_label">Bank Transfer</string>
     <string name="fiat_currency_funds_wallet_name_1">%1s Account</string>
-    <string name="checkout_funds_label">Funds</string>
+    <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_loading_error">Failed to load activity, please try again later</string>
 
     <!-- Activity Details -->
@@ -1512,10 +1512,10 @@
     <string name="activity_details_label_complete">Complete</string>
     <string name="activity_details_label_failed">Failed</string>
     <string name="activity_details_title_transferred">Transfer</string>
-    <string name="activity_details_title_received">Receive</string>
+    <string name="activity_details_title_received_1">Received</string>
     <string name="activity_details_title_sent_1">Sent</string>
     <string name="activity_details_title_bought">Bought</string>
-    <string name="activity_details_title_sold">Sold %s</string>
+    <string name="activity_details_title_sold">Sold</string>
     <string name="activity_details_title_swapped">Swapped</string>
     <string name="activity_details_title_deposit">Transfer</string>
     <string name="activity_details_title_rewards_earned">Rewards Earned</string>
@@ -1531,8 +1531,8 @@
     <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
     <string name="activity_details_label_pending_execution">Pending Execution</string>
     <string name="activity_details_buy_tx_id">Transaction ID</string>
-    <string name="activity_details_buy_sending_to">Sending to</string>
-    <string name="activity_details_buy_purchase_amount">Purchasing</string>
+    <string name="activity_details_buy_deposited_to">Deposited to</string>
+    <string name="activity_details_buy_purchase_amount_1">Total</string>
     <string name="activity_details_buy_fee">Fee</string>
     <string name="activity_details_buy_payment_method">Payment Method</string>
     <string name="activity_details_swap_for">For</string>
@@ -2241,7 +2241,7 @@
     <string name="recurring_buy_details_recurring">Recurring</string>
     <string name="recurring_buy_details_fee">Fee</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
-    <string name="recurring_buy_funds_label">%s Account</string>
+    <string name="recurring_buy_funds_label">%s Wallet</string>
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
     <string name="recurring_buy_insufficient_funds_error_1">Your payment method\'s balance is too low. Please add more cash now.</string>
