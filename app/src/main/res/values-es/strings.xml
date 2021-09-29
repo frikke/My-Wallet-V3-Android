@@ -956,7 +956,6 @@ Al depositar fondos en esta cuenta, acepta los <annotation link="modular_terms_a
     <string name="activity_details_title_fee">Comisión de gas</string>
     <string name="activity_details_transaction_fee">Gas para</string>
     <string name="activity_details_label_pending_execution">Ejecución pendiente</string>
-    <string name="activity_details_buy_sending_to">Enviando a</string>
     <string name="activity_details_buy_purchase_amount">Comprando</string>
     <string name="activity_details_buy_fees">Tarifa</string>
     <string name="activity_details_buy_payment_method">Método de pago</string>

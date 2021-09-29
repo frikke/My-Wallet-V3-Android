@@ -1527,7 +1527,7 @@
     <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
     <string name="activity_details_label_pending_execution">Pending Execution</string>
     <string name="activity_details_buy_tx_id">Transaction ID</string>
-    <string name="activity_details_buy_sending_to">Sending to</string>
+    <string name="activity_details_buy_deposited_to">Deposited to</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
     <string name="activity_details_buy_fee">Fee</string>
     <string name="activity_details_buy_payment_method">Payment Method</string>

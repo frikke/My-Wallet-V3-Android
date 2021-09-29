@@ -1006,7 +1006,6 @@ Blockchain:
     <string name="activity_details_title_fee">Комиссия Gas</string>
     <string name="activity_details_transaction_fee">Gas за</string>
     <string name="activity_details_label_pending_execution">Ожидание выполнения</string>
-    <string name="activity_details_buy_sending_to">Отправка на</string>
     <string name="activity_details_buy_purchase_amount">Приобретение</string>
     <string name="activity_details_buy_fees">сборы</string>
     <string name="activity_details_buy_payment_method">Способ оплаты</string>

@@ -1059,7 +1059,6 @@ Ao depositar fundos nesta conta, concorda com os <annotation link="modular_terms
     <string name="activity_details_title_fee">Taxa de gás</string>
     <string name="activity_details_transaction_fee">Gás para</string>
     <string name="activity_details_label_pending_execution">Execução pendente</string>
-    <string name="activity_details_buy_sending_to">A enviar para</string>
     <string name="activity_details_buy_purchase_amount">A comprar</string>
     <string name="activity_details_buy_fees">Honorários</string>
     <string name="activity_details_buy_payment_method">Forma de pagamento</string>

@@ -971,7 +971,6 @@ Confirmations</string>
     <string name="activity_details_title_fee">Frais de gaz</string>
     <string name="activity_details_transaction_fee">Gaz pour</string>
     <string name="activity_details_label_pending_execution">En attente d\'exécution</string>
-    <string name="activity_details_buy_sending_to">Envoi à</string>
     <string name="activity_details_buy_purchase_amount">Achats</string>
     <string name="activity_details_buy_fees">Honoraires</string>
     <string name="activity_details_buy_payment_method">Mode de paiement</string>

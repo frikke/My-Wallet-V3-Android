@@ -1057,7 +1057,6 @@ Onay</string>
     <string name="activity_details_title_fee">Gas Ücreti</string>
     <string name="activity_details_transaction_fee">Gas karşılığı</string>
     <string name="activity_details_label_pending_execution">Bekleyen İşlem</string>
-    <string name="activity_details_buy_sending_to">Gönderiliyor</string>
     <string name="activity_details_buy_purchase_amount">Satın Alınıyor</string>
     <string name="activity_details_buy_fees">harç</string>
     <string name="activity_details_buy_payment_method">Ödeme Yöntemi</string>

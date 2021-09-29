@@ -127,7 +127,7 @@ private class InfoItemViewHolder(
             is SellPurchaseAmount -> context.getString(R.string.common_total)
             is TransactionId -> context.getString(R.string.activity_details_buy_tx_id)
             is BuyCryptoWallet,
-            is SellCryptoWallet -> context.getString(R.string.activity_details_buy_sending_to)
+            is SellCryptoWallet -> context.getString(R.string.activity_details_buy_deposited_to)
             is BuyPaymentMethod -> context.getString(R.string.activity_details_buy_payment_method)
             is SwapReceiveAmount -> context.getString(R.string.activity_details_swap_for)
             is NetworkFee -> context.getString(
