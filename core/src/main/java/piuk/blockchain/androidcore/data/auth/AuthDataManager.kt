@@ -17,7 +17,6 @@ import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.handleResponse
 import piuk.blockchain.androidcore.utils.extensions.isValidPin
@@ -31,7 +30,6 @@ class AuthDataManager(
     private val walletAuthService: WalletAuthService,
     private val accessState: AccessState,
     private val aesUtilWrapper: AESUtilWrapper,
-    private val prngHelper: PrngFixer,
     private val crashLogger: CrashLogger
 ) {
 
@@ -260,8 +258,6 @@ class AuthDataManager(
             accessState.setPin(passedPin)
             crashLogger.logEvent("createPin. pin set. validity: ${passedPin.isValidPin()}")
         }
-
-        prngHelper.applyPRNGFixes()
 
         return Completable.create { subscriber ->
             val bytes = ByteArray(16)

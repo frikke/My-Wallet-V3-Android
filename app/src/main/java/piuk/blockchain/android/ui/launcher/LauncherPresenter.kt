@@ -110,7 +110,7 @@ class LauncherPresenter(
     }
 
     fun clearCredentialsAndRestart() =
-        appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
+        appUtil.clearCredentialsAndRestart()
 
     /**
      * Init of the [SettingsDataManager] must complete here so that we can access the [Settings]
@@ -154,7 +154,6 @@ class LauncherPresenter(
                     Single.just(emailVerifShouldLaunched)
                 }
             }.doOnSuccess {
-                notificationTokenManager.registerAuthEvent()
                 accessState.isLoggedIn = true
                 analytics.logEvent(LoginAnalyticsEvent)
             }.flatMap { emailVerifShouldLaunched ->

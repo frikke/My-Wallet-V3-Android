@@ -2,6 +2,7 @@ package com.blockchain.notifications
 
 import android.annotation.SuppressLint
 import com.blockchain.logging.CrashLogger
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.google.common.base.Optional
 import info.blockchain.wallet.payload.PayloadManager
@@ -9,8 +10,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.androidcore.data.access.AuthEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
@@ -18,11 +17,10 @@ class NotificationTokenManager(
     private val notificationService: NotificationService,
     private val payloadManager: PayloadManager,
     private val prefs: NotificationPrefs,
+    private val authPrefs: AuthPrefs,
     private val notificationTokenProvider: NotificationTokenProvider,
-    private val rxBus: RxBus,
     private val crashLogger: CrashLogger
 ) {
-
     /**
      * Returns the stored Firebase token, otherwise attempts to trigger a refresh of the token which
      * will be handled appropriately by [InstanceIdService]
@@ -58,24 +56,6 @@ class NotificationTokenManager(
         }
     }
 
-    @SuppressLint("CheckResult")
-    fun registerAuthEvent() {
-        val loginObservable = rxBus.register(AuthEvent::class.java)
-
-        loginObservable
-            .subscribeOn(Schedulers.io())
-            .flatMapCompletable { authEvent ->
-                if (authEvent == AuthEvent.FORGET) {
-                    revokeAccessToken()
-                } else {
-                    Completable.complete()
-                }
-            }
-            .subscribe({
-                // no-op
-            }, { Timber.e(it) })
-    }
-
     /**
      * Disables push notifications flag.
      * Resets Instance ID and revokes all tokens. Clears stored token if successful
@@ -83,14 +63,13 @@ class NotificationTokenManager(
     fun disableNotifications(): Completable {
         prefs.arePushNotificationsEnabled = false
         return revokeAccessToken()
-            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
     }
 
     /**
      * Resets Instance ID and revokes all tokens. Clears stored token if successful
      */
-    private fun revokeAccessToken(): Completable =
+    fun revokeAccessToken(): Completable =
         notificationTokenProvider.deleteToken()
             .then { removeNotificationToken() }
             .doOnComplete { this.clearStoredToken() }
@@ -151,12 +130,11 @@ class NotificationTokenManager(
      */
     private fun removeNotificationToken(): Completable {
         val token = prefs.firebaseToken
-
         return if (token.isNotEmpty()) {
-            val payload = payloadManager.payload
-            payload?.let {
-                notificationService.removeNotificationToken(it.guid, it.sharedKey)
-            } ?: Completable.complete()
+            notificationService.removeNotificationToken(
+                guid = authPrefs.walletGuid,
+                sharedKey = payloadManager.payload?.sharedKey.orEmpty()
+            )
         } else {
             Completable.complete()
         }

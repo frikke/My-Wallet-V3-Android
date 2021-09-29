@@ -55,7 +55,7 @@ interface PersistentPrefs :
 
     fun clear()
 
-    fun logOut()
+    fun unPairWallet()
 
     fun logIn()
 

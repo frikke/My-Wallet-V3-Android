@@ -34,7 +34,6 @@ import piuk.blockchain.android.data.coinswebsocket.models.SocketRequest
 import piuk.blockchain.android.data.coinswebsocket.models.SocketResponse
 import piuk.blockchain.android.data.coinswebsocket.models.TokenTransfer
 import piuk.blockchain.android.data.coinswebsocket.models.TransactionState
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -150,7 +149,7 @@ class CoinsWebSocketStrategy(
                 if (throwable is DecryptionException) {
                     messagesSocketHandler?.showToast(R.string.wallet_updated)
                     accessState.unpairWallet()
-                    appUtil.restartApp(LauncherActivity::class.java)
+                    appUtil.restartApp()
                 }
             }
 

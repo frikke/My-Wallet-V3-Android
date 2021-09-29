@@ -1,12 +1,10 @@
 package piuk.blockchain.android.ui.auth
 
-import android.content.Intent
 import android.view.View
-import android.widget.ImageView
+import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -36,99 +34,96 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Answers
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.spongycastle.crypto.InvalidCipherTextException
-import piuk.blockchain.android.BlockchainTestApplication
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import java.net.SocketTimeoutException
 
-@Config(sdk = [24], application = BlockchainTestApplication::class) @RunWith(
-    RobolectricTestRunner::class
-)
 class PinEntryPresenterTest {
 
-    private val mockImageView = Mockito.mock(ImageView::class.java)
-    private val activity: PinEntryView = mock {
-        on { pinBoxList }.thenReturn(listOf(mockImageView, mockImageView, mockImageView, mockImageView))
+    private val view: PinEntryView = mock()
+
+    private val authDataManager: AuthDataManager = mock {
+        on { verifyCloudBackup() }.thenReturn(Completable.complete())
     }
 
-    private val authDataManager: AuthDataManager = mock()
     private val appUtil: AppUtil = mock()
     private val prefsUtil: PersistentPrefs = mock {
         on { walletGuid }.thenReturn(WALLET_GUID)
         on { sharedKey }.thenReturn(SHARED_KEY)
     }
 
+    private val mockWallet: Wallet = mock {
+        on { sharedKey }.thenReturn(SHARED_KEY)
+    }
+
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private val payloadManager: PayloadDataManager = mock()
+    private val payloadManager: PayloadDataManager = mock {
+        on { wallet }.thenReturn(mockWallet)
+    }
     private val defaultLabels: DefaultLabels = mock {
         on { getDefaultNonCustodialWalletLabel() }.thenReturn("string resource")
+    }
+
+    @get:Rule
+    val rx = rxInit {
+        mainTrampoline()
     }
 
     private val biometricsController: BiometricsController = mock()
     private val accessState: AccessState = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
-    private val prngFixer: PrngFixer = mock()
     private val mobileNoticeRemoteConfig: MobileNoticeRemoteConfig = mock()
     private val crashLogger: CrashLogger = mock()
     private val analytics: Analytics = mock()
-    private val remoteConfig: RemoteConfig = mock()
     private val credentialsWiper: CredentialsWiper = mock()
 
     private val apiStatus: ApiStatus = mock {
         on { isHealthy() }.thenReturn(Single.just(true))
     }
 
-    private val subject: PinEntryPresenter = PinEntryPresenter(
-        analytics = analytics,
-        authDataManager = authDataManager,
-        appUtil = appUtil,
-        prefs = prefsUtil,
-        payloadDataManager = payloadManager,
-        defaultLabels = defaultLabels,
-        accessState = accessState,
-        walletOptionsDataManager = walletOptionsDataManager,
-        prngFixer = prngFixer,
-        mobileNoticeRemoteConfig = mobileNoticeRemoteConfig,
-        crashLogger = crashLogger,
-        apiStatus = apiStatus,
-        credentialsWiper = credentialsWiper,
-        specificAnalytics = mock(),
-        biometricsController = biometricsController
-    )
+    private lateinit var subject: PinEntryPresenter
 
     @Before
     fun init() {
-        subject.initView(activity)
+        subject = PinEntryPresenter(
+            analytics = analytics,
+            authDataManager = authDataManager,
+            appUtil = appUtil,
+            prefs = prefsUtil,
+            payloadDataManager = payloadManager,
+            defaultLabels = defaultLabels,
+            accessState = accessState,
+            walletOptionsDataManager = walletOptionsDataManager,
+            mobileNoticeRemoteConfig = mobileNoticeRemoteConfig,
+            crashLogger = crashLogger,
+            apiStatus = apiStatus,
+            credentialsWiper = credentialsWiper,
+            specificAnalytics = mock(),
+            biometricsController = biometricsController
+        )
+        subject.initView(view)
     }
 
     @Test
     fun onViewReadyValidatingPinForResult() {
         // Arrange
-        val intent = Intent()
-        intent.putExtra(KEY_VALIDATING_PIN_FOR_RESULT, true)
-        whenever(activity.pageIntent).thenReturn(intent)
-        whenever(remoteConfig.getFeatureCount(any())).thenReturn(Single.just(4L))
-
+        whenever(view.isForValidatingPinForResult).thenReturn(true)
         // Act
         subject.onViewReady()
 
@@ -139,19 +134,17 @@ class PinEntryPresenterTest {
     @Test
     fun onViewReadyMaxAttemptsExceeded() {
         // Arrange
-        whenever(activity.pageIntent).thenReturn(null)
         whenever(prefsUtil.pinFails).thenReturn(4)
         whenever(payloadManager.wallet).thenReturn(mock())
         whenever(prefsUtil.pinId).thenReturn("")
-        whenever(remoteConfig.getFeatureCount(anyString())).thenReturn(Single.just(4L))
 
         // Act
         subject.onViewReady()
 
         // Assert
         assertTrue(subject.allowExit())
-        verify(activity).showParameteredToast(anyInt(), anyString(), anyInt())
-        verify(activity).showMaxAttemptsDialog()
+        verify(view).showParameteredToast(anyInt(), anyString(), anyInt())
+        verify(view).showMaxAttemptsDialog()
     }
 
     @Test
@@ -165,7 +158,7 @@ class PinEntryPresenterTest {
         subject.checkFingerprintStatus()
 
         // Assert
-        verify(activity).showFingerprintDialog()
+        verify(view).showFingerprintDialog()
     }
 
     @Test
@@ -175,7 +168,7 @@ class PinEntryPresenterTest {
         // Act
         subject.checkFingerprintStatus()
         // Assert
-        verify(activity).showKeyboard()
+        verify(view).showKeyboard()
     }
 
     @Test
@@ -193,13 +186,16 @@ class PinEntryPresenterTest {
         // Arrange
         val pincode = "1234"
         whenever(authDataManager.validatePin(pincode)).thenReturn(Observable.just("password"))
+        whenever(payloadManager.initializeAndDecrypt(anyString(), anyString(), anyString())).thenReturn(
+            Completable.error(Exception())
+        )
         // Act
         subject.loginWithDecryptedPin(pincode)
         // Assert
         assertFalse(subject.canShowFingerprintDialog())
 
         verify(authDataManager).validatePin(pincode)
-        verify(activity).pinBoxList
+        verify(view).fillPinBoxes()
     }
 
     @Test
@@ -210,7 +206,7 @@ class PinEntryPresenterTest {
         subject.onDeleteClicked()
         // Assert
         assertEquals("123", subject.userEnteredPin)
-        verify(activity).pinBoxList
+        verify(view).clearPinBoxAtIndex(3)
     }
 
     @Test
@@ -220,7 +216,7 @@ class PinEntryPresenterTest {
         // Act
         subject.onPadClicked("0")
         // Assert
-        verifyZeroInteractions(activity)
+        verifyZeroInteractions(view)
     }
 
     @Test
@@ -237,14 +233,17 @@ class PinEntryPresenterTest {
         assertEquals("", subject.userEnteredPin)
         assertNull(subject.userEnteredConfirmationPin)
 
-        verify(activity).clearPinBoxes()
-        verify(activity).showToast(anyInt(), anyString())
-        verify(activity).dismissProgressDialog()
-        verify(activity, atLeastOnce()).pinBoxList
-        verify(activity).showKeyboard()
-        verify(activity).setTitleString(anyInt())
+        verify(view).clearPinBoxes()
+        verify(view).showToast(anyInt(), anyString())
+        verify(view).dismissProgressDialog()
+        verify(view).fillPinBoxAtIndex(0)
+        verify(view).fillPinBoxAtIndex(1)
+        verify(view).fillPinBoxAtIndex(2)
+        verify(view).fillPinBoxAtIndex(3)
+        verify(view).showKeyboard()
+        verify(view).setTitleString(anyInt())
 
-        verifyNoMoreInteractions(activity)
+        verifyNoMoreInteractions(view)
     }
 
     @Test
@@ -257,7 +256,7 @@ class PinEntryPresenterTest {
         subject.onPadClicked("4")
 
         // Assert
-        verify(activity).showCommonPinWarning(any())
+        verify(view).showCommonPinWarning(any())
     }
 
     @Test fun padClickedShowCommonPinWarningAndClickRetry() {
@@ -267,7 +266,7 @@ class PinEntryPresenterTest {
         doAnswer { invocation: InvocationOnMock ->
             (invocation.arguments[0] as DialogButtonCallback).onPositiveClicked()
             null
-        }.whenever(activity).showCommonPinWarning(any())
+        }.whenever(view).showCommonPinWarning(any())
 
         // Act
         subject.onPadClicked("4")
@@ -276,8 +275,8 @@ class PinEntryPresenterTest {
         assertEquals("", subject.userEnteredPin)
         assertNull(subject.userEnteredConfirmationPin)
 
-        verify(activity).showCommonPinWarning(any())
-        verify(activity).clearPinBoxes()
+        verify(view).showCommonPinWarning(any())
+        verify(view).clearPinBoxes()
     }
 
     @Test fun padClickedShowCommonPinWarningAndClickContinue() {
@@ -287,7 +286,7 @@ class PinEntryPresenterTest {
         doAnswer { invocation: InvocationOnMock ->
             (invocation.arguments[0] as DialogButtonCallback).onNegativeClicked()
             null
-        }.whenever(activity).showCommonPinWarning(any())
+        }.whenever(view).showCommonPinWarning(any())
 
         // Act
         subject.onPadClicked("4")
@@ -296,7 +295,7 @@ class PinEntryPresenterTest {
         assertEquals("", subject.userEnteredPin)
         assertEquals("1234", subject.userEnteredConfirmationPin)
 
-        verify(activity).showCommonPinWarning(any())
+        verify(view).showCommonPinWarning(any())
     }
 
     @Test
@@ -310,9 +309,9 @@ class PinEntryPresenterTest {
         subject.onPadClicked("0")
 
         // Assert
-        verify(activity).dismissProgressDialog()
-        verify(activity).showToast(anyInt(), eq(ToastCustom.TYPE_ERROR))
-        verify(activity).clearPinBoxes()
+        verify(view).dismissProgressDialog()
+        verify(view).showToast(anyInt(), eq(ToastCustom.TYPE_ERROR))
+        verify(view).clearPinBoxes()
     }
 
     @Test
@@ -321,14 +320,17 @@ class PinEntryPresenterTest {
         subject.userEnteredPin = "133"
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(authDataManager.validatePin(anyString())).thenReturn(Observable.just(""))
+        whenever(payloadManager.initializeAndDecrypt(anyString(), anyString(), anyString())).thenReturn(
+            Completable.complete()
+        )
 
         // Act
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).setTitleVisibility(View.INVISIBLE)
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity, atLeastOnce()).dismissProgressDialog()
+        verify(view).setTitleVisibility(View.INVISIBLE)
+        verify(view, times(2)).showProgressDialog(anyInt())
+        verify(view, times(2)).dismissProgressDialog()
         verify(authDataManager).validatePin(anyString())
     }
 
@@ -339,18 +341,16 @@ class PinEntryPresenterTest {
         subject.isForValidatingPinForResult = true
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(authDataManager.validatePin(anyString())).thenReturn(Observable.just(""))
-        whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
 
         // Act
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).setTitleVisibility(View.INVISIBLE)
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
+        verify(view).setTitleVisibility(View.INVISIBLE)
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
         verify(authDataManager).validatePin(anyString())
-        verify(authDataManager).verifyCloudBackup()
-        verify(activity).finishWithResultOk("1337")
+        verify(view).finishWithResultOk("1337")
     }
 
     @Test
@@ -365,13 +365,13 @@ class PinEntryPresenterTest {
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).setTitleVisibility(View.INVISIBLE)
-        verify(activity).showProgressDialog(anyInt())
+        verify(view).setTitleVisibility(View.INVISIBLE)
+        verify(view).showProgressDialog(anyInt())
         verify(authDataManager).validatePin(anyString())
         verify(prefsUtil).pinFails = anyInt()
         verify(prefsUtil).pinFails
-        verify(activity).showToast(anyInt(), anyString())
-        verify(activity).restartPageAndClearTop()
+        verify(view).showToast(anyInt(), anyString())
+        verify(view).restartPageAndClearTop()
     }
 
     @Test
@@ -386,11 +386,11 @@ class PinEntryPresenterTest {
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).setTitleVisibility(View.INVISIBLE)
-        verify(activity).showProgressDialog(anyInt())
+        verify(view).setTitleVisibility(View.INVISIBLE)
+        verify(view).showProgressDialog(anyInt())
         verify(authDataManager).validatePin(anyString())
-        verify(activity).showToast(anyInt(), anyString())
-        verify(activity).restartPageAndClearTop()
+        verify(view).showToast(anyInt(), anyString())
+        verify(view).restartPageAndClearTop()
     }
 
     @Test
@@ -405,11 +405,11 @@ class PinEntryPresenterTest {
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).setTitleVisibility(View.INVISIBLE)
-        verify(activity).showProgressDialog(anyInt())
+        verify(view).setTitleVisibility(View.INVISIBLE)
+        verify(view).showProgressDialog(anyInt())
         verify(authDataManager).validatePin(anyString())
-        verify(activity).showToast(anyInt(), anyString())
-        verify(activity).restartPageAndClearTop()
+        verify(view).showToast(anyInt(), anyString())
+        verify(view).restartPageAndClearTop()
     }
 
     @Test
@@ -426,15 +426,15 @@ class PinEntryPresenterTest {
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).setTitleVisibility(View.INVISIBLE)
-        verify(activity, times(2)).showProgressDialog(anyInt())
-        verify(activity, atLeastOnce()).dismissProgressDialog()
+        verify(view).setTitleVisibility(View.INVISIBLE)
+        verify(view, times(2)).showProgressDialog(anyInt())
+        verify(view, atLeastOnce()).dismissProgressDialog()
         verify(authDataManager).validatePin(anyString())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showToast(anyInt(), anyString())
+        verify(view).showToast(anyInt(), anyString())
         verify(accessState).clearPin()
         verify(appUtil).clearCredentials()
-        verify(appUtil).restartApp(LauncherActivity::class.java)
+        verify(appUtil).restartApp()
         verify(prefsUtil).sharedKey
         verify(prefsUtil).walletGuid
         verify(prefsUtil, atLeastOnce()).pinId
@@ -457,41 +457,49 @@ class PinEntryPresenterTest {
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).setTitleVisibility(View.INVISIBLE)
-        verify(activity).showToast(anyInt(), anyString())
-        verify(activity, atLeastOnce()).pinBoxList
-        verify(activity, times(2)).showProgressDialog(anyInt())
-        verify(activity, times(2)).dismissProgressDialog()
+        verify(view).setTitleVisibility(View.INVISIBLE)
+        verify(view).showToast(anyInt(), anyString())
+
+        verify(view).fillPinBoxAtIndex(0)
+        verify(view).fillPinBoxAtIndex(1)
+        verify(view).fillPinBoxAtIndex(2)
+        verify(view).fillPinBoxAtIndex(3)
+
+        verify(view, times(2)).showProgressDialog(anyInt())
+        verify(view, times(2)).dismissProgressDialog()
         verify(authDataManager).validatePin(anyString())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
         verify(prefsUtil).pinFails = anyInt()
         verify(prefsUtil, atLeastOnce()).pinId
         verify(prefsUtil).walletGuid
         verify(prefsUtil).sharedKey
-        verify(appUtil).restartApp(LauncherActivity::class.java)
+        verify(appUtil).restartApp()
 
         verifyNoMoreInteractions(prefsUtil)
-        verifyNoMoreInteractions(activity)
+        verifyNoMoreInteractions(view)
     }
 
     @Test
     fun padClickedCreatePinCreateSuccessful() {
         // Arrange
+        val confirmedPin = "1337"
         subject.userEnteredPin = "133"
-        subject.userEnteredConfirmationPin = "1337"
+        subject.userEnteredConfirmationPin = confirmedPin
         whenever(payloadManager.tempPassword).thenReturn("temp password")
+        whenever(payloadManager.initializeAndDecrypt(anyString(), anyString(), anyString())).thenReturn(
+            Completable.complete()
+        )
         whenever(prefsUtil.pinId).thenReturn("")
         whenever(authDataManager.createPin(anyString(), anyString())).thenReturn(Completable.complete())
         whenever(authDataManager.validatePin(anyString())).thenReturn(Observable.just("password"))
-        whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
         whenever(accessState.pin).thenReturn("1337")
 
         // Act
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
+        verify(view, times(2)).showProgressDialog(anyInt())
+        verify(view, times(2)).dismissProgressDialog()
         verify(authDataManager).createPin(anyString(), anyString())
         verify(biometricsController).setBiometricUnlockDisabled()
     }
@@ -511,12 +519,12 @@ class PinEntryPresenterTest {
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity, atLeastOnce()).dismissProgressDialog()
-        verify(activity).showToast(anyInt(), anyString())
+        verify(view).showProgressDialog(anyInt())
+        verify(view, atLeastOnce()).dismissProgressDialog()
+        verify(view).showToast(anyInt(), anyString())
         verify(authDataManager).createPin(anyString(), anyString())
         verify(prefsUtil).clear()
-        verify(appUtil).restartApp(LauncherActivity::class.java)
+        verify(appUtil).restartApp()
     }
 
     @Test
@@ -548,15 +556,15 @@ class PinEntryPresenterTest {
         subject.onPadClicked("7")
 
         // Assert
-        verify(activity).showToast(anyInt(), anyString())
-        verify(activity).dismissProgressDialog()
+        verify(view).showToast(anyInt(), anyString())
+        verify(view).dismissProgressDialog()
     }
 
     @Test
     fun clearPinBoxes() {
         subject.clearPinBoxes()
 
-        verify(activity).clearPinBoxes()
+        verify(view).clearPinBoxes()
         assertEquals("", subject.userEnteredPin)
     }
 
@@ -572,13 +580,13 @@ class PinEntryPresenterTest {
 
         // Assert
         verify(payloadManager).initializeAndDecrypt(anyString(), anyString(), eq(password))
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
-        verify(activity).showToast(anyInt(), anyString())
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
+        verify(view).showToast(anyInt(), anyString())
         verify(prefsUtil).removeValue(PersistentPrefs.KEY_PIN_FAILS)
         verify(prefsUtil).pinId = anyString()
         verify(accessState).clearPin()
-        verify(activity).restartPageAndClearTop()
+        verify(view).restartPageAndClearTop()
     }
 
     @Test fun validatePasswordThrowsGenericException() {
@@ -591,11 +599,11 @@ class PinEntryPresenterTest {
         subject.validatePassword(password)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity, atLeastOnce()).dismissProgressDialog()
+        verify(view).showProgressDialog(anyInt())
+        verify(view, atLeastOnce()).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showToast(anyInt(), anyString())
-        verify(activity).showValidationDialog()
+        verify(view).showToast(anyInt(), anyString())
+        verify(view).showValidationDialog()
     }
 
     @Test
@@ -609,10 +617,10 @@ class PinEntryPresenterTest {
         subject.validatePassword(password)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showToast(anyInt(), anyString())
+        verify(view).showToast(anyInt(), anyString())
     }
 
     @Test
@@ -626,10 +634,10 @@ class PinEntryPresenterTest {
         subject.validatePassword(password)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showToast(anyInt(), anyString())
+        verify(view).showToast(anyInt(), anyString())
     }
 
     @Test
@@ -643,11 +651,11 @@ class PinEntryPresenterTest {
         subject.validatePassword(password)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showToast(anyInt(), anyString())
-        verify(appUtil).restartApp(LauncherActivity::class.java)
+        verify(appUtil).restartApp()
+        verify(view).showToast(anyInt(), anyString())
     }
 
     @Test
@@ -661,10 +669,10 @@ class PinEntryPresenterTest {
         subject.validatePassword(password)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showAccountLockedDialog()
+        verify(view).showAccountLockedDialog()
     }
 
     @Test
@@ -673,22 +681,20 @@ class PinEntryPresenterTest {
         val password = "change_me"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
             .thenReturn(Completable.error(InvalidCredentialsException()))
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
 
         // Assert
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
-        verify(activity).goToPasswordRequiredActivity()
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
+        verify(view).goToPasswordRequiredActivity()
         verify(prefsUtil).walletGuid
         verify(prefsUtil).sharedKey
 
         verifyNoMoreInteractions(prefsUtil)
-        verifyNoMoreInteractions(activity)
+        verifyNoMoreInteractions(view)
     }
 
     @Test
@@ -697,8 +703,6 @@ class PinEntryPresenterTest {
         val password = "password"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
             .thenReturn(Completable.error(ServerConnectionException()))
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
 
         val mockPayload: Wallet = mock {
             on { sharedKey }.thenReturn(SHARED_KEY)
@@ -709,9 +713,9 @@ class PinEntryPresenterTest {
         subject.updatePayload(password, false)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
+        verify(view).showProgressDialog(anyInt())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showToast(anyInt(), anyString())
+        verify(view).showToast(anyInt(), anyString())
     }
 
     @Test
@@ -720,8 +724,6 @@ class PinEntryPresenterTest {
         val password = "password"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
             .thenReturn(Completable.error(DecryptionException()))
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
 
         val mockPayload: Wallet = mock {
             on { sharedKey }.thenReturn(SHARED_KEY)
@@ -732,9 +734,9 @@ class PinEntryPresenterTest {
         subject.updatePayload(password, false)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
+        verify(view).showProgressDialog(anyInt())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).goToPasswordRequiredActivity()
+        verify(view).goToPasswordRequiredActivity()
     }
 
     @Test
@@ -747,17 +749,15 @@ class PinEntryPresenterTest {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
+        verify(view).showProgressDialog(anyInt())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showToast(anyInt(), anyString())
-        verify(appUtil).restartApp(LauncherActivity::class.java)
+        verify(appUtil).restartApp()
+        verify(view).showToast(anyInt(), anyString())
     }
 
     @Test
@@ -771,16 +771,13 @@ class PinEntryPresenterTest {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
-
         // Act
         subject.updatePayload(password, false)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
+        verify(view).showProgressDialog(anyInt())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showWalletVersionNotSupportedDialog(isNull())
+        verify(view).showWalletVersionNotSupportedDialog(isNull())
     }
 
     @Test
@@ -794,16 +791,13 @@ class PinEntryPresenterTest {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
-
         // Act
         subject.updatePayload(password, false)
 
         // Assert
-        verify(activity).showProgressDialog(anyInt())
+        verify(view).showProgressDialog(anyInt())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(activity).showAccountLockedDialog()
+        verify(view).showAccountLockedDialog()
     }
 
     @Test
@@ -824,8 +818,6 @@ class PinEntryPresenterTest {
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(accessState.isNewlyCreated).thenReturn(true)
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -833,8 +825,8 @@ class PinEntryPresenterTest {
         // Assert
         assertTrue(subject.canShowFingerprintDialog)
 
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
         verify(prefsUtil).walletGuid
         verify(prefsUtil).sharedKey
@@ -864,8 +856,6 @@ class PinEntryPresenterTest {
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(payloadManager.isWalletUpgradeRequired).thenReturn(true)
         whenever(accessState.isNewlyCreated).thenReturn(false)
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -873,9 +863,9 @@ class PinEntryPresenterTest {
         // Assert
         assertTrue(subject.canShowFingerprintDialog)
 
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
-        verify(activity).walletUpgradeRequired(anyInt())
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
+        verify(view).walletUpgradeRequired(anyInt())
         verify(prefsUtil).walletGuid
         verify(prefsUtil).sharedKey
         verify(prefsUtil).sharedKey = SHARED_KEY
@@ -883,7 +873,7 @@ class PinEntryPresenterTest {
         verify(payloadManager).isWalletUpgradeRequired
         verify(payloadManager, atLeastOnce()).wallet
 
-        verifyNoMoreInteractions(activity)
+        verifyNoMoreInteractions(view)
         verifyNoMoreInteractions(prefsUtil)
         verifyNoMoreInteractions(payloadManager)
     }
@@ -906,8 +896,6 @@ class PinEntryPresenterTest {
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(accessState.isNewlyCreated).thenReturn(false)
-        whenever(authDataManager.verifyCloudBackup())
-            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -915,13 +903,13 @@ class PinEntryPresenterTest {
         // Assert
         assertTrue(subject.canShowFingerprintDialog)
 
-        verify(activity).showProgressDialog(anyInt())
-        verify(activity).dismissProgressDialog()
+        verify(view).showProgressDialog(anyInt())
+        verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
         verify(payloadManager).isWalletUpgradeRequired
         verify(payloadManager).wallet
         verify(prefsUtil).sharedKey = SHARED_KEY
-        verify(activity).restartAppWithVerifiedPin()
+        verify(view).restartAppWithVerifiedPin()
         verify(mockWallet).sharedKey
 
         verifyNoMoreInteractions(mockWallet)
@@ -935,8 +923,8 @@ class PinEntryPresenterTest {
         // Assert
         verify(prefsUtil).pinFails
         verify(prefsUtil).pinFails = anyInt()
-        verify(activity).showToast(anyInt(), anyString())
-        verify(activity).restartPageAndClearTop()
+        verify(view).showToast(anyInt(), anyString())
+        verify(view).restartPageAndClearTop()
     }
 
     @Test
@@ -988,7 +976,7 @@ class PinEntryPresenterTest {
         // Act
         subject.fetchInfoMessage()
         // Assert
-        verify(activity).showMobileNotice(mobileNoticeDialog)
+        verify(view).showMobileNotice(mobileNoticeDialog)
     }
 
     @Test
@@ -1003,7 +991,7 @@ class PinEntryPresenterTest {
 
         // Assert
         verify(walletOptionsDataManager).checkForceUpgrade(versionName)
-        verifyZeroInteractions(activity)
+        verifyZeroInteractions(view)
     }
 
     @Test
@@ -1018,15 +1006,15 @@ class PinEntryPresenterTest {
 
         // Assert
         verify(walletOptionsDataManager).checkForceUpgrade(versionName)
-        verify(activity).appNeedsUpgrade(true)
-        verifyNoMoreInteractions(activity)
+        verify(view).appNeedsUpgrade(true)
+        verifyNoMoreInteractions(view)
     }
 
     @Test
     fun finishSignup_success() {
         subject.finishSignupProcess()
 
-        verify(activity).restartAppWithVerifiedPin()
+        verify(view).restartAppWithVerifiedPin()
     }
 
     @Test
@@ -1038,7 +1026,7 @@ class PinEntryPresenterTest {
 
         subject.handlePayloadUpdateComplete(false)
 
-        verify(activity).walletUpgradeRequired(anyInt())
+        verify(view).walletUpgradeRequired(anyInt())
     }
 
     @Test
@@ -1051,7 +1039,7 @@ class PinEntryPresenterTest {
 
         subject.handlePayloadUpdateComplete(true)
 
-        verify(activity).askToUseBiometrics()
+        verify(view).askToUseBiometrics()
     }
 
     @Test
@@ -1064,7 +1052,7 @@ class PinEntryPresenterTest {
 
         subject.handlePayloadUpdateComplete(true)
 
-        verify(activity).restartAppWithVerifiedPin()
+        verify(view).restartAppWithVerifiedPin()
     }
 
     @Test
@@ -1077,7 +1065,7 @@ class PinEntryPresenterTest {
 
         subject.handlePayloadUpdateComplete(false)
 
-        verify(activity).restartAppWithVerifiedPin()
+        verify(view).restartAppWithVerifiedPin()
         verify(mockWallet).sharedKey
 
         verifyNoMoreInteractions(mockWallet)

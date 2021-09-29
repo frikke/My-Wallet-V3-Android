@@ -2,6 +2,7 @@ package com.blockchain.notifications
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.CrashLogger
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
@@ -16,7 +17,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 
 class NotificationTokenManagerTest {
     private lateinit var subject: NotificationTokenManager
@@ -24,7 +24,7 @@ class NotificationTokenManagerTest {
     private val notificationService: NotificationService = mock()
     private val payloadManager: PayloadManager = mock()
     private val prefs: NotificationPrefs = mock()
-    private val rxBus: RxBus = mock()
+    private val authPrefs: AuthPrefs = mock()
     private val notificationTokenProvider: NotificationTokenProvider = mock()
     private val crashLogger: CrashLogger = mock()
 
@@ -41,8 +41,8 @@ class NotificationTokenManagerTest {
             notificationService,
             payloadManager,
             prefs,
+            authPrefs,
             notificationTokenProvider,
-            rxBus,
             crashLogger
         )
     }
@@ -165,6 +165,7 @@ class NotificationTokenManagerTest {
         }
 
         whenever(prefs.firebaseToken).thenReturn("1234")
+        whenever(authPrefs.walletGuid).thenReturn(guid)
         whenever(notificationTokenProvider.deleteToken()).thenReturn(Completable.complete())
         whenever(payloadManager.payload).thenReturn(walletMock)
         whenever(notificationService.removeNotificationToken(guid, key)).thenReturn(Completable.complete())
@@ -203,14 +204,21 @@ class NotificationTokenManagerTest {
 
     @Test
     fun removeNotificationToken_noPayload() {
+        val guid = "0000"
         whenever(prefs.firebaseToken).thenReturn("1234")
+        whenever(authPrefs.walletGuid).thenReturn(guid)
         whenever(notificationTokenProvider.deleteToken()).thenReturn(Completable.complete())
         whenever(payloadManager.payload).thenReturn(null)
+        whenever(notificationService.removeNotificationToken(guid, ""))
+            .thenReturn(
+                Completable.complete()
+            )
 
         val testObservable = subject.disableNotifications().test()
 
         testObservable.assertComplete()
         testObservable.assertNoErrors()
+        verify(notificationService).removeNotificationToken(guid, "")
         verify(prefs).arePushNotificationsEnabled = false
         verify(notificationTokenProvider).deleteToken()
         verify(prefs).firebaseToken

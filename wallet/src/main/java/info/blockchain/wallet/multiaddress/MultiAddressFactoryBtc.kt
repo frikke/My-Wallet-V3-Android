@@ -7,8 +7,7 @@ import info.blockchain.wallet.payload.data.legacyXpubAddresses
 import info.blockchain.wallet.payload.data.segwitXpubAddresses
 import retrofit2.Call
 
-class MultiAddressFactoryBtc(bitcoinApi: NonCustodialBitcoinService)
-    : MultiAddressFactory(bitcoinApi) {
+class MultiAddressFactoryBtc(bitcoinApi: NonCustodialBitcoinService) : MultiAddressFactory(bitcoinApi) {
 
     override fun getMultiAddress(
         xpubs: List<XPubs>,

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.logging.CrashLogger
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -11,7 +10,7 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 
 interface PasswordRequiredView : PasswordAuthView {
     fun restartPage()
-    fun showForgetWalletWarning(onForgetConfirmed: () -> Unit)
+    fun showForgetWalletWarning()
     fun showWalletGuid(guid: String)
 }
 
@@ -36,13 +35,15 @@ class PasswordRequiredPresenter(
     }
 
     fun onForgetWalletClicked() {
-        view?.showForgetWalletWarning {
-            appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
-        }
+        view?.showForgetWalletWarning()
     }
 
     fun loadWalletGuid() {
         view?.showWalletGuid(prefs.walletGuid)
+    }
+
+    fun onForgetWalletConfirmed() {
+        appUtil.clearCredentialsAndRestart()
     }
 
     override fun onAuthFailed() {

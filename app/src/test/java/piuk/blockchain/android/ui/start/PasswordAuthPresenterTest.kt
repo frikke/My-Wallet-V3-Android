@@ -24,7 +24,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -184,7 +183,7 @@ class PasswordAuthPresenterTest {
         verify(view).showToast(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
-        verify(appUtil).clearCredentialsAndRestart(LauncherActivity::class.java)
+        verify(appUtil).clearCredentialsAndRestart()
     }
 
     /**

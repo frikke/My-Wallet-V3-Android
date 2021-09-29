@@ -270,7 +270,6 @@ val coreModule = module {
                 walletAuthService = get(),
                 accessState = get(),
                 aesUtilWrapper = get(),
-                prngHelper = get(),
                 crashLogger = get()
             )
         }
@@ -397,7 +396,6 @@ val coreModule = module {
         AccessStateImpl(
             context = get(),
             prefs = get(),
-            rxBus = get(),
             crashLogger = get(),
             trust = get()
         )

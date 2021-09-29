@@ -16,7 +16,6 @@ import io.reactivex.rxjava3.core.Completable
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -88,7 +87,7 @@ class LoginPresenterTest {
         //noinspection WrongConstant
         verify(view).showToast(any(), eq(ToastCustom.TYPE_ERROR))
         verifyNoMoreInteractions(view)
-        verify(appUtil).clearCredentialsAndRestart(LauncherActivity::class.java)
+        verify(appUtil).clearCredentialsAndRestart()
         verifyNoMoreInteractions(appUtil)
         verifyZeroInteractions(prefsUtil)
         verify(analytics, never()).logEvent(AnalyticsEvents.WalletAutoPairing)

@@ -25,7 +25,6 @@ import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import retrofit2.Response
 import java.util.concurrent.TimeUnit
 
@@ -36,7 +35,6 @@ class AuthDataManagerTest : RxTest() {
     private val walletAuthService: WalletAuthService = mock()
     private val accessState: AccessState = mock()
     private val aesUtilWrapper: AESUtilWrapper = mock()
-    private val prngHelper: PrngFixer = mock()
     private val crashLogger: CrashLogger = mock()
 
     private lateinit var subject: AuthDataManager
@@ -49,7 +47,6 @@ class AuthDataManagerTest : RxTest() {
             walletAuthService,
             accessState,
             aesUtilWrapper,
-            prngHelper,
             crashLogger
         )
     }
@@ -166,8 +163,6 @@ class AuthDataManagerTest : RxTest() {
 
         verifyNoMoreInteractions(aesUtilWrapper)
         verifyNoMoreInteractions(prefsUtil)
-
-        verifyZeroInteractions(prngHelper)
     }
 
     @Test
@@ -254,8 +249,6 @@ class AuthDataManagerTest : RxTest() {
         // Assert
         verify(accessState).setPin(pin)
         verifyNoMoreInteractions(accessState)
-        verify(prngHelper).applyPRNGFixes()
-        verifyNoMoreInteractions(prngHelper)
         verify(walletAuthService).setAccessKey(
             anyString(),
             anyString(),
@@ -303,8 +296,6 @@ class AuthDataManagerTest : RxTest() {
         // Assert
         verify(accessState).setPin(pin)
         verifyNoMoreInteractions(accessState)
-        verify(prngHelper).applyPRNGFixes()
-        verifyNoMoreInteractions(prngHelper)
         verify(walletAuthService).setAccessKey(
             anyString(),
             anyString(),

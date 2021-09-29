@@ -22,7 +22,6 @@ import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 
 class CreateWalletPresenterTest {
 
@@ -32,7 +31,6 @@ class CreateWalletPresenterTest {
     private val accessState: AccessState = mock()
     private val payloadDataManager: PayloadDataManager = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val prefsUtil: PersistentPrefs = mock()
-    private val prngFixer: PrngFixer = mock()
     private val analytics: Analytics = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
@@ -46,7 +44,6 @@ class CreateWalletPresenterTest {
             appUtil = appUtil,
             accessState = accessState,
             specificAnalytics = mock(),
-            prngFixer = prngFixer,
             analytics = analytics,
             environmentConfig = environmentConfig,
             formatChecker = formatChecker,
@@ -83,7 +80,6 @@ class CreateWalletPresenterTest {
         // Act
         subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
         // Assert
-        verify(prngFixer).applyPRNGFixes()
         val observer = payloadDataManager.createHdWallet(pw1, accountName, email).test()
         observer.assertComplete()
         observer.assertNoErrors()

@@ -31,14 +31,12 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 import java.net.SocketTimeoutException
@@ -53,7 +51,6 @@ class PinEntryPresenter(
     private val defaultLabels: DefaultLabels,
     private val accessState: AccessState,
     private val walletOptionsDataManager: WalletOptionsDataManager,
-    private val prngFixer: PrngFixer,
     private val mobileNoticeRemoteConfig: MobileNoticeRemoteConfig,
     private val crashLogger: CrashLogger,
     private val apiStatus: ApiStatus,
@@ -90,20 +87,8 @@ class PinEntryPresenter(
         get() = isCreatingNewPin && accessState.pin.isNotEmpty()
 
     override fun onViewReady() {
-        prngFixer.applyPRNGFixes()
-
-        if (view.pageIntent != null) {
-            val extras = view.pageIntent?.extras
-            if (extras != null) {
-                if (extras.containsKey(KEY_VALIDATING_PIN_FOR_RESULT)) {
-                    isForValidatingPinForResult = extras.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT)
-                }
-                if (extras.containsKey(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD)) {
-                    isForValidatingAndLoadingPayloadResult =
-                        extras.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD)
-                }
-            }
-        }
+        isForValidatingPinForResult = view.isForValidatingPinForResult
+        isForValidatingAndLoadingPayloadResult = view.isForValidatingAndLoadingPayloadResult
 
         checkPinFails()
         checkFingerprintStatus()
@@ -140,9 +125,7 @@ class PinEntryPresenter(
 
     fun loginWithDecryptedPin(pincode: String) {
         canShowFingerprintDialog = false
-        for (view in view.pinBoxList) {
-            view.setImageResource(R.drawable.rounded_view_dark_blue)
-        }
+        view.fillPinBoxes()
         validatePIN(pincode)
     }
 
@@ -152,7 +135,7 @@ class PinEntryPresenter(
             userEnteredPin = userEnteredPin.substring(0, userEnteredPin.length - 1)
 
             // Clear last box
-            view.pinBoxList[userEnteredPin.length].setImageResource(R.drawable.rounded_view_blue_white_border)
+            view.clearPinBoxAtIndex(userEnteredPin.length)
         }
     }
 
@@ -164,9 +147,9 @@ class PinEntryPresenter(
         // Append tapped #
         userEnteredPin += string
 
-        for (i in 0 until userEnteredPin.length) {
+        for (i in userEnteredPin.indices) {
             // Ensures that all necessary dots are filled
-            view.pinBoxList[i].setImageResource(R.drawable.rounded_view_dark_blue)
+            view.fillPinBoxAtIndex(i)
         }
 
         // Perform appropriate action if PIN_LENGTH has been reached
@@ -396,7 +379,7 @@ class PinEntryPresenter(
         if (tempPassword == null) {
             showErrorToast(R.string.create_pin_failed)
             prefs.clear()
-            appUtil.restartApp(LauncherActivity::class.java)
+            appUtil.restartApp()
             return
         }
 
@@ -412,7 +395,7 @@ class PinEntryPresenter(
                 onError = {
                     showErrorToast(R.string.create_pin_failed)
                     prefs.clear()
-                    appUtil.restartApp(LauncherActivity::class.java)
+                    appUtil.restartApp()
                 }
             )
     }
@@ -467,9 +450,7 @@ class PinEntryPresenter(
         prefs.pinFails = ++fails
         showErrorToast(R.string.invalid_pin)
         userEnteredPin = ""
-        for (textView in view.pinBoxList) {
-            textView.setImageResource(R.drawable.rounded_view_blue_white_border)
-        }
+        view.clearPinBoxes()
         view.setTitleVisibility(View.VISIBLE)
         view.setTitleString(R.string.pin_entry)
     }
@@ -539,7 +520,7 @@ class PinEntryPresenter(
     private fun showFatalErrorToastAndRestart(@StringRes message: Int, t: Throwable) {
         view.showToast(message, ToastCustom.TYPE_ERROR)
         crashLogger.logException(PinEntryLogException(t))
-        appUtil.restartApp(LauncherActivity::class.java)
+        appUtil.restartApp()
     }
 
     internal fun clearLoginState() {

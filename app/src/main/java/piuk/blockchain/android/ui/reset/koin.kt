@@ -39,7 +39,6 @@ val resetAccountModule = module {
                 nabuDataManager = get(),
                 metadataManager = get(),
                 metadataRepository = get(),
-                prngFixer = get(),
                 walletPrefs = get()
             )
         }

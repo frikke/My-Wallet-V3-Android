@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui
 
-import android.app.LauncherActivity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -111,7 +110,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     }
 
     private fun onResetWallet() {
-        appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
+        appUtil.clearCredentialsAndRestart()
         showToast("Wallet reset")
     }
 

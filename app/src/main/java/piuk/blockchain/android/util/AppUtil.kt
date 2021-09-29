@@ -3,6 +3,7 @@ package piuk.blockchain.android.util
 import android.content.Context
 import android.content.Intent
 import info.blockchain.wallet.payload.PayloadManagerWiper
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
@@ -27,17 +28,16 @@ class AppUtil(
     fun clearCredentials() {
         payloadManager.wipe()
         prefs.clear()
-        accessState.forgetWallet()
     }
 
-    fun clearCredentialsAndRestart(launcherActivity: Class<*>) {
+    fun clearCredentialsAndRestart() {
         clearCredentials()
-        restartApp(launcherActivity)
+        restartApp()
     }
 
-    fun restartApp(launcherActivity: Class<*>) {
+    fun restartApp() {
         context.startActivity(
-            Intent(context, launcherActivity).apply {
+            Intent(context, LauncherActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         )

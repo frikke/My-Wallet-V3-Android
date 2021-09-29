@@ -81,9 +81,7 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
 
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
 
-    private val _pinBoxList = mutableListOf<ImageView>()
-    override val pinBoxList: List<ImageView>
-        get() = _pinBoxList
+    private val pinBoxList = mutableListOf<ImageView>()
 
     private var materialProgressDialog: MaterialProgressDialog? = null
     private val clearPinNumberRunnable = ClearPinNumberRunnable()
@@ -119,10 +117,10 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         }
 
         binding.let {
-            _pinBoxList.add(it.pinBox0)
-            _pinBoxList.add(it.pinBox1)
-            _pinBoxList.add(it.pinBox2)
-            _pinBoxList.add(it.pinBox3)
+            pinBoxList.add(it.pinBox0)
+            pinBoxList.add(it.pinBox1)
+            pinBoxList.add(it.pinBox2)
+            pinBoxList.add(it.pinBox3)
         }
 
         showConnectionDialogIfNeeded()
@@ -222,11 +220,18 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         }
     }
 
+    override val isForValidatingPinForResult: Boolean
+        get() = activity?.intent?.extras?.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT, false)
+            ?: false
+    override val isForValidatingAndLoadingPayloadResult: Boolean
+        get() = activity?.intent?.extras?.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD, false)
+            ?: false
+
     override fun enrollBiometrics() {
         biometricsController.authenticate(
             this, BiometricsType.TYPE_REGISTER,
             object : BiometricsCallback<WalletBiometricData> {
-                override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
+                override fun onAuthSuccess(data: WalletBiometricData) {
                     restartAppWithVerifiedPin()
                 }
 
@@ -339,7 +344,7 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
     }
 
     private fun restartApp() {
-        appUtil.restartApp(LauncherActivity::class.java)
+        appUtil.restartApp()
     }
 
     override fun clearPinBoxes() {
@@ -483,6 +488,20 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
     ) {
         if (isNotFinishing()) {
             ToastCustom.makeText(context, getString(message, parameter), ToastCustom.LENGTH_LONG, toastType)
+        }
+    }
+
+    override fun fillPinBoxAtIndex(index: Int) {
+        pinBoxList.getOrNull(index)?.setImageResource(R.drawable.rounded_view_dark_blue)
+    }
+
+    override fun clearPinBoxAtIndex(index: Int) {
+        pinBoxList.getOrNull(index)?.setImageResource(R.drawable.rounded_view_blue_white_border)
+    }
+
+    override fun fillPinBoxes() {
+        pinBoxList.forEach {
+            it.setImageResource(R.drawable.rounded_view_dark_blue)
         }
     }
 
@@ -645,9 +664,6 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setOnClickListener { presenter.clearLoginState() }
     }
-
-    override val pageIntent: Intent?
-        get() = activity?.intent
 
     override fun onPause() {
         super.onPause()

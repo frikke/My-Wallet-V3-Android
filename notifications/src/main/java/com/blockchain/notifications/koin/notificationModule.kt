@@ -38,8 +38,8 @@ val notificationModule = module {
                 notificationService = get(),
                 payloadManager = get(),
                 prefs = get(),
-                rxBus = get(),
                 crashLogger = get(),
+                authPrefs = get(),
                 notificationTokenProvider = get()
             )
         }

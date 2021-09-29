@@ -42,16 +42,14 @@ class WalletApi(
         guid: String,
         sharedKey: String
     ): Completable =
-        Completable.fromObservable<ResponseBody> {
-            explorerInstance.postToWallet(
-                "revoke-firebase",
-                guid,
-                sharedKey,
-                "",
-                0,
-                getApiCode()
-            )
-        }
+        explorerInstance.postToWallet(
+            method = "revoke-firebase",
+            guid = guid,
+            sharedKey = sharedKey,
+            payload = "",
+            length = 0,
+            apiCode = getApiCode()
+        ).ignoreElements()
 
     fun sendSecureChannel(
         message: String
@@ -79,15 +77,15 @@ class WalletApi(
     }
 
     fun getExternalIP(): Single<String> {
-        return explorerInstance.externalIP.map { it.ip }
+        return explorerInstance.getExternalIp().map { it.ip }
     }
 
-    fun setAccess(key: String?, value: String, pin: String?): Observable<Response<Status>> {
+    fun setAccess(key: String, value: String, pin: String): Observable<Response<Status>> {
         val hex = Hex.toHexString(value.toByteArray())
         return explorerInstance.pinStore(key, pin, hex, "put", getApiCode())
     }
 
-    fun validateAccess(key: String?, pin: String?): Observable<Response<Status>> {
+    fun validateAccess(key: String, pin: String): Observable<Response<Status>> {
         return explorerInstance.pinStore(key, pin, null, "get", getApiCode())
     }
 
@@ -152,7 +150,7 @@ class WalletApi(
         )
     }
 
-    fun fetchWalletData(guid: String?, sharedKey: String?): Call<ResponseBody> {
+    fun fetchWalletData(guid: String, sharedKey: String): Call<ResponseBody> {
         return explorerInstance.fetchWalletData(
             "wallet.aes.json",
             guid,
@@ -177,12 +175,12 @@ class WalletApi(
         )
     }
 
-    fun getSessionId(guid: String?): Observable<Response<ResponseBody>> {
+    fun getSessionId(guid: String): Observable<Response<ResponseBody>> {
         return explorerInstance.getSessionId(guid)
     }
 
     fun fetchEncryptedPayload(
-        guid: String?,
+        guid: String,
         sessionId: String,
         resend2FASms: Boolean
     ): Observable<Response<ResponseBody>> =
@@ -210,7 +208,7 @@ class WalletApi(
         )
     }
 
-    fun fetchSettings(method: String?, guid: String?, sharedKey: String?): Observable<Settings> {
+    fun fetchSettings(method: String, guid: String, sharedKey: String): Observable<Settings> {
         return explorerInstance.fetchSettings(
             method,
             guid,
@@ -221,9 +219,9 @@ class WalletApi(
     }
 
     fun updateSettings(
-        method: String?,
-        guid: String?,
-        sharedKey: String?,
+        method: String,
+        guid: String,
+        sharedKey: String,
         payload: String,
         context: String?
     ): Observable<ResponseBody> {
@@ -242,7 +240,7 @@ class WalletApi(
     val walletOptions: Observable<WalletOptions>
         get() = explorerInstance.getWalletOptions(getApiCode())
 
-    fun getSignedJsonToken(guid: String?, sharedKey: String?, partner: String?): Single<String> {
+    fun getSignedJsonToken(guid: String, sharedKey: String, partner: String?): Single<String> {
         return explorerInstance.getSignedJsonToken(
             guid,
             sharedKey,

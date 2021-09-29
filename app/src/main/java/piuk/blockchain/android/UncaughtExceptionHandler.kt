@@ -1,6 +1,5 @@
 package piuk.blockchain.android
 
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.core.BuildConfig
 import piuk.blockchain.android.util.AppUtil
 import timber.log.Timber
@@ -16,7 +15,7 @@ class UncaughtExceptionHandler private constructor(val appUtil: AppUtil) : Threa
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
         if (!BuildConfig.DEBUG) {
             // Don't restart when debugging - it unhelpfully spams logcat
-            appUtil.restartApp(LauncherActivity::class.java)
+            appUtil.restartApp()
         } else {
             Timber.e(throwable)
         }

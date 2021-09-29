@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.logging.CrashLogger
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.Wallet
 import com.nhaarman.mockitokotlin2.mock
@@ -67,7 +66,7 @@ class PasswordRequiredPresenterTest : RxTest() {
         subject.onForgetWalletClicked()
 
         // Assert
-        verify(view).showForgetWalletWarning(any())
+        verify(view).showForgetWalletWarning()
         verifyNoMoreInteractions(view)
     }
 

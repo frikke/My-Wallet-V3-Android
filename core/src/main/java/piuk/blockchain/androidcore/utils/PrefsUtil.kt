@@ -592,7 +592,7 @@ class PrefsUtil(
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
-    override fun logOut() {
+    override fun unPairWallet() {
         val guid = getValue(KEY_WALLET_GUID, "")
         val deviceId = getValue(KEY_PRE_IDV_DEVICE_ID, "")
 

@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.createwallet
 
-import android.app.LauncherActivity
 import androidx.annotation.StringRes
 import com.blockchain.api.services.Geolocation
 import com.blockchain.core.user.NabuUserDataManager
@@ -22,7 +21,6 @@ import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import timber.log.Timber
 import kotlin.math.roundToInt
 
@@ -41,7 +39,6 @@ class CreateWalletPresenter(
     private val prefs: PersistentPrefs,
     private val appUtil: AppUtil,
     private val accessState: AccessState,
-    private val prngFixer: PrngFixer,
     private val specificAnalytics: ProviderSpecificAnalytics,
     private val analytics: Analytics,
     private val environmentConfig: EnvironmentConfig,
@@ -119,7 +116,6 @@ class CreateWalletPresenter(
     ) {
 
         analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
-        prngFixer.applyPRNGFixes()
 
         compositeDisposable += payloadDataManager.createHdWallet(
             password,
@@ -149,7 +145,7 @@ class CreateWalletPresenter(
                 onError = {
                     Timber.e(it)
                     view.showError(R.string.hd_error)
-                    appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
+                    appUtil.clearCredentialsAndRestart()
                     specificAnalytics.logSingUp(false)
                 }
             )

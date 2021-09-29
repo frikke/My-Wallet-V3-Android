@@ -21,7 +21,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -284,7 +283,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             dismissProgressDialog()
             showToast(message, ToastCustom.TYPE_ERROR)
         }
-        appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
+        appUtil.clearCredentialsAndRestart()
     }
 
     companion object {

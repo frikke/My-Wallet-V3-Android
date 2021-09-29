@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.launcher
 
-import android.app.LauncherActivity
 import android.content.Intent
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.user.NabuUserDataManager
@@ -362,7 +361,7 @@ class LauncherPresenterTest {
         // Act
         subject.clearCredentialsAndRestart()
         // Assert
-        verify(appUtil).clearCredentialsAndRestart(LauncherActivity::class.java)
+        verify(appUtil).clearCredentialsAndRestart()
     }
 
     companion object {

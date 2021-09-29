@@ -10,7 +10,6 @@ import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.extensions.then
 
 class ResetPasswordInteractor(
@@ -21,12 +20,10 @@ class ResetPasswordInteractor(
     private val nabuDataManager: NabuDataManager,
     private val metadataManager: MetadataManager,
     private val metadataRepository: MetadataRepository,
-    private val prngFixer: PrngFixer,
     private val walletPrefs: WalletStatus
 ) {
 
     fun createWalletForAccount(email: String, password: String, walletName: String): Completable {
-        prngFixer.applyPRNGFixes()
         return payloadDataManager.createHdWallet(password, walletName, email)
             .flatMapCompletable { wallet ->
                 Completable.fromCallable {

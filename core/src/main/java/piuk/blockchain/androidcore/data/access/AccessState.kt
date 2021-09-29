@@ -7,8 +7,6 @@ import android.content.Intent
 import android.os.SystemClock
 import com.blockchain.logging.CrashLogger
 import com.blockchain.logging.DigitalTrust
-
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidPin
 
@@ -36,8 +34,6 @@ interface AccessState {
 
     fun unpairWallet()
 
-    fun forgetWallet()
-
     fun clearPin()
     fun setPin(pin: String)
 
@@ -49,7 +45,6 @@ interface AccessState {
 internal class AccessStateImpl(
     val context: Context,
     val prefs: PersistentPrefs,
-    val rxBus: RxBus,
     private val trust: DigitalTrust,
     private val crashLogger: CrashLogger
 ) : AccessState {
@@ -116,7 +111,7 @@ internal class AccessStateImpl(
                 context,
                 0,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
     }
 
@@ -145,11 +140,8 @@ internal class AccessStateImpl(
     override fun unpairWallet() {
         crashLogger.logEvent("unpair. resetting pin")
         clearPin()
-        prefs.logOut()
-        rxBus.emitEvent(AuthEvent::class.java, AuthEvent.UNPAIR)
+        prefs.unPairWallet()
     }
-
-    override fun forgetWallet() = rxBus.emitEvent(AuthEvent::class.java, AuthEvent.FORGET)
 
     companion object {
         private const val LOGOUT_TIMEOUT_MILLIS = 1000L * 60L * 5L // 5 minutes

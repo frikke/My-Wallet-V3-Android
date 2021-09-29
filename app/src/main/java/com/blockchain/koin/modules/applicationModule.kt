@@ -123,14 +123,12 @@ import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.android.util.OSUtil
-import piuk.blockchain.android.util.PrngHelper
 import piuk.blockchain.android.util.ResourceDefaultLabels
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
-import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 import thepit.PitLinking
 
@@ -199,7 +197,8 @@ val applicationModule = module {
                 bchDataManager = get(),
                 metadataManager = get(),
                 walletOptionsState = get(),
-                nabuDataManager = get()
+                nabuDataManager = get(),
+                notificationTokenManager = get()
             )
         }
 
@@ -295,7 +294,6 @@ val applicationModule = module {
                 prefs = get(),
                 appUtil = get(),
                 accessState = get(),
-                prngFixer = get(),
                 analytics = get(),
                 environmentConfig = get(),
                 formatChecker = get(),
@@ -597,7 +595,6 @@ val applicationModule = module {
                 defaultLabels = get(),
                 accessState = get(),
                 walletOptionsDataManager = get(),
-                prngFixer = get(),
                 specificAnalytics = get(),
                 mobileNoticeRemoteConfig = get(),
                 crashLogger = get(),
@@ -761,13 +758,6 @@ val applicationModule = module {
     factory {
         QrCodeDataManager()
     }
-
-    single {
-        PrngHelper(
-            context = get(),
-            accessState = get()
-        )
-    }.bind(PrngFixer::class)
 
     single {
         ConnectionApi(retrofit = get(explorerRetrofit))
