@@ -52,20 +52,20 @@ class KycAutocompleteAddressInteractor(val placesClientProvider: PlacesClientPro
                 .addOnSuccessListener { response: FetchPlaceResponse ->
                     val addressComponents = response.place.addressComponents?.asList()
                     val postalCode = addressComponents?.find {
-                        it.types.contains("postal_code")
+                        it.types.contains(POSTAL_CODE)
                     }
 
                     val locality = addressComponents?.find {
-                        it.types.contains("locality")
+                        it.types.contains(LOCALITY)
                     }
 
                     val streetNumber = addressComponents?.find {
-                        it.types.contains("street_number")
-                    }?.name ?: ""
+                        it.types.contains(STREET_NUMBER)
+                    }?.name.orEmpty()
 
                     val route = addressComponents?.find {
-                        it.types.contains("route")
-                    }?.name ?: ""
+                        it.types.contains(ROUTE)
+                    }?.name.orEmpty()
 
                     emitter.onSuccess(
                         AddressDetailsModel(
@@ -77,5 +77,12 @@ class KycAutocompleteAddressInteractor(val placesClientProvider: PlacesClientPro
                     emitter.onError(it)
                 }
         }
+    }
+
+    companion object {
+        private const val POSTAL_CODE = "postal_code"
+        private const val LOCALITY = "locality"
+        private const val STREET_NUMBER = "street_number"
+        private const val ROUTE = "route"
     }
 }

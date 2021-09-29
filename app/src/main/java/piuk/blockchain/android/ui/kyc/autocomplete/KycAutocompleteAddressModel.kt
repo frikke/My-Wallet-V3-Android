@@ -32,7 +32,14 @@ class KycAutocompleteAddressModel(
                             process(KycAutocompleteAddressIntents.NavigateToAddress(it))
                             process(KycAutocompleteAddressIntents.ClearNavigation)
                         },
-                        onError = { }
+                        onError = {
+                            process(
+                                KycAutocompleteAddressIntents.DisplayErrorToast(
+                                    AutocompleteAddressToastType.SELECTED_ADDRESS_ERROR
+                                )
+                            )
+                            process(KycAutocompleteAddressIntents.HideErrorToast)
+                        }
                     )
             }
             is KycAutocompleteAddressIntents.UpdateSearchText -> {
@@ -41,7 +48,14 @@ class KycAutocompleteAddressModel(
                         onSuccess = {
                             process(KycAutocompleteAddressIntents.UpdateAddresses(it))
                         },
-                        onError = { }
+                        onError = {
+                            process(
+                                KycAutocompleteAddressIntents.DisplayErrorToast(
+                                    AutocompleteAddressToastType.ADDRESSES_ERROR
+                                )
+                            )
+                            process(KycAutocompleteAddressIntents.HideErrorToast)
+                        }
                     )
             }
         }

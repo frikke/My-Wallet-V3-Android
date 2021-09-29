@@ -30,4 +30,14 @@ sealed class KycAutocompleteAddressIntents : MviIntent<KycAutocompleteAddressSta
         override fun reduce(oldState: KycAutocompleteAddressState) =
             oldState.copy(autocompleteAddressStep = null)
     }
+
+    data class DisplayErrorToast(val toastType: AutocompleteAddressToastType) : KycAutocompleteAddressIntents() {
+        override fun reduce(oldState: KycAutocompleteAddressState) =
+            oldState.copy(toastType = toastType)
+    }
+
+    object HideErrorToast : KycAutocompleteAddressIntents() {
+        override fun reduce(oldState: KycAutocompleteAddressState) =
+            oldState.copy(toastType = null)
+    }
 }

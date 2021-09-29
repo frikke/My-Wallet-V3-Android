@@ -11,6 +11,8 @@ import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAutocompleteBinding
 import piuk.blockchain.android.ui.base.mvi.MviFragment
+import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
@@ -51,9 +53,11 @@ class KycAutocompleteAddressFragment :
     }
 
     private fun setupRecyclerView() {
-        binding.searchResults.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        binding.searchResults.adapter = adapter
-        binding.searchResults.itemAnimator = null
+        binding.searchResults.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = this@KycAutocompleteAddressFragment.adapter
+            itemAnimator = null
+        }
     }
 
     private fun setupSearch() {
@@ -90,5 +94,15 @@ class KycAutocompleteAddressFragment :
         }
 
         adapter.submitList(newState.addresses)
+
+        when (newState.toastType) {
+            AutocompleteAddressToastType.ADDRESSES_ERROR -> {
+                toast(R.string.kyc_autocomplete_addresses_error, ToastCustom.TYPE_ERROR)
+            }
+            AutocompleteAddressToastType.SELECTED_ADDRESS_ERROR -> {
+                toast(R.string.kyc_autocomplete_selected_address_error, ToastCustom.TYPE_ERROR)
+            }
+            null -> {}
+        }
     }
 }
