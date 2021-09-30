@@ -292,6 +292,7 @@ class LoginAuthActivity :
                 TwoFAMethod.YUBI_KEY -> {
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(R.string.hardware_key_hint)
+                    codeText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                     codeLabel.visible()
                     codeLabel.text = getString(R.string.tap_hardware_key_label)
                 }
@@ -333,7 +334,7 @@ class LoginAuthActivity :
                     model.process(
                         LoginAuthIntents.SubmitTwoFactorCode(
                             password = passwordText.text.toString(),
-                            code = codeText.text.toString()
+                            code = codeText.text.toString().trim()
                         )
                     )
                     analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))

@@ -38,7 +38,7 @@ data class AccountWalletInfo(
     @SerialName("is_mobile_setup")
     val isMobileSetUp: Boolean,
     @SerialName("mobile_device_type")
-    val mobileDeviceType: Int,
+    val mobileDeviceType: Int = 2, // BE doesn't always return this, so default: 2 is Android - 1 is iOS
     @SerialName("last_mnemonic_backup")
     val lastMnemonicBackup: Long = 0L,
     @SerialName("has_cloud_backup")

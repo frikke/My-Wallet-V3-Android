@@ -61,7 +61,7 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
 
         private fun getAuthMethod(oldState: LoginAuthState): TwoFAMethod {
-            return if (payloadJson.isAuth() && (payloadJson.isGoogleAuth() || payloadJson.isSMSAuth())) {
+            return if (payloadJson.isAuth() && payloadJson.isSupportedTwoFaType()) {
                 TwoFAMethod.fromInt(payloadJson.getValue(AUTH_TYPE).jsonPrimitive.toString().toInt())
             } else {
                 oldState.authMethod
@@ -182,12 +182,17 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
         const val PAYLOAD = "payload"
     }
 }
+private fun JsonObject.isSupportedTwoFaType(): Boolean =
+    isGoogleAuth() || isSMSAuth() || isYubiKeyAuth()
 
 private fun JsonObject.isAuth(): Boolean =
     containsKey(LoginAuthIntents.AUTH_TYPE) && !containsKey(LoginAuthIntents.PAYLOAD)
 
 private fun JsonObject.isGoogleAuth(): Boolean =
     getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_GOOGLE_AUTHENTICATOR
+
+private fun JsonObject.isYubiKeyAuth(): Boolean =
+    getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_YUBI_KEY
 
 private fun JsonObject.isSMSAuth(): Boolean =
     getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_SMS
