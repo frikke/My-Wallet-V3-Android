@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.SnapHelper
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.databinding.ViewCarouselListBinding
 import com.blockchain.componentlib.databinding.ViewCarouselValueBinding
+import kotlin.concurrent.fixedRateTimer
 
 class CarouselView : RecyclerView {
 
@@ -47,21 +48,35 @@ class CarouselView : RecyclerView {
 
     fun submitList(carouselItems: List<CarouselViewType>) {
         listAdapter.submitList(carouselItems)
-        carouselIndicatorView?.numberOfIndicators = listAdapter.itemCount
+        carouselIndicatorView?.numberOfIndicators = listAdapter.currentList.size
     }
 
     fun setCarouselIndicator(carouselIndicator: CarouselIndicatorView) {
         carouselIndicatorView = carouselIndicator
-
+        val currentList = listAdapter.currentList
         this.setOnScrollChangeListener { _, _, _, _, _ ->
             val currentItem =
                 (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition()
             if (currentItem != NO_POSITION) {
-                carouselIndicatorView?.selectedIndicator = currentItem ?: 0
+                carouselIndicatorView?.selectedIndicator = (currentItem ?: 0) % currentList.size
             }
         }
 
-        carouselIndicatorView?.numberOfIndicators = listAdapter.itemCount
+        carouselIndicatorView?.numberOfIndicators = currentList.size
+    }
+
+    fun startAutoplay(pageTime: Long) {
+        fixedRateTimer(CAROUSEL_TIMER, false, 0L, pageTime) {
+            val currentItem =
+                (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: 0
+            if (currentItem != NO_POSITION) {
+                smoothScrollToPosition(currentItem + 1)
+            }
+        }
+    }
+
+    companion object {
+        private const val CAROUSEL_TIMER = "carousel_timer"
     }
 }
 
@@ -131,6 +146,15 @@ private class CarouselAdapter(
             is CarouselViewType.PriceList -> ViewType.List.ordinal
             is CarouselViewType.ValueProp -> ViewType.ValueProp.ordinal
         }
+    }
+
+    override fun getItemCount(): Int {
+        return Integer.MAX_VALUE
+    }
+
+    override fun getItem(position: Int): CarouselViewType {
+        val positionInList = position % currentList.size
+        return super.getItem(positionInList)
     }
 
     enum class ViewType {

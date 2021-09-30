@@ -66,24 +66,26 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 carousel.submitList(
                     listOf(
                         CarouselViewType.ValueProp(
-                            com.blockchain.componentlib.R.drawable.carousel_placeholder_1,
+                            com.blockchain.componentlib.R.drawable.carousel_brokerage,
                             this@LandingActivity.getString(R.string.landing_value_prop_one)
                         ),
                         CarouselViewType.ValueProp(
-                            com.blockchain.componentlib.R.drawable.carousel_placeholder_2,
+                            com.blockchain.componentlib.R.drawable.carousel_rewards,
                             this@LandingActivity.getString(R.string.landing_value_prop_two_1)
                         ),
                         CarouselViewType.ValueProp(
-                            com.blockchain.componentlib.R.drawable.carousel_placeholder_3,
+                            com.blockchain.componentlib.R.drawable.carousel_security,
                             this@LandingActivity.getString(R.string.landing_value_prop_three)
-                        ),
+                        )
+                        /* TODO: Add back in once live prices are implemented
                         CarouselViewType.PriceList(
                             this@LandingActivity.getString(R.string.landing_value_prop_four),
                             this@LandingActivity.getString(R.string.landing_live_prices)
-                        )
+                        ) */
                     )
                 )
                 carousel.setCarouselIndicator(carouselIndicators)
+                carousel.startAutoplay(CAROUSEL_PAGE_TIME)
             }
         } else {
             setContentView(binding.root)
@@ -231,5 +233,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 context.startActivity(this)
             }
         }
+
+        private const val CAROUSEL_PAGE_TIME = 3000L
     }
 }
