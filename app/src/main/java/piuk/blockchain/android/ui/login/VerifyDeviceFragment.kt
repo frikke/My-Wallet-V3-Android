@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
@@ -30,7 +31,9 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
 
         override fun onFinish() {
             isTimerRunning.set(false)
-            binding.resendEmailButton.isActivated = true
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                binding.resendEmailButton.isActivated = true
+            }
         }
     }
 
@@ -81,6 +84,21 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
 
     override fun render(newState: LoginState) {
         // do nothing
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (isTimerRunning.get()) {
+            timer.cancel()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // check if the timer was running before onPause was called, if so, re-init
+        if (isTimerRunning.get()) {
+            timer.start()
+        }
     }
 
     companion object {
