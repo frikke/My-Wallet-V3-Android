@@ -149,7 +149,7 @@
 
     <string name="double_encryption_password_error">Double encrypt password error. Please try again.</string>
     <string name="btn_scan_pairing_code">Scan Pairing Code</string>
-    <string name="btn_manual_pairing">Manual Log in</string>
+    <string name="btn_manual_pairing">Manual Pairing</string>
     <string name="create_a_wallet">Create an Account</string>
     <string name="log_in">Login</string>
     <string name="login_auto_pair_title">Automatic Pairing</string>

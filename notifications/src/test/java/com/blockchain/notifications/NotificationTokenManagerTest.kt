@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.Wallet
@@ -24,7 +25,10 @@ class NotificationTokenManagerTest {
     private val notificationService: NotificationService = mock()
     private val payloadManager: PayloadManager = mock()
     private val prefs: NotificationPrefs = mock()
-    private val authPrefs: AuthPrefs = mock()
+    private val authPrefs: AuthPrefs = mock {
+        on { walletGuid }.thenReturn(GUID)
+        on { sharedKey }.thenReturn(SHARED_KEY)
+    }
     private val notificationTokenProvider: NotificationTokenProvider = mock()
     private val crashLogger: CrashLogger = mock()
 
@@ -151,24 +155,15 @@ class NotificationTokenManagerTest {
         testObservable.assertComplete()
         testObservable.assertNoErrors()
         verify(notificationTokenProvider).deleteToken()
+        verifyZeroInteractions(notificationService)
         verify(prefs).arePushNotificationsEnabled = false
-        verifyNoMoreInteractions(notificationService)
     }
 
     @Test
     fun removeNotificationToken() {
-        val guid = "1244"
-        val key = "1245"
-        val walletMock: Wallet = mock {
-            on { this.guid }.thenReturn(guid)
-            on { this.sharedKey }.thenReturn(key)
-        }
-
         whenever(prefs.firebaseToken).thenReturn("1234")
-        whenever(authPrefs.walletGuid).thenReturn(guid)
         whenever(notificationTokenProvider.deleteToken()).thenReturn(Completable.complete())
-        whenever(payloadManager.payload).thenReturn(walletMock)
-        whenever(notificationService.removeNotificationToken(guid, key)).thenReturn(Completable.complete())
+        whenever(notificationService.removeNotificationToken(GUID, SHARED_KEY)).thenReturn(Completable.complete())
 
         val testObservable = subject.disableNotifications().test()
 
@@ -176,12 +171,13 @@ class NotificationTokenManagerTest {
         testObservable.assertNoErrors()
         verify(prefs).arePushNotificationsEnabled = false
         verify(notificationTokenProvider).deleteToken()
-        verify(notificationService).removeNotificationToken(guid, key)
+        verify(notificationService).removeNotificationToken(GUID, SHARED_KEY)
         verify(prefs).firebaseToken
         verify(prefs).firebaseToken = ""
         verifyNoMoreInteractions(notificationService)
         verifyNoMoreInteractions(notificationTokenProvider)
         verifyNoMoreInteractions(prefs)
+        verifyZeroInteractions(payloadManager)
     }
 
     @Test
@@ -204,12 +200,10 @@ class NotificationTokenManagerTest {
 
     @Test
     fun removeNotificationToken_noPayload() {
-        val guid = "0000"
+
         whenever(prefs.firebaseToken).thenReturn("1234")
-        whenever(authPrefs.walletGuid).thenReturn(guid)
         whenever(notificationTokenProvider.deleteToken()).thenReturn(Completable.complete())
-        whenever(payloadManager.payload).thenReturn(null)
-        whenever(notificationService.removeNotificationToken(guid, ""))
+        whenever(notificationService.removeNotificationToken(GUID, SHARED_KEY))
             .thenReturn(
                 Completable.complete()
             )
@@ -218,13 +212,17 @@ class NotificationTokenManagerTest {
 
         testObservable.assertComplete()
         testObservable.assertNoErrors()
-        verify(notificationService).removeNotificationToken(guid, "")
+        verify(notificationService).removeNotificationToken(GUID, SHARED_KEY)
         verify(prefs).arePushNotificationsEnabled = false
         verify(notificationTokenProvider).deleteToken()
         verify(prefs).firebaseToken
         verify(prefs).firebaseToken = ""
+        verifyZeroInteractions(payloadManager)
         verifyNoMoreInteractions(notificationService)
         verifyNoMoreInteractions(notificationTokenProvider)
         verifyNoMoreInteractions(prefs)
     }
 }
+
+private const val GUID = "GUID"
+private const val SHARED_KEY = "SHARED_KEY"

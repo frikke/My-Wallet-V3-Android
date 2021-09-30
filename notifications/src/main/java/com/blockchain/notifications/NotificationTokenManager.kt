@@ -72,6 +72,7 @@ class NotificationTokenManager(
     fun revokeAccessToken(): Completable =
         notificationTokenProvider.deleteToken()
             .then { removeNotificationToken() }
+            .onErrorComplete()
             .doOnComplete { this.clearStoredToken() }
             .subscribeOn(Schedulers.io())
 
@@ -133,7 +134,7 @@ class NotificationTokenManager(
         return if (token.isNotEmpty()) {
             notificationService.removeNotificationToken(
                 guid = authPrefs.walletGuid,
-                sharedKey = payloadManager.payload?.sharedKey.orEmpty()
+                sharedKey = authPrefs.sharedKey
             )
         } else {
             Completable.complete()
