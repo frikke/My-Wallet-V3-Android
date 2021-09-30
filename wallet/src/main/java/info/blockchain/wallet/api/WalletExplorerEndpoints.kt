@@ -8,6 +8,7 @@ import info.blockchain.wallet.api.data.SignedToken
 import info.blockchain.wallet.api.WalletApi.IPResponse
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
@@ -201,7 +202,7 @@ interface WalletExplorerEndpoints {
         @Field("sharedKey") sharedKey: String,
         @Field("is_mobile_setup") isMobileSetup: Boolean,
         @Field("mobile_device_type") deviceType: Int
-    ): Single<ResponseBody>
+    ): Completable
 
     @FormUrlEncoded
     @POST("wallet")

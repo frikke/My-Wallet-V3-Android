@@ -91,8 +91,11 @@ class LoginAuthInteractor(
         )
     }
 
-    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int) =
-        Completable.fromSingle(
-            authDataManager.updateMobileSetup(prefs.walletGuid, prefs.sharedKey, isMobileSetup, deviceType)
+    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Completable =
+        authDataManager.updateMobileSetup(
+            guid = prefs.walletGuid,
+            sharedKey = prefs.sharedKey,
+            isMobileSetup = isMobileSetup,
+            deviceType = deviceType
         )
 }

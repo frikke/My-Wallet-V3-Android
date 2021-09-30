@@ -7,6 +7,7 @@ import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.obFeatureFlag
 import com.blockchain.koin.sddFeatureFlag
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
+import com.blockchain.koin.unifiedSignInFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.module
@@ -39,5 +40,9 @@ val featureFlagsModule = module {
 
     factory(fullScreenTxFlowFeatureFlag) {
         get<RemoteConfig>().featureFlag("android_full_screen_tx_flow")
+    }
+
+    factory(unifiedSignInFeatureFlag) {
+        get<RemoteConfig>().featureFlag("android_sso_unified_sign_in")
     }
 }

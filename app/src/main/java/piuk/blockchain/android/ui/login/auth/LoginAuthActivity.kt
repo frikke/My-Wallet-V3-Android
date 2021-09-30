@@ -29,6 +29,7 @@ import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
@@ -53,7 +54,8 @@ import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 
 class LoginAuthActivity :
-    MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>() {
+    MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>(),
+    AccountUnificationBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = true
@@ -206,6 +208,7 @@ class LoginAuthActivity :
             AuthStatus.Submit2FA,
             AuthStatus.VerifyPassword,
             AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
+            AuthStatus.AskForAccountUnification -> showUnificationBottomSheet(newState.accountType)
             AuthStatus.Complete -> {
                 analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
                 startActivity(Intent(this, PinEntryActivity::class.java))
@@ -256,6 +259,51 @@ class LoginAuthActivity :
     private fun clearKeyboardAndFinish() {
         ViewUtils.hideKeyboard(this)
         finish()
+    }
+
+    private fun showUnificationBottomSheet(accountType: BlockchainAccountType) {
+        val benefitsList = mutableListOf(
+            VerifyIdentityNumericBenefitItem(
+                title = getString(R.string.unification_sheet_item_one_title),
+                subtitle = getString(R.string.unification_sheet_item_one_blurb)
+            ),
+            VerifyIdentityNumericBenefitItem(
+                title = getString(R.string.unification_sheet_item_two_title),
+                subtitle = getString(R.string.unification_sheet_item_two_blurb)
+            )
+        )
+        when (accountType) {
+            BlockchainAccountType.EXCHANGE -> {
+                benefitsList.add(
+                    VerifyIdentityNumericBenefitItem(
+                        title = getString(R.string.unification_sheet_item_three_title),
+                        subtitle = getString(R.string.unification_sheet_item_three_blurb)
+                    )
+                )
+            }
+            BlockchainAccountType.WALLET_EXCHANGE_NOT_LINKED -> {
+                // do nothing
+            }
+            else -> {
+                // this case should never happen?
+            }
+        }
+
+        showBottomSheet(
+            AccountUnificationBottomSheet.newInstance(benefitsList as ArrayList<VerifyIdentityNumericBenefitItem>)
+        )
+    }
+
+    override fun upgradeAccountClicked() {
+        // TODO show webview
+    }
+
+    override fun doLaterClicked() {
+        model.process(LoginAuthIntents.ShowAuthComplete)
+    }
+
+    override fun onSheetClosed() {
+        model.process(LoginAuthIntents.ShowAuthComplete)
     }
 
     private fun renderRemainingTries(state: TwoFaCodeState) =

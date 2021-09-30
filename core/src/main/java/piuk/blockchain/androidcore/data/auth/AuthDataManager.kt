@@ -335,7 +335,7 @@ class AuthDataManager(
         sharedKey: String,
         isMobileSetup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> = walletAuthService.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
+    ): Completable = walletAuthService.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
 
     /**
      * Update the mnemonic backup date (calculated on the backend)

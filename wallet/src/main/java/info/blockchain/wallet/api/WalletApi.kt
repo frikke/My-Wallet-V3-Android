@@ -285,7 +285,7 @@ class WalletApi(
         sharedKey: String,
         isMobileSetup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> {
+    ): Completable {
         return explorerInstance.updateMobileSetup(
             "update-mobile-setup",
             guid,

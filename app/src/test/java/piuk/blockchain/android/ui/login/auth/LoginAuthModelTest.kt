@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -24,6 +25,7 @@ class LoginAuthModelTest {
     }
 
     private val interactor: LoginAuthInteractor = mock()
+    private val unifiedSignInFlag: FeatureFlag = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -38,7 +40,8 @@ class LoginAuthModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             crashLogger = mock(),
-            interactor = interactor
+            interactor = interactor,
+            unifiedSignInFlag = unifiedSignInFlag
         )
     }
 
@@ -186,6 +189,7 @@ class LoginAuthModelTest {
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
             Completable.complete()
         )
+        whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.VerifyPassword(password))
@@ -255,6 +259,7 @@ class LoginAuthModelTest {
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
             Completable.complete()
         )
+        whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.SubmitTwoFactorCode(password, twoFACode))

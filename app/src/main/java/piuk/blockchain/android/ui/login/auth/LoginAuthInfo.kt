@@ -22,9 +22,30 @@ sealed class LoginAuthInfo {
         val isUpgradeable: Boolean = false,
         @SerialName("mergeable")
         val isMergeable: Boolean = false,
+        @SerialName("unified")
+        val isUnified: Boolean = false,
         @SerialName("user_type")
         val userType: String = ""
-    ) : LoginAuthInfo()
+    ) : LoginAuthInfo() {
+
+        fun mapUserType(userType: String): BlockchainAccountType =
+            when (userType) {
+                WALLET -> BlockchainAccountType.WALLET
+                EXCHANGE -> BlockchainAccountType.EXCHANGE
+                WALLET_EXCHANGE_LINKED -> BlockchainAccountType.WALLET_EXCHANGE_LINKED
+                WALLET_EXCHANGE_NOT_LINKED -> BlockchainAccountType.WALLET_EXCHANGE_NOT_LINKED
+                WALLET_EXCHANGE_BOTH -> BlockchainAccountType.WALLET_EXCHANGE_BOTH
+                else -> BlockchainAccountType.UNKNOWN
+            }
+
+        companion object {
+            private const val WALLET = "WALLET"
+            private const val EXCHANGE = "EXCHANGE"
+            private const val WALLET_EXCHANGE_LINKED = "WALLET_EXCHANGE_LINKED"
+            private const val WALLET_EXCHANGE_NOT_LINKED = "WALLET_EXCHANGE_NOT_LINKED"
+            private const val WALLET_EXCHANGE_BOTH = "WALLET_EXCHANGE_BOTH"
+        }
+    }
 }
 
 @Serializable

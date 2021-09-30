@@ -162,8 +162,7 @@ class WalletAuthService(private val walletApi: WalletApi) {
         sharedKey: String,
         isMobileSetup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> =
-        walletApi.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
+    ): Completable = walletApi.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
 
     /**
      * Update the mnemonic backup date (calculated on the backend)

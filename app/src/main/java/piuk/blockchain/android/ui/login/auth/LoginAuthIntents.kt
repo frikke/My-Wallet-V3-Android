@@ -33,7 +33,10 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
                     authToken = loginAuthInfo.accountWallet.authToken,
                     recoveryToken = loginAuthInfo.accountWallet.nabuAccountInfo.recoveryToken,
                     authStatus = AuthStatus.GetSessionId,
-                    authInfoForAnalytics = loginAuthInfo
+                    authInfoForAnalytics = loginAuthInfo,
+                    shouldRequestAccountUnification = !loginAuthInfo.isUnified &&
+                        (loginAuthInfo.isMergeable || loginAuthInfo.isUpgradeable),
+                    accountType = loginAuthInfo.mapUserType(loginAuthInfo.userType)
                 )
             }
     }
@@ -115,6 +118,13 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
                 authStatus = AuthStatus.UpdateMobileSetup,
                 isMobileSetup = isMobileSetup,
                 deviceType = deviceType
+            )
+    }
+
+    object ShowAccountUnification : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState.copy(
+                authStatus = AuthStatus.AskForAccountUnification
             )
     }
 

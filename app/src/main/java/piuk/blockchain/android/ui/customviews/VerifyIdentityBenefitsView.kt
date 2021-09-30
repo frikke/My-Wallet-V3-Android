@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.customviews
 import android.content.Context
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -15,22 +16,33 @@ import piuk.blockchain.android.util.visibleIf
 class VerifyIdentityBenefitsView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
 
     private val binding: VerifyIdentityBenefitsLayoutBinding = VerifyIdentityBenefitsLayoutBinding.inflate(
-        LayoutInflater.from(context), this, true)
+        LayoutInflater.from(context), this, true
+    )
 
     fun initWithBenefits(
         benefits: List<VerifyIdentityItem>,
         title: String,
         description: String,
-        @DrawableRes icon: Int,
+        @DrawableRes icon: Int? = null,
         primaryButton: ButtonOptions,
         secondaryButton: ButtonOptions,
         footerText: String = "",
-        showSheetIndicator: Boolean = true
+        showSheetIndicator: Boolean = true,
+        titleGravity: Int = Gravity.START,
+        descriptionGravity: Int = Gravity.START
     ) {
         with(binding) {
-            kycBenefitsIntroTitle.text = title
-            kycBenefitsIntroDescription.text = description
-            kycBenefitsDefaultSymbol.setImageResource(icon)
+            kycBenefitsIntroTitle.apply {
+                text = title
+                gravity = titleGravity
+            }
+            kycBenefitsIntroDescription.apply {
+                text = description
+                gravity = descriptionGravity
+            }
+            icon?.let {
+                kycBenefitsDefaultSymbol.setImageResource(icon)
+            } ?: kycBenefitsDefaultSymbol.gone()
             kycBenefitsNegativeAction.visibleIf { secondaryButton.visible }
             kycBenefitsPositiveAction.visibleIf { primaryButton.visible }
             kycBenefitsPositiveAction.setOnClickListener {
