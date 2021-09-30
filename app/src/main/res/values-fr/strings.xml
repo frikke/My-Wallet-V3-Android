@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string-array name="mnemonic_word_requests">
         <item>premier mot</item>
         <item>deuxième mot</item>
@@ -85,7 +85,6 @@
     <string name="recover_funds">Récupérer des fonds</string>
     <string name="recover_funds_instructions">Entrez votre phrase de récupération à 12 mots avec des espaces pour récupérer vos fonds et transactions
     </string>
-    <string name="recovery_passphrase">Phrase de sauvegarde</string>
     <string name="invalid_recovery_phrase">Phrase de récupération non valide. Veuillez réessayer</string>
     <string name="creating_wallet">Création du portefeuille</string>
     <string name="restore_failed">Échec de restauration du portefeuille. Veuillez réessayer.</string>
@@ -284,7 +283,6 @@ Ne partagez pas votre xPub. Une personne ayant accès à votre xPub est en mesur
 
 Pour utiliser plutôt les autres méthodes d\'authentification, veuillez vous connecter à notre portefeuille Web à l\'adresse %1$s
     </string>
-    <string name="rate_title">Évaluer le portefeuille Blockchain</string>
     <string name="rate_message">Vous profitez de la Blockchain Wallet ? Veuillez prendre quelques instants pour laisser un avis sur Google Play et permettez à d\'autres personnes de la connaître.</string>
     <string name="rate_yes">Oui, notez le portefeuille Blockchain</string>
     <string name="rate_no">Non, merci</string>
@@ -323,7 +321,6 @@ facilement deviné par quelqu\'un qui a accès à votre téléphone au bout de t
     <string name="api_fail">Impossible de se connecter au serveur. Veuillez réessayer plus tard.</string>
     <string name="large_tx_warning">Il s\'agit d\'une transaction de bitcoin trop importante. Votre portefeuille doit regrouper de nombreux petits paiements que vous avez reçus dans le passé. Cela nécessite des frais relativement élevés afin d\'être confirmé rapidement.
     </string>
-    <string name="accept_higher_fee">Accepter des frais plus élevés</string>
     <string name="push_notifications">Notifications push</string>
     <string name="push_notifications_summary">Activez les notifications pour recevoir un popup de notifications
 chaque fois que vous recevez des bitcoins
@@ -354,7 +351,6 @@ chaque fois que vous recevez des bitcoins
 
 Confirmez l\'empreinte digitale pour continuer
     </string>
-    <string name="fingerprint_description">Confirmer l\'empreinte digitale pour continuer</string>
     <string name="fingerprint_hint">Capteur tactile</string>
     <string name="fingerprint_login_title">Connexion par biométrie</string>
     <string name="fingerprint_not_recognized">Empreinte digitale non reconnue. Réessayez.</string>
@@ -364,9 +360,7 @@ Confirmez l\'empreinte digitale pour continuer
     <string name="fingerprint_no_fingerprints_added">Aucune empreinte digitale n\'a encore été enregistrée dans cet appareil. Voulez-vous enregistrer une empreinte digitale ?</string>
     <string name="fingerprint_key_invalidated_description">Soi les empreintes digitales stockées dans cet appareil ont été modifiées, soit le pavé tactile a été désactivé.</string>
     <string name="fingerprint_key_invalidated_brief">Clé non valide. Code PIN requis</string>
-    <string name="fingerprint_fatal_error_register_description">Il y a eu beaucoup de tentatives manquées ces 30 dernières minutes. Veuillez réessayer la configuration plus tard.
-    </string>
-    <string name="fingerprint_fatal_error_authenticate_description">Il y a eu beaucoup de tentatives manquées. Veuillez vous connecter en utilisant plutôt votre code PIN.</string>
+
     <string name="fingerprint_fatal_error_brief">Erreur inattendue</string>
     <string name="shortcut_receive_copy_long">Copier l\'adresse de réception dans une autre application</string>
     <string name="shortcut_receive_qr_short">Afficher le code QR de réception</string>
@@ -773,7 +767,6 @@ En déposant des fonds sur ce compte, vous acceptez les <annotation link="modula
     <string name="send_confirmation_tx_fee">Frais de transaction</string>
     <string name="transfer_amount">Montant du transfert</string>
     <string name="common_try_again">Réessayer</string>
-    <string name="upgrade_wallet">Mettre à niveau</string>
     <string name="activity_details_value">Valeur</string>
     <string name="common_yes">Oui</string>
     <string name="send_confirmation_deposit_cta_button">Confirmer le transfert</string>
@@ -1838,7 +1831,6 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
     <string name="learn_more">En savoir plus</string>
     <string name="activity_details_buy_deposited_to">Déposé à</string>
 
-    <string name="item_backup">Fonds de sauvegarde</string>
     <string name="manual_pairing">Couplage manuel</string>
     <string name="wallet_id">ID Portefeuille</string>
     <string name="new_account_title">Créer un compte</string>
@@ -1969,10 +1961,6 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
     <string name="min_with_value">%1$s Min</string>
     <string name="max_with_value">%1$s Max</string>
     <string name="common_continue">Continuer</string>
-    <plurals name="transfer_label_plural">
-        <item quantity="one" tools:ignore="ImpliedQuantity">1 adresse importée</item>
-        <item quantity="other">%d adresses importées</item>
-    </plurals>
     <string name="remote_save_failed">Échec de l\'enregistrement</string>
     <string name="security_locked_card_funds_explanation">Pour votre sécurité, les premiers achats par carte sont soumis à une période de garde de %1$s jours avant que vous puissiez envoyer ou retirer votre crypto acheté. Nous vous informerons lorsque la suspension sera levée.
 
@@ -1984,7 +1972,6 @@ En attendant, vous pouvez vendre en espèces, échanger et trader sur Blockchain
     <string name="trading_albert_error">Oups ! Un problème est survenu. Veuillez réessayer.</string>
     <string name="backup_wallet_title">Récupération de clé privée secrète</string>
     <string name="recovery_passphrase_1">Phrase de récupération de clé privée secrète</string>
-    <string name="backup_title">Récupération de clé privée secrète</string>
     <string name="backup_subtitle">Phrase de récupération de clé privée secrète</string>
     <string name="recovery_card_title_1">Phrase de récupération de clé privée secrète</string>
     <string name="address_line_1">Adresse ligne 1</string>

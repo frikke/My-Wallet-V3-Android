@@ -67,16 +67,11 @@
     <string name="bitcoin" translatable="false">Bitcoin</string>
     <string name="bitcoin_cash" translatable="false">Bitcoin Cash</string>
 
-    <plurals name="transfer_label_plural">
-        <item quantity="other">%d imported addresses</item>
-    </plurals>
-    <string name="upgrade_wallet">Upgrade</string>
     <string name="backup_wallet_title">Secret Private Key Recovery</string>
     <string name="action_settings">Settings</string>
 
     <!-- nav menu -->
     <string name="please_wait">Please wait</string>
-    <string name="item_backup">Backup funds</string>
     <string name="item_the_exchange">Exchange</string>
     <string name="item_airdrops">Airdrops</string>
     <string name="item_debug_menu" translatable="false">Debug Menu</string>
@@ -154,7 +149,7 @@
 
     <string name="double_encryption_password_error">Double encrypt password error. Please try again.</string>
     <string name="btn_scan_pairing_code">Scan Pairing Code</string>
-    <string name="btn_manual_pairing">Manual Pairing</string>
+    <string name="btn_manual_pairing">Manual Log in</string>
     <string name="create_a_wallet">Create an Account</string>
     <string name="log_in">Login</string>
     <string name="login_auto_pair_title">Automatic Pairing</string>
@@ -555,7 +550,7 @@
         This code will be requested when you try to access your wallet via the web browser.\n\nIn
         order to use other authentication methods instead, please login to our web wallet at %1$s
     </string>
-    <string name="rate_title">Rate Blockchain Wallet</string>
+
 
     <string name="rate_message">Enjoying the Blockchain Wallet? Please take a moment to leave a
         review in Google Play and let others know about it.
@@ -611,7 +606,6 @@
     </string>
 
     <!-- FEE WARNING -->
-    <string name="accept_higher_fee">Accept higher fee</string>
     <string name="push_notifications">Push Notifications</string>
 
     <string name="push_notifications_summary">Enable notifications to receive a popup notification
@@ -644,7 +638,6 @@
     <string name="security_centre_email_check">Check email</string>
 
     <!-- BACKUP -->
-    <string name="backup_title">Secret Private Key Recovery</string>
     <string name="backup_subtitle">Secret Private Key Recovery Phrase</string>
     <string name="backup_instructions_1">In crypto, when you hold the private keys, you\'re in control of the funds in your Private Key Wallet. The downside is that WHOEVER holds your private keys can control your Private Key Wallet.</string>
     <string name="backup_instructions_2">So you must:</string>
@@ -678,7 +671,6 @@
     <string name="backup_lost_mnemonic_1">Lost your 12 word Secret Private Key Recovery Phrase?</string>
 
     <!-- BIOMETRICS -->
-    <string name="fingerprint_description">Confirm fingerprint to continue</string>
     <string name="fingerprint_hint">Touch sensor</string>
     <string name="fingerprint_login_title">Biometric login</string>
     <string name="fingerprint_login_description">Use your biometrics to log into the Wallet</string>
@@ -689,7 +681,6 @@
     <string name="biometrics_key_invalidated_title">Biometrics changed</string>
     <string name="biometrics_key_invalidated_description">Either the biometrics stored on this device have changed or the keyguard has been disabled. Please use your PIN instead.\n\nYou can then set up Biometric Login again from Settings.</string>
     <string name="biometrics_key_invalidated_settings_description">Either the biometrics stored on this device have changed or the keyguard has been disabled.\n\nPlease re-add your biometrics and try again.</string>
-    <string name="fingerprint_fatal_error_authenticate_description">There have been too many failed attempts. Please log in using your PIN instead.</string>
     <string name="fingerprint_fatal_error_brief">Unexpected error</string>
     <string name="fingerprint_fatal_error_desc">Something went wrong while trying to use biometrics, please use your PIN instead.\n\nYou can then set up Biometric Login again from Settings.\nError: %1$s</string>
     <string name="biometrics_disabled_lockout_title">Authentication failure</string>

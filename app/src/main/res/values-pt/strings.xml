@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string-array name="mnemonic_word_requests">
         <item>primeira palavra</item>
         <item>segunda palavra</item>
@@ -93,7 +93,6 @@
     <string name="recover_funds_instructions">Introduza as suas 12 palavras de recuperação com espaços para recuperar os seus
         fundos e transações
     </string>
-    <string name="recovery_passphrase">Frase de backup</string>
     <string name="invalid_recovery_phrase">Frase de recuperação inválida. Tente novamente</string>
     <string name="creating_wallet">A criar carteira</string>
     <string name="restore_failed">Falha ao restaurar a carteira. Tente novamente</string>
@@ -335,7 +334,7 @@ Mantenha o seu xPub privado.
 Para
         utilizar outros métodos de autenticação, inicie sessão na nossa carteira web em %1$s
     </string>
-    <string name="rate_title">Avalie a carteira do Blockchain</string>
+
     <string name="rate_message">Está a gostar da Blockchain Wallet? Reserve um momento para deixar uma
         avaliação no Google Play e informar outras pessoas sobre a mesma.
     </string>
@@ -384,7 +383,6 @@ Não partilhe com outras pessoas.</string>
         consolidar muitos pagamentos mais pequenos que recebeu anteriormente. Isto requer uma taxa relativamente
         elevada para que seja confirmada rapidamente.
     </string>
-    <string name="accept_higher_fee">Aceitar taxa mais elevada</string>
     <string name="push_notifications">Notificações via push</string>
     <string name="push_notifications_summary">Ative as notificações para receber uma notificação pop-up
         sempre que recebe bitcoin.
@@ -423,7 +421,6 @@ Não partilhe com outras pessoas.</string>
 
 Confirme a impressão digital para continuar
     </string>
-    <string name="fingerprint_description">Confirmar impressão digital para continuar</string>
     <string name="fingerprint_hint">Sensor de toque</string>
     <string name="fingerprint_login_title">Início de sessão biométrico</string>
     <string name="fingerprint_not_recognized">Impressão digital não reconhecida. Tente novamente</string>
@@ -436,10 +433,7 @@ Confirme a impressão digital para continuar
         dispositivo foram alteradas ou o keyguard foi desativado
     </string>
     <string name="fingerprint_key_invalidated_brief">Chaves invalidadas, código PIN necessário</string>
-    <string name="fingerprint_fatal_error_register_description">Ocorreram demasiadas tentativas
-        falhadas nos últimos 30 minutos. Tente configurar novamente mais tarde.
-    </string>
-    <string name="fingerprint_fatal_error_authenticate_description">Ocorreram demasiadas tentativas falhadas. Inicie a sessão utilizando o seu PIN.</string>
+
     <string name="fingerprint_fatal_error_brief">Erro inesperado</string>
     <string name="shortcut_receive_copy_long">Copie o endereço de receção para outra aplicação</string>
     <string name="shortcut_receive_qr_short">Mostrar QR de receção</string>
@@ -857,7 +851,6 @@ Ao depositar fundos nesta conta, concorda com os <annotation link="modular_terms
     <string name="send_confirmation_tx_fee">Taxa de transação</string>
     <string name="transfer_amount">Valor da transferência</string>
     <string name="common_try_again">Tente novamente</string>
-    <string name="upgrade_wallet">Atualizar</string>
     <string name="activity_details_value">Valor</string>
     <string name="common_yes">Sim</string>
     <string name="send_confirmation_deposit_cta_button">Confirmar transferência</string>
@@ -1906,7 +1899,6 @@ Enquanto isso, pode vender em dinheiro, trocar e negociar em Blockchain.com.</st
     <string name="learn_more">Saber mais</string>
     <string name="activity_details_buy_deposited_to">Depositado em</string>
 
-    <string name="item_backup">Fundos de Recuperação</string>
     <string name="manual_pairing">Emparelhamento Manual</string>
     <string name="wallet_id">ID da Carteira</string>
     <string name="new_account_title">Criar uma conta</string>
@@ -1939,7 +1931,7 @@ Enquanto isso, pode vender em dinheiro, trocar e negociar em Blockchain.com.</st
     <string name="kyc_documents_needed">Documentos necessários</string>
     <string name="kyc_resubmission_card_title">Documentos necessários</string>
     <string name="kyc_resubmission_splash_title">Documentos necessários</string>
-    <string name="buy_sell_please_wait">Aguarde...</string>
+    <string name="buy_sell_please_wait">Aguarde…</string>
     <string name="contact_support">Entre em contacto com o suporte</string>
     <string name="tour_step_one_btn">Próximo</string>
     <string name="tour_step_two_title">Enviar</string>
@@ -2037,10 +2029,7 @@ Enquanto isso, pode vender em dinheiro, trocar e negociar em Blockchain.com.</st
     <string name="min_with_value">%1$s Mín</string>
     <string name="max_with_value">%1$s Máx</string>
     <string name="common_continue">Continuar</string>
-    <plurals name="transfer_label_plural">
-        <item quantity="one" tools:ignore="ImpliedQuantity">1 endereço importado</item>
-        <item quantity="other">%d endereços importados</item>
-    </plurals>
+
     <string name="remote_save_failed">Sem sucesso ao guardar</string>
     <string name="security_locked_card_funds_explanation">Para sua segurança, as primeiras compras com cartão estão sujeitas a um período de retenção de %1$s dias antes que possa enviar ou retirar a sua criptomoeda comprada. Iremos notificá-lo quando a retenção for levantada.
 
@@ -2052,7 +2041,6 @@ Enquanto isso, pode vender em Numerário, trocar e negociar em Blockchain.com.</
     <string name="trading_albert_error">Ups! Alguma coisa correu mal. Por favor, tente novamente.</string>
     <string name="backup_wallet_title">Recuperação da Chave Privada Secreta</string>
     <string name="recovery_passphrase_1">Frase de Recuperação de Chave Privada Secreta</string>
-    <string name="backup_title">Recuperação da Chave Privada Secreta</string>
     <string name="backup_subtitle">Frase de Recuperação de Chave Privada Secreta</string>
     <string name="recovery_card_title_1">Frase de Recuperação de Chave Privada Secreta</string>
     <string name="address_line_1">Linha de Morada 1</string>

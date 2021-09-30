@@ -93,7 +93,6 @@
     <string name="recover_funds_instructions">Paranızı ve işlemlerinizi kurtarmak için 12 kelimelik kurtarma şifrenizi
         boşluklarla girin
     </string>
-    <string name="recovery_passphrase">Yedekleme ifadesi</string>
     <string name="invalid_recovery_phrase">Geçersiz yedekleme ifadesi. Lütfen tekrar deneyin</string>
     <string name="creating_wallet">Cüzdan oluşturuluyor</string>
     <string name="restore_failed">Cüzdan kurtarma başarısız oldu. Lütfen tekrar deneyin</string>
@@ -336,7 +335,7 @@ Genişletilmiş ortak anahtarınızı gizli tutun.
 Bunun yerine
         başka kimlik doğrulama yöntemlerini kullanmak için lütfen %1$s adresinde Web Wallet\'a giriş yapın.
     </string>
-    <string name="rate_title">Rate Blockchain Cüzdanı</string>
+
     <string name="rate_message">Blockchain Wallet\'tan memnun musunuz? App Store\'da yorum yapıp
         başkalarını da bilgilendirmek için lütfen kısa bir zaman ayırın.
     </string>
@@ -385,7 +384,6 @@ Başkalarıyla paylaşmayın.</string>
         ufak tutarlardaki birçok ödemenin cüzdanınızda birleştirilmesi gerekiyor. Bu işlemin
         hızlı bir şekilde onaylanması için nispeten yükek bir ücret alınır.
     </string>
-    <string name="accept_higher_fee">Daha yüksek ücret kabul et</string>
     <string name="push_notifications">Push bildirimleri</string>
     <string name="push_notifications_summary">Bitcoin aldığınızda beliren bildirim almak için
         bildirimleri etkinleştirin.
@@ -424,7 +422,6 @@ Başkalarıyla paylaşmayın.</string>
 
 Devam etmek için parmak izini onaylayın
     </string>
-    <string name="fingerprint_description">Devam etmek için parmak izini onaylayın</string>
     <string name="fingerprint_hint">Dokunmatik sensör</string>
     <string name="fingerprint_login_title">Biyometrik giriş</string>
     <string name="fingerprint_not_recognized">Parmak izin tanınmadı. Tekrar deneyin</string>
@@ -437,10 +434,6 @@ Devam etmek için parmak izini onaylayın
          veya tuş kilidi devre dışı bırakılmış
     </string>
     <string name="fingerprint_key_invalidated_brief">Anahtarlar geçersiz kılınmış, PIN kodu gerekli </string>
-    <string name="fingerprint_fatal_error_register_description">Son 30 dakika için çok fazla
-         başarısız deneme oldu. Lütfen kurulumu daha sonra tekrar deneyin.
-    </string>
-    <string name="fingerprint_fatal_error_authenticate_description">Çok fazla başarısız giriş denemesi oldu. Lütfen bunun yerine PIN kodunuzu kullanarak giriş yapın.</string>
     <string name="fingerprint_fatal_error_brief">Beklenmedik hata</string>
     <string name="shortcut_receive_copy_long">Alıcı adresi başka bir uygulamaya kopyala</string>
     <string name="shortcut_receive_qr_short">Alıcı QR\'ı Göster</string>
@@ -859,7 +852,6 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="send_confirmation_tx_fee">İşlem ücreti</string>
     <string name="transfer_amount">Transfer Tutarı</string>
     <string name="common_try_again">Tekrar deneyin</string>
-    <string name="upgrade_wallet">Yükselt</string>
     <string name="activity_details_value">değer</string>
     <string name="common_yes">Evet</string>
     <string name="send_confirmation_deposit_cta_button">Aktarımı Onayla</string>
@@ -1935,7 +1927,6 @@ Bu sırada Blockchain.com üzerinden nakde geçebilir veya Swap ve Trade işlemi
     <string name="learn_more">Daha fazla bilgi edinin</string>
     <string name="activity_details_buy_deposited_to">yatırılan</string>
 
-    <string name="item_backup">Yedek fonlar</string>
     <string name="manual_pairing">Manuel Eşleştirme</string>
     <string name="wallet_id">Cüzdan Kimliği</string>
     <string name="new_account_title">Bir Hesap Oluştur</string>
@@ -2066,10 +2057,7 @@ Bu sırada Blockchain.com üzerinden nakde geçebilir veya Swap ve Trade işlemi
     <string name="min_with_value">En Az %1$s</string>
     <string name="max_with_value">En Fazla %1$s</string>
     <string name="common_continue">Devam et</string>
-    <plurals name="transfer_label_plural">
-        <item quantity="one">Boş</item>
-        <item quantity="other">İçe aktarılan %d adres</item>
-    </plurals>
+
     <string name="remote_save_failed">Kaydetme başarısız oldu</string>
     <string name="security_locked_card_funds_explanation">Güvenliğiniz için, ilk kez kart satın alımları, satın aldığınız kriptoyu göndermeden veya çekmeden önce %1$s günlük bir tutma süresine tabidir. Blokaj kaldırıldığında sizi bilgilendireceğiz.
 
@@ -2082,7 +2070,6 @@ Bu arada, Blockchain.com\'da Nakit karşılığı satış yapabilir, takas ve i�
     <string name="trading_albert_error">Hay aksi! Bir şeyler ters gitti. Lütfen tekrar deneyin.</string>
     <string name="backup_wallet_title">Gizli Özel Anahtar Kurtarma</string>
     <string name="recovery_passphrase_1">Gizli Özel Anahtar Kurtarma İfadesi</string>
-    <string name="backup_title">Gizli Özel Anahtar Kurtarma</string>
     <string name="backup_subtitle">Gizli Özel Anahtar Kurtarma İfadesi</string>
     <string name="recovery_card_title_1">Gizli Özel Anahtar Kurtarma İfadesi</string>
     <string name="address_line_1">Adres Satırı 1</string>
