@@ -392,7 +392,7 @@ class Erc20DataManagerTest {
             name = "Dummies",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
-            l2chain = ETHER,
+            l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456"
@@ -404,7 +404,7 @@ class Erc20DataManagerTest {
             name = "Whatevs",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
-            l2chain = ETHER,
+            l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456"

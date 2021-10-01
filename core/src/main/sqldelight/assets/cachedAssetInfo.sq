@@ -1,0 +1,42 @@
+CREATE TABLE cachedAssetInfo (
+    networkTicker TEXT NOT NULL,
+    isFiat INTEGER AS Boolean DEFAULT 0 NOT NULL,
+    displayTicker TEXT NOT NULL,
+    name TEXT NOT NULL,
+    categories TEXT NOT NULL,
+    precisionDp INTEGER AS Int NOT NULL,
+    requiredConfirmations INTEGER AS Int NOT NULL,
+    l1chain TEXT DEFAULT NULL,
+    l2identifier TEXT DEFAULT NULL,
+    colour TEXT NOT NULL,
+    logo TEXT NOT NULL,
+    txExplorerUrlBase TEXT DEFAULT NULL,
+    PRIMARY KEY (networkTicker, isFiat, l1chain, l2identifier)
+);
+
+selectAll:
+SELECT * FROM cachedAssetInfo;
+
+selectFiat:
+SELECT * FROM cachedAssetInfo WHERE isFiat == 1;
+
+selectCrypto:
+SELECT * FROM cachedAssetInfo WHERE isFiat == 0;
+
+upsert:
+INSERT OR REPLACE INTO cachedAssetInfo(
+    displayTicker,
+    networkTicker,
+    name,
+    categories,
+    precisionDp,
+    requiredConfirmations,
+    l1chain,
+    l2identifier,
+    colour,
+    logo,
+    txExplorerUrlBase
+) VALUES ?;
+
+clear:
+DELETE FROM cachedAssetInfo;

@@ -1,13 +1,13 @@
-package com.blockchain.data.activity.historicRate
+package com.blockchain.core.price.historic
 
+import com.blockchain.core.Database
 import com.blockchain.core.price.ExchangeRate
 import com.squareup.sqldelight.runtime.rx3.asObservable
 import com.squareup.sqldelight.runtime.rx3.mapToOne
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.Database
 
-class HistoricRateLocalSource(private val database: Database) {
+internal class HistoricRateLocalSource(private val database: Database) {
     fun get(
         selectedFiat: String,
         asset: AssetInfo,

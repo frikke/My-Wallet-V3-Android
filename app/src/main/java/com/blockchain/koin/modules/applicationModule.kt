@@ -7,6 +7,7 @@ import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
+import com.blockchain.core.Database
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
@@ -35,7 +36,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.binds
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.Database
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
@@ -806,9 +806,11 @@ val applicationModule = module {
 
     factory { FormatChecker() }
 
-    single<SqlDriver> { AndroidSqliteDriver(Database.Schema, get(), "cache.db") }
-
-    single {
-        Database(get())
+    single<SqlDriver> {
+        AndroidSqliteDriver(
+            schema = Database.Schema,
+            context = get(),
+            name = "cache.db"
+        )
     }
 }

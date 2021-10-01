@@ -573,7 +573,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             name = "Dummies",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
-            l2chain = CryptoCurrency.ETHER,
+            l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456"

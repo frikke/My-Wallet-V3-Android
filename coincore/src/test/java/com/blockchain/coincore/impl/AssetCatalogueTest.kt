@@ -13,6 +13,7 @@ import org.junit.Test
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
 import com.blockchain.coincore.loader.RemoteFeature
+import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 class AssetCatalogueTest {
@@ -29,7 +30,10 @@ class AssetCatalogueTest {
         on { featuresFor(anyOrNull()) }.thenReturn(setOf(RemoteFeature.Balance))
     }
 
+    private val assetsManager: DynamicAssetsDataManager = mock()
+
     private val subject = AssetCatalogueImpl(
+        assetsDataManager = assetsManager,
         featureConfig = featureConfig
     )
 

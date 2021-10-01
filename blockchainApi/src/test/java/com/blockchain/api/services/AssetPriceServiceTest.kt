@@ -1,13 +1,10 @@
-package com.blockchain.api
+package com.blockchain.api.services
 
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.assetprice.data.AssetPriceDto
 import com.blockchain.api.assetprice.data.AvailableSymbolsDto
 import com.blockchain.api.assetprice.data.PriceRequestPairDto
 import com.blockchain.api.assetprice.data.PriceSymbolDto
-import com.blockchain.api.services.AssetPriceService
-import com.blockchain.api.services.AssetSymbol
-import com.blockchain.api.services.PriceTimescale
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

@@ -3,7 +3,7 @@ package com.blockchain.core.price.impl
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.rx.ParameteredMappedSinglesTimedRequests
+import com.blockchain.caching.ParameteredMappedSinglesTimedRequests
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar

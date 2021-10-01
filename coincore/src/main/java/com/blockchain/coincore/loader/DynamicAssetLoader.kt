@@ -12,7 +12,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
@@ -167,7 +166,7 @@ internal class DynamicAssetLoader(
     }
 
     private fun loadErc20Asset(assetInfo: AssetInfo): CryptoAsset {
-        require(assetInfo.l2chain == CryptoCurrency.ETHER)
+        require(assetInfo.isErc20())
         require(assetInfo.isCustodial)
         require(assetInfo.isNonCustodial)
 

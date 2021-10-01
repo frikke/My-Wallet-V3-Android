@@ -44,7 +44,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.Database
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.coincore.AssetAction
@@ -52,6 +51,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.core.Database
 import piuk.blockchain.android.databinding.ActivityMainBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.scan.QrScanError
@@ -463,6 +463,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             .setPositiveButton(R.string.btn_logout) { _, _ ->
                 analytics.logEvent(AnalyticsEvents.Logout)
                 presenter.unPair()
+                // We probably don't need to clear these, since the cached values remain valid, TODO Review this
                 database.historicRateQueries.clear()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -653,6 +654,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun logout() {
         analytics.logEvent(AnalyticsEvents.Logout)
         presenter.unPair()
+        // We probably don't need to clear these, since the cached values remain valid, TODO Review this
         database.historicRateQueries.clear()
     }
 

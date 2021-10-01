@@ -1,6 +1,5 @@
 package piuk.blockchain.android
 
-import piuk.blockchain.core.BuildConfig
 import piuk.blockchain.android.util.AppUtil
 import timber.log.Timber
 

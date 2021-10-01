@@ -1,5 +1,6 @@
-package com.blockchain.api
+package com.blockchain.api.services
 
+import com.blockchain.api.ApiException
 import com.blockchain.api.bitcoin.BitcoinApi
 import com.blockchain.api.bitcoin.data.AddressSummary
 import com.blockchain.api.bitcoin.data.BalanceDto
@@ -13,7 +14,6 @@ import com.blockchain.api.bitcoin.data.Transaction
 import com.blockchain.api.bitcoin.data.UnspentOutputDto
 import com.blockchain.api.bitcoin.data.UnspentOutputsDto
 import com.blockchain.api.bitcoin.data.XpubDto
-import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.testutils.FakeHttpExceptionFactory
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

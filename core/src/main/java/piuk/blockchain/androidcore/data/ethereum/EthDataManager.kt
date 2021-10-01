@@ -3,7 +3,6 @@ package piuk.blockchain.androidcore.data.ethereum
 import com.blockchain.logging.LastTxUpdater
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isErc20
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthAccountApi
@@ -291,7 +290,7 @@ class EthDataManager(
         )
 
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData {
-        require(asset.l2chain == CryptoCurrency.ETHER)
+        require(asset.isErc20())
         require(asset.l2identifier != null)
         val name = asset.networkTicker.lowercase()
 

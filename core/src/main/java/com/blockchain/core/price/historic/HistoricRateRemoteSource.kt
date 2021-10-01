@@ -1,11 +1,11 @@
-package com.blockchain.data.activity.historicRate
+package com.blockchain.core.price.historic
 
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
-class HistoricRateRemoteSource(private val exchangeRates: ExchangeRatesDataManager) {
+internal class HistoricRateRemoteSource(private val exchangeRates: ExchangeRatesDataManager) {
     fun get(asset: AssetInfo, timeStampMs: Long): Single<ExchangeRate> {
         return exchangeRates.getHistoricRate(
             fromAsset = asset,

@@ -2,6 +2,7 @@ package com.blockchain.api
 
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
+import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
@@ -13,6 +14,7 @@ import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.paymentMethods.PaymentMethodsApi
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.AssetDiscoveryService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
 import com.blockchain.api.services.CustodialBalanceService
@@ -37,6 +39,12 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 val blockchainApi = StringQualifier("blockchain-api")
 val explorerApi = StringQualifier("explorer-api")
 val nabuApi = StringQualifier("nabu-api")
+val assetsApi = StringQualifier("assets-api")
+
+private val json = Json {
+    ignoreUnknownKeys = true
+    isLenient = true
+}
 
 val blockchainApiModule = module {
 
@@ -47,12 +55,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("blockchain-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(
-                Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                }.asConverterFactory("application/json".toMediaType())
-            )
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
@@ -61,12 +64,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("explorer-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(
-                Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                }.asConverterFactory("application/json".toMediaType())
-            )
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
@@ -75,12 +73,21 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("nabu-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    single(assetsApi) {
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("blockchain-api"))
+            .client(get())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addConverterFactory(
                 Json {
                     ignoreUnknownKeys = true
                     isLenient = true
-                }.asConverterFactory("application/json".toMediaType())
-            )
+                    classDiscriminator = "name"
+                }.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
@@ -95,6 +102,14 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(blockchainApi).create(EthereumApiInterface::class.java)
         NonCustodialErc20Service(
+            api,
+            getProperty("api-code")
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(assetsApi).create(AssetDiscoveryApiInterface::class.java)
+        AssetDiscoveryService(
             api,
             getProperty("api-code")
         )

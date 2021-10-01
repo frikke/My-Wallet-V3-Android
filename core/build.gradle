@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.novoda.build-properties'
 apply from: '../quality/ktlint.gradle'
+apply plugin: 'com.squareup.sqldelight'
 
 buildProperties {
     secrets {
@@ -73,6 +74,10 @@ dependencies {
     implementation Libraries.koin
     implementation Libraries.cardForm
     implementation Libraries.rxRelay
+
+    // Database
+    implementation Libraries.sqlDelight
+    implementation Libraries.rxSqlDelight
 
     // Logging
     implementation Libraries.timber

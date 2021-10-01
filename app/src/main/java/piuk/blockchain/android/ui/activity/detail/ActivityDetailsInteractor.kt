@@ -35,7 +35,7 @@ import com.blockchain.coincore.erc20.Erc20ActivitySummaryItem
 import com.blockchain.coincore.eth.EthActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.coincore.xlm.XlmActivitySummaryItem
-import com.blockchain.data.activity.historicRate.HistoricRateFetcher
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.util.StringUtils
 import java.text.ParseException

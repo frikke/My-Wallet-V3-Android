@@ -43,7 +43,7 @@ private object DUMMY_ERC20_1 : CryptoCurrency(
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
     requiredConfirmations = 5,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = DUMMY_ERC20_1_CONTRACT_ADDRESS,
     colour = "#123456"
 )
@@ -57,7 +57,7 @@ private object DUMMY_ERC20_2 : CryptoCurrency(
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
     requiredConfirmations = 5,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0xF0DF0DF0DF0DF0DF0DFAD",
     colour = "#123456"
 )

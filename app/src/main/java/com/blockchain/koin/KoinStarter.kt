@@ -18,7 +18,7 @@ import com.blockchain.notifications.koin.notificationModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
 import com.blockchain.coincore.coincoreModule
-import com.blockchain.koin.modules.featureActivitiesModule
+import com.blockchain.core.price.pricesModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -51,41 +51,43 @@ object KoinStarter {
             if (BuildConfig.LOG_KOIN_STARTUP) TimberLogger() else NullLogger()
             properties(appProperties + keys + urls)
             androidContext(application)
-            modules(listOf(
-                activitiesModule,
-                apiInterceptorsModule,
-                apiModule,
-                blockchainApiModule,
-                applicationModule,
-                dashboardModule,
-                campaignModule,
-                bitpayModule,
-                coincoreModule,
-                transactionModule,
-                okHttpModule,
-                coreModule,
-                dashboardAnnouncementsModule,
-                environmentModule,
-                featureFlagsModule,
-                internalFeatureFlagsModule,
-                authenticationModule,
-                kycUiModule,
-                kycUiNabuModule,
-                loginUiModule,
-                moshiModule,
-                nabuModule,
-                nabuUrlModule,
-                notificationModule,
-                resetAccountModule,
-                secureChannelModule,
-                serviceModule,
-                startupUiModule,
-                sunriverModule,
-                walletModule,
-                xlmModule,
-                featureActivitiesModule,
-                kycAutocompleteModule
-            ))
+            modules(
+                listOf(
+                    activitiesModule,
+                    apiInterceptorsModule,
+                    apiModule,
+                    blockchainApiModule,
+                    applicationModule,
+                    dashboardModule,
+                    campaignModule,
+                    bitpayModule,
+                    coincoreModule,
+                    transactionModule,
+                    okHttpModule,
+                    coreModule,
+                    pricesModule,
+                    dashboardAnnouncementsModule,
+                    environmentModule,
+                    featureFlagsModule,
+                    internalFeatureFlagsModule,
+                    authenticationModule,
+                    kycUiModule,
+                    kycUiNabuModule,
+                    loginUiModule,
+                    moshiModule,
+                    nabuModule,
+                    nabuUrlModule,
+                    notificationModule,
+                    resetAccountModule,
+                    secureChannelModule,
+                    serviceModule,
+                    startupUiModule,
+                    sunriverModule,
+                    walletModule,
+                    xlmModule,
+                    kycAutocompleteModule
+                )
+            )
         }
     }
 }

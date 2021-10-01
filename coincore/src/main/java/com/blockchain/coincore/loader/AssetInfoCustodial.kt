@@ -171,7 +171,7 @@ internal object OGN : CryptoCurrency(
     name = "Origin Token (OGN)",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -185,7 +185,7 @@ internal object ENJ : CryptoCurrency(
     name = "Enjin Coin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0xF629cBd94d3791C9250152BD8dfBDF380E2a3B9c",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -199,7 +199,7 @@ internal object COMP : CryptoCurrency(
     name = "Compound",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0xc00e94Cb662C3520282E6f5717214004A7f26888",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -213,7 +213,7 @@ internal object LINK : CryptoCurrency(
     name = "Chainlink",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x514910771AF9Ca656af840dff83E8264EcF986CA",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -227,7 +227,7 @@ internal object TBTC : CryptoCurrency(
     name = "tBTC",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -241,7 +241,7 @@ internal object WBTC : CryptoCurrency(
     name = "Wrapped Bitcoin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 8,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -255,7 +255,7 @@ internal object SNX : CryptoCurrency(
     name = "Synthetix Network Token",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -269,7 +269,7 @@ internal object SUSHI : CryptoCurrency(
     name = "Sushi",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -283,7 +283,7 @@ internal object ZRX : CryptoCurrency(
     name = "ZRX",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -297,7 +297,7 @@ internal object USDC : CryptoCurrency(
     name = "USD Coin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 6,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     requiredConfirmations = 12, // Same as ETHER
     colour = "#2775CA",
@@ -310,7 +310,7 @@ internal object UNI : CryptoCurrency(
     name = "Uniswap",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -324,7 +324,7 @@ internal object DAI : CryptoCurrency(
     name = "Dai Stablecoin",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -338,7 +338,7 @@ internal object BAT : CryptoCurrency(
     name = "Basic Attention Token",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x0D8775F648430679A709E98d2b0Cb6250d2887EF",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC

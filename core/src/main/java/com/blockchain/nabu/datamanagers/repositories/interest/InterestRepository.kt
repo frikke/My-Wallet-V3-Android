@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers.repositories.interest
 
-import com.blockchain.rx.TimedCacheRequest
+import com.blockchain.caching.TimedCacheRequest
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 

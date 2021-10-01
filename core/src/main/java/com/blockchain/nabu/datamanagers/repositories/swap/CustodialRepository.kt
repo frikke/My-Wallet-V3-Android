@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers.repositories.swap
 
-import com.blockchain.rx.TimedCacheRequest
+import com.blockchain.caching.TimedCacheRequest
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransferDirection
 import info.blockchain.balance.AssetInfo

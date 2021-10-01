@@ -16,11 +16,6 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
 import com.blockchain.core.paymentMethods.PaymentMethodsDataManager
 import com.blockchain.core.paymentMethods.PaymentMethodsDataManagerImpl
-import com.blockchain.core.price.ExchangeRates
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.price.impl.AssetPriceStore
-import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
-import com.blockchain.core.price.impl.SparklineCallCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
@@ -52,11 +47,14 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import com.blockchain.core.BuildConfig
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
+import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
+import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -92,7 +90,8 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
-import piuk.blockchain.core.BuildConfig
+import com.blockchain.core.Database
+import com.blockchain.core.dynamicassets.impl.AssetInfoCache
 import java.util.UUID
 
 val coreModule = module {
@@ -303,28 +302,18 @@ val coreModule = module {
     }
 
     factory {
-        SparklineCallCache(
-            priceService = get()
+        AssetInfoCache(
+            database = get()
         )
     }
 
     single {
-        ExchangeRatesDataManagerImpl(
-            priceStore = get(),
-            sparklineCall = get(),
-            assetPriceService = get(),
-            currencyPrefs = get()
+        DynamicAssetsDataManagerImpl(
+            discoveryService = get(),
+            currencyPrefs = get(),
+            cache = get()
         )
-    }.bind(ExchangeRatesDataManager::class)
-        .bind(ExchangeRates::class)
-
-    factory {
-        AssetPriceStore(
-            assetPriceService = get(),
-            assetCatalogue = get(),
-            prefs = get()
-        )
-    }
+    }.bind(DynamicAssetsDataManager::class)
 
     factory {
         AndroidDeviceIdGenerator(
@@ -415,4 +404,8 @@ val coreModule = module {
     }.bind(LogoutTimer::class)
 
     factory { AESUtilWrapper() }
+
+    single {
+        Database(driver = get())
+    }
 }

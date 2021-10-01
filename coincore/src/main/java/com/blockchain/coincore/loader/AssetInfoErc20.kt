@@ -9,7 +9,7 @@ internal object PAX : CryptoCurrency(
     name = "Paxos Standard",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x8E870D67F660D95d5be530380D0eC0bd388289E1",
     requiredConfirmations = 12, // Same as ETHER
     colour = "#00522C",
@@ -23,7 +23,7 @@ internal object USDT : CryptoCurrency(
     name = "Tether",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 6,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     requiredConfirmations = 12, // Same as ETHER
     colour = "#26A17B",
@@ -38,7 +38,7 @@ internal object WDGLD : CryptoCurrency(
     name = "Wrapped-DGLD",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 8,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x123151402076fc819b7564510989e475c9cd93ca",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1576108800L, // 2019-12-12 00:00:00 UTC
@@ -53,7 +53,7 @@ internal object AAVE : CryptoCurrency(
     name = "Aave",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
@@ -68,7 +68,7 @@ internal object YFI : CryptoCurrency(
     name = "YFI", // TODO Check name
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1615831200L, // Same as AAVE
