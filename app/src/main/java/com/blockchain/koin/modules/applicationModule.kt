@@ -56,8 +56,10 @@ import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
+import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
+import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
@@ -90,6 +92,7 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.home.MainPresenter
+import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVeriffModel
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerifyInteractor
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -105,9 +108,6 @@ import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
-import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
-import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -127,7 +127,7 @@ import piuk.blockchain.android.util.OSUtil
 import piuk.blockchain.android.util.ResourceDefaultLabels
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
@@ -143,7 +143,9 @@ val applicationModule = module {
         AppUtil(
             context = get(),
             payloadManager = get(),
-            prefs = get()
+            prefs = get(),
+            trust = get(),
+            pinRepository = get()
         )
     }
 
@@ -191,7 +193,6 @@ val applicationModule = module {
         scoped {
             CredentialsWiper(
                 payloadManagerWiper = get(),
-                accessState = get(),
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
@@ -205,8 +206,8 @@ val applicationModule = module {
         factory {
             MainPresenter(
                 prefs = get(),
-                accessState = get(),
                 assetCatalogue = get(),
+                appUtil = get(),
                 credentialsWiper = get(),
                 payloadDataManager = get(),
                 qrProcessor = get(),
@@ -259,7 +260,7 @@ val applicationModule = module {
                 rxBus = get(),
                 prefs = get(),
                 appUtil = get(),
-                accessState = get(),
+                pinRepository = get(),
                 assetCatalogue = get()
             )
         }.bind(CoinsWebSocketInterface::class)
@@ -571,7 +572,7 @@ val applicationModule = module {
                 payloadManager = get(),
                 payloadDataManager = get(),
                 prefs = get(),
-                accessState = get(),
+                pinRepository = get(),
                 custodialWalletManager = get(),
                 notificationTokenManager = get(),
                 exchangeRates = get(),
@@ -592,7 +593,7 @@ val applicationModule = module {
                 prefs = get(),
                 payloadDataManager = get(),
                 defaultLabels = get(),
-                accessState = get(),
+                pinRepository = get(),
                 walletOptionsDataManager = get(),
                 specificAnalytics = get(),
                 mobileNoticeRemoteConfig = get(),
@@ -643,7 +644,7 @@ val applicationModule = module {
         factory {
             OnboardingPresenter(
                 biometricsController = get(),
-                accessState = get(),
+                pinRepository = get(),
                 settingsDataManager = get()
             )
         }
@@ -702,7 +703,7 @@ val applicationModule = module {
         }
 
         factory {
-            WalletBiometricData(get<AccessState>().pin)
+            WalletBiometricData(get<PinRepository>().pin)
         }.bind(WalletBiometricData::class)
 
         scoped {
@@ -750,7 +751,7 @@ val applicationModule = module {
 
         scoped {
             PlacesClientProvider(
-                    context = get()
+                context = get()
             )
         }
     }

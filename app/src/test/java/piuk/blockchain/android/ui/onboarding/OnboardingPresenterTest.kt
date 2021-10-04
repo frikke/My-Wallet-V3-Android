@@ -13,14 +13,14 @@ import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class OnboardingPresenterTest {
 
     private lateinit var subject: OnboardingPresenter
     private val mockBiometricsController: BiometricsController = mock()
-    private val mockAccessState: AccessState = mock()
+    private val mockPinRepository: PinRepository = mock()
     private val mockSettingsDataManager: SettingsDataManager = mock()
     private val view: OnboardingView = mock()
 
@@ -28,7 +28,7 @@ class OnboardingPresenterTest {
     fun setUp() {
         subject = OnboardingPresenter(
             mockBiometricsController,
-            mockAccessState,
+            mockPinRepository,
             mockSettingsDataManager
         )
         subject.initView(view)
@@ -77,14 +77,14 @@ class OnboardingPresenterTest {
         val captor = argumentCaptor<String>()
         val pin = "1234"
         whenever(mockBiometricsController.isBiometricAuthEnabled).thenReturn(true)
-        whenever(mockAccessState.pin).thenReturn(pin)
+        whenever(mockPinRepository.pin).thenReturn(pin)
         // Act
         subject.onEnableFingerprintClicked()
         // Assert
         verify(mockBiometricsController).isBiometricAuthEnabled
         verifyNoMoreInteractions(mockBiometricsController)
-        verify(mockAccessState).pin
-        verifyNoMoreInteractions(mockAccessState)
+        verify(mockPinRepository).pin
+        verifyNoMoreInteractions(mockPinRepository)
         verify(view).showFingerprintDialog(captor.capture())
         verifyNoMoreInteractions(view)
         captor.firstValue shouldEqual pin
@@ -94,14 +94,14 @@ class OnboardingPresenterTest {
     fun onEnableFingerprintClickedNoPinFound() {
         // Arrange
         whenever(mockBiometricsController.isBiometricAuthEnabled).thenReturn(true)
-        whenever(mockAccessState.pin).thenReturn("")
+        whenever(mockPinRepository.pin).thenReturn("")
         // Act
         subject.onEnableFingerprintClicked()
         // Assert
         verify(mockBiometricsController).isBiometricAuthEnabled
         verifyNoMoreInteractions(mockBiometricsController)
-        verify(mockAccessState, times(3)).pin
-        verifyNoMoreInteractions(mockAccessState)
+        verify(mockPinRepository, times(3)).pin
+        verifyNoMoreInteractions(mockPinRepository)
         verifyZeroInteractions(view)
     }
 
@@ -118,7 +118,7 @@ class OnboardingPresenterTest {
         verifyNoMoreInteractions(mockBiometricsController)
         verify(view).showEnrollFingerprintsDialog()
         verifyNoMoreInteractions(view)
-        verifyZeroInteractions(mockAccessState)
+        verifyZeroInteractions(mockPinRepository)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -133,7 +133,7 @@ class OnboardingPresenterTest {
         verify(mockBiometricsController).isHardwareDetected
         verifyNoMoreInteractions(mockBiometricsController)
         verifyZeroInteractions(view)
-        verifyZeroInteractions(mockAccessState)
+        verifyZeroInteractions(mockPinRepository)
     }
 
     @Test

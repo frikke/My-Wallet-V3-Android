@@ -33,5 +33,5 @@ interface WalletStatus {
 
     var isNewlyCreated: Boolean
     var isRestored: Boolean
-    var isLoggedOut: Boolean
+    var isLoggedIn: Boolean
 }

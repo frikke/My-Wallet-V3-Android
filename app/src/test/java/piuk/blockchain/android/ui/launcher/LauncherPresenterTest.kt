@@ -25,7 +25,7 @@ import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
@@ -106,7 +106,7 @@ class LauncherPresenterTest {
         )
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
+        whenever(prefsUtil.isLoggedIn).thenReturn(true)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
         whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
@@ -114,7 +114,6 @@ class LauncherPresenterTest {
         val mockSettings: Settings = mock()
         whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.just(mockSettings))
         whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
 
         whenever(wallet.guid).thenReturn(WALLET_GUID)
         whenever(wallet.sharedKey).thenReturn(SHARED_KEY)
@@ -145,10 +144,9 @@ class LauncherPresenterTest {
 
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
+        whenever(prefsUtil.isLoggedIn).thenReturn(true)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
         whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
         whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.error(Throwable()))
         whenever(wallet.guid).thenReturn(WALLET_GUID)
@@ -179,10 +177,9 @@ class LauncherPresenterTest {
         )
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn("1234567890")
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
+        whenever(prefsUtil.isLoggedIn).thenReturn(true)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
 
         whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
 
@@ -218,7 +215,7 @@ class LauncherPresenterTest {
         )
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn("1234567890")
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
+        whenever(prefsUtil.isLoggedIn).thenReturn(true)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
 
@@ -230,7 +227,7 @@ class LauncherPresenterTest {
     }
 
     /**
-     * Everything is fine, but PIN not validated. However, [AccessState] returns logged in.
+     * Everything is fine, but PIN not validated. However, [PinRepository] returns logged in.
      */
     @Test
     fun onViewReadyPinValidatedAndLoggedIn() {
@@ -243,9 +240,9 @@ class LauncherPresenterTest {
         )
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn("1234567890")
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
+        whenever(prefsUtil.isLoggedIn).thenReturn(true)
         whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
         val mockSettings: Settings = mock()
         whenever(prerequisites.initSettings(WALLET_GUID, SHARED_KEY)).thenReturn(Single.just(mockSettings))
@@ -260,7 +257,7 @@ class LauncherPresenterTest {
         subject.onViewReady()
 
         // Assert
-        verify(prefsUtil).isLoggedOut
+        verify(prefsUtil).isLoggedIn
         verify(launcherActivity).onStartMainActivity(null, false)
     }
 
@@ -299,11 +296,15 @@ class LauncherPresenterTest {
         )
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn("")
+        whenever(prefsUtil.isLoggedIn).thenReturn(true)
 
         // Act
         subject.onViewReady()
 
         // Assert
+        verify(prefsUtil).walletGuid
+        verify(prefsUtil).isLoggedIn
+        verify(prefsUtil).pinId
         verify(launcherActivity).onRequestPin()
     }
 
@@ -318,12 +319,16 @@ class LauncherPresenterTest {
         )
         whenever(prefsUtil.pinId).thenReturn("1234")
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
+        whenever(prefsUtil.isLoggedIn).thenReturn(true)
         whenever(appUtil.isSane).thenReturn(false)
 
         // Act
         subject.onViewReady()
 
         // Assert
+        verify(prefsUtil).walletGuid
+        verify(prefsUtil).isLoggedIn
+        verify(prefsUtil).pinId
         verify(launcherActivity).onCorruptPayload()
     }
 
@@ -339,7 +344,7 @@ class LauncherPresenterTest {
         whenever(launcherActivity.getViewIntentData()).thenReturn(
             pinUnValidatedData
         )
-        whenever(prefsUtil.isLoggedOut).thenReturn(true)
+        whenever(prefsUtil.isLoggedIn).thenReturn(false)
         whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
 
         // Act

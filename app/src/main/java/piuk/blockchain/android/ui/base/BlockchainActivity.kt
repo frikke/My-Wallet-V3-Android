@@ -53,7 +53,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
             environment.isCompanyInternalBuild()
 
     protected open val enableLogoutTimer: Boolean = true
-    protected open var canAutoLogout = true
     private lateinit var logoutPendingIntent: PendingIntent
 
     private var alertDialog: AlertDialog? = null
@@ -228,23 +227,23 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     private fun startLogoutTimer() {
-        if (canAutoLogout) {
-            val intent = Intent(this, LogoutActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            intent.action = LOGOUT_ACTION
-            logoutPendingIntent = PendingIntent.getActivity(
-                    this,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                )
+        val intent = Intent(this, LogoutActivity::class.java)
+            .apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                action = LOGOUT_ACTION
+            }
+        logoutPendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
-            (getSystemService(Context.ALARM_SERVICE) as AlarmManager).set(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS,
-                logoutPendingIntent
-            )
-        }
+        (getSystemService(Context.ALARM_SERVICE) as AlarmManager).set(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS,
+            logoutPendingIntent
+        )
     }
 
     private fun stopLogoutTimer() {

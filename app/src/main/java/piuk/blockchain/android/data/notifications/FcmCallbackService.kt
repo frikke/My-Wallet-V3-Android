@@ -48,7 +48,7 @@ class FcmCallbackService : FirebaseMessagingService() {
             rxBus.emitEvent(NotificationPayload::class.java, payload)
             sendNotification(
                 payload = payload,
-                foreground = ApplicationLifeCycle.getInstance().isForeground && !walletPrefs.isLoggedOut
+                foreground = ApplicationLifeCycle.getInstance().isForeground && walletPrefs.isLoggedIn
             )
         } else {
             // If there is no data field, provide this default behaviour

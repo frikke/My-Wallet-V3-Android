@@ -63,7 +63,7 @@ class LogoutActivity : AppCompatActivity() {
 
         walletOptionsState.wipe()
 
-        walletPrefs.isLoggedOut = true
+        walletPrefs.isLoggedIn = false
         finishAffinity()
     }
 

@@ -14,7 +14,7 @@ import io.reactivex.rxjava3.exceptions.Exceptions
 import kotlinx.serialization.json.JsonObject
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
@@ -28,7 +28,7 @@ class AuthDataManager(
     private val prefs: PersistentPrefs,
     private val authApiService: AuthApiService,
     private val walletAuthService: WalletAuthService,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val aesUtilWrapper: AESUtilWrapper,
     private val crashLogger: CrashLogger
 ) {
@@ -194,7 +194,7 @@ class AuthDataManager(
         if (!passedPin.isValidPin()) {
             return Observable.error(IllegalArgumentException("Invalid PIN"))
         } else {
-            accessState.setPin(passedPin)
+            pinRepository.setPin(passedPin)
             crashLogger.logEvent("validatePin. pin set. validity: ${passedPin.isValidPin()}")
         }
 
@@ -255,7 +255,7 @@ class AuthDataManager(
         if (!passedPin.isValidPin()) {
             return Completable.error(IllegalArgumentException("Invalid PIN"))
         } else {
-            accessState.setPin(passedPin)
+            pinRepository.setPin(passedPin)
             crashLogger.logEvent("createPin. pin set. validity: ${passedPin.isValidPin()}")
         }
 

@@ -32,7 +32,7 @@ import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
@@ -49,7 +49,7 @@ class PinEntryPresenter(
     private val prefs: PersistentPrefs,
     private val payloadDataManager: PayloadDataManager,
     private val defaultLabels: DefaultLabels,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val mobileNoticeRemoteConfig: MobileNoticeRemoteConfig,
     private val crashLogger: CrashLogger,
@@ -84,7 +84,7 @@ class PinEntryPresenter(
         get() = prefs.pinId.isEmpty()
 
     private val isChangingPin: Boolean
-        get() = isCreatingNewPin && accessState.pin.isNotEmpty()
+        get() = isCreatingNewPin && pinRepository.pin.isNotEmpty()
 
     override fun onViewReady() {
         isForValidatingPinForResult = view.isForValidatingPinForResult
@@ -184,9 +184,10 @@ class PinEntryPresenter(
                         }
                     }
                 )
-
             // If user is changing their PIN and it matches their old one, disallow it
-            } else if (isChangingPin && userEnteredConfirmationPin == null && accessState.pin == userEnteredPin) {
+            } else if (isChangingPin && userEnteredConfirmationPin == null &&
+                pinRepository.pin == userEnteredPin
+            ) {
                 showErrorToast(R.string.change_pin_new_matches_current)
                 clearPinViewAndReset()
             } else {
@@ -323,7 +324,7 @@ class PinEntryPresenter(
             is InvalidCipherTextException -> {
                 // Password changed on web, needs re-pairing
                 crashLogger.logEvent("password changed elsewhere. Pin is reset")
-                accessState.clearPin()
+                pinRepository.clearPin()
                 appUtil.clearCredentials()
                 showFatalErrorToastAndRestart(R.string.password_changed_explanation, t)
             }
@@ -352,7 +353,7 @@ class PinEntryPresenter(
         prefs.removeValue(PersistentPrefs.KEY_PIN_FAILS)
         prefs.pinId = ""
         crashLogger.logEvent("new password. pin reset")
-        accessState.clearPin()
+        pinRepository.clearPin()
         view.restartPageAndClearTop()
     }
 
@@ -524,7 +525,7 @@ class PinEntryPresenter(
     }
 
     internal fun clearLoginState() {
-        accessState.logout()
+        appUtil.logout()
     }
 
     fun fetchInfoMessage() {

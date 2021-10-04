@@ -151,7 +151,7 @@ class CoinsWebSocketStrategyTest {
         gson = Gson(),
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,
-        accessState = mock(),
+        pinRepository = mock(),
         appUtil = mock(),
         prefs = prefs,
         rxBus = rxBus,

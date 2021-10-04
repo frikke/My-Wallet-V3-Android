@@ -22,7 +22,7 @@ import org.junit.Test
 import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.android.testutils.RxTest
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import retrofit2.Response
@@ -33,7 +33,7 @@ class AuthDataManagerTest : RxTest() {
     private val prefsUtil: PersistentPrefs = mock()
     private val authApiService: AuthApiService = mock()
     private val walletAuthService: WalletAuthService = mock()
-    private val accessState: AccessState = mock()
+    private val pinRepository: PinRepository = mock()
     private val aesUtilWrapper: AESUtilWrapper = mock()
     private val crashLogger: CrashLogger = mock()
 
@@ -45,7 +45,7 @@ class AuthDataManagerTest : RxTest() {
             prefsUtil,
             authApiService,
             walletAuthService,
-            accessState,
+            pinRepository,
             aesUtilWrapper,
             crashLogger
         )
@@ -139,10 +139,11 @@ class AuthDataManagerTest : RxTest() {
             .assertNoErrors()
 
         // Assert
-        verify(accessState).setPin(pin)
+        verify(pinRepository).setPin(pin)
         verify(prefsUtil).isNewlyCreated = false
         verify(prefsUtil).isRestored = false
-        verifyNoMoreInteractions(accessState)
+        verifyNoMoreInteractions(pinRepository)
+
         verify(prefsUtil).pinId
         verify(prefsUtil).hasBackup()
         verify(prefsUtil).backupEnabled
@@ -188,8 +189,8 @@ class AuthDataManagerTest : RxTest() {
         // Act
         val observer = subject.validatePin(pin).test()
         // Assert
-        verify(accessState).setPin(pin)
-        verifyNoMoreInteractions(accessState)
+        verify(pinRepository).setPin(pin)
+        verifyNoMoreInteractions(pinRepository)
         verify(prefsUtil).pinId
         verifyNoMoreInteractions(prefsUtil)
         verify(walletAuthService).validateAccess(key, pin)
@@ -210,7 +211,7 @@ class AuthDataManagerTest : RxTest() {
         val observer = subject.createPin(password, pin).test()
 
         // Assert
-        verifyZeroInteractions(accessState)
+        verifyZeroInteractions(pinRepository)
         verifyZeroInteractions(prefsUtil)
         verifyZeroInteractions(walletAuthService)
         verifyZeroInteractions(aesUtilWrapper)
@@ -247,8 +248,8 @@ class AuthDataManagerTest : RxTest() {
         val observer = subject.createPin(password, pin).test()
 
         // Assert
-        verify(accessState).setPin(pin)
-        verifyNoMoreInteractions(accessState)
+        verify(pinRepository).setPin(pin)
+        verifyNoMoreInteractions(pinRepository)
         verify(walletAuthService).setAccessKey(
             anyString(),
             anyString(),
@@ -294,8 +295,8 @@ class AuthDataManagerTest : RxTest() {
         // Act
         val observer = subject.createPin(password, pin).test()
         // Assert
-        verify(accessState).setPin(pin)
-        verifyNoMoreInteractions(accessState)
+        verify(pinRepository).setPin(pin)
+        verifyNoMoreInteractions(pinRepository)
         verify(walletAuthService).setAccessKey(
             anyString(),
             anyString(),

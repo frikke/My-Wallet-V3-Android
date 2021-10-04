@@ -47,7 +47,7 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
@@ -86,7 +86,7 @@ class PinEntryPresenterTest {
     }
 
     private val biometricsController: BiometricsController = mock()
-    private val accessState: AccessState = mock()
+    private val pinRepository: PinRepository = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
     private val mobileNoticeRemoteConfig: MobileNoticeRemoteConfig = mock()
     private val crashLogger: CrashLogger = mock()
@@ -108,7 +108,7 @@ class PinEntryPresenterTest {
             prefs = prefsUtil,
             payloadDataManager = payloadManager,
             defaultLabels = defaultLabels,
-            accessState = accessState,
+            pinRepository = pinRepository,
             walletOptionsDataManager = walletOptionsDataManager,
             mobileNoticeRemoteConfig = mobileNoticeRemoteConfig,
             crashLogger = crashLogger,
@@ -303,7 +303,7 @@ class PinEntryPresenterTest {
         // Arrange
         subject.userEnteredPin = "258"
         whenever(prefsUtil.pinId).thenReturn("")
-        whenever(accessState.pin).thenReturn("2580")
+        whenever(pinRepository.pin).thenReturn("2580")
 
         // Act
         subject.onPadClicked("0")
@@ -432,7 +432,7 @@ class PinEntryPresenterTest {
         verify(authDataManager).validatePin(anyString())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
         verify(view).showToast(anyInt(), anyString())
-        verify(accessState).clearPin()
+        verify(pinRepository).clearPin()
         verify(appUtil).clearCredentials()
         verify(appUtil).restartApp()
         verify(prefsUtil).sharedKey
@@ -492,7 +492,7 @@ class PinEntryPresenterTest {
         whenever(prefsUtil.pinId).thenReturn("")
         whenever(authDataManager.createPin(anyString(), anyString())).thenReturn(Completable.complete())
         whenever(authDataManager.validatePin(anyString())).thenReturn(Observable.just("password"))
-        whenever(accessState.pin).thenReturn("1337")
+        whenever(pinRepository.pin).thenReturn("1337")
 
         // Act
         subject.onPadClicked("7")
@@ -513,7 +513,7 @@ class PinEntryPresenterTest {
         whenever(prefsUtil.pinId).thenReturn("")
         whenever(authDataManager.createPin(anyString(), anyString())).thenReturn(Completable.error(Throwable()))
 
-        whenever(accessState.pin).thenReturn("")
+        whenever(pinRepository.pin).thenReturn("")
 
         // Act
         subject.onPadClicked("7")
@@ -533,7 +533,7 @@ class PinEntryPresenterTest {
         subject.userEnteredPin = "133"
         whenever(prefsUtil.pinId).thenReturn("")
         whenever(authDataManager.createPin(anyString(), anyString())).thenReturn(Completable.complete())
-        whenever(accessState.pin).thenReturn("")
+        whenever(pinRepository.pin).thenReturn("")
 
         // Act
         subject.onPadClicked("7")
@@ -550,7 +550,7 @@ class PinEntryPresenterTest {
         subject.userEnteredConfirmationPin = "1234"
         whenever(prefsUtil.pinId).thenReturn("")
         whenever(authDataManager.createPin(anyString(), anyString())).thenReturn(Completable.complete())
-        whenever(accessState.pin).thenReturn("")
+        whenever(pinRepository.pin).thenReturn("")
 
         // Act
         subject.onPadClicked("7")
@@ -585,7 +585,7 @@ class PinEntryPresenterTest {
         verify(view).showToast(anyInt(), anyString())
         verify(prefsUtil).removeValue(PersistentPrefs.KEY_PIN_FAILS)
         verify(prefsUtil).pinId = anyString()
-        verify(accessState).clearPin()
+        verify(pinRepository).clearPin()
         verify(view).restartPageAndClearTop()
     }
 

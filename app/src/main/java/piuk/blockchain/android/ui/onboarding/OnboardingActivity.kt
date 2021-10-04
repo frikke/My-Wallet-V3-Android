@@ -141,7 +141,6 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
     }
 
     override fun onVerifyEmailClicked() {
-        canAutoLogout = false
         emailLaunched = true
         val intent = Intent(Intent.ACTION_MAIN)
         intent.apply {
@@ -162,17 +161,7 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
         progressDialog = null
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == EMAIL_CLIENT_REQUEST) {
-            canAutoLogout = true
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     companion object {
-
-        private const val EMAIL_CLIENT_REQUEST = 5400
-
         fun launchForFingerprints(ctx: Context) {
             Intent(ctx, OnboardingActivity::class.java).let {
                 it.showEmail = false

@@ -58,7 +58,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import com.blockchain.utils.capitalizeFirstChar
@@ -66,6 +65,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.android.util.AppUtil
 import thepit.PitLinking
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -102,7 +102,7 @@ interface MainView : MvpView, HomeNavigator {
 class MainPresenter internal constructor(
     private val prefs: PersistentPrefs,
     private val assetCatalogue: AssetCatalogue,
-    private val accessState: AccessState,
+    private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
     private val qrProcessor: QrScanResultProcessor,
     private val kycStatusHelper: KycStatusHelper,
@@ -125,7 +125,7 @@ class MainPresenter internal constructor(
     override val enableLogoutTimer: Boolean = true
 
     override fun onViewAttached() {
-        if (prefs.isLoggedOut) {
+        if (!prefs.isLoggedIn) {
             // This should never happen, but handle the scenario anyway by starting the launcher
             // activity, which handles all login/auth/corruption scenarios itself
             view?.kickToLauncherPage()
@@ -513,7 +513,7 @@ class MainPresenter internal constructor(
     }
 
     internal fun clearLoginState() {
-        accessState.logout()
+        appUtil.logout()
     }
 
     fun onThePitMenuClicked() {

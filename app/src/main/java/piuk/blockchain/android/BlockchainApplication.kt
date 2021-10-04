@@ -37,14 +37,12 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
 import piuk.blockchain.android.identity.SiftDigitalTrust
-import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppAnalytics
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
@@ -56,7 +54,6 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
     private val retrofitApi: Retrofit by inject(apiRetrofit)
     private val environmentSettings: EnvironmentConfig by inject()
-    private val loginState: AccessState by inject()
     private val lifeCycleInterestedComponent: LifecycleInterestedComponent by inject()
     private val appInfoPrefs: AppInfoPrefs by inject()
     private val rxBus: RxBus by inject()
@@ -101,8 +98,6 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
         UncaughtExceptionHandler.install(appUtils)
         RxJavaPlugins.setErrorHandler { throwable -> Timber.tag(RX_ERROR_TAG).e(throwable) }
-
-        loginState.setLogoutActivity(LogoutActivity::class.java)
 
         ConnectivityManager.getInstance().registerNetworkListener(this, rxBus)
 

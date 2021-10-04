@@ -36,7 +36,7 @@ import piuk.blockchain.android.data.coinswebsocket.models.TokenTransfer
 import piuk.blockchain.android.data.coinswebsocket.models.TransactionState
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.events.TransactionsUpdatedEvent
@@ -72,7 +72,7 @@ class CoinsWebSocketStrategy(
     private val gson: Gson,
     private val rxBus: RxBus,
     private val prefs: PersistentPrefs,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
     private val assetCatalogue: AssetCatalogue
@@ -148,7 +148,7 @@ class CoinsWebSocketStrategy(
                 Timber.e(throwable)
                 if (throwable is DecryptionException) {
                     messagesSocketHandler?.showToast(R.string.wallet_updated)
-                    accessState.unpairWallet()
+                    appUtil.unpairWallet()
                     appUtil.restartApp()
                 }
             }

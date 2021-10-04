@@ -63,10 +63,7 @@ class LauncherPresenter(
             viewIntentData.scheme == "bitcoin" &&
             viewIntentData.data != null
         ) {
-            prefs.setValue(
-                PersistentPrefs.KEY_SCHEME_URL,
-                viewIntentData.data
-            )
+            prefs.setValue(PersistentPrefs.KEY_SCHEME_URL, viewIntentData.data)
         }
         if (viewIntentData.action == Intent.ACTION_VIEW && viewIntentData.data != null) {
             deepLinkPersistence.pushDeepLink(viewIntentData.data)
@@ -87,7 +84,7 @@ class LauncherPresenter(
 
         val hasBackup = prefs.hasBackup()
         val pin = prefs.pinId
-        val isLoggedOut = prefs.isLoggedOut
+        val isLoggedIn = prefs.isLoggedIn
         val walletGuid = prefs.walletGuid
 
         when {
@@ -96,13 +93,13 @@ class LauncherPresenter(
             // No GUID but a backup. Show PIN entry page to populate other values
             walletGuid.isEmpty() && hasBackup -> view.onRequestPin()
             // User has logged out recently. Show password reentry page
-            isLoggedOut -> view.onReEnterPassword()
+            !isLoggedIn -> view.onReEnterPassword()
             // No PIN ID? Treat as installed app without confirmed PIN
             pin.isEmpty() -> view.onRequestPin()
             // Installed app, check sanity
             !appUtil.isSane -> view.onCorruptPayload()
             // App has been PIN validated
-            isPinValidated && !isLoggedOut -> initSettings()
+            isPinValidated && isLoggedIn -> initSettings()
             // Something odd has happened, re-request PIN
             else -> view.onRequestPin()
         }
@@ -153,7 +150,7 @@ class LauncherPresenter(
                     Single.just(emailVerifShouldLaunched)
                 }
             }.doOnSuccess {
-                walletPrefs.isLoggedOut = false
+                walletPrefs.isLoggedIn = true
                 analytics.logEvent(LoginAnalyticsEvent)
             }.flatMap { emailVerifShouldLaunched ->
                 notificationTokenManager.resendNotificationToken()

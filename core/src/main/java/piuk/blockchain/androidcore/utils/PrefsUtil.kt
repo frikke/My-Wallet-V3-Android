@@ -281,9 +281,9 @@ class PrefsUtil(
         get() = getValue(KEY_RESTORED_WALLET, false)
         set(isRestored) = setValue(KEY_RESTORED_WALLET, isRestored)
 
-    override var isLoggedOut: Boolean
-        get() = getValue(KEY_LOGGED_OUT, true)
-        set(loggedOut) = setValue(KEY_LOGGED_OUT, loggedOut)
+    override var isLoggedIn: Boolean
+        get() = getValue(KEY_LOGGED_IN, false)
+        set(loggedIn) = setValue(KEY_LOGGED_IN, loggedIn)
 
     override val resendSmsRetries: Int
         get() = getValue(TWO_FA_SMS_RETRIES, MAX_ALLOWED_RETRIES)
@@ -593,7 +593,7 @@ class PrefsUtil(
 
         clear()
 
-        setValue(KEY_LOGGED_OUT, true)
+        setValue(KEY_LOGGED_IN, true)
         setValue(KEY_WALLET_GUID, guid)
         setValue(KEY_PRE_IDV_DEVICE_ID, deviceId)
     }
@@ -614,7 +614,7 @@ class PrefsUtil(
         const val KEY_PRE_IDV_DEVICE_ID = "pre_idv_device_id"
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val KEY_LOGGED_OUT = "logged_out"
+        const val KEY_LOGGED_IN = "logged_in"
 
         private const val KEY_PIT_LINKING_LINK_ID = "pit_wallet_link_id"
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"

@@ -48,8 +48,6 @@ import info.blockchain.wallet.util.PrivateKeyFactory
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import com.blockchain.core.BuildConfig
-import piuk.blockchain.androidcore.data.access.AccessState
-import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
@@ -91,6 +89,8 @@ import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
 import com.blockchain.core.Database
 import com.blockchain.core.dynamicassets.impl.AssetInfoCache
+import piuk.blockchain.androidcore.data.access.PinRepository
+import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
 import java.util.UUID
 
 val coreModule = module {
@@ -266,7 +266,7 @@ val coreModule = module {
                 prefs = get(),
                 authApiService = get(),
                 walletAuthService = get(),
-                accessState = get(),
+                pinRepository = get(),
                 aesUtilWrapper = get(),
                 crashLogger = get()
             )
@@ -381,13 +381,8 @@ val coreModule = module {
     }.bind(Logger::class)
 
     single {
-        AccessStateImpl(
-            context = get(),
-            prefs = get(),
-            crashLogger = get(),
-            trust = get()
-        )
-    }.bind(AccessState::class)
+        PinRepositoryImpl()
+    }.bind(PinRepository::class)
 
     factory { AESUtilWrapper() }
 

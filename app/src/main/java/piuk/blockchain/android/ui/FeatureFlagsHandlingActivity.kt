@@ -18,7 +18,7 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class FeatureFlagsHandlingActivity : AppCompatActivity() {
@@ -28,7 +28,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val compositeDisposable = CompositeDisposable()
     private val prefs: PersistentPrefs by inject()
     private val appUtil: AppUtil by inject()
-    private val loginState: AccessState by inject()
+    private val loginState: PinRepository by inject()
     private val crashLogger: CrashLogger by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()

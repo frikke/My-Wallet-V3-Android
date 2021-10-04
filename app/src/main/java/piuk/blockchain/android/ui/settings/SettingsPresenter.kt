@@ -36,7 +36,7 @@ import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.util.AndroidUtils
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
@@ -55,7 +55,7 @@ class SettingsPresenter(
     private val payloadManager: PayloadManager,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val custodialWalletManager: CustodialWalletManager,
     private val notificationTokenManager: NotificationTokenManager,
     private val exchangeRates: ExchangeRatesDataManager,
@@ -265,7 +265,7 @@ class SettingsPresenter(
             // No fingerprints enrolled, prompt user to add some
             view?.showNoFingerprintsAddedDialog()
         } else {
-            val pin = accessState.pin
+            val pin = pinRepository.pin
             if (pin.isNotEmpty()) {
                 view?.showFingerprintDialog(pin)
             } else {
@@ -509,7 +509,7 @@ class SettingsPresenter(
     @SuppressLint("CheckResult")
     fun updatePassword(password: String, fallbackPassword: String) {
         payloadManager.tempPassword = password
-        compositeDisposable += authDataManager.createPin(password, accessState.pin)
+        compositeDisposable += authDataManager.createPin(password, pinRepository.pin)
             .doOnSubscribe { view?.showProgress() }
             .doOnTerminate { view?.hideProgress() }
             .andThen(authDataManager.verifyCloudBackup())

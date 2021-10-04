@@ -9,7 +9,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
@@ -19,7 +18,6 @@ import timber.log.Timber
 class CredentialsWiper(
     private val payloadManagerWiper: PayloadManagerWiper,
     private val ethDataManager: EthDataManager,
-    private val accessState: AccessState,
     private val appUtil: AppUtil,
     private val notificationTokenManager: NotificationTokenManager,
     private val bchDataManager: BchDataManager,
@@ -31,8 +29,7 @@ class CredentialsWiper(
         notificationTokenManager.revokeAccessToken().then {
             Completable.fromAction {
                 payloadManagerWiper.wipe()
-                accessState.unpairWallet()
-                accessState.clearPin()
+                appUtil.unpairWallet()
                 ethDataManager.clearAccountDetails()
                 bchDataManager.clearAccountDetails()
                 nabuDataManager.clearAccessToken()
@@ -48,7 +45,7 @@ class CredentialsWiper(
                     Timber.e(it)
                 },
                 onComplete = {
-                    accessState.logout()
+                    appUtil.logout()
                     appUtil.restartApp()
                 })
     }
