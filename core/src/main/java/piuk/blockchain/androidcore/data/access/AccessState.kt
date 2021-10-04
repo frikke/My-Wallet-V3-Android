@@ -1,10 +1,7 @@
 package piuk.blockchain.androidcore.data.access
 
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.SystemClock
 import com.blockchain.logging.CrashLogger
 import com.blockchain.logging.DigitalTrust
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -12,25 +9,11 @@ import piuk.blockchain.androidcore.utils.extensions.isValidPin
 
 interface AccessState {
 
-    var canAutoLogout: Boolean
-
     val pin: String
-
-    var isLoggedIn: Boolean
-
-    var isNewlyCreated: Boolean
-
-    var isRestored: Boolean
-
-    fun startLogoutTimer()
 
     fun setLogoutActivity(logoutActivity: Class<*>)
 
-    fun stopLogoutTimer()
-
     fun logout()
-
-    fun logIn()
 
     fun unpairWallet()
 
@@ -49,10 +32,7 @@ internal class AccessStateImpl(
     private val crashLogger: CrashLogger
 ) : AccessState {
 
-    override var canAutoLogout = true
-
     private var logoutActivity: Class<*>? = null
-    private var logoutPendingIntent: PendingIntent? = null
 
     private var thePin: String = ""
     override val pin: String
@@ -72,55 +52,8 @@ internal class AccessStateImpl(
         thePin = pin
     }
 
-    override var isLoggedIn = false
-        set(loggedIn) {
-            logIn()
-            field = loggedIn
-        }
-
-    override var isNewlyCreated: Boolean
-        get() = prefs.getValue(PersistentPrefs.KEY_NEWLY_CREATED_WALLET, false)
-        set(newlyCreated) = prefs.setValue(PersistentPrefs.KEY_NEWLY_CREATED_WALLET, newlyCreated)
-
-    override var isRestored: Boolean
-        get() = prefs.getValue(PersistentPrefs.KEY_RESTORED_WALLET, false)
-        set(isRestored) = prefs.setValue(PersistentPrefs.KEY_RESTORED_WALLET, isRestored)
-
-    /**
-     * Called from BaseAuthActivity#onPause()
-     */
-    override fun startLogoutTimer() {
-        if (canAutoLogout) {
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.set(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS,
-                logoutPendingIntent
-            )
-        }
-    }
-
     override fun setLogoutActivity(logoutActivity: Class<*>) {
         this.logoutActivity = logoutActivity
-
-        val intent = Intent(context, logoutActivity)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        intent.action = AccessState.LOGOUT_ACTION
-        logoutPendingIntent =
-            PendingIntent.getActivity(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-    }
-
-    /**
-     * Called from BaseAuthActivity#onResume()
-     */
-    override fun stopLogoutTimer() {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(logoutPendingIntent)
     }
 
     override fun logout() {
@@ -135,15 +68,9 @@ internal class AccessStateImpl(
         )
     }
 
-    override fun logIn() = prefs.logIn()
-
     override fun unpairWallet() {
         crashLogger.logEvent("unpair. resetting pin")
         clearPin()
         prefs.unPairWallet()
-    }
-
-    companion object {
-        private const val LOGOUT_TIMEOUT_MILLIS = 1000L * 60L * 5L // 5 minutes
     }
 }

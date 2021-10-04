@@ -4,14 +4,12 @@ import android.content.Context
 import android.content.Intent
 import info.blockchain.wallet.payload.PayloadManagerWiper
 import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 
 class AppUtil(
     private val context: Context,
     private var payloadManager: PayloadManagerWiper,
-    private var accessState: AccessState,
     private val prefs: PersistentPrefs
 ) {
     val isSane: Boolean
@@ -51,7 +49,7 @@ class AppUtil(
                 putExtra(INTENT_EXTRA_IS_AFTER_WALLET_CREATION, isAfterWalletCreation)
             }
         )
-        accessState.logIn()
+        prefs.isLoggedOut = false
     }
 
     companion object {

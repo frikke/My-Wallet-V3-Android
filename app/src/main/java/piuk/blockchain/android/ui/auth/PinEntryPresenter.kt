@@ -185,7 +185,7 @@ class PinEntryPresenter(
                     }
                 )
 
-                // If user is changing their PIN and it matches their old one, disallow it
+            // If user is changing their PIN and it matches their old one, disallow it
             } else if (isChangingPin && userEnteredConfirmationPin == null && accessState.pin == userEnteredPin) {
                 showErrorToast(R.string.change_pin_new_matches_current)
                 clearPinViewAndReset()
@@ -474,7 +474,7 @@ class PinEntryPresenter(
     }
 
     private fun setAccountLabelIfNecessary() {
-        if (accessState.isNewlyCreated &&
+        if (prefs.isNewlyCreated &&
             payloadDataManager.accounts.isNotEmpty() &&
             payloadDataManager.getAccount(0).label.isEmpty()
         ) {

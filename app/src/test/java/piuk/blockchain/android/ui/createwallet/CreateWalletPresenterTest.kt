@@ -18,7 +18,6 @@ import org.mockito.Mockito
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -28,7 +27,6 @@ class CreateWalletPresenterTest {
     private lateinit var subject: CreateWalletPresenter
     private val view: CreateWalletView = mock()
     private val appUtil: AppUtil = mock()
-    private val accessState: AccessState = mock()
     private val payloadDataManager: PayloadDataManager = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val prefsUtil: PersistentPrefs = mock()
     private val analytics: Analytics = mock()
@@ -42,7 +40,6 @@ class CreateWalletPresenterTest {
             payloadDataManager = payloadDataManager,
             prefs = prefsUtil,
             appUtil = appUtil,
-            accessState = accessState,
             specificAnalytics = mock(),
             analytics = analytics,
             environmentConfig = environmentConfig,
@@ -66,16 +63,15 @@ class CreateWalletPresenterTest {
         val sharedKey = "SHARED_KEY"
         val guid = "GUID"
         val recoveryPhrase = ""
+        val wallet: Wallet = mock {
+            on { this.guid }.thenReturn(guid)
+            on { this.sharedKey }.thenReturn(sharedKey)
+        }
 
         whenever(view.getDefaultAccountName()).thenReturn(accountName)
-        whenever(payloadDataManager.createHdWallet(any(), any(), any())).thenReturn(
-            Single.just(
-                Wallet()
-            )
+        whenever(payloadDataManager.createHdWallet(pw1, accountName, email)).thenReturn(
+            Single.just(wallet)
         )
-
-        whenever(payloadDataManager.wallet!!.guid).thenReturn(guid)
-        whenever(payloadDataManager.wallet!!.sharedKey).thenReturn(sharedKey)
 
         // Act
         subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
@@ -88,7 +84,7 @@ class CreateWalletPresenterTest {
         verify(prefsUtil).email = email
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
-        verify(accessState).isNewlyCreated = true
+        verify(prefsUtil).isNewlyCreated = true
         verify(view).startPinEntryActivity()
         verify(view).dismissProgressDialog()
         verify(analytics).logEvent(AnalyticsEvents.WalletCreation)
@@ -103,12 +99,13 @@ class CreateWalletPresenterTest {
         val sharedKey = "SHARED_KEY"
         val guid = "GUID"
         val recoveryPhrase = "all all all all all all all all all all all all"
-
+        val wallet: Wallet = mock {
+            on { this.guid }.thenReturn(guid)
+            on { this.sharedKey }.thenReturn(sharedKey)
+        }
         whenever(view.getDefaultAccountName()).thenReturn(accountName)
-        whenever(payloadDataManager.restoreHdWallet(any(), any(), any(), any()))
-            .thenReturn(Single.just(Wallet()))
-        whenever(payloadDataManager.wallet!!.guid).thenReturn(guid)
-        whenever(payloadDataManager.wallet!!.sharedKey).thenReturn(sharedKey)
+        whenever(payloadDataManager.restoreHdWallet(recoveryPhrase, accountName, email, pw1))
+            .thenReturn(Single.just(wallet))
 
         // Act
         subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
@@ -124,7 +121,7 @@ class CreateWalletPresenterTest {
         verify(prefsUtil).isOnBoardingComplete = true
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
-        verify(accessState).isNewlyCreated = true
+        verify(prefsUtil).isNewlyCreated = true
         verify(view).startPinEntryActivity()
         verify(view).dismissProgressDialog()
     }

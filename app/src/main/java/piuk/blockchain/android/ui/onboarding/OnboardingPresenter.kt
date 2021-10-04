@@ -66,12 +66,4 @@ internal class OnboardingPresenter constructor(
             else -> view.showEmailPrompt()
         }
     }
-
-    internal fun disableAutoLogout() {
-        accessState.canAutoLogout = false
-    }
-
-    internal fun enableAutoLogout() {
-        accessState.canAutoLogout = true
-    }
 }

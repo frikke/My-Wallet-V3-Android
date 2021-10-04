@@ -140,8 +140,8 @@ class AuthDataManagerTest : RxTest() {
 
         // Assert
         verify(accessState).setPin(pin)
-        verify(accessState).isNewlyCreated = false
-        verify(accessState).isRestored = false
+        verify(prefsUtil).isNewlyCreated = false
+        verify(prefsUtil).isRestored = false
         verifyNoMoreInteractions(accessState)
         verify(prefsUtil).pinId
         verify(prefsUtil).hasBackup()

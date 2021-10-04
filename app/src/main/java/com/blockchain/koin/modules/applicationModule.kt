@@ -143,7 +143,6 @@ val applicationModule = module {
         AppUtil(
             context = get(),
             payloadManager = get(),
-            accessState = get(),
             prefs = get()
         )
     }
@@ -294,7 +293,6 @@ val applicationModule = module {
                 payloadDataManager = get(),
                 prefs = get(),
                 appUtil = get(),
-                accessState = get(),
                 analytics = get(),
                 environmentConfig = get(),
                 formatChecker = get(),
@@ -656,7 +654,6 @@ val applicationModule = module {
                 payloadDataManager = get(),
                 prefs = get(),
                 deepLinkPersistence = get(),
-                accessState = get(),
                 settingsDataManager = get(),
                 notificationTokenManager = get(),
                 envSettings = get(),

@@ -38,7 +38,6 @@ class LauncherPresenterTest {
     private val payloadDataManager: PayloadDataManager = mock()
     private val deepLinkPersistence: DeepLinkPersistence = mock()
     private val settingsDataManager: SettingsDataManager = mock()
-    private val accessState: AccessState = mock()
     private val wallet: Wallet = mock()
     private val notificationTokenManager: NotificationTokenManager = mock()
     private val environmentConfig: EnvironmentConfig = mock()
@@ -59,7 +58,6 @@ class LauncherPresenterTest {
         payloadDataManager,
         prefsUtil,
         deepLinkPersistence,
-        accessState,
         settingsDataManager,
         notificationTokenManager,
         environmentConfig,
@@ -116,7 +114,7 @@ class LauncherPresenterTest {
         val mockSettings: Settings = mock()
         whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.just(mockSettings))
         whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
-        whenever(accessState.isLoggedIn).thenReturn(true)
+        whenever(prefsUtil.isLoggedOut).thenReturn(false)
 
         whenever(wallet.guid).thenReturn(WALLET_GUID)
         whenever(wallet.sharedKey).thenReturn(SHARED_KEY)
@@ -150,7 +148,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.isLoggedOut).thenReturn(false)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(accessState.isLoggedIn).thenReturn(true)
+        whenever(prefsUtil.isLoggedOut).thenReturn(false)
         whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
         whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.error(Throwable()))
         whenever(wallet.guid).thenReturn(WALLET_GUID)
@@ -184,7 +182,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.isLoggedOut).thenReturn(false)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(accessState.isLoggedIn).thenReturn(true)
+        whenever(prefsUtil.isLoggedOut).thenReturn(false)
 
         whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
 
@@ -223,7 +221,6 @@ class LauncherPresenterTest {
         whenever(prefsUtil.isLoggedOut).thenReturn(false)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(accessState.isLoggedIn).thenReturn(false)
 
         // Act
         subject.onViewReady()
@@ -236,10 +233,10 @@ class LauncherPresenterTest {
      * Everything is fine, but PIN not validated. However, [AccessState] returns logged in.
      */
     @Test
-    fun onViewReadyPinNotValidatedButLoggedIn() {
+    fun onViewReadyPinValidatedAndLoggedIn() {
         // Arrange
         val pinUnValidatedData: ViewIntentData = mock {
-            on { isPinValidated }.thenReturn(false)
+            on { isPinValidated }.thenReturn(true)
         }
         whenever(launcherActivity.getViewIntentData()).thenReturn(
             pinUnValidatedData
@@ -249,12 +246,10 @@ class LauncherPresenterTest {
         whenever(prefsUtil.isLoggedOut).thenReturn(false)
         whenever(appUtil.isSane).thenReturn(true)
         whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(accessState.isLoggedIn).thenReturn(true)
         whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
         val mockSettings: Settings = mock()
         whenever(prerequisites.initSettings(WALLET_GUID, SHARED_KEY)).thenReturn(Single.just(mockSettings))
         whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
-
         whenever(wallet.guid).thenReturn(WALLET_GUID)
         whenever(wallet.sharedKey).thenReturn(SHARED_KEY)
         whenever(mockSettings.isEmailVerified).thenReturn(true)
@@ -265,7 +260,7 @@ class LauncherPresenterTest {
         subject.onViewReady()
 
         // Assert
-        verify(accessState).isLoggedIn = true
+        verify(prefsUtil).isLoggedOut
         verify(launcherActivity).onStartMainActivity(null, false)
     }
 

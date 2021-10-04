@@ -9,9 +9,6 @@ interface WalletStatus {
     val isWalletFunded: Boolean
     fun setWalletFunded()
 
-    var lastSwapTime: Long
-    val hasSwapped: Boolean
-
     val hasMadeBitPayTransaction: Boolean
     fun setBitPaySuccess()
 
@@ -24,9 +21,6 @@ interface WalletStatus {
     val resendSmsRetries: Int
     fun setResendSmsRetries(retries: Int)
 
-    val isNewUser: Boolean
-    fun setNewUser()
-
     var countrySelectedOnSignUp: String
     var stateSelectedOnSignUp: String
 
@@ -36,4 +30,8 @@ interface WalletStatus {
 
     val hasSeenTradingSwapPromo: Boolean
     fun setSeenTradingSwapPromo()
+
+    var isNewlyCreated: Boolean
+    var isRestored: Boolean
+    var isLoggedOut: Boolean
 }

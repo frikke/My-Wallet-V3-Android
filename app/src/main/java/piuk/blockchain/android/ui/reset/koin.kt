@@ -34,12 +34,10 @@ val resetAccountModule = module {
             ResetPasswordInteractor(
                 authDataManager = get(),
                 payloadDataManager = get(),
-                accessState = get(),
                 prefs = get(),
                 nabuDataManager = get(),
                 metadataManager = get(),
-                metadataRepository = get(),
-                walletPrefs = get()
+                metadataRepository = get()
             )
         }
     }

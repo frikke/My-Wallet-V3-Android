@@ -17,7 +17,6 @@ import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity.Companion.CODE_US
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -38,7 +37,6 @@ class CreateWalletPresenter(
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
     private val appUtil: AppUtil,
-    private val accessState: AccessState,
     private val specificAnalytics: ProviderSpecificAnalytics,
     private val analytics: Analytics,
     private val environmentConfig: EnvironmentConfig,
@@ -102,8 +100,7 @@ class CreateWalletPresenter(
         recoveryPhrase: String,
         countryCode: String,
         stateIsoCode: String? = null
-    ) =
-        when {
+    ) = when {
             recoveryPhrase.isNotEmpty() -> recoverWallet(email, password, recoveryPhrase)
             else -> createWallet(email, password, countryCode, stateIsoCode)
         }
@@ -114,7 +111,6 @@ class CreateWalletPresenter(
         countryCode: String,
         stateIsoCode: String? = null
     ) {
-
         analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
 
         compositeDisposable += payloadDataManager.createHdWallet(
@@ -125,15 +121,12 @@ class CreateWalletPresenter(
             .doOnSubscribe { view.showProgressDialog(R.string.creating_wallet) }
             .doOnTerminate { view.dismissProgressDialog() }
             .subscribeBy(
-                onSuccess = {
-                    accessState.isNewlyCreated = true
+                onSuccess = { wallet ->
+                    prefs.isNewlyCreated = true
                     analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryCode, stateIsoCode))
                     prefs.apply {
-                        payloadDataManager.wallet?.let {
-                            walletGuid = it.guid
-                            sharedKey = it.sharedKey
-                        }
-                        setNewUser()
+                        walletGuid = wallet.guid
+                        sharedKey = wallet.sharedKey
                         countrySelectedOnSignUp = countryCode
                         stateIsoCode?.let { stateSelectedOnSignUp = it }
                         email = emailEntered
@@ -168,13 +161,11 @@ class CreateWalletPresenter(
                 view.dismissProgressDialog()
             }.subscribeBy(
                 onSuccess = { wallet ->
-                    accessState.isNewlyCreated = true
-                    accessState.isRestored = true
                     prefs.apply {
-                        payloadDataManager.wallet?.let {
-                            walletGuid = it.guid
-                            sharedKey = it.sharedKey
-                        }
+                        isNewlyCreated = true
+                        isRestored = true
+                        walletGuid = wallet.guid
+                        sharedKey = wallet.sharedKey
                         email = emailEntered
                         isOnBoardingComplete = true
                     }

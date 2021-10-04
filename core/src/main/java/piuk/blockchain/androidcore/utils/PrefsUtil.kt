@@ -107,9 +107,6 @@ class PrefsUtil(
             setValue(KEY_DASHBOARD_ORDER, Json.encodeToString(value))
         }
 
-    override val isLoggedOut: Boolean
-        get() = getValue(KEY_LOGGED_OUT, true)
-
     override var qaRandomiseDeviceId: Boolean
         get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
         set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
@@ -255,13 +252,6 @@ class PrefsUtil(
 
     override fun setWalletFunded() = setValue(WALLET_FUNDED_KEY, true)
 
-    override var lastSwapTime: Long
-        get() = getValue(SWAP_DATE_KEY, 0L)
-        set(v) = setValue(SWAP_DATE_KEY, v)
-
-    override val hasSwapped: Boolean
-        get() = lastSwapTime != 0L
-
     override val hasMadeBitPayTransaction: Boolean
         get() = getValue(BITPAY_TRANSACTION_SUCCEEDED, false)
 
@@ -283,18 +273,23 @@ class PrefsUtil(
 
     override fun setSeenTradingSwapPromo() = setValue(SWAP_TRADING_PROMO, true)
 
+    override var isNewlyCreated: Boolean
+        get() = getValue(KEY_NEWLY_CREATED_WALLET, false)
+        set(newlyCreated) = setValue(KEY_NEWLY_CREATED_WALLET, newlyCreated)
+
+    override var isRestored: Boolean
+        get() = getValue(KEY_RESTORED_WALLET, false)
+        set(isRestored) = setValue(KEY_RESTORED_WALLET, isRestored)
+
+    override var isLoggedOut: Boolean
+        get() = getValue(KEY_LOGGED_OUT, true)
+        set(loggedOut) = setValue(KEY_LOGGED_OUT, loggedOut)
+
     override val resendSmsRetries: Int
         get() = getValue(TWO_FA_SMS_RETRIES, MAX_ALLOWED_RETRIES)
 
     override fun setResendSmsRetries(retries: Int) {
         setValue(TWO_FA_SMS_RETRIES, retries)
-    }
-
-    override val isNewUser: Boolean
-        get() = getValue(IS_NEW_USER, false)
-
-    override fun setNewUser() {
-        setValue(IS_NEW_USER, true)
     }
 
     override var email: String
@@ -603,13 +598,6 @@ class PrefsUtil(
         setValue(KEY_PRE_IDV_DEVICE_ID, deviceId)
     }
 
-    /**
-     * Reset value once user logged in
-     */
-    override fun logIn() {
-        setValue(KEY_LOGGED_OUT, false)
-    }
-
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val DEFAULT_FIAT_CURRENCY = "USD"
@@ -645,14 +633,15 @@ class PrefsUtil(
         private const val MAX_ALLOWED_SENDS = 5
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
-        private const val SWAP_DATE_KEY = "SWAP_DATE_KEY"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"
         private const val BITPAY_TRANSACTION_SUCCEEDED = "BITPAY_TRANSACTION_SUCCEEDED"
         private const val NETWORK_FEE_PRIORITY_KEY = "fee_type_key_"
         private const val SWAP_KYC_PROMO = "SWAP_KYC_PROMO"
         private const val SWAP_TRADING_PROMO = "SWAP_TRADING_PROMO"
+        private const val KEY_NEWLY_CREATED_WALLET = "newly_created_wallet"
+        private const val KEY_RESTORED_WALLET = "restored_wallet"
+
         private const val TWO_FA_SMS_RETRIES = "TWO_FA_SMS_RETRIES"
-        private const val IS_NEW_USER = "IS_NEW_USER"
         private const val KEY_EMAIL = "KEY_EMAIL"
         private const val COUNTRY_SIGN_UP = "COUNTRY_SIGN_UP"
         private const val STATE_SIGNED_UP = "STATE_SIGNED_UP"

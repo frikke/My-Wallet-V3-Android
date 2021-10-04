@@ -50,7 +50,6 @@ import org.koin.dsl.module
 import com.blockchain.core.BuildConfig
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.access.AccessStateImpl
-import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
@@ -389,19 +388,6 @@ val coreModule = module {
             trust = get()
         )
     }.bind(AccessState::class)
-
-    factory {
-        val accessState = get<AccessState>()
-        object : LogoutTimer {
-            override fun start() {
-                accessState.startLogoutTimer()
-            }
-
-            override fun stop() {
-                accessState.stopLogoutTimer()
-            }
-        }
-    }.bind(LogoutTimer::class)
 
     factory { AESUtilWrapper() }
 

@@ -11,6 +11,7 @@ import com.blockchain.notifications.NotificationsUtil
 import piuk.blockchain.android.R
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
+import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -23,7 +24,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 import timber.log.Timber
@@ -33,7 +33,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val notificationManager: NotificationManager by inject()
     private val notificationTokenManager: NotificationTokenManager by scopedInject()
     private val rxBus: RxBus by inject()
-    private val accessState: AccessState by scopedInject()
+    private val walletPrefs: WalletStatus by inject()
     private val analytics: Analytics by inject()
     private val secureChannelManager: SecureChannelManager by scopedInject()
     private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
@@ -48,7 +48,7 @@ class FcmCallbackService : FirebaseMessagingService() {
             rxBus.emitEvent(NotificationPayload::class.java, payload)
             sendNotification(
                 payload = payload,
-                foreground = ApplicationLifeCycle.getInstance().isForeground && accessState.isLoggedIn
+                foreground = ApplicationLifeCycle.getInstance().isForeground && !walletPrefs.isLoggedOut
             )
         } else {
             // If there is no data field, provide this default behaviour

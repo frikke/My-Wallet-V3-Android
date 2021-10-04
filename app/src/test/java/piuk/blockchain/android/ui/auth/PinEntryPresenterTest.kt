@@ -817,7 +817,7 @@ class PinEntryPresenterTest {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
-        whenever(accessState.isNewlyCreated).thenReturn(true)
+        whenever(prefsUtil.isNewlyCreated).thenReturn(true)
 
         // Act
         subject.updatePayload(password, false)
@@ -830,6 +830,7 @@ class PinEntryPresenterTest {
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
         verify(prefsUtil).walletGuid
         verify(prefsUtil).sharedKey
+        verify(prefsUtil).isNewlyCreated
         verify(prefsUtil).sharedKey = SHARED_KEY
         verify(payloadManager, Mockito.atLeastOnce()).wallet
         verify(defaultLabels).getDefaultNonCustodialWalletLabel()
@@ -855,7 +856,7 @@ class PinEntryPresenterTest {
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(payloadManager.isWalletUpgradeRequired).thenReturn(true)
-        whenever(accessState.isNewlyCreated).thenReturn(false)
+        whenever(prefsUtil.isNewlyCreated).thenReturn(false)
 
         // Act
         subject.updatePayload(password, false)
@@ -868,6 +869,7 @@ class PinEntryPresenterTest {
         verify(view).walletUpgradeRequired(anyInt())
         verify(prefsUtil).walletGuid
         verify(prefsUtil).sharedKey
+        verify(prefsUtil).isNewlyCreated
         verify(prefsUtil).sharedKey = SHARED_KEY
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
         verify(payloadManager).isWalletUpgradeRequired
@@ -895,7 +897,7 @@ class PinEntryPresenterTest {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
-        whenever(accessState.isNewlyCreated).thenReturn(false)
+        whenever(prefsUtil.isNewlyCreated).thenReturn(false)
 
         // Act
         subject.updatePayload(password, false)

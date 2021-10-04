@@ -125,7 +125,7 @@ class MainPresenter internal constructor(
     override val enableLogoutTimer: Boolean = true
 
     override fun onViewAttached() {
-        if (!accessState.isLoggedIn) {
+        if (prefs.isLoggedOut) {
             // This should never happen, but handle the scenario anyway by starting the launcher
             // activity, which handles all login/auth/corruption scenarios itself
             view?.kickToLauncherPage()

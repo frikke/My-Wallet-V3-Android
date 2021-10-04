@@ -205,8 +205,8 @@ class AuthDataManager(
                 with a 403 { code: 1, error: "Incorrect PIN you have x attempts left" }
                  */
                 if (response.isSuccessful) {
-                    accessState.isNewlyCreated = false
-                    accessState.isRestored = false
+                    prefs.isNewlyCreated = false
+                    prefs.isRestored = false
                     val decryptionKey = response.body()!!.success
 
                     handleBackup(decryptionKey)
