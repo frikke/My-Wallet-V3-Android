@@ -33,6 +33,22 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
+    <style name="AppTheme.Splash" parent="BaseTheme">
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowContentTransitions">false</item>
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AppTheme.Loader" parent="BaseTheme">
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowContentTransitions">false</item>
+        <item name="android:windowBackground">@drawable/loader_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
     <style name="NoDisplay" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_navy_medium</item>
         <item name="colorPrimaryDark">@color/primary_navy_medium</item>

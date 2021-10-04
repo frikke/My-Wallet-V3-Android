@@ -52,7 +52,7 @@ import piuk.blockchain.android.ui.customviews.PinEntryKeypad
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
-import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
 import piuk.blockchain.android.urllinks.APP_STORE_URI
 import piuk.blockchain.android.urllinks.APP_STORE_URL
@@ -705,7 +705,7 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
     }
 
     override fun restartAppWithVerifiedPin() {
-        appUtil.restartAppWithVerifiedPin(LauncherActivity::class.java, isAfterWalletCreation)
+        appUtil.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterWalletCreation)
     }
 
     override fun createPresenter(): PinEntryPresenter = pinEntryPresenter

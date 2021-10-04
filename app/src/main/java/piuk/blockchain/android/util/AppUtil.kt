@@ -63,9 +63,9 @@ class AppUtil(
         )
     }
 
-    fun restartAppWithVerifiedPin(launcherActivity: Class<*>, isAfterWalletCreation: Boolean = false) {
+    fun loadAppWithVerifiedPin(loaderActivity: Class<*>, isAfterWalletCreation: Boolean = false) {
         context.startActivity(
-            Intent(context, launcherActivity).apply {
+            Intent(context, loaderActivity).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                 putExtra(INTENT_EXTRA_VERIFIED, true)
                 putExtra(INTENT_EXTRA_IS_AFTER_WALLET_CREATION, isAfterWalletCreation)

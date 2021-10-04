@@ -2259,13 +2259,17 @@
     <string name="zendesk_subject_option3">Security Concern</string>
     <string name="zendesk_subject_option4">My Wallet Recovery Failed</string>
 
+    <!-- Progressive Loaders -->
+    <string name="loading_prices">Loading Prices</string>
+    <string name="syncing_account">Syncing Account</string>
+
     <!-- Portfolio Screen -->
     <string name="empty_portfolio_title">Welcome to Blockchain.com!</string>
     <string name="empty_portfolio_description">All your crypto balances will show up here once you buy or receive.</string>
 
     <!-- Prices Screen -->
     <string name="search_coins_hint">Search Coins</string>
-
+    
     <!-- Account Unification -->
     <string name="unification_sheet_title">Upgrade Account</string>
     <string name="unification_sheet_later_cta">I\'ll Do This Later</string>

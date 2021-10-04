@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.launcher
 
-import android.net.Uri
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import timber.log.Timber
 
@@ -13,10 +12,10 @@ class DeepLinkPersistence(private val prefs: PersistentPrefs) {
         prefs.setValue(KEY_DEEP_LINK_URI, data)
     }
 
-    fun popUriFromSharedPrefs(): Uri? {
-        val uri = prefs.getValue(KEY_DEEP_LINK_URI)?.let { Uri.parse(it) }
-        Timber.d("DeepLink: Read uri: $uri")
+    fun popDataFromSharedPrefs(): String? {
+        val data = prefs.getValue(KEY_DEEP_LINK_URI)
+        Timber.d("DeepLink: Read uri: $data")
         prefs.removeValue(KEY_DEEP_LINK_URI)
-        return uri
+        return data
     }
 }

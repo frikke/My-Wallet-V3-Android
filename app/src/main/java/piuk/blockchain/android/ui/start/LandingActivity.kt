@@ -53,6 +53,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme_MainActivity)
         super.onCreate(savedInstanceState)
 
         if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {

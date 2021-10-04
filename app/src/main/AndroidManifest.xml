@@ -31,10 +31,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:launchMode="singleTask"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".ui.launcher.LauncherActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-           >
+        <activity android:name=".ui.launcher.LauncherActivity"
+            android:theme="@style/AppTheme.Splash"
+            android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
@@ -77,6 +76,12 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.launcher.loader.LoaderActivity"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.Loader"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
@@ -126,8 +131,9 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.start.LandingActivity"
+            android:theme="@style/AppTheme.Splash"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.start.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

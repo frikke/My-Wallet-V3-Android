@@ -11,7 +11,7 @@
 
         <activity
             tools:node="replace"
-            android:name="piuk.blockchain.android.ui.launcher.LauncherActivity"
+            android:name="piuk.blockchain.android.ui.launcher.loader.LoaderActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask">
 

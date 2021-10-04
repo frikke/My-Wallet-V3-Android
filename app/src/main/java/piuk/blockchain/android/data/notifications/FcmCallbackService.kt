@@ -1,6 +1,5 @@
 package piuk.blockchain.android.data.notifications
 
-import android.app.LauncherActivity
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
@@ -24,6 +23,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 import timber.log.Timber

@@ -33,6 +33,7 @@ import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
+import piuk.blockchain.android.ui.launcher.loader.loaderModule
 import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
 import piuk.blockchain.android.ui.login.loginUiModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
@@ -74,6 +75,7 @@ object KoinStarter {
                     kycUiModule,
                     kycUiNabuModule,
                     loginUiModule,
+                    loaderModule,
                     moshiModule,
                     nabuModule,
                     nabuUrlModule,

@@ -652,20 +652,10 @@ val applicationModule = module {
         factory {
             LauncherPresenter(
                 appUtil = get(),
-                payloadDataManager = get(),
                 prefs = get(),
                 deepLinkPersistence = get(),
-                settingsDataManager = get(),
-                notificationTokenManager = get(),
                 envSettings = get(),
-                currencyPrefs = get(),
-                analytics = get(),
-                crashLogger = get(),
-                prerequisites = get(),
-                userIdentity = get(),
-                walletPrefs = get(),
-                authPrefs = get(),
-                nabuUserDataManager = get()
+                authPrefs = get()
             )
         }
 

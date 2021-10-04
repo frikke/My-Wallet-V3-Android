@@ -76,7 +76,6 @@ import piuk.blockchain.android.ui.home.analytics.SideNavEvent
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity.Companion.LINKED_BANK_CURRENCY
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity.Companion.LINKED_BANK_ID_KEY
@@ -111,6 +110,7 @@ import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import timber.log.Timber
 import java.net.URLDecoder
 
