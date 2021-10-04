@@ -281,7 +281,7 @@ class PrefsUtil(
         get() = getValue(KEY_RESTORED_WALLET, false)
         set(isRestored) = setValue(KEY_RESTORED_WALLET, isRestored)
 
-    override var isLoggedIn: Boolean
+    override var isAppUnlocked: Boolean
         get() = getValue(KEY_LOGGED_IN, false)
         set(loggedIn) = setValue(KEY_LOGGED_IN, loggedIn)
 

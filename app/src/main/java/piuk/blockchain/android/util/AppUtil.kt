@@ -71,7 +71,8 @@ class AppUtil(
                 putExtra(INTENT_EXTRA_IS_AFTER_WALLET_CREATION, isAfterWalletCreation)
             }
         )
-        prefs.isLoggedIn = false
+
+        prefs.isAppUnlocked = false
     }
 
     companion object {

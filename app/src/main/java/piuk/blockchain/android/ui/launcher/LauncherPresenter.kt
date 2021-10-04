@@ -10,6 +10,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.AnalyticsNames
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.wallet.api.Environment
@@ -49,6 +50,7 @@ class LauncherPresenter(
     private val userIdentity: UserIdentity,
     private val crashLogger: CrashLogger,
     private val walletPrefs: WalletStatus,
+    private val authPrefs: AuthPrefs,
     private val nabuUserDataManager: NabuUserDataManager
 ) : BasePresenter<LauncherView>() {
 
@@ -83,30 +85,24 @@ class LauncherPresenter(
         }
 
         val hasBackup = prefs.hasBackup()
-        val pin = prefs.pinId
-        val isLoggedIn = prefs.isLoggedIn
-        val walletGuid = prefs.walletGuid
+        val hasNoLoginInfo = authPrefs.walletGuid.isEmpty() && prefs.pinId.isEmpty()
+        val hasLoginInfo = authPrefs.walletGuid.isNotEmpty() && prefs.pinId.isNotEmpty()
+        val hasLoggedOut = authPrefs.walletGuid.isNotEmpty() && prefs.pinId.isEmpty()
+        val hasFullWalletInfo = authPrefs.walletGuid.isNotEmpty() && prefs.pinId.isNotEmpty() &&
+            authPrefs.encryptedPassword.isNotEmpty()
 
         when {
-            // No GUID and no backup? Treat as new installation
-            walletGuid.isEmpty() && !hasBackup -> view.onNoGuid()
-            // No GUID but a backup. Show PIN entry page to populate other values
-            walletGuid.isEmpty() && hasBackup -> view.onRequestPin()
-            // User has logged out recently. Show password reentry page
-            !isLoggedIn -> view.onReEnterPassword()
-            // No PIN ID? Treat as installed app without confirmed PIN
-            pin.isEmpty() -> view.onRequestPin()
-            // Installed app, check sanity
+            hasNoLoginInfo && !hasBackup -> view.onNoGuid()
+            hasNoLoginInfo && hasBackup -> view.onRequestPin()
+            hasLoginInfo && isPinValidated -> initSettings()
+            hasLoggedOut -> view.onReEnterPassword()
+            hasFullWalletInfo -> view.onRequestPin()
             !appUtil.isSane -> view.onCorruptPayload()
-            // App has been PIN validated
-            isPinValidated && isLoggedIn -> initSettings()
-            // Something odd has happened, re-request PIN
-            else -> view.onRequestPin()
+            else -> throw IllegalStateException("this state should never happen")
         }
     }
 
-    fun clearCredentialsAndRestart() =
-        appUtil.clearCredentialsAndRestart()
+    fun clearCredentialsAndRestart() = appUtil.clearCredentialsAndRestart()
 
     /**
      * Init of the [SettingsDataManager] must complete here so that we can access the [Settings]
@@ -150,7 +146,7 @@ class LauncherPresenter(
                     Single.just(emailVerifShouldLaunched)
                 }
             }.doOnSuccess {
-                walletPrefs.isLoggedIn = true
+                walletPrefs.isAppUnlocked = true
                 analytics.logEvent(LoginAnalyticsEvent)
             }.flatMap { emailVerifShouldLaunched ->
                 notificationTokenManager.resendNotificationToken()

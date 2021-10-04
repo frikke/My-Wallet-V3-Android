@@ -664,6 +664,7 @@ val applicationModule = module {
                 prerequisites = get(),
                 userIdentity = get(),
                 walletPrefs = get(),
+                authPrefs = get(),
                 nabuUserDataManager = get()
             )
         }

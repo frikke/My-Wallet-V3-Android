@@ -2,14 +2,17 @@ package piuk.blockchain.android
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
+import android.os.SystemClock
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.android.installreferrer.api.InstallReferrerClient
@@ -37,6 +40,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
 import piuk.blockchain.android.identity.SiftDigitalTrust
+import piuk.blockchain.android.ui.auth.LogoutActivity
+import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppAnalytics
@@ -64,6 +69,8 @@ open class BlockchainApplication : Application(), FrameworkInterface {
     private val crashLogger: CrashLogger by inject()
     private val coinsWebSocketService: CoinsWebSocketService by inject()
     private val trust: SiftDigitalTrust by inject()
+
+    private lateinit var logoutPendingIntent: PendingIntent
 
     private val lifecycleListener: AppLifecycleListener by lazy {
         AppLifecycleListener(lifeCycleInterestedComponent)
@@ -211,6 +218,32 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         return BuildConfig.VERSION_NAME
     }
 
+    fun startLogoutTimer() {
+        val intent = Intent(this, LogoutActivity::class.java)
+            .apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                action = BlockchainActivity.LOGOUT_ACTION
+            }
+        logoutPendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        (getSystemService(Context.ALARM_SERVICE) as AlarmManager).set(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS,
+            logoutPendingIntent
+        )
+    }
+
+    fun stopLogoutTimer() {
+        if (::logoutPendingIntent.isInitialized) {
+            (getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(logoutPendingIntent)
+        }
+    }
+
     override val apiCode: String
         get() = "25a6ad13-1633-4dfb-b6ee-9b91cdf0b5c3"
 
@@ -310,6 +343,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
     companion object {
         const val RX_ERROR_TAG = "RxJava Error"
+        private const val LOGOUT_TIMEOUT_MILLIS = 1000L * 60L * 5L // 5 minutes
     }
 }
 

@@ -1,12 +1,8 @@
 package piuk.blockchain.android.ui.base
 
-import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.WindowManager
 import androidx.annotation.CallSuper
@@ -22,8 +18,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BlockchainApplication
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
@@ -84,7 +80,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     @CallSuper
     override fun onResume() {
         super.onResume()
-        stopLogoutTimer()
+        (application as BlockchainApplication).stopLogoutTimer()
         ApplicationLifeCycle.getInstance().onActivityResumed()
 
         if (enableScreenshots) {
@@ -111,7 +107,9 @@ abstract class BlockchainActivity : ToolBarActivity() {
     @CallSuper
     override fun onPause() {
         super.onPause()
-        startLogoutTimer()
+        if (enableLogoutTimer) {
+            (application as BlockchainApplication).startLogoutTimer()
+        }
         ApplicationLifeCycle.getInstance().onActivityPaused()
         compositeDisposable.clear()
     }
@@ -226,35 +224,8 @@ abstract class BlockchainActivity : ToolBarActivity() {
         return false
     }
 
-    private fun startLogoutTimer() {
-        val intent = Intent(this, LogoutActivity::class.java)
-            .apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                action = LOGOUT_ACTION
-            }
-        logoutPendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        (getSystemService(Context.ALARM_SERVICE) as AlarmManager).set(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS,
-            logoutPendingIntent
-        )
-    }
-
-    private fun stopLogoutTimer() {
-        if (::logoutPendingIntent.isInitialized) {
-            (getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(logoutPendingIntent)
-        }
-    }
-
     companion object {
         private const val BOTTOM_DIALOG = "BOTTOM_DIALOG"
-        private const val LOGOUT_TIMEOUT_MILLIS = 1000L * 60L * 5L // 5 minutes
         const val LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT"
     }
 }
