@@ -70,8 +70,6 @@ private class AgreementTextItemViewHolder(
                 TextView.BufferType.SPANNABLE
             )
 
-            confirmDetailsCheckbox.isChecked = item.value
-
             confirmDetailsCheckbox.setThrottledCheckedChange { isChecked ->
                 model.process(TransactionIntent.ModifyTxOption(item.copy(value = isChecked)))
             }

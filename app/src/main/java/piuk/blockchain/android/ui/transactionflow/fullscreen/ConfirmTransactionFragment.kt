@@ -36,8 +36,6 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
     private val listAdapter: ConfirmTransactionDelegateAdapter by lazy {
         ConfirmTransactionDelegateAdapter(
             model = model,
-            stringUtils = stringUtils,
-            activityContext = requireActivity(),
             mapper = mapper,
             selectedCurrency = prefs.selectedFiatCurrency,
             exchangeRates = exchangeRates

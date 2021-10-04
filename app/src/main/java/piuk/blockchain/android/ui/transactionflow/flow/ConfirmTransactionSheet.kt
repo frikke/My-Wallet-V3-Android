@@ -16,14 +16,12 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.flow.adapter.ConfirmTransactionDelegateAdapter
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
-import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class ConfirmTransactionSheet : TransactionFlowSheet<DialogTxFlowConfirmBinding>() {
 
-    private val stringUtils: StringUtils by inject()
     private val exchangeRates: ExchangeRates by scopedInject()
     private val prefs: CurrencyPrefs by scopedInject()
     private val mapper: TxConfirmReadOnlyMapperCheckout by scopedInject()
@@ -34,8 +32,6 @@ class ConfirmTransactionSheet : TransactionFlowSheet<DialogTxFlowConfirmBinding>
     private val listAdapter: ConfirmTransactionDelegateAdapter by lazy {
         ConfirmTransactionDelegateAdapter(
             model = model,
-            stringUtils = stringUtils,
-            activityContext = requireActivity(),
             mapper = mapper,
             selectedCurrency = prefs.selectedFiatCurrency,
             exchangeRates = exchangeRates

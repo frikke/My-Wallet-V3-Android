@@ -91,6 +91,7 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
                         compoundItemSendingGroup.visibleIf { isExpanded }
                     }
                     updateIcon()
+                    startAnimation()
                 }
             }
         }
@@ -117,7 +118,11 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
                 compoundItemIcon.setImageResource(R.drawable.collapse_animated)
                 compoundItemIcon.setColorFilter(context.getResolvedColor(R.color.grey_600))
             }
+        }
+    }
 
+    private fun startAnimation() {
+        with(binding) {
             val arrow = compoundItemIcon.drawable as Animatable
             arrow.start()
         }

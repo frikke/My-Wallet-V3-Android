@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
-import android.app.Activity
 import android.graphics.Typeface
 import android.net.Uri
 import android.text.InputFilter
@@ -20,23 +19,20 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.recyclerview.widget.RecyclerView
-import piuk.blockchain.android.urllinks.URL_XLM_MIN_BALANCE
-import piuk.blockchain.android.R
 import com.blockchain.coincore.TxConfirmationValue
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmXlmMemoBinding
 import piuk.blockchain.android.ui.activity.detail.adapter.INPUT_FIELD_FLAGS
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.customviews.installUpdateThrottle
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
+import piuk.blockchain.android.urllinks.URL_XLM_MIN_BALANCE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.visible
 
 class ConfirmXlmMemoItemDelegate<in T>(
-    private val model: TransactionModel,
-    private val stringUtils: StringUtils,
-    private val activity: Activity
+    private val model: TransactionModel
 ) : AdapterDelegate<T> {
     override fun isForViewType(items: List<T>, position: Int): Boolean {
         return items[position] is TxConfirmationValue.Memo
@@ -44,9 +40,7 @@ class ConfirmXlmMemoItemDelegate<in T>(
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         XlmMemoItemViewHolder(
-            ItemSendConfirmXlmMemoBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            stringUtils,
-            activity
+            ItemSendConfirmXlmMemoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
 
     override fun onBindViewHolder(
@@ -60,17 +54,14 @@ class ConfirmXlmMemoItemDelegate<in T>(
 }
 
 private class XlmMemoItemViewHolder(
-    private val binding: ItemSendConfirmXlmMemoBinding,
-    private val stringUtils: StringUtils,
-    private val activity: Activity
+    private val binding: ItemSendConfirmXlmMemoBinding
 ) : RecyclerView.ViewHolder(binding.root) {
     private val maxCharacters = 28
 
     init {
         binding.apply {
             confirmDetailsMemoSpinner.setupSpinner()
-            confirmDetailsMemoSpinner.setSelection(TEXT_INDEX)
-            confirmDetailsMemoInput.configureForSelection(TEXT_INDEX)
+            configureForSelection(TEXT_INDEX)
         }
     }
 
@@ -79,9 +70,7 @@ private class XlmMemoItemViewHolder(
         model: TransactionModel
     ) {
         binding.apply {
-            if (item.isRequired) {
-                showExchangeInfo()
-            }
+            if (item.isRequired) showExchangeInfo()
 
             confirmDetailsMemoSpinner.onItemSelectedListener = null
 
@@ -97,7 +86,7 @@ private class XlmMemoItemViewHolder(
                 model.process(TransactionIntent.ModifyTxOption(item.copy(id = null, text = null)))
             }
 
-            confirmDetailsMemoSpinner.addSpinnerListener(model, item, confirmDetailsMemoInput)
+            confirmDetailsMemoSpinner.addSpinnerListener(item, confirmDetailsMemoInput)
 
             if (item.editable) {
                 with(confirmDetailsMemoInput) {
@@ -106,7 +95,6 @@ private class XlmMemoItemViewHolder(
                         setSelection(confirmDetailsMemoInput.text?.length ?: 0)
                     }
                     setupOnDoneListener(model, item)
-                    setupMemoSaving(model, item)
                 }
             } else {
                 confirmDetailsMemoSpinner.isEnabled = false
@@ -116,57 +104,43 @@ private class XlmMemoItemViewHolder(
         }
     }
 
-    private fun AppCompatEditText.setupOnDoneListener(
-        model: TransactionModel,
-        item: TxConfirmationValue.Memo
-    ) {
-        inputType = INPUT_FIELD_FLAGS
-        filters = arrayOf(InputFilter.LengthFilter(maxCharacters))
+        private fun AppCompatEditText.setupOnDoneListener(
+            model: TransactionModel,
+            item: TxConfirmationValue.Memo
+        ) {
+            inputType = INPUT_FIELD_FLAGS
+            filters = arrayOf(InputFilter.LengthFilter(maxCharacters))
 
-        setOnEditorActionListener { v, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
-                if (binding.confirmDetailsMemoSpinner.selectedItemPosition == TEXT_INDEX) {
-                    model.process(
-                        TransactionIntent.ModifyTxOption(item.copy(text = v.text.toString()))
-                    )
-                } else {
-                    model.process(
-                        TransactionIntent.ModifyTxOption(
-                            item.copy(id = v.text.toString().toLong())
-                        )
-                    )
-                }
-
-                clearFocus()
-            }
-            true
-        }
-    }
-
-    private fun AppCompatEditText.setupMemoSaving(
-        model: TransactionModel,
-        item: TxConfirmationValue.Memo
-    ) {
-        installUpdateThrottle { newText ->
-            if (text?.isNotEmpty() == true) {
-                if (binding.confirmDetailsMemoSpinner.selectedItemPosition == TEXT_INDEX) {
-                    if (haveContentsChanged(newText?.toString(), item.text)) {
-                        model.process(
-                            TransactionIntent.ModifyTxOption(item.copy(text = text.toString()))
-                        )
-                    }
-                } else {
-                    if (haveContentsChanged(newText?.toString(), item.id?.toString())) {
-                        model.process(
-                            TransactionIntent.ModifyTxOption(
-                                item.copy(id = text.toString().toLong())
+            setOnEditorActionListener { v, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
+                    if (binding.confirmDetailsMemoSpinner.selectedItemPosition == TEXT_INDEX) {
+                        if (haveContentsChanged(v.text.toString(), item.text)) {
+                            model.process(
+                                TransactionIntent.ModifyTxOption(
+                                    item.copy(
+                                        id = null,
+                                        text = v.text.toString()
+                                    )
+                                )
                             )
-                        )
+                        }
+                    } else {
+                        if (haveContentsChanged(v.text.toString(), item.text)) {
+                            model.process(
+                                TransactionIntent.ModifyTxOption(
+                                    item.copy(
+                                        id = v.text.toString().toLong(),
+                                        text = null
+                                    )
+                                )
+                            )
+                        }
                     }
+                    clearFocus()
                 }
+                true
             }
         }
-    }
 
     private fun AppCompatSpinner.setupSpinner() {
         val spinnerArrayAdapter: ArrayAdapter<String> =
@@ -178,11 +152,9 @@ private class XlmMemoItemViewHolder(
     }
 
     private fun AppCompatSpinner.addSpinnerListener(
-        model: TransactionModel,
         item: TxConfirmationValue.Memo,
         editText: EditText
     ) {
-        var isFirstTime = true
         onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
@@ -191,14 +163,12 @@ private class XlmMemoItemViewHolder(
                     position: Int,
                     id: Long
                 ) {
-                    editText.configureForSelection(position)
-                    if (!isFirstTime) {
-                        model.process(
-                            TransactionIntent.ModifyTxOption(item.copy(id = null, text = null))
-                        )
+                    configureForSelection(position)
+                    if (position == TEXT_INDEX && item.text.isNullOrBlank() ||
+                        position == ID_INDEX && item.id == null
+                    ) {
                         editText.setText("", TextView.BufferType.EDITABLE)
                     }
-                    isFirstTime = false
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -211,7 +181,7 @@ private class XlmMemoItemViewHolder(
     private fun EditText.haveContentsChanged(currentText: String? = "", previousText: String? = ""): Boolean =
         text?.toString() == currentText && previousText != currentText
 
-    private fun EditText.configureForSelection(selection: Int) {
+    private fun configureForSelection(selection: Int) {
         binding.confirmDetailsMemoInput.apply {
             if (selection == TEXT_INDEX) {
                 hint =
@@ -230,10 +200,10 @@ private class XlmMemoItemViewHolder(
         val blurb = context.getString(R.string.send_to_exchange_xlm_blurb)
 
         val map = mapOf("send_memo_link" to Uri.parse(URL_XLM_MIN_BALANCE))
-        val link = stringUtils.getStringWithMappedAnnotations(
+        val link = StringUtils.getStringWithMappedAnnotations(
+            context,
             R.string.send_to_exchange_xlm_link,
-            map,
-            activity
+            map
         )
 
         val sb = SpannableStringBuilder()
