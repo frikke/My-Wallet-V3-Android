@@ -32,7 +32,6 @@ data class NextPayment(val date: Date) : ActivityDetailsType()
 data class Amount(val value: Money) : ActivityDetailsType()
 data class Fee(val feeValue: Money?) : ActivityDetailsType()
 data class NetworkFee(val feeValue: Money) : ActivityDetailsType()
-data class Value(val currentFiatValue: Money?) : ActivityDetailsType()
 data class HistoricValue(
     val fiatAtExecution: Money?,
     val transactionType: TransactionSummary.TransactionType

@@ -36,7 +36,6 @@ import piuk.blockchain.android.ui.activity.detail.SwapReceiveAmount
 import piuk.blockchain.android.ui.activity.detail.To
 import piuk.blockchain.android.ui.activity.detail.TotalCostAmount
 import piuk.blockchain.android.ui.activity.detail.TransactionId
-import piuk.blockchain.android.ui.activity.detail.Value
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
@@ -101,21 +100,7 @@ private class InfoItemViewHolder(
             is NextPayment -> context.getString(R.string.recurring_buy_details_next_payment)
             is Amount -> context.getString(R.string.activity_details_amount)
             is Fee -> context.getString(R.string.activity_details_fee)
-            is Value -> context.getString(R.string.activity_details_value)
-            is HistoricValue -> {
-                when (infoType.transactionType) {
-                    TransactionSummary.TransactionType.SENT,
-                    TransactionSummary.TransactionType.SELL ->
-                        context.getString(R.string.activity_details_historic_sent)
-                    TransactionSummary.TransactionType.RECEIVED,
-                    TransactionSummary.TransactionType.BUY ->
-                        context.getString(R.string.activity_details_historic_received)
-                    TransactionSummary.TransactionType.TRANSFERRED,
-                    TransactionSummary.TransactionType.SWAP
-                    -> context.getString(R.string.activity_details_historic_transferred)
-                    else -> context.getString(R.string.empty)
-                }
-            }
+            is HistoricValue -> context.getString(R.string.common_total)
             is HistoricCryptoPrice -> context.getString(R.string.activity_details_exchange_rate)
             is To -> context.getString(R.string.activity_details_to)
             is From -> context.getString(R.string.activity_details_from)
@@ -157,9 +142,6 @@ private class InfoItemViewHolder(
             is Amount -> infoType.value.toStringWithSymbol()
             is Fee -> infoType.feeValue?.toStringWithSymbol() ?: context.getString(
                 R.string.activity_details_fee_load_fail
-            )
-            is Value -> infoType.currentFiatValue?.toStringWithSymbol() ?: context.getString(
-                R.string.activity_details_value_load_fail
             )
             is HistoricValue -> infoType.fiatAtExecution?.toStringWithSymbol()
                 ?: context.getString(
