@@ -44,7 +44,7 @@
     native <methods>;
 }
 
--keepclasseswithmembernames class * {
+-keepclasseswithmembers class * {
     native <methods>;
 }
 
@@ -69,15 +69,15 @@
 # Keep custom components in XML
 -keep public class custom.components.**
 
--keepclasseswithmembernames class * {
+-keepclasseswithmembers class * {
     native <methods>;
 }
 
--keepclasseswithmembernames class * {
+-keepclasseswithmembers class * {
     public <init>(android.content.Context, android.util.AttributeSet);
 }
 
--keepclasseswithmembernames class * {
+-keepclasseswithmembers class * {
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
 
@@ -169,7 +169,7 @@
 -keep public class info.blockchain.wallet.prices.data.** { *; }
 -keep public class com.blockchain.nabu.api.** { *; }
 -keep public class com.blockchain.nabu.models.** { *; }
--keepclasseswithmembernames class androidx.drawerlayout.widget.DrawerLayout { *; }
+-keepclasseswithmembers class androidx.drawerlayout.widget.DrawerLayout { *; }
 
 # Javapoet
 -dontwarn com.squareup.javapoet.**
