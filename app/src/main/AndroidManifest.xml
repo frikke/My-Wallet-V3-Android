@@ -32,7 +32,6 @@
         android:launchMode="singleTask"
         android:theme="@style/AppTheme">
         <activity android:name=".ui.launcher.LauncherActivity"
-            android:theme="@style/AppTheme.Splash"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.app.shortcuts"
@@ -79,7 +78,6 @@
         <activity
             android:name=".ui.launcher.loader.LoaderActivity"
             android:noHistory="true"
-            android:theme="@style/AppTheme.Loader"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask" />
         <activity
@@ -131,7 +129,6 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.start.LandingActivity"
-            android:theme="@style/AppTheme.Splash"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustPan" />
         <activity

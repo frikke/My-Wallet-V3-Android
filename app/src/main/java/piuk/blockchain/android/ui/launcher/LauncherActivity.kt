@@ -6,9 +6,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.NotificationAppOpened
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
@@ -18,7 +21,12 @@ import timber.log.Timber
 
 class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), LauncherView {
 
+    private val internalFlags: InternalFeatureFlagApi by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            setTheme(R.style.AppTheme_Splash)
+        }
         super.onCreate(savedInstanceState)
         if (intent.hasExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION) &&
             intent.getBooleanExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION, false)

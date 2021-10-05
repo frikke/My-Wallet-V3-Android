@@ -4,13 +4,15 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
-import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.Toolbar
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
@@ -30,6 +32,8 @@ import piuk.blockchain.android.util.visibleIf
 
 class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(), EmailEntryHost {
 
+    private val internalFlags: InternalFeatureFlagApi by inject()
+
     override val model: LoaderModel by scopedInject()
 
     override val alwaysDisableScreenshots: Boolean = true
@@ -43,6 +47,9 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     private var state: LoaderState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            setTheme(R.style.AppTheme_Loader)
+        }
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setSupportActionBar(toolbar)
@@ -143,8 +150,9 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
 
     private fun launchEmailVerification() {
         window.statusBarColor = getColor(R.color.primary_blue_dark)
-        binding.progress.visibility = View.GONE
-        binding.contentFrame.visibility = View.VISIBLE
+        binding.oldProgress.gone()
+        binding.newProgress.gone()
+        binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_frame, KycEmailEntryFragment(), KycEmailEntryFragment::class.simpleName)
@@ -198,11 +206,18 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     }
 
     private fun updateProgressVisibility(show: Boolean) {
-        binding.progress.visibleIf { show }
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            binding.newProgress.visibleIf { show }
+        } else {
+            binding.oldProgress.visibleIf { show }
+            binding.contentFrame.visibleIf { show }
+        }
     }
 
     private fun updateProgressText(text: Int) {
-        binding.progress.text = getString(text)
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            binding.newProgress.text = getString(text)
+        }
     }
 
     private fun startSingleActivity(clazz: Class<*>) {
