@@ -10,6 +10,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -57,9 +58,13 @@ class TransactionFlowActivity :
 
     private val analyticsHooks: TxFlowAnalytics by inject()
     private val customiser: TransactionFlowCustomisations by inject()
+    private val crashLogger: CrashLogger by inject()
 
     private val sourceAccount: BlockchainAccount by lazy {
-        intent.extras?.getAccount(SOURCE) ?: throw IllegalStateException("No source account specified")
+        intent.extras?.getAccount(SOURCE) ?: kotlin.run {
+            crashLogger.logException(IllegalStateException(), "No source account specified for action $action")
+            NullCryptoAccount()
+        }
     }
 
     private val transactionTarget: TransactionTarget by lazy {
@@ -243,7 +248,7 @@ class TransactionFlowActivity :
 
         fun newInstance(
             context: Context,
-            sourceAccount: BlockchainAccount,
+            sourceAccount: BlockchainAccount = NullCryptoAccount(),
             target: TransactionTarget = NullCryptoAccount(),
             action: AssetAction
         ): Intent {
