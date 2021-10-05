@@ -42,7 +42,6 @@ class LauncherPresenterTest {
         whenever(launcherActivity.getViewIntentData()).thenReturn(bitcoinUriData)
         whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefsUtil.pinId).thenReturn(PIN_ID)
-        whenever(authPrefs.encryptedPassword).thenReturn("password")
         // Act
         subject.attachView(launcherActivity)
 
@@ -69,13 +68,11 @@ class LauncherPresenterTest {
     }
 
     @Test
-    fun onViewAttached_notSane_callsOnCorruptPayload() {
+    fun onViewAttached_notValidGuid_callsOnCorruptPayload() {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
         whenever(prefsUtil.pinId).thenReturn(PIN_ID)
-        whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
-        whenever(appUtil.isSane).thenReturn(false)
-        whenever(authPrefs.encryptedPassword).thenReturn("")
+        whenever(authPrefs.walletGuid).thenReturn(INVALID_WALLET_GUID)
 
         // Act
         subject.attachView(launcherActivity)
@@ -153,7 +150,8 @@ class LauncherPresenterTest {
     }
 
     companion object {
-        private const val WALLET_GUID = "0000-0000-0000-0000-0000"
+        private const val WALLET_GUID = "d5f7c5db-072c-4178-b563-393259ec173a"
+        private const val INVALID_WALLET_GUID = "0000-0000-0000-0000-00231231223400"
         private const val PIN_ID = "1234"
     }
 }

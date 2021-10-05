@@ -8,6 +8,7 @@ import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 
 interface LauncherView : MvpView {
     fun onCorruptPayload()
@@ -60,17 +61,19 @@ class LauncherPresenter internal constructor(
         }
 
         val hasBackup = prefs.hasBackup()
-        val hasNoLoginInfo = authPrefs.walletGuid.isEmpty() && prefs.pinId.isEmpty()
-        val hasLoggedOut = authPrefs.walletGuid.isNotEmpty() && prefs.pinId.isEmpty()
-        val hasFullWalletInfo = authPrefs.walletGuid.isNotEmpty() && prefs.pinId.isNotEmpty() &&
-            authPrefs.encryptedPassword.isNotEmpty()
+        val walletId = authPrefs.walletGuid
+        val pinId = prefs.pinId
+
+        val isWalletIdInValid = walletId.isNotEmpty() && !walletId.isValidGuid()
+        val hasNoLoginInfo = walletId.isEmpty() && pinId.isEmpty()
+        val hasUnPairedWallet = walletId.isNotEmpty() && pinId.isEmpty()
+        val hasLoggedIn = walletId.isNotEmpty() && pinId.isNotEmpty()
 
         when {
-            hasNoLoginInfo && !hasBackup -> view?.onNoGuid()
-            hasNoLoginInfo && hasBackup -> view?.onRequestPin()
-            hasLoggedOut -> view?.onReenterPassword()
-            hasFullWalletInfo -> view?.onRequestPin()
-            !appUtil.isSane -> view?.onCorruptPayload()
+            isWalletIdInValid -> view?.onCorruptPayload()
+            hasNoLoginInfo -> if (hasBackup) view?.onRequestPin() else view?.onNoGuid()
+            hasUnPairedWallet -> view?.onReenterPassword()
+            hasLoggedIn -> view?.onRequestPin()
             else -> throw IllegalStateException("this state should never happen")
         }
     }

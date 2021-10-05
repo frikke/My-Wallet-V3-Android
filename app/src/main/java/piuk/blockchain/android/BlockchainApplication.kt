@@ -342,7 +342,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
     }
 
     companion object {
-        const val RX_ERROR_TAG = "RxJava Error"
+        private const val RX_ERROR_TAG = "RxJava Error"
         private const val LOGOUT_TIMEOUT_MILLIS = 1000L * 60L * 5L // 5 minutes
     }
 }

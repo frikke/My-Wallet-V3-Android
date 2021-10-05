@@ -9,7 +9,6 @@ import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 
 class AppUtil(
     private val context: Context,
@@ -33,15 +32,6 @@ class AppUtil(
         pinRepository.clearPin()
         prefs.unPairWallet()
     }
-
-    val isSane: Boolean
-        get() {
-            val guid = prefs.walletGuid
-            val encryptedPassword = prefs.encryptedPassword
-            val pinID = prefs.pinId
-
-            return guid.isValidGuid() && encryptedPassword.isNotEmpty() && pinID.isNotEmpty()
-        }
 
     var activityIndicator: ActivityIndicator? = null
 
