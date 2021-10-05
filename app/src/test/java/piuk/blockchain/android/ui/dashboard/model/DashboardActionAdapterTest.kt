@@ -22,12 +22,12 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 
-class PortfolioActionAdapterTest {
+class DashboardActionAdapterTest {
 
-    private lateinit var actionAdapter: PortfolioActionAdapter
+    private lateinit var actionAdapter: DashboardActionAdapter
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val model: PortfolioModel = mock()
+    private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
         on { fiatCurrency }.thenReturn("USD")
     }
@@ -43,7 +43,7 @@ class PortfolioActionAdapterTest {
 
     @Before
     fun setUp() {
-        actionAdapter = PortfolioActionAdapter(
+        actionAdapter = DashboardActionAdapter(
             coincore = mock(),
             payloadManager = mock(),
             custodialWalletManager = custodialWalletManager,
@@ -51,7 +51,10 @@ class PortfolioActionAdapterTest {
             crashLogger = mock(),
             analytics = mock(),
             simpleBuyPrefs = mock(),
-            gatedFeatures = mock()
+            gatedFeatures = mock(),
+            currencyPrefs = mock(),
+            userIdentity = mock(),
+            exchangeRates = mock()
         )
     }
 
@@ -78,7 +81,8 @@ class PortfolioActionAdapterTest {
         )
 
         verify(model).process(
-            ShowLinkablePaymentMethodsSheet(
+            DashboardIntent.ShowLinkablePaymentMethodsSheet(
+                targetFiatAccount,
                 LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                     LinkablePaymentMethods(
                         "USD",
@@ -120,10 +124,11 @@ class PortfolioActionAdapterTest {
         )
 
         verify(model).process(
-            LaunchBankLinkFlow(
+            DashboardIntent.LaunchBankLinkFlow(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
                 ),
+                targetFiatAccount,
                 AssetAction.FiatDeposit
             )
         )
@@ -150,7 +155,7 @@ class PortfolioActionAdapterTest {
         )
 
         verify(model).process(
-            ShowBankLinkingSheet(targetFiatAccount)
+            DashboardIntent.ShowBankLinkingSheet(targetFiatAccount)
         )
     }
 
@@ -181,7 +186,7 @@ class PortfolioActionAdapterTest {
             shouldLaunchBankLinkTransfer = false
         )
 
-        verify(model).process(any<UpdateLaunchDialogFlow>())
+        verify(model).process(any<DashboardIntent.UpdateLaunchDialogFlow>())
     }
 
     @Test
@@ -215,10 +220,11 @@ class PortfolioActionAdapterTest {
         )
 
         verify(model).process(
-            LaunchBankLinkFlow(
+            DashboardIntent.LaunchBankLinkFlow(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
                 ),
+                targetFiatAccount,
                 AssetAction.FiatDeposit
             )
         )

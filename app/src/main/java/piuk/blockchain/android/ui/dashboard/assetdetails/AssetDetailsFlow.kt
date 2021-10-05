@@ -39,8 +39,7 @@ enum class AssetDetailsStep(val addToBackStack: Boolean = false) {
 }
 
 class AssetDetailsFlow(
-    val asset: AssetInfo,
-    val coincore: Coincore
+    val asset: AssetInfo
 ) : DialogFlow(), KoinComponent, AccountSelectSheet.SelectAndBackHost {
 
     interface AssetDetailsHost : FlowHost {
@@ -57,6 +56,7 @@ class AssetDetailsFlow(
     private var localState: AssetDetailsState = AssetDetailsState()
     private val disposables = CompositeDisposable()
     private val model: AssetDetailsModel by scopedInject()
+    private val coincore: Coincore by scopedInject()
     private val analytics: Analytics by inject()
     private lateinit var assetFlowHost: AssetDetailsHost
 

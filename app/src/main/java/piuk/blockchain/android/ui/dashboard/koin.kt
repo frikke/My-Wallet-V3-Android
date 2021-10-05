@@ -8,12 +8,9 @@ import org.koin.dsl.module
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsInteractor
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
-import piuk.blockchain.android.ui.dashboard.model.PortfolioActionAdapter
-import piuk.blockchain.android.ui.dashboard.model.PortfolioModel
-import piuk.blockchain.android.ui.dashboard.model.PortfolioState
-import piuk.blockchain.android.ui.dashboard.model.PricesActionAdapter
-import piuk.blockchain.android.ui.dashboard.model.PricesModel
-import piuk.blockchain.android.ui.dashboard.model.PricesState
+import piuk.blockchain.android.ui.dashboard.model.DashboardActionAdapter
+import piuk.blockchain.android.ui.dashboard.model.DashboardModel
+import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.ui.transfer.DashboardAccountsSorting
 
@@ -22,42 +19,28 @@ val dashboardModule = module {
     scope(payloadScopeQualifier) {
 
         factory {
-            PortfolioModel(
-                initialState = PortfolioState(),
+            DashboardModel(
+                initialState = DashboardState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
-                actionAdapter = get(),
+                interactor = get(),
                 environmentConfig = get(),
                 crashLogger = get()
             )
         }
 
         factory {
-            PortfolioActionAdapter(
+            DashboardActionAdapter(
                 coincore = get(),
+                exchangeRates = get(),
                 payloadManager = get(),
+                currencyPrefs = get(),
                 custodialWalletManager = get(),
                 simpleBuyPrefs = get(),
+                userIdentity = get(),
                 analytics = get(),
                 crashLogger = get(),
                 linkedBanksFactory = get(),
                 gatedFeatures = get()
-            )
-        }
-
-        factory {
-            PricesModel(
-                initialState = PricesState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                actionAdapter = get(),
-                environmentConfig = get(),
-                crashLogger = get()
-            )
-        }
-
-        factory {
-            PricesActionAdapter(
-                coincore = get(),
-                exchangeRates = get()
             )
         }
 

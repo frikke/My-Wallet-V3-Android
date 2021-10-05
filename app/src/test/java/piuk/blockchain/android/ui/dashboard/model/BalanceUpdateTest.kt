@@ -15,8 +15,8 @@ class BalanceUpdateTest {
     @Test(expected = IllegalStateException::class)
     fun `Updating a mismatched currency throws an exception`() {
 
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -24,7 +24,7 @@ class BalanceUpdateTest {
             announcement = testAnnouncementCard_1
         )
 
-        val subject = BalanceUpdate(
+        val subject = DashboardIntent.BalanceUpdate(
             CryptoCurrency.BTC,
             mock {
                 on { total }.thenReturn(1.bitcoinCash())
@@ -39,8 +39,8 @@ class BalanceUpdateTest {
 
     @Test
     fun `update changes effects correct asset`() {
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -48,7 +48,7 @@ class BalanceUpdateTest {
             announcement = testAnnouncementCard_1
         )
 
-        val subject = BalanceUpdate(
+        val subject = DashboardIntent.BalanceUpdate(
             CryptoCurrency.BTC,
             mock {
                 on { total }.thenReturn(1.bitcoin())
@@ -60,7 +60,7 @@ class BalanceUpdateTest {
 
         val result = subject.reduce(initialState)
 
-        assertNotEquals(result.assets, initialState.assets)
+        assertNotEquals(result.activeAssets, initialState.activeAssets)
         assertNotEquals(result[CryptoCurrency.BTC], initialState[CryptoCurrency.BTC])
         assertEquals(result[CryptoCurrency.ETHER], initialState[CryptoCurrency.ETHER])
         assertEquals(result[CryptoCurrency.XLM], initialState[CryptoCurrency.XLM])
@@ -70,8 +70,8 @@ class BalanceUpdateTest {
 
     @Test
     fun `receiving a valid balance update clears any balance errors`() {
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState.copy(hasBalanceError = true),
                 CryptoCurrency.XLM to initialXlmState
@@ -79,7 +79,7 @@ class BalanceUpdateTest {
             announcement = testAnnouncementCard_1
         )
 
-        val subject = BalanceUpdate(
+        val subject = DashboardIntent.BalanceUpdate(
             CryptoCurrency.ETHER,
             mock {
                 on { total }.thenReturn(1.ether())
@@ -93,7 +93,7 @@ class BalanceUpdateTest {
 
         assertFalse(result[CryptoCurrency.ETHER].hasBalanceError)
 
-        assertNotEquals(result.assets, initialState.assets)
+        assertNotEquals(result.activeAssets, initialState.activeAssets)
         assertEquals(result[CryptoCurrency.BTC], initialState[CryptoCurrency.BTC])
         assertEquals(result[CryptoCurrency.XLM], initialState[CryptoCurrency.XLM])
 

@@ -106,8 +106,8 @@ val fiatAssetState_2 = FiatAssetState(
         )
 )
 
-val initialState = PortfolioState(
-    assets = mapOfAssets(
+val initialState = DashboardState(
+    activeAssets = mapOfAssets(
         CryptoCurrency.BTC to initialBtcState,
         CryptoCurrency.ETHER to initialEthState,
         CryptoCurrency.XLM to initialXlmState
