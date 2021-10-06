@@ -260,6 +260,7 @@ class ActivityDetailsInteractor(
             Created(Date(item.timeStampMs)),
             HistoricCryptoPrice(item.price, item.sendingValue.currencyCode),
             getSwapFromField(item),
+            TotalCostAmount(item.fiatValue),
             Amount(item.sendingValue)
         )
 
