@@ -11,11 +11,17 @@ import com.blockchain.coincore.FeeState
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
+import org.koin.core.component.inject
+import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 abstract class OnChainTxEngineBase(
     override val requireSecondPassword: Boolean,
     private val walletPreferences: WalletStatus
 ) : TxEngine() {
+
+    private val settingsDataManager: SettingsDataManager by inject()
+    private val prefs: PersistentPrefs by inject()
 
     override fun assertInputsValid() {
         val tgt = txTarget
@@ -26,6 +32,14 @@ abstract class OnChainTxEngineBase(
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         txTarget.onTxCompleted(txResult)
+            .doOnComplete {
+                settingsDataManager.triggerOnChainTransaction(
+                    guid = prefs.walletGuid,
+                    sharedKey = prefs.sharedKey,
+                    amount = pendingTx.amount.toStringWithoutSymbol(),
+                    currency = pendingTx.amount.currencyCode
+                )
+            }
 
     protected fun mapSavedFeeToFeeLevel(feeType: Int?): FeeLevel =
         when (feeType) {

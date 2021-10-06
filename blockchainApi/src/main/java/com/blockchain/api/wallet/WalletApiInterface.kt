@@ -27,8 +27,21 @@ internal interface WalletApiInterface {
         @Field("method") method: String = METHOD_TRIGGER_ALERT
     ): Completable
 
+    @FormUrlEncoded
+    @POST("wallet")
+    fun triggerOnChainTransaction(
+        @Field("guid") guid: String,
+        @Field("method") method: String = METHOD_TRIGGER_EMAIL,
+        @Field("sharedKey") sharedKey: String,
+        @Field("currency") currency: String,
+        @Field("amount") amount: String,
+        @Field("format") format: String = "json",
+        @Field("api_code") apiCode: String
+    ): Completable
+
     companion object {
         internal const val METHOD_GET_INFO = "get-info"
         internal const val METHOD_TRIGGER_ALERT = "trigger-alert"
+        internal const val METHOD_TRIGGER_EMAIL = "trigger-sent-tx-email"
     }
 }
