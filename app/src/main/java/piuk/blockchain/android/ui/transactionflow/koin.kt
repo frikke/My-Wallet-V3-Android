@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
-import com.blockchain.koin.fullScreenTxFlowFeatureFlag
 import com.blockchain.koin.payloadScope
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.core.qualifier.named
@@ -12,7 +11,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionInteractor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxFlowErrorReporting
-import piuk.blockchain.android.ui.transactionflow.flow.ActiveTransactionFlow
 import piuk.blockchain.android.ui.transactionflow.flow.AmountFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.CompoundNetworkFeeFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.EstimatedCompletionPropertyFormatter
@@ -54,12 +52,6 @@ val transactionModule = module {
         .bind(TransactionConfirmationCustomisations::class)
         .bind(TransactionProgressCustomisations::class)
         .bind(TransactionFlowCustomisations::class)
-
-    factory {
-        TransactionLauncher(
-            fullScreenTxFeatureFlag = get(fullScreenTxFlowFeatureFlag)
-        )
-    }
 
     factory {
         ExchangePriceFormatter(
@@ -167,39 +159,6 @@ val transactionModule = module {
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get()
             )
-        }
-
-        scoped {
-            TransactionModel(
-                initialState = TransactionState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
-                errorLogger = get(),
-                environmentConfig = get(),
-                crashLogger = get()
-            )
-        }
-    }
-
-    scope(transactionFlowScope) {
-
-        scoped {
-            TransactionInteractor(
-                coincore = payloadScope.get(),
-                addressFactory = payloadScope.get(),
-                custodialRepository = payloadScope.get(),
-                custodialWalletManager = payloadScope.get(),
-                currencyPrefs = get(),
-                identity = payloadScope.get(),
-                accountsSorting = payloadScope.get(),
-                linkedBanksFactory = payloadScope.get(),
-                bankLinkingPrefs = payloadScope.get()
-            )
-        }
-
-        // hack. find a better way to handle flow navigation (Rx Activity result)
-        scoped {
-            ActiveTransactionFlow()
         }
 
         scoped {

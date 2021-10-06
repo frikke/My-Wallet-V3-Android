@@ -31,9 +31,8 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
-import piuk.blockchain.android.ui.transactionflow.fullscreen.FullScreenBalanceAndFeeView
-import piuk.blockchain.android.ui.transactionflow.plugin.AccountLimitsView
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
+import piuk.blockchain.android.ui.transactionflow.plugin.AccountLimitsView
 import piuk.blockchain.android.ui.transactionflow.plugin.ConfirmSheetWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.FromAndToView
@@ -661,19 +660,14 @@ class TransactionFlowCustomiserImpl(
     override fun installEnterAmountLowerSlotView(
         ctx: Context,
         frame: FrameLayout,
-        state: TransactionState,
-        isFullScreenParent: Boolean // temp boolean for full screen, remove once old flow is killed
+        state: TransactionState
     ): EnterAmountWidget =
         when (state.action) {
             AssetAction.Send,
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.Sell,
-            AssetAction.Swap -> if (isFullScreenParent) {
-                FullScreenBalanceAndFeeView(ctx)
-            } else {
-                BalanceAndFeeView(ctx)
-            }.also { frame.addView(it) }
+            AssetAction.Swap -> BalanceAndFeeView(ctx).also { frame.addView(it) }
             AssetAction.Receive -> SmallBalanceView(ctx).also { frame.addView(it) }
             AssetAction.Withdraw,
             AssetAction.FiatDeposit -> AccountInfoBank(ctx).also { frame.addView(it) }

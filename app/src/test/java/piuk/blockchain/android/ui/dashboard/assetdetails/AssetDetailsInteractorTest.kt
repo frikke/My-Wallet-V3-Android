@@ -4,7 +4,6 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoValue
@@ -37,7 +36,6 @@ class AssetDetailsInteractorTest {
     private val custodialGroup: AccountGroup = mock()
     private val interestGroup: AccountGroup = mock()
     private val interestRate: Double = 5.0
-    private val interestEnabled: Boolean = true
 
     private val asset: CryptoAsset = mock {
         on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.just(totalGroup))
@@ -45,11 +43,8 @@ class AssetDetailsInteractorTest {
         on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.just(custodialGroup))
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
     }
-    private val featureFlagMock: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(interestEnabled))
-    }
 
-    private val subject = AssetDetailsInteractor(featureFlagMock, mock(), mock(), mock())
+    private val subject = AssetDetailsInteractor(mock(), mock(), mock())
 
     @Before
     fun setUp() {

@@ -6,7 +6,6 @@ import android.os.Bundle
 import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.core.Single
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.coincore.AssetAction
@@ -20,22 +19,19 @@ import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
 class InterestDashboardActivity : BlockchainActivity(),
     InterestSummarySheet.Host,
-    InterestDashboardFragment.InterestDashboardHost,
-    DialogFlow.FlowHost {
+    InterestDashboardFragment.InterestDashboardHost {
 
     private val binding: ActivityInterestDashboardBinding by lazy {
         ActivityInterestDashboardBinding.inflate(layoutInflater)
     }
 
-    private val txLauncher: TransactionLauncher by inject()
     private val compositeDisposable = CompositeDisposable()
 
     override val alwaysDisableScreenshots: Boolean
@@ -76,27 +72,23 @@ class InterestDashboardActivity : BlockchainActivity(),
     override fun goToInterestDeposit(toAccount: InterestAccount) {
         clearBottomSheet()
         require(toAccount is CryptoAccount)
-        txLauncher.startFlow(
-            activity = this,
-            target = toAccount,
-            action = AssetAction.InterestDeposit,
-            fragmentManager = supportFragmentManager,
-            flowHost = this,
-            compositeDisposable = compositeDisposable
-        )
+        startActivityForResult(
+            TransactionFlowActivity.newInstance(
+                context = this,
+                target = toAccount,
+                action = AssetAction.InterestDeposit
+            ), TX_FLOW_REQUEST)
     }
 
     override fun goToInterestWithdraw(fromAccount: InterestAccount) {
         clearBottomSheet()
         require(fromAccount is CryptoAccount)
-        txLauncher.startFlow(
-            activity = this,
-            sourceAccount = fromAccount,
-            action = AssetAction.InterestWithdraw,
-            fragmentManager = supportFragmentManager,
-            flowHost = this,
-            compositeDisposable = compositeDisposable
-        )
+        startActivityForResult(
+            TransactionFlowActivity.newInstance(
+                context = this,
+                sourceAccount = fromAccount,
+                action = AssetAction.InterestWithdraw
+            ), TX_FLOW_REQUEST)
     }
 
     override fun onSheetClosed() {
@@ -138,26 +130,25 @@ class InterestDashboardActivity : BlockchainActivity(),
     private fun startDeposit(
         fromAccount: SingleAccount,
         toAccount: SingleAccount
-    ) {
-        txLauncher.startFlow(
-            activity = this,
-            sourceAccount = fromAccount as CryptoAccount,
-            target = toAccount,
-            action = AssetAction.InterestDeposit,
-            fragmentManager = supportFragmentManager,
-            flowHost = this,
-            compositeDisposable = compositeDisposable
-        )
+    ) = startActivityForResult(
+            TransactionFlowActivity.newInstance(
+                context = this,
+                sourceAccount = fromAccount as CryptoAccount,
+                target = toAccount,
+                action = AssetAction.InterestDeposit
+            ), TX_FLOW_REQUEST)
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == TX_FLOW_REQUEST) {
+            fragment.refreshBalances()
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     companion object {
+        private const val TX_FLOW_REQUEST = 321
         const val ACTIVITY_ACCOUNT = "ACTIVITY_ACCOUNT"
-
         fun newInstance(context: Context) =
             Intent(context, InterestDashboardActivity::class.java)
-    }
-
-    override fun onFlowFinished() {
-        fragment.refreshBalances()
     }
 }

@@ -9,6 +9,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowIntentMapper
 
 class TransactionFlowIntentMapperTest {
 

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transactionflow.fullscreen
+package piuk.blockchain.android.ui.transactionflow.flow
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -34,6 +34,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.IssueType
+import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ExpandableTxFlowWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import timber.log.Timber
@@ -178,7 +179,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 } else {
                     if (it.feeSelection.availableLevels.size > 1 && frameLowerSlot.getChildAt(
                             0
-                        ) is FullScreenBalanceAndFeeView
+                        ) is BalanceAndFeeView
                     ) {
                         root.setOnClickListener {
                             FeeSelectionBottomSheet.newInstance().show(childFragmentManager, BOTTOM_SHEET)
@@ -250,8 +251,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             lowerSlot = customiser.installEnterAmountLowerSlotView(
                 requireContext(),
                 frameLowerSlot,
-                newState,
-                isFullScreenParent = true
+                newState
             ).apply {
                 initControl(model, customiser, analyticsHooks)
             }

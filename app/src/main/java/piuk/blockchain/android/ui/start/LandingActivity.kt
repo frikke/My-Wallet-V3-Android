@@ -11,12 +11,8 @@ import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
-import com.blockchain.remoteconfig.FeatureFlag
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -38,11 +34,10 @@ import piuk.blockchain.android.util.visible
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
     override val presenter: LandingPresenter by scopedInject()
+    override val view: LandingView = this
 
-    private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
     private val internalFlags: InternalFeatureFlagApi by inject()
     private val compositeDisposable = CompositeDisposable()
-    override val view: LandingView = this
 
     private val binding: ActivityLandingBinding by lazy {
         ActivityLandingBinding.inflate(layoutInflater)
@@ -131,31 +126,13 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         loginButton.setOnClickListener {
             launchSSOLoginActivity()
         }
-        compositeDisposable += ssoARFF.enabled
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onSuccess = { isAccountRecoveryEnabled ->
-                    setupRecoverButton(recoverButton, isAccountRecoveryEnabled)
-                },
-                onError = {
-                    loginButton.setOnClickListener { launchLoginActivity() }
-                    recoverButton.apply {
-                        text = getString(R.string.recover_funds)
-                        setOnClickListener { showFundRecoveryWarning() }
-                    }
-                }
-            )
+        setupRecoverButton(recoverButton)
     }
 
-    private fun setupRecoverButton(recoverButton: Button, isAccountRecoveryEnabled: Boolean) {
+    private fun setupRecoverButton(recoverButton: Button) {
         recoverButton.apply {
-            if (isAccountRecoveryEnabled) {
                 text = getString(R.string.restore_wallet_cta)
                 setOnClickListener { launchSSOAccountRecoveryFlow() }
-            } else {
-                text = getString(R.string.recover_funds)
-                setOnClickListener { showFundRecoveryWarning() }
-            }
         }
     }
 

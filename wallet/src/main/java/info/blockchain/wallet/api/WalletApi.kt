@@ -269,17 +269,6 @@ class WalletApi(
             true
         )
 
-    fun sendEmailForVerification(sessionId: String, email: String, captcha: String): Single<ResponseBody> {
-        return explorerInstance.sendEmailForVerification(
-            sessionId.withBearerPrefix(),
-            "send-guid-reminder",
-            getApiCode(),
-            email,
-            captcha,
-            captchaSiteKey
-        )
-    }
-
     fun updateMobileSetup(
         guid: String,
         sharedKey: String,

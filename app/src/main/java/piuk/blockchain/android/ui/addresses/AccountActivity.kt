@@ -30,8 +30,7 @@ import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
@@ -41,13 +40,11 @@ import timber.log.Timber
 class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
     AccountView,
     AccountAdapter.Listener,
-    AccountEditSheet.Host,
-    DialogFlow.FlowHost {
+    AccountEditSheet.Host {
 
     private val rxBus: RxBus by inject()
     private val secondPasswordHandler: SecondPasswordHandler by scopedInject()
     private val features: InternalFeatureFlagApi by inject()
-    private val txLauncher: TransactionLauncher by inject()
     private val compositeDisposable = CompositeDisposable()
 
     private val binding: ActivityAccountsBinding by lazy {
@@ -186,12 +183,17 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == RESULT_OK && requestCode == QrScanActivity.SCAN_URI_RESULT && data.getRawScanData() != null) {
-            data.getRawScanData()?.let {
-                handleImportScan(it)
-            } ?: showError(R.string.privkey_error)
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
+        when {
+            resultCode == RESULT_OK && requestCode == QrScanActivity.SCAN_URI_RESULT &&
+                data.getRawScanData() != null -> {
+                data.getRawScanData()?.let {
+                    handleImportScan(it)
+                } ?: showError(R.string.privkey_error)
+            }
+            requestCode == TX_FLOW_REQUEST -> presenter.refresh(binding.currencyHeader.getSelectedCurrency())
+            else -> {
+                super.onActivityResult(requestCode, resultCode, data)
+            }
         }
     }
 
@@ -238,18 +240,12 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
     }
 
     private fun launchFlow(sourceAccount: CryptoAccount) {
-        txLauncher.startFlow(
-            activity = this,
-            fragmentManager = supportFragmentManager,
-            action = AssetAction.Send,
-            flowHost = this@AccountActivity,
+        startActivityForResult(
+            TransactionFlowActivity.newInstance(
+            context = this,
             sourceAccount = sourceAccount,
-            compositeDisposable = compositeDisposable
-        )
-    }
-
-    override fun onFlowFinished() {
-        presenter.refresh(binding.currencyHeader.getSelectedCurrency())
+            action = AssetAction.Send
+        ), TX_FLOW_REQUEST)
     }
 
     override fun onDestroy() {
@@ -260,4 +256,8 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
     override val presenter: AccountPresenter by scopedInject()
     override val view: AccountView
         get() = this
+
+    companion object {
+        private const val TX_FLOW_REQUEST = 567
+    }
 }

@@ -138,17 +138,6 @@ class WalletAuthService(private val walletApi: WalletApi) {
         walletApi.authorizeSession(authToken, sessionId)
 
     /**
-     * Send email to verify device
-     *
-     * @param sessionId The token for the current session
-     * @param email The user's email
-     * @param captcha Captcha token
-     * @return A [Single] wrapping the result
-     */
-    fun sendEmailForDeviceVerification(sessionId: String, email: String, captcha: String): Single<ResponseBody> =
-        walletApi.sendEmailForVerification(sessionId, email, captcha)
-
-    /**
      * Update the account model fields for mobile setup
      *
      * @param guid The user's GUID

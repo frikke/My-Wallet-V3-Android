@@ -15,8 +15,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.base.BlockchainActivity.Companion.LOGOUT_ACTION
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
-import piuk.blockchain.android.ui.transactionflow.transactionScopeOrNull
 import piuk.blockchain.android.util.OSUtil
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
@@ -59,20 +57,11 @@ class LogoutActivity : AppCompatActivity() {
         bchDataManager.clearAccountDetails()
         assetActivityRepository.clear()
         nabuDataManager.clearAccessToken()
-        resetTransaction()
 
         walletOptionsState.wipe()
 
         walletPrefs.isAppUnlocked = false
         finishAffinity()
-    }
-
-    private fun resetTransaction() {
-        transactionScopeOrNull()?.let { scope ->
-            val model: TransactionModel = scope.get()
-            model.destroy()
-            scope.close()
-        }
     }
 }
 

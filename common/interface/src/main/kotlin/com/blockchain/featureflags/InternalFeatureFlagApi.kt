@@ -13,7 +13,6 @@ enum class GatedFeature(
     val enabledForCompanyInternalBuild: Boolean = false
 ) {
     ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets"),
-    FULL_SCREEN_TXS("Enable full screen tx flow", true),
     NEW_ONBOARDING("New onboarding design"),
     NEW_SPLIT_DASHBOARD("Enable New Dashboard"),
     AUTOCOMPLETE_ADDRESS("Enable autocomplete address kyc flow"),

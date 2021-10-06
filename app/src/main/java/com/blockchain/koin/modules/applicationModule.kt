@@ -11,7 +11,6 @@ import com.blockchain.core.Database
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
-import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -410,8 +409,7 @@ val applicationModule = module {
 
         scoped {
             QrScanResultProcessor(
-                bitPayDataManager = get(),
-                mwaFeatureFlag = get(mwaFeatureFlag)
+                bitPayDataManager = get()
             )
         }
 

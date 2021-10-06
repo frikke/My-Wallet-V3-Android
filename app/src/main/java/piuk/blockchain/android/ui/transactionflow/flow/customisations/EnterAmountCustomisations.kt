@@ -25,8 +25,7 @@ interface EnterAmountCustomisations {
     fun installEnterAmountLowerSlotView(
         ctx: Context,
         frame: FrameLayout,
-        state: TransactionState,
-        isFullScreenParent: Boolean
+        state: TransactionState
     ): EnterAmountWidget
 
     fun installEnterAmountUpperSlotView(ctx: Context, frame: FrameLayout, state: TransactionState): EnterAmountWidget

@@ -9,7 +9,6 @@ import com.blockchain.nabu.models.data.FundsAccount
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
@@ -52,7 +51,6 @@ data class AssetDisplayInfo(
 )
 
 class AssetDetailsInteractor(
-    private val interestFeatureFlag: FeatureFlag,
     private val dashboardPrefs: DashboardPrefs,
     private val coincore: Coincore,
     private val custodialWalletManager: CustodialWalletManager
@@ -131,11 +129,10 @@ class AssetDetailsInteractor(
             asset.accountGroup(AssetFilter.NonCustodial).mapDetails(),
             asset.accountGroup(AssetFilter.Custodial).mapDetails(),
             asset.accountGroup(AssetFilter.Interest).mapDetails(),
-            asset.interestRate(),
-            interestFeatureFlag.enabled
-        ) { prices, nonCustodial, custodial, interest, interestRate, interestEnabled ->
+            asset.interestRate()
+        ) { prices, nonCustodial, custodial, interest, interestRate ->
             makeAssetDisplayMap(
-                prices.currentRate, nonCustodial, custodial, interest, interestRate, interestEnabled
+                prices.currentRate, nonCustodial, custodial, interest, interestRate
             )
         }.doOnError {
             Timber.e("Unable to load asset details. Why? $it")
@@ -147,8 +144,7 @@ class AssetDetailsInteractor(
         nonCustodial: Details,
         custodial: Details,
         interest: Details,
-        interestRate: Double,
-        interestEnabled: Boolean
+        interestRate: Double
     ): AssetDisplayMap = mutableMapOf<AssetFilter, AssetDisplayInfo>().apply {
         if (nonCustodial !is Details.NoDetails) {
             addToDisplayMap(this, AssetFilter.NonCustodial, nonCustodial, fiatRate)
@@ -158,7 +154,7 @@ class AssetDetailsInteractor(
             addToDisplayMap(this, AssetFilter.Custodial, custodial, fiatRate)
         }
 
-        if (interestEnabled && (interest as? Details.DetailsItem)?.isEnabled == true) {
+        if ((interest as? Details.DetailsItem)?.isEnabled == true) {
             addToDisplayMap(this, AssetFilter.Interest, interest, fiatRate, interestRate)
         }
     }

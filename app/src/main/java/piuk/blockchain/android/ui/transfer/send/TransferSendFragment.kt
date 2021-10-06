@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.transfer.send
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
 import org.koin.android.ext.android.inject
@@ -15,17 +16,15 @@ import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transactionflow.analytics.SendAnalyticsEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountSelectorFragment
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 
-class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
+class TransferSendFragment : AccountSelectorFragment() {
 
     private val analytics: Analytics by inject()
-    private val txLauncher: TransactionLauncher by inject()
     private val compositeDisposable = CompositeDisposable()
 
     override val fragmentAction: AssetAction
@@ -84,23 +83,21 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
     }
 
     private fun startTransactionFlow(fromAccount: CryptoAccount) {
-        txLauncher.startFlow(
-            activity = requireActivity(),
-            sourceAccount = fromAccount,
-            action = AssetAction.Send,
-            fragmentManager = childFragmentManager,
-            flowHost = this@TransferSendFragment,
-            compositeDisposable = compositeDisposable
+        val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            refreshItems(showLoader = false)
+        }
+        startActivityForResult.launch(
+            TransactionFlowActivity.newInstance(
+                context = requireActivity(),
+                sourceAccount = fromAccount,
+                action = AssetAction.Send
+            )
         )
     }
 
     override fun doOnEmptyList() {
         super.doOnEmptyList()
         analytics.logEvent(TransferAnalyticsEvent.NoBalanceViewDisplayed)
-    }
-
-    override fun onFlowFinished() {
-        refreshItems(showLoader = false)
     }
 
     companion object {

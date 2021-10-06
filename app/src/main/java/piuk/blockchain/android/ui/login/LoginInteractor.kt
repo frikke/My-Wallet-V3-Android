@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.login
 
 import android.net.Uri
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
@@ -16,7 +15,6 @@ class LoginInteractor(
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
     private val appUtil: AppUtil,
-    private val ssoAccountRecoveryFF: FeatureFlag,
     private val persistentPrefs: PersistentPrefs
 ) {
 
@@ -43,14 +41,7 @@ class LoginInteractor(
         captcha: String
     ): Completable {
         prefs.sessionId = sessionId
-        return ssoAccountRecoveryFF.enabled.flatMapCompletable { enabled ->
-            if (enabled) {
-                authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
-            } else {
-                authDataManager.sendEmailForDeviceVerification(sessionId, email, captcha)
-                    .ignoreElement()
-            }
-        }
+        return authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
     }
 
     fun checkSessionDetails(intentAction: String, uri: Uri): LoginIntents =

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,10 +43,9 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.trackProgress
@@ -53,7 +53,7 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
-class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Host, TradingWalletPromoBottomSheet.Host {
+class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromoBottomSheet.Host {
     private var _binding: FragmentSwapBinding? = null
 
     private val binding: FragmentSwapBinding
@@ -78,10 +78,11 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
     private val walletPrefs: WalletStatus by inject()
     private val analytics: Analytics by inject()
     private val assetResources: AssetResources by inject()
-    private val txLauncher: TransactionLauncher by inject()
-    val appUtil: AppUtil by inject()
-
+    private val appUtil: AppUtil by inject()
     private val compositeDisposable = CompositeDisposable()
+    private val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        loadSwapOrKyc(showLoading = false)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -112,15 +113,12 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
         loadSwapOrKyc(showLoading = true)
     }
 
-    private fun startSwap() {
-        txLauncher.startFlow(
-            activity = requireActivity(),
-            action = AssetAction.Swap,
-            fragmentManager = childFragmentManager,
-            flowHost = this@SwapFragment,
-            compositeDisposable = compositeDisposable
+    private fun startSwap() = startActivityForResult.launch(
+        TransactionFlowActivity.newInstance(
+            context = requireActivity(),
+            action = AssetAction.Swap
         )
-    }
+    )
 
     override fun verificationCtaClicked() {
         analytics.logEvent(SwapAnalyticsEvents.SwapSilverLimitSheetCta)
@@ -233,15 +231,6 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
 
     private fun onTrendingPairClicked(): (TrendingPair) -> Unit = { pair ->
         analytics.logEvent(SwapAnalyticsEvents.TrendingPairClicked)
-        txLauncher.startFlow(
-            activity = requireActivity(),
-            sourceAccount = pair.sourceAccount,
-            target = pair.destinationAccount,
-            action = AssetAction.Swap,
-            fragmentManager = childFragmentManager,
-            flowHost = this@SwapFragment,
-            compositeDisposable = compositeDisposable
-        )
         analytics.logEvent(
             SwapAnalyticsEvents.SwapAccountsSelected(
                 inputCurrency = pair.sourceAccount.asset,
@@ -249,6 +238,15 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
                 sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.sourceAccount),
                 targetAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.destinationAccount),
                 werePreselected = true
+            )
+        )
+
+        startActivityForResult.launch(
+            TransactionFlowActivity.newInstance(
+                context = requireActivity(),
+                sourceAccount = pair.sourceAccount,
+                target = pair.destinationAccount,
+                action = AssetAction.Swap
             )
         )
     }
@@ -312,10 +310,6 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
         private const val TAG = "BOTTOM_SHEET"
         fun newInstance(): SwapFragment =
             SwapFragment()
-    }
-
-    override fun onFlowFinished() {
-        loadSwapOrKyc(showLoading = false)
     }
 
     private data class SwapComposite(

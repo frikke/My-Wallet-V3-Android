@@ -11,7 +11,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycStatusBinding
@@ -19,8 +18,7 @@ import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
@@ -30,14 +28,12 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
-    KycStatusView,
-    DialogFlow.FlowHost {
+    KycStatusView {
 
     private val binding: ActivityKycStatusBinding by lazy {
         ActivityKycStatusBinding.inflate(layoutInflater)
     }
 
-    private val txLauncher: TransactionLauncher by inject()
     private val statusPresenter: KycStatusPresenter by scopedInject()
     private val campaignType by unsafeLazy { intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType }
     private var progressDialog: MaterialProgressDialog? = null
@@ -72,15 +68,13 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
         startSwapFlow()
     }
 
-    private fun startSwapFlow() {
-        txLauncher.startFlow(
-            activity = this,
-            action = AssetAction.Swap,
-            fragmentManager = supportFragmentManager,
-            flowHost = this@KycStatusActivity,
-            compositeDisposable = compositeDisposable
+    private fun startSwapFlow() =
+        startActivity(
+            TransactionFlowActivity.newInstance(
+                context = this,
+                action = AssetAction.Swap
+            )
         )
-    }
 
     override fun renderUi(kycState: KycTierState) {
         when (kycState) {
@@ -222,8 +216,5 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
                 .apply { putExtra(EXTRA_CAMPAIGN_TYPE, campaignType) }
                 .run { context.startActivity(this) }
         }
-    }
-
-    override fun onFlowFinished() {
     }
 }

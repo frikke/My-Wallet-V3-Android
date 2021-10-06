@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transactionflow.fullscreen
+package piuk.blockchain.android.ui.transactionflow.flow
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent

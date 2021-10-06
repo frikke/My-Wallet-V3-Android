@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.login
 
 import android.content.Intent
 import android.net.Uri
-import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert
@@ -20,7 +19,6 @@ class LoginInteractorTest {
     private val payloadDataManager: PayloadDataManager = mock()
     private val prefs: PersistentPrefs = mock()
     private val appUtil: AppUtil = mock()
-    private val ssoAccountRecoveryFF: FeatureFlag = mock()
     private val persistentPrefs: PersistentPrefs = mock()
 
     private val action = Intent.ACTION_VIEW
@@ -33,7 +31,6 @@ class LoginInteractorTest {
             payloadDataManager = payloadDataManager,
             prefs = prefs,
             appUtil = appUtil,
-            ssoAccountRecoveryFF = ssoAccountRecoveryFF,
             persistentPrefs = persistentPrefs
         )
     }

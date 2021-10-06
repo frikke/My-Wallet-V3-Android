@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transactionflow.fullscreen
+package piuk.blockchain.android.ui.transactionflow.flow
 
 import android.content.Context
 import android.content.Intent
@@ -25,7 +25,6 @@ import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.transactionflow.TransactionFlowIntentMapper
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel

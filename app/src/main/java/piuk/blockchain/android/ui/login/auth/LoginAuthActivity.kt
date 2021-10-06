@@ -15,14 +15,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
@@ -35,8 +30,6 @@ import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
-import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
-import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
 import piuk.blockchain.android.ui.start.ManualPairingActivity
@@ -65,10 +58,7 @@ class LoginAuthActivity :
     private val crashLogger: CrashLogger by inject()
     private val walletPrefs: WalletStatus by inject()
 
-    private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
-
     private lateinit var currentState: LoginAuthState
-    private var isAccountRecoveryEnabled: Boolean = false
     private var email: String = ""
     private var userId: String = ""
     private var recoveryToken: String = ""
@@ -99,18 +89,7 @@ class LoginAuthActivity :
 
     override fun onStart() {
         super.onStart()
-        compositeDisposable += ssoARFF.enabled.observeOn(AndroidSchedulers.mainThread())
-            .doFinally {
-                processIntentData()
-            }
-            .subscribeBy(
-                onSuccess = { enabled ->
-                    isAccountRecoveryEnabled = enabled
-                },
-                onError = {
-                    isAccountRecoveryEnabled = false
-                }
-            )
+        processIntentData()
     }
 
     override fun onStop() {
@@ -418,17 +397,12 @@ class LoginAuthActivity :
 
     private fun launchPasswordRecoveryFlow() {
         analytics.logEvent(LoginAnalytics.LoginHelpClicked(analyticsInfo))
-        if (isAccountRecoveryEnabled) {
-            val intent = Intent(this, AccountRecoveryActivity::class.java).apply {
-                putExtra(EMAIL, email)
-                putExtra(USER_ID, userId)
-                putExtra(RECOVERY_TOKEN, recoveryToken)
-            }
-            startActivity(intent)
-        } else {
-            analytics.logEvent(AccountRecoveryAnalytics.RecoveryOptionSelected(isCustodialAccount = false))
-            RecoverFundsActivity.start(this)
+        val intent = Intent(this, AccountRecoveryActivity::class.java).apply {
+            putExtra(EMAIL, email)
+            putExtra(USER_ID, userId)
+            putExtra(RECOVERY_TOKEN, recoveryToken)
         }
+        startActivity(intent)
     }
 
     private fun decodeToJsonString(payload: String): String {

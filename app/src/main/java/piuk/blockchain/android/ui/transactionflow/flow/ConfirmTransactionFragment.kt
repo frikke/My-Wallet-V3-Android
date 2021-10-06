@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transactionflow.fullscreen
+package piuk.blockchain.android.ui.transactionflow.flow
 
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
@@ -15,7 +15,6 @@ import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
-import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
 import piuk.blockchain.android.ui.transactionflow.flow.adapter.ConfirmTransactionDelegateAdapter
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
@@ -63,7 +62,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         FragmentTxFlowConfirmBinding.inflate(inflater, container, false)
 
     override fun render(newState: TransactionState) {
-        Timber.d("!TRANSACTION!> Rendering! ConfirmTransactionSheet")
+        Timber.d("!TRANSACTION!> Rendering! ConfirmTransactionFragment")
         require(newState.currentStep == TransactionStep.CONFIRM_DETAIL)
 
         // We _should_ always have a pending Tx when we get here

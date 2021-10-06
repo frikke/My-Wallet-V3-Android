@@ -58,7 +58,7 @@ import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -84,7 +84,6 @@ internal class PricesFragment :
     override val model: DashboardModel by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val assetResources: AssetResources by inject()
-    private val txLauncher: TransactionLauncher by inject()
 
     private val theAdapter: PricesDelegateAdapter by lazy {
         PricesDelegateAdapter(
@@ -135,14 +134,13 @@ internal class PricesFragment :
 
             newState.activeFlow?.let {
                 if (it is TransactionFlow) {
-                    txLauncher.startFlow(
-                        activity = requireActivity(),
-                        fragmentManager = childFragmentManager,
-                        action = it.txAction,
-                        flowHost = this@PricesFragment,
-                        sourceAccount = it.txSource,
-                        target = it.txTarget,
-                        compositeDisposable = compositeDisposable
+                    startActivity(
+                        TransactionFlowActivity.newInstance(
+                            context = requireActivity(),
+                            sourceAccount = it.txSource,
+                            target = it.txTarget,
+                            action = it.txAction
+                        )
                     )
                 } else {
                     it.startFlow(childFragmentManager, this)
@@ -416,16 +414,14 @@ internal class PricesFragment :
         }
     }
 
-    override fun goToSellFrom(account: CryptoAccount) {
-        txLauncher.startFlow(
-            activity = requireActivity(),
+    override fun goToSellFrom(account: CryptoAccount) =
+        startActivity(
+            TransactionFlowActivity.newInstance(
+            context = requireActivity(),
             sourceAccount = account,
-            action = AssetAction.Sell,
-            fragmentManager = childFragmentManager,
-            flowHost = this,
-            compositeDisposable = compositeDisposable
+            action = AssetAction.Sell
+            )
         )
-    }
 
     override fun goToInterestDeposit(toAccount: InterestAccount) {
         if (toAccount is CryptoAccount) {

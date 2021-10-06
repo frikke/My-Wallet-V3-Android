@@ -35,8 +35,6 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.goneIf
@@ -51,10 +49,11 @@ import piuk.blockchain.android.ui.kyc.navhost.models.UiState.CONTENT
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState.EMPTY
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState.FAILURE
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState.LOADING
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
 
 class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresenter>(),
-    VeriffSplashView, DialogFlow.FlowHost, FlowFragment {
+    VeriffSplashView, FlowFragment {
 
     private var _binding: FragmentKycVeriffSplashBinding? = null
     private val binding: FragmentKycVeriffSplashBinding
@@ -62,7 +61,6 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
 
     private val presenter: VeriffSplashPresenter by scopedInject()
     private val stringUtils: StringUtils by inject()
-    private val txLauncher: TransactionLauncher by inject()
 
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
@@ -193,15 +191,13 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
         findNavController(this).navigate(R.id.applicationCompleteFragment, null, navOptions)
     }
 
-    override fun continueToSwap() {
-        txLauncher.startFlow(
-            activity = requireActivity(),
-            action = AssetAction.Swap,
-            fragmentManager = childFragmentManager,
-            flowHost = this@VeriffSplashFragment,
-            compositeDisposable = compositeDisposable
+    override fun continueToSwap() =
+        startActivity(
+            TransactionFlowActivity.newInstance(
+                context = requireActivity(),
+                action = AssetAction.Swap
+            )
         )
-    }
 
     override fun createPresenter(): VeriffSplashPresenter = presenter
 
@@ -262,9 +258,6 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
 
     private fun showEmptyState() {
         throw IllegalStateException("UiState == EMPTY. This should never happen")
-    }
-
-    override fun onFlowFinished() {
     }
 
     override fun onBackPressed(): Boolean = true

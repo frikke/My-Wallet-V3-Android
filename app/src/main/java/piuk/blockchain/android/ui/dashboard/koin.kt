@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.dashboard
 
-import com.blockchain.koin.interestAccountFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
@@ -56,7 +55,6 @@ val dashboardModule = module {
 
         factory {
             AssetDetailsInteractor(
-                interestFeatureFlag = get(interestAccountFeatureFlag),
                 dashboardPrefs = get(),
                 coincore = get(),
                 custodialWalletManager = get()

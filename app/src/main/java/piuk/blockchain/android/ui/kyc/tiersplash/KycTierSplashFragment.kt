@@ -39,22 +39,20 @@ import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.hyperlinks.renderSingleLink
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setImageDrawable
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.navigate
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
 
 class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPresenter>(),
-    KycTierSplashView, DialogFlow.FlowHost {
+    KycTierSplashView {
 
     private val presenter: KycTierSplashPresenter by scopedInject()
     private val analytics: Analytics by inject()
-    private val txLauncher: TransactionLauncher by inject()
 
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
@@ -292,15 +290,13 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
             )
     }
 
-    private fun startSwap() {
-        txLauncher.startFlow(
-            activity = requireActivity(),
-            action = AssetAction.Swap,
-            fragmentManager = childFragmentManager,
-            flowHost = this@KycTierSplashFragment,
-            compositeDisposable = compositeDisposable
+    private fun startSwap() =
+        startActivity(
+            TransactionFlowActivity.newInstance(
+                context = requireActivity(),
+                action = AssetAction.Swap
+            )
         )
-    }
 
     override fun onPause() {
         compositeDisposable.clear()
@@ -336,8 +332,5 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
 
     companion object {
         private const val SILVER_TIER_INDEX = 1
-    }
-
-    override fun onFlowFinished() {
     }
 }

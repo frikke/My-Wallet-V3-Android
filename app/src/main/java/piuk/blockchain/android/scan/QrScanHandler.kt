@@ -9,7 +9,6 @@ import com.blockchain.bitpay.BitPayInvoiceTarget
 import com.blockchain.bitpay.PATH_BITPAY_INVOICE
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.util.FormatsUtil
 import info.blockchain.wallet.util.FormatsUtil.BCH_PREFIX
@@ -17,7 +16,6 @@ import info.blockchain.wallet.util.FormatsUtil.BTC_PREFIX
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.SingleSubject
 import io.reactivex.rxjava3.subjects.MaybeSubject
 
@@ -67,21 +65,8 @@ class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
 }
 
 class QrScanResultProcessor(
-    private val bitPayDataManager: BitPayDataManager,
-    mwaFeatureFlag: FeatureFlag
+    private val bitPayDataManager: BitPayDataManager
 ) {
-    private var isMWAEnabled: Boolean = false
-
-    init {
-        val compositeDisposable = mwaFeatureFlag.enabled.observeOn(Schedulers.io()).subscribe(
-            { result ->
-                isMWAEnabled = result
-            },
-            {
-                isMWAEnabled = false
-            }
-        )
-    }
 
     fun processScan(scanResult: String, isDeeplinked: Boolean = false): Single<ScanResult> =
         when {
@@ -90,7 +75,7 @@ class QrScanResultProcessor(
                 .map {
                     ScanResult.TxTarget(setOf(it), isDeeplinked)
                 }
-            isMWAEnabled && scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
+            scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
             else -> {
                 val addressParser: AddressFactory = payloadScope.get()
                 addressParser.parse(scanResult)

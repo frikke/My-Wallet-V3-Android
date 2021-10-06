@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -30,7 +29,6 @@ import com.blockchain.notifications.analytics.RequestAnalyticsEvents
 import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.TransactionsAnalyticsEvents
 import com.blockchain.notifications.analytics.activityShown
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
@@ -84,7 +82,6 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
-import piuk.blockchain.android.ui.pairingcode.PairingBottomSheet
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -93,8 +90,6 @@ import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transfer.TransferFragment
@@ -111,13 +106,13 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
 import java.net.URLDecoder
 
 class MainActivity : MvpActivity<MainView, MainPresenter>(),
     HomeNavigator,
     MainView,
-    DialogFlow.FlowHost,
     SlidingModalBottomDialog.Host,
     UpsellHost,
     AuthNewLoginSheet.Host,
@@ -131,16 +126,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override val presenter: MainPresenter by scopedInject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
     private val userIdentity: NabuUserIdentity by scopedInject()
-    private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
-    private val txLauncher: TransactionLauncher by inject()
     private val database: Database by inject()
-
-    @Suppress("unused")
     private val gatedFeatures: InternalFeatureFlagApi by inject()
-
     private val compositeDisposable = CompositeDisposable()
-
-    private var isMWAEnabled: Boolean = false
 
     override val view: MainView = this
 
@@ -271,14 +259,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             }
         }
 
-        compositeDisposable.add(mwaFF.enabled.observeOn(Schedulers.io()).subscribe(
-            { result ->
-                isMWAEnabled = result
-            },
-            {
-                isMWAEnabled = false
-            }
-        ))
         compositeDisposable += userIdentity.checkForUserWalletLinkErrors()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
@@ -427,13 +407,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 Intent(this, AccountActivity::class.java),
                 ACCOUNT_EDIT
             )
-            R.id.login_web_wallet -> {
-                if (isMWAEnabled) {
-                    QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
-                } else {
-                    showBottomSheet(PairingBottomSheet())
-                }
-            }
+            R.id.login_web_wallet -> QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
             R.id.nav_settings -> startActivityForResult(
                 Intent(this, SettingsActivity::class.java),
                 SETTINGS_EDIT
@@ -557,14 +531,13 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = { sourceAccount ->
-                        txLauncher.startFlow(
-                            activity = this,
-                            fragmentManager = currentFragment.childFragmentManager,
-                            action = AssetAction.Send,
-                            flowHost = this@MainActivity,
-                            sourceAccount = sourceAccount,
-                            target = targetAddress,
-                            compositeDisposable = compositeDisposable
+                        startActivity(
+                            TransactionFlowActivity.newInstance(
+                                context = this,
+                                sourceAccount = sourceAccount,
+                                target = targetAddress,
+                                action = AssetAction.Send
+                            )
                         )
                     },
                     onComplete = {
@@ -680,14 +653,13 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             val swapFragment = SwapFragment.newInstance()
             showFragment(swapFragment, reload)
         } else if (sourceAccount != null) {
-            txLauncher.startFlow(
-                activity = this,
-                sourceAccount = sourceAccount,
-                target = destinationAccount ?: NullCryptoAccount(),
-                action = AssetAction.Swap,
-                fragmentManager = supportFragmentManager,
-                flowHost = this@MainActivity,
-                compositeDisposable = compositeDisposable
+            startActivity(
+                TransactionFlowActivity.newInstance(
+                    context = this,
+                    sourceAccount = sourceAccount,
+                    target = destinationAccount ?: NullCryptoAccount(),
+                    action = AssetAction.Swap
+                )
             )
         }
     }
@@ -857,10 +829,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         )
     }
 
-    override fun onFlowFinished() {
-        Timber.d("On finished")
-    }
-
     override fun onSheetClosed() {
         Timber.d("On closed")
     }
@@ -1002,11 +970,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun launchPendingVerificationScreen(campaignType: CampaignType) {
         KycStatusActivity.start(this, campaignType)
     }
-    // endregion
 
     companion object {
-
-        val TAG: String = MainActivity::class.java.simpleName
         const val START_BUY_SELL_INTRO_KEY = "START_BUY_SELL_INTRO_KEY"
         const val SHOW_SWAP = "SHOW_SWAP"
         const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"

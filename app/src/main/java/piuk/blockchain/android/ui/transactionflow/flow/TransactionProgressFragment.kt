@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transactionflow.fullscreen
+package piuk.blockchain.android.ui.transactionflow.flow
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -31,7 +31,7 @@ class TransactionProgressFragment : TransactionFlowFragment<DialogTxFlowInProgre
     }
 
     override fun render(newState: TransactionState) {
-        Timber.d("!TRANSACTION!> Rendering! TransactionProgressSheet")
+        Timber.d("!TRANSACTION!> Rendering! TransactionProgressFragment")
         require(newState.currentStep == TransactionStep.IN_PROGRESS)
 
         customiser.transactionProgressStandardIcon(newState)?.let {

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -244,8 +243,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             KycRecoveryResubmissionAnnouncement(
                 dismissRecorder = get(),
-                userIdentity = get(),
-                accountRecoveryFF = get(ssoAccountRecoveryFeatureFlag)
+                userIdentity = get()
             )
         }.bind(AnnouncementRule::class)
     }

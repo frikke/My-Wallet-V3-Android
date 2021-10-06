@@ -3,7 +3,6 @@ package piuk.blockchain.android.data.notifications
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
-import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationsUtil
@@ -11,12 +10,12 @@ import piuk.blockchain.android.R
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.encodeToString
 import org.koin.android.ext.android.inject
@@ -36,7 +35,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val walletPrefs: WalletStatus by inject()
     private val analytics: Analytics by inject()
     private val secureChannelManager: SecureChannelManager by scopedInject()
-    private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Check if message contains a data payload.
@@ -72,6 +71,11 @@ class FcmCallbackService : FirebaseMessagingService() {
         }
     }
 
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
+
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
         notificationTokenManager.storeAndUpdateToken(newToken)
@@ -83,13 +87,10 @@ class FcmCallbackService : FirebaseMessagingService() {
      * [piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet] .
      */
     private fun sendNotification(payload: NotificationPayload, foreground: Boolean) {
-        val compositeDisposable = createIntentForNotification(payload, foreground)
-            .zipWith(mwaFF.enabled.toMaybe())
+        compositeDisposable += createIntentForNotification(payload, foreground)
             .subscribeOn(Schedulers.io())
             .subscribeBy(
-                onSuccess = { result ->
-                    val notifyIntent = result.first
-                    val isModernAuthEnabled = result.second
+                onSuccess = { notifyIntent ->
                     val intent = PendingIntent.getActivity(
                         applicationContext,
                         0,
@@ -98,7 +99,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                     )
                     val notificationId = if (foreground) ID_FOREGROUND_NOTIFICATION else ID_BACKGROUND_NOTIFICATION
 
-                    if (isSecureChannelMessage(payload) && isModernAuthEnabled) {
+                    if (isSecureChannelMessage(payload)) {
                         if (foreground) {
                             startActivity(notifyIntent)
                         } else {
@@ -206,7 +207,6 @@ class FcmCallbackService : FirebaseMessagingService() {
     }
 
     companion object {
-
         const val ID_BACKGROUND_NOTIFICATION = 1337
         const val ID_FOREGROUND_NOTIFICATION = 1338
         const val ID_BACKGROUND_NOTIFICATION_2FA = 1339
