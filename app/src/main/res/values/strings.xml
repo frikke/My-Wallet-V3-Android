@@ -2269,7 +2269,11 @@
 
     <!-- Prices Screen -->
     <string name="search_coins_hint">Search Coins</string>
-    
+
+    <!-- Receive Screen -->
+    <string name="search_wallets_hint">Search Wallets and Cryptos</string>
+    <string name="search_wallets_result">%s Results</string>
+
     <!-- Account Unification -->
     <string name="unification_sheet_title">Upgrade Account</string>
     <string name="unification_sheet_later_cta">I\'ll Do This Later</string>

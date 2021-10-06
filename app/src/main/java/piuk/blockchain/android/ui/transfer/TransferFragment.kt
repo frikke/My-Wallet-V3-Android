@@ -7,11 +7,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.notifications.analytics.Analytics
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferBinding
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
+import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.receive.TransferReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -21,6 +24,8 @@ class TransferFragment : Fragment() {
     private val startingView: TransferViewType by unsafeLazy {
         arguments?.getSerializable(PARAM_START_VIEW) as? TransferViewType ?: TransferViewType.TYPE_SEND
     }
+
+    private val gatedFeatures: InternalFeatureFlagApi by inject()
 
     private val analytics: Analytics by inject()
 
@@ -45,6 +50,7 @@ class TransferFragment : Fragment() {
             transferTabs.setupWithViewPager(transferPager)
             transferPager.adapter = TransferPagerAdapter(
                 listOf(getString(R.string.send), getString(R.string.common_receive)),
+                gatedFeatures,
                 childFragmentManager
             )
 
@@ -83,6 +89,7 @@ class TransferFragment : Fragment() {
 
 class TransferPagerAdapter(
     private val titlesList: List<String>,
+    private val gatedFeatures: InternalFeatureFlagApi,
     fragmentManager: FragmentManager
 ) : FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
@@ -93,6 +100,12 @@ class TransferPagerAdapter(
     override fun getItem(position: Int): Fragment =
         when (position) {
             0 -> TransferSendFragment.newInstance()
-            else -> TransferReceiveFragment.newInstance()
+            else -> {
+                if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+                    ReceiveFragment.newInstance()
+                } else {
+                    TransferReceiveFragment.newInstance()
+                }
+            }
         }
 }

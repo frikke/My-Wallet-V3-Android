@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transfer.receive
+package piuk.blockchain.android.ui.transfer.receive.detail
 
 import android.app.AlertDialog
 import android.content.ClipData
@@ -33,10 +33,11 @@ import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 
-internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, ReceiveState, DialogReceiveBinding>() {
-    override val model: ReceiveModel by scopedInject()
+internal class ReceiveDetailSheet :
+    MviBottomSheet<ReceiveDetailModel, ReceiveDetailIntent, ReceiveDetailState, DialogReceiveBinding>() {
+    override val model: ReceiveDetailModel by scopedInject()
     private val encoder: QRCodeEncoder by inject()
-    private val receiveIntentHelper: ReceiveIntentHelper by inject()
+    private val receiveIntentHelper: ReceiveDetailIntentHelper by inject()
 
     private var qrBitmap: Bitmap? = null
 
@@ -63,7 +64,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
         }
     }
 
-    override fun render(newState: ReceiveState) {
+    override fun render(newState: ReceiveDetailState) {
         if (newState.displayMode == ReceiveScreenDisplayMode.SHARE) {
             renderShare(newState)
         } else {
@@ -71,7 +72,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
         }
     }
 
-    private fun renderReceive(newState: ReceiveState) {
+    private fun renderReceive(newState: ReceiveDetailState) {
         with(binding) {
             switcher.displayedChild = VIEW_RECEIVE
             receiveTitle.text = getString(R.string.tx_title_receive, newState.account.asset.displayTicker)
@@ -112,7 +113,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
         setCustomSlot(newState)
     }
 
-    private fun renderShare(newState: ReceiveState) {
+    private fun renderShare(newState: ReceiveDetailState) {
         with(binding) {
             switcher.displayedChild = VIEW_SHARE
             check(newState.qrUri != null)
@@ -130,7 +131,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
         }
     }
 
-    private fun setCustomSlot(newState: ReceiveState) {
+    private fun setCustomSlot(newState: ReceiveDetailState) {
         when {
             newState.shouldShowXlmMemo() -> ReceiveMemoView(requireContext()).also {
                 it.updateAddress(newState.cryptoAddress)
@@ -197,8 +198,8 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
         private const val VIEW_RECEIVE = 0
         private const val VIEW_SHARE = 1
 
-        fun newInstance(account: CryptoAccount): ReceiveSheet =
-            ReceiveSheet().apply {
+        fun newInstance(account: CryptoAccount): ReceiveDetailSheet =
+            ReceiveDetailSheet().apply {
                 arguments = Bundle().apply {
                     putAccount(PARAM_ACCOUNT, account)
                 }

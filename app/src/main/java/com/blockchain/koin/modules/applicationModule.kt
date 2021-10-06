@@ -54,7 +54,9 @@ import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
+import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
@@ -114,9 +116,7 @@ import piuk.blockchain.android.ui.settings.SettingsPresenter
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
-import piuk.blockchain.android.ui.transfer.receive.ReceiveIntentHelper
-import piuk.blockchain.android.ui.transfer.receive.ReceiveModel
-import piuk.blockchain.android.ui.transfer.receive.ReceiveState
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailIntentHelper
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.BackupWalletUtil
@@ -473,6 +473,18 @@ val applicationModule = module {
         }
 
         factory {
+            GetAvailableCryptoAssetsUseCase(
+                coincore = get()
+            )
+        }
+
+        factory {
+            GetReceiveAccountsForAssetUseCase(
+                coincore = get()
+            )
+        }
+
+        factory {
             TradeDataManagerImpl(
                 tradeService = get(),
                 authenticator = get(),
@@ -544,15 +556,6 @@ val applicationModule = module {
             SimpleBuySyncFactory(
                 custodialWallet = get(),
                 serializer = get()
-            )
-        }
-
-        factory {
-            ReceiveModel(
-                initialState = ReceiveState(),
-                uiScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                crashLogger = get()
             )
         }
 
@@ -781,7 +784,7 @@ val applicationModule = module {
     }.bind(AssetResources::class)
 
     factory {
-        ReceiveIntentHelper(
+        ReceiveDetailIntentHelper(
             context = get(),
             specificAnalytics = get()
         )

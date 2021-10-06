@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transfer.receive
+package piuk.blockchain.android.ui.transfer.receive.detail
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -25,7 +25,7 @@ import java.io.IOException
 import java.util.ArrayList
 import java.util.HashMap
 
-class ReceiveIntentHelper(
+class ReceiveDetailIntentHelper(
     private val context: Context,
     private val specificAnalytics: ProviderSpecificAnalytics
 ) {

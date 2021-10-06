@@ -1,116 +1,57 @@
 package piuk.blockchain.android.ui.transfer.receive
 
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.logging.CrashLogger
+import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.coincore.NullCryptoAddress
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
+import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
-internal data class ReceiveState(
-    val account: CryptoAccount = NullCryptoAccount(),
-    val cryptoAddress: CryptoAddress = NullCryptoAddress,
-    val qrUri: String? = null,
-    val displayMode: ReceiveScreenDisplayMode = ReceiveScreenDisplayMode.RECEIVE
-) : MviState {
-    fun shouldShowXlmMemo() = cryptoAddress.memo != null
-
-    fun shouldShowRotatingAddressInfo() = !account.hasStaticAddress
-}
-
-internal sealed class ReceiveIntent : MviIntent<ReceiveState>
-internal class InitWithAccount(
-    val cryptoAccount: CryptoAccount
-) : ReceiveIntent() {
-    override fun reduce(oldState: ReceiveState): ReceiveState {
-        return oldState.copy(
-            account = cryptoAccount,
-            cryptoAddress = NullCryptoAddress,
-            qrUri = null,
-            displayMode = ReceiveScreenDisplayMode.RECEIVE
-        )
-    }
-}
-
-internal class UpdateAddressAndGenerateQrCode(val cryptoAddress: CryptoAddress) : ReceiveIntent() {
-    override fun reduce(oldState: ReceiveState): ReceiveState =
-        oldState.copy(
-            cryptoAddress = cryptoAddress,
-            displayMode = ReceiveScreenDisplayMode.RECEIVE
-        )
-}
-
-internal class UpdateQrCodeUri(private val qrUri: String) : ReceiveIntent() {
-    override fun reduce(oldState: ReceiveState): ReceiveState =
-        oldState.copy(
-            qrUri = qrUri,
-            displayMode = ReceiveScreenDisplayMode.RECEIVE
-        )
-}
-
-internal object ShowShare : ReceiveIntent() {
-    override fun isValidFor(oldState: ReceiveState): Boolean = oldState.qrUri != null
-
-    override fun reduce(oldState: ReceiveState): ReceiveState = oldState.copy(
-        displayMode = ReceiveScreenDisplayMode.SHARE
-    )
-}
-
-internal object AddressError : ReceiveIntent() {
-    override fun reduce(oldState: ReceiveState): ReceiveState = oldState
-}
-
-internal object ClearShareList : ReceiveIntent() {
-    override fun reduce(oldState: ReceiveState): ReceiveState =
-        oldState.copy(displayMode = ReceiveScreenDisplayMode.RECEIVE)
-}
-
-internal class ReceiveModel(
+class ReceiveModel(
     initialState: ReceiveState,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
-) : MviModel<ReceiveState, ReceiveIntent>(
-    initialState,
-    uiScheduler,
-    environmentConfig,
-    crashLogger
-) {
+    crashLogger: CrashLogger,
+    private val getAvailableCryptoAssetsUseCase: GetAvailableCryptoAssetsUseCase,
+    private val getReceiveAccountsForAssetUseCase: GetReceiveAccountsForAssetUseCase
+) : MviModel<ReceiveState, ReceiveIntent>(initialState, uiScheduler, environmentConfig, crashLogger) {
 
-    override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? =
-        when (intent) {
-            is InitWithAccount -> handleInit(intent.cryptoAccount)
-            is UpdateAddressAndGenerateQrCode -> {
-                process(UpdateQrCodeUri(intent.cryptoAddress.toUrl()))
-                null
-            }
-            is ShowShare,
-            is UpdateQrCodeUri,
-            is AddressError,
-            is ClearShareList -> null
+    override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? {
+        return when (intent) {
+            ReceiveIntent.GetAvailableAssets -> getAvailableAssets()
+            is ReceiveIntent.UpdateAssets,
+            is ReceiveIntent.FilterAssets -> null
         }
+    }
 
-    private fun handleInit(account: CryptoAccount): Disposable =
-        account.receiveAddress
-            .map { it as CryptoAddress }
+    private fun getAvailableAssets(): Disposable =
+        getAvailableCryptoAssetsUseCase(Unit)
+            .map { assets ->
+                assets.sortedBy { assetInfo: AssetInfo -> assetInfo.name }
+            }
             .subscribeBy(
-                onSuccess = {
-                    process(UpdateAddressAndGenerateQrCode(it))
+                onSuccess = { assets ->
+                    process(
+                        ReceiveIntent.UpdateAssets(
+                            assets = assets,
+                            loadAccountsForAsset = ::loadAccountsForAsset
+                        )
+                    )
                 },
-                onError = {
-                    Timber.e("Unable to fetch ${account.asset} address from account")
-                    process(AddressError)
+                onError = { throwable ->
+                    Timber.e(throwable)
                 }
             )
-}
 
-enum class ReceiveScreenDisplayMode {
-    RECEIVE, SHARE
+    private fun loadAccountsForAsset(assetInfo: AssetInfo): Single<List<CryptoAccount>> {
+        return getReceiveAccountsForAssetUseCase(assetInfo).map {
+            it.filterIsInstance<CryptoAccount>()
+        }
+    }
 }

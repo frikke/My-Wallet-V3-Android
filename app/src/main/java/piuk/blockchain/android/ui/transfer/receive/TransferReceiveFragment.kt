@@ -16,6 +16,7 @@ import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.AccountSelectorFragment
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 class TransferReceiveFragment : AccountSelectorFragment() {
@@ -59,7 +60,7 @@ class TransferReceiveFragment : AccountSelectorFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { type ->
                 if (type == KycUpgradePromptManager.Type.NONE) {
-                    ReceiveSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
+                    ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
                 } else {
                     KycUpgradePromptManager.getUpsellSheet(type).show(childFragmentManager, BOTTOM_SHEET)
                 }
