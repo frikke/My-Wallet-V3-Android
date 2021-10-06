@@ -26,6 +26,9 @@ class TransferSendFragment : AccountSelectorFragment() {
 
     private val analytics: Analytics by inject()
     private val compositeDisposable = CompositeDisposable()
+    private val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        refreshItems(showLoader = false)
+    }
 
     override val fragmentAction: AssetAction
         get() = AssetAction.Send
@@ -83,9 +86,6 @@ class TransferSendFragment : AccountSelectorFragment() {
     }
 
     private fun startTransactionFlow(fromAccount: CryptoAccount) {
-        val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            refreshItems(showLoader = false)
-        }
         startActivityForResult.launch(
             TransactionFlowActivity.newInstance(
                 context = requireActivity(),

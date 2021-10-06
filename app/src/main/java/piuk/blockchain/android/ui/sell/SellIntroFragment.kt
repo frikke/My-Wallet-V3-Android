@@ -62,6 +62,11 @@ class SellIntroFragment : ViewPagerFragment() {
         )
     }
 
+    private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        host.onSellFinished()
+        loadSellDetails(showLoader = false)
+    }
+
     private var _binding: SellIntroFragmentBinding? = null
     private val binding: SellIntroFragmentBinding
         get() = _binding!!
@@ -273,11 +278,6 @@ class SellIntroFragment : ViewPagerFragment() {
 
     private fun startSellFlow(it: CryptoAccount) {
         analytics.logEvent(BuySellViewedEvent(BuySellType.SELL))
-
-        val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            host.onSellFinished()
-            loadSellDetails(showLoader = false)
-        }
 
         startForResult.launch(
             TransactionFlowActivity.newInstance(
