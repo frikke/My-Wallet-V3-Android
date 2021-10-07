@@ -13,6 +13,7 @@ import android.util.Base64
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.signin.UnifiedSignInEventListener
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
@@ -59,6 +60,9 @@ class LoginAuthActivity :
     private val walletPrefs: WalletStatus by inject()
 
     private lateinit var currentState: LoginAuthState
+
+    private var willUnifyAccount: Boolean = false
+    private var isAccountRecoveryEnabled: Boolean = false
     private var email: String = ""
     private var userId: String = ""
     private var recoveryToken: String = ""
@@ -178,6 +182,18 @@ class LoginAuthActivity :
     override fun initBinding(): ActivityLoginAuthBinding = ActivityLoginAuthBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginAuthState) {
+        renderAuthStatus(newState)
+        updateLoginData(newState)
+        update2FALayout(newState.authMethod)
+
+        newState.twoFaState?.let {
+            renderRemainingTries(it)
+        }
+
+        currentState = newState
+    }
+
+    private fun renderAuthStatus(newState: LoginAuthState) {
         when (newState.authStatus) {
             AuthStatus.None,
             AuthStatus.InitAuthInfo -> binding.progressBar.visible()
@@ -225,14 +241,6 @@ class LoginAuthActivity :
                     .show()
             }
         }.exhaustive
-        updateLoginData(newState)
-        update2FALayout(newState.authMethod)
-
-        newState.twoFaState?.let {
-            renderRemainingTries(it)
-        }
-
-        currentState = newState
     }
 
     private fun clearKeyboardAndFinish() {
@@ -261,10 +269,10 @@ class LoginAuthActivity :
                 )
             }
             BlockchainAccountType.WALLET_EXCHANGE_NOT_LINKED -> {
-                // do nothing
+                // TODO do we need anything for this case
             }
             else -> {
-                // this case should never happen?
+                // TODO this case should never happen
             }
         }
 
@@ -274,15 +282,36 @@ class LoginAuthActivity :
     }
 
     override fun upgradeAccountClicked() {
-        // TODO show webview
+        willUnifyAccount = true
     }
 
     override fun doLaterClicked() {
-        model.process(LoginAuthIntents.ShowAuthComplete)
+        willUnifyAccount = false
     }
 
     override fun onSheetClosed() {
-        model.process(LoginAuthIntents.ShowAuthComplete)
+        if (willUnifyAccount) {
+            showUnificationUI()
+        } else {
+            model.process(LoginAuthIntents.ShowAuthComplete)
+        }
+    }
+
+    private fun showUnificationUI() {
+        with(binding) {
+            unifiedSignInWebview.initWebView(object : UnifiedSignInEventListener {
+                override fun onLoaded() {
+                    progressBar.gone()
+                }
+
+                override fun onError(error: String) {
+                    // TODO nothing for now
+                }
+            })
+
+            unifiedSignInWebview.visible()
+            progressBar.visible()
+        }
     }
 
     private fun renderRemainingTries(state: TwoFaCodeState) =

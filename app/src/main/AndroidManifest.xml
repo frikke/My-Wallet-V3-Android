@@ -25,6 +25,7 @@
         tools:replace="android:label, android:allowBackup"
         android:name=".BlockchainApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:backupAgent="piuk.blockchain.androidcore.utils.CloudBackupAgent"
         android:icon="@mipmap/ic_launcher"
         android:resizeableActivity="false"

@@ -50,7 +50,9 @@ class LoginAuthModel(
                     payloadJson = previousState.payloadJson
                 )
             is LoginAuthIntents.UpdateMobileSetup -> updateAccount(
-                intent.isMobileSetup, intent.deviceType, previousState.shouldRequestAccountUnification
+                isMobileSetup = intent.isMobileSetup,
+                deviceType = intent.deviceType,
+                shouldRequestUpgrade = previousState.shouldRequestAccountUnification
             )
             is LoginAuthIntents.ShowAuthComplete -> clearSessionId()
             is LoginAuthIntents.RequestNew2FaCode -> requestNew2FaCode(previousState)

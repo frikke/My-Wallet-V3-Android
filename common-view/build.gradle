@@ -1,0 +1,64 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.novoda.build-properties'
+apply from: '../quality/ktlint.gradle'
+
+android {
+    compileSdkVersion Versions.compileSdk
+
+    buildProperties {
+        secrets {
+            using(file('../app/secrets.properties')) | file('../app/secretsDefaults.properties')
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion Versions.minSdk
+        targetSdkVersion Versions.targetSdk
+        versionCode Versions.versionCode
+        versionName Versions.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding = true
+    }
+
+    flavorDimensions "environment"
+
+    productFlavors {
+        envProd {
+            dimension "environment"
+            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
+        }
+
+        envInternalProd {
+            dimension "environment"
+            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
+        }
+
+        envStaging {
+            dimension "environment"
+            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['stagingLoginPortal']
+        }
+    }
+}
+
+dependencies {
+    implementation Libraries.appCompat
+    implementation Libraries.design
+    implementation Libraries.timber
+    implementation Libraries.kotlin
+}
+repositories {
+    mavenCentral()
+}

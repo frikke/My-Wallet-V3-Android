@@ -40,11 +40,17 @@ class AccountUnificationBottomSheet : SlidingModalBottomDialog<DialogSheetAccoun
                 primaryButton = ButtonOptions(
                     true,
                     getString(R.string.unification_sheet_now_cta)
-                ) { host.upgradeAccountClicked() },
+                ) {
+                    host.upgradeAccountClicked()
+                    dismiss()
+                },
                 secondaryButton = ButtonOptions(
                     true,
                     getString(R.string.unification_sheet_later_cta)
-                ) { host.doLaterClicked() },
+                ) {
+                    host.doLaterClicked()
+                    dismiss()
+                },
                 showSheetIndicator = false,
                 titleGravity = Gravity.CENTER,
                 descriptionGravity = Gravity.CENTER

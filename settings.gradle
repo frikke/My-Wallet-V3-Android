@@ -14,4 +14,5 @@ include ':app',
         ':componentlib',
         ':common-mp:utils',
         ':common-mp:interface',
-        ':biometrics'
+        ':biometrics',
+        ':common-view'
