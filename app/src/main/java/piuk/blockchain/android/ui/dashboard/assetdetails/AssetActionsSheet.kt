@@ -20,7 +20,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.selectFirstAccount
 import piuk.blockchain.android.databinding.DialogAssetActionsSheetBinding
 import piuk.blockchain.android.databinding.ItemAssetActionBinding
@@ -124,14 +123,8 @@ class AssetActionsSheet :
         account: BlockchainAccount,
         actions: AvailableActions
     ): List<AssetActionItem> {
-        return when (val firstAccount = account.selectFirstAccount()) {
-            is InterestAccount -> actions.toMutableList().apply {
-                add(0, AssetAction.InterestDeposit)
-            }.map { mapAction(it, firstAccount.asset, firstAccount) }
-            else -> actions.toMutableList().apply {
-                remove(AssetAction.InterestDeposit)
-            }.map { mapAction(it, firstAccount.asset, firstAccount) }
-        }
+        val firstAccount = account.selectFirstAccount()
+        return actions.map { mapAction(it, firstAccount.asset, firstAccount) }
     }
 
     private fun mapAction(
