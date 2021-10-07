@@ -136,7 +136,8 @@ class ActivityDetailsModel(
 
             is UpdateDescriptionIntent ->
                 interactor.updateItemDescription(
-                    intent.txId, intent.asset,
+                    intent.txId,
+                    intent.asset,
                     intent.description
                 ).subscribeBy(
                     onComplete = {

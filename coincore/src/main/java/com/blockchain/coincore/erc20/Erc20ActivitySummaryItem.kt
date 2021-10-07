@@ -20,7 +20,8 @@ import java.math.BigInteger
     private val erc20DataManager: Erc20DataManager,
     override val exchangeRates: ExchangeRatesDataManager,
     lastBlockNumber: BigInteger,
-    override val account: CryptoAccount
+    override val account: CryptoAccount,
+    override val supportsDescription: Boolean
 ) : NonCustodialActivitySummaryItem() {
 
     override val transactionType: TransactionSummary.TransactionType by unsafeLazy {

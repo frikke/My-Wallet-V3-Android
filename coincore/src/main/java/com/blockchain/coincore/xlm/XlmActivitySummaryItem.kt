@@ -61,6 +61,9 @@ class XlmActivitySummaryItem(
     val xlmMemo: String
         get() = xlmTransaction.memo.value
 
+    override val supportsDescription: Boolean
+        get() = true
+
     override fun updateDescription(description: String): Completable =
         payloadDataManager.updateTransactionNotes(txId, description)
 }

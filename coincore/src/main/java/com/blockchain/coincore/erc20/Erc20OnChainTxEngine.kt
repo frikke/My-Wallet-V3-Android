@@ -86,7 +86,7 @@ open class Erc20OnChainTxEngine(
                         feeLevel = pendingTx.feeSelection.selectedLevel
                     ),
                     buildConfirmationTotal(pendingTx),
-                    TxConfirmationValue.Description()
+                    TxConfirmationValue.Description().takeIf { erc20DataManager.supportsErc20TxNote(sourceAsset) }
                 )
             )
         )

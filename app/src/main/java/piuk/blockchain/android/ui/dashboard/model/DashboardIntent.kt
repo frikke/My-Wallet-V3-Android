@@ -89,8 +89,14 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         private val prices24HrWithDelta: Prices24HrWithDelta
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val oldAsset = oldState.activeAssets[asset]
-            val newAsset = updateAsset(oldAsset, prices24HrWithDelta)
+            val updatedActiveList = if (oldState.activeAssets.contains(asset)) {
+                val oldAsset = oldState.activeAssets[asset]
+                val newAsset = updateAsset(oldAsset, prices24HrWithDelta)
+                oldState.activeAssets.copy(patchAsset = newAsset)
+            } else {
+                oldState.activeAssets
+            }
+
             val priceState = AssetPriceState(
                 assetInfo = asset,
                 prices = prices24HrWithDelta
@@ -98,7 +104,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             val pricesMap = oldState.availablePrices.toMutableMap()
             pricesMap[asset] = priceState
             return oldState.copy(
-                activeAssets = oldState.activeAssets.copy(patchAsset = newAsset),
+                activeAssets = updatedActiveList,
                 availablePrices = pricesMap
             )
         }
@@ -233,10 +239,14 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         private val historicPrices: HistoricalRateList
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val oldAsset = oldState.activeAssets[asset]
-            val newAsset = updateAsset(oldAsset, historicPrices)
+            return if (oldState.activeAssets.contains(asset)) {
+                val oldAsset = oldState.activeAssets[asset]
+                val newAsset = updateAsset(oldAsset, historicPrices)
 
-            return oldState.copy(activeAssets = oldState.activeAssets.copy(patchAsset = newAsset))
+                oldState.copy(activeAssets = oldState.activeAssets.copy(patchAsset = newAsset))
+            } else {
+                oldState
+            }
         }
 
         private fun updateAsset(

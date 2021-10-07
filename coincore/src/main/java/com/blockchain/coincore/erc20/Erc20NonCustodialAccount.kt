@@ -71,7 +71,8 @@ class Erc20NonCustodialAccount(
                         erc20DataManager = erc20DataManager,
                         exchangeRates = exchangeRates,
                         lastBlockNumber = latestBlockNumber,
-                        account = this
+                        account = this,
+                        supportsDescription = erc20DataManager.supportsErc20TxNote(asset)
                     )
                 }
             }.flatMap {

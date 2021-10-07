@@ -58,6 +58,8 @@ class AssetMap(private val map: Map<AssetInfo, CryptoAssetState>) :
         map.values.forEach { assets[it.currency] = it.reset() }
         return AssetMap(assets)
     }
+
+    fun contains(asset: AssetInfo): Boolean = map[asset] != null
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

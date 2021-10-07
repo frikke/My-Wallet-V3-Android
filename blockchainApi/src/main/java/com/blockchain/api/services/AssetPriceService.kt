@@ -61,7 +61,7 @@ class AssetPriceService internal constructor(
             apiKey = apiCode
         ).map { result ->
             result.map {
-                it.value.toAssetPrice(it.key)
+                it.value.toAssetPrice(it.key) ?: unavailablePrice(it.key)
             }
         }
 
@@ -77,7 +77,7 @@ class AssetPriceService internal constructor(
             apiKey = apiCode
         ).map { result ->
             result.map {
-                it.value.toAssetPrice(it.key)
+                it.value.toAssetPrice(it.key) ?: unavailablePrice(it.key)
             }
         }
 
@@ -113,6 +113,14 @@ class AssetPriceService internal constructor(
         ).map { list ->
             list.filterNot { it.price == null }.map { it.toAssetPrice(base, quote) }
         }
+
+    private fun unavailablePrice(pair: String): AssetPrice =
+        AssetPrice(
+            base = pair.extractBase(),
+            quote = pair.extractQuote(),
+            price = Double.NaN,
+            timestamp = System.currentTimeMillis()
+        )
 }
 
 private fun PriceSymbolDto.toAssetSymbol(): AssetSymbol =
@@ -123,27 +131,21 @@ private fun PriceSymbolDto.toAssetSymbol(): AssetSymbol =
         isFiat = isFiat
     )
 
-private fun AssetPriceDto.toAssetPrice(base: String, quote: String): AssetPrice {
-    checkNotNull(price)
-
-    return AssetPrice(
+private fun AssetPriceDto.toAssetPrice(base: String, quote: String): AssetPrice =
+    AssetPrice(
         base = base,
         quote = quote,
-        price = price,
+        price = price ?: Double.NaN,
         timestamp = timestamp
     )
-}
 
-private fun AssetPriceDto.toAssetPrice(pair: String): AssetPrice {
-    checkNotNull(price)
-
-    return AssetPrice(
+private fun AssetPriceDto.toAssetPrice(pair: String): AssetPrice =
+    AssetPrice(
         base = pair.extractBase(),
         quote = pair.extractQuote(),
-        price = price,
+        price = price ?: Double.NaN,
         timestamp = timestamp
     )
-}
 
-private fun String.extractBase(): String = substringBefore("-")
-private fun String.extractQuote(): String = substringAfter("-")
+private fun String.extractBase(): String = substringBeforeLast("-")
+private fun String.extractQuote(): String = substringAfterLast("-")

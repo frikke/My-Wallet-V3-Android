@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.android.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
@@ -8,21 +7,21 @@ import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Completable
 import org.amshove.kluent.`should be`
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
 import com.blockchain.coincore.loader.RemoteFeature
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
-class AssetCatalogueTest {
+class AssetCatalogueTest : CoincoreTestBase() {
 
-    @get:Rule
-    val rx = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
+    private val features: InternalFeatureFlagApi = mock {
+        on { isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD) }.thenReturn(true)
     }
 
     private val featureConfig: AssetRemoteFeatureLookup = mock {
@@ -30,9 +29,17 @@ class AssetCatalogueTest {
         on { featuresFor(anyOrNull()) }.thenReturn(setOf(RemoteFeature.Balance))
     }
 
-    private val assetsManager: DynamicAssetsDataManager = mock()
+    private val assetList = listOf(
+        TEST_ASSET,
+        SECONDARY_TEST_ASSET
+        )
+
+    private val assetsManager: DynamicAssetsDataManager = mock {
+        on { availableCryptoAssets() }.thenReturn(Single.just(assetList))
+    }
 
     private val subject = AssetCatalogueImpl(
+        features = features,
         assetsDataManager = assetsManager,
         featureConfig = featureConfig
     )
@@ -87,6 +94,16 @@ class AssetCatalogueTest {
     @Test
     fun `lowercase xlm`() {
         subject.fromNetworkTicker("xlm") `should be` CryptoCurrency.XLM
+    }
+
+    @Test
+    fun `uppercase Dynamic`() {
+        subject.fromNetworkTicker("NOPE") `should be` TEST_ASSET
+    }
+
+    @Test
+    fun `lowercase Dynamci`() {
+        subject.fromNetworkTicker("nope") `should be` TEST_ASSET
     }
 
     @Test

@@ -172,6 +172,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
     abstract val outputsMap: Map<String, CryptoValue>
 
     abstract val description: String?
+    abstract val supportsDescription: Boolean
 
     open val confirmations = 0
     open val doubleSpend: Boolean = false

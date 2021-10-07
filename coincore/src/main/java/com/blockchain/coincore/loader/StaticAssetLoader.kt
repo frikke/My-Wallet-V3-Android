@@ -93,7 +93,7 @@ internal class StaticAssetLoader(
     private fun doLoadAssets(
         dynamicAssets: Set<AssetInfo>
     ): List<CryptoAsset> =
-        dynamicAssets.map {
+        dynamicAssets.mapNotNull {
             when {
                 it.isErc20() -> loadErc20Asset(it)
                 it.isCustodialOnly -> loadCustodialOnlyAsset(it)

@@ -44,7 +44,8 @@ class ActivityDetailsModelTest {
         override val inputsMap: Map<String, CryptoValue> = mock(),
         override val outputsMap: Map<String, CryptoValue> = mock(),
         override val description: String? = "desc",
-        override val account: CryptoAccount = mock()
+        override val account: CryptoAccount = mock(),
+        override val supportsDescription: Boolean = true
     ) : NonCustodialActivitySummaryItem()
 
     private val custodialItem = CustodialTradingActivitySummaryItem(

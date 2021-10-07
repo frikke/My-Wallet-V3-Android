@@ -15,7 +15,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
-import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAsset
@@ -28,15 +27,15 @@ import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.NonCustodialSupport
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import thepit.PitLinking
+import timber.log.Timber
 import java.lang.IllegalStateException
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
 private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
 
 internal class DynamicAssetLoader(
-    private val nonCustodialAssets: List<CryptoAsset>,
+    private val nonCustodialAssets: Set<CryptoAsset>,
     private val assetCatalogue: AssetCatalogueImpl,
-    private val featureConfig: AssetRemoteFeatureLookup,
     private val payloadManager: PayloadDataManager,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
@@ -79,9 +78,10 @@ internal class DynamicAssetLoader(
             }
             .map { nonCustodialAssets + it }
             .doOnSuccess { assetList -> assetMap.putAll(assetList.associateBy { it.asset }) }
+            .doOnError { Timber.e("init failed") }
             .ignoreElement()
 
-    private fun initNonCustodialAssets(assetList: List<CryptoAsset>): Completable =
+    private fun initNonCustodialAssets(assetList: Set<CryptoAsset>): Completable =
         Completable.concat(
             assetList.filterIsInstance<NonCustodialSupport>()
                 .map { asset ->
@@ -145,8 +145,6 @@ internal class DynamicAssetLoader(
         }
 
     private fun loadCustodialOnlyAsset(assetInfo: AssetInfo): CryptoAsset {
-        val possibleActions = featureConfig.featuresFor(assetInfo).toCustodialActions()
-
         return DynamicOnlyTradingAsset(
             asset = assetInfo,
             payloadManager = payloadManager,
@@ -161,17 +159,12 @@ internal class DynamicAssetLoader(
             identity = identity,
             features = features,
             addressValidation = defaultCustodialAddressValidation,
-            availableActions = possibleActions
+            availableActions = assetActions
         )
     }
 
     private fun loadErc20Asset(assetInfo: AssetInfo): CryptoAsset {
         require(assetInfo.isErc20())
-        require(assetInfo.isCustodial)
-        require(assetInfo.isNonCustodial)
-
-        val featureSet = featureConfig.featuresFor(assetInfo)
-
         return Erc20Asset(
             asset = assetInfo,
             payloadManager = payloadManager,
@@ -188,41 +181,24 @@ internal class DynamicAssetLoader(
             walletPreferences = walletPreferences,
             identity = identity,
             features = features,
-            availableCustodialActions = featureSet.toCustodialActions(),
-            availableNonCustodialActions = featureSet.toNonCustodialActions()
+            availableCustodialActions = assetActions,
+            availableNonCustodialActions = assetActions
         )
     }
 
     override val loadedAssets: List<CryptoAsset>
         get() = assetMap.values.toList()
+
+    companion object {
+        private val assetActions =
+            setOf(
+                AssetAction.Buy,
+                AssetAction.Sell,
+                AssetAction.Swap,
+                AssetAction.Send,
+                AssetAction.Receive,
+                AssetAction.ViewActivity,
+                AssetAction.InterestDeposit
+            )
+    }
 }
-
-private fun Set<RemoteFeature>.toCustodialActions() =
-    this.mapNotNull {
-        when (it) {
-            RemoteFeature.CanBuy -> AssetAction.Buy
-            RemoteFeature.CanSell -> AssetAction.Sell
-            RemoteFeature.CanSwap -> AssetAction.Swap
-            RemoteFeature.CanSend -> AssetAction.Send
-            RemoteFeature.CanReceive -> AssetAction.Receive
-            else -> null
-        }
-    }.toSet() + setOf(
-        AssetAction.ViewActivity, // Can always view activity
-        AssetAction.InterestDeposit // Interest is managed in the asset class
-    )
-
-private fun Set<RemoteFeature>.toNonCustodialActions() =
-    this.mapNotNull {
-        when (it) {
-            RemoteFeature.CanBuy -> AssetAction.Buy
-            RemoteFeature.CanSell -> AssetAction.Sell
-            RemoteFeature.CanSwap -> AssetAction.Swap
-            else -> null
-        }
-    }.toSet() + setOf(
-        AssetAction.ViewActivity, // Can always view activity
-        AssetAction.InterestDeposit, // Interest is managed in the asset class
-        AssetAction.Send, // Non-custodial can always send and receive
-        AssetAction.Receive
-    )

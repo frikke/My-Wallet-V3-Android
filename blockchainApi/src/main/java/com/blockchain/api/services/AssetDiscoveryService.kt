@@ -62,7 +62,7 @@ class AssetDiscoveryService internal constructor(
 
     private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         // We only support l2 on ETH at this time, so
-        if (coinType is AssetType.L2CryptoAsset && coinType.parentChain != ETHERIUM) {
+        if (coinType is AssetType.L2CryptoAsset && coinType.parentChain != ETHEREUM) {
             null
         } else {
             DynamicAsset(
@@ -75,7 +75,7 @@ class AssetDiscoveryService internal constructor(
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {
-                    is AssetType.L2CryptoAsset -> if (coinType.parentChain == ETHERIUM) {
+                    is AssetType.L2CryptoAsset -> if (coinType.parentChain == ETHEREUM) {
                         ERC20_CONFIRMATIONS
                     } else {
                         throw IllegalStateException("Unknown parent chain")
@@ -104,7 +104,7 @@ class AssetDiscoveryService internal constructor(
         }.toSet()
 
     companion object {
-        const val ETHERIUM = "ETH"
+        const val ETHEREUM = "ETH"
         private const val ERC20_CONFIRMATIONS = 12
     }
 }

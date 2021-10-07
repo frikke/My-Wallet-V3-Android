@@ -46,6 +46,8 @@ private val json = Json {
     isLenient = true
 }
 
+private val jsonConverter = json.asConverterFactory("application/json".toMediaType())
+
 val blockchainApiModule = module {
 
     single { RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()) }
@@ -55,7 +57,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("blockchain-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(jsonConverter)
             .build()
     }
 
@@ -64,7 +66,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("explorer-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(jsonConverter)
             .build()
     }
 
@@ -73,21 +75,24 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("nabu-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(jsonConverter)
             .build()
     }
 
     single(assetsApi) {
+        // Can't use the standard convertor here, because we need to set a discriminator
+        // for some polymorphic objects
+        val json = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            classDiscriminator = "name"
+        }
+
         Retrofit.Builder()
             .baseUrl(getBaseUrl("blockchain-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(
-                Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                    classDiscriminator = "name"
-                }.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 

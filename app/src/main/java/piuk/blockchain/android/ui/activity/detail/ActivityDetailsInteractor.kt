@@ -685,13 +685,10 @@ class ActivityDetailsInteractor(
 
     private fun checkIfShouldAddDescription(
         item: NonCustodialActivitySummaryItem
-    ): Description? = when (item) {
-        is BtcActivitySummaryItem,
-        is BchActivitySummaryItem,
-        is EthActivitySummaryItem,
-        is Erc20ActivitySummaryItem,
-        is XlmActivitySummaryItem -> Description(item.description)
-        else -> null
+    ): Description? = if (item.supportsDescription) {
+        Description(item.description)
+    } else {
+        null
     }
 
     private fun checkIfShouldAddMemo(

@@ -1,26 +1,33 @@
 package com.blockchain.coincore.loader
 
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.l1chain
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
-import timber.log.Timber
 import java.util.Locale
 
 internal class AssetCatalogueImpl(
+    private val features: InternalFeatureFlagApi,
     private val featureConfig: AssetRemoteFeatureLookup,
     private val assetsDataManager: DynamicAssetsDataManager
 ) : AssetCatalogue {
 
     private lateinit var fullAssetLookup: Map<String, AssetInfo>
 
-    fun initialise(fixedAssets: Set<AssetInfo>): Single<Set<AssetInfo>> {
+    fun initialise(fixedAssets: Set<AssetInfo>): Single<Set<AssetInfo>> =
+        when (features.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+            true -> initialiseDynamic(fixedAssets)
+            else -> initialiseStatic(fixedAssets)
+        }
+
+    private fun initialiseStatic(fixedAssets: Set<AssetInfo>): Single<Set<AssetInfo>> {
         val nonDynamicAssets = fixedAssets + staticAssets
         return featureConfig.init(nonDynamicAssets)
-//            .then { assetsDataManager.availableCryptoAssets().ignoreElement() }
             .thenSingle {
                 initDynamicAssets()
             }.doOnSuccess { enabledAssets ->
@@ -28,8 +35,19 @@ internal class AssetCatalogueImpl(
                 fullAssetLookup = allEnabledAssets.associateBy { it.networkTicker.uppercase(Locale.ROOT) }
             }.map {
                 it + staticAssets
-            }.doOnError {
-                Timber.e("nope")
+            }
+    }
+
+    private fun initialiseDynamic(fixedAssets: Set<AssetInfo>): Single<Set<AssetInfo>> {
+        return assetsDataManager.availableCryptoAssets()
+            .map { list ->
+                // Remove any fixed assets that also appear in the dynamic set
+                list.filterNot { fixedAssets.contains(it) }
+            }.doOnSuccess { enabledAssets ->
+                val allEnabledAssets = fixedAssets + enabledAssets
+                fullAssetLookup = allEnabledAssets.associateBy { it.networkTicker.uppercase(Locale.ROOT) }
+            }.map {
+                fullAssetLookup.values.toSet()
             }
     }
 

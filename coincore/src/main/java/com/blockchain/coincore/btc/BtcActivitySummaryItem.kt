@@ -32,6 +32,9 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
     override val description: String?
         get() = payloadDataManager.getTransactionNotes(txId)
 
+    override val supportsDescription: Boolean
+        get() = true
+
     override val fee: Observable<CryptoValue>
         get() = Observable.just(CryptoValue.fromMinor(CryptoCurrency.BTC, transactionSummary.fee))
 

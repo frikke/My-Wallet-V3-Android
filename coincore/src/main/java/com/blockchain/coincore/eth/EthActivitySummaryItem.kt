@@ -75,6 +75,9 @@ import java.util.Locale
             return if (blockNumber == 0L || blockHash == "0x") 0 else (blockHeight - blockNumber).toInt()
         }
 
+    override val supportsDescription: Boolean
+        get() = true
+
     override fun updateDescription(description: String): Completable =
         ethDataManager.updateTransactionNotes(txId, description)
 }

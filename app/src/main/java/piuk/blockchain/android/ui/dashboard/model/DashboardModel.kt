@@ -120,7 +120,10 @@ class DashboardModel(
                     } else {
                         process(DashboardIntent.ShowBackupSheet(account, action))
                     }
-                }, onError = { Timber.e(it) }
+                },
+                onError = {
+                    Timber.e(it)
+                }
             )
 
     override fun distinctIntentFilter(

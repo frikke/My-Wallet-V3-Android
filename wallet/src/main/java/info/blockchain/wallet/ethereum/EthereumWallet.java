@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import info.blockchain.balance.AssetCatalogue;
 import info.blockchain.balance.AssetInfo;
 import info.blockchain.balance.CryptoCurrency;
@@ -156,6 +158,7 @@ public class EthereumWallet {
         walletData.setLastTxTimestamp(timestamp);
     }
 
+    @Nullable
     public Erc20TokenData getErc20TokenData(String tokenName) {
         return walletData.getErc20Tokens().get(tokenName.toLowerCase());
     }

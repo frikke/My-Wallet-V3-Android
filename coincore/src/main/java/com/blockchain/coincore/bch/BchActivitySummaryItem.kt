@@ -48,6 +48,9 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
     override val isPending: Boolean
         get() = transactionSummary.isPending
 
+    override val supportsDescription: Boolean
+        get() = true
+
     override fun updateDescription(description: String): Completable =
         payloadDataManager.updateTransactionNotes(txId, description)
 }

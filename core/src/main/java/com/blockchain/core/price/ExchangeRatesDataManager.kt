@@ -1,6 +1,6 @@
 package com.blockchain.core.price
 
-import com.blockchain.core.price.impl.SupportedFiatTickerList
+import com.blockchain.core.price.impl.SupportedTickerList
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -41,7 +41,7 @@ interface ExchangeRates {
 }
 
 interface ExchangeRatesDataManager : ExchangeRates {
-    fun init(): Single<SupportedFiatTickerList>
+    fun init(): Single<SupportedTickerList>
 
     fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate>
     fun fiatToUserFiatRate(fromFiat: String): Observable<ExchangeRate>

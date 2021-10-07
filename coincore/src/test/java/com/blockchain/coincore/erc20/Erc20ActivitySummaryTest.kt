@@ -51,7 +51,8 @@ class Erc20ActivitySummaryTest {
             erc20DataManager = erc20DataManager,
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
-            account = mock()
+            account = mock(),
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.RECEIVED, subject.transactionType)
@@ -78,7 +79,8 @@ class Erc20ActivitySummaryTest {
             erc20DataManager = erc20DataManager,
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
-            account = mock()
+            account = mock(),
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.TRANSFERRED, subject.transactionType)
@@ -105,7 +107,8 @@ class Erc20ActivitySummaryTest {
             erc20DataManager = erc20DataManager,
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
-            account = mock()
+            account = mock(),
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.SENT, subject.transactionType)
@@ -136,7 +139,8 @@ class Erc20ActivitySummaryTest {
             erc20DataManager = erc20DataManager,
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
-            account = mock()
+            account = mock(),
+            supportsDescription = true
         )
 
         val result = subject.description
@@ -178,7 +182,8 @@ class Erc20ActivitySummaryTest {
             erc20DataManager = erc20DataManager,
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
-            account = mock()
+            account = mock(),
+            supportsDescription = true
         )
 
         subject.updateDescription(description).test().assertComplete()

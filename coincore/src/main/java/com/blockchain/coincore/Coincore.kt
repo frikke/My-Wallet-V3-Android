@@ -13,7 +13,6 @@ import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import info.blockchain.balance.Money
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import timber.log.Timber
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 
@@ -43,9 +42,7 @@ class Coincore internal constructor(
                 crashLogger.logEvent("Coincore init complete")
             }
             .doOnError {
-                val msg = "Coincore initialisation failed! $it"
-                crashLogger.logEvent(msg)
-                Timber.e(msg)
+                crashLogger.logEvent("Coincore initialisation failed! $it")
             }
 
     val fiatAssets: Asset

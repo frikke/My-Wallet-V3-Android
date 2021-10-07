@@ -40,6 +40,7 @@ interface Erc20DataManager {
 
     fun pushErc20Transaction(signedTxBytes: ByteArray): Single<String>
 
+    fun supportsErc20TxNote(asset: AssetInfo): Boolean
     fun getErc20TxNote(asset: AssetInfo, txHash: String): String?
     fun putErc20TxNote(asset: AssetInfo, txHash: String, note: String): Completable
 
@@ -90,9 +91,14 @@ internal class Erc20DataManagerImpl(
         return historyCallCache.fetch(accountHash, asset)
     }
 
+    override fun supportsErc20TxNote(asset: AssetInfo): Boolean {
+        require(asset.isErc20())
+        return ethDataManager.getErc20TokenData(asset) != null
+    }
+
     override fun getErc20TxNote(asset: AssetInfo, txHash: String): String? {
         require(asset.isErc20())
-        return ethDataManager.getErc20TokenData(asset).txNotes[txHash]
+        return ethDataManager.getErc20TokenData(asset)?.txNotes?.get(txHash)
     }
 
     override fun putErc20TxNote(asset: AssetInfo, txHash: String, note: String): Completable {

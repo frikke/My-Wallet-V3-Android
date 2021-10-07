@@ -23,6 +23,7 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import info.blockchain.balance.AssetCategory
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import thepit.PitLinking
@@ -65,24 +66,33 @@ internal class Erc20Asset(
     override val multiWallet: Boolean = false
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Single.just(getNonCustodialAccount())
-            .map { listOf(it) }
+        Single.fromCallable {
+            if (asset.categories.contains(AssetCategory.NON_CUSTODIAL)) {
+                listOf(getNonCustodialAccount())
+            } else {
+                emptyList()
+            }
+        }
 
     override fun loadCustodialAccounts(): Single<SingleAccountList> =
-        Single.just(
-            listOf(
-                CustodialTradingAccount(
-                    asset = asset,
-                    label = labels.getDefaultCustodialWalletLabel(),
-                    exchangeRates = exchangeRates,
-                    custodialWalletManager = custodialManager,
-                    tradingBalances = tradingBalances,
-                    identity = identity,
-                    features = features,
-                    baseActions = availableCustodialActions
+        if (asset.categories.contains(AssetCategory.CUSTODIAL)) {
+            Single.just(
+                listOf(
+                    CustodialTradingAccount(
+                        asset = asset,
+                        label = labels.getDefaultCustodialWalletLabel(),
+                        exchangeRates = exchangeRates,
+                        custodialWalletManager = custodialManager,
+                        tradingBalances = tradingBalances,
+                        identity = identity,
+                        features = features,
+                        baseActions = availableCustodialActions
+                    )
                 )
             )
-        )
+        } else {
+            Single.just(emptyList())
+        }
 
     private fun getNonCustodialAccount(): Erc20NonCustodialAccount =
         Erc20NonCustodialAccount(

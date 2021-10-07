@@ -22,7 +22,7 @@ internal class ExchangeRatesDataManagerImpl(
     private val userFiat: String
         get() = currencyPrefs.selectedFiatCurrency
 
-    override fun init(): Single<SupportedFiatTickerList> =
+    override fun init(): Single<SupportedTickerList> =
         priceStore.init()
 
     override fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate> =

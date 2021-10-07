@@ -93,8 +93,8 @@ import java.util.concurrent.atomic.AtomicBoolean
             .doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     fun isErc20FeeTransaction(to: String): Boolean =
-        assetCatalogue.supportedL2Assets(asset).firstOrNull {
-            to.equals(ethDataManager.getErc20TokenData(it).contractAddress, true)
+        assetCatalogue.supportedL2Assets(asset).firstOrNull { erc20 ->
+            to.equals(erc20.l2identifier, true)
         } != null
 
     override val isDefault: Boolean = true // Only one ETH account, so always default

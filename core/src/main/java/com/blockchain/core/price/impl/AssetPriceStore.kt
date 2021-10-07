@@ -19,19 +19,21 @@ import java.util.concurrent.TimeUnit
 internal data class AssetPriceRecord(
     val base: String,
     val quote: String,
-    val currentRate: BigDecimal,
-    val yesterdayRate: BigDecimal = 0.0.toBigDecimal(),
+    val currentRate: BigDecimal? = null,
+    val yesterdayRate: BigDecimal? = null,
     val fetchedAtMillis: Long
 ) {
     fun priceDelta(): Double =
         try {
-            if (yesterdayRate.signum() != 0) {
-                (currentRate - yesterdayRate)
-                    .divide(yesterdayRate, 4, RoundingMode.HALF_EVEN)
-                    .movePointRight(2)
-                    .toDouble()
-            } else {
-                Double.NaN
+            when {
+                yesterdayRate == null || currentRate == null -> Double.NaN
+                yesterdayRate.signum() != 0 -> {
+                    (currentRate - yesterdayRate)
+                        .divide(yesterdayRate, 4, RoundingMode.HALF_EVEN)
+                        .movePointRight(2)
+                        .toDouble()
+                }
+                else -> Double.NaN
             }
         } catch (t: ArithmeticException) {
             Double.NaN
@@ -49,7 +51,7 @@ private class AssetPriceNotCached(pair: AssetPair) :
 private typealias AssetPricesMap = MutableMap<AssetPair, AssetPriceRecord>
 // TEMP to get supported user fiats. This should come from the dynamic endpoints and
 // asset catalogue once that is implemented in the client
-typealias SupportedFiatTickerList = List<String>
+typealias SupportedTickerList = List<String>
 
 // The price api BE refreshes it's cache every minute, so there's no point refreshing ours more than that.
 internal class AssetPriceStore(
@@ -57,7 +59,9 @@ internal class AssetPriceStore(
     private val assetCatalogue: AssetCatalogue,
     private val prefs: CurrencyPrefs
 ) {
-    private lateinit var supportedUserFiat: SupportedFiatTickerList
+    private lateinit var supportedBaseTickers: SupportedTickerList
+    private lateinit var supportedQuoteTickers: SupportedTickerList
+    private lateinit var supportedFiatQuoteTickers: SupportedTickerList
 
     private val pricesCache: BehaviorRelay<AssetPricesMap> =
         BehaviorRelay.createDefault(mutableMapOf())
@@ -65,12 +69,14 @@ internal class AssetPriceStore(
     private fun targetQuoteList(): List<String> =
         assetCatalogue.supportedFiatAssets + prefs.selectedFiatCurrency
 
-    fun init(): Single<SupportedFiatTickerList> {
+    fun init(): Single<SupportedTickerList> {
         return assetPriceService.getSupportedCurrencies()
             .doOnSuccess { symbols ->
-                supportedUserFiat = symbols.quote.filter { it.isFiat }.map { it.ticker }
+                supportedBaseTickers = symbols.base.map { it.ticker }
+                supportedQuoteTickers = symbols.quote.map { it.ticker }
+                supportedFiatQuoteTickers = symbols.quote.filter { it.isFiat }.map { it.ticker }
             }.map {
-                supportedUserFiat
+                supportedFiatQuoteTickers
             }
     }
 
@@ -83,14 +89,18 @@ internal class AssetPriceStore(
     ).map { pricesNow ->
         buildTempPriceMap(pricesNow)
     }.flatMap { tempMap ->
-        val current = tempMap.values.first().fetchedAtMillis / 1000
-        val yesterday = current - SECONDS_PER_DAY
-        assetPriceService.getHistoricPrices(
-            baseTickers = baseTickerSet,
-            quoteTickers = quoteTickerSet,
-            time = yesterday
-        ).map { yesterdayPrices ->
-            updateCachedDataWithYesterdayPrice(tempMap, yesterdayPrices)
+        if (tempMap.isNotEmpty()) {
+            val current = tempMap.values.first().fetchedAtMillis / 1000
+            val yesterday = current - SECONDS_PER_DAY
+            assetPriceService.getHistoricPrices(
+                baseTickers = baseTickerSet,
+                quoteTickers = quoteTickerSet,
+                time = yesterday
+            ).map { yesterdayPrices ->
+                updateCachedDataWithYesterdayPrice(tempMap, yesterdayPrices)
+            }
+        } else {
+            Single.just(tempMap)
         }
     }.doOnSuccess { tempMap ->
         updatePriceMapCache(tempMap)
@@ -130,8 +140,8 @@ internal class AssetPriceStore(
     }
 
     @Synchronized
-    private fun lookupCachedPrice(assetPair: AssetPair, map: AssetPricesMap): AssetPriceRecord =
-        if (assetPair.base == assetPair.quote) {
+    private fun lookupCachedPrice(assetPair: AssetPair, map: AssetPricesMap): AssetPriceRecord {
+        return if (assetPair.base == assetPair.quote) {
             AssetPriceRecord(
                 base = assetPair.base,
                 quote = assetPair.quote,
@@ -142,6 +152,7 @@ internal class AssetPriceStore(
         } else {
             map[assetPair] ?: throw AssetPriceNotCached(assetPair)
         }
+    }
 
     internal fun getPriceForAsset(base: String, quote: String): Observable<AssetPriceRecord> =
         pricesCache.map {
@@ -161,6 +172,7 @@ internal class AssetPriceStore(
                     Observable.timer(RETRY_BATCH_DELAY_MILLIS, TimeUnit.MILLISECONDS)
                         .flatMap { fetchNewPrices(base) }
                 } else {
+                    Timber.e("Unable to get prices: $t")
                     Observable.error(t)
                 }
             }
@@ -238,8 +250,8 @@ internal class AssetPriceStore(
         return pricesCache.value?.values?.filter { it.isStale(now) }?.map { it.base }?.toSet() ?: emptySet()
     }
 
-    val fiatQuoteTickers: SupportedFiatTickerList
-        get() = supportedUserFiat
+    val fiatQuoteTickers: SupportedTickerList
+        get() = supportedFiatQuoteTickers
 
     companion object {
         private const val CACHE_STALE_AGE_MILLIS = 90 * 1000L
@@ -264,12 +276,14 @@ private fun AssetPrice.toAssetPriceRecord(nowMillis: Long) =
     AssetPriceRecord(
         base = this.base,
         quote = this.quote,
-        currentRate = this.price.toBigDecimal(),
+        currentRate = if (this.price.isNaN()) null else this.price.toBigDecimal(),
         fetchedAtMillis = nowMillis
     )
 
 private fun AssetPriceRecord.updateYesterdayPrice(price: AssetPrice): AssetPriceRecord =
-    this.copy(yesterdayRate = price.price.toBigDecimal())
+    this.copy(
+        yesterdayRate = if (price.price.isNaN()) null else price.price.toBigDecimal()
+    )
 
 private class PendingRequestBuffer {
 

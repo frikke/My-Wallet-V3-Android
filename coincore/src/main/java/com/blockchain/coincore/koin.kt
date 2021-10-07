@@ -140,10 +140,11 @@ val coincoreModule = module {
 
         scoped {
             val ncAssets: List<CryptoAsset> = payloadScope.getAll()
+            // For some unknown reason `getAll()` adds the last element twice. Which means
+            // that last element calls init() twice. So make it a set, to remove any duplicates.
             DynamicAssetLoader(
-                nonCustodialAssets = ncAssets,
+                nonCustodialAssets = ncAssets.toSet(),
                 assetCatalogue = get(),
-                featureConfig = get(),
                 payloadManager = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
@@ -240,6 +241,7 @@ val coincoreModule = module {
 
     single {
         AssetCatalogueImpl(
+            features = get(),
             featureConfig = get(),
             assetsDataManager = get()
         )
