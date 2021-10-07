@@ -82,6 +82,34 @@ class LauncherPresenterTest {
     }
 
     @Test
+    fun onViewAttached_noGuidAndNoPinId_callsOnRequestPin() {
+        // Arrange
+        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
+        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
+        whenever(prefsUtil.pinId).thenReturn(PIN_ID)
+        // Act
+        subject.attachView(launcherActivity)
+
+        // Assert
+        verify(launcherActivity).onRequestPin()
+    }
+
+    @Test
+    fun onViewAttached_isLoggedOut_callsOnReenterPassword() {
+        // Arrange
+        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
+        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
+        whenever(prefsUtil.pinId).thenReturn("")
+        // Act
+        subject.attachView(launcherActivity)
+
+        // Assert
+        verify(launcherActivity).onReenterPassword()
+    }
+
+    @Test
     fun onViewAttached_noGuidAndNoBackup_callsOnNoGuid() {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
@@ -97,35 +125,6 @@ class LauncherPresenterTest {
 
     @Test
     fun onViewAttached_noGuidAndBackup_callsOnRequestPin() {
-        // Arrange
-        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
-        whenever(prefsUtil.hasBackup()).thenReturn(true)
-        whenever(authPrefs.walletGuid).thenReturn("")
-        whenever(prefsUtil.pinId).thenReturn("")
-
-        // Act
-        subject.attachView(launcherActivity)
-
-        // Assert
-        verify(launcherActivity).onRequestPin()
-    }
-
-    @Test
-    fun onViewAttached_isLoggedOut_callsOnReenterPassword() {
-        // Arrange
-        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
-        whenever(prefsUtil.hasBackup()).thenReturn(true)
-        whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.pinId).thenReturn("")
-        // Act
-        subject.attachView(launcherActivity)
-
-        // Assert
-        verify(launcherActivity).onReenterPassword()
-    }
-
-    @Test
-    fun onViewAttached_noPin_callsOnRequestPin() {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
         whenever(prefsUtil.hasBackup()).thenReturn(true)

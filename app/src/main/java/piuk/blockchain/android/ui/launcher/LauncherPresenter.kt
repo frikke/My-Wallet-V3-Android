@@ -65,16 +65,15 @@ class LauncherPresenter internal constructor(
         val pinId = prefs.pinId
 
         val isWalletIdInValid = walletId.isNotEmpty() && !walletId.isValidGuid()
-        val hasNoLoginInfo = walletId.isEmpty() && pinId.isEmpty()
         val hasUnPairedWallet = walletId.isNotEmpty() && pinId.isEmpty()
         val hasLoggedIn = walletId.isNotEmpty() && pinId.isNotEmpty()
 
         when {
             isWalletIdInValid -> view?.onCorruptPayload()
-            hasNoLoginInfo -> if (hasBackup) view?.onRequestPin() else view?.onNoGuid()
-            hasUnPairedWallet -> view?.onReenterPassword()
             hasLoggedIn -> view?.onRequestPin()
-            else -> throw IllegalStateException("this state should never happen")
+            hasUnPairedWallet -> view?.onReenterPassword()
+            walletId.isEmpty() -> if (hasBackup) view?.onRequestPin() else view?.onNoGuid()
+            else -> throw IllegalStateException("Startup is broken - this state should never happen")
         }
     }
 
