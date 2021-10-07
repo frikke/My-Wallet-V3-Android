@@ -32,9 +32,6 @@ class ReceiveModel(
 
     private fun getAvailableAssets(): Disposable =
         getAvailableCryptoAssetsUseCase(Unit)
-            .map { assets ->
-                assets.sortedBy { assetInfo: AssetInfo -> assetInfo.name }
-            }
             .subscribeBy(
                 onSuccess = { assets ->
                     process(
