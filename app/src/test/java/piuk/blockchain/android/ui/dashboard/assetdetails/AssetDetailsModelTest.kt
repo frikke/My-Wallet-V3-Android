@@ -200,7 +200,7 @@ class AssetDetailsModelTest {
             AssetAction.ViewActivity,
             AssetAction.Swap,
             AssetAction.FiatDeposit,
-            AssetAction.Send,
+            AssetAction.Send
         ).toSet()
         whenever(accountGroup.actions).thenReturn(Single.just(actions))
 
@@ -220,11 +220,10 @@ class AssetDetailsModelTest {
                     AssetAction.FiatDeposit,
                     AssetAction.Withdraw,
                     AssetAction.ViewStatement,
-                    AssetAction.ViewActivity,
+                    AssetAction.ViewActivity
                 )
 
                 it.actions.toList() == expected
             }
     }
-
 }
