@@ -220,8 +220,7 @@ class PortfolioFragment :
                     .thenBy { it.currency.name }
             )
             if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
-                val hasBalanceOrIsLoading = assets.any { it.accountBalance?.total?.isPositive == true } ||
-                    newState.hasLongCallInProgress
+                val hasBalanceOrIsLoading = newState.isLoadingAssets || assets.isNotEmpty()
                 binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
                 binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
             }

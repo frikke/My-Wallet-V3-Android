@@ -160,7 +160,8 @@ data class DashboardState(
     val selectedCryptoAccount: SingleAccount? = null,
     val backupSheetDetails: BackupDetails? = null,
     val linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction? = null,
-    val hasLongCallInProgress: Boolean = false
+    val hasLongCallInProgress: Boolean = false,
+    val isLoadingAssets: Boolean = true
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

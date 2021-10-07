@@ -25,7 +25,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(
                 activeAssets = AssetMap(mapOf()),
-                fiatAssets = FiatAssetState()
+                fiatAssets = FiatAssetState(),
+                isLoadingAssets = true
             )
         }
     }
@@ -65,7 +66,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                         valueTransform = { CryptoAssetState(it) }
                     )
                 ),
-                fiatAssets = fiatState
+                fiatAssets = fiatState,
+                isLoadingAssets = false
             )
         }
     }
