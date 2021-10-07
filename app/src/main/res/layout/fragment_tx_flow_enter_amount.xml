@@ -43,8 +43,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/very_small_margin"
         android:contentDescription="@string/next"
+        android:enabled="false"
         android:minHeight="32dp"
-        android:text="@string/next"
+        android:text="@string/common_preview"
         app:layout_constraintTop_toBottomOf="@id/frame_lower_slot" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

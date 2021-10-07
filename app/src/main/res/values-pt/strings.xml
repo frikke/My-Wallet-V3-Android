@@ -1976,7 +1976,6 @@ Enquanto isso, pode vender em dinheiro, trocar e negociar em Blockchain.com.</st
     <string name="tx_title_withdraw">Levantar %s</string>
     <string name="bank_transfer">Transferência Bancária</string>
     <string name="deposit_currency">Depositar %1s</string>
-    <string name="buy_now_1">Comprar %1s</string>
     <string name="order_error_subtitle">Não se preocupe. O seu dinheiro está seguro. Tente novamente ou entre em contacto com a nossa equipa de apoio técnico para obter ajuda.</string>
     <string name="deposit_cash">Depositar Numerário</string>
     <string name="bank_transfer_only_subtitle">Envie apenas fundos de uma conta bancária em seu nome. Caso contrário, o seu depósito poderá ser atrasado ou rejeitado.</string>

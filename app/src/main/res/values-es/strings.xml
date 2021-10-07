@@ -1833,7 +1833,6 @@ En los últimos 5 años, ha sido más fructífero la compra de Bitcoin semanal q
     <string name="tx_title_withdraw">Retirar %s</string>
     <string name="bank_transfer">Transferencia bancaria</string>
     <string name="deposit_currency">Depositar %1s</string>
-    <string name="buy_now_1">Comprar %1s</string>
     <string name="order_error_subtitle">No se preocupe. Su dinero está a salvo. Inténtelo de nuevo o póngase en contacto con nuestro equipo de asistencia para obtener ayuda.</string>
     <string name="deposit_cash">Depositar efectivo</string>
     <string name="bank_transfer_only_subtitle">Envíe fondos solo desde una cuenta bancaria a su nombre. De lo contrario, su depósito podría retrasarse o rechazarse.</string>

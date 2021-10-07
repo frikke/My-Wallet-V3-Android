@@ -339,7 +339,7 @@ class SimpleBuyCheckoutFragment :
         with(binding) {
             buttonAction.apply {
                 if (!isForPendingPayment && !isOrderAwaitingFunds) {
-                    text = getString(R.string.buy_now_1, state.orderValue?.toStringWithSymbol())
+                    text = getString(R.string.buy_asset_now, state.orderValue?.toStringWithSymbol())
                     setOnClickListener {
                         model.process(SimpleBuyIntent.ConfirmOrder)
                         analytics.logEvent(

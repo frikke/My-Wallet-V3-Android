@@ -35,4 +35,5 @@ interface EnterAmountCustomisations {
     fun enterAmountMaxNetworkFeeLabel(state: TransactionState): String
     fun shouldNotDisplayNetworkFee(state: TransactionState): Boolean
     fun enterAmountGetNoBalanceMessage(state: TransactionState): String
+    fun enterAmountCtaText(state: TransactionState): String
 }

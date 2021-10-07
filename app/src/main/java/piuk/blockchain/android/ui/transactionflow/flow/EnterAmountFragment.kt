@@ -128,9 +128,12 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         Timber.d("!TRANSACTION!> Rendering! EnterAmountFragment")
 
         with(binding) {
-            amountSheetCtaButton.isEnabled = newState.nextEnabled
-            amountSheetCtaButton.setOnClickListener {
-                onCtaClick(newState)
+            with(amountSheetCtaButton) {
+                isEnabled = newState.nextEnabled
+                setOnClickListener {
+                    onCtaClick(newState)
+                }
+                text = customiser.enterAmountCtaText(newState)
             }
 
             if (!amountSheetInput.configured) {

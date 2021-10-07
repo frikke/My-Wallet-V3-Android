@@ -5,12 +5,6 @@ import android.content.res.Resources
 import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.datamanagers.TransactionError
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -18,6 +12,12 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.datamanagers.TransactionError
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.CurrencyType
 import piuk.blockchain.android.ui.customviews.account.AccountInfoBank
 import piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
@@ -31,8 +31,8 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
-import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.AccountLimitsView
+import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ConfirmSheetWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.FromAndToView
@@ -303,6 +303,18 @@ class TransactionFlowCustomiserImpl(
             else -> "--"
         }
 
+    override fun enterAmountCtaText(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Send -> resources.getString(R.string.tx_enter_amount_send_cta)
+            AssetAction.Swap -> resources.getString(R.string.tx_enter_amount_swap_cta)
+            AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_sell_cta)
+            AssetAction.Withdraw,
+            AssetAction.InterestWithdraw -> resources.getString(R.string.tx_enter_amount_withdraw_cta)
+            AssetAction.InterestDeposit -> resources.getString(R.string.tx_enter_amount_transfer_cta)
+            AssetAction.FiatDeposit -> resources.getString(R.string.tx_enter_amount_deposit_cta)
+            else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
+        }
+
     override fun confirmTitle(state: TransactionState): String =
         resources.getString(
             R.string.common_parametrised_confirm, when (state.action) {
@@ -318,30 +330,14 @@ class TransactionFlowCustomiserImpl(
         )
 
     override fun confirmCtaText(state: TransactionState): String {
-        val amount = state.pendingTx?.amount?.toStringWithSymbol().orEmpty()
-
         return when (state.action) {
-            AssetAction.Send -> resources.getString(
-                R.string.send_confirmation_cta_button, amount
-            )
-            AssetAction.Swap -> resources.getString(
-                R.string.swap_confirmation_cta_button,
-                state.sendingAsset.displayTicker,
-                (state.selectedTarget as CryptoAccount).asset.displayTicker
-            )
-            AssetAction.Sell -> resources.getString(
-                R.string.sell_confirmation_cta_button, amount
-            )
-            AssetAction.InterestDeposit -> resources.getString(
-                R.string.send_confirmation_deposit_cta_button
-            )
-            AssetAction.FiatDeposit -> resources.getString(
-                R.string.deposit_confirmation_cta_button, amount
-            )
+            AssetAction.Send -> resources.getString(R.string.send_confirmation_cta_button)
+            AssetAction.Swap -> resources.getString(R.string.swap_confirmation_cta_button)
+            AssetAction.Sell -> resources.getString(R.string.sell_confirmation_cta_button)
+            AssetAction.InterestDeposit -> resources.getString(R.string.send_confirmation_deposit_cta_button)
+            AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_cta_button)
             AssetAction.Withdraw,
-            AssetAction.InterestWithdraw -> resources.getString(
-                R.string.withdraw_confirmation_cta_button, amount
-            )
+            AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_cta_button)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }

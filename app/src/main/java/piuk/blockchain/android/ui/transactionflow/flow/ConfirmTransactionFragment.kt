@@ -18,13 +18,11 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.flow.adapter.ConfirmTransactionDelegateAdapter
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
-import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirmBinding>() {
 
-    private val stringUtils: StringUtils by inject()
     private val exchangeRates: ExchangeRates by scopedInject()
     private val prefs: CurrencyPrefs by scopedInject()
     private val mapper: TxConfirmReadOnlyMapperCheckout by scopedInject()

@@ -1908,7 +1908,6 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
     <string name="tx_title_withdraw">Retirer %s</string>
     <string name="bank_transfer">Virement bancaire</string>
     <string name="deposit_currency">Dépôt %1s</string>
-    <string name="buy_now_1">Acheter %1s</string>
     <string name="order_error_subtitle">Ne vous inquiétez pas. Votre argent est en sécurité. Veuillez réessayer ou contacter notre équipe d\'assistance pour obtenir de l\'aide.</string>
     <string name="deposit_cash">Dépôt d\'espèces</string>
     <string name="bank_transfer_only_subtitle">N\'envoyez des fonds qu\'à partir d\'un compte bancaire à votre nom. Sinon, votre dépôt pourrait être retardé ou rejeté.</string>

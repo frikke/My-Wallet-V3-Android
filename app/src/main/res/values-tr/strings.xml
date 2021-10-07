@@ -2004,7 +2004,6 @@ Bu sırada Blockchain.com üzerinden nakde geçebilir veya Swap ve Trade işlemi
     <string name="tx_title_withdraw">%s çek</string>
     <string name="bank_transfer">Banka Transferi</string>
     <string name="deposit_currency">%1s yatır</string>
-    <string name="buy_now_1">%1s satın al</string>
     <string name="order_error_subtitle">Endişelenmeyin. Paranız güvende. Lütfen tekrar deneyin veya yardım için Destek Ekibimiz ile iletişime geçin.</string>
     <string name="deposit_cash">Para Yatır</string>
     <string name="bank_transfer_only_subtitle">Yalnızca kendi adınıza bir banka hesabından para gönderin. Aksi takdirde yatırdığınız para gecikebilir veya reddedilebilir.</string>
