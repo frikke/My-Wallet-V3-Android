@@ -107,6 +107,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:srcCompat="@drawable/bkgd_empty_portfolio" />
+            android:layout_marginBottom="@dimen/standard_margin"
+            app:srcCompat="@drawable/ic_simple_buy_intro_splash" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
