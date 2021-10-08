@@ -1,10 +1,10 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.remoteconfig.FeatureFlag
+import io.reactivex.rxjava3.core.Single
 
 // TODO this will change to support both fiat and crypto, when we have a common interface/class for both
 interface AssetLoader {
@@ -15,33 +15,29 @@ interface AssetLoader {
 }
 
 internal class AssetLoaderSwitcher(
-    private val features: InternalFeatureFlagApi,
-    private val staticLoader: StaticAssetLoader,
-    private val dynamicLoader: DynamicAssetLoader
+    private val featureFlag: FeatureFlag,
+    private val dynamicLoader: DynamicAssetLoader,
+    staticLoader: StaticAssetLoader
 ) : AssetLoader {
 
-    private val useDynamicLoader: Boolean by lazy {
-        features.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)
+    private var useLoader: AssetLoader = staticLoader
+
+    private val useDynamicLoader: Single<Boolean> by lazy {
+        featureFlag.enabled
     }
 
     override fun initAndPreload(): Completable =
-        if (useDynamicLoader) {
-            dynamicLoader.initAndPreload()
-        } else {
-            staticLoader.initAndPreload()
+        useDynamicLoader.flatMapCompletable { enabled ->
+            if (enabled) {
+                useLoader = dynamicLoader
+            }
+            useLoader.initAndPreload()
         }
 
-    override val loadedAssets: List<CryptoAsset>
-        get() = if (useDynamicLoader) {
-            dynamicLoader.loadedAssets
-        } else {
-            staticLoader.loadedAssets
-        }
+    override val loadedAssets: List<CryptoAsset> by lazy {
+        useLoader.loadedAssets
+    }
 
     override fun get(asset: AssetInfo): CryptoAsset =
-        if (useDynamicLoader) {
-            dynamicLoader[asset]
-        } else {
-            staticLoader[asset]
-        }
+        useLoader[asset]
 }

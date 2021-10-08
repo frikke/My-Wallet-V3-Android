@@ -10,8 +10,6 @@ import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -106,7 +104,6 @@ class PortfolioFragment :
     private val analyticsReporter: BalanceAnalyticsReporter by scopedInject()
     private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
@@ -138,6 +135,10 @@ class PortfolioFragment :
 
     private val flowCurrency: String? by unsafeLazy {
         arguments?.getString(FLOW_FIAT_CURRENCY)
+    }
+
+    private val useDynamicAssets: Boolean by unsafeLazy {
+        arguments?.getBoolean(USE_DYNAMIC_ASSETS) ?: false
     }
 
     private var state: DashboardState? =
@@ -219,7 +220,7 @@ class PortfolioFragment :
                 compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
                     .thenBy { it.currency.name }
             )
-            if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+            if (useDynamicAssets) {
                 val hasBalanceOrIsLoading = newState.isLoadingAssets || assets.isNotEmpty()
                 binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
                 binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
@@ -754,11 +755,13 @@ class PortfolioFragment :
     }
 
     companion object {
-        fun newInstance() = PortfolioFragment()
-
-        fun newInstance(flowToLaunch: AssetAction?, fiatCurrency: String?) =
-            PortfolioFragment().apply {
+        fun newInstance(
+            useDynamicAssets: Boolean,
+            flowToLaunch: AssetAction? = null,
+            fiatCurrency: String? = null
+        ) = PortfolioFragment().apply {
                 arguments = Bundle().apply {
+                    putBoolean(USE_DYNAMIC_ASSETS, useDynamicAssets)
                     if (flowToLaunch != null && fiatCurrency != null) {
                         putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
                         putString(FLOW_FIAT_CURRENCY, fiatCurrency)
@@ -766,6 +769,7 @@ class PortfolioFragment :
                 }
             }
 
+        internal const val USE_DYNAMIC_ASSETS = "USE_DYNAMIC_ASSETS"
         internal const val FLOW_TO_LAUNCH = "FLOW_TO_LAUNCH"
         internal const val FLOW_FIAT_CURRENCY = "FLOW_FIAT_CURRENCY"
 

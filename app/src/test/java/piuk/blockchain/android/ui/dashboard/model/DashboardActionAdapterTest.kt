@@ -51,7 +51,7 @@ class DashboardActionAdapterTest {
             crashLogger = mock(),
             analytics = mock(),
             simpleBuyPrefs = mock(),
-            gatedFeatures = mock(),
+            featureFlag = mock(),
             currencyPrefs = mock(),
             userIdentity = mock(),
             exchangeRates = mock()

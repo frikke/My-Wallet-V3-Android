@@ -10,8 +10,6 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -21,6 +19,7 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -59,13 +58,12 @@ class DashboardActionAdapter(
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val gatedFeatures: InternalFeatureFlagApi
+    private val featureFlag: FeatureFlag
 ) {
-
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         Singles.zip(
-            Single.fromCallable {
-                if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+            featureFlag.enabled.map { enabled ->
+                if (enabled) {
                     coincore.activeCryptoAssets().map { it.asset }
                 } else {
                     coincore.availableCryptoAssets()
@@ -74,8 +72,7 @@ class DashboardActionAdapter(
             coincore.fiatAssets.accountGroup()
                 .map { g -> g.accounts }
                 .toSingle()
-        )
-            .subscribeBy(
+        ).subscribeBy(
             onSuccess = { (cryptoAssets, fiatAssets) ->
                 model.process(
                     DashboardIntent.UpdateAllAssetsAndBalances(

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.koin.dynamicAssetsFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
@@ -39,7 +40,7 @@ val dashboardModule = module {
                 analytics = get(),
                 crashLogger = get(),
                 linkedBanksFactory = get(),
-                gatedFeatures = get()
+                featureFlag = get(dynamicAssetsFeatureFlag)
             )
         }
 

@@ -13,15 +13,14 @@ import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
 import com.blockchain.coincore.loader.RemoteFeature
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 class AssetCatalogueTest : CoincoreTestBase() {
 
-    private val features: InternalFeatureFlagApi = mock {
-        on { isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD) }.thenReturn(true)
+    private val featureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(true))
     }
 
     private val featureConfig: AssetRemoteFeatureLookup = mock {
@@ -39,7 +38,7 @@ class AssetCatalogueTest : CoincoreTestBase() {
     }
 
     private val subject = AssetCatalogueImpl(
-        features = features,
+        featureFlag = featureFlag,
         assetsDataManager = assetsManager,
         featureConfig = featureConfig
     )

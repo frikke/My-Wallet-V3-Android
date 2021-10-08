@@ -7,12 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.notifications.analytics.Analytics
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferBinding
+import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.receive.TransferReceiveFragment
@@ -25,14 +24,16 @@ class TransferFragment : Fragment() {
         arguments?.getSerializable(PARAM_START_VIEW) as? TransferViewType ?: TransferViewType.TYPE_SEND
     }
 
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
+    private val useDynamicAssets: Boolean by unsafeLazy {
+        arguments?.getBoolean(PortfolioFragment.USE_DYNAMIC_ASSETS) ?: false
+    }
 
     private val analytics: Analytics by inject()
 
     private var _binding: FragmentTransferBinding? = null
 
     private val binding: FragmentTransferBinding
-        get() = _binding!!
+    get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,11 +47,16 @@ class TransferFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        configurePager(useDynamicAssets)
+        analytics.logEvent(TransferAnalyticsEvent.TransferViewed)
+    }
+
+    private fun configurePager(dynamicAssetsEnabled: Boolean) {
         binding.apply {
             transferTabs.setupWithViewPager(transferPager)
             transferPager.adapter = TransferPagerAdapter(
                 listOf(getString(R.string.send), getString(R.string.common_receive)),
-                gatedFeatures,
+                dynamicAssetsEnabled,
                 childFragmentManager
             )
 
@@ -61,7 +67,6 @@ class TransferFragment : Fragment() {
                 }, true
             )
         }
-        analytics.logEvent(TransferAnalyticsEvent.TransferViewed)
     }
 
     override fun onDestroyView() {
@@ -70,12 +75,16 @@ class TransferFragment : Fragment() {
     }
 
     companion object {
-
         private const val PARAM_START_VIEW = "show_view"
+        private const val USE_DYNAMIC_ASSETS = "user_dynamic_assets"
 
-        fun newInstance(transferViewType: TransferViewType = TransferViewType.TYPE_SEND): TransferFragment =
+        fun newInstance(
+            useDynamicAssets: Boolean,
+            transferViewType: TransferViewType = TransferViewType.TYPE_SEND
+        ): TransferFragment =
             TransferFragment().apply {
                 arguments = Bundle().apply {
+                    putBoolean(USE_DYNAMIC_ASSETS, useDynamicAssets)
                     putSerializable(PARAM_START_VIEW, transferViewType)
                 }
             }
@@ -89,7 +98,7 @@ class TransferFragment : Fragment() {
 
 class TransferPagerAdapter(
     private val titlesList: List<String>,
-    private val gatedFeatures: InternalFeatureFlagApi,
+    private val dynamicAssetsEnabled: Boolean,
     fragmentManager: FragmentManager
 ) : FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
@@ -101,7 +110,7 @@ class TransferPagerAdapter(
         when (position) {
             0 -> TransferSendFragment.newInstance()
             else -> {
-                if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+                if (dynamicAssetsEnabled) {
                     ReceiveFragment.newInstance()
                 } else {
                     TransferReceiveFragment.newInstance()

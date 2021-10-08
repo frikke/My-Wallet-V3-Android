@@ -16,8 +16,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -41,7 +39,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.coincore.AssetAction
@@ -50,6 +47,9 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.core.Database
+import com.blockchain.koin.dynamicAssetsFeatureFlag
+import com.blockchain.remoteconfig.FeatureFlag
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityMainBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.scan.QrScanError
@@ -107,6 +107,7 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -127,8 +128,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private val qrProcessor: QrScanResultProcessor by scopedInject()
     private val userIdentity: NabuUserIdentity by scopedInject()
     private val database: Database by inject()
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
     private val compositeDisposable = CompositeDisposable()
+
+    private val dynamicAssetsFF: FeatureFlag by inject(dynamicAssetsFeatureFlag)
+    private val useDynamicAssets: Boolean by unsafeLazy {
+        dynamicAssetsFF.enabled.blockingGet()
+    }
 
     override val view: MainView = this
 
@@ -450,8 +455,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         compositeDisposable += Singles.zip(
             userIdentity.isEligibleFor(Feature.SimpleBuy),
             userIdentity.getBasicProfileInformation()
-        )
-            .subscribeOn(Schedulers.io())
+        ).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { (isSimpleBuyEligible, userInformation) ->
@@ -638,7 +642,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         setCurrentTabItem(R.id.nav_transfer)
         toolbar.title = getString(R.string.transfer)
 
-        val transferFragment = TransferFragment.newInstance(viewToShow)
+        val transferFragment = TransferFragment.newInstance(useDynamicAssets, viewToShow)
         showFragment(transferFragment, reload)
     }
 
@@ -677,10 +681,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         action: AssetAction? = null,
         currency: String? = null
     ): Fragment =
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+        if (useDynamicAssets) {
             DashboardFragment.newInstance(action, currency)
         } else {
-            PortfolioFragment.newInstance(action, currency)
+            PortfolioFragment.newInstance(false, action, currency)
         }
 
     private fun startBuyAndSellFragment(

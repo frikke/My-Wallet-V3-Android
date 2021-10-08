@@ -20,6 +20,7 @@ import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.StaticAssetLoader
 import com.blockchain.coincore.xlm.XlmAsset
+import com.blockchain.koin.dynamicAssetsFeatureFlag
 
 val coincoreModule = module {
 
@@ -132,7 +133,7 @@ val coincoreModule = module {
 
         scoped {
             AssetLoaderSwitcher(
-                features = get(),
+                featureFlag = get(dynamicAssetsFeatureFlag),
                 staticLoader = get(),
                 dynamicLoader = get()
             )
@@ -241,7 +242,7 @@ val coincoreModule = module {
 
     single {
         AssetCatalogueImpl(
-            features = get(),
+            featureFlag = get(dynamicAssetsFeatureFlag),
             featureConfig = get(),
             assetsDataManager = get()
         )
