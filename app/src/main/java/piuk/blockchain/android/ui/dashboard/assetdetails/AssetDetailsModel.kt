@@ -26,7 +26,7 @@ data class AssetDetailsState(
     val actions: AvailableActions = emptySet(),
     val assetDetailsCurrentStep: AssetDetailsStep = AssetDetailsStep.ZERO,
     val assetDisplayMap: AssetDisplayMap? = null,
-    val recurringBuys: Map<String, RecurringBuy>? = null,
+    val recurringBuys: Map<String, RecurringBuy> = emptyMap(),
     val timeSpan: HistoricalTimeSpan = HistoricalTimeSpan.DAY,
     val chartLoading: Boolean = false,
     val chartData: HistoricalRateList = emptyList(),

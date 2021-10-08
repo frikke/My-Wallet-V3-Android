@@ -108,9 +108,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             onGotAssetDetails(assetDisplayMap)
         }
 
-        newState.recurringBuys?.let {
-            renderRecurringBuys(it)
-        }
+        renderRecurringBuys(newState.recurringBuys)
 
         configureTimespanSelectionUI(binding, newState.timeSpan)
 

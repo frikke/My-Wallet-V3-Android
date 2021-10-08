@@ -127,7 +127,15 @@ interface AccountRefreshTrigger {
                 }
             }
 
-    override fun interestRate(): Single<Double> = custodialManager.getInterestAccountRates(asset)
+    override fun interestRate(): Single<Double> =
+        custodialManager.getInterestAvailabilityForAsset(asset)
+            .flatMap {
+                if (it) {
+                    custodialManager.getInterestAccountRates(asset)
+                } else {
+                    Single.just(0.0)
+                }
+            }
 
     final override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
         accounts.flatMapMaybe {

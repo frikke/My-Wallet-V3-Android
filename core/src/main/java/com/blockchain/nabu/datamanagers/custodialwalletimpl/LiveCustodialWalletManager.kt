@@ -685,11 +685,16 @@ class LiveCustodialWalletManager(
 
     override fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>> =
         authenticator.authenticate { sessionToken ->
-            nabuService.getRecurringBuysForAsset(sessionToken, asset.networkTicker).map { list ->
-                list.mapNotNull {
-                    it.toRecurringBuy(assetCatalogue)
+            nabuService.getRecurringBuysForAsset(sessionToken, asset.networkTicker)
+                .map { list ->
+                    list.mapNotNull {
+                        it.toRecurringBuy(assetCatalogue)
+                    }.filter {
+                        // The endpoint is broken; pass in an unknown ticker and you get the
+                        // list of all buys, so filter the ones we don't want out
+                        it.asset == asset
+                    }
                 }
-            }
         }
 
     override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {

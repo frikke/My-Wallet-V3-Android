@@ -66,7 +66,6 @@ import timber.log.Timber
 data class PricesItem(
     val asset: AssetInfo,
     val priceWithDelta: Prices24HrWithDelta? = null
-    // Etc
 ) {
     val assetName = asset.name
 }
