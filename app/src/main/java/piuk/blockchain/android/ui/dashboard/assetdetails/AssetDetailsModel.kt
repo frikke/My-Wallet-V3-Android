@@ -14,6 +14,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.selectFirstAccount
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -55,6 +57,7 @@ class AssetDetailsModel(
     initialState: AssetDetailsState,
     mainScheduler: Scheduler,
     private val interactor: AssetDetailsInteractor,
+    private val assetActionsComparator: Comparator<AssetAction>,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<AssetDetailsState, AssetDetailsIntent>(
@@ -201,8 +204,12 @@ class AssetDetailsModel(
 
     private fun accountActions(account: BlockchainAccount): Disposable =
         account.actions.subscribeBy(
-            onSuccess = {
-                process(AccountActionsLoaded(account, it))
+            onSuccess = { actions ->
+                val sortedActions = when (account.selectFirstAccount()) {
+                    is InterestAccount -> actions + AssetAction.InterestDeposit
+                    else -> actions - AssetAction.InterestDeposit
+                }.sortedWith(assetActionsComparator)
+                process(AccountActionsLoaded(account, sortedActions.toSet()))
             },
             onError = { Timber.e("***> Error Loading account actions: $it") }
         )
