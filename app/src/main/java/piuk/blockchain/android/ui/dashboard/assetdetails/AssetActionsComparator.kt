@@ -19,5 +19,4 @@ class AssetActionsComparator : Comparator<AssetAction> {
         AssetAction.ViewStatement -> 9
         AssetAction.ViewActivity -> 10
     }
-
 }
