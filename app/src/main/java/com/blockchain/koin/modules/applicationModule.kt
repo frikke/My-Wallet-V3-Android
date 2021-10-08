@@ -2,6 +2,7 @@ package com.blockchain.koin.modules
 
 import android.content.Context
 import androidx.biometric.BiometricManager
+import com.blockchain.appinfo.AppInfo
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
@@ -131,6 +132,7 @@ import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 import thepit.PitLinking
+import java.io.File
 
 val applicationModule = module {
 
@@ -147,6 +149,14 @@ val applicationModule = module {
             pinRepository = get()
         )
     }
+
+    single {
+        val ctx: Context = get()
+        object : AppInfo {
+            override val cacheDir: File =
+                ctx.applicationContext.cacheDir
+        }
+    }.bind(AppInfo::class)
 
     factory { RootUtil() }
 

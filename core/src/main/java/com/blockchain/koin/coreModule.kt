@@ -88,7 +88,6 @@ import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
 import com.blockchain.core.Database
-import com.blockchain.core.dynamicassets.impl.AssetInfoCache
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
 import java.util.UUID
@@ -300,17 +299,9 @@ val coreModule = module {
         }.bind(PaymentMethodsDataManager::class)
     }
 
-    factory {
-        AssetInfoCache(
-            database = get()
-        )
-    }
-
     single {
         DynamicAssetsDataManagerImpl(
-            discoveryService = get(),
-            currencyPrefs = get(),
-            cache = get()
+            discoveryService = get()
         )
     }.bind(DynamicAssetsDataManager::class)
 

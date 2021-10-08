@@ -7,16 +7,13 @@ import com.blockchain.core.dynamicassets.CryptoAssetList
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.FiatAssetList
 import com.blockchain.core.dynamicassets.FiatInfo
-import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 
 internal class DynamicAssetsDataManagerImpl(
-    private val discoveryService: AssetDiscoveryService,
-    private val currencyPrefs: CurrencyPrefs,
-    private val cache: AssetInfoCache
+    private val discoveryService: AssetDiscoveryService
 ) : DynamicAssetsDataManager {
 
     override fun availableCryptoAssets(): Single<CryptoAssetList> =
@@ -29,9 +26,6 @@ internal class DynamicAssetsDataManagerImpl(
                 .toSet() // Remove dups
                 .filter { it.hasSupport() }
                 .map { it.toAssetInfo() }
-        }.doOnSuccess { assetList ->
-            val timestamp = System.currentTimeMillis()
-            cache.put(assetList, timestamp)
         }
 
     override fun availableFiatAssets(): Single<FiatAssetList> =
@@ -73,11 +67,12 @@ private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategor
         }
     }.toSet()
 
+private const val BLUE_600 = "#0C6CF2"
 private fun DynamicAsset.mapColour(): String =
     when {
-        colourLookup.containsKey(networkTicker) -> colourLookup[networkTicker] ?: "#000000"
+        colourLookup.containsKey(networkTicker) -> colourLookup[networkTicker] ?: BLUE_600
         chainIdentifier != null -> CryptoCurrency.ETHER.colour
-        else -> "#000000"
+        else -> BLUE_600
     }
 
 private val requiredProducts = setOf(
