@@ -25,6 +25,8 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
 import org.junit.Before
 import piuk.blockchain.android.ui.dashboard.model.FIAT_CURRENCY
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -40,6 +42,7 @@ class AssetDetailsModelTest {
     }
 
     private val interactor: AssetDetailsInteractor = mock()
+    private val assetActionsComparator: Comparator<AssetAction> = mock()
 
     private lateinit var subject: AssetDetailsModel
 
@@ -49,6 +52,7 @@ class AssetDetailsModelTest {
             initialState = defaultState,
             mainScheduler = Schedulers.io(),
             interactor = interactor,
+            assetActionsComparator = assetActionsComparator,
             environmentConfig = environmentConfig,
             crashLogger = mock()
         )
@@ -191,39 +195,12 @@ class AssetDetailsModelTest {
             on { accounts }.thenReturn(listOf(account))
         }
 
-        val actions = listOf(
-            AssetAction.Receive,
-            AssetAction.ViewStatement,
-            AssetAction.Sell,
-            AssetAction.Buy,
-            AssetAction.Withdraw,
-            AssetAction.ViewActivity,
-            AssetAction.Swap,
-            AssetAction.FiatDeposit,
-            AssetAction.Send
-        ).toSet()
-        whenever(accountGroup.actions).thenReturn(Single.just(actions))
+        whenever(accountGroup.actions).thenReturn(Single.just(AssetAction.values().toSet()))
 
-        val stateTest = subject.state.test()
+        subject.state.test()
 
         subject.process(ShowAssetActionsIntent(accountGroup))
 
-        stateTest
-            .assertValueAt(0, defaultState)
-            .assertValueAt(1) {
-                val expected = listOf(
-                    AssetAction.Buy,
-                    AssetAction.Sell,
-                    AssetAction.Swap,
-                    AssetAction.Send,
-                    AssetAction.Receive,
-                    AssetAction.FiatDeposit,
-                    AssetAction.Withdraw,
-                    AssetAction.ViewStatement,
-                    AssetAction.ViewActivity
-                )
-
-                it.actions.toList() == expected
-            }
+        verify(assetActionsComparator, atLeastOnce()).compare(any(), any())
     }
 }

@@ -16,7 +16,6 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.selectFirstAccount
-import com.blockchain.extensions.exhaustive
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -58,6 +57,7 @@ class AssetDetailsModel(
     initialState: AssetDetailsState,
     mainScheduler: Scheduler,
     private val interactor: AssetDetailsInteractor,
+    private val assetActionsComparator: Comparator<AssetAction>,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<AssetDetailsState, AssetDetailsIntent>(
@@ -208,21 +208,7 @@ class AssetDetailsModel(
                 val sortedActions = when (account.selectFirstAccount()) {
                     is InterestAccount -> actions + AssetAction.InterestDeposit
                     else -> actions - AssetAction.InterestDeposit
-                }.sortedBy { action ->
-                    when (action) {
-                        AssetAction.Buy -> 0
-                        AssetAction.Sell -> 1
-                        AssetAction.Swap -> 2
-                        AssetAction.Send -> 3
-                        AssetAction.Receive -> 4
-                        AssetAction.FiatDeposit -> 5
-                        AssetAction.InterestDeposit -> 6
-                        AssetAction.InterestWithdraw -> 7
-                        AssetAction.Withdraw -> 8
-                        AssetAction.ViewStatement -> 9
-                        AssetAction.ViewActivity -> 10
-                    }.exhaustive
-                }
+                }.sortedWith(assetActionsComparator)
                 process(AccountActionsLoaded(account, sortedActions.toSet()))
             },
             onError = { Timber.e("***> Error Loading account actions: $it") }

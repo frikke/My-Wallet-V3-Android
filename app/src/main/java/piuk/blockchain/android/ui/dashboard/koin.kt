@@ -4,6 +4,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import piuk.blockchain.android.ui.dashboard.assetdetails.AssetActionsComparator
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsInteractor
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
@@ -48,6 +49,7 @@ val dashboardModule = module {
                 initialState = AssetDetailsState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
+                assetActionsComparator = get(),
                 environmentConfig = get(),
                 crashLogger = get()
             )
@@ -60,6 +62,10 @@ val dashboardModule = module {
                 custodialWalletManager = get()
             )
         }
+
+        factory {
+            AssetActionsComparator()
+        }.bind(Comparator::class)
 
         factory {
             BalanceAnalyticsReporter(
