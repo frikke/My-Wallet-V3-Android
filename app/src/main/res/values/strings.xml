@@ -1501,7 +1501,7 @@
     <string name="activity_details_label_pending">Pending</string>
     <string name="activity_details_label_manual_review">Manual Review</string>
     <string name="activity_details_label_processing">Processing</string>
-    <string name="activity_details_label_complete">Complete</string>
+    <string name="activity_details_label_complete">Completed</string>
     <string name="activity_details_label_failed">Failed</string>
     <string name="activity_details_title_transferred">Transfer</string>
     <string name="activity_details_title_received_1">Received</string>
