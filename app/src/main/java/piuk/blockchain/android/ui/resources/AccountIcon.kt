@@ -50,6 +50,7 @@ class AccountIcon(
     val indicator: Int?
         @DrawableRes get() = when (account) {
             is CryptoNonCustodialAccount -> R.drawable.ic_non_custodial_account_indicator
+            is FiatAccount -> null
             is InterestAccount -> R.drawable.ic_interest_account_indicator
             is TradingAccount -> R.drawable.ic_custodial_account_indicator
             is CryptoExchangeAccount -> R.drawable.ic_exchange_indicator
