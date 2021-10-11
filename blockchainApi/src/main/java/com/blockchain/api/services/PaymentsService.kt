@@ -1,14 +1,15 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.paymentMethods.PaymentMethodsApi
-import com.blockchain.api.paymentMethods.data.PaymentMethodDetailsResponse
-import com.blockchain.api.paymentMethods.data.PaymentMethodDetailsResponse.Companion.BANK_ACCOUNT
-import com.blockchain.api.paymentMethods.data.PaymentMethodDetailsResponse.Companion.BANK_TRANSFER
-import com.blockchain.api.paymentMethods.data.PaymentMethodDetailsResponse.Companion.PAYMENT_CARD
+import com.blockchain.api.payments.PaymentsApi
+import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
+import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_ACCOUNT
+import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_TRANSFER
+import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.PAYMENT_CARD
+import com.blockchain.api.payments.data.WithdrawalLocksResponse
 import io.reactivex.rxjava3.core.Single
 
-class PaymentMethodService internal constructor(
-    private val api: PaymentMethodsApi
+class PaymentsService internal constructor(
+    private val api: PaymentsApi
 ) {
     fun getPaymentMethodDetailsForId(
         authHeader: String,
@@ -16,6 +17,13 @@ class PaymentMethodService internal constructor(
     ): Single<PaymentMethodDetails> =
         api.getPaymentMethodDetailsForId(authHeader, paymentId)
             .map { it.toPaymentDetails() }
+
+    fun getWithdrawalLocks(
+        authHeader: String,
+        localCurrency: String
+    ): Single<WithdrawalsApi> =
+        api.getWithdrawalLocks(authHeader, localCurrency)
+            .map { it.toWithdrawalLocks() }
 }
 
 private fun PaymentMethodDetailsResponse.toPaymentDetails(): PaymentMethodDetails {
@@ -51,4 +59,37 @@ private fun PaymentMethodDetailsResponse.toPaymentDetails(): PaymentMethodDetail
 data class PaymentMethodDetails(
     val label: String? = null,
     val endDigits: String? = null
+)
+
+private fun WithdrawalLocksResponse.toWithdrawalLocks() =
+    WithdrawalsApi(
+        totalAmount =
+        LocalAmountApi(
+            currency = this.totalLocked.currency,
+            value = this.totalLocked.amount
+        ),
+        locks = this.locks.map { lockPeriod ->
+            WithdrawalLockApi(
+                amount = LocalAmountApi(
+                    currency = lockPeriod.localCurrencyAmount.currency,
+                    value = lockPeriod.localCurrencyAmount.amount
+                ),
+                date = lockPeriod.expiresAt
+            )
+        }
+    )
+
+data class WithdrawalsApi(
+    val totalAmount: LocalAmountApi,
+    val locks: List<WithdrawalLockApi>
+)
+
+data class WithdrawalLockApi(
+    val amount: LocalAmountApi,
+    val date: String
+)
+
+data class LocalAmountApi(
+    val currency: String,
+    val value: String
 )

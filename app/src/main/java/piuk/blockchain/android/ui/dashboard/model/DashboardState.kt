@@ -4,6 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.core.payments.model.Withdrawals
 import com.blockchain.core.price.Prices24HrWithDelta
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -18,6 +19,7 @@ import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import java.io.Serializable
 
 data class AssetPriceState(
     val assetInfo: AssetInfo,
@@ -147,6 +149,11 @@ data class CryptoAssetState(
     fun reset(): CryptoAssetState = CryptoAssetState(currency)
 }
 
+data class Locks(
+    val available: Money? = null,
+    val locks: Withdrawals? = null
+) : DashboardItem, Serializable
+
 data class DashboardState(
     val availablePrices: Map<AssetInfo, AssetPriceState> = emptyMap(),
     val dashboardNavigationAction: DashboardNavigationAction? = null,
@@ -161,7 +168,8 @@ data class DashboardState(
     val backupSheetDetails: BackupDetails? = null,
     val linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction? = null,
     val hasLongCallInProgress: Boolean = false,
-    val isLoadingAssets: Boolean = true
+    val isLoadingAssets: Boolean = true,
+    val lock: Locks = Locks()
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

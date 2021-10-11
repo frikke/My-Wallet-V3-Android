@@ -32,7 +32,7 @@ class SimpleBuySelectCurrencyFragment :
     private val compositeDisposable = CompositeDisposable()
 
     private val currencies: List<String> by unsafeLazy {
-        arguments?.getStringArrayList(CURRENCIES_KEY) ?: emptyList<String>()
+        arguments?.getStringArrayList(CURRENCIES_KEY) ?: emptyList()
     }
 
     // show all currencies if passed list is empty

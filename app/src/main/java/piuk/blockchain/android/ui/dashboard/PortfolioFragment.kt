@@ -32,6 +32,9 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.BuySellType
@@ -55,6 +58,7 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
+import piuk.blockchain.android.ui.dashboard.model.Locks
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.navigation.LinkBankNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.FiatFundsDetailSheet
@@ -66,6 +70,7 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.locks.LocksInfoBottomSheet
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -105,6 +110,7 @@ class PortfolioFragment :
     private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val gatedFeatures: InternalFeatureFlagApi by inject()
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
@@ -112,7 +118,8 @@ class PortfolioFragment :
             onCardClicked = { onAssetClicked(it) },
             analytics = get(),
             onFundsItemClicked = { onFundsClicked(it) },
-            assetResources = assetResources
+            assetResources = assetResources,
+            onHoldAmountClicked = { onHoldAmountClicked(it) }
         )
     }
 
@@ -167,9 +174,7 @@ class PortfolioFragment :
 
         // Update/show dialog flow
         if (state?.activeFlow != newState.activeFlow) {
-            state?.activeFlow?.let {
-                clearBottomSheet()
-            }
+            state?.activeFlow?.let { clearBottomSheet() }
 
             newState.activeFlow?.let {
                 if (it is TransactionFlow) {
@@ -201,20 +206,27 @@ class PortfolioFragment :
 
     private fun updateDisplayList(newState: DashboardState) {
         with(displayList) {
-            val newList = mutableListOf<DashboardItem>()
+            val newMap = mutableMapOf<Int, DashboardItem>()
             if (isEmpty()) {
-                newList.add(IDX_CARD_ANNOUNCE, EmptyDashboardItem())
-                newList.add(IDX_CARD_BALANCE, newState)
-                newList.add(IDX_FUNDS_BALANCE, EmptyDashboardItem()) // Placeholder for funds
+                newMap[IDX_CARD_ANNOUNCE] = EmptyDashboardItem()
+                newMap[IDX_CARD_BALANCE] = newState
+                if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
+                    newMap[IDX_WITHDRAWAL_LOCKS] = newState.lock
+                }
+                newMap[IDX_FUNDS_BALANCE] = EmptyDashboardItem() // Placeholder for funds
             } else {
-                newList.add(IDX_CARD_ANNOUNCE, get(IDX_CARD_ANNOUNCE))
-                newList.add(IDX_CARD_BALANCE, newState)
+                newMap[IDX_CARD_ANNOUNCE] = get(IDX_CARD_ANNOUNCE)
+                newMap[IDX_CARD_BALANCE] = newState
+                if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
+                    newMap[IDX_WITHDRAWAL_LOCKS] = newState.lock
+                }
                 if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
-                    newList.add(IDX_FUNDS_BALANCE, newState.fiatAssets)
+                    newMap[IDX_FUNDS_BALANCE] = newState.fiatAssets
                 } else {
-                    newList.add(IDX_FUNDS_BALANCE, get(IDX_FUNDS_BALANCE))
+                    newMap[IDX_FUNDS_BALANCE] = get(IDX_FUNDS_BALANCE)
                 }
             }
+
             // Add assets, sorted by fiat balance then alphabetically
             val assets = newState.activeAssets.values.sortedWith(
                 compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
@@ -225,10 +237,8 @@ class PortfolioFragment :
                 binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
                 binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
             }
-
-            newList.addAll(assets)
             clear()
-            addAll(newList)
+            addAll(newMap.values + assets)
         }
         theAdapter.notifyDataSetChanged()
     }
@@ -364,6 +374,10 @@ class PortfolioFragment :
         setupSwipeRefresh()
         setupRecycler()
         setupCtaButtons()
+
+        if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
+            model.process(DashboardIntent.LoadWithdrawalLocks)
+        }
 
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
@@ -506,6 +520,14 @@ class PortfolioFragment :
     private fun onFundsClicked(fiatAccount: FiatAccount) {
         analytics.logEvent(fiatAssetAction(AssetDetailsAnalytics.FIAT_DETAIL_CLICKED, fiatAccount.fiatCurrency))
         model.process(DashboardIntent.ShowFiatAssetDetails(fiatAccount))
+    }
+
+    private fun onHoldAmountClicked(locks: Locks) {
+        require(locks.locks != null) { "Locks are null" }
+        val available = locks.available ?: FiatValue.zero(currencyPrefs.selectedFiatCurrency)
+        showBottomSheet(
+            LocksInfoBottomSheet.newInstance(available.toStringWithSymbol(), locks.locks)
+        )
     }
 
     private val announcementHost = object : AnnouncementHost {
@@ -775,7 +797,8 @@ class PortfolioFragment :
 
         private const val IDX_CARD_ANNOUNCE = 0
         private const val IDX_CARD_BALANCE = 1
-        private const val IDX_FUNDS_BALANCE = 2
+        private const val IDX_WITHDRAWAL_LOCKS = 2
+        private const val IDX_FUNDS_BALANCE = 3
 
         const val BACKUP_FUNDS_REQUEST_CODE = 8265
     }

@@ -1,4 +1,4 @@
-package com.blockchain.api.paymentMethods.data
+package com.blockchain.api.payments.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -2,6 +2,8 @@ package com.blockchain.koin
 
 import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
+import com.blockchain.core.BuildConfig
+import com.blockchain.core.Database
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -11,11 +13,13 @@ import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
+import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
+import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
-import com.blockchain.core.paymentMethods.PaymentMethodsDataManager
-import com.blockchain.core.paymentMethods.PaymentMethodsDataManagerImpl
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.PaymentsDataManagerImpl
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
@@ -47,11 +51,10 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import com.blockchain.core.BuildConfig
+import piuk.blockchain.androidcore.data.access.PinRepository
+import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
-import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
-import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -87,9 +90,6 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
-import com.blockchain.core.Database
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
 import java.util.UUID
 
 val coreModule = module {
@@ -292,11 +292,11 @@ val coreModule = module {
         }.bind(NabuUserDataManager::class)
 
         scoped {
-            PaymentMethodsDataManagerImpl(
-                paymentMethodService = get(),
+            PaymentsDataManagerImpl(
+                paymentsService = get(),
                 authenticator = get()
             )
-        }.bind(PaymentMethodsDataManager::class)
+        }.bind(PaymentsDataManager::class)
     }
 
     single {

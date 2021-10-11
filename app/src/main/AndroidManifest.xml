@@ -21,17 +21,17 @@
     <uses-feature android:name="android.hardware.location.gps" />
 
     <application
-        android:label="${APP_NAME}"
-        tools:replace="android:label, android:allowBackup"
         android:name=".BlockchainApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:backupAgent="piuk.blockchain.androidcore.utils.CloudBackupAgent"
         android:icon="@mipmap/ic_launcher"
+        android:label="${APP_NAME}"
+        android:launchMode="singleTask"
         android:resizeableActivity="false"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:launchMode="singleTask"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:label, android:allowBackup">
         <activity android:name=".ui.launcher.LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
@@ -109,9 +109,9 @@
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTask"
             android:noHistory="true"
-            android:launchMode="singleTask" >
+            android:windowSoftInputMode="adjustResize">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -211,6 +211,9 @@
             android:name=".ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".ui.home.ZendeskSubjectActivity" />
+        <activity
+            android:name=".ui.locks.LocksDetailsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

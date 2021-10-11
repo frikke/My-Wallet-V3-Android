@@ -25,7 +25,10 @@ val dashboardModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                crashLogger = get(),
+                paymentsDataManager = get(),
+                currencyPrefs = get(),
+                tradingBalanceDataManager = get()
             )
         }
 

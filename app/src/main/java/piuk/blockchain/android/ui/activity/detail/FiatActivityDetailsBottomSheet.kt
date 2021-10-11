@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.core.paymentMethods.PaymentMethodsDataManager
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
@@ -28,7 +28,7 @@ import java.util.Date
 
 class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActivityDetailsBinding>() {
     private val assetActivityRepository: AssetActivityRepository by scopedInject()
-    private val paymentMethodsDataManager: PaymentMethodsDataManager by scopedInject()
+    private val paymentsDataManager: PaymentsDataManager by scopedInject()
     private val fiatDetailsSheetAdapter = FiatDetailsSheetAdapter()
     private val currency: String by unsafeLazy {
         arguments?.getString(CURRENCY_KEY) ?: throw IllegalStateException("No currency  provided")
@@ -67,7 +67,7 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
 
             assetActivityRepository.findCachedItem(currency, txHash)?.let { fiatActivitySummaryItem ->
                 initView((fiatActivitySummaryItem))
-                paymentMethodsDataManager.getPaymentMethodDetailsForId(
+                paymentsDataManager.getPaymentMethodDetailsForId(
                     fiatActivitySummaryItem.paymentMethodId.orEmpty()
                 ).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
