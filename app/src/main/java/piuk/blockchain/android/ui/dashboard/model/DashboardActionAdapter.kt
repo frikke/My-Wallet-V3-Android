@@ -71,6 +71,7 @@ class DashboardActionAdapter(
             },
             coincore.fiatAssets.accountGroup()
                 .map { g -> g.accounts }
+                .switchIfEmpty(Maybe.just(emptyList()))
                 .toSingle()
         ).subscribeBy(
             onSuccess = { (cryptoAssets, fiatAssets) ->
@@ -221,7 +222,8 @@ class DashboardActionAdapter(
             .subscribeBy(
                 onSuccess = { balances ->
                     model.process(
-                        DashboardIntent.FiatBalanceUpdate(balances.total, balances.totalFiat))
+                        DashboardIntent.FiatBalanceUpdate(balances.total, balances.totalFiat)
+                    )
                 },
                 onError = {
                     Timber.e("Error while loading fiat balances $it")
