@@ -11,7 +11,6 @@ import com.blockchain.notifications.analytics.Analytics
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferBinding
-import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.receive.TransferReceiveFragment
@@ -25,7 +24,7 @@ class TransferFragment : Fragment() {
     }
 
     private val useDynamicAssets: Boolean by unsafeLazy {
-        arguments?.getBoolean(PortfolioFragment.USE_DYNAMIC_ASSETS) ?: false
+        arguments?.getBoolean(USE_DYNAMIC_ASSETS) ?: false
     }
 
     private val analytics: Analytics by inject()

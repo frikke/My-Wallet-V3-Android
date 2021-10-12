@@ -74,7 +74,9 @@ internal class DynamicAssetLoader(
                 // We need to make sure than any l1 assets - notably ETH - is initialised before
                 // create any l2s. So that things like balance calls will work
                 initNonCustodialAssets(nonCustodialAssets)
-                    .thenSingle { doLoadAssets(supportedAssets) }
+                    // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
+                    // and the non-custodial accounts won't show up.
+                    .thenSingle { doLoadAssets(supportedAssets.minus(nonCustodialAssets.map { it.asset })) }
             }
             .map { nonCustodialAssets + it }
             .doOnSuccess { assetList -> assetMap.putAll(assetList.associateBy { it.asset }) }
