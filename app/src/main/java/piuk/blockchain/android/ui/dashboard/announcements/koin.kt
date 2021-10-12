@@ -6,10 +6,10 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.dashboard.announcements.rule.AaveYfiDotAvailableAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.AssetRenameAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BackupPhraseAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BitpayAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BuyBitcoinAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.CeloEurAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsNoKycAnnouncement
@@ -249,9 +249,9 @@ val dashboardAnnouncementsModule = module {
         }.bind(AnnouncementRule::class)
 
         factory {
-            AssetRenameAnnouncement(
-                dismissRecorder = get(),
-                announcementQueries = get()
+            CeloEurAnnouncement(
+                announcementQueries = get(),
+                dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
     }

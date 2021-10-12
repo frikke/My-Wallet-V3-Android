@@ -1,14 +1,15 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.coincore.Coincore
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
+import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.UserCampaignState
 import com.blockchain.nabu.service.TierService
 import com.blockchain.remoteconfig.RemoteConfig
@@ -18,11 +19,10 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
-import piuk.blockchain.android.campaign.blockstackCampaignName
-import com.blockchain.coincore.Coincore
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
@@ -137,6 +137,13 @@ class AnnouncementQueries(
             }
                 ?: Maybe.empty()
         }
+
+    fun getAssetFromCatalogueByTicker(ticker: String): Maybe<AssetInfo> =
+        assetCatalogue.fromNetworkTicker(ticker)?.let { asset ->
+            Maybe.just(asset)
+        } ?: Maybe.empty()
+
+    fun getCountryCode(): Single<String> = userIdentity.getUserCountry().switchIfEmpty(Single.just(""))
 
     fun getRenamedAssetFromCatalogue(): Maybe<Pair<String, AssetInfo>> =
         remoteConfig.getRawJson(RENAME_ASSET_TICKER).flatMapMaybe { json ->
