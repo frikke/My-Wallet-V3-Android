@@ -11,6 +11,7 @@ import com.blockchain.coincore.FeeState
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
+import com.blockchain.koin.scopedInject
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -20,7 +21,7 @@ abstract class OnChainTxEngineBase(
     private val walletPreferences: WalletStatus
 ) : TxEngine() {
 
-    private val settingsDataManager: SettingsDataManager by inject()
+    private val settingsDataManager: SettingsDataManager by scopedInject()
     private val prefs: PersistentPrefs by inject()
 
     override fun assertInputsValid() {
