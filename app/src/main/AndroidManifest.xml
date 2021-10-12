@@ -78,6 +78,7 @@
         </activity>
         <activity
             android:name=".ui.launcher.loader.LoaderActivity"
+            android:theme="@style/AppTheme.Loader"
             android:noHistory="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask" />
