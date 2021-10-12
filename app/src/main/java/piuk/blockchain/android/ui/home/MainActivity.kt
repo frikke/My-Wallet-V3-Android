@@ -246,6 +246,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 selectedItemId = currentItem
             }
         }
+        binding.navigationView.getHeaderView(0)?.setOnApplyWindowInsetsListener { view, insets ->
+            view.setPadding(0, insets.systemWindowInsetTop, 0, 0)
+            insets
+        }
 
         if (intent.hasExtra(SHOW_SWAP) && intent.getBooleanExtra(SHOW_SWAP, false)) {
             startSwapFlow()
