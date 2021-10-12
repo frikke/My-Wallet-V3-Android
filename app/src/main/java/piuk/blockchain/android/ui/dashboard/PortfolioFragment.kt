@@ -156,7 +156,7 @@ class PortfolioFragment :
         try {
             doRender(newState)
         } catch (e: Throwable) {
-            Timber.e("Error rendering: $e")
+            Timber.e(e)
         }
     }
 
@@ -206,25 +206,43 @@ class PortfolioFragment :
 
     private fun updateDisplayList(newState: DashboardState) {
         with(displayList) {
-            val newMap = mutableMapOf<Int, DashboardItem>()
-            if (isEmpty()) {
-                newMap[IDX_CARD_ANNOUNCE] = EmptyDashboardItem()
-                newMap[IDX_CARD_BALANCE] = newState
-                if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
-                    newMap[IDX_WITHDRAWAL_LOCKS] = newState.lock
-                }
-                newMap[IDX_FUNDS_BALANCE] = EmptyDashboardItem() // Placeholder for funds
-            } else {
-                newMap[IDX_CARD_ANNOUNCE] = get(IDX_CARD_ANNOUNCE)
-                newMap[IDX_CARD_BALANCE] = newState
-                if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
-                    newMap[IDX_WITHDRAWAL_LOCKS] = newState.lock
-                }
-                if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
-                    newMap[IDX_FUNDS_BALANCE] = newState.fiatAssets
-                } else {
-                    newMap[IDX_FUNDS_BALANCE] = get(IDX_FUNDS_BALANCE)
-                }
+            val withdrawalLockEnabled = gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)
+            val isDisplayListEmpty = isEmpty()
+            val newMap = when {
+                withdrawalLockEnabled && isDisplayListEmpty ->
+                    mapOf(
+                        IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
+                        IDX_CARD_BALANCE to newState,
+                        IDX_WITHDRAWAL_LOCKS to newState.lock,
+                        IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
+                    )
+                !withdrawalLockEnabled && isDisplayListEmpty ->
+                    mapOf(
+                        IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
+                        IDX_CARD_BALANCE to newState,
+                        IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
+                    )
+                withdrawalLockEnabled && !isDisplayListEmpty ->
+                    mapOf(
+                        IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
+                        IDX_CARD_BALANCE to newState,
+                        IDX_WITHDRAWAL_LOCKS to newState.lock,
+                        IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
+                            newState.fiatAssets
+                        } else {
+                            get(IDX_FUNDS_BALANCE)
+                        }
+                    )
+                else -> // WITHDRAWAL_LOCKS disabled AND NOT displayList.isEmpty()
+                    mapOf(
+                        IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
+                        IDX_CARD_BALANCE to newState,
+                        IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
+                            newState.fiatAssets
+                        } else {
+                            get(IDX_FUNDS_BALANCE - 1) // TODO: Clean up once WITHDRAWAL_LOCKS is released
+                        }
+                    )
             }
 
             // Add assets, sorted by fiat balance then alphabetically
