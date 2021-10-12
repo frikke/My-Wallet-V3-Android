@@ -20,8 +20,17 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import com.blockchain.coincore.Coincore
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+
+@Serializable
+data class RenamedAsset(
+    val networkTicker: String,
+    val oldTicker: String
+)
 
 class AnnouncementQueries(
     private val nabuToken: NabuToken,
@@ -129,9 +138,20 @@ class AnnouncementQueries(
                 ?: Maybe.empty()
         }
 
+    fun getRenamedAssetFromCatalogue(): Maybe<Pair<String, AssetInfo>> =
+        remoteConfig.getRawJson(RENAME_ASSET_TICKER).flatMapMaybe { json ->
+            val renamedAsset = Json.decodeFromString<RenamedAsset>(json)
+            assetCatalogue.fromNetworkTicker(renamedAsset.networkTicker)?.let { asset ->
+                Maybe.just(Pair(renamedAsset.oldTicker, asset))
+            }
+                ?: Maybe.empty()
+        }
+
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val NEW_ASSET_TICKER = "new_asset_announcement_ticker"
+
+        private const val RENAME_ASSET_TICKER = "rename_asset_announcement_ticker"
     }
 }
 

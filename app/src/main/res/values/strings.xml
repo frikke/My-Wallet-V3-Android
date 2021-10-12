@@ -972,6 +972,11 @@
     <string name="re_verify_identity_card_body">Please re-verify your identity to access our full products and services</string>
     <string name="re_verify_identity_card_cta">Reverify Account</string>
 
+    <!-- Rename asset announcement -->
+    <string name="rename_asset_card_title">%s has a new name</string>
+    <string name="rename_asset_card_body">Heads up: %1$s has renamed to %2$s. All balances are unaffected.</string>
+    <string name="rename_asset_card_cta">Trade %s</string>
+
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
     <string name="airdrop_received_sheet_status_label">Status</string>
