@@ -68,8 +68,9 @@ class AccountRecoveryModelTest {
     fun `verify camel case seedphrase should succeed`() {
         // Arrange
         val seedPhrase = "Seed Phrase Seed Phrase Seed Phrase Seed Phrase Seed Phrase Seed Phrase"
+        val expectedCorrectedPhrase = seedPhrase.lowercase().trim()
 
-        whenever(interactor.recoverCredentials(seedPhrase)).thenReturn(
+        whenever(interactor.recoverCredentials(expectedCorrectedPhrase)).thenReturn(
             Completable.complete()
         )
 
@@ -84,7 +85,7 @@ class AccountRecoveryModelTest {
                 status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
             ),
             AccountRecoveryState(
-                seedPhrase = seedPhrase,
+                seedPhrase = expectedCorrectedPhrase,
                 status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
             )
         )
@@ -94,8 +95,9 @@ class AccountRecoveryModelTest {
     fun `verify seedphrase with newlines or tabbed spaces should succeed`() {
         // Arrange
         val seedPhrase = "Seed Phrase\nSeed Phrase\rSeed Phrase\t Seed Phrase Seed Phrase Seed Phrase"
+        val expectedCorrectedPhrase = seedPhrase.lowercase().trim()
 
-        whenever(interactor.recoverCredentials(seedPhrase)).thenReturn(
+        whenever(interactor.recoverCredentials(expectedCorrectedPhrase)).thenReturn(
             Completable.complete()
         )
 
@@ -110,7 +112,7 @@ class AccountRecoveryModelTest {
                 status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
             ),
             AccountRecoveryState(
-                seedPhrase = seedPhrase,
+                seedPhrase = expectedCorrectedPhrase,
                 status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
             )
         )

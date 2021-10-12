@@ -47,7 +47,8 @@ class AccountRecoveryModel(
     }
 
     private fun verifyMnemonic(seedPhrase: String): Disposable? {
-        val seedWords = seedPhrase.lowercase().trim().split("\\W+".toRegex())
+        val correctedPhrase = seedPhrase.lowercase().trim()
+        val seedWords = correctedPhrase.split("\\W+".toRegex())
         when {
             seedWords.size < 12 -> {
                 process(AccountRecoveryIntents.UpdateStatus(AccountRecoveryStatus.WORD_COUNT_ERROR))
@@ -56,7 +57,7 @@ class AccountRecoveryModel(
                 mnemonicChecker.check(seedWords)
                 process(
                     AccountRecoveryIntents.RecoverWalletCredentials(
-                        seedPhrase = seedPhrase
+                        seedPhrase = correctedPhrase
                     )
                 )
             } catch (e: MnemonicException) {
