@@ -2061,4 +2061,19 @@ Sus fondos estarán disponibles para ser retirados una vez que la transferencia 
     <string name="rewards_error_title">No se pueden cargar los detalles de las recompensas</string>
     <string name="rewards_error_desc">Se produjo un error al cargar los detalles de la cuenta de recompensas.
 Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el servicio de asistencia técnica si el problema persiste.</string>
+
+    <string name="kyc_enter_address">Introduzca su domicilio.</string>
+    <string name="kyc_enter_address_manually">Introducir manualmente -></string>
+    <string name="kyc_autocomplete_addresses_error">Error al recuperar las direcciones</string>
+    <string name="kyc_autocomplete_selected_address_error">Error al recuperar la dirección</string>
+    <string name="loading_prices">Cargando precios</string>
+    <string name="syncing_account">Sincronizando cuenta</string>
+    <string name="search_wallets_hint">Buscar carteras y criptomonedas</string>
+    <string name="search_wallets_result">%s resultados</string>
+    <string name="common_preview">Vista previa</string>
+    <string name="buy_asset_now">Compre %1s ahora</string>
+    <string name="tx_enter_amount_send_cta">Vista previa del importe del envío</string>
+    <string name="tx_enter_amount_transfer_cta">Vista previa de la transferencia</string>
+    <string name="tx_enter_amount_deposit_cta">Vista previa del depósito</string>
+    <string name="tx_enter_amount_withdraw_cta">Vista previa de la retirada</string>
 </resources>

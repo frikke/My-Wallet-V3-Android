@@ -2194,4 +2194,19 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="rewards_error_title">Não é possível carregar os Detalhes das Recompensas</string>
     <string name="rewards_error_desc">Ocorreu um erro ao carregar os detalhes da Conta Recompensas.
 Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com o Suporte se o problema persistir.</string>
+
+    <string name="kyc_enter_address">Digite o seu endereço residencial atual.</string>
+    <string name="kyc_enter_address_manually">Insira manualmente -></string>
+    <string name="kyc_autocomplete_addresses_error">Falha ao recuperar endereços</string>
+    <string name="kyc_autocomplete_selected_address_error">Falha ao recuperar o endereço</string>
+    <string name="loading_prices">A Carregar Preços</string>
+    <string name="syncing_account">A Sincronizar Conta</string>
+    <string name="search_wallets_hint">Pesquisar Carteiras e Criptomoedas</string>
+    <string name="search_wallets_result">Resultados de %s</string>
+    <string name="common_preview">Pré-visualização</string>
+    <string name="buy_asset_now">Compre %1s Agora</string>
+    <string name="tx_enter_amount_send_cta">Pré-visualização do Envio</string>
+    <string name="tx_enter_amount_transfer_cta">Pré-visualização da Transferência</string>
+    <string name="tx_enter_amount_deposit_cta">Pré-visualização do Depósito</string>
+    <string name="tx_enter_amount_withdraw_cta">Pré-visualização da Retirada</string>
 </resources>

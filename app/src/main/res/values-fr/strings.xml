@@ -1563,7 +1563,7 @@ SafeConnect partagera ces détails avec votre banque, qui vous demandera ensuite
     <string name="recurring_buy_selection_title">Sélectionner la fréquence</string>
     <string name="recurring_buy_payment_message">Vous serez facturé %1$s %2$s pour l\'équivalent de %3$s sur le marché. Vous pouvez gérer votre achat récurrent à partir de la page Portefeuilles et comptes %4$s.</string>
     <string name="recurring_buy_creation_error">Erreur dans la création de votre achat récurrent. Veuillez réessayer.</string>
-   <string name="exit">Sortir</string>
+    <string name="exit">Sortir</string>
     <string name="screen_overlay_warning">Superposition d\'écran détectée !</string>
     <string name="screen_overlay_note">Les applications qui utilisent des superpositions d\'écran peuvent vous inciter
         à toucher des objets invisibles et vous soutirer des fonds. Notez que cet avertissement sera également déclenché par les applications de réduction d\'écran. Si vous êtes sûr
@@ -1624,7 +1624,7 @@ SafeConnect partagera ces détails avec votre banque, qui vous demandera ensuite
     <string name="fee_calculated_at_checkout">Calculé au checkout</string>
     <string name="common_remove">Supprimer</string>
     <string name="common_parametrised_confirm">Confirmer %1$s</string>
-   <string name="password_disclaimer_1">Je comprends que Blockchain.com ne stocke jamais les mots de passe et ne peut donc pas récupérer ou réinitialiser mon mot de passe. Si je perds l\'accès à mon portefeuille, je dois utiliser la <annotation link="backup">phrase de récupération de ma clé privée secrète</annotation> pour accéder à mes fonds. En créant un compte, vous acceptez les <annotation link="terms">Conditions de service</annotation> et la <annotation link="privacy">Politique de confidentialité</annotation> de Blockchain.</string>
+    <string name="password_disclaimer_1">Je comprends que Blockchain.com ne stocke jamais les mots de passe et ne peut donc pas récupérer ou réinitialiser mon mot de passe. Si je perds l\'accès à mon portefeuille, je dois utiliser la <annotation link="backup">phrase de récupération de ma clé privée secrète</annotation> pour accéder à mes fonds. En créant un compte, vous acceptez les <annotation link="terms">Conditions de service</annotation> et la <annotation link="privacy">Politique de confidentialité</annotation> de Blockchain.</string>
     <string name="new_account_title_1">Nouveau compte</string>
 
     <string name="fee">Frais</string>
@@ -2124,4 +2124,19 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="rewards_error_title">Impossible de charger les détails des récompenses</string>
     <string name="rewards_error_desc">Une erreur s\'est produite lors du chargement des détails du Compte des récompenses.
 Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assistance si le problème persiste.</string>
+
+    <string name="kyc_enter_address">Entrez votre adresse de domicile actuelle.</string>
+    <string name="kyc_enter_address_manually">Entrer manuellement -></string>
+    <string name="kyc_autocomplete_addresses_error">Échec de la récupération des adresses</string>
+    <string name="kyc_autocomplete_selected_address_error">Échec de la récupération de l\'adresse</string>
+    <string name="loading_prices">Chargement des prix</string>
+    <string name="syncing_account">Compte de synchronisation</string>
+    <string name="search_wallets_hint">Rechercher des portefeuilles et des cryptos</string>
+    <string name="search_wallets_result">Résultats %s</string>
+    <string name="common_preview">Aperçu</string>
+    <string name="buy_asset_now">Acheter %1s maintenant</string>
+    <string name="tx_enter_amount_send_cta">Aperçu de l\'envoi</string>
+    <string name="tx_enter_amount_transfer_cta">Aperçu du transfert</string>
+    <string name="tx_enter_amount_deposit_cta">Aperçu du dépôt</string>
+    <string name="tx_enter_amount_withdraw_cta">Aperçu du retrait</string>
 </resources>

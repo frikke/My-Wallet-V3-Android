@@ -2053,7 +2053,6 @@ Bu sırada Blockchain.com üzerinden nakde geçebilir veya Swap ve Trade işlemi
     <string name="select_a_wallet">Bir Cüzdan Seç</string>
     <string name="exchange_rate">Değişim Oranı</string>
     <string name="common_retry">Yeniden Dene</string>
-    <string name="min_with_value">En Az %1$s</string>
     <string name="max_with_value">En Fazla %1$s</string>
     <string name="common_continue">Devam et</string>
 
@@ -2223,5 +2222,21 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="rewards_error_title">Ödül Ayrıntıları yüklenemiyor</string>
     <string name="rewards_error_desc">Ödül Hesabı ayrıntıları yüklenirken bir hata oluştu.
 Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam ederse Destek Ekibi ile İletişime Geçin.</string>
+
+    <string name="kyc_enter_address">Mevcut ev adresinizi girin.</string>
+    <string name="kyc_enter_address_manually">Manuel olarak girin -></string>
+    <string name="kyc_autocomplete_addresses_error">Adresler alınamadı</string>
+    <string name="kyc_autocomplete_selected_address_error">Adres alınamadı</string>
+    <string name="min_with_value">En Az %1$s</string>
+    <string name="loading_prices">Fiyatlar Yükleniyor</string>
+    <string name="syncing_account">Hesap Eşitleniyor</string>
+    <string name="search_wallets_hint">Cüzdan ve Kripto Para Arayın</string>
+    <string name="search_wallets_result">%s Sonuçları</string>
+    <string name="common_preview">Önizleme</string>
+    <string name="buy_asset_now">Şimdi %1s Satın Alın</string>
+    <string name="tx_enter_amount_send_cta">Gönderme Önizlemesi</string>
+    <string name="tx_enter_amount_transfer_cta">Transfer Önizlemesi</string>
+    <string name="tx_enter_amount_deposit_cta">Yatırma Önizlemesi</string>
+    <string name="tx_enter_amount_withdraw_cta">Çekme Önizlemesi</string>
 
 </resources>

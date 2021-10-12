@@ -2156,4 +2156,19 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="rewards_error_title">Не удается загрузить данные о вознаграждениях</string>
     <string name="rewards_error_desc">При загрузке данных о счете вознаграждений произошла ошибка.
 Проверьте подключение к интернету и повторите попытку, или обратитесь в службу поддержки, если проблема сохранится.</string>
+
+    <string name="kyc_enter_address">Введите свой текущий домашний адрес.</string>
+    <string name="kyc_enter_address_manually">Ввести вручную -></string>
+    <string name="kyc_autocomplete_addresses_error">Не удалось получить адреса</string>
+    <string name="kyc_autocomplete_selected_address_error">Не удалось получить адрес</string>
+    <string name="loading_prices">Загрузка цен</string>
+    <string name="syncing_account">Синхронизация аккаунта</string>
+    <string name="search_wallets_hint">Поиск кошельков и криптовалют</string>
+    <string name="search_wallets_result">%s результатов</string>
+    <string name="common_preview">Предварительный просмотр</string>
+    <string name="buy_asset_now">Купить %1s сейчас</string>
+    <string name="tx_enter_amount_send_cta">Предварительный просмотр отправки</string>
+    <string name="tx_enter_amount_transfer_cta">Предварительный просмотр перевода</string>
+    <string name="tx_enter_amount_deposit_cta">Предварительный просмотр депозита</string>
+    <string name="tx_enter_amount_withdraw_cta">Предварительный просмотр вывода</string>
 </resources>
