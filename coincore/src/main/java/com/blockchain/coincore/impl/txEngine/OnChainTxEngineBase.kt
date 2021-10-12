@@ -1,10 +1,5 @@
 package com.blockchain.coincore.impl.txEngine
 
-import com.blockchain.preferences.WalletStatus
-import info.blockchain.balance.AssetInfo
-import info.blockchain.wallet.api.data.FeeOptions
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeState
@@ -12,6 +7,11 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.koin.scopedInject
+import com.blockchain.preferences.WalletStatus
+import info.blockchain.balance.AssetInfo
+import info.blockchain.wallet.api.data.FeeOptions
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -32,14 +32,15 @@ abstract class OnChainTxEngineBase(
     }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        txTarget.onTxCompleted(txResult)
+        settingsDataManager.triggerOnChainTransaction(
+            guid = prefs.walletGuid,
+            sharedKey = prefs.sharedKey,
+            amount = pendingTx.amount.toStringWithoutSymbol(),
+            currency = pendingTx.amount.currencyCode
+        )
+            .onErrorComplete()
             .doOnComplete {
-                settingsDataManager.triggerOnChainTransaction(
-                    guid = prefs.walletGuid,
-                    sharedKey = prefs.sharedKey,
-                    amount = pendingTx.amount.toStringWithoutSymbol(),
-                    currency = pendingTx.amount.currencyCode
-                )
+                txTarget.onTxCompleted(txResult)
             }
 
     protected fun mapSavedFeeToFeeLevel(feeType: Int?): FeeLevel =
