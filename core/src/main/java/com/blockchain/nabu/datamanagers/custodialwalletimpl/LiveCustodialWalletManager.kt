@@ -1126,7 +1126,7 @@ class LiveCustodialWalletManager(
                 address = address,
                 hash = hash,
                 amount = amount.toBigInteger().toString(),
-                product = product.toString()
+                product = product.toRequestString()
 
             )
         }
