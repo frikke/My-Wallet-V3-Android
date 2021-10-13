@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.hasOppositeSourceAndTarget
 import com.blockchain.core.price.hasSameSourceAndTarget
 import com.blockchain.koin.scopedInject
@@ -54,7 +54,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
     val amount: Observable<Money>
         get() = amountSubject.distinctUntilChanged()
 
-    private val exchangeRates: ExchangeRates by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
 
@@ -303,6 +303,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
         return when (input) {
             is CurrencyType.Fiat -> when (output) {
                 is CurrencyType.Crypto -> {
+                    // TODO rework this to utilise the RX streams, replace the deprecated methods
                     exchangeRates.getLastCryptoToFiatRate(
                         sourceCrypto = output.cryptoCurrency,
                         targetFiat = input.fiatCurrency
