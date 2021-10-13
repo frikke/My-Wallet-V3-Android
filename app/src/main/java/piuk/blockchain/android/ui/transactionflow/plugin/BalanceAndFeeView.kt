@@ -111,17 +111,22 @@ class BalanceAndFeeView @JvmOverloads constructor(
     private fun updateMaxGroup(state: TransactionState) =
         with(binding) {
             val isPositiveAmount = state.amount.isPositive
+            val hasFees = state.pendingTx?.feeAmount?.isPositive == true
+            val isTotalAvailable = state.pendingTx?.totalBalance == state.pendingTx?.availableBalance
+            val amountIsPositiveAndHasFees = isPositiveAmount && hasFees
 
-            networkFeeLabel.visibleIf { isPositiveAmount }
-            networkFeeValue.visibleIf { isPositiveAmount }
-            networkFeeArrow.visibleIf { isPositiveAmount }
-            feeForFullAvailableLabel.visibleIf { isPositiveAmount }
-            feeForFullAvailableValue.visibleIf { isPositiveAmount }
-            totalAvailableLabel.visibleIf { isPositiveAmount }
-            totalAvailableValue.visibleIf { isPositiveAmount }
+            networkFeeLabel.visibleIf { amountIsPositiveAndHasFees }
+            networkFeeValue.visibleIf { amountIsPositiveAndHasFees }
+            networkFeeArrow.visibleIf { amountIsPositiveAndHasFees }
+            feeForFullAvailableLabel.visibleIf { amountIsPositiveAndHasFees }
+            feeForFullAvailableValue.visibleIf { amountIsPositiveAndHasFees }
+            totalAvailableLabel.visibleIf { isPositiveAmount && !isTotalAvailable }
+            totalAvailableValue.visibleIf { isPositiveAmount && !isTotalAvailable }
 
             with(useMax) {
-                visibleIf { !isPositiveAmount && !customiser.shouldDisableInput(state.errorState) }
+                val amountIsZeroOrNoFees =
+                    !isPositiveAmount || !hasFees // in those cases there is room for the Max button
+                visibleIf { amountIsZeroOrNoFees && !customiser.shouldDisableInput(state.errorState) }
                 text = customiser.enterAmountMaxButton(state)
                 setOnClickListener {
                     analytics.onMaxClicked(state)

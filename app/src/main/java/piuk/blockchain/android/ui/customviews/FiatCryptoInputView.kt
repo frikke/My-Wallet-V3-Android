@@ -176,6 +176,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
             updateFilters(binding.enterAmount.configuration.prefixOrSuffix, newValue.toInputCurrency())
     }
 
+    @Deprecated("Error messages arent part of the input")
     fun showError(errorMessage: String, shouldDisableInput: Boolean = false) {
         with(binding) {
             error.text = errorMessage
@@ -184,6 +185,12 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
             hideExchangeAmount()
             exchangeAmount.isEnabled = !shouldDisableInput
         }
+    }
+
+    fun onAmountValidationUpdated(isValid: Boolean) {
+        val colour = if (isValid) R.color.grey_800 else R.color.red_400
+        binding.enterAmount.setTextColor(resources.getColor(colour, null))
+        binding.exchangeAmount.setTextColor(resources.getColor(colour, null))
     }
 
     fun showInfo(infoMessage: String, onClick: () -> Unit) {

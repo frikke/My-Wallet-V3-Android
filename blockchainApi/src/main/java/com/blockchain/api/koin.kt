@@ -92,7 +92,10 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("blockchain-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(
+                json.asConverterFactory("application/json".toMediaType())
+            )
+
             .build()
     }
 

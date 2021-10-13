@@ -43,7 +43,6 @@ import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.setImageDrawable
-import java.math.BigInteger
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -560,14 +559,10 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
-    override fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String? {
-        if (state.pendingTx?.amount?.toBigInteger() == BigInteger.ZERO && (
-                state.errorState == TransactionErrorState.INVALID_AMOUNT ||
-                    state.errorState == TransactionErrorState.BELOW_MIN_LIMIT
-                )
-        ) return null
+    override fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String {
+
         return when (state.errorState) {
-            TransactionErrorState.NONE -> null
+            TransactionErrorState.NONE -> ""
             TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
                 R.string.send_enter_amount_error_insufficient_funds,
                 state.sendingAccount.uiCurrency()
@@ -575,9 +570,6 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.INVALID_AMOUNT -> resources.getString(
                 R.string.send_enter_amount_error_invalid_amount_1,
                 state.pendingTx?.minLimit?.formatOrSymbolForZero() ?: throw IllegalStateException("Missing limit")
-            )
-            TransactionErrorState.INVALID_POSTCODE -> resources.getString(
-                R.string.kyc_postcode_error
             )
             TransactionErrorState.INVALID_ADDRESS -> resources.getString(
                 R.string.send_error_not_valid_asset_address,
@@ -627,7 +619,7 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
-    override fun issueFeesTooHighMessage(state: TransactionState): String? {
+    override fun issueFeesTooHighMessage(state: TransactionState): String {
         return when (state.action) {
             AssetAction.Send ->
                 resources.getString(
@@ -649,9 +641,18 @@ class TransactionFlowCustomiserImpl(
                     R.string.rewards_enter_amount_error_insufficient_funds_for_fees,
                     state.sendingAsset.displayTicker
                 )
-            else -> null
+            else -> throw IllegalArgumentException("Transaction doesn't support high fees warning message")
         }
     }
+
+    override fun shouldDisplayFeesErrorMessage(state: TransactionState): Boolean =
+        when (state.action) {
+            AssetAction.Send,
+            AssetAction.Swap,
+            AssetAction.Sell,
+            AssetAction.InterestDeposit -> true
+            else -> false
+        }
 
     override fun installEnterAmountLowerSlotView(
         ctx: Context,
@@ -741,12 +742,6 @@ class TransactionFlowCustomiserImpl(
             )
         }
     }
-
-    override fun selectIssueType(state: TransactionState): IssueType =
-        when (state.errorState) {
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> IssueType.INFO
-            else -> IssueType.ERROR
-        }
 
     override fun showTargetIcon(state: TransactionState): Boolean =
         state.action == AssetAction.Swap

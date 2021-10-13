@@ -17,11 +17,11 @@ interface EnterAmountCustomisations {
     fun enterAmountTargetLabel(state: TransactionState): String
     fun enterAmountLoadSourceIcon(imageView: ImageView, state: TransactionState)
     fun defInputType(state: TransactionState, fiatCurrency: String): CurrencyType
-    fun selectIssueType(state: TransactionState): IssueType
     fun showTargetIcon(state: TransactionState): Boolean
     fun shouldDisableInput(errorState: TransactionErrorState): Boolean
-    fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String?
-    fun issueFeesTooHighMessage(state: TransactionState): String?
+    fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String
+    fun issueFeesTooHighMessage(state: TransactionState): String
+    fun shouldDisplayFeesErrorMessage(state: TransactionState): Boolean
     fun installEnterAmountLowerSlotView(
         ctx: Context,
         frame: FrameLayout,

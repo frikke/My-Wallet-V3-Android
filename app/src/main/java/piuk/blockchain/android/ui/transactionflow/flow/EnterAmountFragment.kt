@@ -23,20 +23,20 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
 import piuk.blockchain.android.ui.customviews.CurrencyType
 import piuk.blockchain.android.ui.customviews.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.PrefixedOrSuffixedEditText
-import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
-import piuk.blockchain.android.ui.transactionflow.flow.customisations.IssueType
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ExpandableTxFlowWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 import timber.log.Timber
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
@@ -54,6 +54,10 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     private var upperSlot: TxFlowWidget? = null
 
     private var initialValueSet: Boolean = false
+
+    private val errorContainer by lazy {
+        binding.errorLayout.errorContainer
+    }
 
     private val imm: InputMethodManager by lazy {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -173,7 +177,8 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
 
-                showFlashMessageIfNeeded(newState)
+                updateInputStateUI(newState)
+                showCtaOrError(newState)
             }
 
             newState.pendingTx?.let {
@@ -195,34 +200,46 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         state = newState
     }
 
-    private fun FragmentTxFlowEnterAmountBinding.showFlashMessageIfNeeded(
-        state: TransactionState
-    ) {
-        customiser.issueFlashMessage(state, amountSheetInput.configuration.inputCurrency)?.let {
-            when (customiser.selectIssueType(state)) {
-                IssueType.ERROR -> {
-                    amountSheetInput.showError(it, customiser.shouldDisableInput(state.errorState))
-                }
-                IssueType.INFO -> {
-                    amountSheetInput.showInfo(it) {
-                        KycNavHostActivity.start(requireActivity(), CampaignType.Swap, true)
-                    }
-                }
-            }
-        } ?: showFeesTooHighMessageOrHide(state)
+    private fun updateInputStateUI(newState: TransactionState) {
+        binding.amountSheetInput.onAmountValidationUpdated(newState.isAmountValid())
     }
 
-    private fun FragmentTxFlowEnterAmountBinding.showFeesTooHighMessageOrHide(
-        state: TransactionState
-    ) {
-        val feesTooHighMsg = customiser.issueFeesTooHighMessage(state)
-        if (state.pendingTx != null && state.pendingTx.isLowOnBalance() && feesTooHighMsg != null) {
-            amountSheetInput.showError(
-                errorMessage = feesTooHighMsg
-            )
-        } else {
-            amountSheetInput.hideLabels()
+    private val inputCurrency: CurrencyType
+        get() = binding.amountSheetInput.configuration.inputCurrency
+
+    private fun showCtaOrError(state: TransactionState) {
+        val errorState = state.errorState
+        val isAmountPositive = state.amount.isPositive
+
+        when {
+            state.pendingTx?.isLowOnBalance() == true && customiser.shouldDisplayFeesErrorMessage(state) -> {
+                showError(customiser.issueFeesTooHighMessage(state))
+            }
+            errorState == TransactionErrorState.NONE -> {
+                showCta()
+            }
+            errorState.isAmountRelated() -> {
+                if (isAmountPositive) {
+                    showError(customiser.issueFlashMessage(state, inputCurrency))
+                } else {
+                    showCta()
+                }
+            }
+            !errorState.isAmountRelated() -> {
+                showError(customiser.issueFlashMessage(state, inputCurrency))
+            }
         }
+    }
+
+    private fun showCta() {
+        errorContainer.gone()
+        binding.amountSheetCtaButton.visible()
+    }
+
+    private fun showError(message: String) {
+        errorContainer.visible()
+        binding.amountSheetCtaButton.gone()
+        binding.errorLayout.errorMessage.text = message
     }
 
     private fun FragmentTxFlowEnterAmountBinding.initialiseUpperSlotIfNeeded(state: TransactionState) {
@@ -350,6 +367,32 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
         fun newInstance(): EnterAmountFragment = EnterAmountFragment()
     }
+}
+
+private fun TransactionErrorState.isAmountRelated(): Boolean =
+    when (this) {
+        TransactionErrorState.NONE,
+        TransactionErrorState.INVALID_ADDRESS,
+        TransactionErrorState.ADDRESS_IS_CONTRACT,
+        TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED,
+        TransactionErrorState.UNEXPECTED_ERROR,
+        TransactionErrorState.TRANSACTION_IN_FLIGHT,
+        TransactionErrorState.INVALID_PASSWORD,
+        TransactionErrorState.TX_OPTION_INVALID,
+        TransactionErrorState.UNKNOWN_ERROR -> false
+
+        TransactionErrorState.INSUFFICIENT_FUNDS,
+        TransactionErrorState.INVALID_AMOUNT,
+        TransactionErrorState.BELOW_MIN_LIMIT,
+        TransactionErrorState.ABOVE_MAX_LIMIT,
+        TransactionErrorState.OVER_SILVER_TIER_LIMIT,
+        TransactionErrorState.OVER_GOLD_TIER_LIMIT,
+        TransactionErrorState.NOT_ENOUGH_GAS -> true
+    }
+
+private fun TransactionState.isAmountValid(): Boolean {
+    if (amount.isZero) return true
+    return !errorState.isAmountRelated()
 }
 
 private fun BlockchainAccount.currencyType(): CurrencyType =
