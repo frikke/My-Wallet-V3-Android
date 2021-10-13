@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.DialogTxFlowInProgressBinding
+import piuk.blockchain.android.databinding.FragmentTxFlowInProgressBinding
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
@@ -15,10 +15,10 @@ import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
 import timber.log.Timber
 
-class TransactionProgressFragment : TransactionFlowFragment<DialogTxFlowInProgressBinding>() {
+class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProgressBinding>() {
 
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogTxFlowInProgressBinding =
-        DialogTxFlowInProgressBinding.inflate(inflater, container, false)
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowInProgressBinding =
+        FragmentTxFlowInProgressBinding.inflate(inflater, container, false)
 
     private val customiser: TransactionProgressCustomisations by inject()
     private val MAX_STACKTRACE_CHARS = 400
