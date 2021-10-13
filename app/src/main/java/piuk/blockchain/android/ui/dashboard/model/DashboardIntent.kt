@@ -67,8 +67,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                         valueTransform = { CryptoAssetState(it) }
                     )
                 ),
-                fiatAssets = fiatState,
-                isLoadingAssets = false
+                fiatAssets = fiatState
             )
         }
     }
@@ -185,7 +184,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             val newAsset = oldAsset.copy(accountBalance = newBalance, hasBalanceError = false)
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
 
-            return oldState.copy(activeAssets = newAssets)
+            return oldState.copy(activeAssets = newAssets, isLoadingAssets = false)
         }
     }
 

@@ -251,7 +251,8 @@ class PortfolioFragment :
                     .thenBy { it.currency.name }
             )
             if (useDynamicAssets) {
-                val hasBalanceOrIsLoading = newState.isLoadingAssets || assets.isNotEmpty()
+                val hasBalanceOrIsLoading = newState.isLoadingAssets ||
+                    assets.any { it.fiatBalance?.isPositive == true }
                 binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
                 binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
             }
