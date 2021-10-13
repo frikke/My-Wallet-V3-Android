@@ -108,7 +108,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             onGotAssetDetails(assetDisplayMap)
         }
 
-        renderRecurringBuys(newState.recurringBuys)
+        renderRecurringBuys(newState.recurringBuys, newState.assetDisplayMap ?: emptyMap())
 
         configureTimespanSelectionUI(binding, newState.timeSpan)
 
@@ -196,7 +196,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         adapterDelegate.notifyDataSetChanged()
     }
 
-    private fun renderRecurringBuys(recurringBuys: Map<String, RecurringBuy>) {
+    private fun renderRecurringBuys(recurringBuys: Map<String, RecurringBuy>, assetDisplayMap: AssetDisplayMap) {
         if (recurringBuys.keys.isNotEmpty()) {
             val recurringBuysItems = recurringBuys.values.map {
                 AssetDetailsItem.RecurringBuyInfo(
@@ -204,7 +204,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 )
             }
             listItems.addAll(recurringBuysItems)
-        } else {
+        } else if (assetDisplayMap.containsKey(AssetFilter.Custodial)) {
             listItems.add(AssetDetailsItem.RecurringBuyBanner)
         }
 

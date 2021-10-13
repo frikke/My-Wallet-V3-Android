@@ -60,6 +60,7 @@ import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
+import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -159,6 +160,10 @@ internal class PricesFragment :
                 asset = it.assetInfo,
                 priceWithDelta = it.prices
             )
+        }
+        binding.searchResultsLabel.apply {
+            text = getString(R.string.search_wallets_result, newList.size.toString())
+            visibleIf { newState.filterBy.isNotEmpty() }
         }
 
         with(displayList) {
