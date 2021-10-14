@@ -7,9 +7,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -29,23 +26,19 @@ import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.nabu.UserIdentity
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-const val USER_TIER = "USER_TIER"
-
 const val RECEIVE_AMOUNT = "RECEIVE_AMOUNT"
 const val OUTGOING_FEE = "OUTGOING_FEE"
 
-private val PendingTx.userTier: KycTiers
-    get() = (this.engineState[USER_TIER] as KycTiers)
-
 abstract class SwapTxEngineBase(
     quotesEngine: TransferQuotesEngine,
-    private val walletManager: CustodialWalletManager,
-    kycTierService: TierService
-) : QuotedEngine(quotesEngine, kycTierService, walletManager, Product.TRADE) {
+    userIdentity: UserIdentity,
+    private val walletManager: CustodialWalletManager
+) : QuotedEngine(quotesEngine, userIdentity, walletManager, Product.TRADE) {
 
     private lateinit var minApiLimit: Money
 
@@ -62,7 +55,6 @@ abstract class SwapTxEngineBase(
         }
 
     override fun onLimitsForTierFetched(
-        tier: KycTiers,
         limits: TransferLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
@@ -75,8 +67,7 @@ abstract class SwapTxEngineBase(
         return pendingTx.copy(
             minLimit = minLimit(pricedQuote.price),
             maxLimit = (exchangeRate.inverse().convert(limits.maxLimit) as CryptoValue)
-                .withUserDpRounding(RoundingMode.FLOOR),
-            engineState = pendingTx.engineState.copyAndPut(USER_TIER, tier)
+                .withUserDpRounding(RoundingMode.FLOOR)
         )
     }
 
@@ -91,7 +82,7 @@ abstract class SwapTxEngineBase(
                         pendingTx.amount < pendingTx.minLimit -> throw TxValidationFailure(
                             ValidationState.UNDER_MIN_LIMIT
                         )
-                        pendingTx.amount > pendingTx.maxLimit -> throw validationFailureForTier(pendingTx)
+                        pendingTx.amount > pendingTx.maxLimit -> validationFailureForTier()
                         else -> Completable.complete()
                     }
                 } else {
@@ -102,13 +93,6 @@ abstract class SwapTxEngineBase(
             }
         }
     }
-
-    private fun validationFailureForTier(pendingTx: PendingTx) =
-        if (pendingTx.userTier.isApprovedFor(KycTierLevel.GOLD)) {
-            TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT)
-        } else {
-            TxValidationFailure(ValidationState.OVER_SILVER_TIER_LIMIT)
-        }
 
     override fun doValidateAll(pendingTx: PendingTx): Single<PendingTx> =
         validateAmount(pendingTx).updateTxValidity(pendingTx)

@@ -24,6 +24,9 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.network.PollService
 import java.security.InvalidParameterException
 
@@ -31,8 +34,12 @@ class FiatDepositTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val bankPartnerCallbackProvider: BankPartnerCallbackProvider
+    val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
+    private val userIdentity: UserIdentity
 ) : TxEngine() {
+
+    private val userIsGoldVerified: Single<Boolean>
+        get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))
 
     override fun assertInputsValid() {
         check(sourceAccount is BankAccount)
@@ -104,20 +111,28 @@ class FiatDepositTxEngine(
     }
 
     private fun validateAmount(pendingTx: PendingTx): Completable =
-        Completable.fromCallable {
+        Completable.defer {
             if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
                 when {
-                    pendingTx.amount.isZero -> throw TxValidationFailure(ValidationState.INVALID_AMOUNT)
-                    pendingTx.amount < pendingTx.minLimit -> throw TxValidationFailure(
-                        ValidationState.UNDER_MIN_LIMIT
+                    pendingTx.amount.isZero -> Completable.error(TxValidationFailure(ValidationState.INVALID_AMOUNT))
+                    pendingTx.amount < pendingTx.minLimit -> Completable.error(
+                        TxValidationFailure(
+                            ValidationState.UNDER_MIN_LIMIT
+                        )
                     )
-                    pendingTx.amount > pendingTx.maxLimit -> throw TxValidationFailure(
-                        ValidationState.OVER_MAX_LIMIT
-                    )
+                    pendingTx.amount > pendingTx.maxLimit -> {
+                        userIsGoldVerified.flatMapCompletable {
+                            if (it) {
+                                Completable.error(TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT))
+                            } else {
+                                Completable.error(TxValidationFailure(ValidationState.OVER_SILVER_TIER_LIMIT))
+                            }
+                        }
+                    }
                     else -> Completable.complete()
                 }
             } else {
-                throw TxValidationFailure(ValidationState.UNKNOWN_ERROR)
+                Completable.error(TxValidationFailure(ValidationState.UNKNOWN_ERROR))
             }
         }
 

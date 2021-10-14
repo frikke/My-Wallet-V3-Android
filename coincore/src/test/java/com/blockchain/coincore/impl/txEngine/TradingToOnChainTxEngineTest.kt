@@ -1,5 +1,6 @@
 package com.blockchain.coincore.impl.txEngine
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
@@ -23,7 +24,10 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.erc20.Erc20NonCustodialAccount
+import com.blockchain.coincore.impl.CryptoAccountCompoundGroupTest.Companion.testValue
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.price.ExchangeRate
+import io.reactivex.rxjava3.core.Observable
 import java.math.BigInteger
 import kotlin.test.assertEquals
 
@@ -209,8 +213,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
 
         verify(sourceAccount, atLeastOnce()).asset
-        verify(sourceAccount).accountBalance
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount).balance
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -370,11 +373,26 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET)
-    ) = mock<Erc20NonCustodialAccount> {
-        on { asset }.thenReturn(ASSET)
-        on { accountBalance }.thenReturn(Single.just(totalBalance))
-        on { actionableBalance }.thenReturn(Single.just(availableBalance))
+        actionable: Money = CryptoValue.zero(ASSET)
+    ): Erc20NonCustodialAccount {
+        val accountBalance = AccountBalance(
+            total = totalBalance,
+            pending = 0.testValue(),
+            actionable = actionable,
+            exchangeRate = ExchangeRate.CryptoToFiat(
+                from = TEST_ASSET,
+                to = TEST_USER_FIAT,
+                rate = 1.2.toBigDecimal()
+            )
+        )
+        return mock {
+            on { asset }.thenReturn(ASSET)
+            on { balance }.thenReturn(
+                Observable.just(
+                    accountBalance
+                )
+            )
+        }
     }
 
     private fun verifyFeeLevels(feeSelection: FeeSelection) =

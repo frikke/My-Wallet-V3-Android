@@ -7,10 +7,8 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.TransferQuote
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.nabu.service.TierService
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
@@ -36,6 +34,7 @@ import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
+import com.blockchain.nabu.UserIdentity
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import kotlin.test.assertEquals
 
@@ -43,13 +42,13 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
-    private val kycTierService: TierService = mock()
+    private val userIdentity: UserIdentity = mock()
     private val environmentConfig: EnvironmentConfig = mock()
 
     private val subject = TradingToTradingSwapTxEngine(
         walletManager = walletManager,
         quotesEngine = quotesEngine,
-        kycTierService = kycTierService
+        userIdentity = userIdentity
     )
 
     @Before
@@ -189,7 +188,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         val totalBalance: Money = 21.bitcoin()
         val availableBalance: Money = 20.bitcoin()
 
-        whenUserIsGold()
+        mockLimits()
 
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
@@ -231,8 +230,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
                 it.confirmations.isEmpty() &&
                 it.minLimit == expectedMinLimit &&
                 it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
-                it.validationState == ValidationState.UNINITIALISED &&
-                it.engineState[USER_TIER] != null
+                it.validationState == ValidationState.UNINITIALISED
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
@@ -532,10 +530,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             on { actionableBalance }.thenReturn(Single.just(availableBalance))
         }
 
-    private fun whenUserIsGold() {
-        val kycTiers: KycTiers = mock()
-        whenever(kycTierService.tiers()).thenReturn(Single.just(kycTiers))
-
+    private fun mockLimits() {
         whenever(walletManager.getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.INTERNAL))
             .thenReturn(
                 Single.just(
@@ -549,7 +544,6 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     }
 
     private fun verifyLimitsFetched() {
-        verify(kycTierService).tiers()
         verify(walletManager).getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.INTERNAL)
     }
 
@@ -574,7 +568,6 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         verifyNoMoreInteractions(currencyPrefs)
         verifyNoMoreInteractions(exchangeRates)
         verifyNoMoreInteractions(quotesEngine)
-        verifyNoMoreInteractions(kycTierService)
         verifyNoMoreInteractions(environmentConfig)
     }
 
@@ -594,7 +587,6 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         private val MAX_GOLD_LIMIT = FiatValue.fromMajor(TEST_USER_FIAT, 2000.toBigDecimal())
 
         private val MIN_GOLD_LIMIT_ASSET = CryptoValue.fromMajor(SRC_ASSET, 50.toBigDecimal())
-        private val MAX_GOLD_ORDER_ASSET = CryptoValue.fromMajor(SRC_ASSET, 250.toBigDecimal())
         private val MAX_GOLD_LIMIT_ASSET = CryptoValue.fromMajor(SRC_ASSET, 1000.toBigDecimal())
     }
 }

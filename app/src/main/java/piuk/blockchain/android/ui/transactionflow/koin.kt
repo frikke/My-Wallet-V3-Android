@@ -32,9 +32,10 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiser
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiserImpl
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
 
-val transactionFlowScope = named("TransactionScope")
 val transactionFlowActivityScope = named("TransactionActivityScope")
 
 val transactionModule = module {
@@ -52,6 +53,12 @@ val transactionModule = module {
         .bind(TransactionConfirmationCustomisations::class)
         .bind(TransactionProgressCustomisations::class)
         .bind(TransactionFlowCustomisations::class)
+
+    factory {
+        TransactionFlowInfoBottomSheetCustomiserImpl(
+            resources = get<Context>().resources
+        )
+    }.bind(TransactionFlowInfoBottomSheetCustomiser::class)
 
     factory {
         ExchangePriceFormatter(

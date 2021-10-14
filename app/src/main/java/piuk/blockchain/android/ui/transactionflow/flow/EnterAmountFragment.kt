@@ -14,6 +14,9 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -23,15 +26,22 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
+import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.customviews.CurrencyType
 import piuk.blockchain.android.ui.customviews.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.PrefixedOrSuffixedEditText
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.IssueType
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ExpandableTxFlowWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
@@ -41,23 +51,30 @@ import timber.log.Timber
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 
-class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBinding>() {
+class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBinding>(), TransactionFlowInfoHost {
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowEnterAmountBinding =
         FragmentTxFlowEnterAmountBinding.inflate(inflater, container, false)
 
     private val customiser: EnterAmountCustomisations by inject()
+    private val gatedFeatures: InternalFeatureFlagApi by inject()
+    private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private val compositeDisposable = CompositeDisposable()
     private var state: TransactionState = TransactionState()
 
     private var lowerSlot: TxFlowWidget? = null
     private var upperSlot: TxFlowWidget? = null
 
+    private var infoActionCallback: () -> Unit = {}
+
     private var initialValueSet: Boolean = false
 
     private val errorContainer by lazy {
         binding.errorLayout.errorContainer
     }
+
+    private val inputCurrency: CurrencyType
+        get() = binding.amountSheetInput.configuration.inputCurrency
 
     private val imm: InputMethodManager by lazy {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -177,8 +194,12 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
 
-                updateInputStateUI(newState)
-                showCtaOrError(newState)
+                if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_TRANSACTION_FLOW_ERRORS)) {
+                    updateInputStateUI(newState)
+                    showCtaOrError(newState)
+                } else {
+                    showFlashMessageIfNeeded(newState)
+                }
             }
 
             newState.pendingTx?.let {
@@ -204,30 +225,57 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         binding.amountSheetInput.onAmountValidationUpdated(newState.isAmountValid())
     }
 
-    private val inputCurrency: CurrencyType
-        get() = binding.amountSheetInput.configuration.inputCurrency
-
     private fun showCtaOrError(state: TransactionState) {
         val errorState = state.errorState
         val isAmountPositive = state.amount.isPositive
 
         when {
             state.pendingTx?.isLowOnBalance() == true && customiser.shouldDisplayFeesErrorMessage(state) -> {
-                showError(customiser.issueFeesTooHighMessage(state))
+                showError(state, customiser.issueFeesTooHighMessage(state))
             }
             errorState == TransactionErrorState.NONE -> {
                 showCta()
             }
             errorState.isAmountRelated() -> {
                 if (isAmountPositive) {
-                    showError(customiser.issueFlashMessage(state, inputCurrency))
+                    showError(state, customiser.issueFlashMessage(state, inputCurrency))
                 } else {
                     showCta()
                 }
             }
             !errorState.isAmountRelated() -> {
-                showError(customiser.issueFlashMessage(state, inputCurrency))
+                showError(state, customiser.issueFlashMessage(state, inputCurrency))
             }
+        }
+    }
+
+    private fun FragmentTxFlowEnterAmountBinding.showFlashMessageIfNeeded(
+        state: TransactionState
+    ) {
+        customiser.issueFlashMessageLegacy(state, amountSheetInput.configuration.inputCurrency)?.let {
+            when (customiser.selectIssueType(state)) {
+                IssueType.ERROR -> {
+                    amountSheetInput.showError(it, customiser.shouldDisableInput(state.errorState))
+                }
+                IssueType.INFO -> {
+                    amountSheetInput.showInfo(it) {
+                        KycNavHostActivity.start(requireActivity(), CampaignType.Swap, true)
+                    }
+                }
+            }
+        } ?: showFeesTooHighMessageOrHide(state)
+    }
+
+    private fun FragmentTxFlowEnterAmountBinding.showFeesTooHighMessageOrHide(
+        state: TransactionState
+    ) {
+        val feesTooHighMsg = customiser.issueFeesTooHighMessage(state)
+        if (state.pendingTx != null && state.pendingTx.isLowOnBalance() && feesTooHighMsg != null) {
+            amountSheetInput.showError(
+                errorMessage = feesTooHighMsg
+            )
+        } else {
+            amountSheetInput.hideLabels()
         }
     }
 
@@ -236,10 +284,45 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         binding.amountSheetCtaButton.visible()
     }
 
-    private fun showError(message: String) {
-        errorContainer.visible()
+    private fun showError(state: TransactionState, message: String) {
         binding.amountSheetCtaButton.gone()
         binding.errorLayout.errorMessage.text = message
+        errorContainer.visible()
+        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state)
+        bottomSheetInfo?.let { info ->
+            errorContainer.setOnClickListener {
+                TransactionFlowInfoBottomSheet.newInstance(info)
+                    .show(childFragmentManager, "BOTTOM_DIALOG")
+                infoActionCallback = handlePossibleInfoAction(info, state)
+            }
+        } ?: errorContainer.setOnClickListener {}
+    }
+
+    private fun handlePossibleInfoAction(info: TransactionFlowBottomSheetInfo, state: TransactionState): () -> Unit {
+        info.action?.actionType?.let { type ->
+            when (type) {
+                InfoActionType.BUY -> {
+                    val asset = (state.sendingAccount as? CryptoAccount)?.asset
+                    require(asset != null)
+                    return { startBuyForCurrency(asset) }
+                }
+                InfoActionType.KYC_UPGRADE -> return { startKyc() }
+            }
+        } ?: return { }
+    }
+
+    private fun startKyc() {
+        KycNavHostActivity.start(requireActivity(), CampaignType.None)
+    }
+
+    private fun startBuyForCurrency(asset: AssetInfo) {
+        startActivity(
+            SimpleBuyActivity.newInstance(
+                context = requireActivity(),
+                launchFromNavigationBar = true,
+                asset = asset
+            )
+        )
     }
 
     private fun FragmentTxFlowEnterAmountBinding.initialiseUpperSlotIfNeeded(state: TransactionState) {
@@ -367,6 +450,13 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
         fun newInstance(): EnterAmountFragment = EnterAmountFragment()
     }
+
+    override fun onActionInfoTriggered() {
+        infoActionCallback()
+    }
+
+    override fun onSheetClosed() {
+    }
 }
 
 private fun TransactionErrorState.isAmountRelated(): Boolean =
@@ -384,7 +474,6 @@ private fun TransactionErrorState.isAmountRelated(): Boolean =
         TransactionErrorState.INSUFFICIENT_FUNDS,
         TransactionErrorState.INVALID_AMOUNT,
         TransactionErrorState.BELOW_MIN_LIMIT,
-        TransactionErrorState.ABOVE_MAX_LIMIT,
         TransactionErrorState.OVER_SILVER_TIER_LIMIT,
         TransactionErrorState.OVER_GOLD_TIER_LIMIT,
         TransactionErrorState.NOT_ENOUGH_GAS -> true

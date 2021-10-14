@@ -7,7 +7,6 @@ import com.blockchain.bitpay.BitpayTxEngine
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.mock
@@ -37,6 +36,7 @@ import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TEST_ASSET
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
+import com.blockchain.nabu.UserIdentity
 import java.lang.IllegalStateException
 
 class TxProcessorFactoryTest {
@@ -49,7 +49,7 @@ class TxProcessorFactoryTest {
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val analytics: Analytics = mock()
-    private val kycTierService: TierService = mock()
+    private val userIdentity: UserIdentity = mock()
 
     private lateinit var subject: TxProcessorFactory
 
@@ -64,7 +64,7 @@ class TxProcessorFactoryTest {
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
             quotesEngine = quotesEngine,
             analytics = analytics,
-            kycTierService = kycTierService
+            userIdentity = userIdentity
         )
     }
 
@@ -164,7 +164,7 @@ class TxProcessorFactoryTest {
                     it.engine is OnChainSwapTxEngine &&
                     (it.engine as OnChainSwapTxEngine).run {
                         this.walletManager == walletManager &&
-                            this.kycTierService == kycTierService &&
+                            this.userIdentity == userIdentity &&
                             this.engine == mockBaseEngine
                     }
             }
@@ -215,7 +215,7 @@ class TxProcessorFactoryTest {
                     (it.engine as OnChainSellTxEngine).run {
                         this.engine == mockBaseEngine &&
                             this.walletManager == walletManager &&
-                            this.kycTierService == kycTierService
+                            this.userIdentity == userIdentity
                     }
             }
     }
@@ -324,7 +324,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingSellTxEngine &&
                     (it.engine as TradingSellTxEngine).run {
-                        this.kycTierService == kycTierService &&
+                        this.userIdentity == userIdentity &&
                             this.walletManager == walletManager
                     }
             }
@@ -348,7 +348,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToTradingSwapTxEngine &&
                     (it.engine as TradingToTradingSwapTxEngine).run {
-                        this.kycTierService == kycTierService &&
+                        this.userIdentity == userIdentity &&
                             this.walletManager == walletManager
                     }
             }

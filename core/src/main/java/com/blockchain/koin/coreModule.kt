@@ -287,7 +287,8 @@ val coreModule = module {
         scoped {
             NabuUserDataManagerImpl(
                 nabuUserService = get(),
-                authenticator = get()
+                authenticator = get(),
+                tierService = get()
             )
         }.bind(NabuUserDataManager::class)
 

@@ -43,12 +43,12 @@ class LinkedBankAccount(
 
     override val balance: Observable<AccountBalance>
         get() = FiatValue.zero(currency).let { zero ->
-                Observable.just(
-                    AccountBalance(
-                        total = zero,
-                        pending = zero,
-                        actionable = zero,
-                        exchangeRate = ExchangeRate.InvalidRate
+            Observable.just(
+                AccountBalance(
+                    total = zero,
+                    pending = zero,
+                    actionable = zero,
+                    exchangeRate = ExchangeRate.InvalidRate
                 )
             )
         }

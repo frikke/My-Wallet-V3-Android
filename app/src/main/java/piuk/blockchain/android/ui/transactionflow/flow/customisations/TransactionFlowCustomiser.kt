@@ -43,6 +43,7 @@ import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.setImageDrawable
+import java.math.BigInteger
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -559,6 +560,66 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
+    override fun issueFlashMessageLegacy(state: TransactionState, input: CurrencyType?): String? {
+        if (state.pendingTx?.amount?.toBigInteger() == BigInteger.ZERO && (
+                state.errorState == TransactionErrorState.INVALID_AMOUNT ||
+                    state.errorState == TransactionErrorState.BELOW_MIN_LIMIT
+                )
+        ) return null
+        return when (state.errorState) {
+            TransactionErrorState.NONE -> null
+            TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
+                R.string.send_enter_amount_error_insufficient_funds,
+                state.sendingAccount.uiCurrency()
+            )
+            TransactionErrorState.INVALID_AMOUNT -> resources.getString(
+                R.string.send_enter_amount_error_invalid_amount_1,
+                state.pendingTx?.minLimit?.formatOrSymbolForZero() ?: throw IllegalStateException("Missing limit")
+            )
+            TransactionErrorState.INVALID_ADDRESS -> resources.getString(
+                R.string.send_error_not_valid_asset_address,
+                state.sendingAccount.uiCurrency()
+            )
+            TransactionErrorState.ADDRESS_IS_CONTRACT -> resources.getString(
+                R.string.send_error_address_is_eth_contract
+            )
+            TransactionErrorState.INVALID_PASSWORD -> resources.getString(
+                R.string.send_enter_invalid_password
+            )
+            TransactionErrorState.NOT_ENOUGH_GAS -> resources.getString(
+                R.string.send_enter_insufficient_gas
+            )
+            TransactionErrorState.UNEXPECTED_ERROR -> resources.getString(
+                R.string.send_enter_unexpected_error
+            )
+            TransactionErrorState.BELOW_MIN_LIMIT -> composeBelowLimitErrorMessage(state, input)
+
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> resources.getString(R.string.swap_enter_amount_silver_limit)
+            TransactionErrorState.OVER_GOLD_TIER_LIMIT -> {
+                val exchangeRate = state.fiatRate ?: return ""
+                val amount =
+                    input?.let {
+                        state.pendingTx?.maxLimit?.toEnteredCurrency(
+                            it, exchangeRate, RoundingMode.FLOOR
+                        )
+                    } ?: state.pendingTx?.maxLimit?.toStringWithSymbol()
+
+                resources.getString(R.string.swap_enter_amount_over_limit, amount)
+            }
+            TransactionErrorState.TRANSACTION_IN_FLIGHT -> resources.getString(R.string.send_error_tx_in_flight)
+            TransactionErrorState.TX_OPTION_INVALID -> resources.getString(R.string.send_error_tx_option_invalid)
+            TransactionErrorState.UNKNOWN_ERROR -> resources.getString(R.string.send_error_tx_option_invalid)
+            TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED ->
+                resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.displayTicker)
+        }
+    }
+
+    override fun selectIssueType(state: TransactionState): IssueType =
+        when (state.errorState) {
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> IssueType.INFO
+            else -> IssueType.ERROR
+        }
+
     override fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String {
 
         return when (state.errorState) {
@@ -588,28 +649,9 @@ class TransactionFlowCustomiserImpl(
                 R.string.send_enter_unexpected_error
             )
             TransactionErrorState.BELOW_MIN_LIMIT -> composeBelowLimitErrorMessage(state, input)
-            TransactionErrorState.ABOVE_MAX_LIMIT -> {
-                val exchangeRate = state.fiatRate ?: return ""
-                val amount =
-                    input?.let {
-                        state.pendingTx?.maxLimit?.toEnteredCurrency(
-                            it, exchangeRate, RoundingMode.FLOOR
-                        )
-                    } ?: state.pendingTx?.maxLimit?.toStringWithSymbol()
-
-                resources.getString(R.string.sell_enter_amount_max_error, amount)
-            }
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> resources.getString(R.string.swap_enter_amount_silver_limit)
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT,
             TransactionErrorState.OVER_GOLD_TIER_LIMIT -> {
-                val exchangeRate = state.fiatRate ?: return ""
-                val amount =
-                    input?.let {
-                        state.pendingTx?.maxLimit?.toEnteredCurrency(
-                            it, exchangeRate, RoundingMode.FLOOR
-                        )
-                    } ?: state.pendingTx?.maxLimit?.toStringWithSymbol()
-
-                resources.getString(R.string.swap_enter_amount_over_limit, amount)
+                resources.getString(R.string.over_your_limit)
             }
             TransactionErrorState.TRANSACTION_IN_FLIGHT -> resources.getString(R.string.send_error_tx_in_flight)
             TransactionErrorState.TX_OPTION_INVALID -> resources.getString(R.string.send_error_tx_option_invalid)
@@ -965,7 +1007,7 @@ private fun BlockchainAccount.uiCurrency(): String {
     return when (this) {
         is CryptoAccount -> asset.displayTicker
         is FiatAccount -> fiatCurrency
-        else -> throw IllegalStateException("Unsupported account ttype")
+        else -> throw IllegalStateException("Unsupported account type")
     }
 }
 

@@ -20,17 +20,23 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 
 class FiatDepositTxEngineTest : CoincoreTestBase() {
 
     private lateinit var subject: FiatDepositTxEngine
     private val walletManager: CustodialWalletManager = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
+    private val userIdentity: UserIdentity = mock {
+        on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
+    }
 
     @Before
     fun setup() {
         initMocks()
-        subject = FiatDepositTxEngine(walletManager, bankPartnerCallbackProvider)
+        subject = FiatDepositTxEngine(walletManager, bankPartnerCallbackProvider, userIdentity)
     }
 
     @Test
@@ -321,7 +327,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
             .assertValue {
-                it.validationState == ValidationState.OVER_MAX_LIMIT
+                it.validationState == ValidationState.OVER_GOLD_TIER_LIMIT
             }
     }
 

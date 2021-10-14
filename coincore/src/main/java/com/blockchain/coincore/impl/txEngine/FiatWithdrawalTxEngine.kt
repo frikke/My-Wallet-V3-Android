@@ -43,7 +43,6 @@ class FiatWithdrawalTxEngine(
                 val zeroFiat = FiatValue.zero((sourceAccount as FiatAccount).fiatCurrency)
                 PendingTx(
                     amount = zeroFiat,
-                    maxLimit = balance.actionable - limitAndFee.fee,
                     minLimit = limitAndFee.minLimit,
                     availableBalance = balance.actionable - limitAndFee.fee,
                     feeForFullAvailable = zeroFiat,
@@ -112,17 +111,18 @@ class FiatWithdrawalTxEngine(
     }
 
     private fun validateAmount(pendingTx: PendingTx): Completable =
-        Completable.fromCallable {
-            if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
+        Completable.defer {
+            if (pendingTx.minLimit != null) {
                 when {
-                    pendingTx.amount < pendingTx.minLimit -> throw TxValidationFailure(
-                        ValidationState.UNDER_MIN_LIMIT
+                    pendingTx.amount < pendingTx.minLimit -> Completable.error(
+                        TxValidationFailure(
+                            ValidationState.UNDER_MIN_LIMIT
+                        )
                     )
-                    pendingTx.amount > pendingTx.maxLimit -> throw TxValidationFailure(
-                        ValidationState.OVER_MAX_LIMIT
-                    )
-                    pendingTx.availableBalance < pendingTx.amount -> throw TxValidationFailure(
-                        ValidationState.INSUFFICIENT_FUNDS
+                    pendingTx.availableBalance < pendingTx.amount -> Completable.error(
+                        TxValidationFailure(
+                            ValidationState.INSUFFICIENT_FUNDS
+                        )
                     )
                     else -> Completable.complete()
                 }

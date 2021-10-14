@@ -124,7 +124,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == expectedMinAmountAndFee.minLimit &&
-                    it.maxLimit == balance.actionable - expectedMinAmountAndFee.fee &&
+                    it.maxLimit == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -293,6 +293,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         val sourceAccount: FiatAccount = mock {
             on { fiatCurrency }.thenReturn(TEST_API_FIAT)
         }
+
         val txTarget: LinkedBankAccount = mock()
 
         subject.start(
@@ -303,19 +304,18 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
 
         val amount = FiatValue.fromMinor(TEST_API_FIAT, 1000000L)
         val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L)
-        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
+        val availableToWithdraw = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
 
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val pendingTx = PendingTx(
             amount = amount,
             totalBalance = zeroFiat,
-            availableBalance = zeroFiat,
+            availableBalance = availableToWithdraw,
             feeForFullAvailable = zeroFiat,
             feeAmount = zeroFiat,
             selectedFiat = TEST_API_FIAT,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            minLimit = minLimit
         )
 
         subject.doValidateAmount(
@@ -323,7 +323,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         ).test()
             .assertComplete()
             .assertValue {
-                it.validationState == ValidationState.OVER_MAX_LIMIT
+                it.validationState == ValidationState.INSUFFICIENT_FUNDS
             }
     }
 

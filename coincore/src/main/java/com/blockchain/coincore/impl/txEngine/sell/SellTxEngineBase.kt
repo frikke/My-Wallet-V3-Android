@@ -6,8 +6,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -27,19 +25,19 @@ import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.nabu.UserIdentity
 import java.math.RoundingMode
 
 abstract class SellTxEngineBase(
     private val walletManager: CustodialWalletManager,
-    kycTierService: TierService,
+    userIdentity: UserIdentity,
     quotesEngine: TransferQuotesEngine
-) : QuotedEngine(quotesEngine, kycTierService, walletManager, Product.SELL) {
+) : QuotedEngine(quotesEngine, userIdentity, walletManager, Product.SELL) {
 
     val target: FiatAccount
         get() = txTarget as FiatAccount
 
     override fun onLimitsForTierFetched(
-        tier: KycTiers,
         limits: TransferLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
@@ -69,9 +67,7 @@ abstract class SellTxEngineBase(
                         )
                         pendingTx.amount - feeInSourceCurrency(
                             pendingTx
-                        ) > pendingTx.maxLimit -> throw TxValidationFailure(
-                            ValidationState.OVER_MAX_LIMIT
-                        )
+                        ) > pendingTx.maxLimit -> validationFailureForTier()
                         else -> Completable.complete()
                     }
                 } else {

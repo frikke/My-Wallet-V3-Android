@@ -7,10 +7,8 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.TransferQuote
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.nabu.service.TierService
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -46,12 +44,13 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.nabu.UserIdentity
 
 class OnChainSwapEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
-    private val kycTierService: TierService = mock()
+    private val userIdentity: UserIdentity = mock()
 
     private val onChainEngine: OnChainTxEngineBase = mock {
         on { sourceAsset }.thenReturn(SRC_ASSET)
@@ -61,7 +60,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         engine = onChainEngine,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
-        kycTierService = kycTierService
+        userIdentity = userIdentity
     )
 
     @Before
@@ -276,8 +275,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
                     it.confirmations.isEmpty() &&
                     it.minLimit == expectedMinLimit &&
                     it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
-                    it.validationState == ValidationState.UNINITIALISED &&
-                    it.engineState[USER_TIER] != null
+                    it.validationState == ValidationState.UNINITIALISED
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
@@ -343,8 +341,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
                     it.confirmations.isEmpty() &&
                     it.minLimit == expectedMinLimit &&
                     it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
-                    it.validationState == ValidationState.UNINITIALISED &&
-                    it.engineState[USER_TIER] != null
+                    it.validationState == ValidationState.UNINITIALISED
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
@@ -588,9 +585,6 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
     }
 
     private fun whenUserIsGold() {
-        val kycTiers: KycTiers = mock()
-        whenever(kycTierService.tiers()).thenReturn(Single.just(kycTiers))
-
         whenever(walletManager.getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.ON_CHAIN))
             .thenReturn(
                 Single.just(
@@ -604,7 +598,6 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
     }
 
     private fun verifyLimitsFetched() {
-        verify(kycTierService).tiers()
         verify(walletManager).getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.ON_CHAIN)
     }
 
@@ -640,7 +633,6 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         verifyNoMoreInteractions(currencyPrefs)
         verifyNoMoreInteractions(exchangeRates)
         verifyNoMoreInteractions(quotesEngine)
-        verifyNoMoreInteractions(kycTierService)
         verifyNoMoreInteractions(onChainEngine)
     }
 

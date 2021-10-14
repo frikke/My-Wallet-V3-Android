@@ -10,7 +10,7 @@ object Versions {
     const val versionCode = 15814
     const val versionName = "8.15.0"
 
-    const val buildTools = "29.0.2"
+    const val buildTools = "30.0.2"
 
     // Build tools and languages
     const val androidPlugin = "7.0.2"

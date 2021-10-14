@@ -36,14 +36,15 @@ class TradingToOnChainTxEngine(
 
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.zip(
-            sourceAccount.accountBalance.map { it as CryptoValue },
-            sourceAccount.actionableBalance.map { it as CryptoValue },
+            sourceAccount.balance.firstOrError(),
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY),
-            { total, available, cryptoFeeAndMin ->
+            { balance, cryptoFeeAndMin ->
                 PendingTx(
                     amount = CryptoValue.zero(sourceAsset),
-                    totalBalance = total,
-                    availableBalance = available.minus(CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee)),
+                    totalBalance = balance.total,
+                    availableBalance = balance.actionable.minus(
+                        CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee)
+                    ),
                     feeForFullAvailable = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee),
                     feeAmount = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee),
                     feeSelection = FeeSelection(),
@@ -58,14 +59,13 @@ class TradingToOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Single.zip(
-            sourceAccount.accountBalance.map { it as CryptoValue },
-            sourceAccount.actionableBalance.map { it as CryptoValue },
+            sourceAccount.balance.firstOrError(),
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY)
-        ) { total, available, cryptoFeeAndMin ->
+        ) { balance, cryptoFeeAndMin ->
             pendingTx.copy(
                 amount = amount,
-                totalBalance = total,
-                availableBalance = available.minus(CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee))
+                totalBalance = balance.total,
+                availableBalance = balance.actionable.minus(CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee))
             )
         }
     }

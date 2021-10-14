@@ -195,7 +195,8 @@
     <string name="you_agree_terms_of_service">By creating an account, you agree to Blockchain’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
     <string name="sign_up_email">Email</string>
     <string name="new_account_title">Create an Account</string>
-    <string name="password_disclaimer_1">I understand that Blockchain.com never stores passwords and therefore cannot recover or reset my password. If I lose access to my wallet, I must use my <annotation link="backup">Secret Private Key Recovery Phrase</annotation> to access my funds. By creating an account, you agree to Blockchain’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>>
+    <string name="password_disclaimer_1">I understand that Blockchain.com never stores passwords and therefore cannot recover or reset my password. If I lose access to my wallet, I must use my <annotation link="backup">Secret Private Key Recovery Phrase</annotation> to access my funds. By creating an account, you agree to Blockchain’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
+    >
     <string name="new_account_cta_text">Next</string>
     <string name="new_account_title_1">New Account</string>
     <string name="create_wallet_state">State</string>
@@ -838,6 +839,8 @@
     <string name="morph_exchange_rate">Exchange Rate</string>
     <string name="swap_now">Swap Now</string>
     <string name="min_with_value">%1$s Min</string>
+    <string name="minimum_with_value">%1$s Minimum</string>
+    <string name="maximum_with_value">%1$s Maximum</string>
     <string name="max_with_value">%1$s Max</string>
 
     <!-- The Pit linking -->
@@ -1740,6 +1743,15 @@
     <string name="tx_enter_amount_deposit_cta">Preview Deposit</string>
     <string name="tx_enter_amount_withdraw_cta">Preview Withdrawal</string>
 
+    <!--Tx Flow Info messaging-->
+    <string name="not_enough_funds">Not Enough %1$s</string>
+    <string name="get_more">Get more %1$s</string>
+    <string name="not_enough_funds_send">The max you can send from this wallet is %1$s. Buy %2$s now to send this amount.</string>
+    <string name="common_actions_not_enough_funds">The maximum amount of %1$s you can %2$s from this account is %3$s.</string>
+    <string name="minimum_withdraw_error_message">To offset fees, the minimum amount for any withdrawal is %1$s.</string>
+    <string name="over_your_limit">Over Your Limit</string>
+    <string name="minimum_swap_error_message">To avoid uncesssary fees and network slippage, the minimum amount for this pair is %1$s.</string>
+    <string name="minimum_buy_error_message">To offset fees and market volatility, the minimum amount for any buy is $%1$s.</string>
     <!-- Rewards -->
     <string name="earn_rewards">Earn Rewards</string>
     <string name="rewards_summary_total">Total Rewards Earned</string>

@@ -3,7 +3,6 @@ package com.blockchain.coincore.impl.txEngine.sell
 import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
@@ -15,14 +14,15 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.nabu.UserIdentity
 
 class TradingSellTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     quotesEngine: TransferQuotesEngine,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val kycTierService: TierService
-) : SellTxEngineBase(walletManager, kycTierService, quotesEngine) {
+    val userIdentity: UserIdentity
+) : SellTxEngineBase(walletManager, userIdentity, quotesEngine) {
 
     override val direction: TransferDirection
         get() = TransferDirection.INTERNAL

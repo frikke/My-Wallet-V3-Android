@@ -10,7 +10,6 @@ import com.blockchain.nabu.datamanagers.TransferQuote
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.nabu.service.TierService
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -27,7 +26,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
@@ -46,12 +44,13 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.nabu.UserIdentity
 
 class OnChainSellTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
-    private val kycTierService: TierService = mock()
+    private val userIdentity: UserIdentity = mock()
 
     private val onChainEngine: OnChainTxEngineBase = mock {
         on { sourceAsset }.thenReturn(SRC_ASSET)
@@ -61,7 +60,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         engine = onChainEngine,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
-        kycTierService = kycTierService
+        userIdentity = userIdentity
     )
 
     @Before
@@ -540,7 +539,6 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
 
     private fun whenUserIsGold() {
         val kycTiers: KycTiers = mock()
-        whenever(kycTierService.tiers()).thenReturn(Single.just(kycTiers))
 
         whenever(
             walletManager.getProductTransferLimits(
@@ -560,7 +558,6 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
     }
 
     private fun verifyLimitsFetched() {
-        verify(kycTierService).tiers()
         verify(walletManager).getProductTransferLimits(
             currency = TEST_API_FIAT,
             product = Product.SELL,
@@ -599,7 +596,6 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyNoMoreInteractions(currencyPrefs)
         verifyNoMoreInteractions(exchangeRates)
         verifyNoMoreInteractions(quotesEngine)
-        verifyNoMoreInteractions(kycTierService)
         verifyNoMoreInteractions(onChainEngine)
         verifyNoMoreInteractions(sourceAccount)
     }

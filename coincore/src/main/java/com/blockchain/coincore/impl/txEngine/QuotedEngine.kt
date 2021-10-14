@@ -7,10 +7,8 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -23,9 +21,13 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
+import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.makeExternalAssetAddress
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import java.math.RoundingMode
@@ -36,7 +38,7 @@ private val PendingTx.quoteSub: Disposable?
 
 abstract class QuotedEngine(
     protected val quotesEngine: TransferQuotesEngine,
-    private val kycTierService: TierService,
+    private val userIdentity: UserIdentity,
     private val walletManager: CustodialWalletManager,
     private val productType: Product
 ) : TxEngine() {
@@ -44,16 +46,16 @@ abstract class QuotedEngine(
 
     protected abstract val availableBalance: Single<Money>
 
+    private val userIsGoldVerified: Single<Boolean>
+        get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))
+
     protected fun updateLimits(
         fiat: String,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): Single<PendingTx> =
-        Single.zip(
-            kycTierService.tiers(),
-            walletManager.getProductTransferLimits(fiat, productType, direction)
-        ) { tier, limits ->
-            onLimitsForTierFetched(tier, limits, pendingTx, pricedQuote)
+        walletManager.getProductTransferLimits(fiat, productType, direction).map { limits ->
+            onLimitsForTierFetched(limits, pendingTx, pricedQuote)
         }
 
     protected val pair: CurrencyPair
@@ -67,8 +69,17 @@ abstract class QuotedEngine(
             }
         }
 
+    protected fun validationFailureForTier(): Completable {
+        return userIsGoldVerified.flatMapCompletable {
+            if (it) {
+                Completable.error(TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT))
+            } else {
+                Completable.error(TxValidationFailure(ValidationState.OVER_SILVER_TIER_LIMIT))
+            }
+        }
+    }
+
     protected abstract fun onLimitsForTierFetched(
-        tier: KycTiers,
         limits: TransferLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote

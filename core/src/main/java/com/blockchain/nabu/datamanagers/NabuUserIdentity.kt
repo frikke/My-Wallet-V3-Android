@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Feature
@@ -8,7 +9,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -18,12 +18,12 @@ class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
     private val interestEligibilityProvider: InterestEligibilityProvider,
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
-    private val tierService: TierService,
+    private val nabuUserDataManager: NabuUserDataManager,
     private val nabuDataProvider: NabuDataUserProvider
 ) : UserIdentity {
     override fun isEligibleFor(feature: Feature): Single<Boolean> {
         return when (feature) {
-            is Feature.TierLevel -> tierService.tiers().map {
+            is Feature.TierLevel -> nabuUserDataManager.tiers().map {
                 it.isNotInitialisedFor(feature.tier.toKycTierLevel())
             }
             is Feature.SimpleBuy -> simpleBuyEligibilityProvider.isEligibleForSimpleBuy()
@@ -35,7 +35,7 @@ class NabuUserIdentity(
 
     override fun isVerifiedFor(feature: Feature): Single<Boolean> {
         return when (feature) {
-            is Feature.TierLevel -> tierService.tiers().map {
+            is Feature.TierLevel -> nabuUserDataManager.tiers().map {
                 it.isApprovedFor(feature.tier.toKycTierLevel())
             }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.fetchSimplifiedDueDiligenceUserState().map {
@@ -50,7 +50,7 @@ class NabuUserIdentity(
         nabuDataProvider
             .getUser()
             .map { it.tiers?.next ?: 0 }
-            .zipWith(tierService.tiers())
+            .zipWith(nabuUserDataManager.tiers())
             .map { (user, tiers) ->
                 tiers.isNotInitialisedFor(KycTierLevel.values()[user])
             }

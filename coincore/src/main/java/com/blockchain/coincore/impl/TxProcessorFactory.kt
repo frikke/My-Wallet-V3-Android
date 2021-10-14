@@ -7,7 +7,6 @@ import com.blockchain.bitpay.BitpayTxEngine
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import io.reactivex.rxjava3.core.Single
@@ -36,6 +35,7 @@ import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
+import com.blockchain.nabu.UserIdentity
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
@@ -46,7 +46,7 @@ class TxProcessorFactory(
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val quotesEngine: TransferQuotesEngine,
     private val analytics: Analytics,
-    private val kycTierService: TierService
+    private val userIdentity: UserIdentity
 ) {
     fun createProcessor(
         source: BlockchainAccount,
@@ -111,6 +111,7 @@ class TxProcessorFactory(
                         txTarget = target,
                         engine = FiatDepositTxEngine(
                             walletManager = walletManager,
+                            userIdentity = userIdentity,
                             bankPartnerCallbackProvider = bankPartnerCallbackProvider
                         )
                     )
@@ -206,7 +207,7 @@ class TxProcessorFactory(
                             engine = OnChainSwapTxEngine(
                                 quotesEngine = quotesEngine,
                                 walletManager = walletManager,
-                                kycTierService = kycTierService,
+                                userIdentity = userIdentity,
                                 engine = engine
                             )
                         )
@@ -220,7 +221,7 @@ class TxProcessorFactory(
                     engine = OnChainSellTxEngine(
                         quotesEngine = quotesEngine,
                         walletManager = walletManager,
-                        kycTierService = kycTierService,
+                        userIdentity = userIdentity,
                         engine = engine
                     )
                 )
@@ -267,7 +268,7 @@ class TxProcessorFactory(
                     engine = TradingSellTxEngine(
                         walletManager = walletManager,
                         quotesEngine = quotesEngine,
-                        kycTierService = kycTierService
+                        userIdentity = userIdentity
                     )
                 )
             )
@@ -280,7 +281,7 @@ class TxProcessorFactory(
                     engine = TradingToTradingSwapTxEngine(
                         walletManager = walletManager,
                         quotesEngine = quotesEngine,
-                        kycTierService = kycTierService
+                        userIdentity = userIdentity
                     )
                 )
             )

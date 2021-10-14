@@ -533,7 +533,6 @@ private fun ValidationState.mapToTransactionError() =
         ValidationState.HAS_TX_IN_FLIGHT -> TransactionErrorState.TRANSACTION_IN_FLIGHT
         ValidationState.OPTION_INVALID,
         ValidationState.MEMO_INVALID -> TransactionErrorState.TX_OPTION_INVALID
-        ValidationState.OVER_MAX_LIMIT -> TransactionErrorState.ABOVE_MAX_LIMIT
         ValidationState.OVER_SILVER_TIER_LIMIT -> TransactionErrorState.OVER_SILVER_TIER_LIMIT
         ValidationState.OVER_GOLD_TIER_LIMIT -> TransactionErrorState.OVER_GOLD_TIER_LIMIT
         ValidationState.INVOICE_EXPIRED, // We shouldn't see this here

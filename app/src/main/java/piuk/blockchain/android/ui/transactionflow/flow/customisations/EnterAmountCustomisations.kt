@@ -20,8 +20,10 @@ interface EnterAmountCustomisations {
     fun showTargetIcon(state: TransactionState): Boolean
     fun shouldDisableInput(errorState: TransactionErrorState): Boolean
     fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String
+    fun issueFlashMessageLegacy(state: TransactionState, input: CurrencyType?): String?
     fun issueFeesTooHighMessage(state: TransactionState): String
     fun shouldDisplayFeesErrorMessage(state: TransactionState): Boolean
+    fun selectIssueType(state: TransactionState): IssueType
     fun installEnterAmountLowerSlotView(
         ctx: Context,
         frame: FrameLayout,
