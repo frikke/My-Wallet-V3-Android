@@ -1,21 +1,22 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
-import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.core.price.HistoricalRateList
-import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.RecurringBuy
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.selectFirstAccount
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.data.RecurringBuy
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -203,10 +204,22 @@ class AssetDetailsModel(
             )
 
     private fun accountActions(account: BlockchainAccount): Disposable =
-        account.actions.subscribeBy(
-            onSuccess = { actions ->
+        Singles.zip(
+            account.actions,
+            account.isEnabled
+        ).subscribeBy(
+            onSuccess = { (actions, enabled) ->
                 val sortedActions = when (account.selectFirstAccount()) {
-                    is InterestAccount -> actions + AssetAction.InterestDeposit
+                    is InterestAccount -> {
+                        when {
+                            !enabled && account.isFunded -> {
+                                actions - AssetAction.InterestDeposit + AssetAction.InterestWithdraw
+                            }
+                            else -> {
+                                actions + AssetAction.InterestDeposit
+                            }
+                        }
+                    }
                     else -> actions - AssetAction.InterestDeposit
                 }.sortedWith(assetActionsComparator)
                 process(AccountActionsLoaded(account, sortedActions.toSet()))

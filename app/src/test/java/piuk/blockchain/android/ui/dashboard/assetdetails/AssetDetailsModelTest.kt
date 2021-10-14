@@ -3,6 +3,10 @@ package piuk.blockchain.android.ui.dashboard.assetdetails
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -11,6 +15,8 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -19,15 +25,9 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.impl.CryptoInterestAccount
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import org.junit.Before
 import piuk.blockchain.android.ui.dashboard.model.FIAT_CURRENCY
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
@@ -171,13 +171,14 @@ class AssetDetailsModelTest {
     }
 
     @Test
-    fun `given interest account, on show asset actions success the InterestDeposit action should be added`() {
+    fun `given interest account, on enabled account InterestDeposit action should be added`() {
         val interestAccount: CryptoInterestAccount = mock()
         val accountGroup: AccountGroup = mock {
             on { accounts }.thenReturn(listOf(interestAccount))
         }
 
         whenever(accountGroup.actions).thenReturn(Single.just(emptySet()))
+        whenever(accountGroup.isEnabled).thenReturn(Single.just(true))
 
         val stateTest = subject.state.test()
 
@@ -189,6 +190,29 @@ class AssetDetailsModelTest {
     }
 
     @Test
+    fun `given interest account, on disabled account with funds show Withdraw but not Deposit`() {
+        val interestAccount: CryptoInterestAccount = mock()
+        val accountGroup: AccountGroup = mock {
+            on { accounts }.thenReturn(listOf(interestAccount))
+        }
+
+        whenever(accountGroup.actions).thenReturn(Single.just(emptySet()))
+        whenever(accountGroup.isEnabled).thenReturn(Single.just(false))
+        whenever(accountGroup.isFunded).thenReturn(true)
+
+        val stateTest = subject.state.test()
+
+        subject.process(ShowAssetActionsIntent(accountGroup))
+
+        stateTest
+            .assertValueAt(0) { it == defaultState }
+            .assertValueAt(1) {
+                it.actions.contains(AssetAction.InterestWithdraw) &&
+                    !it.actions.contains(AssetAction.InterestDeposit)
+            }
+    }
+
+    @Test
     fun `on show asset actions success the actions should be sorted correctly`() {
         val account: CryptoAccount = mock()
         val accountGroup: AccountGroup = mock {
@@ -196,6 +220,7 @@ class AssetDetailsModelTest {
         }
 
         whenever(accountGroup.actions).thenReturn(Single.just(AssetAction.values().toSet()))
+        whenever(accountGroup.isEnabled).thenReturn(Single.just(true))
 
         subject.state.test()
 

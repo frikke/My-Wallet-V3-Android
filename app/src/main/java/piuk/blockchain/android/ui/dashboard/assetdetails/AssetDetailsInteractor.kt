@@ -1,5 +1,12 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.AvailableActions
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -13,13 +20,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.AccountGroup
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.AvailableActions
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAsset
 import timber.log.Timber
 
 typealias AssetDisplayMap = Map<AssetFilter, AssetDisplayInfo>
@@ -154,8 +154,10 @@ class AssetDetailsInteractor(
             addToDisplayMap(this, AssetFilter.Custodial, custodial, fiatRate)
         }
 
-        if ((interest as? Details.DetailsItem)?.isEnabled == true) {
-            addToDisplayMap(this, AssetFilter.Interest, interest, fiatRate, interestRate)
+        (interest as? Details.DetailsItem)?.let { item ->
+            if (item.isEnabled || item.balance.isPositive) {
+                addToDisplayMap(this, AssetFilter.Interest, interest, fiatRate, interestRate)
+            }
         }
     }
 

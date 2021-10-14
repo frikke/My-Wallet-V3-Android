@@ -320,6 +320,9 @@ class CryptoAccountCustodialGroup(
         account = accounts[0] as CryptoAccountBase
     }
 
+    override val isEnabled: Single<Boolean>
+        get() = account.isEnabled
+
     override val receiveAddress: Single<ReceiveAddress>
         get() = account.receiveAddress
 

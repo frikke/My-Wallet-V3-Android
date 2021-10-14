@@ -58,7 +58,7 @@ class RemoteConfiguration(
                     if (!emitter.isDisposed)
                         emitter.onError(it)
                 }
-        }
+        }.onErrorComplete()
     }
 
     override fun getRawJson(key: String): Single<String> =

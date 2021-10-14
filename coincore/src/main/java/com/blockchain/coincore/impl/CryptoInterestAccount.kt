@@ -1,19 +1,5 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.InterestActivityItem
-import com.blockchain.nabu.datamanagers.InterestState
-import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
@@ -26,6 +12,22 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.InterestActivityItem
+import com.blockchain.nabu.datamanagers.InterestState
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -79,12 +81,12 @@ class CryptoInterestAccount(
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
-                interestBalance.getBalanceForAsset(asset),
-                exchangeRates.cryptoToUserFiatRate(asset)
-            ) { balance, rate ->
-                setHasTransactions(balance.hasTransactions)
-                AccountBalance.from(balance, rate)
-            }.doOnNext { hasFunds.set(it.total.isPositive) }
+            interestBalance.getBalanceForAsset(asset),
+            exchangeRates.cryptoToUserFiatRate(asset)
+        ) { balance, rate ->
+            setHasTransactions(balance.hasTransactions)
+            AccountBalance.from(balance, rate)
+        }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>
         get() = custodialWalletManager.getInterestActivity(asset)
@@ -134,19 +136,25 @@ class CryptoInterestAccount(
 
     override val isEnabled: Single<Boolean>
         get() = custodialWalletManager.getInterestEligibilityForAsset(asset)
+            .onErrorReturn { Eligibility.notEligible() }
             .map { (enabled, _) ->
                 enabled
             }
 
     override val disabledReason: Single<IneligibilityReason>
         get() = custodialWalletManager.getInterestEligibilityForAsset(asset)
+            .onErrorReturn { Eligibility.notEligible() }
             .map { (_, reason) ->
                 reason
             }
 
     override val actions: Single<AvailableActions>
-        get() = balance.firstOrError().map { balance ->
+        get() = Singles.zip(
+            balance.firstOrError(),
+            isEnabled
+        ).map { (balance, isEnabled) ->
             setOfNotNull(
+                AssetAction.InterestDeposit.takeIf { isEnabled },
                 AssetAction.InterestWithdraw.takeIf { balance.actionable.isPositive },
                 AssetAction.ViewStatement.takeIf { hasTransactions },
                 AssetAction.ViewActivity.takeIf { hasTransactions }

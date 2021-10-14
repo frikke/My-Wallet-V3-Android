@@ -136,7 +136,7 @@ private class InterestAssetItemViewHolder(
         details: InterestDetails,
         itemClicked: (AssetInfo, Boolean) -> Unit
     ) {
-        itemInterestCta.isEnabled = item.isKycGold && details.available
+        itemInterestCta.isEnabled = (item.isKycGold && details.available) || details.balance.isPositive
         itemInterestCta.text = if (details.balance.isPositive) {
             context.getString(R.string.rewards_dashboard_item_action_view)
         } else {

@@ -94,7 +94,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                 .onErrorReturn { emptyList() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy { accounts ->
-                    if (accounts.isNotEmpty()) {
+                    if (accounts.isNotEmpty() && accounts.any { it is InterestAccount }) {
                         interestDetailsDepositCta.alpha = 0f
                         interestDetailsDepositCta.visible()
                         interestDetailsDepositCta.animate().alpha(1f).start()
