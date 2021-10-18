@@ -1751,7 +1751,9 @@
     <string name="minimum_withdraw_error_message">To offset fees, the minimum amount for any withdrawal is %1$s.</string>
     <string name="over_your_limit">Over Your Limit</string>
     <string name="minimum_swap_error_message">To avoid uncesssary fees and network slippage, the minimum amount for this pair is %1$s.</string>
-    <string name="minimum_buy_error_message">To offset fees and market volatility, the minimum amount for any buy is $%1$s.</string>
+    <string name="minimum_buy_error_message">To offset fees and market volatility, the minimum amount for any buy is %1$s.</string>
+    <string name="minimum_sell_error_message">The minimum amount for you can sell is %1$s.</string>
+    <string name="minimum_deposit_error_message">The minimum amount for you can deposit is %1$s. </string>
     <!-- Rewards -->
     <string name="earn_rewards">Earn Rewards</string>
     <string name="rewards_summary_total">Total Rewards Earned</string>

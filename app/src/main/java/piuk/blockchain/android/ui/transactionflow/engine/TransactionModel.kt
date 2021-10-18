@@ -86,7 +86,7 @@ fun BlockchainAccount.getZeroAmountForAccount() =
     }
 
 data class TransactionState(
-    val action: AssetAction = AssetAction.Send,
+    override val action: AssetAction = AssetAction.Send,
     val currentStep: TransactionStep = TransactionStep.ZERO,
     val sendingAccount: BlockchainAccount = NullCryptoAccount(),
     val selectedTarget: TransactionTarget = NullAddress,
@@ -96,7 +96,7 @@ data class TransactionState(
     val secondPassword: String = "",
     val nextEnabled: Boolean = false,
     val setMax: Boolean = false,
-    val errorState: TransactionErrorState = TransactionErrorState.NONE,
+    override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     val pendingTx: PendingTx? = null,
     val allowFiatInput: Boolean = false,
     val executionStatus: TxExecutionStatus = TxExecutionStatus.NotStarted,
@@ -105,18 +105,23 @@ data class TransactionState(
     val currencyType: CurrencyType? = null,
     val availableSources: List<BlockchainAccount> = emptyList(),
     val linkBankState: BankLinkingState = BankLinkingState.NotStarted
-) : MviState {
+) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
-    val sendingAsset: AssetInfo
+    override val sendingAsset: AssetInfo
         get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
+    override val minLimit: Money?
+        get() = pendingTx?.minLimit
 
-    val amount: Money
+    override val maxLimit: Money?
+        get() = pendingTx?.maxLimit
+
+    override val amount: Money
         get() = pendingTx?.amount ?: sendingAccount.getZeroAmountForAccount()
 
-    val availableBalance: Money
+    override val availableBalance: Money
         get() = pendingTx?.availableBalance ?: sendingAccount.getZeroAmountForAccount()
 
     val canGoBack: Boolean

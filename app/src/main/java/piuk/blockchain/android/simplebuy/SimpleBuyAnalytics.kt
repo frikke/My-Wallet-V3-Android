@@ -174,13 +174,6 @@ class CurrencySelected(fiatCurrency: String) : AnalyticsEvent {
     )
 }
 
-class CurrencyChangedFromBuyForm(fiatCurrency: String) : AnalyticsEvent {
-    override val event: String = "sb_buy_form_fiat_changed"
-    override val params: Map<String, String> = mapOf(
-        "currency" to fiatCurrency
-    )
-}
-
 class BuyAmountEntered(
     frequency: String,
     inputAmount: Money,

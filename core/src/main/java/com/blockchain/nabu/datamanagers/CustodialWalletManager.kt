@@ -537,10 +537,13 @@ sealed class TransactionError : Throwable() {
 
 sealed class PaymentMethod(
     val id: String,
-    open val limits: PaymentLimits?,
+    open val limits: PaymentLimits,
     val order: Int,
     open val isEligible: Boolean
 ) : Serializable {
+
+    val availableBalance: Money?
+        get() = (this as? Funds)?.balance
 
     data class UndefinedCard(
         override val limits: PaymentLimits,
@@ -610,9 +613,12 @@ sealed class PaymentMethod(
 
         override fun methodDetails() = "$accountType $accountEnding"
 
-        @SuppressLint("DefaultLocale") // Yes, lint is broken
         val uiAccountType: String =
-            accountType.toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
+            accountType.lowercase(Locale.getDefault()).replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }
 
         override val paymentDetails: PaymentMethodType
             get() = PaymentMethodType.BANK_TRANSFER

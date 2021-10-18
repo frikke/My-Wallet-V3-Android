@@ -21,7 +21,7 @@ enum class RecurringBuyFrequency {
 }
 
 data class EligibleAndNextPaymentRecurringBuy(
-    val period: RecurringBuyFrequency,
+    val frequency: RecurringBuyFrequency,
     val nextPaymentDate: String,
     val eligibleMethods: List<PaymentMethodType>
 )

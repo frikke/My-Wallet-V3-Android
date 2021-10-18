@@ -32,7 +32,6 @@ import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
@@ -41,6 +40,7 @@ import piuk.blockchain.android.cards.CardIntent
 import com.blockchain.coincore.Coincore
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
+import info.blockchain.balance.Money
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -91,7 +91,7 @@ class SimpleBuyInteractor(
 
     fun createOrder(
         cryptoAsset: AssetInfo,
-        amount: FiatValue,
+        amount: Money,
         paymentMethodId: String? = null,
         paymentMethod: PaymentMethodType,
         isPending: Boolean,
@@ -154,7 +154,7 @@ class SimpleBuyInteractor(
                 SimpleBuyIntent.WithdrawLocksTimeUpdated()
             }
 
-    fun fetchQuote(asset: AssetInfo?, amount: FiatValue?): Single<SimpleBuyIntent.QuoteUpdated> =
+    fun fetchQuote(asset: AssetInfo?, amount: Money?): Single<SimpleBuyIntent.QuoteUpdated> =
         custodialWalletManager.getQuote(
             asset = asset ?: throw IllegalStateException("Missing Cryptocurrency "),
             fiatCurrency = amount?.currencyCode ?: throw IllegalStateException("Missing FiatCurrency "),

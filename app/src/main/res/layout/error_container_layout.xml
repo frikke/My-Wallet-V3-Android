@@ -10,13 +10,17 @@
     android:layout_marginTop="@dimen/very_small_margin"
     android:layout_marginEnd="@dimen/standard_margin"
     android:background="@drawable/rounded_transaction_flow_error_background"
-    android:visibility="gone">
+    android:visibility="gone"
+    tools:visibility="visible">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/warning_icon"
+        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginBottom="@dimen/very_small_margin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/smallest_margin"
+        android:layout_marginStart="@dimen/small_margin"
         android:src="@drawable/ic_warning"
         android:tint="#FF9B22"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,10 +34,14 @@
         style="@style/Text.White.Semibold.Centered.16"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constrainedWidth="true"
         android:layout_marginStart="@dimen/smallest_margin"
+        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:layout_marginEnd="@dimen/small_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/warning_icon"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Not Enough ETH" />
+        tools:text="NononoNNNononoNNNononoNNNononoNNNononoNNNononoNNNononoNN" />
 </androidx.constraintlayout.widget.ConstraintLayout>

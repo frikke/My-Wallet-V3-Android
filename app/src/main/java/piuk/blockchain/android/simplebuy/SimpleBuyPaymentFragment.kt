@@ -83,7 +83,7 @@ class SimpleBuyPaymentFragment :
             binding.transactionProgressView.setAssetIcon(it)
         }
 
-        newState.errorState?.let {
+        newState.buyErrorState?.let {
             handleErrorStates(it)
         }
 
@@ -286,7 +286,7 @@ class SimpleBuyPaymentFragment :
                 }
             }
 
-            newState.errorState != null -> {
+            newState.buyErrorState != null -> {
                 binding.transactionProgressView.showTxError(
                     getString(R.string.common_oops),
                     if (newState.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {

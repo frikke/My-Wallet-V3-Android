@@ -4,14 +4,17 @@ import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
@@ -19,10 +22,12 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.nabu.models.responses.simplebuy.EverypayPaymentAttrs
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.network.PollResult
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
@@ -34,6 +39,7 @@ import piuk.blockchain.android.cards.partners.EverypayCardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.base.mvi.MviModel
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
@@ -42,6 +48,7 @@ class SimpleBuyModel(
     private val ratingPrefs: RatingPrefs,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
+    currencyPrefs: CurrencyPrefs,
     private val serializer: SimpleBuyPrefsSerializer,
     private val cardActivators: List<CardActivator>,
     private val interactor: SimpleBuyInteractor,
@@ -49,9 +56,10 @@ class SimpleBuyModel(
     private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger,
-    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
+    private val userIdentity: UserIdentity
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
-    initialState = serializer.fetch() ?: initialState,
+    initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(currencyPrefs.selectedFiatCurrency),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
     crashLogger = crashLogger
@@ -170,12 +178,7 @@ class SimpleBuyModel(
                 processGetPaymentMethod(intent.fiatCurrency, intent.selectedPaymentMethodId)
 
             is SimpleBuyIntent.PaymentMethodChangeRequested -> {
-                if (intent.paymentMethod.isEligible && intent.paymentMethod is UndefinedPaymentMethod) {
-                    process(SimpleBuyIntent.AddNewPaymentMethodRequested(intent.paymentMethod))
-                } else {
-                    process(SimpleBuyIntent.SelectedPaymentMethodUpdate(intent.paymentMethod))
-                }
-                null
+                validateAmountAndUpdatePaymentMethod(intent.paymentMethod, previousState)
             }
             is SimpleBuyIntent.MakePayment ->
                 interactor.fetchOrder(intent.orderId)
@@ -215,9 +218,10 @@ class SimpleBuyModel(
             ).subscribeBy(
                 onSuccess = {
                     process(it)
-                    it.availablePaymentMethods.firstOrNull { it.isEligible }?.let { paymentMethod ->
-                        process(SimpleBuyIntent.AddNewPaymentMethodRequested(paymentMethod))
-                    }
+                    it.availablePaymentMethods.firstOrNull { paymentMethod -> paymentMethod.isEligible }
+                        ?.let { paymentMethod ->
+                            process(SimpleBuyIntent.AddNewPaymentMethodRequested(paymentMethod))
+                        }
                 },
                 onError = {
                     process(SimpleBuyIntent.ErrorIntent())
@@ -278,8 +282,76 @@ class SimpleBuyModel(
                         process(SimpleBuyIntent.ErrorIntent())
                     }
                 )
-
+            is SimpleBuyIntent.AmountUpdated -> validateAmount(
+                balance = previousState.availableBalance,
+                amount = intent.amount,
+                minLimit = previousState.minLimit,
+                maxLimit = previousState.maxLimit
+            ).subscribeBy(
+                onSuccess = {
+                    process(SimpleBuyIntent.UpdateErrorState(it))
+                },
+                onError = {
+                    process(SimpleBuyIntent.ErrorIntent())
+                }
+            )
             else -> null
+        }
+
+    private fun validateAmountAndUpdatePaymentMethod(
+        paymentMethod: PaymentMethod,
+        state: SimpleBuyState
+    ): Disposable {
+        val balance = paymentMethod.availableBalance
+        val minLimit = Money.max(
+            paymentMethod.limits.min,
+            state.transferLimits?.minLimit ?: paymentMethod.limits.min
+        )
+        val maxLimit = Money.min(
+            paymentMethod.limits.max,
+            state.transferLimits?.maxLimit ?: paymentMethod.limits.max
+        )
+        return validateAmount(
+            amount = state.amount,
+            balance = balance,
+            minLimit = minLimit,
+            maxLimit = maxLimit
+        ).subscribeBy(
+            onSuccess = {
+                if (paymentMethod.isEligible && paymentMethod is UndefinedPaymentMethod) {
+                    process(SimpleBuyIntent.AddNewPaymentMethodRequested(paymentMethod))
+                } else {
+                    process(SimpleBuyIntent.SelectedPaymentMethodUpdate(paymentMethod))
+                }
+                process(SimpleBuyIntent.UpdateErrorState(it))
+            },
+            onError = {
+                process(SimpleBuyIntent.ErrorIntent())
+            }
+        )
+    }
+
+    private fun validateAmount(
+        amount: Money,
+        balance: Money?,
+        minLimit: Money,
+        maxLimit: Money
+    ): Single<TransactionErrorState> =
+        Single.defer {
+            when {
+                amount.isZero -> Single.just(TransactionErrorState.NONE)
+                balance != null && balance < amount -> Single.just(TransactionErrorState.INSUFFICIENT_FUNDS)
+                amount < minLimit -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
+                amount > maxLimit -> {
+                    userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).onErrorReturnItem(false).map { gold ->
+                        if (gold)
+                            TransactionErrorState.OVER_GOLD_TIER_LIMIT
+                        else
+                            TransactionErrorState.OVER_SILVER_TIER_LIMIT
+                    }
+                }
+                else -> Single.just(TransactionErrorState.NONE)
+            }
         }
 
     private fun handleApprovalErrorState(it: BuySellOrder) {
@@ -315,8 +387,7 @@ class SimpleBuyModel(
                 .onErrorReturn { intent to emptyList() }
         }.subscribeBy(
             onSuccess = { (intent, eligibilityNextPaymentList) ->
-                val eligibility = eligibilityNextPaymentList.flatMap { it.eligibleMethods }.distinct()
-                process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibility, eligibilityNextPaymentList))
+                process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
                 process(intent)
             },
             onError = {
@@ -424,19 +495,11 @@ class SimpleBuyModel(
                 )
             } else {
                 cardActivators.firstOrNull {
-                    selectedPaymentMethod?.partner == it.partner
+                    selectedPaymentMethod.partner == it.partner
                 }?.paymentAttributes()
             },
             isBankPartner = selectedPaymentMethod.isBank()
         )
-    }
-
-    private fun isPaymentMethodSelectedAllowingRecurringBuys(
-        eligibleList: List<EligibleAndNextPaymentRecurringBuy>,
-        buySellOrder: BuySellOrder
-    ): Boolean {
-        val eligibility = eligibleList.flatMap { it.eligibleMethods }.distinct()
-        return eligibility.contains(buySellOrder.paymentMethodType)
     }
 
     private fun processConfirmOrder(
@@ -539,3 +602,11 @@ class SimpleBuyModel(
         const val COMPLETED_ORDERS_BEFORE_SHOWING_APP_RATING = 1
     }
 }
+
+private fun SimpleBuyState.withSelectedFiatCurrency(selectedFiatCurrency: String): SimpleBuyState =
+    selectedFiatCurrency.takeIf { it.isNotEmpty() }?.let {
+        this.copy(
+            fiatCurrency = selectedFiatCurrency,
+            amount = FiatValue.zero(selectedFiatCurrency)
+        )
+    } ?: this

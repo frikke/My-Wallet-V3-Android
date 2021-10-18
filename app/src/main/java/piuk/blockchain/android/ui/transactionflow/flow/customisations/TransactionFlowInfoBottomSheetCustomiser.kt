@@ -3,19 +3,16 @@ package piuk.blockchain.android.ui.transactionflow.flow.customisations
 import android.content.res.Resources
 import android.os.Parcelable
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.FiatAccount
 import info.blockchain.balance.AssetInfo
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import java.io.Serializable
 import java.lang.IllegalArgumentException
 
 interface TransactionFlowInfoBottomSheetCustomiser {
-    fun info(state: TransactionState): TransactionFlowBottomSheetInfo?
+    fun info(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo?
 }
 
 @Parcelize
@@ -41,7 +38,7 @@ enum class InfoActionType {
 class TransactionFlowInfoBottomSheetCustomiserImpl(
     private val resources: Resources
 ) : TransactionFlowInfoBottomSheetCustomiser {
-    override fun info(state: TransactionState): TransactionFlowBottomSheetInfo? {
+    override fun info(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo? {
         return when (state.errorState) {
             TransactionErrorState.NONE -> null
             TransactionErrorState.ADDRESS_IS_CONTRACT -> null
@@ -53,11 +50,11 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         }
     }
 
-    private fun infoForBelowMinLimit(state: TransactionState): TransactionFlowBottomSheetInfo? {
-        val min = state.pendingTx?.minLimit?.toStringWithSymbol() ?: return null
+    private fun infoForBelowMinLimit(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo? {
+        val min = state.minLimit?.toStringWithSymbol() ?: return null
         return when (state.action) {
             AssetAction.Withdraw -> {
-                TransactionFlowBottomSheetInfo(
+                return TransactionFlowBottomSheetInfo(
                     title = resources.getString(
                         R.string.minimum_with_value,
                         min
@@ -85,22 +82,41 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     R.string.minimum_buy_error_message, min
                 )
             )
+            AssetAction.Sell -> return TransactionFlowBottomSheetInfo(
+                title = resources.getString(
+                    R.string.minimum_with_value,
+                    min
+                ),
+                description = resources.getString(
+                    R.string.minimum_sell_error_message, min
+                )
+            )
+            AssetAction.FiatDeposit -> return TransactionFlowBottomSheetInfo(
+                title = resources.getString(
+                    R.string.minimum_with_value,
+                    min
+                ),
+                description = resources.getString(
+                    R.string.minimum_deposit_error_message, min
+                )
+            )
             else -> null
         }
     }
 
-    private fun infoForInsufficientFunds(state: TransactionState): TransactionFlowBottomSheetInfo? {
-        val sendingCurrencyTicker = state.sendingAccount.currencyTicker()
+    private fun infoForInsufficientFunds(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo? {
+        val balance = state.availableBalance ?: throw IllegalArgumentException("Missing available balance")
+        val sendingCurrencyTicker = state.amount.currencyCode
         val action = state.action.toHumanReadable().lowercase()
         when (state.action) {
             AssetAction.Send -> {
                 val sendingCryptoCurrency: AssetInfo =
-                    state.sendingAccount.cryptoCurrency() ?: throw IllegalStateException("")
-                val diff = (state.amount - state.availableBalance).toStringWithSymbol()
+                    state.sendingAsset ?: throw IllegalArgumentException("Missing source crypto currency")
+                val diff = (state.amount - balance).toStringWithSymbol()
                 return TransactionFlowBottomSheetInfo(
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
-                        R.string.not_enough_funds_send, state.availableBalance.toStringWithSymbol(),
+                        R.string.not_enough_funds_send, balance.toStringWithSymbol(),
                         diff
                     ),
                     action = InfoAction(
@@ -117,7 +133,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
-                        state.availableBalance.toStringWithSymbol()
+                        balance.toStringWithSymbol()
                     )
                 )
             }
@@ -126,7 +142,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
-                        state.availableBalance.toStringWithSymbol()
+                        balance.toStringWithSymbol()
                     )
                 )
             }
@@ -135,7 +151,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
-                        state.availableBalance.toStringWithSymbol()
+                        balance.toStringWithSymbol()
                     )
                 )
             }
@@ -144,15 +160,13 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
-                        state.availableBalance.toStringWithSymbol()
+                        balance.toStringWithSymbol()
                     )
                 )
             }
             else -> return null
         }
     }
-
-    private fun BlockchainAccount.cryptoCurrency(): AssetInfo? = (this as? CryptoAccount)?.asset
 
     private fun AssetAction.toHumanReadable(): String {
         return when (this) {
@@ -166,14 +180,5 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)
             else -> throw IllegalArgumentException("Action not supported by this customiser")
         }
-    }
-}
-
-private fun BlockchainAccount.currencyTicker(): String {
-    require(this is CryptoAccount || this is FiatAccount)
-    return when (this) {
-        is CryptoAccount -> asset.displayTicker
-        is FiatAccount -> fiatCurrency
-        else -> throw IllegalArgumentException("Unsupported account type")
     }
 }

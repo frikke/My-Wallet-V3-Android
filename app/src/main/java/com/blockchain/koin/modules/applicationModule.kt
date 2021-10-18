@@ -456,6 +456,7 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
+                currencyPrefs = get(),
                 ratingPrefs = get(),
                 prefs = get(),
                 serializer = get(),
@@ -466,7 +467,8 @@ val applicationModule = module {
                 crashLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
-                bankPartnerCallbackProvider = get()
+                bankPartnerCallbackProvider = get(),
+                userIdentity = get()
             )
         }
 

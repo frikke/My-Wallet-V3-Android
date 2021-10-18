@@ -128,8 +128,8 @@ class SimpleBuyCheckoutFragment :
             }
         }
 
-        if (newState.errorState != null) {
-            showErrorState(newState.errorState)
+        if (newState.buyErrorState != null) {
+            showErrorState(newState.buyErrorState)
             return
         }
 

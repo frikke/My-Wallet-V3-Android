@@ -74,8 +74,8 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         if (isFirstTimeBuyer()) {
             eligibleAndNextPaymentRecurringBuys.first { it.eligibleMethods.contains(paymentMethodType) }
                 .let {
-                    binding.recurringBuySelectionGroup.check(intervalToId(it.period))
-                    selectedFrequency = it.period
+                    binding.recurringBuySelectionGroup.check(intervalToId(it.frequency))
+                    selectedFrequency = it.frequency
                 }
         } else {
             binding.recurringBuySelectionGroup.check(intervalToId(currentFrequency))
@@ -125,7 +125,7 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
 
         eligibleAndNextPaymentRecurringBuys.forEach {
             binding.apply {
-                when (it.period) {
+                when (it.frequency) {
                     RecurringBuyFrequency.DAILY -> {
                         if (it.eligibleMethods.contains(paymentMethodType)) {
                             rbDaily.visibleIf { it.eligibleMethods.contains(paymentMethodType) }

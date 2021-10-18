@@ -91,7 +91,7 @@ class SimpleBuySelectCurrencyFragment :
 
     override fun render(newState: SimpleBuyState) {
         // we need to show the supported currencies only when supported are fetched so we avoid list flickering
-        if (newState.supportedFiatCurrencies.isEmpty() && newState.errorState == null)
+        if (newState.supportedFiatCurrencies.isEmpty() && newState.buyErrorState == null)
             return
         adapter.items = UNIT_FIAT.map {
             CurrencyItem(
