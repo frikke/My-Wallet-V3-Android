@@ -2302,7 +2302,7 @@
 
     <!-- Receive Screen -->
     <string name="search_wallets_hint">Search Wallets and Cryptos</string>
-    <string name="search_wallets_result">%s Results</string>
+    <string name="search_results">%s Results</string>
 
     <!-- Account Unification -->
     <string name="unification_sheet_title">Upgrade Account</string>

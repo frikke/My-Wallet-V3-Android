@@ -60,7 +60,6 @@ import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -161,9 +160,10 @@ internal class PricesFragment :
                 priceWithDelta = it.prices
             )
         }
-        binding.searchResultsLabel.apply {
-            text = getString(R.string.search_wallets_result, newList.size.toString())
-            visibleIf { newState.filterBy.isNotEmpty() }
+
+        binding.searchBoxLayout.apply {
+            updateResults(resultCount = newList.size.toString(), shouldShow = newState.filterBy.isNotEmpty())
+            updateLayoutState()
         }
 
         with(displayList) {
@@ -215,13 +215,16 @@ internal class PricesFragment :
     }
 
     private fun setupSearchBox() {
-        binding.searchEditText.addTextChangedListener(object : AfterTextChangedWatcher() {
-            override fun afterTextChanged(s: Editable?) {
-                s?.let { editable ->
-                    model.process(DashboardIntent.FilterAssets(editable.toString()))
+        binding.searchBoxLayout.setDetails(
+            hint = R.string.search_coins_hint,
+            textWatcher = object : AfterTextChangedWatcher() {
+                override fun afterTextChanged(s: Editable?) {
+                    s?.let { editable ->
+                        model.process(DashboardIntent.FilterAssets(editable.toString()))
+                    }
                 }
             }
-        })
+        )
     }
 
     override fun onResume() {

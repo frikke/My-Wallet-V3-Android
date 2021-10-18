@@ -23,7 +23,6 @@ import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.visibleIf
 
 class ReceiveFragment : MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, FragmentReceiveBinding>() {
 
@@ -68,9 +67,9 @@ class ReceiveFragment : MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, F
                 ::doOnAccountSelected
             )
         }
-        binding.searchResultsLabel.apply {
-            text = getString(R.string.search_wallets_result, assetsToShow.size.toString())
-            visibleIf { newState.filterBy.isNotEmpty() }
+        binding.searchBoxLayout.apply {
+            updateResults(resultCount = assetsToShow.size.toString(), shouldShow = newState.filterBy.isNotEmpty())
+            updateLayoutState()
         }
     }
 
@@ -92,13 +91,16 @@ class ReceiveFragment : MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, F
     }
 
     private fun setupSearchBox() {
-        binding.searchEditText.addTextChangedListener(object : AfterTextChangedWatcher() {
-            override fun afterTextChanged(s: Editable?) {
-                s?.let { editable ->
-                    model.process(ReceiveIntent.FilterAssets(editable.toString()))
+        binding.searchBoxLayout.setDetails(
+            hint = R.string.search_wallets_hint,
+            textWatcher = object : AfterTextChangedWatcher() {
+                override fun afterTextChanged(s: Editable?) {
+                    s?.let { editable ->
+                        model.process(ReceiveIntent.FilterAssets(editable.toString()))
+                    }
                 }
             }
-        })
+        )
     }
 
     private fun doOnAccountSelected(account: CryptoAccount) {

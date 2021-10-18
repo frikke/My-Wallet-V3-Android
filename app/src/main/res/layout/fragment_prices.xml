@@ -11,9 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <piuk.blockchain.android.ui.customviews.SearchBoxLayout
             android:id="@+id/search_box_layout"
-            style="@style/LightDataInputAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
@@ -21,25 +20,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/recycler_view"
             android:layout_margin="@dimen/standard_margin"
-            app:endIconMode="custom"
-            app:endIconDrawable="@drawable/ic_search"
-            android:hint="@string/search_coins_hint" >
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/search_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/tiny_margin" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/search_results_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/search_wallets_result"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            android:hint="@string/search_coins_hint" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
