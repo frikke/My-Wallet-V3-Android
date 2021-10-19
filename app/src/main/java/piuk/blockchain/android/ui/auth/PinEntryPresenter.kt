@@ -265,13 +265,13 @@ class PinEntryPresenter(
         specificAnalytics.logLogin(true)
 
         if (payloadDataManager.isWalletUpgradeRequired) {
-            view?.walletUpgradeRequired(SECOND_PASSWORD_ATTEMPTS)
+            view?.walletUpgradeRequired(SECOND_PASSWORD_ATTEMPTS, isFromPinCreation)
         } else {
             onUpdateFinished(isFromPinCreation)
         }
     }
 
-    fun doUpgradeWallet(secondPassword: String?) {
+    fun doUpgradeWallet(secondPassword: String?, isFromPinCreation: Boolean) {
         // v2 -> v3 -> v4
         compositeDisposable += payloadDataManager.upgradeWalletPayload(
             secondPassword,
@@ -283,7 +283,7 @@ class PinEntryPresenter(
             .subscribeBy(
                 onComplete = {
                     view.dismissProgressDialog()
-                    onUpdateFinished(false)
+                    onUpdateFinished(isFromPinCreation)
                     analytics.logEvent(WalletUpgradeEvent(true))
                 },
                 onError = { throwable ->

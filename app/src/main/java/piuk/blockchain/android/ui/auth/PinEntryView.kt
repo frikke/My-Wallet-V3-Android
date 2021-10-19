@@ -29,7 +29,7 @@ interface PinEntryView : View {
 
     fun showWalletVersionNotSupportedDialog(walletVersion: String?)
 
-    fun walletUpgradeRequired(passwordTriesRemaining: Int)
+    fun walletUpgradeRequired(passwordTriesRemaining: Int, isFromPinCreation: Boolean)
 
     fun onWalletUpgradeFailed()
 

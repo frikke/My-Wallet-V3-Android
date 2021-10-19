@@ -37,6 +37,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Answers
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
@@ -866,7 +867,7 @@ class PinEntryPresenterTest {
 
         verify(view).showProgressDialog(anyInt())
         verify(view).dismissProgressDialog()
-        verify(view).walletUpgradeRequired(anyInt())
+        verify(view).walletUpgradeRequired(anyInt(), anyBoolean())
         verify(prefsUtil).walletGuid
         verify(prefsUtil).sharedKey
         verify(prefsUtil).isNewlyCreated
@@ -1028,7 +1029,7 @@ class PinEntryPresenterTest {
 
         subject.handlePayloadUpdateComplete(false)
 
-        verify(view).walletUpgradeRequired(anyInt())
+        verify(view).walletUpgradeRequired(anyInt(), anyBoolean())
     }
 
     @Test

@@ -357,28 +357,28 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         startActivity(intent)
     }
 
-    override fun walletUpgradeRequired(passwordTriesRemaining: Int) {
+    override fun walletUpgradeRequired(passwordTriesRemaining: Int, isFromPinCreation: Boolean) {
         secondPasswordHandler.validate(
             this.requireContext(),
             object : SecondPasswordHandler.ResultListener {
                 override fun onNoSecondPassword() {
-                    presenter.doUpgradeWallet(null)
+                    presenter.doUpgradeWallet(null, isFromPinCreation)
                 }
 
                 override fun onSecondPasswordValidated(validatedSecondPassword: String) {
-                    presenter.doUpgradeWallet(validatedSecondPassword)
+                    presenter.doUpgradeWallet(validatedSecondPassword, isFromPinCreation)
                 }
 
                 override fun onCancelled() {
-                    handleIncorrectPassword(passwordTriesRemaining)
+                    handleIncorrectPassword(passwordTriesRemaining, isFromPinCreation)
                 }
             }
         )
     }
 
-    private fun handleIncorrectPassword(triesRemaining: Int) {
+    private fun handleIncorrectPassword(triesRemaining: Int, isFromPinCreation: Boolean) {
         if (triesRemaining > 0) {
-            walletUpgradeRequired(triesRemaining - 1)
+            walletUpgradeRequired(triesRemaining - 1, isFromPinCreation)
         } else {
             // TODO: Handle can't remember
         }

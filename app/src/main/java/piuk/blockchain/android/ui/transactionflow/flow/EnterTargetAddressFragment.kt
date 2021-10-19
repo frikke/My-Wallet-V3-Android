@@ -99,7 +99,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 hideManualAddressEntry(newState)
             }
 
-            customiser.issueFlashMessage(newState, null)?.let {
+            customiser.issueFlashMessage(newState, null).takeIf { it.isNotEmpty() }?.let {
                 addressEntry.setBackgroundColor(
                     ContextCompat.getColor(requireContext(), R.color.red_000)
                 )
@@ -144,7 +144,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 addressEntry.setText(address, TextView.BufferType.EDITABLE)
             }
             addressEntry.hint = customiser.selectTargetAddressInputHint(newState)
-            // set visibility of component here so bottom sheet grows to the correct height
             inputSwitcher.visible()
             inputSwitcher.displayedChild = NONCUSTODIAL_INPUT
         }

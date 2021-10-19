@@ -621,7 +621,6 @@ class TransactionFlowCustomiserImpl(
         }
 
     override fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String {
-
         return when (state.errorState) {
             TransactionErrorState.NONE -> ""
             TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
