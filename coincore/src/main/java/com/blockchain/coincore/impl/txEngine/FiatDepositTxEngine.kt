@@ -4,12 +4,6 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.banking.BankTransferAction
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.models.data.BankPartner
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.FeeLevel
@@ -24,18 +18,29 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.network.PollService
+import com.blockchain.utils.secondsToDays
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.security.InvalidParameterException
 
+const val WITHDRAW_LOCKS = "locks"
 class FiatDepositTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val withdrawLocksRepository: WithdrawLocksRepository
 ) : TxEngine() {
 
     private val userIsGoldVerified: Single<Boolean>
@@ -50,7 +55,13 @@ class FiatDepositTxEngine(
         check(sourceAccount is BankAccount)
         check(txTarget is FiatAccount)
         val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
-        return walletManager.getBankTransferLimits(sourceAccountCurrency, true).map { limits ->
+        return Single.zip(
+            walletManager.getBankTransferLimits(sourceAccountCurrency, true),
+            withdrawLocksRepository.getWithdrawLockTypeForPaymentMethod(
+                paymentMethodType = PaymentMethodType.BANK_TRANSFER,
+                fiatCurrency = sourceAccountCurrency
+            )
+        ) { limits, locks ->
             val zeroFiat = FiatValue.zero(sourceAccountCurrency)
             PendingTx(
                 amount = zeroFiat,
@@ -61,7 +72,10 @@ class FiatDepositTxEngine(
                 minLimit = limits.min,
                 feeAmount = zeroFiat,
                 selectedFiat = userFiat,
-                feeSelection = FeeSelection()
+                feeSelection = FeeSelection(),
+                engineState = if (locks > 0.toBigInteger()) {
+                    mapOf(WITHDRAW_LOCKS to locks.secondsToDays())
+                } else emptyMap()
             )
         }
     }

@@ -196,7 +196,8 @@ val coincoreModule = module {
                 quotesEngine = get(),
                 analytics = get(),
                 bankPartnerCallbackProvider = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                withdrawLocksRepository = get()
             )
         }
 

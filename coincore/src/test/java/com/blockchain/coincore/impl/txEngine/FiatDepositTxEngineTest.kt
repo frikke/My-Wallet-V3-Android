@@ -23,11 +23,15 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import java.math.BigInteger
 
 class FiatDepositTxEngineTest : CoincoreTestBase() {
 
     private lateinit var subject: FiatDepositTxEngine
     private val walletManager: CustodialWalletManager = mock()
+    private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val userIdentity: UserIdentity = mock {
         on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
@@ -36,7 +40,12 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
     @Before
     fun setup() {
         initMocks()
-        subject = FiatDepositTxEngine(walletManager, bankPartnerCallbackProvider, userIdentity)
+        subject = FiatDepositTxEngine(
+            walletManager = walletManager,
+            bankPartnerCallbackProvider = bankPartnerCallbackProvider,
+            userIdentity = userIdentity,
+            withdrawalLocksRepository
+        )
     }
 
     @Test
@@ -98,6 +107,13 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(walletManager.getBankTransferLimits(TEST_USER_FIAT, true))
             .thenReturn(Single.just(limits))
 
+        whenever(
+            withdrawalLocksRepository.getWithdrawLockTypeForPaymentMethod(
+                paymentMethodType = PaymentMethodType.BANK_TRANSFER,
+                fiatCurrency = TEST_USER_FIAT
+            )
+        ).thenReturn(Single.just(BigInteger.TEN))
+
         val sourceAccount: LinkedBankAccount = mock {
             on { fiatCurrency }.thenReturn(TEST_USER_FIAT)
         }
@@ -127,7 +143,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
                     it.minLimit == limits.min &&
                     it.maxLimit == limits.max &&
                     it.validationState == ValidationState.UNINITIALISED &&
-                    it.engineState.isEmpty()
+                    it.engineState.containsKey(WITHDRAW_LOCKS)
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()

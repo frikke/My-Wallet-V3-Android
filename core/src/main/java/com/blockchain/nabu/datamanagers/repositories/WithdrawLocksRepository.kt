@@ -13,7 +13,7 @@ class WithdrawLocksRepository(custodialWalletManager: CustodialWalletManager) {
         cacheLifetimeSeconds = 100L,
         refreshFn = { data ->
             custodialWalletManager.fetchWithdrawLocksTime(
-                data.paymentMethodType, data.fiatCurrency, data.productType
+                data.paymentMethodType, data.fiatCurrency
             )
                 .doOnSuccess { it1 -> Timber.d("Withdrawal lock: $it1") }
         }
@@ -24,13 +24,12 @@ class WithdrawLocksRepository(custodialWalletManager: CustodialWalletManager) {
         fiatCurrency: String
     ): Single<BigInteger> =
         cache.getCachedSingle(
-            WithdrawalData(paymentMethodType, fiatCurrency, "SIMPLEBUY")
+            WithdrawalData(paymentMethodType, fiatCurrency)
         )
             .onErrorReturn { BigInteger.ZERO }
 
     private data class WithdrawalData(
         val paymentMethodType: PaymentMethodType,
-        val fiatCurrency: String,
-        val productType: String
+        val fiatCurrency: String
     )
 }

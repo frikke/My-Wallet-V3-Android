@@ -36,6 +36,7 @@ import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
@@ -46,6 +47,7 @@ class TxProcessorFactory(
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val quotesEngine: TransferQuotesEngine,
     private val analytics: Analytics,
+    private val withdrawLocksRepository: WithdrawLocksRepository,
     private val userIdentity: UserIdentity
 ) {
     fun createProcessor(
@@ -112,7 +114,8 @@ class TxProcessorFactory(
                         engine = FiatDepositTxEngine(
                             walletManager = walletManager,
                             userIdentity = userIdentity,
-                            bankPartnerCallbackProvider = bankPartnerCallbackProvider
+                            bankPartnerCallbackProvider = bankPartnerCallbackProvider,
+                            withdrawLocksRepository = withdrawLocksRepository
                         )
                     )
                 )

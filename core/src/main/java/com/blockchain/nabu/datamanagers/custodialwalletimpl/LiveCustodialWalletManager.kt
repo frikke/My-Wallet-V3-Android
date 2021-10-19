@@ -244,11 +244,10 @@ class LiveCustodialWalletManager(
 
     override fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: String,
-        productType: String
+        fiatCurrency: String
     ): Single<BigInteger> =
         authenticator.authenticate {
-            nabuService.fetchWithdrawLocksRules(it, paymentMethodType, fiatCurrency, productType)
+            nabuService.fetchWithdrawLocksRules(it, paymentMethodType, fiatCurrency)
         }.flatMap { response ->
             response.rule?.let {
                 Single.just(it.lockTime.toBigInteger())

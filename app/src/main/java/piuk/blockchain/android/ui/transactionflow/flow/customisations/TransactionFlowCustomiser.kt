@@ -12,6 +12,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.CryptoValue
@@ -41,6 +42,7 @@ import piuk.blockchain.android.ui.transactionflow.plugin.SmallBalanceView
 import piuk.blockchain.android.ui.transactionflow.plugin.SwapInfoHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
+import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.setImageDrawable
 import java.math.BigInteger
@@ -367,12 +369,28 @@ class TransactionFlowCustomiserImpl(
                 R.string.checkout_rewards_confirmation_disclaimer, state.sendingAsset.displayTicker,
                 state.selectedTarget.label
             )
+            AssetAction.FiatDeposit -> {
+                if (state.pendingTx?.engineState?.containsKey(WITHDRAW_LOCKS) == true) {
+                    val days = resources.getString(
+                        R.string.withdrawal_lock_warning_days,
+                        state.pendingTx.engineState[WITHDRAW_LOCKS]
+                    )
+                    StringUtils.getResolvedStringWithAppendedMappedLearnMore(
+                        resources.getString(
+                            R.string.withdrawal_lock_warning,
+                            days
+                        ), R.string.common_linked_learn_more,
+                        TRADING_ACCOUNT_LOCKS, context, R.color.blue_600
+                    )
+                } else ""
+            }
             else -> throw IllegalStateException("Disclaimer not set for asset action ${state.action}")
         }
 
     override fun confirmDisclaimerVisibility(assetAction: AssetAction): Boolean =
         when (assetAction) {
             AssetAction.Swap,
+            AssetAction.FiatDeposit,
             AssetAction.InterestWithdraw -> true
             else -> false
         }

@@ -90,8 +90,7 @@ interface CustodialWalletManager {
 
     fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: String,
-        productType: String
+        fiatCurrency: String
     ): Single<BigInteger>
 
     fun createOrder(
