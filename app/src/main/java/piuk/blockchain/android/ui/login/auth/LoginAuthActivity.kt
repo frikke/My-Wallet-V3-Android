@@ -13,13 +13,14 @@ import android.util.Base64
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.signin.UnifiedSignInEventListener
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
@@ -304,10 +305,20 @@ class LoginAuthActivity :
                     progressBar.gone()
                 }
 
-                override fun onError(error: String) {
+                override fun onFatalError(error: Throwable) {
                     // TODO nothing for now
                 }
-            })
+
+                override fun onTimeout() {
+                    // TODO show timeout message?
+                }
+
+                override fun onAuthComplete() {
+                    progressBar.visible()
+                    unifiedSignInWebview.gone()
+                    model.process(LoginAuthIntents.ShowAuthComplete)
+                }
+            }, BuildConfig.WEB_WALLET_URL, PAYLOAD)
 
             unifiedSignInWebview.visible()
             progressBar.visible()
@@ -475,5 +486,7 @@ class LoginAuthActivity :
             "%2b" to "+",
             "%2f" to "/"
         )
+
+        private const val PAYLOAD = "{ }" // TODO add magic link payload here for internal testing
     }
 }

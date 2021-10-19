@@ -6,11 +6,6 @@ apply from: '../quality/ktlint.gradle'
 android {
     compileSdkVersion Versions.compileSdk
 
-    buildProperties {
-        secrets {
-            using(file('../app/secrets.properties')) | file('../app/secretsDefaults.properties')
-        }
-    }
 
     defaultConfig {
         minSdkVersion Versions.minSdk
@@ -31,25 +26,6 @@ android {
     }
     buildFeatures {
         viewBinding = true
-    }
-
-    flavorDimensions "environment"
-
-    productFlavors {
-        envProd {
-            dimension "environment"
-            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
-        }
-
-        envInternalProd {
-            dimension "environment"
-            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
-        }
-
-        envStaging {
-            dimension "environment"
-            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['stagingLoginPortal']
-        }
     }
 }
 

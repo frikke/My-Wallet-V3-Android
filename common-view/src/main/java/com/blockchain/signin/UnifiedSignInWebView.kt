@@ -16,6 +16,7 @@ class UnifiedSignInWebView @JvmOverloads constructor(
 ) : WebView(context, attrs, defStyleAttr) {
 
     private lateinit var listener: UnifiedSignInEventListener
+    private var payload: String = ""
 
     init {
         settings.apply {
@@ -38,9 +39,13 @@ class UnifiedSignInWebView @JvmOverloads constructor(
                 }
             }
 
-            override fun onError(error: String) {
+            override fun onError(error: Throwable) {
                 if (::listener.isInitialized) {
-                    listener.onError(error)
+                    if (error is UnifiedSignInClient.Companion.PageLoadTimeoutException) {
+                        listener.onTimeout()
+                    } else {
+                        listener.onFatalError(error)
+                    }
                 } else {
                     Timber.e("Listener for webview not initialised")
                 }
@@ -48,21 +53,24 @@ class UnifiedSignInWebView @JvmOverloads constructor(
         })
 
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        addJavascriptInterface(UnifiedSignInInterfaceHandler(), WEB_INTERFACE_NAME)
+        addJavascriptInterface(UnifiedSignInInterfaceHandler(
+            object : WebViewComms {
+                override fun onMessageReceived(data: String?) {
+                    // TODO this will contain messaging logic when contract is finalised
+                    sendMessage(payload)
+                    // TODO for now, call complete on message reception, we have the password in memory
+                    listener.onAuthComplete()
+                }
+            }
+        ), WEB_INTERFACE_NAME)
     }
 
-    fun initWebView(listener: UnifiedSignInEventListener) {
+    fun initWebView(listener: UnifiedSignInEventListener, url: String, payload: String) {
         this.listener = listener
-        // TODO should this URL be configurable?
-        loadUrl(BuildConfig.WEB_WALLET_URL)
+        this.payload = payload
+        loadUrl(url)
     }
 
-    // FIXME is this needed?
-    fun sendMessage() {
-        sendMessage("ping")
-    }
-
-    // TODO JSON or String? contract is not finalised
     private fun WebView.sendMessage(json: String) {
         evaluateJavascript(WEB_SEND_MESSAGE_CALL.replace(REPLACEABLE_CONTENT, json)) { responseMessage ->
             // TODO only print for now
@@ -73,11 +81,13 @@ class UnifiedSignInWebView @JvmOverloads constructor(
     companion object {
         private const val WEB_INTERFACE_NAME = "BCAndroidSSI"
         private const val REPLACEABLE_CONTENT = "$$$"
-        private const val WEB_SEND_MESSAGE_CALL = "javascript: receiveMessage(\"$REPLACEABLE_CONTENT\")"
+        private const val WEB_SEND_MESSAGE_CALL = "javascript: receiveMessageFromMobile(\"$REPLACEABLE_CONTENT\")"
     }
 }
 
 interface UnifiedSignInEventListener {
     fun onLoaded()
-    fun onError(error: String)
+    fun onFatalError(error: Throwable)
+    fun onTimeout()
+    fun onAuthComplete() // TODO we will receive a password and sessionId here
 }
