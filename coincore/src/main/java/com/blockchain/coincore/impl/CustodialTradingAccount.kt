@@ -47,6 +47,7 @@ class CustodialTradingAccount(
     val custodialWalletManager: CustodialWalletManager,
     val tradingBalances: TradingBalanceDataManager,
     val isNoteSupported: Boolean = false,
+    override val isMemoSupported: Boolean = false,
     private val identity: UserIdentity,
     @Suppress("unused")
     private val features: InternalFeatureFlagApi,

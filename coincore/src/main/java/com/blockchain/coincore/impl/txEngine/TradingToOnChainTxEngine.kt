@@ -13,6 +13,7 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
@@ -32,6 +33,7 @@ class TradingToOnChainTxEngine(
     override fun assertInputsValid() {
         check(txTarget is CryptoAddress)
         check(sourceAsset == (txTarget as CryptoAddress).asset)
+        check(sourceAccount is SingleAccount)
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
@@ -108,6 +110,13 @@ class TradingToOnChainTxEngine(
                     ),
                     if (isNoteSupported) {
                         TxConfirmationValue.Description()
+                    } else null,
+                    if ((sourceAccount as SingleAccount).isMemoSupported) {
+                        val memo = (txTarget as? CryptoAddress)?.memo
+                        TxConfirmationValue.Memo(
+                            text = memo,
+                            id = null
+                        )
                     } else null
                 )
             )

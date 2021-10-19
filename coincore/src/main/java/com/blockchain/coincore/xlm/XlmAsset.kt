@@ -98,7 +98,8 @@ internal class XlmAsset(
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
                     identity = identity,
-                    features = features
+                    features = features,
+                    isMemoSupported = true
                 )
             )
         )

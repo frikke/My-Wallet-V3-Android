@@ -98,6 +98,9 @@ interface SingleAccount : BlockchainAccount, TransactionTarget {
     // Is this account currently able to operate as a transaction source
     val sourceState: Single<TxSourceState>
 
+    val isMemoSupported: Boolean
+        get() = false
+
     fun doesAddressBelongToWallet(address: String): Boolean = false
 }
 
