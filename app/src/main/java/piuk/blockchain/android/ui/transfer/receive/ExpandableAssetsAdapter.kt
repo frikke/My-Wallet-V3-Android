@@ -79,23 +79,10 @@ class ExpandableAssetViewHolder(
             assetResources.loadAssetIcon(icon, assetInfo)
             assetName.text = assetInfo.name
             assetSubtitle.text = assetInfo.displayTicker
+            updateExpandedState(expandableItem, assetInfo, uiScheduler)
             root.setOnClickListener {
                 expandableItem.isExpanded = !expandableItem.isExpanded
-                if (expandableItem.isExpanded) {
-                    compositeDisposable.clear()
-                    compositeDisposable += expandableItem.loadAccountsForAsset(assetInfo)
-                        .observeOn(uiScheduler)
-                        .subscribeBy { accounts ->
-                            val items = accounts.map { cryptoAccount ->
-                                ExpandedCryptoItem(
-                                    account = cryptoAccount,
-                                    onAccountClicked = expandableItem.onAccountClicked
-                                )
-                            }
-                            accountsAdapter.items = items
-                        }
-                }
-                updateExpandedState(expandableItem.isExpanded)
+                updateExpandedState(expandableItem, assetInfo, uiScheduler)
             }
             walletList.apply {
                 layoutManager = LinearLayoutManager(context)
@@ -105,7 +92,29 @@ class ExpandableAssetViewHolder(
         }
     }
 
-    private fun ItemAssetExpandableBinding.updateExpandedState(isExpanded: Boolean) {
+    private fun updateExpandedState(
+        expandableItem: ExpandableCryptoItem,
+        assetInfo: AssetInfo,
+        uiScheduler: Scheduler
+    ) {
+        if (expandableItem.isExpanded) {
+            compositeDisposable.clear()
+            compositeDisposable += expandableItem.loadAccountsForAsset(assetInfo)
+                .observeOn(uiScheduler)
+                .subscribeBy { accounts ->
+                    val items = accounts.map { cryptoAccount ->
+                        ExpandedCryptoItem(
+                            account = cryptoAccount,
+                            onAccountClicked = expandableItem.onAccountClicked
+                        )
+                    }
+                    accountsAdapter.items = items
+                }
+        }
+        binding.updateUI(expandableItem.isExpanded)
+    }
+
+    private fun ItemAssetExpandableBinding.updateUI(isExpanded: Boolean) {
         if (isExpanded) {
             expandableChevron.setImageResource(R.drawable.expand_animated)
             expandableChevron.setColorFilter(context.getResolvedColor(R.color.blue_600))
