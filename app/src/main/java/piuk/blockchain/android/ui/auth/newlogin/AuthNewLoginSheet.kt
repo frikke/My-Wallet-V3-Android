@@ -11,6 +11,7 @@ import piuk.blockchain.android.databinding.AuthNewLoginSheetBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.util.visibleIf
 
 class AuthNewLoginSheet :
@@ -35,6 +36,9 @@ class AuthNewLoginSheet :
         if (newState.items.size != listAdapter.itemCount) {
             listAdapter.items = newState.items
             listAdapter.notifyDataSetChanged()
+            if (newState.errorState == NewLoginState.IP_MISMATCH) {
+                analytics.logEvent(LoginAnalytics.LoginFailedIPMismatch)
+            }
         }
         binding.approveButton.isEnabled = newState.enableApproval
         binding.secureLoginIpNotice.visibleIf { !newState.enableApproval }
