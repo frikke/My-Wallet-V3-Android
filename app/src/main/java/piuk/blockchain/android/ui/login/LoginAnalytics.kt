@@ -77,6 +77,13 @@ sealed class LoginAnalytics(
         event = AnalyticsNames.LOGIN_VIEWED.eventName
     )
 
+    object LoginFailedIPMismatch : LoginAnalytics(
+        event = AnalyticsNames.LOGIN_FAILED.eventName,
+        params = mapOf(
+            LOGIN_ERROR to CANT_VALIDATE_IP
+        )
+    )
+
     companion object {
         private const val LOGIN_WITH_GOOGLE = "Google"
         private const val PLATFORM_WALLET = "WALLET"
@@ -97,6 +104,8 @@ sealed class LoginAnalytics(
         private const val NABU = "nabu"
         private const val RECOVERY_ELIGIBLE = "recovery_eligible"
         private const val LOGIN_METHOD = "method"
+        private const val LOGIN_ERROR = "error"
+        private const val CANT_VALIDATE_IP = "CANT_VALIDATE_IP"
 
         private fun LoginAuthInfo?.constructDataMap(): Map<String, Serializable> =
             when (this) {

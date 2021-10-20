@@ -180,6 +180,7 @@ enum class AnalyticsNames(val eventName: String) {
     LOGIN_2FA_DENIED("Login Two Step Verification Denied"),
     LOGIN_2FA_ENTERED("Login Two Step Verification Entered"),
     LOGIN_VIEWED("Login Viewed"),
+    LOGIN_FAILED("Login Request Failed"),
     RECOVERY_PASSWORD_RESET("Account Password Reset"),
     RECOVERY_FAILED("Account Recovery Failed"),
     RECOVERY_CLOUD_BACKUP_SCANNED("Cloud Backup Code Scanned"),
