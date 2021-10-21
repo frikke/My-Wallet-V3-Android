@@ -6,7 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import androidx.appcompat.widget.Toolbar
-import com.blockchain.core.payments.model.Withdrawals
+import com.blockchain.core.payments.model.WithdrawalsLocks
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityOnHoldDetailsBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
@@ -21,8 +21,8 @@ class LocksDetailsActivity : BlockchainActivity() {
         ActivityOnHoldDetailsBinding.inflate(layoutInflater)
     }
 
-    private val withdrawals: Withdrawals by unsafeLazy {
-        intent?.getSerializableExtra(LOCK) as Withdrawals
+    private val withdrawalsLocks: WithdrawalsLocks by unsafeLazy {
+        intent?.getSerializableExtra(LOCK) as WithdrawalsLocks
     }
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -44,7 +44,7 @@ class LocksDetailsActivity : BlockchainActivity() {
 
     private fun setUpRecyclerView() {
         val locksDetailsDelegateAdapter = LocksDetailsDelegateAdapter()
-        locksDetailsDelegateAdapter.items = withdrawals.locks
+        locksDetailsDelegateAdapter.items = withdrawalsLocks.locks
         binding.recyclerViewLocks.apply {
             adapter = locksDetailsDelegateAdapter
             addItemDecoration(BlockchainListDividerDecor(context))
@@ -57,7 +57,7 @@ class LocksDetailsActivity : BlockchainActivity() {
                 movementMethod = LinkMovementMethod.getInstance()
                 text = setLearnMoreLink(R.string.withdrawal_details_text)
             }
-            totalAmount.text = withdrawals.onHoldTotalAmount.toStringWithSymbol()
+            totalAmount.text = withdrawalsLocks.onHoldTotalAmount.toStringWithSymbol()
         }
     }
 
@@ -76,9 +76,9 @@ class LocksDetailsActivity : BlockchainActivity() {
         private const val LOCK = "LOCK"
         fun newInstance(
             context: Context,
-            withdrawals: Withdrawals
+            withdrawalsLocks: WithdrawalsLocks
         ): Intent = Intent(context, LocksDetailsActivity::class.java).apply {
-            putExtra(LOCK, withdrawals)
+            putExtra(LOCK, withdrawalsLocks)
         }
     }
 }

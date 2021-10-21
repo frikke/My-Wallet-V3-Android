@@ -222,7 +222,11 @@ class DashboardActionAdapter(
             .subscribeBy(
                 onSuccess = { balances ->
                     model.process(
-                        DashboardIntent.FiatBalanceUpdate(balances.total, balances.totalFiat)
+                        DashboardIntent.FiatBalanceUpdate(
+                            balance = balances.total,
+                            fiatBalance = balances.totalFiat,
+                            balanceAvailable = balances.actionable
+                        )
                     )
                 },
                 onError = {
@@ -543,6 +547,16 @@ class DashboardActionAdapter(
             }
         )
     }
+
+    fun loadWithdrawalLocks(model: DashboardModel): Disposable =
+        coincore.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).subscribeBy(
+            onSuccess = {
+                model.process(DashboardIntent.WithdrawalLocksLoaded(it))
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
 
     companion object {
         private val FLATLINE_CHART = listOf(

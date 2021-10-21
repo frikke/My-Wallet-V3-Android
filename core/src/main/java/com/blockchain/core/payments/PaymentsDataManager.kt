@@ -4,7 +4,7 @@ import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.payments.model.WithdrawalLock
-import com.blockchain.core.payments.model.Withdrawals
+import com.blockchain.core.payments.model.WithdrawalsLocks
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.core.Single
 interface PaymentsDataManager {
     fun getPaymentMethodDetailsForId(paymentId: String): Single<PaymentMethodDetails>
 
-    fun getWithdrawalLocks(localCurrency: String): Single<Withdrawals>
+    fun getWithdrawalLocks(localCurrency: String): Single<WithdrawalsLocks>
 }
 
 class PaymentsDataManagerImpl(
@@ -28,10 +28,10 @@ class PaymentsDataManagerImpl(
             )
         }
 
-    override fun getWithdrawalLocks(localCurrency: String): Single<Withdrawals> =
+    override fun getWithdrawalLocks(localCurrency: String): Single<WithdrawalsLocks> =
         authenticator.getAuthHeader().flatMap {
             paymentsService.getWithdrawalLocks(it, localCurrency).map {
-                Withdrawals(
+                WithdrawalsLocks(
                     onHoldTotalAmount = it.totalAmount.let {
                         FiatValue.fromMinor(it.currency, it.value.toLong())
                     },

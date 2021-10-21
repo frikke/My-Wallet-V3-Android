@@ -213,7 +213,7 @@ class PortfolioFragment :
                     mapOf(
                         IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
                         IDX_CARD_BALANCE to newState,
-                        IDX_WITHDRAWAL_LOCKS to newState.lock,
+                        IDX_WITHDRAWAL_LOCKS to newState.locks,
                         IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
                     )
                 !withdrawalLockEnabled && isDisplayListEmpty ->
@@ -226,7 +226,7 @@ class PortfolioFragment :
                     mapOf(
                         IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
                         IDX_CARD_BALANCE to newState,
-                        IDX_WITHDRAWAL_LOCKS to newState.lock,
+                        IDX_WITHDRAWAL_LOCKS to newState.locks,
                         IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
                             newState.fiatAssets
                         } else {
@@ -542,10 +542,16 @@ class PortfolioFragment :
     }
 
     private fun onHoldAmountClicked(locks: Locks) {
-        require(locks.locks != null) { "Locks are null" }
-        val available = locks.available ?: FiatValue.zero(currencyPrefs.selectedFiatCurrency)
+        require(locks.withdrawalsLocks != null) { "withdrawalsLocks are null" }
+        val available = state?.getFundsAvailableFiat(currencyPrefs.selectedFiatCurrency)
+            ?: FiatValue.zero(currencyPrefs.selectedFiatCurrency)
+
         showBottomSheet(
-            LocksInfoBottomSheet.newInstance(available.toStringWithSymbol(), locks.locks)
+            LocksInfoBottomSheet.newInstance(
+                originScreen = LocksInfoBottomSheet.OriginScreenLocks.DASHBOARD_SCREEN,
+                available = available.toStringWithSymbol(),
+                withdrawalsLocks = locks.withdrawalsLocks
+            )
         )
     }
 
@@ -801,14 +807,14 @@ class PortfolioFragment :
             flowToLaunch: AssetAction? = null,
             fiatCurrency: String? = null
         ) = PortfolioFragment().apply {
-                arguments = Bundle().apply {
-                    putBoolean(USE_DYNAMIC_ASSETS, useDynamicAssets)
-                    if (flowToLaunch != null && fiatCurrency != null) {
-                        putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
-                        putString(FLOW_FIAT_CURRENCY, fiatCurrency)
-                    }
+            arguments = Bundle().apply {
+                putBoolean(USE_DYNAMIC_ASSETS, useDynamicAssets)
+                if (flowToLaunch != null && fiatCurrency != null) {
+                    putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
+                    putString(FLOW_FIAT_CURRENCY, fiatCurrency)
                 }
             }
+        }
 
         internal const val USE_DYNAMIC_ASSETS = "USE_DYNAMIC_ASSETS"
         internal const val FLOW_TO_LAUNCH = "FLOW_TO_LAUNCH"

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
@@ -148,7 +149,12 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterAmountFragment")
 
+        if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS) && newState.action == AssetAction.Withdraw) {
+            model.process(TransactionIntent.LoadWithdrawalLocks)
+        }
+
         with(binding) {
+
             with(amountSheetCtaButton) {
                 isEnabled = newState.nextEnabled
                 setOnClickListener {
@@ -284,18 +290,20 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         binding.amountSheetCtaButton.visible()
     }
 
-    private fun showError(state: TransactionState, message: String) {
-        binding.amountSheetCtaButton.gone()
-        binding.errorLayout.errorMessage.text = message
-        errorContainer.visible()
-        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state)
-        bottomSheetInfo?.let { info ->
-            errorContainer.setOnClickListener {
-                TransactionFlowInfoBottomSheet.newInstance(info)
-                    .show(childFragmentManager, "BOTTOM_DIALOG")
-                infoActionCallback = handlePossibleInfoAction(info, state)
-            }
-        } ?: errorContainer.setOnClickListener {}
+    private fun showError(state: TransactionState, message: String?) {
+        message?.let {
+            binding.amountSheetCtaButton.gone()
+            binding.errorLayout.errorMessage.text = it
+            errorContainer.visible()
+            val bottomSheetInfo = bottomSheetInfoCustomiser.info(state)
+            bottomSheetInfo?.let { info ->
+                errorContainer.setOnClickListener {
+                    TransactionFlowInfoBottomSheet.newInstance(info)
+                        .show(childFragmentManager, "BOTTOM_DIALOG")
+                    infoActionCallback = handlePossibleInfoAction(info, state)
+                }
+            } ?: errorContainer.setOnClickListener {}
+        }
     }
 
     private fun handlePossibleInfoAction(info: TransactionFlowBottomSheetInfo, state: TransactionState): () -> Unit {

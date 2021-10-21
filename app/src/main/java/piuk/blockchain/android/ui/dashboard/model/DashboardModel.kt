@@ -3,12 +3,8 @@ package piuk.blockchain.android.ui.dashboard.model
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.logging.CrashLogger
-import com.blockchain.preferences.CurrencyPrefs
 import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -21,10 +17,7 @@ class DashboardModel(
     mainScheduler: Scheduler,
     private val interactor: DashboardActionAdapter,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
-    private val paymentsDataManager: PaymentsDataManager,
-    private val tradingBalanceDataManager: TradingBalanceDataManager,
-    private val currencyPrefs: CurrencyPrefs
+    crashLogger: CrashLogger
 ) : MviModel<DashboardState, DashboardIntent>(
     initialState,
     mainScheduler,
@@ -65,7 +58,7 @@ class DashboardModel(
             is DashboardIntent.LaunchBankTransferFlow -> processBankTransferFlow(intent)
             is DashboardIntent.StartBankTransferFlow ->
                 interactor.launchBankTransferFlow(this, intent.currency, intent.action)
-            is DashboardIntent.LoadWithdrawalLocks -> loadWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
+            is DashboardIntent.LoadWithdrawalLocks -> interactor.loadWithdrawalLocks(this)
             is DashboardIntent.FiatBalanceUpdate,
             is DashboardIntent.BalanceUpdateError,
             is DashboardIntent.PriceHistoryUpdate,
@@ -145,12 +138,4 @@ class DashboardModel(
             else -> super.distinctIntentFilter(previousIntent, nextIntent)
         }
     }
-
-    private fun loadWithdrawalLocks(localCurrency: String): Disposable =
-        Single.zip(
-            paymentsDataManager.getWithdrawalLocks(localCurrency),
-            tradingBalanceDataManager.getBalanceForFiat(localCurrency).singleOrError()
-        ) { locks, balance ->
-            process(DashboardIntent.WithdrawalLocksLoaded(locks, balance.actionable))
-        }.subscribe()
 }

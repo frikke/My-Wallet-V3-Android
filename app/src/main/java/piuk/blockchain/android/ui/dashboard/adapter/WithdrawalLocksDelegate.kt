@@ -35,7 +35,7 @@ private class LocksViewHolder(
 
     fun bind(state: Locks) {
         with(binding) {
-            state.locks?.onHoldTotalAmount?.let { total ->
+            state.withdrawalsLocks?.onHoldTotalAmount?.let { total ->
                 if (total.isPositive) {
                     root.apply {
                         visible()

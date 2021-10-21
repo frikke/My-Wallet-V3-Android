@@ -15,6 +15,7 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.core.payments.model.WithdrawalsLocks
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
@@ -104,7 +105,8 @@ data class TransactionState(
     val availableTargets: List<TransactionTarget> = emptyList(),
     val currencyType: CurrencyType? = null,
     val availableSources: List<BlockchainAccount> = emptyList(),
-    val linkBankState: BankLinkingState = BankLinkingState.NotStarted
+    val linkBankState: BankLinkingState = BankLinkingState.NotStarted,
+    val locks: WithdrawalsLocks? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -179,6 +181,7 @@ class TransactionModel(
     environmentConfig,
     crashLogger
 ) {
+
     override fun performAction(previousState: TransactionState, intent: TransactionIntent): Disposable? {
         Timber.v("!TRANSACTION!> Transaction Model: performAction: %s", intent.javaClass.simpleName)
 
@@ -262,11 +265,16 @@ class TransactionModel(
             is TransactionIntent.NavigateBackFromEnterAmount ->
                 processTransactionInvalidation(previousState.action)
             is TransactionIntent.StartLinkABank -> processLinkABank(previousState)
-            is TransactionIntent.LinkBankInfoSuccess -> null
-            is TransactionIntent.LinkBankFailed -> null
-            is TransactionIntent.ClearBackStack -> null
-            is TransactionIntent.ApprovalRequired -> null
-            is TransactionIntent.ClearSelectedTarget -> null
+            is TransactionIntent.LoadWithdrawalLocks -> interactor.loadWithdrawalLocks(
+                model = this,
+                available = previousState.availableBalance
+            )
+            is TransactionIntent.LinkBankInfoSuccess,
+            is TransactionIntent.LinkBankFailed,
+            is TransactionIntent.ClearBackStack,
+            is TransactionIntent.ApprovalRequired,
+            is TransactionIntent.ClearSelectedTarget,
+            is TransactionIntent.WithdrawalLocksLoaded -> null
         }
     }
 

@@ -4,7 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.core.payments.model.Withdrawals
+import com.blockchain.core.payments.model.WithdrawalsLocks
 import com.blockchain.core.price.Prices24HrWithDelta
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -81,7 +81,8 @@ interface BalanceState : DashboardItem {
 data class FiatBalanceInfo(
     val account: FiatAccount,
     val balance: Money = FiatValue.zero(account.fiatCurrency),
-    val userFiat: Money? = null
+    val userFiat: Money? = null,
+    val availableBalance: Money? = null
 )
 
 data class FiatAssetState(
@@ -91,11 +92,13 @@ data class FiatAssetState(
     fun updateWith(
         currencyCode: String,
         balance: FiatValue,
-        userFiatBalance: FiatValue
+        userFiatBalance: FiatValue,
+        availableBalance: Money
     ): FiatAssetState {
         val newBalanceInfo = fiatAccounts[currencyCode]?.copy(
             balance = balance,
-            userFiat = userFiatBalance
+            userFiat = userFiatBalance,
+            availableBalance = availableBalance
         )
 
         return newBalanceInfo?.let {
@@ -150,8 +153,7 @@ data class CryptoAssetState(
 }
 
 data class Locks(
-    val available: Money? = null,
-    val locks: Withdrawals? = null
+    val withdrawalsLocks: WithdrawalsLocks? = null
 ) : DashboardItem, Serializable
 
 data class DashboardState(
@@ -169,7 +171,7 @@ data class DashboardState(
     val linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction? = null,
     val hasLongCallInProgress: Boolean = false,
     val isLoadingAssets: Boolean = true,
-    val lock: Locks = Locks()
+    val locks: Locks = Locks()
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 
@@ -228,6 +230,9 @@ data class DashboardState(
 
     override fun getFundsFiat(fiat: String): Money =
         fiatAssets.totalBalance ?: FiatValue.zero(fiat)
+
+    fun getFundsAvailableFiat(fiat: String): Money =
+        fiatAssets.fiatAccounts[fiat]?.availableBalance ?: FiatValue.zero(fiat)
 
     val assetMapKeys = activeAssets.keys
 

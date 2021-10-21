@@ -38,6 +38,8 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxConfirmationValue
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
@@ -129,14 +131,14 @@ class TransactionInteractor(
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
             availableFiats
         ) { supportedPairs, fiats ->
-                supportedPairs.pairs.filter { fiats.contains(it.fiatCurrency) }
-                    .map {
-                        CurrencyPair.CryptoToFiatCurrencyPair(
-                            it.cryptoCurrency,
-                            it.fiatCurrency
-                        )
-                    }
-            }
+            supportedPairs.pairs.filter { fiats.contains(it.fiatCurrency) }
+                .map {
+                    CurrencyPair.CryptoToFiatCurrencyPair(
+                        it.cryptoCurrency,
+                        it.fiatCurrency
+                    )
+                }
+        }
 
         return Singles.zip(
             coincore.getTransactionTargets(sourceAccount, AssetAction.Sell),
@@ -232,6 +234,16 @@ class TransactionInteractor(
         val sanitisedUrl = bankPaymentData.linkedBank.callbackPath.removePrefix("nabu-gateway/")
         bankLinkingPrefs.setDynamicOneTimeTokenUrl(sanitisedUrl)
     }
+
+    fun loadWithdrawalLocks(model: TransactionModel, available: Money): Disposable =
+        coincore.getWithdrawalLocks(available.currencyCode).subscribeBy(
+            onSuccess = { locks ->
+                model.process(TransactionIntent.WithdrawalLocksLoaded(locks))
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair.CryptoCurrencyPair>): Boolean =

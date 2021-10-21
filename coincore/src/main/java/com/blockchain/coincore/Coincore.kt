@@ -11,6 +11,8 @@ import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.WithdrawalsLocks
 import info.blockchain.balance.Money
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -30,8 +32,13 @@ class Coincore internal constructor(
     private val txProcessorFactory: TxProcessorFactory,
     private val defaultLabels: DefaultLabels,
     private val fiatAsset: Asset,
-    private val crashLogger: CrashLogger
+    private val crashLogger: CrashLogger,
+    private val paymentsDataManager: PaymentsDataManager
 ) {
+
+    fun getWithdrawalLocks(localCurrency: String): Single<WithdrawalsLocks> {
+        return paymentsDataManager.getWithdrawalLocks(localCurrency)
+    }
 
     operator fun get(asset: AssetInfo): CryptoAsset =
         assetLoader[asset]
