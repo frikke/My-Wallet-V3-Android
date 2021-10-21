@@ -262,6 +262,7 @@ object Libraries {
     const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
 
+
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
     const val sift = "com.siftscience:sift-android:${Versions.sift}"
