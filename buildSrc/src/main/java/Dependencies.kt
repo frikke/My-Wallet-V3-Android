@@ -14,7 +14,7 @@ object Versions {
 
     // Build tools and languages
     const val androidPlugin = "7.0.2"
-    const val kotlin = "1.5.20"
+    const val kotlin = "1.5.31"
 
     const val googleServicesPlugin = "4.3.3"
     const val buildProperties = "0.4"
@@ -23,7 +23,7 @@ object Versions {
     const val javaCompatibilityVersion = 1.8
 
     // Androidx Libraries
-    const val appCompat = "1.2.0"
+    const val appCompat = "1.3.1"
     const val recyclerview = "1.1.0"
     const val cardview = "1.0.0"
     const val gridlayout = "1.0.0"
@@ -94,6 +94,10 @@ object Versions {
     const val charts = "3.1.0"
     const val circleIndicator = "2.1.6"
     const val countryPicker = "2.0.4"
+
+    // Compose
+    const val compose = "1.0.4"
+    const val composeActivity = "1.3.1"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -249,6 +253,14 @@ object Libraries {
     const val zxing = "com.google.zxing:core:${Versions.zxing}"
     const val materialDatePicker = "com.wdullaer:materialdatetimepicker:${Versions.materialDatePicker}"
     const val sparkline = "com.robinhood.spark:spark:${Versions.sparkline}"
+
+    // Compose
+    const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"
+    const val composeMaterial = "androidx.compose.material:material:${Versions.compose}"
+    const val composePreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
+    const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
+    const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"

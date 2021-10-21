@@ -3,7 +3,7 @@ apply from: 'gradle/githooks.gradle'
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext {
-        kotlin_version = '1.4.21'
+        kotlin_version = Versions.kotlin
     }
     repositories {
         google()
