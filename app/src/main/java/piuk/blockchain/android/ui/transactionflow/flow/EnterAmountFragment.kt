@@ -284,18 +284,20 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         binding.amountSheetCtaButton.visible()
     }
 
-    private fun showError(state: TransactionState, message: String) {
-        binding.amountSheetCtaButton.gone()
-        binding.errorLayout.errorMessage.text = message
-        errorContainer.visible()
-        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state)
-        bottomSheetInfo?.let { info ->
-            errorContainer.setOnClickListener {
-                TransactionFlowInfoBottomSheet.newInstance(info)
-                    .show(childFragmentManager, "BOTTOM_DIALOG")
-                infoActionCallback = handlePossibleInfoAction(info, state)
-            }
-        } ?: errorContainer.setOnClickListener {}
+    private fun showError(state: TransactionState, message: String?) {
+        message?.let {
+            binding.amountSheetCtaButton.gone()
+            binding.errorLayout.errorMessage.text = it
+            errorContainer.visible()
+            val bottomSheetInfo = bottomSheetInfoCustomiser.info(state)
+            bottomSheetInfo?.let { info ->
+                errorContainer.setOnClickListener {
+                    TransactionFlowInfoBottomSheet.newInstance(info)
+                        .show(childFragmentManager, "BOTTOM_DIALOG")
+                    infoActionCallback = handlePossibleInfoAction(info, state)
+                }
+            } ?: errorContainer.setOnClickListener {}
+        }
     }
 
     private fun handlePossibleInfoAction(info: TransactionFlowBottomSheetInfo, state: TransactionState): () -> Unit {

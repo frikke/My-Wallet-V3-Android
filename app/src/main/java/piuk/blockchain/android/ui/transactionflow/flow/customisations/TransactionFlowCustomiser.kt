@@ -45,6 +45,7 @@ import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.setImageDrawable
+import timber.log.Timber
 import java.math.BigInteger
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
@@ -678,7 +679,7 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
-    override fun issueFeesTooHighMessage(state: TransactionState): String {
+    override fun issueFeesTooHighMessage(state: TransactionState): String? {
         return when (state.action) {
             AssetAction.Send ->
                 resources.getString(
@@ -700,7 +701,10 @@ class TransactionFlowCustomiserImpl(
                     R.string.rewards_enter_amount_error_insufficient_funds_for_fees,
                     state.sendingAsset.displayTicker
                 )
-            else -> throw IllegalArgumentException("Transaction doesn't support high fees warning message")
+            else -> {
+                Timber.e("Transaction doesn't support high fees warning message")
+                null
+            }
         }
     }
 
