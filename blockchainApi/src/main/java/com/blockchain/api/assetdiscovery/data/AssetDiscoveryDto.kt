@@ -3,6 +3,9 @@ package com.blockchain.api.assetdiscovery.data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 
 @Serializable
 internal data class DynamicCurrency(
@@ -25,54 +28,62 @@ internal data class DynamicCurrency(
     val displaySymbol: String = display ?: symbol
 }
 
+internal val assetTypeSerializers = SerializersModule {
+    polymorphic(AssetType::class) {
+        subclass(CoinAsset::class)
+        subclass(Erc20Asset::class)
+        subclass(CeloTokenAsset::class)
+        subclass(FiatAsset::class)
+        default { UnsupportedAsset.serializer() }
+    }
+}
+
 @Serializable
-internal sealed class AssetType {
+internal abstract class AssetType {
     @SerialName("logoPngUrl")
     val logoUrl: String? = null
-
     @SerialName("websiteUrl")
     val websiteUrl: String? = null
-
-    @Serializable
-    @SerialName("COIN")
-    data class L1CryptoAsset(
-        @SerialName("minimumOnChainConfirmations")
-        val minConfirmations: Int
-    ) : AssetType()
-
-    @Serializable
-    @SerialName("ERC20")
-    data class L2CryptoAsset(
-        @SerialName("parentChain")
-        val parentChain: String,
-        @SerialName("erc20Address")
-        val chainIdentifier: String
-    ) : AssetType()
-
-    @Serializable
-    @SerialName("CELO_TOKEN")
-    data class CeloCryptoAsset(
-        @SerialName("parentChain")
-        val parentChain: String,
-        @SerialName("erc20Address")
-        val chainIdentifier: String
-    ) : AssetType()
-
-    @Serializable
-    @SerialName("FIAT")
-    data class FiatAsset(
-        val unused: String? = null
-    ) : AssetType()
 }
+
+@Serializable
+@SerialName("COIN")
+internal data class CoinAsset(
+    @SerialName("minimumOnChainConfirmations")
+    val minConfirmations: Int
+) : AssetType()
+
+@Serializable
+@SerialName("ERC20")
+internal data class Erc20Asset(
+    @SerialName("parentChain")
+    val parentChain: String,
+    @SerialName("erc20Address")
+    val chainIdentifier: String
+) : AssetType()
+
+@Serializable
+@SerialName("CELO_TOKEN")
+internal data class CeloTokenAsset(
+    @SerialName("parentChain")
+    val parentChain: String,
+    @SerialName("erc20Address")
+    val chainIdentifier: String
+) : AssetType()
+
+@Serializable
+@SerialName("FIAT")
+internal data class FiatAsset(
+    private val unused: String? = null
+) : AssetType()
+
+@Serializable
+internal data class UnsupportedAsset(
+    private val unused: String? = null
+) : AssetType()
 
 @Serializable
 internal data class DynamicCurrencyList(
     @SerialName("currencies")
     val currencies: List<DynamicCurrency>
 )
-
-/* internal */ class SupportedProduct {
-    companion object {
-        const val PRODUCT_PRIVATE_KEY = "PrivateKey"
-    }
-}
