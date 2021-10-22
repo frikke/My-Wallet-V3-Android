@@ -81,13 +81,16 @@ class AssetDiscoveryService internal constructor(
                         throw IllegalStateException("Unknown parent chain")
                     }
                     is AssetType.L1CryptoAsset -> coinType.minConfirmations
+                    is AssetType.CeloCryptoAsset -> CELO_CONFIRMATIONS
                     else -> 0
                 },
                 parentChain = when (coinType) {
+                    is AssetType.CeloCryptoAsset -> coinType.parentChain
                     is AssetType.L2CryptoAsset -> coinType.parentChain
                     else -> null
                 },
                 chainIdentifier = when (coinType) {
+                    is AssetType.CeloCryptoAsset -> coinType.chainIdentifier
                     is AssetType.L2CryptoAsset -> coinType.chainIdentifier
                     else -> null
                 }
@@ -105,6 +108,8 @@ class AssetDiscoveryService internal constructor(
 
     companion object {
         const val ETHEREUM = "ETH"
+        const val CELO = "CELO"
         private const val ERC20_CONFIRMATIONS = 12
+        private const val CELO_CONFIRMATIONS = 1
     }
 }

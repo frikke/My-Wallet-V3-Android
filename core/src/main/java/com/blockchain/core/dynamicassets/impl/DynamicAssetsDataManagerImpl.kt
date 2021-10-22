@@ -45,6 +45,7 @@ private fun DynamicAsset.toAssetInfo(): AssetInfo =
         precisionDp = precision,
         l1chainTicker = when (parentChain) {
             AssetDiscoveryService.ETHEREUM -> CryptoCurrency.ETHER.networkTicker
+            AssetDiscoveryService.CELO -> AssetDiscoveryService.CELO
             null -> null
             else -> throw IllegalStateException("Unknown l1 chain")
         },
