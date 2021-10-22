@@ -3,6 +3,7 @@ package com.blockchain.api
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
+import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
@@ -83,6 +84,7 @@ val blockchainApiModule = module {
         // Can't use the standard convertor here, because we need to set a discriminator
         // for some polymorphic objects
         val json = Json {
+            serializersModule = assetTypeSerializers
             ignoreUnknownKeys = true
             isLenient = true
             classDiscriminator = "name"
