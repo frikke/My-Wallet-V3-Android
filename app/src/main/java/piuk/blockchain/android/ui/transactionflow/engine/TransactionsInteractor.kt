@@ -187,7 +187,7 @@ class TransactionInteractor(
                 require(targetAccount is CryptoAccount)
                 coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter()).map {
                     it.filter { acc ->
-                        acc is CryptoAccount && acc.asset == targetAccount.asset
+                        acc is CryptoAccount && acc.asset == targetAccount.asset && acc != targetAccount
                     }
                 }
             }

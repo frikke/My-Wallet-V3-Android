@@ -117,6 +117,7 @@ class Coincore internal constructor(
                 }
             }.map {
                 it.filter(getActionFilter(action, sourceAccount))
+                    .filter { target -> target != sourceAccount }
             }
     }
 
