@@ -50,6 +50,15 @@ internal sealed class AssetType {
     ) : AssetType()
 
     @Serializable
+    @SerialName("CELO_TOKEN")
+    data class CeloCryptoAsset(
+        @SerialName("parentChain")
+        val parentChain: String,
+        @SerialName("erc20Address")
+        val chainIdentifier: String
+    ) : AssetType()
+
+    @Serializable
     @SerialName("FIAT")
     data class FiatAsset(
         val unused: String? = null

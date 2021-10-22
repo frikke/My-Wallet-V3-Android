@@ -976,8 +976,8 @@
     <string name="re_verify_identity_card_cta">Reverify Account</string>
 
     <!-- CeloEUR announcement -->
-    <string name="ceur_announcement_title">Earn up to 4% in cEUR Rewards</string>
-    <string name="ceur_announcement_description">Buy cEUR with no fees and earn up to 4% in annual rewards, paid monthly.</string>
+    <string name="ceur_announcement_title">Earn up to 4%% in cEUR Rewards</string>
+    <string name="ceur_announcement_description">Buy cEUR with no fees and earn up to 4%% in annual rewards, paid monthly.</string>
     <string name="ceur_announcement_action">Learn more</string>
 
     <!-- Rename asset announcement -->
