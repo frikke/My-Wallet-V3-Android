@@ -11,7 +11,6 @@ import io.reactivex.rxjava3.core.Single
 
 interface PaymentsDataManager {
     fun getPaymentMethodDetailsForId(paymentId: String): Single<PaymentMethodDetails>
-
     fun getWithdrawalLocks(localCurrency: String): Single<WithdrawalsLocks>
 }
 
@@ -30,12 +29,13 @@ class PaymentsDataManagerImpl(
 
     override fun getWithdrawalLocks(localCurrency: String): Single<WithdrawalsLocks> =
         authenticator.getAuthHeader().flatMap {
-            paymentsService.getWithdrawalLocks(it, localCurrency).map {
-                WithdrawalsLocks(
-                    onHoldTotalAmount = it.totalAmount.let {
-                        FiatValue.fromMinor(it.currency, it.value.toLong())
+            paymentsService.getWithdrawalLocks(it, localCurrency)
+                .map { locks ->
+                    WithdrawalsLocks(
+                        onHoldTotalAmount = locks.totalAmount.let { amount ->
+                            FiatValue.fromMinor(amount.currency, amount.value.toLong())
                     },
-                    locks = it.locks.map { lock ->
+                    locks = locks.locks.map { lock ->
                         WithdrawalLock(
                             amount = FiatValue.fromMinor(lock.amount.currency, lock.amount.value.toLong()),
                             date = lock.date.toZonedDateTime()

@@ -38,6 +38,12 @@ class AssetCatalogueTest : CoincoreTestBase() {
     }
 
     private val subject = AssetCatalogueImpl(
+        fixedAssets = setOf(
+            CryptoCurrency.BTC,
+            CryptoCurrency.BCH,
+            CryptoCurrency.ETHER,
+            CryptoCurrency.XLM
+        ),
         featureFlag = featureFlag,
         assetsDataManager = assetsManager,
         featureConfig = featureConfig
@@ -45,14 +51,7 @@ class AssetCatalogueTest : CoincoreTestBase() {
 
     @Before
     fun before() {
-        subject.initialise(
-            setOf(
-                CryptoCurrency.BTC,
-                CryptoCurrency.BCH,
-                CryptoCurrency.ETHER,
-                CryptoCurrency.XLM
-            )
-        ).emptySubscribe()
+        subject.initialise().emptySubscribe()
     }
 
     @Test

@@ -68,7 +68,7 @@ internal class DynamicAssetLoader(
         }
 
     override fun initAndPreload(): Completable =
-        assetCatalogue.initialise(nonCustodialAssets.map { it.asset }.toSet())
+        assetCatalogue.initialise()
             .doOnSubscribe { crashLogger.logEvent("Coincore init started") }
             .flatMap { supportedAssets ->
                 // We need to make sure than any l1 assets - notably ETH - is initialised before

@@ -62,7 +62,7 @@ internal class StaticAssetLoader(
     }
 
     override fun initAndPreload(): Completable =
-        assetCatalogue.initialise(nonCustodialAssets.map { it.asset }.toSet())
+        assetCatalogue.initialise()
             .doOnSubscribe { crashLogger.logEvent("Coincore init started") }
             .flatMap { loadDynamicAssets(it) }
             .map { nonCustodialAssets + it }

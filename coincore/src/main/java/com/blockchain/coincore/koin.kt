@@ -21,6 +21,8 @@ import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.StaticAssetLoader
 import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.koin.dynamicAssetsFeatureFlag
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 
 val coincoreModule = module {
 
@@ -165,9 +167,13 @@ val coincoreModule = module {
         }
 
         scoped {
-            val ncAssets: List<CryptoAsset> = payloadScope.getAll()
+            val ncCryptoAssets: List<CryptoAsset> = payloadScope.getAll()
+            val ncAssetInfo: Set<AssetInfo> = nonCustodialAssetList()
+
+            check(ncCryptoAssets.map { it.asset }.toSet() == ncAssetInfo) { "Missing CryptoAsset!" }
+
             StaticAssetLoader(
-                nonCustodialAssets = ncAssets,
+                nonCustodialAssets = ncCryptoAssets,
                 assetCatalogue = get(),
                 featureConfig = get(),
                 payloadManager = get(),
@@ -244,9 +250,18 @@ val coincoreModule = module {
 
     single {
         AssetCatalogueImpl(
+            fixedAssets = nonCustodialAssetList(),
             featureFlag = get(dynamicAssetsFeatureFlag),
             featureConfig = get(),
             assetsDataManager = get()
         )
     }.bind(AssetCatalogue::class)
 }
+
+fun nonCustodialAssetList() =
+    setOf(
+        CryptoCurrency.BTC,
+        CryptoCurrency.BCH,
+        CryptoCurrency.ETHER,
+        CryptoCurrency.XLM
+    )
