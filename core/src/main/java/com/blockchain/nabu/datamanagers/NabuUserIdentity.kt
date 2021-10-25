@@ -70,6 +70,16 @@ class NabuUserIdentity(
             }
         }
 
+    override fun getUserState(): Maybe<String> =
+        nabuDataProvider.getUser().flatMapMaybe {
+            val state = it.address?.state
+            if (state.isNullOrEmpty()) {
+                Maybe.empty()
+            } else {
+                Maybe.just(state)
+            }
+        }
+
     private fun NabuUser.toBasicProfileInfo() =
         BasicProfileInfo(
             firstName = firstName ?: email,

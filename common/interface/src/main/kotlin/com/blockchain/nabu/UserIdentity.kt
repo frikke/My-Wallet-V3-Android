@@ -15,6 +15,7 @@ interface UserIdentity {
     fun getBasicProfileInformation(): Single<BasicProfileInfo>
     fun checkForUserWalletLinkErrors(): Completable
     fun getUserCountry(): Maybe<String>
+    fun getUserState(): Maybe<String>
 }
 
 sealed class Feature {

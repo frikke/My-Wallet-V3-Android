@@ -173,7 +173,7 @@
             tools:layout="@layout/fragment_kyc_add_email">
             <action
                 android:id="@+id/action_afterValidation"
-                app:destination="@id/kycCountrySelectionFragment"
+                app:destination="@id/kycProfileFragment"
                 app:popUpTo="@+id/kycTierSplashFragment" />
         </fragment>
         <argument
