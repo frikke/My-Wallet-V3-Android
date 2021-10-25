@@ -138,10 +138,7 @@ class AnnouncementQueries(
                 ?: Maybe.empty()
         }
 
-    fun getAssetFromCatalogueByTicker(ticker: String): Maybe<AssetInfo> =
-        assetCatalogue.fromNetworkTicker(ticker)?.let { asset ->
-            Maybe.just(asset)
-        } ?: Maybe.empty()
+    fun getAssetFromCatalogueByTicker(ticker: String): AssetInfo? = assetCatalogue.fromNetworkTicker(ticker)
 
     fun getCountryCode(): Single<String> = userIdentity.getUserCountry().switchIfEmpty(Single.just(""))
 

@@ -26,22 +26,18 @@ class CeloEurAnnouncement(
     private var newAsset: AssetInfo? = null
 
     override fun shouldShow(): Single<Boolean> =
-        announcementQueries.getAssetFromCatalogueByTicker(TICKER_NAME)
-            .doOnSuccess {
-                newAsset = it
-            }
-            .toSingle()
-            .flatMap {
-                announcementQueries.isTier1Or2Verified()
-                    .zipWith(announcementQueries.getCountryCode())
-                    .map { (isVerified, countryCode) ->
-                        if (isVerified && !excludedCountries.contains(countryCode)) {
-                            !dismissEntry.isDismissed
-                        } else {
-                            false
-                        }
+        announcementQueries.getAssetFromCatalogueByTicker(TICKER_NAME)?.let { assetInfo ->
+            newAsset = assetInfo
+            announcementQueries.isTier1Or2Verified()
+                .zipWith(announcementQueries.getCountryCode())
+                .map { (isVerified, countryCode) ->
+                    if (isVerified && !excludedCountries.contains(countryCode)) {
+                        !dismissEntry.isDismissed
+                    } else {
+                        false
                     }
-            }
+                }
+        } ?: Single.just(false)
 
     override fun show(host: AnnouncementHost) {
         try {
