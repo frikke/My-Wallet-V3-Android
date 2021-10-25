@@ -12,8 +12,14 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -52,6 +58,9 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     }
     private val currentFragment: Fragment?
         get() = supportFragmentManager.findFragmentById(R.id.nav_host)
+
+    private val compositeDisposable = CompositeDisposable()
+    private val userIdentity: UserIdentity by scopedInject()
 
     override val campaignType by unsafeLazy {
         intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
@@ -116,9 +125,27 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     }
 
     override fun onEmailVerified() {
-        navigate(
-            KycEmailEntryFragmentDirections.actionAfterValidation()
-        )
+        compositeDisposable +=
+            Singles.zip(
+                userIdentity.getUserCountry().defaultIfEmpty(""),
+                userIdentity.getUserState().defaultIfEmpty("")
+            )
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                    onSuccess = { (country, state) ->
+                        navigate(
+                            KycEmailEntryFragmentDirections.actionAfterValidation(country, state, state)
+                        )
+                    },
+                    onError = {
+                        toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                    }
+                )
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
     }
 
     override fun onEmailVerificationSkipped() {
