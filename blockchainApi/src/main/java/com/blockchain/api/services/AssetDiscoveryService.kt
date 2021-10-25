@@ -1,8 +1,12 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
-import com.blockchain.api.assetdiscovery.data.AssetType
+import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
 import com.blockchain.api.assetdiscovery.data.DynamicCurrency
+import com.blockchain.api.assetdiscovery.data.Erc20Asset
+import com.blockchain.api.assetdiscovery.data.FiatAsset
+import com.blockchain.api.assetdiscovery.data.CoinAsset
+import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
 
@@ -61,37 +65,37 @@ class AssetDiscoveryService internal constructor(
             }
 
     private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
-        // We only support l2 on ETH at this time, so
-        if (coinType is AssetType.L2CryptoAsset && coinType.parentChain != ETHEREUM) {
-            null
-        } else {
-            DynamicAsset(
+        when {
+            coinType is Erc20Asset && coinType.parentChain != ETHEREUM -> null
+            coinType is CeloTokenAsset && coinType.parentChain != CELO -> null
+            coinType is UnsupportedAsset -> null
+            else -> DynamicAsset(
                 assetName = assetName,
                 networkTicker = networkSymbol,
                 displayTicker = displaySymbol,
-                isFiat = coinType is AssetType.FiatAsset,
+                isFiat = coinType is FiatAsset,
                 precision = precision,
                 products = makeProductSet(products),
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {
-                    is AssetType.L2CryptoAsset -> if (coinType.parentChain == ETHEREUM) {
+                    is Erc20Asset -> if (coinType.parentChain == ETHEREUM) {
                         ERC20_CONFIRMATIONS
                     } else {
                         throw IllegalStateException("Unknown parent chain")
                     }
-                    is AssetType.L1CryptoAsset -> coinType.minConfirmations
-                    is AssetType.CeloCryptoAsset -> CELO_CONFIRMATIONS
+                    is CoinAsset -> coinType.minConfirmations
+                    is CeloTokenAsset -> CELO_CONFIRMATIONS
                     else -> 0
                 },
                 parentChain = when (coinType) {
-                    is AssetType.CeloCryptoAsset -> coinType.parentChain
-                    is AssetType.L2CryptoAsset -> coinType.parentChain
+                    is CeloTokenAsset -> coinType.parentChain
+                    is Erc20Asset -> coinType.parentChain
                     else -> null
                 },
                 chainIdentifier = when (coinType) {
-                    is AssetType.CeloCryptoAsset -> coinType.chainIdentifier
-                    is AssetType.L2CryptoAsset -> coinType.chainIdentifier
+                    is CeloTokenAsset -> coinType.chainIdentifier
+                    is Erc20Asset -> coinType.chainIdentifier
                     else -> null
                 }
             )
