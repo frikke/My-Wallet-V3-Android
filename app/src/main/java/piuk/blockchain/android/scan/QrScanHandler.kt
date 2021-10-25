@@ -7,19 +7,6 @@ import com.blockchain.bitpay.BITPAY_LIVE_BASE
 import com.blockchain.bitpay.BitPayDataManager
 import com.blockchain.bitpay.BitPayInvoiceTarget
 import com.blockchain.bitpay.PATH_BITPAY_INVOICE
-import com.blockchain.koin.payloadScope
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.wallet.util.FormatsUtil
-import info.blockchain.wallet.util.FormatsUtil.BCH_PREFIX
-import info.blockchain.wallet.util.FormatsUtil.BTC_PREFIX
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.subjects.SingleSubject
-import io.reactivex.rxjava3.subjects.MaybeSubject
-
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
@@ -30,9 +17,20 @@ import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.filterByAction
+import com.blockchain.koin.payloadScope
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.wallet.util.FormatsUtil
+import info.blockchain.wallet.util.FormatsUtil.BCH_PREFIX
+import info.blockchain.wallet.util.FormatsUtil.BTC_PREFIX
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.subjects.MaybeSubject
+import io.reactivex.rxjava3.subjects.SingleSubject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
-import java.lang.IllegalArgumentException
 import java.security.KeyPair
 
 sealed class ScanResult(
@@ -152,7 +150,7 @@ class QrScanResultProcessor(
         val asset = target.asset
         val coincore = payloadScope.get<Coincore>()
 
-        coincore[asset].accountGroup(AssetFilter.All)
+        coincore[asset].accountGroup(if (target is BitPayInvoiceTarget) AssetFilter.NonCustodial else AssetFilter.All)
             .map { group -> group.accounts }
             .defaultIfEmpty(emptyList())
             .flatMap { list -> list.filterByAction(AssetAction.Send) }
