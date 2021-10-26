@@ -1560,7 +1560,7 @@ SafeConnect bu ayrıntıları bankanızla paylaşacak ve sizden aşağıdaki öd
     <string name="auth_new_login_device_detected_title">Yeni Cihaz Algılandı</string>
     <string name="auth_new_login_description">Sık kullanmadığınız bir cihazdan oturum açma denemesi fark ettik.</string>
     <string name="auth_new_login_approve_deny_description">Bu sizseniz, aşağıdaki cihazı onaylayın. Bu cihazı tanımıyorsanız, cihazı şimdi reddedin ve engelleyin.</string>
-    <string name="auth_new_login_ip_notice">Her iki cihaz da aynı ağa bağlı olmadıkça bu isteği onaylayamazsınız.</string>
+    <string name="auth_new_login_ip_notice">Güvenlik amacıyla, giriş izni verdiğiniz cihazla aynı WiFi bağlantısında olmanız gerekmektedir.</string>
 
     <string name="auth_new_login_denied_title">Cihaz Reddedildi</string>
     <string name="auth_new_login_denied_description">Cüzdanınız güvende. Bu cihazın cüzdanınızda oturum açmasını engelledik.</string>
@@ -1913,18 +1913,18 @@ Bu sırada Blockchain.com üzerinden nakde geçebilir veya Swap ve Trade işlemi
     <string name="iban">IBAN</string>
     <string name="select_account_sheet_title">Bir Cüzdan Seçin</string>
     <string name="activity_state_canceled">İ̇ptal Edildi</string>
-    <string name="fiat_funds_detail_withdraw_title">Para Çekme</string>
+    <string name="fiat_funds_detail_withdraw_title">Çekilen</string>
     <string name="withdrawing_amount_message">Şimdi para çekme işleminizi tamamlıyoruz.</string>
-    <string name="send_progress_error_title">Hata! Bir Şeyler Ters Gitti. Lütfen tekrar deneyin.</string>
+    <string name="send_progress_error_title">Hata! Bir Sorun Oluştu. Lütfen tekrar deneyin.</string>
     <string name="send_progress_error_subtitle">Endişelenmeyin. Paranız güvende. Lütfen tekrar deneyin veya yardım için Destek Ekibimiz ile iletişime geçin.</string>
     <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli tutarda ETH sahibi değilsiniz.</string>
     <string name="swap_select_target_title">Yeni Swap</string>
     <string name="yodlee_splash_title">Güvenli Bağlantı</string>
-    <string name="please_try_linking_your_bank_again">Lütfen bankanızı yeniden bağlamayı deneyin. Bu devam ederse, lütfen desteğe başvurun.</string>
+    <string name="please_try_linking_your_bank_again">Lütfen bankanızı tekrar bağlamayı deneyin. Sorun devam ederse lütfen destek ekibiyle iletişime geçin.</string>
     <string name="instantly_available">Anında Kullanılabilir</string>
-    <string name="send_again">Tekrar gönderin</string>
+    <string name="send_again">Tekrar Gönder</string>
     <string name="login_email_hint">E-posta</string>
-    <string name="learn_more">Daha fazla bilgi edinin</string>
+    <string name="learn_more">Daha Fazla Bilgi</string>
     <string name="activity_details_buy_deposited_to">yatırılan</string>
 
     <string name="manual_pairing">Manuel Eşleştirme</string>
@@ -2238,5 +2238,50 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="tx_enter_amount_transfer_cta">Transfer Önizlemesi</string>
     <string name="tx_enter_amount_deposit_cta">Yatırma Önizlemesi</string>
     <string name="tx_enter_amount_withdraw_cta">Çekme Önizlemesi</string>
+    <string name="unification_sheet_title">Hesabı Yükselt</string>
+    <string name="unification_sheet_later_cta">Bunu daha sonra yapacağım</string>
+    <string name="unification_sheet_now_cta">Hesabımı Yükselt</string>
+    <string name="unification_sheet_header">Birleştirilmiş Blockchain Hesabına Yükselt</string>
+    <string name="unification_sheet_blurb">Tüm Blockchain.com hesaplarınıza tek girişle erişim yapabilecek düzeye yükseltmek ister misiniz?</string>
+    <string name="unification_sheet_item_one_title">Tüm Hesaplar için Tek Giriş</string>
+    <string name="unification_sheet_item_one_blurb">Blockchain.com Wallet hesabınıza ve Exchange\'e tek girişle kolayca erişin.</string>
+    <string name="unification_sheet_item_two_title">Hesaplar Arasında Daha Fazla Güvenlik</string>
+    <string name="unification_sheet_item_two_blurb">Tüm Blockchain.com ürünlerindeki yatırımlarınızı güvenceye alın.</string>
+    <string name="unification_sheet_item_three_title">Ücretsiz Blockchain.com Wallet</string>
+    <string name="unification_sheet_item_three_blurb">Kripto paranızla daha da fazlasını gerçekleştirmek için ücretsiz bir Wallet hesabı oluşturun.</string>
+    <string name="withdrawal_summary_cta">Anladım</string>
+    <string name="withdrawal_summary_available">Kullanılabilir</string>
+    <string name="withdrawal_summary_on_hold">Beklemede</string>
+    <string name="withdrawal_summary_details">Ayrıntılara Bak</string>
+    <string name="withdrawal_details_text">Yeni eklenen paralar bir bekleme süresine tabidir. Al-Sat, Ödül ve Exchange hesaplarınız arasında şimdi para transferi yapabilir ve bekleme süresi sona erdiğinde para çekebilirsiniz. <annotation link="learn_more">Daha fazla bilgi edinin</annotation></string>
+    <string name="withdrawal_details_title_date">KADAR TUTULAN</string>
+    <string name="withdrawal_details_title_amount">TUTAR</string>
+    <string name="withdrawal_details_total">Toplam</string>
+    <string name="withdrawal_details_toolbar">Beklemede</string>
+    <string name="rename_asset_card_title">%s yeni bir ada sahip</string>
+    <string name="rename_asset_card_body">Dikkat: %1$s, %2$s olarak yeniden adlandırıldı. Hiçbir bakiye bundan etkilenmez.</string>
+    <string name="rename_asset_card_cta">%s al sat</string>
+    <string name="ceur_announcement_title">cEUR Ödüllerinde %%4\'e kadar kazanın</string>
+    <string name="ceur_announcement_description">Hiçbir ücret ödemeden cEUR satın alın ve aylık olarak ödenen yıllık ödüllerden %%4\'e kadar kazanın.</string>
+    <string name="ceur_announcement_action">Daha fazla bilgi edinin</string>
+    <string name="minimum_with_value">Minimum %1$s</string>
+    <string name="maximum_with_value">Maksimum %1$s</string>
+    <string name="not_enough_funds">Yetersiz %1$s</string>
+    <string name="get_more">Daha fazla %1$s alın</string>
+    <string name="not_enough_funds_send">Bu cüzdandan gönderebileceğiniz maksimum tutar şudur: %1$s Bu tutarı göndermek için şimdi %2$s satın alın.</string>
+    <string name="common_actions_not_enough_funds">Bu hesaptan %2$s işlemi yapabileceğiniz maksimum %1$s tutarı şudur: %3$s</string>
+    <string name="minimum_withdraw_error_message">Ücretleri dengelemek amacıyla tüm çekimler için minimum çekim tutarı şudur: %1$s</string>
+    <string name="over_your_limit">Limitinizin Üzerinde</string>
+    <string name="minimum_swap_error_message">Gereksiz ücretlerin ve aşırı fiyatlamanın önüne geçmek amacıyla bu çift için minimum %1$s tutarında işlem yapılabilir.</string>
+    <string name="minimum_buy_error_message">Ücretleri ve piyasa oynaklığını dengelemek için herhangi bir alış için minimum tutar şudur: %1$s</string>
+    <string name="minimum_sell_error_message">Satabileceğiniz minimum tutar şudur: %1$s</string>
+    <string name="minimum_deposit_error_message">Yatırabileceğiniz minimum miktar %1$s .</string>
+    <string name="search_results">%s Sonuçları</string>
+    <string name="withdrawal_lock_warning">Banka Hesabı üzerinden olan satın alma emirleri güvenlik amacıyla %s bekleme süresine tabidir. Bu süre zarfında Swap veya Satış yapabilirsiniz. Para çekilebilir duruma geldiğinde sizi bilgilendireceğiz.</string>
+    <string name="withdrawal_lock_warning_days">%s gün</string>
+    <string name="fiat_funds_detail_withdraw_option">Para Çek</string>
+    <string name="withdrawal_summary_withdraw">Çekilebilir</string>
+    <string name="withdrawal_summary_send">Limitleri Gönder</string>
+    <string name="withdrawals_lock_title">Çekilebilir</string>
 
 </resources>
