@@ -18,7 +18,7 @@
         style="@style/TextAppearance.Blockchain.Paragraph1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/withdrawal_summary_on_hold"
+        android:text="@string/funds_locked_warning_title"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -34,7 +34,6 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
-import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.BuySellType
@@ -70,7 +69,7 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
-import piuk.blockchain.android.ui.locks.LocksInfoBottomSheet
+import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -543,16 +542,7 @@ class PortfolioFragment :
 
     private fun onHoldAmountClicked(locks: Locks) {
         require(locks.fundsLocks != null) { "withdrawalsLocks are null" }
-        val available = state?.getFundsAvailableFiat(currencyPrefs.selectedFiatCurrency)
-            ?: FiatValue.zero(currencyPrefs.selectedFiatCurrency)
-
-        showBottomSheet(
-            LocksInfoBottomSheet.newInstance(
-                originScreen = LocksInfoBottomSheet.OriginScreenLocks.DASHBOARD_SCREEN,
-                available = available.toStringWithSymbol(),
-                fundsLocks = locks.fundsLocks
-            )
-        )
+        startActivity(LocksDetailsActivity.newInstance(requireContext(), locks.fundsLocks))
     }
 
     private val announcementHost = object : AnnouncementHost {

@@ -11,8 +11,6 @@ import piuk.blockchain.android.databinding.DialogLocksInfoBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() {
 
@@ -32,17 +30,19 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
         DialogLocksInfoBinding.inflate(inflater, container, false)
 
     override fun initControls(binding: DialogLocksInfoBinding) {
-        setTitle(origin)
         displayAvailable(origin)
 
         with(binding) {
             text.apply {
                 movementMethod = LinkMovementMethod.getInstance()
-                text = setLearnMoreLink(R.string.withdrawal_details_text)
+                text = setLearnMoreLink(R.string.funds_locked_summary_text)
             }
             availableAmount.text = available
-            onHoldAmount.text = fundsLocks.onHoldTotalAmount.toStringWithSymbol()
-            openDetails.setOnClickListener {
+            title.text = getString(
+                R.string.funds_locked_summary_on_hold,
+                fundsLocks.onHoldTotalAmount.toStringWithSymbol()
+            )
+            seeDetails.setOnClickListener {
                 startActivity(LocksDetailsActivity.newInstance(requireContext(), fundsLocks))
             }
             close.setOnClickListener { dismiss() }
@@ -61,30 +61,13 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
         )
     }
 
-    private fun setTitle(origin: OriginScreenLocks) {
-        binding.title.text = when (origin) {
-            OriginScreenLocks.DASHBOARD_SCREEN -> context?.getString(R.string.withdrawal_summary_on_hold)
-            OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN -> context?.getString(R.string.withdrawal_summary_withdraw)
-            OriginScreenLocks.SEND_SCREEN,
-            OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN -> context?.getString(R.string.withdrawal_summary_send)
-        }
-    }
-
     private fun displayAvailable(origin: OriginScreenLocks) {
         when (origin) {
-            OriginScreenLocks.DASHBOARD_SCREEN -> {
-                binding.apply {
-                    sep1.gone()
-                    availableTitle.gone()
-                    availableAmount.gone()
-                }
+            OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN -> {
+                binding.availableTitle.text = getString(R.string.funds_locked_summary_available_send)
             }
-            else -> {
-                binding.apply {
-                    sep1.visible()
-                    availableTitle.visible()
-                    availableAmount.visible()
-                }
+            OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN -> {
+                binding.availableTitle.text = getString(R.string.funds_locked_summary_available_withdraw)
             }
         }
     }
@@ -108,9 +91,7 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
     }
 
     enum class OriginScreenLocks {
-        DASHBOARD_SCREEN,
         ENTER_AMOUNT_SEND_SCREEN,
-        ENTER_AMOUNT_WITHDRAW_SCREEN,
-        SEND_SCREEN
+        ENTER_AMOUNT_WITHDRAW_SCREEN
     }
 }

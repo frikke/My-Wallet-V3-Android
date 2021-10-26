@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
 import androidx.appcompat.widget.Toolbar
 import com.blockchain.core.payments.model.FundsLocks
 import piuk.blockchain.android.R
@@ -12,7 +11,6 @@ import piuk.blockchain.android.databinding.ActivityOnHoldDetailsBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
-import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class LocksDetailsActivity : BlockchainActivity() {
@@ -22,7 +20,7 @@ class LocksDetailsActivity : BlockchainActivity() {
     }
 
     private val fundsLocks: FundsLocks by unsafeLazy {
-        intent?.getSerializableExtra(LOCK) as FundsLocks
+        intent?.getSerializableExtra(KEY_LOCKS) as FundsLocks
     }
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -37,7 +35,7 @@ class LocksDetailsActivity : BlockchainActivity() {
 
     private fun setUpToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_general)
-        setupToolbar(toolbar, R.string.withdrawal_details_toolbar)
+        setupToolbar(toolbar, R.string.funds_locked_details_toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { this.finish() }
     }
@@ -52,33 +50,21 @@ class LocksDetailsActivity : BlockchainActivity() {
     }
 
     private fun setUpTextInfo() {
+        val amountOnHold = fundsLocks.onHoldTotalAmount.toStringWithSymbol()
         with(binding) {
-            text.apply {
-                movementMethod = LinkMovementMethod.getInstance()
-                text = setLearnMoreLink(R.string.withdrawal_details_text)
-            }
-            totalAmount.text = fundsLocks.onHoldTotalAmount.toStringWithSymbol()
+            totalAmount.text = amountOnHold
+            titleAmount.text = getString(R.string.funds_locked_details_title, amountOnHold)
+            learnMore.setOnClickListener { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(TRADING_ACCOUNT_LOCKS))) }
         }
     }
 
-    private fun setLearnMoreLink(stringId: Int): CharSequence {
-        val linksMap = mapOf<String, Uri>(
-            "learn_more" to Uri.parse(TRADING_ACCOUNT_LOCKS)
-        )
-        return StringUtils.getStringWithMappedAnnotations(
-            this,
-            stringId,
-            linksMap
-        )
-    }
-
     companion object {
-        private const val LOCK = "LOCK"
+        private const val KEY_LOCKS = "LOCKS"
         fun newInstance(
             context: Context,
             fundsLocks: FundsLocks
         ): Intent = Intent(context, LocksDetailsActivity::class.java).apply {
-            putExtra(LOCK, fundsLocks)
+            putExtra(KEY_LOCKS, fundsLocks)
         }
     }
 }

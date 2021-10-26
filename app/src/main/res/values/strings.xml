@@ -2318,22 +2318,28 @@
     <string name="unification_sheet_item_three_title">Free Blockchain.com Wallet</string>
     <string name="unification_sheet_item_three_blurb">Create a free Wallet account to do even more with your crypto.</string>
 
-    <!-- Withdrawal locks !-->
-    <string name="withdrawal_summary_cta">Got it</string>
-    <string name="withdrawal_summary_available">Available</string>
-    <string name="withdrawal_summary_on_hold">On Hold</string>
-    <string name="withdrawal_summary_withdraw">Available to Withdraw</string>
-    <string name="withdrawal_summary_send">Send Limits</string>
-    <string name="withdrawal_summary_details">See Details</string>
+    <!-- Funds locks !-->
+    <string name="funds_locked_warning_title">On Hold</string>
 
-    <string name="withdrawal_details_text">Newly added funds are subject to a holding period. You can transfer funds between your Trading, Rewards, and Exchange accounts now and withdraw them once the hold ends. <annotation link="learn_more">Learn more</annotation></string>
-    <string name="withdrawal_details_title_date">HELD UNTIL</string>
-    <string name="withdrawal_details_title_amount">AMOUNT</string>
-    <string name="withdrawal_details_total">Total</string>
-    <string name="withdrawal_details_toolbar">On Hold</string>
-    <string name="withdrawals_lock_title">Available to Withdraw</string>
+    <!-- LocksInfo bottomsheet -->
+    <string name="funds_locked_summary_cta">I understand</string>
+    <string name="funds_locked_summary_available_send">Available to Send</string>
+    <string name="funds_locked_summary_available_withdraw">Available to Withdraw</string>
+    <string name="funds_locked_summary_on_hold">%s On Hold</string>
+    <string name="funds_locked_summary_details">See Details</string>
+    <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime. <annotation link="learn_more">Learn more →</annotation></string>
 
-    <string name="withdrawal_lock_warning">For security purposes, buy orders with a Bank Account are subject to a %s holding period. You can Swap or Sell during this time. We will notify you once the funds are available to be withdrawn.</string>
-    <string name="withdrawal_lock_warning_days">%s days</string>
+    <!-- LocksInfo activity details -->
+    <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
+    <string name="funds_locked__details_title_date">HELD UNTIL</string>
+    <string name="funds_locked_details_title_amount">AMOUNT</string>
+    <string name="funds_locked_details_total">Total</string>
+    <string name="funds_locked_details_toolbar">On Hold</string>
+    <string name="funds_locked_details_title">%s On Hold</string>
+    <string name="funds_locked_details_learn_more">Learn More</string>
+
+    <!-- LocksInfo deposit checkout -->
+    <string name="funds_locked_warning">For security purposes, buy orders with a Bank Account are subject to a %s holding period. You can Swap or Sell during this time. We will notify you once the funds are available to be withdrawn.</string>
+    <string name="funds_locked_warning_days">%s days</string>
 
 </resources>

@@ -271,7 +271,7 @@ class TransactionFlowCustomiserImpl(
     override fun enterAmountLimitsViewTitle(state: TransactionState): String =
         when (state.action) {
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_enter_amount_limit_title)
-            AssetAction.Withdraw -> resources.getString(R.string.withdrawals_lock_title)
+            AssetAction.Withdraw -> state.sendingAccount.label
             else -> throw java.lang.IllegalStateException("Limits title view not configured for ${state.action}")
         }
 
@@ -373,12 +373,12 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> {
                 if (state.pendingTx?.engineState?.containsKey(WITHDRAW_LOCKS) == true) {
                     val days = resources.getString(
-                        R.string.withdrawal_lock_warning_days,
+                        R.string.funds_locked_warning_days,
                         state.pendingTx.engineState[WITHDRAW_LOCKS]
                     )
                     StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                         resources.getString(
-                            R.string.withdrawal_lock_warning,
+                            R.string.funds_locked_warning,
                             days
                         ), R.string.common_linked_learn_more,
                         TRADING_ACCOUNT_LOCKS, context, R.color.blue_600
