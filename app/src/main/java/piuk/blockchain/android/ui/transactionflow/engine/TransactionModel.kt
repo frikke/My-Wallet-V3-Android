@@ -15,8 +15,9 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.core.payments.model.WithdrawalsLocks
+import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.canConvert
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
@@ -106,7 +107,7 @@ data class TransactionState(
     val currencyType: CurrencyType? = null,
     val availableSources: List<BlockchainAccount> = emptyList(),
     val linkBankState: BankLinkingState = BankLinkingState.NotStarted,
-    val locks: WithdrawalsLocks? = null
+    val locks: FundsLocks? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -164,6 +165,17 @@ data class TransactionState(
             }
         } else {
             null
+        }
+    }
+
+    fun availableBalanceInFiat(availableBalance: Money, fiatRate: ExchangeRate?): Money {
+        return if (availableBalance is CryptoValue &&
+            fiatRate != null &&
+            fiatRate.canConvert(availableBalance)
+        ) {
+            fiatRate.convert(availableBalance)
+        } else {
+            availableBalance
         }
     }
 }

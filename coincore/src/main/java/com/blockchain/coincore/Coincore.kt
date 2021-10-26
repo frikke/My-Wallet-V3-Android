@@ -12,7 +12,7 @@ import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.WithdrawalsLocks
+import com.blockchain.core.payments.model.FundsLocks
 import info.blockchain.balance.Money
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -36,7 +36,7 @@ class Coincore internal constructor(
     private val paymentsDataManager: PaymentsDataManager
 ) {
 
-    fun getWithdrawalLocks(localCurrency: String): Single<WithdrawalsLocks> {
+    fun getWithdrawalLocks(localCurrency: String): Single<FundsLocks> {
         return paymentsDataManager.getWithdrawalLocks(localCurrency)
     }
 

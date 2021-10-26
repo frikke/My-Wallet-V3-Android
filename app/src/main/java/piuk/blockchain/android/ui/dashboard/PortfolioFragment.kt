@@ -542,7 +542,7 @@ class PortfolioFragment :
     }
 
     private fun onHoldAmountClicked(locks: Locks) {
-        require(locks.withdrawalsLocks != null) { "withdrawalsLocks are null" }
+        require(locks.fundsLocks != null) { "withdrawalsLocks are null" }
         val available = state?.getFundsAvailableFiat(currencyPrefs.selectedFiatCurrency)
             ?: FiatValue.zero(currencyPrefs.selectedFiatCurrency)
 
@@ -550,7 +550,7 @@ class PortfolioFragment :
             LocksInfoBottomSheet.newInstance(
                 originScreen = LocksInfoBottomSheet.OriginScreenLocks.DASHBOARD_SCREEN,
                 available = available.toStringWithSymbol(),
-                withdrawalsLocks = locks.withdrawalsLocks
+                fundsLocks = locks.fundsLocks
             )
         )
     }

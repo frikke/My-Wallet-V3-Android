@@ -4,12 +4,12 @@ import info.blockchain.balance.FiatValue
 import java.io.Serializable
 import java.time.ZonedDateTime
 
-data class WithdrawalsLocks(
+data class FundsLocks(
     val onHoldTotalAmount: FiatValue,
-    val locks: List<WithdrawalLock>
+    val locks: List<FundsLock>
 ) : Serializable
 
-data class WithdrawalLock(
+data class FundsLock(
     val amount: FiatValue,
     val date: ZonedDateTime
 ) : Serializable

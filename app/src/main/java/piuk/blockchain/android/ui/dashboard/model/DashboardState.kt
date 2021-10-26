@@ -4,7 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.core.payments.model.WithdrawalsLocks
+import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.Prices24HrWithDelta
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -153,7 +153,7 @@ data class CryptoAssetState(
 }
 
 data class Locks(
-    val withdrawalsLocks: WithdrawalsLocks? = null
+    val fundsLocks: FundsLocks? = null
 ) : DashboardItem, Serializable
 
 data class DashboardState(

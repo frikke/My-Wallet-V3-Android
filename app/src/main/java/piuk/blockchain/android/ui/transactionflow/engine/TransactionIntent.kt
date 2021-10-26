@@ -16,7 +16,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
-import com.blockchain.core.payments.model.WithdrawalsLocks
+import com.blockchain.core.payments.model.FundsLocks
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.customviews.CurrencyType
 import java.util.Stack
@@ -527,11 +527,11 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     }
 
     class WithdrawalLocksLoaded(
-        private val withdrawalsLocks: WithdrawalsLocks
+        private val fundsLocks: FundsLocks
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
-                locks = withdrawalsLocks
+                locks = fundsLocks
             )
     }
 }

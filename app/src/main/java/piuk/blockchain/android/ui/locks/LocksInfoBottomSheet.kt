@@ -5,12 +5,14 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.blockchain.core.payments.model.WithdrawalsLocks
+import com.blockchain.core.payments.model.FundsLocks
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogLocksInfoBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 
 class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() {
 
@@ -22,8 +24,8 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
         arguments?.getString(KEY_AVAILABLE, "").orEmpty()
     }
 
-    private val withdrawalsLocks: WithdrawalsLocks by lazy {
-        arguments?.getSerializable(KEY_LOCKS) as WithdrawalsLocks
+    private val fundsLocks: FundsLocks by lazy {
+        arguments?.getSerializable(KEY_LOCKS) as FundsLocks
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogLocksInfoBinding =
@@ -31,6 +33,7 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
 
     override fun initControls(binding: DialogLocksInfoBinding) {
         setTitle(origin)
+        displayAvailable(origin)
 
         with(binding) {
             text.apply {
@@ -38,9 +41,9 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
                 text = setLearnMoreLink(R.string.withdrawal_details_text)
             }
             availableAmount.text = available
-            onHoldAmount.text = withdrawalsLocks.onHoldTotalAmount.toStringWithSymbol()
+            onHoldAmount.text = fundsLocks.onHoldTotalAmount.toStringWithSymbol()
             openDetails.setOnClickListener {
-                startActivity(LocksDetailsActivity.newInstance(requireContext(), withdrawalsLocks))
+                startActivity(LocksDetailsActivity.newInstance(requireContext(), fundsLocks))
             }
             close.setOnClickListener { dismiss() }
             okButton.setOnClickListener { dismiss() }
@@ -61,9 +64,28 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
     private fun setTitle(origin: OriginScreenLocks) {
         binding.title.text = when (origin) {
             OriginScreenLocks.DASHBOARD_SCREEN -> context?.getString(R.string.withdrawal_summary_on_hold)
-            OriginScreenLocks.WITHDRAWAL_SCREEN -> context?.getString(R.string.withdrawal_summary_withdraw)
-            OriginScreenLocks.SEND_SCREEN -> context?.getString(R.string.withdrawal_summary_send)
-            else -> context?.getString(R.string.withdrawal_summary_on_hold)
+            OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN -> context?.getString(R.string.withdrawal_summary_withdraw)
+            OriginScreenLocks.SEND_SCREEN,
+            OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN -> context?.getString(R.string.withdrawal_summary_send)
+        }
+    }
+
+    private fun displayAvailable(origin: OriginScreenLocks) {
+        when (origin) {
+            OriginScreenLocks.DASHBOARD_SCREEN -> {
+                binding.apply {
+                    sep1.gone()
+                    availableTitle.gone()
+                    availableAmount.gone()
+                }
+            }
+            else -> {
+                binding.apply {
+                    sep1.visible()
+                    availableTitle.visible()
+                    availableAmount.visible()
+                }
+            }
         }
     }
 
@@ -75,19 +97,20 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
         fun newInstance(
             originScreen: OriginScreenLocks,
             available: String,
-            withdrawalsLocks: WithdrawalsLocks
+            fundsLocks: FundsLocks
         ) = LocksInfoBottomSheet().apply {
             arguments = Bundle().apply {
                 putSerializable(ORIGIN_SCREEN, originScreen)
                 putString(KEY_AVAILABLE, available)
-                putSerializable(KEY_LOCKS, withdrawalsLocks)
+                putSerializable(KEY_LOCKS, fundsLocks)
             }
         }
     }
 
     enum class OriginScreenLocks {
         DASHBOARD_SCREEN,
-        WITHDRAWAL_SCREEN,
+        ENTER_AMOUNT_SEND_SCREEN,
+        ENTER_AMOUNT_WITHDRAW_SCREEN,
         SEND_SCREEN
     }
 }

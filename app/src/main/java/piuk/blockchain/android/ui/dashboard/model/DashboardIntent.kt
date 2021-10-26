@@ -4,7 +4,7 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.core.payments.model.WithdrawalsLocks
+import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.models.data.LinkBankTransfer
@@ -422,13 +422,11 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class WithdrawalLocksLoaded(
-        private val withdrawalsLocks: WithdrawalsLocks
+        private val fundsLocks: FundsLocks
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
-                locks = Locks(
-                    withdrawalsLocks
-                )
+                locks = Locks(fundsLocks)
             )
     }
 }

@@ -8,12 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -30,11 +32,13 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.CurrencyType
 import piuk.blockchain.android.ui.customviews.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.locks.LocksInfoBottomSheet
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
@@ -149,7 +153,9 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterAmountFragment")
 
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS) && newState.action == AssetAction.Withdraw) {
+        if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS) &&
+            newState.action.requiresDisplayLocks()
+        ) {
             model.process(TransactionIntent.LoadWithdrawalLocks)
         }
 
@@ -196,6 +202,12 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
                 initialiseLowerSlotIfNeeded(newState)
                 initialiseUpperSlotIfNeeded(newState)
+                newState.locks?.let { fundLocks ->
+                    displayFundsLockInfo(
+                        fundsLocks = fundLocks,
+                        state = newState
+                    )
+                }
 
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
@@ -348,6 +360,35 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 }
             }
         }
+    }
+
+    private fun FragmentTxFlowEnterAmountBinding.displayFundsLockInfo(
+        fundsLocks: FundsLocks,
+        state: TransactionState
+    ) {
+        if (fundsLocks.locks.isNotEmpty() && state.action.requiresDisplayLocks()) {
+            val available = state.availableBalanceInFiat(
+                state.availableBalance, state.fiatRate
+            )
+            onHoldCell.apply {
+                totalAmountLocked.text = fundsLocks.onHoldTotalAmount.toStringWithSymbol()
+                root.visible()
+                root.setOnClickListener { onHoldAmountClicked(state.action, fundsLocks, available) }
+            }
+        }
+    }
+
+    private fun AssetAction.requiresDisplayLocks(): Boolean = this == AssetAction.Withdraw || this == AssetAction.Send
+
+    private fun onHoldAmountClicked(action: AssetAction, locks: FundsLocks, availableBalance: Money) {
+        val origin = if (action == AssetAction.Send) LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN
+        else LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN
+
+        LocksInfoBottomSheet.newInstance(
+            originScreen = origin,
+            available = availableBalance.toStringWithSymbol(),
+            fundsLocks = locks
+        ).show((context as AppCompatActivity).supportFragmentManager, MviFragment.BOTTOM_SHEET)
     }
 
     private fun configureCtaButton() {

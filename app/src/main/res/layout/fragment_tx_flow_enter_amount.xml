@@ -14,9 +14,26 @@
     <View
         android:id="@+id/amount_sheet_separator"
         style="@style/SeparatorWithoutMargins"
+        android:layout_marginTop="@dimen/standard_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/frame_upper_slot" />
+
+    <include
+        android:id="@+id/on_hold_cell"
+        layout="@layout/withdrawal_lock_summary_item"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/amount_sheet_separator" />
+
+    <View
+        android:id="@+id/on_hold_cell_separator"
+        style="@style/SeparatorWithoutMargins"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/on_hold_cell" />
 
     <piuk.blockchain.android.ui.customviews.FiatCryptoInputView
         android:id="@+id/amount_sheet_input"
@@ -24,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/tiny_margin"
         android:minHeight="32dp"
-        app:layout_constraintTop_toBottomOf="@id/amount_sheet_separator" />
+        app:layout_constraintTop_toBottomOf="@id/on_hold_cell_separator" />
 
     <FrameLayout
         android:id="@+id/frame_lower_slot"

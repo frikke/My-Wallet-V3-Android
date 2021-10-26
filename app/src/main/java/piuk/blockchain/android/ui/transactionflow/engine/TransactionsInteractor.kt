@@ -38,6 +38,7 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxConfirmationValue
+import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
@@ -236,7 +237,7 @@ class TransactionInteractor(
     }
 
     fun loadWithdrawalLocks(model: TransactionModel, available: Money): Disposable =
-        coincore.getWithdrawalLocks(available.currencyCode).subscribeBy(
+        coincore.getWithdrawalLocks(showLocksInFiat(available)).subscribeBy(
             onSuccess = { locks ->
                 model.process(TransactionIntent.WithdrawalLocksLoaded(locks))
             },
@@ -244,6 +245,14 @@ class TransactionInteractor(
                 Timber.e(it)
             }
         )
+
+    private fun showLocksInFiat(available: Money): String {
+        return if (available is FiatValue) {
+            available.currencyCode
+        } else {
+            currencyPrefs.selectedFiatCurrency
+        }
+    }
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair.CryptoCurrencyPair>): Boolean =
