@@ -128,7 +128,11 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         AppVersioningChecks(
             context = this,
             appInfoPrefs = appInfoPrefs,
-            onAppInstalled = { code, name -> onAppInstalled(code, name) },
+            onAppInstalled = { code, name, installReferrer, installTimestampSeconds ->
+                onAppInstalled(
+                    code, name, installReferrer, installTimestampSeconds
+                )
+            },
             onAppAppUpdated = { appUpdated -> onAppUpdated(appUpdated) }
         ).checkForPotentialNewInstallOrUpdate()
     }
@@ -144,10 +148,18 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         )
     }
 
-    private fun onAppInstalled(versionCode: Int, versionName: String) {
+    private fun onAppInstalled(
+        versionCode: Int,
+        versionName: String,
+        installReferrer: String,
+        installTimestampSeconds: Long
+    ) {
         analytics.logEvent(
             AppAnalytics.AppInstalled(
-                versionCode = versionCode, versionName = versionName
+                versionCode = versionCode,
+                versionName = versionName,
+                installReferrer = installReferrer,
+                installBeginSeconds = installTimestampSeconds
             )
         )
     }
@@ -350,7 +362,8 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 private class AppVersioningChecks(
     private val context: Context,
     private val appInfoPrefs: AppInfoPrefs,
-    private val onAppInstalled: (versionCode: Int, versionName: String) -> Unit,
+    private val onAppInstalled:
+        (versionCode: Int, versionName: String, installReferrer: String, installTimestampSeconds: Long) -> Unit,
     private val onAppAppUpdated: (appUpdated: AppUpdateInfo) -> Unit
 ) {
 
@@ -375,7 +388,11 @@ private class AppVersioningChecks(
                                 appInfoPrefs.installationVersionName = it
                                 val runningVersionIsTheInstalled = it == BuildConfig.VERSION_NAME
                                 if (runningVersionIsTheInstalled) {
-                                    onAppInstalled(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
+                                    onAppInstalled(
+                                        BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME,
+                                        referrerClient.installReferrer.installReferrer,
+                                        referrerClient.installReferrer.installBeginTimestampSeconds
+                                    )
                                 } else {
                                     checkForPotentialUpdate(it)
                                 }

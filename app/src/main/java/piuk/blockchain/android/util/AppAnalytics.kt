@@ -12,11 +12,15 @@ sealed class AppAnalytics(
 
     class AppInstalled(
         versionCode: Int,
-        versionName: String
+        versionName: String,
+        installReferrer: String,
+        installBeginSeconds: Long
     ) : AppAnalytics(
         AnalyticsNames.APP_INSTALLED.eventName, mapOf(
             BUILD to versionCode,
-            VERSION to versionName
+            VERSION to versionName,
+            INSTALL_REFERRER to installReferrer,
+            INSTALL_TIMESTAMP to installBeginSeconds
         )
     )
 
@@ -39,6 +43,8 @@ sealed class AppAnalytics(
 
     companion object {
         private const val BUILD = "build"
+        private const val INSTALL_REFERRER = "install_referrer"
+        private const val INSTALL_TIMESTAMP = "install_begin_timestamp_server_seconds"
         private const val PREVIOUS_BUILD = "previous_build"
         private const val INSTALLED_VERSION = "installed_version"
         private const val VERSION = "version"
