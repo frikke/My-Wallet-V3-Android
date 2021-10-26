@@ -846,7 +846,6 @@ En déposant des fonds sur ce compte, vous acceptez les <annotation link="modula
     <string name="save_my_card">Enregistrer ma carte</string>
     <string name="activity_details_label_waiting_on_funds">En attente de fonds</string>
     <string name="server_unreachable_exit">Impossible de se connecter au serveur, veuillez réessayer plus tard.</string>
-    <string name="activity_details_completed">Terminé</string>
 
     <string name="activity_details_action">Afficher sur Blockchain Explorer</string>
     <string name="activity_details_cancel_action">Annuler l\'achat</string>
@@ -1817,7 +1816,7 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
     <string name="iban">IBAN</string>
     <string name="select_account_sheet_title">Sélectionner un portefeuille</string>
     <string name="activity_state_canceled">Annulé</string>
-    <string name="fiat_funds_detail_withdraw_title">Retirer</string>
+    <string name="fiat_funds_detail_withdraw_title">Retirés</string>
     <string name="withdrawing_amount_message">Nous finalisons votre retrait maintenant.</string>
     <string name="send_progress_error_title">Oups ! Un problème est survenu. Veuillez réessayer.</string>
     <string name="send_progress_error_subtitle">Ne vous inquiétez pas. Votre argent est en sécurité. Veuillez réessayer ou contacter notre équipe d\'assistance pour obtenir de l\'aide.</string>
@@ -1827,7 +1826,7 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
     <string name="please_try_linking_your_bank_again">Veuillez réessayer de lier votre banque. Si le problème persiste, veuillez contacter le service d\'assistance.</string>
     <string name="instantly_available">Disponible instantanément</string>
     <string name="send_again">Envoyer à nouveau</string>
-    <string name="login_email_hint">Email</string>
+    <string name="login_email_hint">Adresse électronique</string>
     <string name="learn_more">En savoir plus</string>
     <string name="activity_details_buy_deposited_to">Déposé à</string>
 
@@ -2139,4 +2138,50 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="tx_enter_amount_transfer_cta">Aperçu du transfert</string>
     <string name="tx_enter_amount_deposit_cta">Aperçu du dépôt</string>
     <string name="tx_enter_amount_withdraw_cta">Aperçu du retrait</string>
+    <string name="unification_sheet_title">Améliorer le compte</string>
+    <string name="unification_sheet_later_cta">Je le ferai plus tard</string>
+    <string name="unification_sheet_now_cta">Mettre à niveau mon compte</string>
+    <string name="unification_sheet_header">Mise à niveau vers un compte Blockchain unifié</string>
+    <string name="unification_sheet_blurb">Souhaitez-vous passer à une connexion unique pour tous vos comptes Blockchain.com ?</string>
+    <string name="unification_sheet_item_one_title">Une seule connexion pour tous les comptes</string>
+    <string name="unification_sheet_item_one_blurb">Accédez facilement à votre Blockchain.com Wallet et àExchange avec une seule connexion.</string>
+    <string name="unification_sheet_item_two_title">Plus de sécurité entre les comptes</string>
+    <string name="unification_sheet_item_two_blurb">Sécurisez vos investissements sur tous les produits Blockchain.com.</string>
+    <string name="unification_sheet_item_three_title">Blockchain.com Wallet gratuit</string>
+    <string name="unification_sheet_item_three_blurb">Créez un compte Portefeuille gratuit pour en accomplir davantage avec votre crypto.</string>
+    <string name="withdrawal_summary_cta">J\'ai compris</string>
+    <string name="withdrawal_summary_available">Disponible</string>
+    <string name="withdrawal_summary_on_hold">En attente</string>
+    <string name="withdrawal_summary_details">Voir les détails</string>
+    <string name="withdrawal_details_text">Les nouveaux fonds ajoutés sont soumis à une période de rétention. Vous pouvez transférer des fonds entre vos comptes Trading, Rewards et Exchange maintenant et les retirer à la fin de la période de rétention. <annotation link="learn_more">En savoir plus</annotation></string>
+    <string name="withdrawal_details_title_date">RETENUS JUSQU\'AU</string>
+    <string name="withdrawal_details_title_amount">MONTANT</string>
+    <string name="withdrawal_details_total">Total</string>
+    <string name="withdrawal_details_toolbar">En attente</string>
+    <string name="activity_details_completed">Terminé</string>
+    <string name="rename_asset_card_title">%s a un nouveau nom</string>
+    <string name="rename_asset_card_body">Attention : %1$s a été renommé %2$s. Tous les soldes restent intacts.</string>
+    <string name="rename_asset_card_cta">Trader des %s</string>
+    <string name="ceur_announcement_title">Gagnez jusqu\'à 4 %% en Récompenses cEUR</string>
+    <string name="ceur_announcement_description">Achetez des cEUR sans frais et gagnez jusqu\'à 4 %% de récompenses annuelles, payées mensuellement.</string>
+    <string name="ceur_announcement_action">En savoir plus</string>
+    <string name="minimum_with_value">%1$s Minimum</string>
+    <string name="maximum_with_value">%1$s Maximum</string>
+    <string name="not_enough_funds">Pas assez de %1$s</string>
+    <string name="get_more">Obtenez plus de %1$s</string>
+    <string name="not_enough_funds_send">Le maximum que vous pouvez envoyer depuis ce portefeuille est de %1$s. Achetez %2$s maintenant pour envoyer ce montant.</string>
+    <string name="common_actions_not_enough_funds">Le montant maximum de %1$s que vous pouvez %2$s de ce compte est de %3$s.</string>
+    <string name="minimum_withdraw_error_message">Pour compenser les frais, le montant minimum pour tout retrait est de %1$s.</string>
+    <string name="over_your_limit">Au-dessus de votre plafond</string>
+    <string name="minimum_swap_error_message">Pour éviter des frais inutiles et un glissement du réseau, le montant minimum pour cette paire est de %1$s.</string>
+    <string name="minimum_buy_error_message">Pour compenser les frais et la volatilité du marché, le montant minimum pour tout achat est de %1$s $.</string>
+    <string name="minimum_sell_error_message">Le montant minimum que vous pouvez vendre est de %1$s.</string>
+    <string name="minimum_deposit_error_message">Le montant minimum que vous pouvez déposer est de %1$s .</string>
+    <string name="search_results">%s Résultats</string>
+    <string name="withdrawal_lock_warning">Pour des raisons de sécurité, les ordres d\'achat avec un compte bancaire sont soumis à une période de détention de %s. Vous pouvez échanger ou vendre pendant cette période. Nous vous informerons dès que les fonds seront disponibles pour  retrait.</string>
+    <string name="withdrawal_lock_warning_days">%s jours</string>
+    <string name="fiat_funds_detail_withdraw_option">Retirer</string>
+    <string name="withdrawal_summary_withdraw">Disponible pour retrait</string>
+    <string name="withdrawal_summary_send">Limites d\'envoi</string>
+    <string name="withdrawals_lock_title">Disponible pour retrait</string>
 </resources>
