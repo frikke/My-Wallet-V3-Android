@@ -6,16 +6,20 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 
 internal class AccountsDiffUtil(
-    private val oldAccounts: List<SelectableAccountItem>,
-    private val newAccounts: List<SelectableAccountItem>
+    private val oldAccounts: List<AccountsListItem>,
+    private val newAccounts: List<AccountsListItem>
 ) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int = oldAccounts.size
 
     override fun getNewListSize(): Int = newAccounts.size
 
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-        oldAccounts[oldItemPosition].account.isTheSameWith(newAccounts[newItemPosition].account)
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        if (oldAccounts[oldItemPosition] == newAccounts[newItemPosition]) return true
+        val oldAccount = (oldAccounts[oldItemPosition] as? SelectableAccountItem)?.account ?: return false
+        val newAccount = (newAccounts[newItemPosition] as? SelectableAccountItem)?.account ?: return false
+        return oldAccount.isTheSameWith(newAccount)
+    }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = false
 }

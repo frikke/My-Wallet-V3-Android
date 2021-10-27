@@ -15,7 +15,9 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
+import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.home.HomeNavigator
+import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.SendAnalyticsEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -59,7 +61,8 @@ class TransferSendFragment : AccountSelectorFragment() {
             onAccountSelected = ::doOnAccountSelected,
             title = R.string.transfer_send_crypto_title,
             label = R.string.transfer_send_crypto_label,
-            icon = R.drawable.ic_send_blue_circle
+            icon = R.drawable.ic_send_blue_circle,
+            onExtraAccountInfoClicked = ::onExtraAccountInfoClicked
         )
     }
 
@@ -83,6 +86,11 @@ class TransferSendFragment : AccountSelectorFragment() {
             )
         )
         startTransactionFlow(account)
+    }
+
+    private fun onExtraAccountInfoClicked(accountLocks: AccountLocks) {
+        require(accountLocks.fundsLocks != null) { "fundsLocks are null" }
+        LocksDetailsActivity.start(requireContext(), accountLocks.fundsLocks)
     }
 
     private fun startTransactionFlow(fromAccount: CryptoAccount) {

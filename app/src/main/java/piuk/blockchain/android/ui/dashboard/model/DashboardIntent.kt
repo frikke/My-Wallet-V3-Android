@@ -417,16 +417,16 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
-    object LoadWithdrawalLocks : DashboardIntent() {
+    object LoadFundsLocked : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
-    class WithdrawalLocksLoaded(
+    class FundsLocksLoaded(
         private val fundsLocks: FundsLocks
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
-                locks = Locks(fundsLocks)
+                fundsLocks = Locks(fundsLocks)
             )
     }
 }

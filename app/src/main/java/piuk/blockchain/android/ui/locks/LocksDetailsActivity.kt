@@ -60,11 +60,13 @@ class LocksDetailsActivity : BlockchainActivity() {
 
     companion object {
         private const val KEY_LOCKS = "LOCKS"
-        fun newInstance(
+        fun start(
             context: Context,
             fundsLocks: FundsLocks
-        ): Intent = Intent(context, LocksDetailsActivity::class.java).apply {
-            putExtra(KEY_LOCKS, fundsLocks)
-        }
+        ) = context.startActivity(
+            Intent(context, LocksDetailsActivity::class.java).apply {
+                putExtra(KEY_LOCKS, fundsLocks)
+            }
+        )
     }
 }

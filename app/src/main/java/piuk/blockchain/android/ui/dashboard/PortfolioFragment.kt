@@ -212,7 +212,7 @@ class PortfolioFragment :
                     mapOf(
                         IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
                         IDX_CARD_BALANCE to newState,
-                        IDX_WITHDRAWAL_LOCKS to newState.locks,
+                        IDX_WITHDRAWAL_LOCKS to newState.fundsLocks,
                         IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
                     )
                 !withdrawalLockEnabled && isDisplayListEmpty ->
@@ -225,7 +225,7 @@ class PortfolioFragment :
                     mapOf(
                         IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
                         IDX_CARD_BALANCE to newState,
-                        IDX_WITHDRAWAL_LOCKS to newState.locks,
+                        IDX_WITHDRAWAL_LOCKS to newState.fundsLocks,
                         IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
                             newState.fiatAssets
                         } else {
@@ -394,7 +394,7 @@ class PortfolioFragment :
         setupCtaButtons()
 
         if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
-            model.process(DashboardIntent.LoadWithdrawalLocks)
+            model.process(DashboardIntent.LoadFundsLocked)
         }
 
         if (flowToLaunch != null && flowCurrency != null) {
@@ -541,8 +541,8 @@ class PortfolioFragment :
     }
 
     private fun onHoldAmountClicked(locks: Locks) {
-        require(locks.fundsLocks != null) { "withdrawalsLocks are null" }
-        startActivity(LocksDetailsActivity.newInstance(requireContext(), locks.fundsLocks))
+        require(locks.fundsLocks != null) { "funds are null" }
+        LocksDetailsActivity.start(requireContext(), locks.fundsLocks)
     }
 
     private val announcementHost = object : AnnouncementHost {

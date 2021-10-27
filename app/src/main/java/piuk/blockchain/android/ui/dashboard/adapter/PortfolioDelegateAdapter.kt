@@ -24,7 +24,7 @@ class PortfolioDelegateAdapter(
         // Add all necessary AdapterDelegate objects here
         with(delegatesManager) {
             addAdapterDelegate(StdAnnouncementDelegate(analytics))
-            addAdapterDelegate(WithdrawalLocksDelegate(onHoldAmountClicked))
+            addAdapterDelegate(FundsLockedDelegate(onHoldAmountClicked))
             addAdapterDelegate(MiniAnnouncementDelegate(analytics))
             addAdapterDelegate(BalanceCardDelegate(prefs.selectedFiatCurrency, assetResources))
             addAdapterDelegate(

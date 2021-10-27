@@ -43,7 +43,7 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
                 fundsLocks.onHoldTotalAmount.toStringWithSymbol()
             )
             seeDetails.setOnClickListener {
-                startActivity(LocksDetailsActivity.newInstance(requireContext(), fundsLocks))
+                LocksDetailsActivity.start(requireContext(), fundsLocks)
             }
             close.setOnClickListener { dismiss() }
             okButton.setOnClickListener { dismiss() }

@@ -21,7 +21,7 @@
 
     <include
         android:id="@+id/on_hold_cell"
-        layout="@layout/withdrawal_lock_summary_item"
+        layout="@layout/funds_locked_summary_item"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"

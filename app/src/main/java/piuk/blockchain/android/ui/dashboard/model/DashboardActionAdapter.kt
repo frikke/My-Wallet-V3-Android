@@ -551,7 +551,7 @@ class DashboardActionAdapter(
     fun loadWithdrawalLocks(model: DashboardModel): Disposable =
         coincore.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).subscribeBy(
             onSuccess = {
-                model.process(DashboardIntent.WithdrawalLocksLoaded(it))
+                model.process(DashboardIntent.FundsLocksLoaded(it))
             },
             onError = {
                 Timber.e(it)

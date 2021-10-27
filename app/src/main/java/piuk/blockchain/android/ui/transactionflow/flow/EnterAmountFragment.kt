@@ -373,14 +373,14 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             onHoldCell.apply {
                 totalAmountLocked.text = fundsLocks.onHoldTotalAmount.toStringWithSymbol()
                 root.visible()
-                root.setOnClickListener { onHoldAmountClicked(state.action, fundsLocks, available) }
+                root.setOnClickListener { onExtraAccountInfoClicked(state.action, fundsLocks, available) }
             }
         }
     }
 
     private fun AssetAction.requiresDisplayLocks(): Boolean = this == AssetAction.Withdraw || this == AssetAction.Send
 
-    private fun onHoldAmountClicked(action: AssetAction, locks: FundsLocks, availableBalance: Money) {
+    private fun onExtraAccountInfoClicked(action: AssetAction, locks: FundsLocks, availableBalance: Money) {
         val origin = if (action == AssetAction.Send) LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN
         else LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN
 

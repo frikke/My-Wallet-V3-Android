@@ -171,7 +171,7 @@ data class DashboardState(
     val linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction? = null,
     val hasLongCallInProgress: Boolean = false,
     val isLoadingAssets: Boolean = true,
-    val locks: Locks = Locks()
+    val fundsLocks: Locks = Locks()
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 
@@ -230,9 +230,6 @@ data class DashboardState(
 
     override fun getFundsFiat(fiat: String): Money =
         fiatAssets.totalBalance ?: FiatValue.zero(fiat)
-
-    fun getFundsAvailableFiat(fiat: String): Money =
-        fiatAssets.fiatAccounts[fiat]?.availableBalance ?: FiatValue.zero(fiat)
 
     val assetMapKeys = activeAssets.keys
 
