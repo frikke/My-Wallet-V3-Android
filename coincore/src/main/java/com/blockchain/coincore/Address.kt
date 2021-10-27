@@ -11,12 +11,6 @@ import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 import java.lang.IllegalStateException
 
-class AddressParseError(val error: Error) : Exception("Error Parsing address") {
-    enum class Error {
-        ETH_UNEXPECTED_CONTRACT_ADDRESS
-    }
-}
-
 interface TransactionTarget {
     val label: String
     val onTxCompleted: (TxResult) -> Completable

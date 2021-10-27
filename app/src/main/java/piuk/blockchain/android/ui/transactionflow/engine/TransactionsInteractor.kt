@@ -28,7 +28,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
-import com.blockchain.coincore.AddressParseError
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
@@ -78,13 +77,6 @@ class TransactionInteractor(
                     TxValidationFailure(ValidationState.INVALID_ADDRESS)
                 )
             )
-            .onErrorResumeNext { e ->
-                if (e.isUnexpectedContractError) {
-                    Single.error(TxValidationFailure(ValidationState.ADDRESS_IS_CONTRACT))
-                } else {
-                    Single.error(e)
-                }
-            }
 
     fun initialiseTransaction(
         sourceAccount: BlockchainAccount,
@@ -257,6 +249,3 @@ class TransactionInteractor(
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair.CryptoCurrencyPair>): Boolean =
     pairs.any { it.source == this.asset }
-
-private val Throwable.isUnexpectedContractError
-    get() = (this is AddressParseError && this.error == AddressParseError.Error.ETH_UNEXPECTED_CONTRACT_ADDRESS)

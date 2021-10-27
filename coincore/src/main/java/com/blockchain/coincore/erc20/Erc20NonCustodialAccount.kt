@@ -7,16 +7,12 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import info.blockchain.balance.isErc20
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TxEngine
-import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -101,15 +97,4 @@ class Erc20NonCustodialAccount(
             requireSecondPassword = erc20DataManager.requireSecondPassword,
             walletPreferences = walletPreferences
         )
-}
-
-internal open class Erc20Address(
-    final override val asset: AssetInfo,
-    override val address: String,
-    override val label: String = address,
-    override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() }
-) : CryptoAddress {
-    init {
-        require(asset.isErc20())
-    }
 }

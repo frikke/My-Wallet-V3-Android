@@ -25,6 +25,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.NonCustodialSupport
+import com.blockchain.coincore.wrap.FormatUtilities
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import thepit.PitLinking
 import timber.log.Timber
@@ -49,7 +50,8 @@ internal class DynamicAssetLoader(
     private val pitLinking: PitLinking,
     private val crashLogger: CrashLogger,
     private val identity: UserIdentity,
-    private val features: InternalFeatureFlagApi
+    private val features: InternalFeatureFlagApi,
+    private val formatUtils: FormatUtilities
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<AssetInfo, CryptoAsset>()
@@ -184,7 +186,8 @@ internal class DynamicAssetLoader(
             identity = identity,
             features = features,
             availableCustodialActions = assetActions,
-            availableNonCustodialActions = assetActions
+            availableNonCustodialActions = assetActions,
+            formatUtils = formatUtils
         )
     }
 

@@ -27,6 +27,7 @@ import java.lang.IllegalStateException
 import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.NonCustodialSupport
+import com.blockchain.coincore.wrap.FormatUtilities
 import thepit.PitLinking
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
@@ -49,7 +50,8 @@ internal class StaticAssetLoader(
     private val pitLinking: PitLinking,
     private val crashLogger: CrashLogger,
     private val identity: UserIdentity,
-    private val features: InternalFeatureFlagApi
+    private val features: InternalFeatureFlagApi,
+    private val formatUtils: FormatUtilities
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<AssetInfo, CryptoAsset>()
@@ -146,7 +148,8 @@ internal class StaticAssetLoader(
             identity = identity,
             features = features,
             availableCustodialActions = featureSet.toCustodialActions(),
-            availableNonCustodialActions = featureSet.toNonCustodialActions()
+            availableNonCustodialActions = featureSet.toNonCustodialActions(),
+            formatUtils = formatUtils
         )
     }
 

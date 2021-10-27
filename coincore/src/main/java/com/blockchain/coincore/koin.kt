@@ -19,6 +19,7 @@ import com.blockchain.coincore.loader.AssetLoaderSwitcher
 import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.StaticAssetLoader
+import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.koin.dynamicAssetsFeatureFlag
 import info.blockchain.balance.AssetInfo
@@ -107,7 +108,8 @@ val coincoreModule = module {
                 notificationUpdater = get(),
                 identity = get(),
                 features = get(),
-                assetCatalogue = lazy { get() }
+                assetCatalogue = lazy { get() },
+                formatUtils = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -162,7 +164,8 @@ val coincoreModule = module {
                 pitLinking = get(),
                 walletPreferences = get(),
                 identity = get(),
-                features = get()
+                features = get(),
+                formatUtils = get()
             )
         }
 
@@ -189,7 +192,8 @@ val coincoreModule = module {
                 pitLinking = get(),
                 walletPreferences = get(),
                 identity = get(),
-                features = get()
+                features = get(),
+                formatUtils = get()
             )
         }
 
@@ -256,6 +260,10 @@ val coincoreModule = module {
             assetsDataManager = get()
         )
     }.bind(AssetCatalogue::class)
+
+    factory {
+        FormatUtilities()
+    }
 }
 
 fun nonCustodialAssetList() =

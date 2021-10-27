@@ -18,6 +18,7 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxResult
@@ -97,7 +98,7 @@ open class EthOnChainTxEngine(
 
     private fun absoluteFees(): Single<Map<FeeLevel, CryptoValue>> =
         feeOptions().map {
-            val gasLimit = it.gasLimit
+            val gasLimit = if (txTarget.isContract) it.gasLimitContract else it.gasLimit
             mapOf(
                 FeeLevel.None to CryptoValue.zero(CryptoCurrency.ETHER),
                 FeeLevel.Regular to getValueForFeeLevel(gasLimit, it.regularFee),
@@ -130,11 +131,12 @@ open class EthOnChainTxEngine(
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
 
-        return Singles.zip(
-            sourceAccount.accountBalance.map { it as CryptoValue },
-            sourceAccount.actionableBalance.map { it as CryptoValue },
+        return Single.zip(
+            sourceAccount.balance.firstOrError(),
             absoluteFees()
-        ) { total, available, feeLevels ->
+        ) { balance, feeLevels ->
+            val total = balance.total as CryptoValue
+            val available = balance.actionable as CryptoValue
             val fees = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAsset)
 
             pendingTx.copy(
@@ -186,14 +188,13 @@ open class EthOnChainTxEngine(
 
         return Singles.zip(
             ethDataManager.getNonce(),
-            ethDataManager.isContractAddress(targetAddress.address),
             feeOptions()
-        ).map { (nonce, isContract, fees) ->
+        ).map { (nonce, fees) ->
             ethDataManager.createEthTransaction(
                 nonce = nonce,
                 to = targetAddress.address,
                 gasPriceWei = fees.gasPrice(pendingTx.feeSelection.selectedLevel),
-                gasLimitGwei = fees.getGasLimit(isContract),
+                gasLimitGwei = fees.getGasLimit(txTarget.isContract),
                 weiValue = pendingTx.amount.toBigInteger()
             )
         }
@@ -219,8 +220,8 @@ open class EthOnChainTxEngine(
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
-        Singles.zip(
-            sourceAccount.actionableBalance,
+        Single.zip(
+            sourceAccount.balance.map { it.actionable }.firstOrError(),
             absoluteFees()
         ) { balance: Money, feeLevels ->
             val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAsset)
@@ -246,3 +247,6 @@ open class EthOnChainTxEngine(
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular, FeeLevel.Priority)
     }
 }
+
+private val TransactionTarget.isContract: Boolean
+    get() = (this as? EthAddress)?.isContract ?: false
