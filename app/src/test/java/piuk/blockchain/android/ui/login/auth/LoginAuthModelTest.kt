@@ -397,7 +397,8 @@ class LoginAuthModelTest {
                 mobileDeviceType = 1,
                 lastMnemonicBackup = 0L,
                 hasCloudBackup = false,
-                twoFaType = 1
+                twoFaType = 1,
+                sessionId = "123"
             ),
             isUpgradeable = false,
             isMergeable = false,

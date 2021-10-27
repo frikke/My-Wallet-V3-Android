@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.login.auth
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -62,6 +63,12 @@ class LoginAuthActivity :
 
     private lateinit var currentState: LoginAuthState
 
+    private val pollingPayload: LoginAuthInfo.ExtendedAccountInfo? by lazy {
+        if (intent.hasExtra(POLLING_PAYLOAD)) {
+            intent.getSerializableExtra(POLLING_PAYLOAD) as LoginAuthInfo.ExtendedAccountInfo
+        } else null
+    }
+
     private var willUnifyAccount: Boolean = false
     private var isAccountRecoveryEnabled: Boolean = false
     private var email: String = ""
@@ -106,17 +113,25 @@ class LoginAuthActivity :
     private fun processIntentData() {
         analytics.logEvent(LoginAnalytics.DeviceVerified(analyticsInfo))
 
+        if (pollingPayload != null) {
+            model.process(LoginAuthIntents.GetSessionId(pollingPayload as LoginAuthInfo.ExtendedAccountInfo))
+            return
+        }
+
         val fragment = intent.data?.fragment ?: kotlin.run {
             model.process(LoginAuthIntents.ShowAuthRequired)
             return
         }
 
-        // Two possible cases here, string is either a GUID or a base64 that we need to decode.
+        // Two possible cases here, string is either a GUID or a base64 from deep-linking that we need to decode.
         val data = fragment.substringAfterLast(LINK_DELIMITER)
-        if (data.isValidGuid()) {
-            model.process(LoginAuthIntents.ShowManualPairing(data))
-        } else {
-            decodeBase64Payload(data)
+        when {
+            data.isValidGuid() -> {
+                model.process(LoginAuthIntents.ShowManualPairing(data))
+            }
+            else -> {
+                decodeBase64Payload(data)
+            }
         }
     }
 
@@ -472,7 +487,13 @@ class LoginAuthActivity :
     }
 
     companion object {
+        fun newInstance(context: Activity, pollingPayload: LoginAuthInfo.ExtendedAccountInfo): Intent =
+            Intent(context, LoginAuthActivity::class.java).apply {
+                putExtra(POLLING_PAYLOAD, pollingPayload)
+            }
+
         const val LINK_DELIMITER = "/login/"
+        private const val POLLING_PAYLOAD = "POLLING_PAYLOAD"
         private const val EMAIL = "email"
         private const val USER_ID = "user_id"
         private const val RECOVERY_TOKEN = "recovery_token"

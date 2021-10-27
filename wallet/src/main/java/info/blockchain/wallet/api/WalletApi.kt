@@ -307,6 +307,12 @@ class WalletApi(
         )
     }
 
+    fun getDeeplinkPayload(
+        sessionId: String
+    ): Single<ResponseBody> = explorerInstance.getDeeplinkPayload(
+        sessionId = sessionId.withBearerPrefix()
+    )
+
     private fun getApiCode(): String {
         return apiCode.apiCode
     }

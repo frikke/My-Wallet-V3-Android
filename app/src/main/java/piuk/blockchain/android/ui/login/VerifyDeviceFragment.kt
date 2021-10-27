@@ -54,7 +54,7 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
 
         with(binding) {
             backButton.setOnClickListener {
-                parentFragmentManager.popBackStack()
+                model.process(LoginIntents.RevertToEmailInput)
             }
             verifyDeviceDescription.text = getString(R.string.verify_device_desc)
             openEmailButton.setOnClickListener {

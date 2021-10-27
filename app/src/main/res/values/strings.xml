@@ -2178,6 +2178,8 @@
     <string name="tap_hardware_key_label">Tap |HARDWARE KEY| to verify</string>
     <string name="second_password_hint">Second password</string>
     <string name="second_password_notice">We’re moving away from 2nd passwords. Enable 2FA under security settings. <annotation link="learn_more">Learn more</annotation></string>
+    <string name="login_polling_timeout">Device verification session expired</string>
+    <string name="login_polling_denied">Device verification session denied on another device</string>
 
     <!-- Account Recovery -->
     <string name="account_recover_title">Verify your account</string>

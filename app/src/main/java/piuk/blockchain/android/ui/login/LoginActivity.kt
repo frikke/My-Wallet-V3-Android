@@ -163,12 +163,43 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))
                 }
             }
+            LoginStep.NAVIGATE_FROM_PAYLOAD -> {
+                newState.payload?.let {
+                    startActivity(LoginAuthActivity.newInstance(this, it))
+                }
+            }
             LoginStep.UNKNOWN_ERROR -> toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+            LoginStep.POLLING_PAYLOAD_ERROR -> handlePollingError(newState)
+            LoginStep.ENTER_EMAIL -> returnToEmailInput()
             else -> {
                 // do nothing
             }
         }
     }
+
+    private fun handlePollingError(newState: LoginState) =
+        when (newState.pollingState) {
+            AuthPollingState.TIMEOUT -> {
+                ToastCustom.makeText(
+                    this, getString(R.string.login_polling_timeout), ToastCustom.LENGTH_LONG,
+                    ToastCustom.TYPE_ERROR
+                )
+                returnToEmailInput()
+            }
+            AuthPollingState.ERROR -> {
+                // fail silently? - maybe log analytics
+            }
+            AuthPollingState.DENIED -> {
+                ToastCustom.makeText(
+                    this, getString(R.string.login_polling_denied), ToastCustom.LENGTH_LONG,
+                    ToastCustom.TYPE_ERROR
+                )
+                returnToEmailInput()
+            }
+            else -> {
+                // no error, do nothing
+            }
+        }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -190,6 +221,17 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         }
     }
 
+    private fun returnToEmailInput() {
+        supportFragmentManager.run {
+            this.findFragmentByTag(VerifyDeviceFragment::class.simpleName)?.let { fragment ->
+                beginTransaction()
+                    .remove(fragment)
+                    .commitAllowingStateLoss()
+                model.process(LoginIntents.RevertToEmailInput)
+            }
+        }
+    }
+
     private fun updateUI(newState: LoginState) {
         with(binding) {
             progressBar.visibleIf { newState.isLoading }
@@ -199,7 +241,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     newState.currentStep == LoginStep.SEND_EMAIL ||
                     newState.currentStep == LoginStep.VERIFY_DEVICE
             }
-            continueButton.isEnabled = newState.isTypingEmail && emailRegex.matches(newState.email)
+            continueButton.isEnabled =
+                emailRegex.matches(newState.email) || (newState.isTypingEmail && emailRegex.matches(newState.email))
         }
     }
 

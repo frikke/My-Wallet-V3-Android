@@ -221,4 +221,9 @@ interface WalletExplorerEndpoints {
         @Field("has_cloud_backup") isMobileSetup: Boolean,
         @Field("mobile_device_type") deviceType: Int
     ): Single<ResponseBody>
+
+    @GET("wallet/poll-for-wallet-info")
+    fun getDeeplinkPayload(
+        @Header("Authorization") sessionId: String
+    ): Single<ResponseBody>
 }

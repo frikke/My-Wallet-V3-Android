@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.login
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import piuk.blockchain.android.ui.base.mvi.MviIntent
+import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 
 sealed class LoginIntents : MviIntent<LoginState> {
 
@@ -47,6 +48,45 @@ sealed class LoginIntents : MviIntent<LoginState> {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
                 currentStep = LoginStep.VERIFY_DEVICE
+            )
+    }
+
+    object StartAuthPolling : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                pollingState = AuthPollingState.POLLING
+            )
+    }
+
+    object AuthPollingTimeout : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
+                pollingState = AuthPollingState.TIMEOUT
+            )
+    }
+
+    object AuthPollingError : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
+                pollingState = AuthPollingState.ERROR
+            )
+    }
+
+    object RevertToEmailInput : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.ENTER_EMAIL,
+                pollingState = AuthPollingState.NOT_STARTED
+            )
+    }
+
+    object AuthPollingDenied : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
+                pollingState = AuthPollingState.DENIED
             )
     }
 
@@ -112,6 +152,17 @@ sealed class LoginIntents : MviIntent<LoginState> {
                 currentStep = LoginStep.NAVIGATE_FROM_DEEPLINK,
                 intentAction = action,
                 intentUri = uri
+            )
+    }
+
+    class PollingPayloadReceived(
+        private val payload: LoginAuthInfo.ExtendedAccountInfo
+    ) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.NAVIGATE_FROM_PAYLOAD,
+                payload = payload,
+                pollingState = AuthPollingState.COMPLETE
             )
     }
 }

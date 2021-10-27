@@ -1,11 +1,16 @@
 package piuk.blockchain.android.ui.login
 
 import com.blockchain.logging.CrashLogger
+import com.blockchain.network.PollResult
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import okhttp3.ResponseBody
 import org.json.JSONObject
 import piuk.blockchain.android.ui.base.mvi.MviModel
+import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 import javax.net.ssl.SSLPeerUnverifiedException
@@ -30,13 +35,66 @@ class LoginModel(
                 sendVerificationEmail(
                     intent.sessionId,
                     intent.selectedEmail,
-                    intent.captcha
+                    intent.captcha,
+                    previousState.pollingState
                 )
             is LoginIntents.CheckForExistingSessionOrDeepLink -> {
                 process(interactor.checkSessionDetails(intent.action, intent.uri))
                 null
             }
+            is LoginIntents.RevertToEmailInput -> {
+                interactor.cancelPolling()
+                null
+            }
+            is LoginIntents.StartAuthPolling -> handlePayloadPollingResponse(previousState)
             else -> null
+        }
+    }
+
+    private fun handlePayloadPollingResponse(previousState: LoginState) =
+        interactor.pollForAuth(previousState.sessionId)
+            .subscribeBy(
+                onSuccess = {
+                    when (it) {
+                        is PollResult.Cancel -> {
+                            // do nothing - not a use-case here
+                        }
+                        is PollResult.TimeOut -> {
+                            process(LoginIntents.AuthPollingTimeout)
+                        }
+                        is PollResult.FinalResult -> decodePayloadAndProceed(it.value)
+                    }
+                },
+                onError = {
+                    process(LoginIntents.AuthPollingError)
+                }
+            )
+
+    private fun decodePayloadAndProceed(body: ResponseBody) {
+        val jsonBuilder = Json {
+            ignoreUnknownKeys = true
+        }
+        val bodyString = body.string()
+
+        // first we try to decode the body as the full payload
+        try {
+            val requestData = jsonBuilder.decodeFromString<LoginAuthInfo.ExtendedAccountInfo>(bodyString)
+            process(LoginIntents.PollingPayloadReceived(requestData))
+        } catch (throwable: Throwable) {
+            try {
+                // if initial decoding fails, we try to decode as a denied payload
+                val requestData = jsonBuilder.decodeFromString<LoginAuthInfo.PollingDeniedAccountInfo>(bodyString)
+
+                // check if value is actually denied, otherwise, we have an unexpected error
+                if (requestData.denied) {
+                    process(LoginIntents.AuthPollingDenied)
+                } else {
+                    process(LoginIntents.AuthPollingError)
+                }
+            } catch (throwable: Throwable) {
+                // if second decode fails, we have an unexpected error
+                process(LoginIntents.AuthPollingError)
+            }
         }
     }
 
@@ -77,10 +135,16 @@ class LoginModel(
     private fun sendVerificationEmail(
         sessionId: String,
         email: String,
-        captcha: String
+        captcha: String,
+        pollingState: AuthPollingState
     ): Disposable = interactor.sendEmailForVerification(sessionId, email, captcha)
         .subscribeBy(
-            onComplete = { process(LoginIntents.ShowEmailSent) },
+            onComplete = {
+                process(LoginIntents.ShowEmailSent)
+                if (pollingState == AuthPollingState.NOT_STARTED) {
+                    process(LoginIntents.StartAuthPolling)
+                }
+            },
             onError = { throwable ->
                 Timber.e(throwable)
                 process(LoginIntents.ShowEmailFailed)

@@ -368,6 +368,8 @@ class AuthDataManager(
             captcha = captcha
         )
 
+    fun getDeeplinkPayload(sessionId: String) = walletAuthService.getDeeplinkPayload(sessionId)
+
     companion object {
         @VisibleForTesting
         internal const val AUTHORIZATION_REQUIRED = "authorization_required"

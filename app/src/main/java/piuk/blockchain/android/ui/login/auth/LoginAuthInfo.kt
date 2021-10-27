@@ -3,7 +3,13 @@ package piuk.blockchain.android.ui.login.auth
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-sealed class LoginAuthInfo {
+sealed class LoginAuthInfo : java.io.Serializable {
+    @Serializable
+    data class PollingDeniedAccountInfo(
+        @SerialName("request_denied")
+        val denied: Boolean
+    )
+
     @Serializable
     data class SimpleAccountInfo(
         @SerialName("guid")
@@ -69,8 +75,10 @@ data class AccountWalletInfo(
     @SerialName("nabu")
     val nabuAccountInfo: NabuAccountInfo = NabuAccountInfo(),
     @SerialName("exchange")
-    val accountExchange: AccountExchangeInfo = AccountExchangeInfo()
-)
+    val accountExchange: AccountExchangeInfo = AccountExchangeInfo(),
+    @SerialName("session_id")
+    val sessionId: String
+) : java.io.Serializable
 
 @Serializable
 data class NabuAccountInfo(
@@ -80,7 +88,7 @@ data class NabuAccountInfo(
     val recoveryToken: String = "",
     @SerialName("recovery_eligible")
     val isRecoveryEligible: String = ""
-)
+) : java.io.Serializable
 
 @Serializable
 data class AccountExchangeInfo(
@@ -88,4 +96,4 @@ data class AccountExchangeInfo(
     val userId: String = "",
     @SerialName("two_fa_mode")
     val twoFaMode: Boolean = false
-)
+) : java.io.Serializable
