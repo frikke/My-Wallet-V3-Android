@@ -28,7 +28,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.swap.OUTGOING_FEE
 import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import timber.log.Timber

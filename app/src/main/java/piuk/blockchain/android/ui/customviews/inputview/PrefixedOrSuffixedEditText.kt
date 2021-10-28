@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.customviews
+package piuk.blockchain.android.ui.customviews.inputview
 
 import android.content.Context
 import android.graphics.Rect
@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import com.blockchain.utils.tryParseBigDecimal
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
+import piuk.blockchain.android.ui.customviews.AutofitEdittext
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import java.math.BigDecimal
 import kotlin.properties.Delegates
@@ -141,10 +142,10 @@ class PrefixedOrSuffixedEditText : AutofitEdittext {
             setText(text.toString().replace(digitsOnlyRegex, ""))
         }
     }
-}
 
-internal data class Configuration(
-    val prefixOrSuffix: String = "",
-    val isPrefix: Boolean = true,
-    val initialText: String = ""
-)
+    internal data class Configuration(
+        val prefixOrSuffix: String = "",
+        val isPrefix: Boolean = true,
+        val initialText: String = ""
+    )
+}

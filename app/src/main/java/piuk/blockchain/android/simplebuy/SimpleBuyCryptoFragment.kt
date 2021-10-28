@@ -40,9 +40,9 @@ import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
-import piuk.blockchain.android.ui.customviews.CurrencyType
-import piuk.blockchain.android.ui.customviews.FiatCryptoViewConfiguration
-import piuk.blockchain.android.ui.customviews.PrefixedOrSuffixedEditText
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
+import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.customviews
+package piuk.blockchain.android.ui.customviews.inputview
 
 import android.content.Context
 import android.text.Editable
@@ -15,7 +15,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
-import piuk.blockchain.android.ui.customviews.inputview.DecimalDigitsInputFilter
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -99,7 +98,7 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) : Constrain
                 is SingleInputViewConfiguration.Fiat -> {
                     val fiatSymbol = Currency.getInstance(newValue.fiatCurrency).getSymbol(Locale.getDefault())
                     updateFilters(fiatSymbol)
-                    configuration = Configuration(
+                    configuration = PrefixedOrSuffixedEditText.Configuration(
                         prefixOrSuffix = fiatSymbol,
                         isPrefix = true,
                         initialText = newValue.predefinedAmount.toStringWithoutSymbol()
@@ -113,7 +112,7 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) : Constrain
                 is SingleInputViewConfiguration.Crypto -> {
                     val cryptoSymbol = newValue.cryptoCurrency.displayTicker
                     updateFilters(cryptoSymbol)
-                    configuration = Configuration(
+                    configuration = PrefixedOrSuffixedEditText.Configuration(
                         prefixOrSuffix = cryptoSymbol,
                         isPrefix = false,
                         initialText = newValue.predefinedAmount.toStringWithoutSymbol()

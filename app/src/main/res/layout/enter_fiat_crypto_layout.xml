@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <piuk.blockchain.android.ui.customviews.PrefixedOrSuffixedEditText
+    <piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
         android:id="@+id/enter_amount"
         style="@style/Text.Semibold.40"
         android:layout_width="match_parent"

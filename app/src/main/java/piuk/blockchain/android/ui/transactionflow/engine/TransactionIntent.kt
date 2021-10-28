@@ -18,7 +18,7 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.core.payments.model.FundsLocks
 import piuk.blockchain.android.ui.base.mvi.MviIntent
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import java.util.Stack
 
 sealed class TransactionIntent : MviIntent<TransactionState> {

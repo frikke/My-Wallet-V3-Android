@@ -43,9 +43,10 @@ interface ExchangeRates {
 interface ExchangeRatesDataManager : ExchangeRates {
     fun init(): Single<SupportedTickerList>
 
+    fun cryptoToFiatRate(fromAsset: AssetInfo, toFiat: String): Observable<ExchangeRate>
+    fun fiatToFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate>
     fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate>
     fun fiatToUserFiatRate(fromFiat: String): Observable<ExchangeRate>
-    fun fiatToRateFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate>
 
     fun getHistoricRate(fromAsset: AssetInfo, secSinceEpoch: Long): Single<ExchangeRate>
     fun getPricesWith24hDelta(fromAsset: AssetInfo): Observable<Prices24HrWithDelta>

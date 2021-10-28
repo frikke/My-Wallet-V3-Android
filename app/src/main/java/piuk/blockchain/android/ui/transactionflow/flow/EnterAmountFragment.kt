@@ -32,11 +32,11 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
+import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
+import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.customviews.CurrencyType
-import piuk.blockchain.android.ui.customviews.FiatCryptoInputView
-import piuk.blockchain.android.ui.customviews.FiatCryptoViewConfiguration
-import piuk.blockchain.android.ui.customviews.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.locks.LocksInfoBottomSheet
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState

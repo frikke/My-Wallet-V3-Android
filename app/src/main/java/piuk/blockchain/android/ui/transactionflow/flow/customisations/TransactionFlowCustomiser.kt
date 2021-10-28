@@ -19,7 +19,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.customviews.account.AccountInfoBank
 import piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
 import piuk.blockchain.android.ui.customviews.account.AccountInfoFiat

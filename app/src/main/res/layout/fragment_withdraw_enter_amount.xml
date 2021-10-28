@@ -57,7 +57,7 @@
         app:layout_constraintTop_toTopOf="@+id/available"
         tools:src="@drawable/ic_funds_gbp" />
 
-    <piuk.blockchain.android.ui.customviews.SingleCurrencyInputView
+    <piuk.blockchain.android.ui.customviews.inputview.SingleCurrencyInputView
         android:id="@+id/input_amount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

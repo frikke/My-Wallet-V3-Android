@@ -35,6 +35,16 @@ internal class ExchangeRatesDataManagerImpl(
                 )
             }
 
+    override fun cryptoToFiatRate(fromAsset: AssetInfo, toFiat: String): Observable<ExchangeRate> =
+        priceStore.getPriceForAsset(fromAsset.networkTicker, toFiat)
+            .map {
+                ExchangeRate.CryptoToFiat(
+                    from = fromAsset,
+                    to = it.quote,
+                    rate = it.currentRate
+                )
+            }
+
     override fun fiatToUserFiatRate(fromFiat: String): Observable<ExchangeRate> =
         priceStore.getPriceForAsset(fromFiat, userFiat)
             .map {
@@ -45,7 +55,7 @@ internal class ExchangeRatesDataManagerImpl(
                 )
             }
 
-    override fun fiatToRateFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate> =
+    override fun fiatToFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate> =
         priceStore.getPriceForAsset(fromFiat, toFiat)
             .map {
                 ExchangeRate.FiatToFiat(

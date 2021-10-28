@@ -35,7 +35,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/on_hold_cell" />
 
-    <piuk.blockchain.android.ui.customviews.FiatCryptoInputView
+    <piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
         android:id="@+id/amount_sheet_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

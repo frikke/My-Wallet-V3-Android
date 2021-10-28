@@ -10,7 +10,7 @@ import com.blockchain.core.price.canConvert
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTxFullscreenFeeAndBalanceBinding
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
