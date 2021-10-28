@@ -31,6 +31,7 @@ internal class AssetResourcesImpl(val resources: Resources) : AssetResources {
     override fun loadAssetIcon(imageView: ImageView, asset: AssetInfo) {
         Glide.with(imageView.context)
             .load(asset.logo)
+            .circleCrop()
             .apply(RequestOptions().placeholder(R.drawable.ic_default_asset_logo))
             .into(imageView)
     }
