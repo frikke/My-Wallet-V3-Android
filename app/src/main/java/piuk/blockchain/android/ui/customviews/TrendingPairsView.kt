@@ -114,14 +114,17 @@ private class TrendingPairsAdapter(
             binding.apply {
                 assetResources.loadAssetIcon(trendingIconIn, item.sourceAccount.asset)
                 assetResources.loadAssetIcon(trendingIconOut, item.destinationAccount.asset)
-                if (item.enabled) {
-                    trendingRoot.setOnClickListener {
-                        itemClicked(item)
+                trendingRoot.apply {
+                    contentDescription =
+                        "$TRENDING_PAIR_SWAP_VIEW_ID${item.sourceAccount.asset.networkTicker}" +
+                            "$FOR_CONTENT_DESCRIPTION${item.destinationAccount.asset.networkTicker}"
+                    if (item.enabled) {
+                        setOnClickListener { itemClicked(item) }
+                        alpha = 1f
+                    } else {
+                        setOnClickListener(null)
+                        alpha = 0.6f
                     }
-                    trendingRoot.alpha = 1f
-                } else {
-                    trendingRoot.setOnClickListener(null)
-                    trendingRoot.alpha = 0.6f
                 }
 
                 when (type) {
@@ -141,6 +144,11 @@ private class TrendingPairsAdapter(
                     }
                 }
             }
+        }
+
+        companion object {
+            private const val TRENDING_PAIR_SWAP_VIEW_ID = "TrendingPairViewSwap_"
+            private const val FOR_CONTENT_DESCRIPTION = "_FOR_"
         }
     }
 }

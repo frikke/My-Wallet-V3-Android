@@ -58,8 +58,9 @@ private class AssetCardViewHolder(
         onCardClicked: (AssetInfo) -> Unit
     ) {
         with(binding) {
-            fiatBalance.contentDescription = "$FIAT_BALANCE_ID${state.currency.displayTicker}"
-            cryptoBalance.contentDescription = "$CRYPTO_BALANCE_ID${state.currency.displayTicker}"
+            root.contentDescription = "$ASSET_CARD_ID${state.currency.networkTicker}"
+            fiatBalance.contentDescription = "$FIAT_BALANCE_ID${state.currency.networkTicker}"
+            cryptoBalance.contentDescription = "$CRYPTO_BALANCE_ID${state.currency.networkTicker}"
 
             assetResources.loadAssetIcon(icon, state.currency)
             currency.text = state.currency.name
@@ -159,6 +160,7 @@ private class AssetCardViewHolder(
     companion object {
         private const val FIAT_BALANCE_ID = "DashboardAssetFiatBalance_"
         private const val CRYPTO_BALANCE_ID = "DashboardAssetCryptoBalance_"
+        private const val ASSET_CARD_ID = "DashboardAssetCard_"
     }
 }
 

@@ -134,7 +134,7 @@ private class MultipleFundsAdapter(
                 borderedFundsTitle.setStringFromTicker(context, ticker)
                 borderedFundsFiatTicker.text = ticker
                 borderedFundsBalance.text = if (selectedFiat == ticker) {
-                    assetInfo.balance?.toStringWithSymbol()
+                    assetInfo.balance.toStringWithSymbol()
                 } else {
                     assetInfo.userFiat?.toStringWithSymbol()
                 }

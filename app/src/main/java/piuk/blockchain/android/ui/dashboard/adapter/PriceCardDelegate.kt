@@ -52,6 +52,7 @@ private class PriceCardViewHolder(
         onCardClicked: (AssetInfo) -> Unit
     ) {
         with(binding) {
+            root.contentDescription = "$PRICE_CARD_ID${item.asset.networkTicker}"
             assetResources.loadAssetIcon(icon, item.asset)
             currency.text = item.assetName
             root.setOnClickListenerDebounced { onCardClicked(item.asset) }
@@ -70,5 +71,6 @@ private class PriceCardViewHolder(
 
     private companion object {
         const val UNKNOWN_PRICE = "--"
+        private const val PRICE_CARD_ID = "DashboardAssetPriceCard_"
     }
 }

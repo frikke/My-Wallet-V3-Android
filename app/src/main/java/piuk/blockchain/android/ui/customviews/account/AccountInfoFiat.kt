@@ -48,6 +48,7 @@ class AccountInfoFiat @JvmOverloads constructor(
         onAccountClicked: (FiatAccount) -> Unit
     ) {
         with(binding) {
+            contentDescription = "$ACCOUNT_INFO_FIAT_VIEW_ID${account.fiatCurrency}_${account.label}"
             val userFiat = currencyPrefs.selectedFiatCurrency
 
             walletName.text = account.label
@@ -107,5 +108,9 @@ class AccountInfoFiat @JvmOverloads constructor(
 
     override fun setVisible(isVisible: Boolean) {
         binding.root.visibleIf { isVisible }
+    }
+
+    companion object {
+        private const val ACCOUNT_INFO_FIAT_VIEW_ID = "FiatAccountView_"
     }
 }

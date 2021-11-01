@@ -109,6 +109,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     ) {
 
         with(binding) {
+            root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.asset.networkTicker}_${account.label}"
             val crypto = account.asset
             walletName.text = account.label
 
@@ -199,6 +200,10 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     override fun setVisible(isVisible: Boolean) {
         binding.root.visibleIf { isVisible }
+    }
+
+    companion object {
+        private const val ACCOUNT_INFO_CRYPTO_VIEW_ID = "AccountInfoCrypto_"
     }
 }
 
