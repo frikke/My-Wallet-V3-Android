@@ -2,14 +2,17 @@ package piuk.blockchain.android
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
+import android.os.SystemClock
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.android.installreferrer.api.InstallReferrerClient
@@ -19,9 +22,9 @@ import com.blockchain.koin.apiRetrofit
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.appLaunchEvent
+import com.blockchain.notifications.analytics.AppLaunchEvent
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppInfoPrefs.Companion.DEFAULT_APP_VERSION_CODE
 import com.facebook.stetho.Stetho
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -33,25 +36,22 @@ import info.blockchain.wallet.api.Environment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
-import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.ui.auth.LogoutActivity
+import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppAnalytics
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
-import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
-import piuk.blockchain.androidcore.utils.PrngFixer
 import retrofit2.Retrofit
 import timber.log.Timber
 
@@ -59,7 +59,6 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
     private val retrofitApi: Retrofit by inject(apiRetrofit)
     private val environmentSettings: EnvironmentConfig by inject()
-    private val loginState: AccessState by inject()
     private val lifeCycleInterestedComponent: LifecycleInterestedComponent by inject()
     private val appInfoPrefs: AppInfoPrefs by inject()
     private val rxBus: RxBus by inject()
@@ -70,6 +69,8 @@ open class BlockchainApplication : Application(), FrameworkInterface {
     private val crashLogger: CrashLogger by inject()
     private val coinsWebSocketService: CoinsWebSocketService by inject()
     private val trust: SiftDigitalTrust by inject()
+
+    private lateinit var logoutPendingIntent: PendingIntent
 
     private val lifecycleListener: AppLifecycleListener by lazy {
         AppLifecycleListener(lifeCycleInterestedComponent)
@@ -105,23 +106,6 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         UncaughtExceptionHandler.install(appUtils)
         RxJavaPlugins.setErrorHandler { throwable -> Timber.tag(RX_ERROR_TAG).e(throwable) }
 
-        loginState.setLogoutActivity(LogoutActivity::class.java)
-
-        // Apply PRNG fixes on app start if needed
-        val prngUpdater: PrngFixer = get()
-        prngUpdater.applyPRNGFixes()
-
-        ApplicationLifeCycle.getInstance()
-            .addListener(object : ApplicationLifeCycle.LifeCycleListener {
-                override fun onBecameForeground() {
-                    // Ensure that PRNG fixes are always current for the session
-                    prngUpdater.applyPRNGFixes()
-                }
-
-                override fun onBecameBackground() {
-                }
-            })
-
         ConnectivityManager.getInstance().registerNetworkListener(this, rxBus)
 
         checkSecurityProviderAndPatchIfNeeded()
@@ -131,9 +115,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         registerActivityLifecycleCallbacks(activityCallback)
 
         // Report Google Play Services availability
-        Logging.init(this)
-        Logging.logEvent(appLaunchEvent(isGooglePlayServicesAvailable(this)))
-
+        analytics.logEvent(AppLaunchEvent(isGooglePlayServicesAvailable(this)))
         // Register the notification channel if necessary
         initNotifications()
 
@@ -146,17 +128,28 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         AppVersioningChecks(
             context = this,
             appInfoPrefs = appInfoPrefs,
-            onAppInstalled = { onAppInstalled() },
-            onAppAppUpdated = { onAppUpdated() }
+            onAppInstalled = { code, name -> onAppInstalled(code, name) },
+            onAppAppUpdated = { appUpdated -> onAppUpdated(appUpdated) }
         ).checkForPotentialNewInstallOrUpdate()
     }
 
-    private fun onAppUpdated() {
-        analytics.logEvent(AppAnalytics.AppUpdated)
+    private fun onAppUpdated(updateInfo: AppUpdateInfo) {
+        analytics.logEvent(
+            AppAnalytics.AppUpdated(
+                previousVersionCode = updateInfo.previousVersionCode,
+                installedVersion = updateInfo.installedVersionName,
+                currentVersionCode = updateInfo.versionCode,
+                currentVersionName = updateInfo.versionName
+            )
+        )
     }
 
-    private fun onAppInstalled() {
-        analytics.logEvent(AppAnalytics.AppInstalled)
+    private fun onAppInstalled(versionCode: Int, versionName: String) {
+        analytics.logEvent(
+            AppAnalytics.AppInstalled(
+                versionCode = versionCode, versionName = versionName
+            )
+        )
     }
 
     @SuppressLint("CheckResult")
@@ -225,6 +218,32 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         return BuildConfig.VERSION_NAME
     }
 
+    fun startLogoutTimer() {
+        val intent = Intent(this, LogoutActivity::class.java)
+            .apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                action = BlockchainActivity.LOGOUT_ACTION
+            }
+        logoutPendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        (getSystemService(Context.ALARM_SERVICE) as AlarmManager).set(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS,
+            logoutPendingIntent
+        )
+    }
+
+    fun stopLogoutTimer() {
+        if (::logoutPendingIntent.isInitialized) {
+            (getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(logoutPendingIntent)
+        }
+    }
+
     override val apiCode: String
         get() = "25a6ad13-1633-4dfb-b6ee-9b91cdf0b5c3"
 
@@ -277,7 +296,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
      */
     internal fun onProviderInstallerNotAvailable() {
         // TODO: 05/08/2016 Decide if we should take action here or not
-        Timber.wtf("Security Provider Installer not available")
+        // Timber.wtf("Security Provider Installer not available")
     }
 
     /**
@@ -323,15 +342,16 @@ open class BlockchainApplication : Application(), FrameworkInterface {
     }
 
     companion object {
-        const val RX_ERROR_TAG = "RxJava Error"
+        private const val RX_ERROR_TAG = "RxJava Error"
+        private const val LOGOUT_TIMEOUT_MILLIS = 1000L * 60L * 5L // 5 minutes
     }
 }
 
 private class AppVersioningChecks(
     private val context: Context,
     private val appInfoPrefs: AppInfoPrefs,
-    private val onAppInstalled: () -> Unit,
-    private val onAppAppUpdated: () -> Unit
+    private val onAppInstalled: (versionCode: Int, versionName: String) -> Unit,
+    private val onAppAppUpdated: (appUpdated: AppUpdateInfo) -> Unit
 ) {
 
     fun checkForPotentialNewInstallOrUpdate() {
@@ -355,7 +375,7 @@ private class AppVersioningChecks(
                                 appInfoPrefs.installationVersionName = it
                                 val runningVersionIsTheInstalled = it == BuildConfig.VERSION_NAME
                                 if (runningVersionIsTheInstalled) {
-                                    onAppInstalled()
+                                    onAppInstalled(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
                                 } else {
                                     checkForPotentialUpdate(it)
                                 }
@@ -388,10 +408,26 @@ private class AppVersioningChecks(
         val appHasJustBeenUpdated = runningVersionName != installedVersion && versionCodeUpdated
 
         if (appHasJustBeenUpdated) {
-            onAppAppUpdated()
+            onAppAppUpdated(
+                AppUpdateInfo(
+                    versionCode = runningVersionCode,
+                    versionName = runningVersionName,
+                    installedVersionName = installedVersion,
+                    previousVersionCode = appInfoPrefs.currentStoredVersionCode.takeIf {
+                        it != DEFAULT_APP_VERSION_CODE
+                    }
+                )
+            )
         }
         if (versionCodeUpdated) {
             appInfoPrefs.currentStoredVersionCode = runningVersionCode
         }
     }
 }
+
+data class AppUpdateInfo(
+    val versionCode: Int,
+    val versionName: String,
+    val previousVersionCode: Int?,
+    val installedVersionName: String
+)

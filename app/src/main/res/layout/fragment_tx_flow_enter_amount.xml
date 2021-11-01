@@ -3,8 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/frame_upper_slot"
@@ -36,15 +35,28 @@
         android:paddingTop="@dimen/very_small_margin"
         app:layout_constraintTop_toBottomOf="@id/amount_sheet_input" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/amount_sheet_cta_button"
         style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/very_small_margin"
         android:contentDescription="@string/next"
+        android:enabled="false"
         android:minHeight="32dp"
-        android:text="@string/next"
+        android:text="@string/common_preview"
+        app:layout_constraintTop_toBottomOf="@id/frame_lower_slot" />
+
+    <include
+        android:id="@+id/error_layout"
+        layout="@layout/error_container_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/frame_lower_slot" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

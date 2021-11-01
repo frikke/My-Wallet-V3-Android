@@ -2,17 +2,18 @@ package piuk.blockchain.android.ui.dashboard.model
 
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
+import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class HideAssetDetailsTest {
 
-    val subject = ClearBottomSheet
+    val subject = DashboardIntent.ClearBottomSheet
 
     @Test
     fun `clearing empty asset sheet no effect`() {
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -21,15 +22,15 @@ class HideAssetDetailsTest {
             announcement = testAnnouncementCard_1
         )
 
-        val result = ClearBottomSheet.reduce(initialState)
+        val result = DashboardIntent.ClearBottomSheet.reduce(initialState)
         assertEquals(result, initialState)
     }
 
     @Test
     fun `clearing asset sheet, clears the asset and leaves other fields unchanged`() {
 
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -38,9 +39,9 @@ class HideAssetDetailsTest {
             announcement = testAnnouncementCard_1
         )
 
-        val result = ClearBottomSheet.reduce(initialState)
+        val result = DashboardIntent.ClearBottomSheet.reduce(initialState)
 
-        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeAssets, initialState.activeAssets)
         assertNull(result.dashboardNavigationAction)
         assertEquals(result.announcement, initialState.announcement)
     }
@@ -48,8 +49,8 @@ class HideAssetDetailsTest {
     @Test
     fun `clearing promo sheet, clears the sheet and leaves other fields unchanged`() {
 
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -58,9 +59,9 @@ class HideAssetDetailsTest {
             announcement = testAnnouncementCard_1
         )
 
-        val result = ClearBottomSheet.reduce(initialState)
+        val result = DashboardIntent.ClearBottomSheet.reduce(initialState)
 
-        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeAssets, initialState.activeAssets)
         assertNull(result.dashboardNavigationAction)
         assertEquals(result.announcement, initialState.announcement)
     }

@@ -128,8 +128,8 @@ class SimpleBuyCheckoutFragment :
             }
         }
 
-        if (newState.errorState != null) {
-            showErrorState(newState.errorState)
+        if (newState.buyErrorState != null) {
+            showErrorState(newState.buyErrorState)
             return
         }
 
@@ -180,7 +180,10 @@ class SimpleBuyCheckoutFragment :
 
             val sb = SpannableStringBuilder()
             val privateKeyExplanation =
-                getString(R.string.checkout_item_private_key_wallet_explanation, selectedCryptoAsset.ticker)
+                getString(
+                    R.string.checkout_item_private_key_wallet_explanation_1,
+                    selectedCryptoAsset.displayTicker
+                )
             sb.append(privateKeyExplanation)
                 .append(learnMoreLink)
                 .setSpan(
@@ -249,7 +252,7 @@ class SimpleBuyCheckoutFragment :
 
         return listOfNotNull(
             SimpleBuyCheckoutItem.ExpandableCheckoutItem(
-                getString(R.string.quote_price, state.selectedCryptoAsset?.ticker),
+                getString(R.string.quote_price, state.selectedCryptoAsset?.displayTicker),
                 state.orderExchangePrice?.toStringWithSymbol().orEmpty(),
                 priceExplanation
             ),
@@ -336,7 +339,7 @@ class SimpleBuyCheckoutFragment :
         with(binding) {
             buttonAction.apply {
                 if (!isForPendingPayment && !isOrderAwaitingFunds) {
-                    text = getString(R.string.buy_now_1, state.orderValue?.toStringWithSymbol())
+                    text = getString(R.string.buy_asset_now, state.orderValue?.toStringWithSymbol())
                     setOnClickListener {
                         model.process(SimpleBuyIntent.ConfirmOrder)
                         analytics.logEvent(

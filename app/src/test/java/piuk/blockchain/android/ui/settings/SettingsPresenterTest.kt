@@ -33,12 +33,10 @@ import org.mockito.Mockito
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.scan.QrScanResultProcessor
-import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.android.thepit.PitLinkingState
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.tiers
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.Email
@@ -47,6 +45,8 @@ import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import retrofit2.HttpException
 import retrofit2.Response.error
+import thepit.PitLinking
+import thepit.PitLinkingState
 
 class SettingsPresenterTest {
 
@@ -70,7 +70,7 @@ class SettingsPresenterTest {
     private val payloadDataManager: PayloadDataManager = mock()
 
     private val prefsUtil: PersistentPrefs = mock()
-    private val accessState: AccessState = mock()
+    private val pinRepository: PinRepository = mock()
 
     private val notificationTokenManager: NotificationTokenManager = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock()
@@ -98,7 +98,7 @@ class SettingsPresenterTest {
             payloadManager = payloadManager,
             payloadDataManager = payloadDataManager,
             prefs = prefsUtil,
-            accessState = accessState,
+            pinRepository = pinRepository,
             custodialWalletManager = custodialWalletManager,
             notificationTokenManager = notificationTokenManager,
             exchangeRates = exchangeRates,
@@ -580,7 +580,7 @@ class SettingsPresenterTest {
         val newPassword = "NEW_PASSWORD"
         val oldPassword = "OLD_PASSWORD"
         val pin = "PIN"
-        whenever(accessState.pin).thenReturn(pin)
+        whenever(pinRepository.pin).thenReturn(pin)
         whenever(authDataManager.createPin(newPassword, pin)).thenReturn(Completable.complete())
         whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
         whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
@@ -589,7 +589,7 @@ class SettingsPresenterTest {
         subject.updatePassword(newPassword, oldPassword)
 
         // Assert
-        verify(accessState).pin
+        verify(pinRepository).pin
         verify(authDataManager).createPin(newPassword, pin)
         verify(payloadDataManager).syncPayloadWithServer()
         verify(activity).showProgress()
@@ -603,7 +603,7 @@ class SettingsPresenterTest {
         val newPassword = "NEW_PASSWORD"
         val oldPassword = "OLD_PASSWORD"
         val pin = "PIN"
-        whenever(accessState.pin).thenReturn(pin)
+        whenever(pinRepository.pin).thenReturn(pin)
         whenever(authDataManager.createPin(newPassword, pin))
             .thenReturn(Completable.error(Throwable()))
         whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
@@ -613,7 +613,7 @@ class SettingsPresenterTest {
         subject.updatePassword(newPassword, oldPassword)
 
         // Assert
-        verify(accessState).pin
+        verify(pinRepository).pin
         verify(authDataManager).createPin(newPassword, pin)
         verify(payloadDataManager).syncPayloadWithServer()
         verify(payloadManager).tempPassword = newPassword

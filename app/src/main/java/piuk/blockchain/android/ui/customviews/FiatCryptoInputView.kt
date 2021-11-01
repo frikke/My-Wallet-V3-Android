@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.hasOppositeSourceAndTarget
 import com.blockchain.core.price.hasSameSourceAndTarget
 import com.blockchain.koin.scopedInject
@@ -54,7 +54,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
     val amount: Observable<Money>
         get() = amountSubject.distinctUntilChanged()
 
-    private val exchangeRates: ExchangeRates by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
 
@@ -176,6 +176,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
             updateFilters(binding.enterAmount.configuration.prefixOrSuffix, newValue.toInputCurrency())
     }
 
+    @Deprecated("Error messages arent part of the input")
     fun showError(errorMessage: String, shouldDisableInput: Boolean = false) {
         with(binding) {
             error.text = errorMessage
@@ -184,6 +185,12 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
             hideExchangeAmount()
             exchangeAmount.isEnabled = !shouldDisableInput
         }
+    }
+
+    fun onAmountValidationUpdated(isValid: Boolean) {
+        val colour = if (isValid) R.color.grey_800 else R.color.red_400
+        binding.enterAmount.setTextColor(resources.getColor(colour, null))
+        binding.exchangeAmount.setTextColor(resources.getColor(colour, null))
     }
 
     fun showInfo(infoMessage: String, onClick: () -> Unit) {
@@ -296,6 +303,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
         return when (input) {
             is CurrencyType.Fiat -> when (output) {
                 is CurrencyType.Crypto -> {
+                    // TODO rework this to utilise the RX streams, replace the deprecated methods
                     exchangeRates.getLastCryptoToFiatRate(
                         sourceCrypto = output.cryptoCurrency,
                         targetFiat = input.fiatCurrency
@@ -389,13 +397,13 @@ private fun CurrencyType.zeroValue(): Money =
 private fun CurrencyType.symbol(): String =
     when (this) {
         is CurrencyType.Fiat -> Currency.getInstance(fiatCurrency).getSymbol(Locale.getDefault())
-        is CurrencyType.Crypto -> cryptoCurrency.ticker
+        is CurrencyType.Crypto -> cryptoCurrency.displayTicker
     }
 
 private fun CurrencyType.rawCurrency(): String =
     when (this) {
         is CurrencyType.Fiat -> fiatCurrency
-        is CurrencyType.Crypto -> cryptoCurrency.ticker
+        is CurrencyType.Crypto -> cryptoCurrency.networkTicker
     }
 
 sealed class CurrencyType {

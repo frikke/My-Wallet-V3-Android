@@ -4,8 +4,9 @@ import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
+import java.io.Serializable
 
-sealed class SettingsAnalytics(override val event: String, override val params: Map<String, String> = mapOf()) :
+sealed class SettingsAnalytics(override val event: String, override val params: Map<String, Serializable> = mapOf()) :
     AnalyticsEvent {
 
     object EmailClicked : SettingsAnalytics("settings_email_clicked")
@@ -43,7 +44,7 @@ sealed class SettingsAnalytics(override val event: String, override val params: 
     class BiometricsOptionUpdated(isEnabled: Boolean) : SettingsAnalytics(
         AnalyticsNames.BIOMETRICS_OPTION_UPDATED.eventName,
         mapOf(
-            "is_enabled" to isEnabled.toString()
+            "is_enabled" to isEnabled
         )
     )
 
@@ -77,10 +78,14 @@ sealed class SettingsAnalytics(override val event: String, override val params: 
         SettingsAnalytics(AnalyticsNames.REMOVE_CARD_CLICKED.eventName)
 
     class SettingsHyperlinkClicked(private val destination: AnalyticsHyperlinkDestination) :
-        SettingsAnalytics(AnalyticsNames.SETTINGS_HYPERLINK_DESTINATION.eventName)
+        SettingsAnalytics(
+            AnalyticsNames.SETTINGS_HYPERLINK_DESTINATION.eventName, mapOf(
+                "destination" to destination.name
+            )
+        )
 
     companion object {
-        const val TWO_SET_MOBILE_NUMBER_OPTION = "Mobile Number"
+        const val TWO_SET_MOBILE_NUMBER_OPTION = "MOBILE_NUMBER"
         private const val TWO_STEP_OPTION = "two_step_option"
     }
 

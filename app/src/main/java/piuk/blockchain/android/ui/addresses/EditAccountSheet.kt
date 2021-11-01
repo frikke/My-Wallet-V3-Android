@@ -16,15 +16,15 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAccount
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.bch.BchCryptoWalletAccount
-import piuk.blockchain.android.coincore.btc.BtcCryptoWalletAccount
-import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.bch.BchCryptoWalletAccount
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.databinding.DialogAccountEditBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -268,10 +268,10 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
 
     private fun generateQrCode(qrString: String) =
         try {
-            QRCodeEncoder(
+            QRCodeEncoder().encodeAsBitmap(
                 qrString,
                 QR_CODE_DIMENSION
-            ).encodeAsBitmap()
+            )
         } catch (e: WriterException) {
             Timber.e(e)
             null

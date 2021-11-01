@@ -32,21 +32,24 @@ class PitVerifyEmailActivity : BaseMvpActivity<PitVerifyEmailView, PitVerifyEmai
             emailAddress.text = email
 
             sendAgain.setOnClickListener {
-                presenter.resendMail(email)
+                presenter?.resendMail(email)
             }
 
             openApp.setOnClickListener {
                 val intent = Intent(Intent.ACTION_MAIN)
-                intent.addCategory(Intent.CATEGORY_APP_EMAIL)
+                intent.apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addCategory(Intent.CATEGORY_APP_EMAIL)
+                }
                 startActivity(Intent.createChooser(intent, getString(R.string.security_centre_email_check)))
             }
         }
 
-        presenter.onViewReady()
+        presenter?.onViewReady()
 
         // We want to resend the email verification email so that the resent email verification contains the
         // context that the user is trying to link from the Pit.
-        presenter.resendMail(email)
+        presenter?.resendMail(email)
     }
 
     override fun createPresenter() = pitVerifyEmailPresenter

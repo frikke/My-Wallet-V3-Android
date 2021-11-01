@@ -21,6 +21,7 @@ import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
 import java.util.Currency
 import java.util.Locale
@@ -36,7 +37,8 @@ class PrefsUtil(
     private val backupStore: SharedPreferences,
     private val idGenerator: DeviceIdGenerator,
     private val uuidGenerator: UUIDGenerator,
-    private val crashLogger: CrashLogger
+    private val crashLogger: CrashLogger,
+    private val environmentConfig: EnvironmentConfig
 ) : PersistentPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
@@ -105,9 +107,6 @@ class PrefsUtil(
             setValue(KEY_DASHBOARD_ORDER, Json.encodeToString(value))
         }
 
-    override val isLoggedOut: Boolean
-        get() = getValue(KEY_LOGGED_OUT, true)
-
     override var qaRandomiseDeviceId: Boolean
         get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
         set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
@@ -118,7 +117,7 @@ class PrefsUtil(
         set(v) = setValue(PersistentPrefs.KEY_ROOT_WARNING_DISABLED, v)
 
     override var trustScreenOverlay: Boolean
-        get() = getValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, false)
+        get() = getValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, environmentConfig.isRunningInDebugMode())
         set(v) = setValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, v)
 
     override val areScreenshotsEnabled: Boolean
@@ -253,23 +252,16 @@ class PrefsUtil(
 
     override fun setWalletFunded() = setValue(WALLET_FUNDED_KEY, true)
 
-    override var lastSwapTime: Long
-        get() = getValue(SWAP_DATE_KEY, 0L)
-        set(v) = setValue(SWAP_DATE_KEY, v)
-
-    override val hasSwapped: Boolean
-        get() = lastSwapTime != 0L
-
     override val hasMadeBitPayTransaction: Boolean
         get() = getValue(BITPAY_TRANSACTION_SUCCEEDED, false)
 
     override fun setBitPaySuccess() = setValue(BITPAY_TRANSACTION_SUCCEEDED, true)
 
     override fun setFeeTypeForAsset(asset: AssetInfo, type: Int) =
-        setValue(NETWORK_FEE_PRIORITY_KEY + asset.ticker, type)
+        setValue(NETWORK_FEE_PRIORITY_KEY + asset.networkTicker, type)
 
     override fun getFeeTypeForAsset(asset: AssetInfo): Int =
-        getValue(NETWORK_FEE_PRIORITY_KEY + asset.ticker, -1)
+        getValue(NETWORK_FEE_PRIORITY_KEY + asset.networkTicker, -1)
 
     override val hasSeenSwapPromo: Boolean
         get() = getValue(SWAP_KYC_PROMO, false)
@@ -281,18 +273,23 @@ class PrefsUtil(
 
     override fun setSeenTradingSwapPromo() = setValue(SWAP_TRADING_PROMO, true)
 
+    override var isNewlyCreated: Boolean
+        get() = getValue(KEY_NEWLY_CREATED_WALLET, false)
+        set(newlyCreated) = setValue(KEY_NEWLY_CREATED_WALLET, newlyCreated)
+
+    override var isRestored: Boolean
+        get() = getValue(KEY_RESTORED_WALLET, false)
+        set(isRestored) = setValue(KEY_RESTORED_WALLET, isRestored)
+
+    override var isAppUnlocked: Boolean
+        get() = getValue(KEY_LOGGED_IN, false)
+        set(loggedIn) = setValue(KEY_LOGGED_IN, loggedIn)
+
     override val resendSmsRetries: Int
         get() = getValue(TWO_FA_SMS_RETRIES, MAX_ALLOWED_RETRIES)
 
     override fun setResendSmsRetries(retries: Int) {
         setValue(TWO_FA_SMS_RETRIES, retries)
-    }
-
-    override val isNewUser: Boolean
-        get() = getValue(IS_NEW_USER, false)
-
-    override fun setNewUser() {
-        setValue(IS_NEW_USER, true)
     }
 
     override var email: String
@@ -514,7 +511,8 @@ class PrefsUtil(
 
         val versionCode = store.getInt(APP_CURRENT_VERSION_CODE, AppInfoPrefs.DEFAULT_APP_VERSION_CODE)
         val installedVersion = store.getString(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
-                ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
+            ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
+        val firebaseToken = store.getString(KEY_FIREBASE_TOKEN, "").orEmpty()
 
         store.edit().clear().apply()
 
@@ -523,6 +521,7 @@ class PrefsUtil(
         }
         setValue(APP_CURRENT_VERSION_CODE, versionCode)
         setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
+        setValue(KEY_FIREBASE_TOKEN, firebaseToken)
 
         clearBackup()
     }
@@ -588,22 +587,15 @@ class PrefsUtil(
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
-    override fun logOut() {
+    override fun unPairWallet() {
         val guid = getValue(KEY_WALLET_GUID, "")
         val deviceId = getValue(KEY_PRE_IDV_DEVICE_ID, "")
 
         clear()
 
-        setValue(KEY_LOGGED_OUT, true)
+        setValue(KEY_LOGGED_IN, true)
         setValue(KEY_WALLET_GUID, guid)
         setValue(KEY_PRE_IDV_DEVICE_ID, deviceId)
-    }
-
-    /**
-     * Reset value once user logged in
-     */
-    override fun logIn() {
-        setValue(KEY_LOGGED_OUT, false)
     }
 
     companion object {
@@ -622,7 +614,7 @@ class PrefsUtil(
         const val KEY_PRE_IDV_DEVICE_ID = "pre_idv_device_id"
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val KEY_LOGGED_OUT = "logged_out"
+        const val KEY_LOGGED_IN = "logged_in"
 
         private const val KEY_PIT_LINKING_LINK_ID = "pit_wallet_link_id"
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
@@ -641,14 +633,15 @@ class PrefsUtil(
         private const val MAX_ALLOWED_SENDS = 5
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
-        private const val SWAP_DATE_KEY = "SWAP_DATE_KEY"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"
         private const val BITPAY_TRANSACTION_SUCCEEDED = "BITPAY_TRANSACTION_SUCCEEDED"
         private const val NETWORK_FEE_PRIORITY_KEY = "fee_type_key_"
         private const val SWAP_KYC_PROMO = "SWAP_KYC_PROMO"
         private const val SWAP_TRADING_PROMO = "SWAP_TRADING_PROMO"
+        private const val KEY_NEWLY_CREATED_WALLET = "newly_created_wallet"
+        private const val KEY_RESTORED_WALLET = "restored_wallet"
+
         private const val TWO_FA_SMS_RETRIES = "TWO_FA_SMS_RETRIES"
-        private const val IS_NEW_USER = "IS_NEW_USER"
         private const val KEY_EMAIL = "KEY_EMAIL"
         private const val COUNTRY_SIGN_UP = "COUNTRY_SIGN_UP"
         private const val STATE_SIGNED_UP = "STATE_SIGNED_UP"

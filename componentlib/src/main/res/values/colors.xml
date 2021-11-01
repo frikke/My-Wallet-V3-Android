@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="paletteBaseWhite">#FFFFFF</color>
+    <color name="paletteBaseBlack">#000000</color>
+    <color name="paletteBasePrimary">#0C6CF2</color>
+    <color name="paletteBasePrimaryMuted">#619FF7</color>
+    <color name="paletteBaseSuccess">#00994C</color>
+    <color name="paletteBaseSuccessMuted">#17CE73</color>
+    <color name="paletteBaseError">#CF1726</color>
+    <color name="paletteBaseErrorMuted">#FF3344</color>
+    <color name="paletteBaseExchange">#0E828C</color>
+    <color name="paletteBaseExchangeMuted">#00B6C7</color>
+    <color name="paletteBaseExplorer">#5322E5</color>
+    <color name="paletteBaseExplorerMuted">#9080FF</color>
+    <color name="paletteBaseTextTitle">#121D33</color>
+    <color name="paletteBaseTextBody">#677184</color>
+    <color name="paletteBaseMuted">#98A1B2</color>
+    <color name="paletteBaseLight">#F0F2F7</color>
+    <color name="paletteBaseMedium">#DFE3EB</color>
+    <color name="paletteBaseDark">#B1B8C7</color>
+</resources>

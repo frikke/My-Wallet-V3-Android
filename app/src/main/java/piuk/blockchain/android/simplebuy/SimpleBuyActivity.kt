@@ -15,6 +15,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentActivityBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.setupToolbar
@@ -72,7 +73,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
+        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
         setupToolbar("")
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
@@ -264,14 +265,14 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
         fun newInstance(
             context: Context,
-            ticker: String? = null,
+            asset: AssetInfo? = null,
             launchFromNavigationBar: Boolean = false,
             launchKycResume: Boolean = false,
             preselectedPaymentMethodId: String? = null,
             launchFromApprovalDeepLink: Boolean = false
         ) = Intent(context, SimpleBuyActivity::class.java).apply {
             putExtra(STARTED_FROM_NAVIGATION_KEY, launchFromNavigationBar)
-            putExtra(ASSET_KEY, ticker)
+            putExtra(ASSET_KEY, asset?.networkTicker)
             putExtra(STARTED_FROM_KYC_RESUME, launchKycResume)
             putExtra(PRESELECTED_PAYMENT_METHOD, preselectedPaymentMethodId)
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)

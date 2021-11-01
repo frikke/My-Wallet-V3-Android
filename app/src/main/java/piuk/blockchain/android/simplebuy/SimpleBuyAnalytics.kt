@@ -86,9 +86,9 @@ fun PaymentMethod.toNabuAnalyticsString(): String =
 
 fun PaymentMethodType.toAnalyticsString() =
     when (this) {
-        PaymentMethodType.PAYMENT_CARD -> "CARD"
+        PaymentMethodType.PAYMENT_CARD -> "PAYMENT_CARD"
         PaymentMethodType.FUNDS -> "FUNDS"
-        PaymentMethodType.BANK_TRANSFER -> "LINK_BANK"
+        PaymentMethodType.BANK_TRANSFER -> "BANK_TRANSFER"
         else -> ""
     }
 
@@ -140,7 +140,7 @@ class BuyFrequencySelected(frequency: String) : AnalyticsEvent {
 class CustodialBalanceClicked(asset: AssetInfo) : AnalyticsEvent {
     override val event: String = "sb_trading_wallet_clicked"
     override val params: Map<String, String> = mapOf(
-        "asset" to asset.ticker
+        "asset" to asset.networkTicker
     )
 }
 
@@ -174,27 +174,22 @@ class CurrencySelected(fiatCurrency: String) : AnalyticsEvent {
     )
 }
 
-class CurrencyChangedFromBuyForm(fiatCurrency: String) : AnalyticsEvent {
-    override val event: String = "sb_buy_form_fiat_changed"
-    override val params: Map<String, String> = mapOf(
-        "currency" to fiatCurrency
-    )
-}
-
 class BuyAmountEntered(
     frequency: String,
     inputAmount: Money,
-    maxAmount: Money,
-    outputCurrency: String
+    maxCardLimit: Money?,
+    outputCurrency: String,
+    paymentMethod: PaymentMethodType
 ) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_AMOUNT_ENTERED.eventName
     override val params: Map<String, Serializable> = mapOf(
         "frequency" to frequency,
         "input_amount" to inputAmount.toBigDecimal(),
         "input_currency" to inputAmount.currencyCode,
-        "input_amount_max" to maxAmount.toBigDecimal(),
-        "output_currency" to outputCurrency
-    )
+        "max_card_limit" to maxCardLimit?.toBigDecimal(),
+        "output_currency" to outputCurrency,
+        "payment_method" to paymentMethod.name
+    ).withoutNullValues()
 }
 
 class BuySellViewedEvent(private val type: BuySellType? = null) : AnalyticsEvent {

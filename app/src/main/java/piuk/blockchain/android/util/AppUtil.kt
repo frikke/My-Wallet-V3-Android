@@ -2,56 +2,67 @@ package piuk.blockchain.android.util
 
 import android.content.Context
 import android.content.Intent
+import com.blockchain.logging.DigitalTrust
 import info.blockchain.wallet.payload.PayloadManagerWiper
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.android.ui.auth.LogoutActivity
+import piuk.blockchain.android.ui.base.BlockchainActivity
+import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 
 class AppUtil(
     private val context: Context,
     private var payloadManager: PayloadManagerWiper,
-    private var accessState: AccessState,
-    private val prefs: PersistentPrefs
+    private val prefs: PersistentPrefs,
+    private val trust: DigitalTrust,
+    private val pinRepository: PinRepository
 ) {
-    val isSane: Boolean
-        get() {
-            val guid = prefs.walletGuid
-            val encryptedPassword = prefs.encryptedPassword
-            val pinID = prefs.pinId
+    fun logout() {
+        pinRepository.clearPin()
+        trust.clearUserId()
+        context.startActivity(
+            Intent(context, LogoutActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                action = BlockchainActivity.LOGOUT_ACTION
+            }
+        )
+    }
 
-            return guid.isValidGuid() && encryptedPassword.isNotEmpty() && pinID.isNotEmpty()
-        }
+    fun unpairWallet() {
+        pinRepository.clearPin()
+        prefs.unPairWallet()
+    }
 
     var activityIndicator: ActivityIndicator? = null
 
     fun clearCredentials() {
         payloadManager.wipe()
         prefs.clear()
-        accessState.forgetWallet()
     }
 
-    fun clearCredentialsAndRestart(launcherActivity: Class<*>) {
+    fun clearCredentialsAndRestart() {
         clearCredentials()
-        restartApp(launcherActivity)
+        restartApp()
     }
 
-    fun restartApp(launcherActivity: Class<*>) {
+    fun restartApp() {
         context.startActivity(
-            Intent(context, launcherActivity).apply {
+            Intent(context, LauncherActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         )
     }
 
-    fun restartAppWithVerifiedPin(launcherActivity: Class<*>, isAfterWalletCreation: Boolean = false) {
+    fun loadAppWithVerifiedPin(loaderActivity: Class<*>, isAfterWalletCreation: Boolean = false) {
         context.startActivity(
-            Intent(context, launcherActivity).apply {
+            Intent(context, loaderActivity).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                 putExtra(INTENT_EXTRA_VERIFIED, true)
                 putExtra(INTENT_EXTRA_IS_AFTER_WALLET_CREATION, isAfterWalletCreation)
             }
         )
-        accessState.logIn()
+
+        prefs.isAppUnlocked = false
     }
 
     companion object {

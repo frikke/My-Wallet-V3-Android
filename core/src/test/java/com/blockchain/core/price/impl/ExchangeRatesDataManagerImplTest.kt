@@ -24,11 +24,12 @@ class ExchangeRatesDataManagerImplTest {
         computationTrampoline()
         ioTrampoline()
     }
+
     private val priceService: AssetPriceService = mock {
         on {
-            getHistoricPriceSince(
-                crypto = any(),
-                fiat = any(),
+            getHistoricPriceSeriesSince(
+                base = any(),
+                quote = any(),
                 start = any(),
                 scale = any()
             )
@@ -60,9 +61,9 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
-            crypto = OLD_ASSET.ticker,
-            fiat = SELECTED_FIAT,
+        verify(priceService).getHistoricPriceSeriesSince(
+            base = OLD_ASSET.networkTicker,
+            quote = SELECTED_FIAT,
             start = OLD_ASSET.startDate!!,
             scale = PriceTimescale.FIVE_DAYS
         )
@@ -79,8 +80,8 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
-            OLD_ASSET.ticker,
+        verify(priceService).getHistoricPriceSeriesSince(
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             DATE_ONE_YEAR_AGO_SECS,
             PriceTimescale.ONE_DAY
@@ -99,8 +100,8 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
-            OLD_ASSET.ticker,
+        verify(priceService).getHistoricPriceSeriesSince(
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             DATE_ONE_MONTH_AGO_SECS,
             PriceTimescale.TWO_HOURS
@@ -118,8 +119,8 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
-            OLD_ASSET.ticker,
+        verify(priceService).getHistoricPriceSeriesSince(
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             DATE_ONE_WEEK_AGO_SECS,
             PriceTimescale.ONE_HOUR
@@ -137,8 +138,8 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
-            OLD_ASSET.ticker,
+        verify(priceService).getHistoricPriceSeriesSince(
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             DATE_ONE_DAY_AGO_SECS,
             PriceTimescale.FIFTEEN_MINUTES
@@ -156,8 +157,8 @@ class ExchangeRatesDataManagerImplTest {
             .assertComplete()
             .assertNoErrors()
 
-        verify(priceService).getHistoricPriceSince(
-            OLD_ASSET.ticker,
+        verify(priceService).getHistoricPriceSeriesSince(
+            OLD_ASSET.networkTicker,
             SELECTED_FIAT,
             NEW_ASSET.startDate!!,
             PriceTimescale.ONE_HOUR
@@ -174,7 +175,8 @@ class ExchangeRatesDataManagerImplTest {
         private const val SELECTED_FIAT = "USD"
 
         private val OLD_ASSET = object : CryptoCurrency(
-            ticker = "DUMMY",
+            displayTicker = "DUMMY",
+            networkTicker = "DUMMY",
             name = "Dummies",
             startDate = 1000000001,
             categories = emptySet(),
@@ -184,7 +186,8 @@ class ExchangeRatesDataManagerImplTest {
         ) { }
 
         private val NEW_ASSET = object : CryptoCurrency(
-            ticker = "DUMMY",
+            displayTicker = "DUMMY",
+            networkTicker = "DUMMY",
             name = "Dummies",
             startDate = DATE_ONE_WEEK_AGO_SECS,
             categories = emptySet(),
@@ -195,7 +198,10 @@ class ExchangeRatesDataManagerImplTest {
 
         private val PRICE_DATA = listOf(
             AssetPrice(
-                100.toDouble(), 200000
+                base = OLD_ASSET.networkTicker,
+                quote = SELECTED_FIAT,
+                price = 100.toDouble(),
+                timestamp = 200000
             )
         )
     }

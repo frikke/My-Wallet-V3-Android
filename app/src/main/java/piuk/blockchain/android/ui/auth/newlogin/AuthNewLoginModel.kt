@@ -65,7 +65,6 @@ class AuthNewLoginModel(
     }
 
     private fun parseMessage(pubKeyHash: String, messageInJson: String, originIp: String): Disposable? {
-
         process(
             AuthNewLoginIntents.ProcessBrowserMessage(
                 originIp = originIp,
@@ -82,7 +81,8 @@ class AuthNewLoginModel(
                 process(
                     AuthNewLoginIntents.EnableApproval(
                         enableApproval = isAuthorized(browserIdentity, message) ||
-                            originIp == deviceIp
+                            originIp == deviceIp,
+                        errorState = NewLoginState.NONE
                     )
                 )
             },
@@ -90,7 +90,8 @@ class AuthNewLoginModel(
                 Timber.e(it)
                 process(
                     AuthNewLoginIntents.EnableApproval(
-                        enableApproval = false
+                        enableApproval = false,
+                        errorState = NewLoginState.IP_MISMATCH
                     )
                 )
             }

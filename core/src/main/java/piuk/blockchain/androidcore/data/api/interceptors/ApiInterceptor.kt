@@ -29,7 +29,7 @@ class ApiInterceptor : Interceptor {
             requestLog = "\n$requestLog\nand Body:${requestBodyToString(request.body)}"
         }
 
-        Timber.v("Request:\n$requestLog")
+        Timber.v("Request: %s", requestLog)
 
         val response = chain.proceed(request)
         val endTime = System.nanoTime()
@@ -44,9 +44,9 @@ class ApiInterceptor : Interceptor {
 
         val bodyString = response.body!!.string()
         if (response.code == 200 || response.code == 201 || response.code == 101) {
-            Timber.v("Response: ${response.code}\n$responseLog\n$bodyString")
+            Timber.v("Response: %s  %s %s", response.code, responseLog, bodyString)
         } else {
-            Timber.e("Response: ${response.code}\n$responseLog\n$bodyString")
+            Timber.e("Response: %s %s %s", response.code, responseLog, bodyString)
         }
 
         return response.newBuilder()

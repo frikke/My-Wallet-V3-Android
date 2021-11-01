@@ -192,7 +192,7 @@ class ResetPasswordModelTest {
             ),
             ResetPasswordState(
                 password = password,
-                status = ResetPasswordStatus.SHOW_ERROR
+                status = ResetPasswordStatus.SHOW_RESET_KYC_FAILED
             )
         )
     }
@@ -238,6 +238,84 @@ class ResetPasswordModelTest {
             ResetPasswordState(
                 password = password,
                 status = ResetPasswordStatus.SHOW_SUCCESS
+            )
+        )
+    }
+
+    @Test
+    fun `fail to create wallet when resetting account should show error`() {
+        val password = "password"
+        val email = "email"
+        val walletName = "walletName"
+        val userId = "1234"
+        val token = "4321"
+
+        whenever(interactor.createWalletForAccount(email, password, walletName)).thenReturn(
+            Completable.error(Exception())
+        )
+
+        val testState = model.state.test()
+        model.process(
+            ResetPasswordIntents.CreateWalletForAccount(
+                email,
+                password,
+                userId,
+                token,
+                walletName,
+                false
+            )
+        )
+
+        testState.assertValues(
+            ResetPasswordState(),
+            ResetPasswordState(
+                password = password,
+                email = email,
+                walletName = walletName,
+                userId = userId,
+                recoveryToken = token,
+                status = ResetPasswordStatus.CREATE_WALLET
+            ),
+            ResetPasswordState(
+                password = password,
+                email = email,
+                walletName = walletName,
+                userId = userId,
+                recoveryToken = token,
+                status = ResetPasswordStatus.SHOW_WALLET_CREATION_FAILED
+            )
+        )
+    }
+
+    @Test
+    fun `fail to create account when resetting should show error`() {
+        val userId = "1234"
+        val token = "4321"
+
+        whenever(interactor.recoverAccount(userId, token)).thenReturn(
+            Completable.error(Exception())
+        )
+
+        val testState = model.state.test()
+        model.process(
+            ResetPasswordIntents.RecoverAccount(
+                userId,
+                token,
+                false
+            )
+        )
+
+        testState.assertValues(
+            ResetPasswordState(),
+            ResetPasswordState(
+                userId = userId,
+                recoveryToken = token,
+                status = ResetPasswordStatus.RECOVER_ACCOUNT
+            ),
+            ResetPasswordState(
+                userId = userId,
+                recoveryToken = token,
+                status = ResetPasswordStatus.SHOW_ACCOUNT_RESET_FAILED
             )
         )
     }

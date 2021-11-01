@@ -3,19 +3,15 @@ package piuk.blockchain.android.ui.auth
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.MotionEvent
 import android.view.Window
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding
-import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.android.ui.base.BlockchainActivity
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.android.ui.base.BaseAuthActivity
 
-class PinEntryActivity : BaseAuthActivity() {
-
-    private val overlayDetection: OverlayDetection by inject()
-    private val loginState: AccessState by inject()
+class PinEntryActivity : BlockchainActivity() {
+    private val loginState: PinRepository by inject()
 
     private val binding: ActivityPinEntryBinding by lazy {
         ActivityPinEntryBinding.inflate(layoutInflater)
@@ -28,6 +24,8 @@ class PinEntryActivity : BaseAuthActivity() {
     private val isAfterCreateWallet: Boolean by unsafeLazy {
         intent.getBooleanExtra(EXTRA_IS_AFTER_WALLET_CREATION, false)
     }
+
+    override val alwaysDisableScreenshots: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +43,7 @@ class PinEntryActivity : BaseAuthActivity() {
                 finishWithResultCanceled()
             }
             pinEntryFragment.allowExit() -> {
-                loginState.logout()
+                appUtil.logout()
             }
         }
     }
@@ -55,14 +53,6 @@ class PinEntryActivity : BaseAuthActivity() {
         setResult(RESULT_CANCELED, intent)
         finish()
     }
-
-    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-        // Test for screen overlays before user enters PIN
-        return overlayDetection.detectObscuredWindow(this, event) ||
-                super.dispatchTouchEvent(event)
-    }
-
-    override fun enforceFlagSecure(): Boolean = true
 
     companion object {
 

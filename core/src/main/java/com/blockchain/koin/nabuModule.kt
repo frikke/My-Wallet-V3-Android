@@ -133,7 +133,7 @@ val nabuModule = module {
         scoped {
             NabuUserIdentity(
                 custodialWalletManager = get(),
-                tierService = get(),
+                nabuUserDataManager = get(),
                 simpleBuyEligibilityProvider = get(),
                 interestEligibilityProvider = get(),
                 nabuDataProvider = get()

@@ -7,7 +7,7 @@ import kotlin.test.assertNull
 
 class ClearAnnouncementTest {
 
-    val subject = ClearAnnouncement
+    val subject = DashboardIntent.ClearAnnouncement
 
     @Test
     fun `clearing null announcement has no effect`() {
@@ -18,8 +18,8 @@ class ClearAnnouncementTest {
     @Test
     fun `clearing an announcement, clears the announcement and leaves other fields unchanged`() {
 
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -29,7 +29,7 @@ class ClearAnnouncementTest {
 
         val result = subject.reduce(initialState)
 
-        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeAssets, initialState.activeAssets)
         assertNull(result.announcement)
     }
 }

@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import piuk.blockchain.android.urllinks.URL_XLM_MEMO
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.CryptoAddress
+import com.blockchain.coincore.CryptoAddress
 import piuk.blockchain.android.databinding.ViewReceiveMemoBinding
 import piuk.blockchain.android.util.StringUtils
 
@@ -21,12 +21,15 @@ class ReceiveMemoView @JvmOverloads constructor(
     private val binding: ViewReceiveMemoBinding =
         ViewReceiveMemoBinding.inflate(LayoutInflater.from(context), this, true)
 
-    fun updateAddress(address: CryptoAddress) {
-        require(address.memo != null)
+    fun updateAddress(cryptoAddress: CryptoAddress) {
+        require(cryptoAddress.memo != null)
 
         with(binding) {
-            val assetName = address.asset.ticker
-            memoText.text = address.memo
+            val assetName = cryptoAddress.asset.displayTicker
+            memoText.apply {
+                text = cryptoAddress.memo
+                setTextIsSelectable(true)
+            }
             memoLabel.text = resources.getString(R.string.receive_memo_title, assetName)
             memoWarn.text = resources.getString(R.string.receive_memo_warning, assetName)
 

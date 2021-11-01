@@ -53,10 +53,12 @@ class AccountRecoveryActivity :
             AccountRecoveryStatus.WORD_COUNT_ERROR ->
                 showSeedPhraseInputError(R.string.recovery_phrase_word_count_error)
             AccountRecoveryStatus.RECOVERY_SUCCESSFUL -> {
-                    launchResetPasswordFlow(newState.seedPhrase)
+                launchResetPasswordFlow(newState.seedPhrase)
             }
-            AccountRecoveryStatus.RECOVERY_FAILED ->
+            AccountRecoveryStatus.RECOVERY_FAILED -> {
+                analytics.logEvent(AccountRecoveryAnalytics.RecoveryFailed(false))
                 toast(R.string.restore_failed, ToastCustom.TYPE_ERROR)
+            }
             AccountRecoveryStatus.RESET_KYC_FAILED ->
                 toast(R.string.reset_kyc_failed, ToastCustom.TYPE_ERROR)
             else -> {
@@ -82,6 +84,7 @@ class AccountRecoveryActivity :
                             error = ""
                         }
                     }
+
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 })
@@ -96,9 +99,11 @@ class AccountRecoveryActivity :
                 )
                 movementMethod = LinkMovementMethod.getInstance()
             }
-            resetKycLabel.text = getString(R.string.reset_kyc_notice)
+            resetKycLabel.text = getString(R.string.reset_kyc_notice_1)
 
             verifyButton.setOnClickListener {
+                analytics.logEvent(AccountRecoveryAnalytics.MnemonicEntered(isCustodialAccount = false))
+
                 ViewUtils.hideKeyboard(this@AccountRecoveryActivity)
                 model.process(
                     AccountRecoveryIntents.VerifySeedPhrase(
@@ -110,6 +115,7 @@ class AccountRecoveryActivity :
     }
 
     private fun launchResetAccountFlow() {
+        analytics.logEvent(AccountRecoveryAnalytics.ResetClicked(isCustodialAccount = true))
         ViewUtils.hideKeyboard(this)
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()

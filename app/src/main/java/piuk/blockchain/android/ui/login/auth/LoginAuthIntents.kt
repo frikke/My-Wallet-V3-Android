@@ -23,7 +23,8 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
                     guid = loginAuthInfo.guid,
                     email = loginAuthInfo.email,
                     authToken = loginAuthInfo.authToken,
-                    authStatus = AuthStatus.GetSessionId
+                    authStatus = AuthStatus.GetSessionId,
+                    authInfoForAnalytics = loginAuthInfo
                 )
                 is LoginAuthInfo.ExtendedAccountInfo -> oldState.copy(
                     guid = loginAuthInfo.accountWallet.guid,
@@ -31,7 +32,11 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
                     email = loginAuthInfo.accountWallet.email,
                     authToken = loginAuthInfo.accountWallet.authToken,
                     recoveryToken = loginAuthInfo.accountWallet.nabuAccountInfo.recoveryToken,
-                    authStatus = AuthStatus.GetSessionId
+                    authStatus = AuthStatus.GetSessionId,
+                    authInfoForAnalytics = loginAuthInfo,
+                    shouldRequestAccountUnification = !loginAuthInfo.isUnified &&
+                        (loginAuthInfo.isMergeable || loginAuthInfo.isUpgradeable),
+                    accountType = loginAuthInfo.mapUserType(loginAuthInfo.userType)
                 )
             }
     }
@@ -59,7 +64,7 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
 
         private fun getAuthMethod(oldState: LoginAuthState): TwoFAMethod {
-            return if (payloadJson.isAuth() && (payloadJson.isGoogleAuth() || payloadJson.isSMSAuth())) {
+            return if (payloadJson.isAuth() && payloadJson.isSupportedTwoFaType()) {
                 TwoFAMethod.fromInt(payloadJson.getValue(AUTH_TYPE).jsonPrimitive.toString().toInt())
             } else {
                 oldState.authMethod
@@ -113,6 +118,13 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
                 authStatus = AuthStatus.UpdateMobileSetup,
                 isMobileSetup = isMobileSetup,
                 deviceType = deviceType
+            )
+    }
+
+    object ShowAccountUnification : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState.copy(
+                authStatus = AuthStatus.AskForAccountUnification
             )
     }
 
@@ -180,12 +192,17 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
         const val PAYLOAD = "payload"
     }
 }
+private fun JsonObject.isSupportedTwoFaType(): Boolean =
+    isGoogleAuth() || isSMSAuth() || isYubiKeyAuth()
 
 private fun JsonObject.isAuth(): Boolean =
     containsKey(LoginAuthIntents.AUTH_TYPE) && !containsKey(LoginAuthIntents.PAYLOAD)
 
 private fun JsonObject.isGoogleAuth(): Boolean =
     getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_GOOGLE_AUTHENTICATOR
+
+private fun JsonObject.isYubiKeyAuth(): Boolean =
+    getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_YUBI_KEY
 
 private fun JsonObject.isSMSAuth(): Boolean =
     getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_SMS

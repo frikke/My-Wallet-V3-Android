@@ -10,7 +10,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.BlockchainAccount
+import com.blockchain.coincore.BlockchainAccount
 import piuk.blockchain.android.databinding.PendingBalanceRowBinding
 
 interface CellDecorator {
@@ -47,43 +47,59 @@ fun ConstraintLayout.addViewToBottomWithConstraints(
     startOfView: View? = null,
     endOfView: View? = null
 ) {
-    // we need to remove the view first in favour of recycling
-    removeView(this.findViewWithTag(BOTTOM_VIEW_TAG))
-    view.id = View.generateViewId()
-    view.tag = BOTTOM_VIEW_TAG
-    addView(view, ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, ViewGroup.LayoutParams.WRAP_CONTENT)
-    val constraintSet = ConstraintSet()
-    constraintSet.clone(this)
-    constraintSet.connect(
-        view.id,
-        ConstraintSet.BOTTOM,
-        ConstraintSet.PARENT_ID,
-        ConstraintSet.BOTTOM,
-        resources.getDimensionPixelSize(R.dimen.very_small_margin)
-    )
+    val tag = BOTTOM_VIEW_TAG
+    val v: View? = this.findViewWithTag(tag)
 
-    bottomOfView?.let {
-        constraintSet.clear(it.id, ConstraintSet.BOTTOM)
-        constraintSet.connect(view.id,
-            ConstraintSet.TOP,
-            it.id,
+    if (v == null) {
+        view.id = View.generateViewId()
+        view.tag = tag
+        addView(view, ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(this)
+        constraintSet.connect(
+            view.id,
             ConstraintSet.BOTTOM,
-            resources.getDimensionPixelSize(R.dimen.smallest_margin))
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.BOTTOM,
+            resources.getDimensionPixelSize(VIEW_SPACING)
+        )
+
+        bottomOfView?.let {
+            constraintSet.clear(it.id, ConstraintSet.BOTTOM)
+            constraintSet.connect(
+                view.id,
+                ConstraintSet.TOP,
+                it.id,
+                ConstraintSet.BOTTOM,
+                resources.getDimensionPixelSize(ADDED_VIEW_MARGIN)
+            )
+        }
+
+        startOfView?.let {
+            constraintSet.connect(view.id, ConstraintSet.START, it.id, ConstraintSet.START)
+        } ?: constraintSet.connect(view.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+
+        endOfView?.let {
+            constraintSet.connect(view.id, ConstraintSet.END, it.id, ConstraintSet.END)
+        } ?: constraintSet.connect(view.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+
+        constraintSet.applyTo(this)
+
+        if (this.paddingBottom == resources.getDimensionPixelSize(VIEW_SPACING)) {
+            this.setPadding(0, 0, 0, 0)
+        }
     }
-
-    startOfView?.let {
-        constraintSet.connect(view.id, ConstraintSet.START, it.id, ConstraintSet.START)
-    } ?: constraintSet.connect(view.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-
-    endOfView?.let {
-        constraintSet.connect(view.id, ConstraintSet.END, it.id, ConstraintSet.END)
-    } ?: constraintSet.connect(view.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-
-    constraintSet.applyTo(this)
 }
 
 fun ConstraintLayout.removePossibleBottomView() {
-    removeView(this.findViewWithTag(BOTTOM_VIEW_TAG))
+    val view: View? = findViewWithTag(BOTTOM_VIEW_TAG)
+    view?.let {
+        removeView(it)
+        this.setPadding(0, 0, 0, resources.getDimensionPixelSize(VIEW_SPACING))
+    }
 }
 
 private const val BOTTOM_VIEW_TAG = "BOTTOM_VIEW"
+private const val ADDED_VIEW_MARGIN = R.dimen.smallest_margin
+private const val VIEW_SPACING = R.dimen.very_small_margin

@@ -24,7 +24,6 @@ import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecisionKycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.TiersReentryDecision
-import piuk.blockchain.android.ui.kyc.splash.KycSplashPresenter
 import piuk.blockchain.android.ui.kyc.status.KycStatusPresenter
 import piuk.blockchain.android.ui.kyc.tiersplash.KycTierSplashPresenter
 import piuk.blockchain.android.ui.kyc.veriffsplash.VeriffSplashPresenter
@@ -42,7 +41,8 @@ val kycUiModule = module {
                 token = get(),
                 dataManager = get(),
                 reentryDecision = get(),
-                analytics = get()
+                analytics = get(),
+                internalFlags = get()
             )
         }.bind(KycNavigator::class)
 
@@ -50,13 +50,6 @@ val kycUiModule = module {
             KycTierSplashPresenter(
                 tierUpdater = get(),
                 tierService = get(),
-                kycNavigator = get()
-            )
-        }
-
-        factory {
-            KycSplashPresenter(
-                nabuToken = get(),
                 kycNavigator = get()
             )
         }
@@ -125,7 +118,8 @@ val kycUiModule = module {
                 sunriverCampaign = get(),
                 reentryDecision = get(),
                 tierUpdater = get(),
-                kycNavigator = get()
+                kycNavigator = get(),
+                analytics = get()
             )
         }
 

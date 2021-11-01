@@ -24,7 +24,7 @@ val apiInterceptorsModule = module {
         val versionName = BuildConfig.VERSION_NAME.removeSuffix(BuildConfig.VERSION_NAME_SUFFIX)
         OkHttpInterceptors(
             mutableListOf(
-                SSLPinningInterceptor(get()),
+                SSLPinningInterceptor(sslPinningEmitter = get()),
                 UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
                 DeviceIdInterceptor(prefs = lazy { get<PersistentPrefs>() }, get()),
                 RequestIdInterceptor { UUID.randomUUID().toString() }

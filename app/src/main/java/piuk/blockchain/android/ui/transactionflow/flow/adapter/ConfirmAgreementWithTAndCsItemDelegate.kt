@@ -1,27 +1,24 @@
 package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
-import android.app.Activity
 import android.net.Uri
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import piuk.blockchain.android.urllinks.INTEREST_PRIVACY_POLICY
-import piuk.blockchain.android.urllinks.INTEREST_TERMS_OF_SERVICE
+import com.blockchain.coincore.TxConfirmation
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TxConfirmation
-import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementTcsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
+import piuk.blockchain.android.urllinks.INTEREST_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.INTEREST_TERMS_OF_SERVICE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.setThrottledCheckedChange
 
 class ConfirmAgreementWithTAndCsItemDelegate<in T>(
-    private val model: TransactionModel,
-    private val stringUtils: StringUtils,
-    private val activityContext: Activity
+    private val model: TransactionModel
 ) : AdapterDelegate<T> {
     override fun isForViewType(items: List<T>, position: Int): Boolean =
         (items[position] as? TxConfirmationValue)?.confirmation == TxConfirmation.AGREEMENT_INTEREST_T_AND_C
@@ -37,9 +34,7 @@ class ConfirmAgreementWithTAndCsItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as AgreementItemViewHolder).bind(
         items[position] as TxConfirmationValue.TxBooleanConfirmation<Unit>,
-        model,
-        stringUtils,
-        activityContext
+        model
     )
 }
 
@@ -47,9 +42,7 @@ private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreem
     RecyclerView.ViewHolder(binding.root) {
     fun bind(
         item: TxConfirmationValue.TxBooleanConfirmation<Unit>,
-        model: TransactionModel,
-        stringUtils: StringUtils,
-        activityContext: Activity
+        model: TransactionModel
     ) {
 
         val linksMap = mapOf<String, Uri>(
@@ -57,16 +50,17 @@ private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreem
             "interest_pp" to Uri.parse(INTEREST_PRIVACY_POLICY)
         )
 
-        binding.apply {
-            confirmDetailsCheckboxText.text = stringUtils.getStringWithMappedAnnotations(
-                R.string.send_confirmation_interest_tos_pp,
-                linksMap,
-                activityContext
-            )
+        with(binding) {
+            confirmDetailsCheckboxText.apply {
+                text = StringUtils.getStringWithMappedAnnotations(
+                    binding.root.context,
+                    R.string.send_confirmation_rewards_tos_pp,
+                    linksMap
+                )
+                movementMethod = LinkMovementMethod.getInstance()
+            }
 
             confirmDetailsCheckboxText.movementMethod = LinkMovementMethod.getInstance()
-
-            confirmDetailsCheckbox.isChecked = item.value
 
             confirmDetailsCheckbox.setThrottledCheckedChange { isChecked ->
                 model.process(TransactionIntent.ModifyTxOption(item.copy(value = isChecked)))

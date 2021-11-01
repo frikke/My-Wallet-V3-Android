@@ -39,20 +39,4 @@ class SimpleBuyStateTest {
         )
         assertFalse(state.isAmountValid)
     }
-
-    @Test
-    fun `amount is not valid when entered amount is null`() {
-        val state = SimpleBuyState(
-            amount = null,
-            fiatCurrency = "USD",
-            transferLimits = TransferLimits(
-                minLimit = FiatValue.zero("USD"),
-                maxOrder = FiatValue.fromMinor("USD", 10000),
-                maxLimit = FiatValue.fromMinor("USD", 10000)
-            ),
-            selectedCryptoAsset = CryptoCurrency.BTC
-
-        )
-        assertFalse(state.isAmountValid)
-    }
 }

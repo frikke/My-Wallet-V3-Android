@@ -22,6 +22,7 @@ import piuk.blockchain.android.cards.PickerItemListener
 import piuk.blockchain.android.cards.SearchPickerItemBottomSheet
 import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.databinding.ViewPasswordStrengthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
@@ -57,6 +58,9 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
     private var countryPickerItem: CountryPickerItem? = null
     private var statePickerItem: StatePickerItem? = null
 
+    override val alwaysDisableScreenshots: Boolean
+        get() = true
+
     private val recoveryPhrase: String by unsafeLazy {
         intent.getStringExtra(RECOVERY_PHRASE).orEmpty()
     }
@@ -74,16 +78,16 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         setContentView(binding.root)
         applyConstraintSet.clone(binding.mainConstraintLayout)
 
-        presenter.getUserGeolocation()
+        createWalletPresenter.getUserGeolocation()
 
         initializeCountrySpinner()
         initializeStatesSpinner()
 
         if (recoveryPhrase.isNotEmpty()) {
-            setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.recover_funds)
+            setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.recover_funds)
             binding.commandNext.setText(R.string.dialog_continue)
         } else {
-            setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.new_account_title_1)
+            setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.new_account_title_1)
             binding.commandNext.setText(R.string.new_account_cta_text)
         }
 
@@ -93,7 +97,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
             walletPass.afterTextChangeEvents()
                 .doOnNext {
                     showEntropyContainer()
-                    presenter.logEventPasswordOneClicked()
+                    createWalletPresenter.logEventPasswordOneClicked()
                     binding.entropyContainerNew.updatePassword(it.editable.toString())
                     updateCreateButtonState(
                         it.editable.toString().length,
@@ -105,7 +109,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
 
             walletPassConfirm.afterTextChangeEvents()
                 .doOnNext {
-                    presenter.logEventPasswordTwoClicked()
+                    createWalletPresenter.logEventPasswordTwoClicked()
                     updateCreateButtonState(
                         walletPass.getTextString().length,
                         it.editable.toString().length,
@@ -122,7 +126,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
                 )
             }
 
-            emailAddress.setOnClickListener { presenter.logEventEmailClicked() }
+            emailAddress.setOnClickListener { createWalletPresenter.logEventEmailClicked() }
             commandNext.setOnClickListener { onNextClicked() }
 
             updatePasswordDisclaimer()
@@ -233,13 +237,6 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         }
     }
 
-    override fun dismissProgressDialog() {
-        progressDialog?.apply {
-            dismiss()
-            progressDialog = null
-        }
-    }
-
     override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
 
     override fun setGeolocationInCountrySpinner(geolocation: Geolocation) {
@@ -260,8 +257,6 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         return StatePickerItem(stateItem.iSOAbbreviation, stateItem.unabbreviated)
     }
 
-    override fun enforceFlagSecure() = true
-
     private fun onNextClicked() {
         with(binding) {
             val email = emailAddress.text.toString().trim()
@@ -271,11 +266,11 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
             val stateCode = statePickerItem?.code
 
             if (walletPasswordCheckbox.isChecked &&
-                presenter.validateCredentials(email, password1, password2) &&
-                presenter.validateGeoLocation(countryCode, stateCode)
+                createWalletPresenter.validateCredentials(email, password1, password2) &&
+                createWalletPresenter.validateGeoLocation(countryCode, stateCode)
             ) {
                 countryCode?.let {
-                    presenter.createOrRestoreWallet(email, password1, recoveryPhrase, it, stateCode)
+                    createWalletPresenter.createOrRestoreWallet(email, password1, recoveryPhrase, it, stateCode)
                 }
             }
         }

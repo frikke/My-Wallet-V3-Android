@@ -16,7 +16,7 @@ class GetNextPaymentDateListToFrequencyDateMapper :
     override fun map(type: List<NextPaymentRecurringBuy>): List<EligibleAndNextPaymentRecurringBuy> {
         return type.map {
             EligibleAndNextPaymentRecurringBuy(
-                period = it.period.toRecurringBuyFrequency(),
+                frequency = it.period.toRecurringBuyFrequency(),
                 nextPaymentDate = it.nextPayment,
                 eligibleMethods = mapStringToPaymentMethod(it.eligibleMethods)
             )

@@ -1,10 +1,9 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("kotlin-android-extensions")
 }
 
-apply(from="../quality/ktlint.gradle")
+apply(from = "../quality/ktlint.gradle")
 
 kotlin {
     android("android") {
@@ -34,12 +33,12 @@ kotlin {
 
         val androidTest by getting {
             dependencies {
-                api(kotlin("test"))
-                api(kotlin("test-junit"))
+                implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
 
-                api(Libraries.mockito)
-                api(Libraries.mockitoKotlin)
-                api(Libraries.robolectric)
+                implementation(Libraries.mockito)
+                implementation(Libraries.mockitoKotlin)
+                implementation(Libraries.robolectric)
             }
         }
 
@@ -47,7 +46,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib"))
 
-                api(Libraries.biometricsApi)
+                implementation(Libraries.biometricsApi)
             }
         }
     }
@@ -59,9 +58,7 @@ android {
     defaultConfig {
         minSdkVersion(Versions.minSdk)
         targetSdkVersion(Versions.targetSdk)
-        versionCode(Versions.versionCode)
-        versionName(Versions.versionName)
-        testInstrumentationRunner("android.support.test.runner.AndroidJUnitRunner")
+        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
     }
     sourceSets {
         // Change 'main' to 'androidMain' for clarity in multiplatform environment

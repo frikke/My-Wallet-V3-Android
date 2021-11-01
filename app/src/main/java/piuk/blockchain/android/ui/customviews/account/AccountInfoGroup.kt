@@ -13,8 +13,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AccountGroup
-import piuk.blockchain.android.coincore.impl.AllWalletsAccount
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.impl.AllWalletsAccount
 import piuk.blockchain.android.databinding.ViewAccountGroupOverviewBinding
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.invisible

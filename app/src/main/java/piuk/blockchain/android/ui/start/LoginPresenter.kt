@@ -8,7 +8,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.android.util.AppUtil
@@ -60,7 +59,7 @@ class LoginPresenter(
                     appUtil.clearCredentials()
                 } else {
                     view?.showToast(R.string.pairing_failed, ToastCustom.TYPE_ERROR)
-                    appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
+                    appUtil.clearCredentialsAndRestart()
                 }
             })
     }

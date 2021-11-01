@@ -3,9 +3,11 @@ package piuk.blockchain.android.ui.home
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAccount
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -37,10 +39,10 @@ interface HomeNavigator {
     fun launchSend()
     fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        ticker: String? = null
+        asset: AssetInfo? = null
     )
-    fun launchSimpleBuy(ticker: String)
-    fun launchInterestDashboard()
+    fun launchSimpleBuy(asset: AssetInfo)
+    fun launchInterestDashboard(origin: LaunchOrigin)
     fun launchFiatDeposit(currency: String)
     fun launchTransfer()
     fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo)

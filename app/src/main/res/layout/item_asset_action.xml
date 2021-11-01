@@ -8,8 +8,7 @@
     android:background="?attr/selectableItemBackground"
     android:paddingStart="@dimen/standard_margin"
     android:paddingTop="@dimen/small_margin"
-    android:paddingEnd="@dimen/standard_margin"
-    >
+    android:paddingEnd="@dimen/standard_margin">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/item_action_icon"

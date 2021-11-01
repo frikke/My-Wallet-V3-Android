@@ -31,20 +31,20 @@ import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
-import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.android.thepit.PitLinkingState
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.util.AndroidUtils
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
+import thepit.PitLinking
+import thepit.PitLinkingState
 import timber.log.Timber
 import java.io.Serializable
 
@@ -55,7 +55,7 @@ class SettingsPresenter(
     private val payloadManager: PayloadManager,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val custodialWalletManager: CustodialWalletManager,
     private val notificationTokenManager: NotificationTokenManager,
     private val exchangeRates: ExchangeRatesDataManager,
@@ -265,14 +265,13 @@ class SettingsPresenter(
             // No fingerprints enrolled, prompt user to add some
             view?.showNoFingerprintsAddedDialog()
         } else {
-            val pin = accessState.pin
+            val pin = pinRepository.pin
             if (pin.isNotEmpty()) {
                 view?.showFingerprintDialog(pin)
             } else {
                 throw IllegalStateException("PIN code not found in AccessState")
             }
         }
-        analytics.logEvent(SettingsAnalytics.BiometricsOptionUpdated(isFingerprintUnlockEnabled))
     }
 
     fun updateKyc() {
@@ -510,7 +509,7 @@ class SettingsPresenter(
     @SuppressLint("CheckResult")
     fun updatePassword(password: String, fallbackPassword: String) {
         payloadManager.tempPassword = password
-        compositeDisposable += authDataManager.createPin(password, accessState.pin)
+        compositeDisposable += authDataManager.createPin(password, pinRepository.pin)
             .doOnSubscribe { view?.showProgress() }
             .doOnTerminate { view?.hideProgress() }
             .andThen(authDataManager.verifyCloudBackup())
@@ -545,10 +544,6 @@ class SettingsPresenter(
                 analytics.logEvent(SettingsAnalytics.CurrencyChanged)
 
                 settings
-            }.flatMapSingle { settings ->
-                // Force the prices cache to refresh for the new user fiat
-                exchangeRates.refetchCache()
-                    .thenSingle { Single.just(settings) }
             }.observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = { updateUi(it) },

@@ -3,6 +3,7 @@ package com.blockchain.api.assetprice
 import com.blockchain.api.assetprice.data.AssetPriceDto
 import com.blockchain.api.assetprice.data.AvailableSymbolsDto
 import com.blockchain.api.assetprice.data.PriceRequestPairDto
+import com.blockchain.api.assetprice.data.PriceResponseMapDto
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -21,7 +22,7 @@ internal interface AssetPriceApiInterface {
     fun getCurrentPrices(
         @Body pairs: List<PriceRequestPairDto>,
         @Query("api_key") apiKey: String
-    ): Single<Map<String, AssetPriceDto>>
+    ): Single<PriceResponseMapDto>
 
     // Get the historic price at specific time price of multiple currency pairs
     @POST("price/index-multi")
@@ -29,13 +30,13 @@ internal interface AssetPriceApiInterface {
         @Body pairs: List<PriceRequestPairDto>,
         @Query("time") time: Long,
         @Query("api_key") apiKey: String
-    ): Single<Map<String, AssetPriceDto>>
+    ): Single<PriceResponseMapDto>
 
     // Get a series of historical price index which covers a range of time represents in specific scale
     @GET("price/index-series")
     fun getHistoricPriceSince(
-        @Query("base") crypto: String,
-        @Query("quote") fiat: String,
+        @Query("base") base: String,
+        @Query("quote") quote: String,
         @Query("start") start: Long, // Epoch seconds
         @Query("scale") scale: Int,
         @Query("api_key") apiKey: String

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.banking.BankPartnerCallbackProvider
+import com.blockchain.banking.BankTransferAction
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPairs
@@ -30,21 +32,20 @@ import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.cards.CardIntent
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.networking.PollResult
-import piuk.blockchain.android.networking.PollService
+import com.blockchain.coincore.Coincore
+import com.blockchain.network.PollResult
+import com.blockchain.network.PollService
+import info.blockchain.balance.Money
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
-import piuk.blockchain.android.ui.linkbank.BankTransferAction
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.util.AppUtil
@@ -90,7 +91,7 @@ class SimpleBuyInteractor(
 
     fun createOrder(
         cryptoAsset: AssetInfo,
-        amount: FiatValue,
+        amount: Money,
         paymentMethodId: String? = null,
         paymentMethod: PaymentMethodType,
         isPending: Boolean,
@@ -98,13 +99,13 @@ class SimpleBuyInteractor(
     ): Single<SimpleBuyIntent.OrderCreated> =
         custodialWalletManager.createOrder(
             custodialWalletOrder = CustodialWalletOrder(
-                pair = "${cryptoAsset.ticker}-${amount.currencyCode}",
+                pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
                 action = "BUY",
                 input = OrderInput(
                     amount.currencyCode, amount.toBigInteger().toString()
                 ),
                 output = OrderOutput(
-                    cryptoAsset.ticker, null
+                    cryptoAsset.networkTicker, null
                 ),
                 paymentMethodId = paymentMethodId,
                 paymentType = paymentMethod.name,
@@ -131,7 +132,7 @@ class SimpleBuyInteractor(
                 RecurringBuyRequestBody(
                     inputValue = amount.toBigInteger().toString(),
                     inputCurrency = amount.currencyCode,
-                    destinationCurrency = asset.ticker,
+                    destinationCurrency = asset.networkTicker,
                     paymentMethod = selectedPaymentMethod.paymentMethodType.name,
                     period = recurringBuyFrequency.name,
                     paymentMethodId = selectedPaymentMethod.takeUnless { it.isFunds() }?.id
@@ -153,7 +154,7 @@ class SimpleBuyInteractor(
                 SimpleBuyIntent.WithdrawLocksTimeUpdated()
             }
 
-    fun fetchQuote(asset: AssetInfo?, amount: FiatValue?): Single<SimpleBuyIntent.QuoteUpdated> =
+    fun fetchQuote(asset: AssetInfo?, amount: Money?): Single<SimpleBuyIntent.QuoteUpdated> =
         custodialWalletManager.getQuote(
             asset = asset ?: throw IllegalStateException("Missing Cryptocurrency "),
             fiatCurrency = amount?.currencyCode ?: throw IllegalStateException("Missing FiatCurrency "),

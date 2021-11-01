@@ -12,6 +12,7 @@ import androidx.annotation.StringRes
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavDirections
+import com.blockchain.coincore.AssetAction
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
@@ -20,48 +21,46 @@ import com.blockchain.nabu.models.responses.nabu.Tier
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
+import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.kycTierStart
 import com.blockchain.notifications.analytics.logEvent
-import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
-import piuk.blockchain.android.urllinks.URL_LEARN_MORE_REJECTED
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.databinding.FragmentKycTierSplashBinding
+import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.hyperlinks.renderSingleLink
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.kyc.navigate
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
+import piuk.blockchain.android.urllinks.URL_LEARN_MORE_REJECTED
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setImageDrawable
+import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.kyc.navigate
 import timber.log.Timber
 
 class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPresenter>(),
-    KycTierSplashView, DialogFlow.FlowHost {
+    KycTierSplashView {
 
     private val presenter: KycTierSplashPresenter by scopedInject()
     private val analytics: Analytics by inject()
-    private val txLauncher: TransactionLauncher by inject()
 
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
     )
 
     private var _binding: FragmentKycTierSplashBinding? = null
-
     private val binding get() = _binding!!
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -105,8 +104,6 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
         onViewReady()
     }
 
-    private val disposable = CompositeDisposable()
-
     override fun renderTiersList(tiers: KycTiers) {
         // Logic is now limited to 2 tiers, future refactor to traverse tiersList
 
@@ -131,7 +128,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
         }
     }
 
-    private fun renderTier(tier: Tier, layoutElements: TierLayoutElements) {
+    private fun renderTier(tier: Tier, layoutElements: TierLayoutElements, tierLevel: KycTierLevel) {
         with(binding) {
             when (tier.state) {
                 KycTierState.Rejected -> {
@@ -150,7 +147,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                     textContactSupport.gone()
                 }
             }
-            layoutElements.textLimit.text = getLimitForTier(tier)
+            layoutElements.textLimit.text = getLimitForTier(tier, tierLevel)
             layoutElements.textPeriodicLimit.text = getString(getLimitString(tier))
         }
     }
@@ -189,7 +186,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
         layoutElements.textTierState.visible()
         layoutElements.textTierState.text = getString(R.string.approved)
         with(binding) {
-            tierAvailableFiat.text = getLimitForTier(tier)
+            tierAvailableFiat.text = getLimitForTier(tier, KycTierLevel.GOLD)
             tierAvailableFiat.visible()
             textHeaderTiersLine1.text = getString(R.string.available)
             textHeaderTiersLine2.text = getString(R.string.swap_limit)
@@ -208,7 +205,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                 textTierState = textTier1State,
                 textTierRequires = textTier1Requires
             )
-            renderTier(tier, layoutElements)
+            renderTier(tier, layoutElements, KycTierLevel.SILVER)
         }
     }
 
@@ -223,7 +220,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                 textTierState = textTier2State,
                 textTierRequires = textTier2Requires
             )
-            renderTier(tier, layoutElements)
+            renderTier(tier, layoutElements, KycTierLevel.GOLD)
         }
     }
 
@@ -234,10 +231,17 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
             else -> ""
         }
 
-    private fun getLimitForTier(tier: Tier): String {
-        val limits = tier.limits
-        return (limits?.annualFiat ?: limits?.dailyFiat)?.toStringWithSymbol() ?: ""
-    }
+    // TODO kill this with fire ASAP
+    private fun getLimitForTier(tier: Tier, kycTierLevel: KycTierLevel): String =
+        when (kycTierLevel) {
+            KycTierLevel.SILVER -> {
+                "$2000"
+            }
+            KycTierLevel.GOLD -> {
+                "$500,000"
+            }
+            else -> ""
+        }
 
     @StringRes
     private fun getLimitString(tier: Tier): Int {
@@ -253,7 +257,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
 
     override fun onResume() {
         super.onResume()
-        disposable += binding.cardTier1
+        compositeDisposable += binding.cardTier1
             .throttledClicks()
             .subscribeBy(
                 onNext = {
@@ -262,7 +266,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                 },
                 onError = { Timber.e(it) }
             )
-        disposable += binding.cardTier2
+        compositeDisposable += binding.cardTier2
             .throttledClicks()
             .subscribeBy(
                 onNext = {
@@ -271,7 +275,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                 },
                 onError = { Timber.e(it) }
             )
-        disposable += binding.buttonSwapNow
+        compositeDisposable += binding.buttonSwapNow
             .throttledClicks()
             .subscribeBy(
                 onNext = {
@@ -279,13 +283,13 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
                 },
                 onError = { Timber.e(it) }
             )
-        disposable += binding.buttonLearnMore
+        compositeDisposable += binding.buttonLearnMore
             .throttledClicks()
             .subscribeBy(
                 onNext = { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_LEARN_MORE_REJECTED))) },
                 onError = { Timber.e(it) }
             )
-        disposable += binding.textContactSupport
+        compositeDisposable += binding.textContactSupport
             .throttledClicks()
             .subscribeBy(
                 onNext = { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_CONTACT_SUPPORT))) },
@@ -293,17 +297,16 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
             )
     }
 
-    private fun startSwap() {
-        txLauncher.startFlow(
-            activity = requireActivity(),
-            action = AssetAction.Swap,
-            fragmentManager = childFragmentManager,
-            flowHost = this@KycTierSplashFragment
+    private fun startSwap() =
+        startActivity(
+            TransactionFlowActivity.newInstance(
+                context = requireActivity(),
+                action = AssetAction.Swap
+            )
         )
-    }
 
     override fun onPause() {
-        disposable.clear()
+        compositeDisposable.clear()
         super.onPause()
     }
 
@@ -314,6 +317,11 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
     override fun navigateTo(directions: NavDirections, tier: Int) {
         logEvent(kycTierStart(tier))
         navigate(directions)
+        analytics.logEvent(
+            KYCAnalyticsEvents.UpgradeKycVeriffClicked(
+                LaunchOrigin.SETTINGS, tier = com.blockchain.nabu.Tier.values()[tier]
+            )
+        )
     }
 
     override fun showError(message: Int) =
@@ -331,8 +339,5 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
 
     companion object {
         private const val SILVER_TIER_INDEX = 1
-    }
-
-    override fun onFlowFinished() {
     }
 }

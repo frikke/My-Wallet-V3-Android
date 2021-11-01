@@ -37,8 +37,8 @@ class PendingSwapsAdapter(
         ) {
             with(binding) {
                 title.text = context.resources.getString(
-                    R.string.swap_direction, (custodialOrder.inputMoney as CryptoValue).currency.ticker,
-                    (custodialOrder.outputMoney as CryptoValue).currency.ticker
+                    R.string.swap_direction, (custodialOrder.inputMoney as CryptoValue).currency.displayTicker,
+                    (custodialOrder.outputMoney as CryptoValue).currency.displayTicker
                 )
                 subtitle.text = custodialOrder.createdAt.toFormattedDate()
                 fiatvalue.text = toFiat(custodialOrder.inputMoney).toStringWithSymbol()

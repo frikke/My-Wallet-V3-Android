@@ -1,12 +1,11 @@
 package piuk.blockchain.android.ui.createwallet
 
-import android.app.LauncherActivity
 import androidx.annotation.StringRes
 import com.blockchain.api.services.Geolocation
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -18,11 +17,9 @@ import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity.Companion.CODE_US
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import timber.log.Timber
 import kotlin.math.roundToInt
 
@@ -40,8 +37,7 @@ class CreateWalletPresenter(
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
     private val appUtil: AppUtil,
-    private val accessState: AccessState,
-    private val prngFixer: PrngFixer,
+    private val specificAnalytics: ProviderSpecificAnalytics,
     private val analytics: Analytics,
     private val environmentConfig: EnvironmentConfig,
     private val formatChecker: FormatChecker,
@@ -104,8 +100,7 @@ class CreateWalletPresenter(
         recoveryPhrase: String,
         countryCode: String,
         stateIsoCode: String? = null
-    ) =
-        when {
+    ) = when {
             recoveryPhrase.isNotEmpty() -> recoverWallet(email, password, recoveryPhrase)
             else -> createWallet(email, password, countryCode, stateIsoCode)
         }
@@ -116,9 +111,7 @@ class CreateWalletPresenter(
         countryCode: String,
         stateIsoCode: String? = null
     ) {
-
         analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
-        prngFixer.applyPRNGFixes()
 
         compositeDisposable += payloadDataManager.createHdWallet(
             password,
@@ -128,28 +121,25 @@ class CreateWalletPresenter(
             .doOnSubscribe { view.showProgressDialog(R.string.creating_wallet) }
             .doOnTerminate { view.dismissProgressDialog() }
             .subscribeBy(
-                onSuccess = {
-                    accessState.isNewlyCreated = true
+                onSuccess = { wallet ->
+                    prefs.isNewlyCreated = true
                     analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryCode, stateIsoCode))
                     prefs.apply {
-                        payloadDataManager.wallet?.let {
-                            walletGuid = it.guid
-                            sharedKey = it.sharedKey
-                        }
-                        setNewUser()
+                        walletGuid = wallet.guid
+                        sharedKey = wallet.sharedKey
                         countrySelectedOnSignUp = countryCode
                         stateIsoCode?.let { stateSelectedOnSignUp = it }
                         email = emailEntered
                     }
                     analytics.logEvent(AnalyticsEvents.WalletCreation)
                     view.startPinEntryActivity()
-                    Logging.logSignUp(true)
+                    specificAnalytics.logSingUp(true)
                 },
                 onError = {
                     Timber.e(it)
                     view.showError(R.string.hd_error)
-                    appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
-                    Logging.logSignUp(false)
+                    appUtil.clearCredentialsAndRestart()
+                    specificAnalytics.logSingUp(false)
                 }
             )
     }
@@ -171,23 +161,19 @@ class CreateWalletPresenter(
                 view.dismissProgressDialog()
             }.subscribeBy(
                 onSuccess = { wallet ->
-                    accessState.isNewlyCreated = true
-                    accessState.isRestored = true
                     prefs.apply {
-                        payloadDataManager.wallet?.let {
-                            walletGuid = it.guid
-                            sharedKey = it.sharedKey
-                        }
+                        isNewlyCreated = true
+                        isRestored = true
+                        walletGuid = wallet.guid
+                        sharedKey = wallet.sharedKey
                         email = emailEntered
                         isOnBoardingComplete = true
                     }
                     view.startPinEntryActivity()
-                    analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(true))
                 },
                 onError = {
                     Timber.e(it)
                     view.showError(R.string.restore_failed)
-                    analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(false))
                 }
             )
     }

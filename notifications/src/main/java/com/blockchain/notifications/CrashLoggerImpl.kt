@@ -23,6 +23,7 @@ internal class CrashLoggerImpl(override val isDebugBuild: Boolean) : CrashLogger
     }
 
     override fun logEvent(msg: String) {
+        Timber.e(msg)
         if (BuildConfig.USE_CRASHLYTICS) {
             firebaseInstance.log(msg)
         }

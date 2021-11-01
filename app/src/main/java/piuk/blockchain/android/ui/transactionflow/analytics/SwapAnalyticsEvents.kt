@@ -120,8 +120,8 @@ sealed class SwapAnalyticsEvents(
     }
 
     class SwapAccountsSelected(
-        private val inputCurrency: String,
-        private val outputCurrency: String,
+        private val inputCurrency: AssetInfo,
+        private val outputCurrency: AssetInfo,
         private val sourceAccountType: TxFlowAnalyticsAccountType,
         private val targetAccountType: TxFlowAnalyticsAccountType,
         private val werePreselected: Boolean
@@ -130,11 +130,11 @@ sealed class SwapAnalyticsEvents(
             get() = AnalyticsNames.SWAP_ACCOUNTS_SELECTED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
-                "input_currency" to inputCurrency,
+                "input_currency" to inputCurrency.networkTicker,
                 "input_type" to sourceAccountType.name,
                 "output_type" to targetAccountType.name,
                 "was_suggested" to werePreselected,
-                "output_currency" to outputCurrency
+                "output_currency" to outputCurrency.networkTicker
             )
     }
 

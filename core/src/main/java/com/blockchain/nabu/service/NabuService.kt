@@ -402,12 +402,11 @@ class NabuService internal constructor (
     internal fun fetchWithdrawLocksRules(
         sessionToken: NabuSessionTokenResponse,
         paymentMethod: PaymentMethodType,
-        fiatCurrency: String,
-        productType: String
+        fiatCurrency: String
     ) = nabu.getWithdrawalLocksCheck(
         sessionToken.authHeader,
         WithdrawLocksCheckRequestBody(
-            paymentMethod = paymentMethod.name, product = productType, currency = fiatCurrency
+            paymentMethod = paymentMethod.name, currency = fiatCurrency
         )
     ).wrapErrorMessage()
 

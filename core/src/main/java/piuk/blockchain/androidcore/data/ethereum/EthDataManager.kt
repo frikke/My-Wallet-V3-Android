@@ -3,7 +3,6 @@ package piuk.blockchain.androidcore.data.ethereum
 import com.blockchain.logging.LastTxUpdater
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isErc20
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthAccountApi
@@ -171,8 +170,10 @@ class EthDataManager(
         require(asset.isErc20())
 
         return Completable.defer {
-            getErc20TokenData(asset).putTxNote(hash, note)
-            save()
+            getErc20TokenData(asset)?.let {
+                it.putTxNote(hash, note)
+                save()
+            } ?: Completable.complete()
         }.applySchedulers()
     }
 
@@ -271,10 +272,6 @@ class EthDataManager(
                     }
                 }
 
-                if (ethWallet.updateErc20Tokens(assetCatalogue, label)) {
-                    needsSave = true
-                }
-
                 if (!ethWallet.account.isAddressChecksummed()) {
                     ethWallet.account.apply {
                         address = withChecksummedAddress()
@@ -290,12 +287,12 @@ class EthDataManager(
             EthereumWallet.METADATA_TYPE_EXTERNAL
         )
 
-    fun getErc20TokenData(asset: AssetInfo): Erc20TokenData {
-        require(asset.l2chain == CryptoCurrency.ETHER)
+    fun getErc20TokenData(asset: AssetInfo): Erc20TokenData? {
+        require(asset.isErc20())
         require(asset.l2identifier != null)
-        val name = asset.ticker.lowercase()
+        val name = asset.networkTicker.lowercase()
 
-        return getEthWallet()!!.getErc20TokenData(name)
+        return getEthWallet()?.getErc20TokenData(name)
     }
 
     val requireSecondPassword: Boolean

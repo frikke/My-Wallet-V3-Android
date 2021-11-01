@@ -4,72 +4,58 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.text.InputType
+import android.os.Looper
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatEditText
-import androidx.appcompat.widget.Toolbar
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityLauncherBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.base.BaseMvpActivity
-import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
-import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
+import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
-class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), LauncherView, EmailEntryHost {
+class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), LauncherView {
 
-    private val analytics: Analytics by inject()
-    private val launcherPresenter: LauncherPresenter by scopedInject()
-
-    private val binding: ActivityLauncherBinding by lazy {
-        ActivityLauncherBinding.inflate(layoutInflater)
-    }
-
-    private val toolbar: Toolbar
-        get() = binding.toolbarGeneral.toolbarGeneral
+    private val internalFlags: InternalFeatureFlagApi by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            setTheme(R.style.AppTheme_Splash)
+        }
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-        setSupportActionBar(toolbar)
-        toolbar.gone()
-
         if (intent.hasExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION) &&
             intent.getBooleanExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
         }
-
-        Handler().postDelayed(DelayStartRunnable(this), 500)
     }
 
-    override fun logScreenView() = Unit
+    override fun getViewIntentData(): ViewIntentData =
+        ViewIntentData(
+            action = intent.action,
+            scheme = intent.scheme,
+            dataString = intent.dataString,
+            data = intent.data?.toString(),
+            isAutomationTesting = intent.extras?.getBoolean(INTENT_AUTOMATION_TEST, false) ?: false
+        )
 
-    override fun createPresenter() = launcherPresenter
-
-    override fun getView() = this
-
-    override fun getPageIntent(): Intent = intent
-
-    override fun onNoGuid() = LandingActivity.start(this)
+    override fun onNoGuid() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            LandingActivity.start(this)
+        }, 500)
+    }
 
     override fun onRequestPin() {
         startSingleActivity(PinEntryActivity::class.java, null)
+    }
+
+    override fun onReenterPassword() {
+        startSingleActivity(PasswordRequiredActivity::class.java, null)
     }
 
     override fun onCorruptPayload() {
@@ -83,68 +69,6 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
             .show()
     }
 
-    override fun onStartMainActivity(uri: Uri?, launchBuySellIntro: Boolean) {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            data = uri
-            putExtra(MainActivity.START_BUY_SELL_INTRO_KEY, launchBuySellIntro)
-        }
-        startActivity(intent)
-    }
-
-    override fun launchEmailVerification() {
-        analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.content_frame, KycEmailEntryFragment(), KycEmailEntryFragment::class.simpleName)
-            .commitAllowingStateLoss()
-    }
-
-    override fun onReEnterPassword() {
-        startSingleActivity(PasswordRequiredActivity::class.java, null)
-    }
-
-    override fun showToast(message: Int, toastType: String) = toast(message, toastType)
-
-    override fun showMetadataNodeFailure() {
-        if (!isFinishing) {
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.metadata_load_failure)
-                .setPositiveButton(R.string.retry) { _, _ -> onRequestPin() }
-                .setNegativeButton(R.string.exit) { _, _ -> finish() }
-                .setCancelable(false)
-                .create()
-                .show()
-        }
-    }
-
-    override fun showSecondPasswordDialog() {
-        val editText = AppCompatEditText(this)
-        editText.setHint(R.string.password)
-        editText.inputType =
-            InputType.TYPE_CLASS_TEXT or
-                InputType.TYPE_TEXT_VARIATION_PASSWORD or
-                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-
-        val frameLayout = ViewUtils.getAlertDialogPaddedView(this, editText)
-
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.second_password_dlg_title)
-            .setMessage(R.string.eth_second_password_prompt)
-            .setView(frameLayout)
-            .setCancelable(false)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                ViewUtils.hideKeyboard(this)
-                presenter.decryptAndSetupMetadata(editText.text.toString())
-            }
-            .create()
-            .show()
-    }
-
-    override fun updateProgressVisibility(show: Boolean) {
-        binding.progress.visibleIf { show }
-    }
-
     private fun startSingleActivity(clazz: Class<*>, extras: Bundle?, uri: Uri? = null) {
         val intent = Intent(this, clazz).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -155,30 +79,11 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
         startActivity(intent)
     }
 
-    private class DelayStartRunnable internal constructor(
-        private val activity: LauncherActivity
-    ) : Runnable {
-        override fun run() {
-            if (activity.presenter != null && !activity.isFinishing) {
-                activity.onViewReady()
-            }
-        }
-    }
+    override val presenter: LauncherPresenter by scopedInject()
+    override val view: LauncherView
+        get() = this
 
-    override fun onEmailEntryFragmentShown() {
-        with(toolbar) {
-            setupToolbar(this, R.string.security_check)
-            navigationIcon = null
-            visible()
-        }
-    }
-
-    override fun onEmailVerified() {
-        presenter.onEmailVerificationFinished()
-    }
-
-    override fun onEmailVerificationSkipped() {
-        presenter.onEmailVerificationFinished()
-        analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
+    companion object {
+        const val INTENT_AUTOMATION_TEST = "IS_AUTOMATION_TESTING"
     }
 }

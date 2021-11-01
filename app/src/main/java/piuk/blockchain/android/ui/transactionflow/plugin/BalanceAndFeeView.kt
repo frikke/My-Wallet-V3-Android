@@ -4,19 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.core.price.ExchangeRate
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import com.blockchain.core.price.canConvert
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.FeeLevel
-import piuk.blockchain.android.databinding.ViewTxFlowFeeAndBalanceBinding
+import piuk.blockchain.android.databinding.ViewTxFullscreenFeeAndBalanceBinding
 import piuk.blockchain.android.ui.customviews.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -24,30 +17,20 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.isVisible
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 
 class BalanceAndFeeView @JvmOverloads constructor(
     ctx: Context,
     attr: AttributeSet? = null,
     defStyle: Int = 0
-) : ConstraintLayout(ctx, attr, defStyle), ExpandableTxFlowWidget {
+) : ConstraintLayout(ctx, attr, defStyle), EnterAmountWidget {
 
     private lateinit var model: TransactionModel
     private lateinit var customiser: EnterAmountCustomisations
     private lateinit var analytics: TxFlowAnalytics
-    private val imm: InputMethodManager by lazy {
-        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    }
 
-    private val binding: ViewTxFlowFeeAndBalanceBinding =
-        ViewTxFlowFeeAndBalanceBinding.inflate(LayoutInflater.from(context), this, true)
-
-    private val expandableSubject = PublishSubject.create<Boolean>()
-
-    override val expanded: Observable<Boolean>
-        get() = expandableSubject
+    private val binding: ViewTxFullscreenFeeAndBalanceBinding =
+        ViewTxFullscreenFeeAndBalanceBinding.inflate(LayoutInflater.from(context), this, true)
 
     override fun initControl(
         model: TransactionModel,
@@ -61,10 +44,6 @@ class BalanceAndFeeView @JvmOverloads constructor(
         this.analytics = analytics
 
         binding.useMax.gone()
-
-        binding.root.setOnClickListener {
-            toggleDropdown()
-        }
     }
 
     override fun update(state: TransactionState) {
@@ -72,15 +51,6 @@ class BalanceAndFeeView @JvmOverloads constructor(
 
         updateMaxGroup(state)
         updateBalance(state)
-
-        state.pendingTx?.let {
-            if (it.feeSelection.selectedLevel == FeeLevel.None) {
-                binding.feeEdit.gone()
-            } else {
-                binding.feeEdit.update(it.feeSelection, model)
-                binding.feeEdit.visible()
-            }
-        }
     }
 
     override fun setVisible(isVisible: Boolean) {
@@ -140,11 +110,23 @@ class BalanceAndFeeView @JvmOverloads constructor(
 
     private fun updateMaxGroup(state: TransactionState) =
         with(binding) {
-            networkFeeLabel.visibleIf { state.amount.isPositive }
-            networkFeeValue.visibleIf { state.amount.isPositive }
-            networkFeeArrow.visibleIf { state.amount.isPositive }
+            val isPositiveAmount = state.amount.isPositive
+            val hasFees = state.pendingTx?.feeAmount?.isPositive == true
+            val isTotalAvailable = state.pendingTx?.totalBalance == state.pendingTx?.availableBalance
+            val amountIsPositiveAndHasFees = isPositiveAmount && hasFees
+
+            networkFeeLabel.visibleIf { amountIsPositiveAndHasFees }
+            networkFeeValue.visibleIf { amountIsPositiveAndHasFees }
+            networkFeeArrow.visibleIf { amountIsPositiveAndHasFees }
+            feeForFullAvailableLabel.visibleIf { amountIsPositiveAndHasFees }
+            feeForFullAvailableValue.visibleIf { amountIsPositiveAndHasFees }
+            totalAvailableLabel.visibleIf { isPositiveAmount && !isTotalAvailable }
+            totalAvailableValue.visibleIf { isPositiveAmount && !isTotalAvailable }
+
             with(useMax) {
-                visibleIf { !state.amount.isPositive && !customiser.shouldDisableInput(state.errorState) }
+                val amountIsZeroOrNoFees =
+                    !isPositiveAmount || !hasFees // in those cases there is room for the Max button
+                visibleIf { amountIsZeroOrNoFees && !customiser.shouldDisableInput(state.errorState) }
                 text = customiser.enterAmountMaxButton(state)
                 setOnClickListener {
                     analytics.onMaxClicked(state)
@@ -152,58 +134,4 @@ class BalanceAndFeeView @JvmOverloads constructor(
                 }
             }
         }
-
-    private var externalFocus: View? = null
-    private fun toggleDropdown() {
-        val revealDropdown = !binding.dropdown.isVisible()
-        expandableSubject.onNext(revealDropdown)
-
-        // Clear focus - and keyboard - remember it, so we can set it back when we close
-        if (revealDropdown) {
-            val viewGroup = findRootView()
-            externalFocus = viewGroup?.findFocus()
-            externalFocus?.clearFocus()
-            hideKeyboard()
-        } else {
-            externalFocus?.let {
-                it.requestFocus()
-                showKeyboard(it)
-            }
-            externalFocus = null
-        }
-
-        with(binding.dropdown) {
-            if (revealDropdown) {
-                visible()
-            } else {
-                gone()
-            }
-        }
-        // And flip the toggle indicator
-        binding.networkFeeArrow.rotation += 180f
-    }
-
-    private fun findRootView(): ViewGroup? {
-        var v = binding.root.parent as? ViewGroup
-        while (v?.parent is ViewGroup) {
-            v = v.parent as? ViewGroup
-        }
-        return v
-    }
-
-    private fun showKeyboard(inputView: View) {
-        imm.showSoftInput(inputView, InputMethodManager.SHOW_IMPLICIT)
-    }
-
-    private fun hideKeyboard() {
-        imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
-    }
 }
-
-private fun ExchangeRate.canConvert(value: Money): Boolean =
-    when (this) {
-        is ExchangeRate.FiatToCrypto -> value.currencyCode == this.from
-        is ExchangeRate.CryptoToFiat -> (value is CryptoValue && value.currency == this.from)
-        is ExchangeRate.FiatToFiat -> (value is FiatValue && value.currencyCode == this.from)
-        is ExchangeRate.CryptoToCrypto -> (value is CryptoValue && value.currency == this.from)
-    }

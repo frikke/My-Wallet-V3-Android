@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.base
 
 import androidx.annotation.CallSuper
 import androidx.viewpager.widget.ViewPager
-import com.blockchain.notifications.analytics.Logging
-import piuk.blockchain.android.BuildConfig
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
+import org.koin.android.ext.android.inject
 
 /**
  * Logs Fragments that have been visited for statistics purposes using Crashlytics' answers.
@@ -13,6 +13,8 @@ abstract class BaseFragment<VIEW : View, PRESENTER : BasePresenter<VIEW>> :
     BaseMvpFragment<VIEW, PRESENTER>() {
 
     private var logged: Boolean = false
+
+    private val specificAnalytics: ProviderSpecificAnalytics by inject()
 
     @CallSuper
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -44,10 +46,7 @@ abstract class BaseFragment<VIEW : View, PRESENTER : BasePresenter<VIEW>> :
     private fun logContentView() {
         if (!logged) {
             logged = true
-
-            if (!BuildConfig.DEBUG) {
-                Logging.logContentView(javaClass.simpleName)
-            }
+            specificAnalytics.logContentView(javaClass.simpleName)
         }
     }
 }

@@ -4,6 +4,7 @@ import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
@@ -228,4 +229,18 @@ class SettingsDataManager(
             guid = guid,
             sharedKey = sharedKey
         )
+
+    fun triggerOnChainTransaction(
+        guid: String,
+        sharedKey: String,
+        currency: String,
+        amount: String
+    ): Completable {
+        return walletSettingsService.triggerOnChainTransaction(
+            guid = guid,
+            sharedKey = sharedKey,
+            currency = currency,
+            amount = amount
+        )
+    }
 }

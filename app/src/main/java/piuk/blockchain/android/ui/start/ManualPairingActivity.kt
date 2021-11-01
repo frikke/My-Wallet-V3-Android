@@ -15,6 +15,7 @@ import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityManualPairingBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -60,7 +61,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.manual_pairing)
+        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.manual_pairing)
 
         with(binding) {
             commandNext.setOnClickListener { presenter.onContinueClicked(guid, password) }

@@ -1,7 +1,8 @@
 package piuk.blockchain.android.ui.pairingcode
 
-import android.graphics.Bitmap
 import com.blockchain.logging.CrashLogger
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.analytics.PairingEvent
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -11,9 +12,7 @@ import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import com.blockchain.notifications.analytics.Logging
 import com.blockchain.notifications.analytics.PairingMethod
-import com.blockchain.notifications.analytics.pairingEvent
 
 class PairingModel(
     initialState: PairingState,
@@ -21,6 +20,7 @@ class PairingModel(
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger,
     private val qrCodeDataManager: QrCodeDataManager,
+    private val analytics: Analytics,
     private val payloadDataManager: PayloadDataManager,
     private val authDataManager: AuthDataManager
 ) : MviModel<PairingState, PairingIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
@@ -37,7 +37,8 @@ class PairingModel(
 
     private fun showQrCode(qrCodeImageStatus: QrCodeImageStatus): Disposable? {
         if (qrCodeImageStatus !is QrCodeImageStatus.Ready &&
-            qrCodeImageStatus !is QrCodeImageStatus.Hidden) {
+            qrCodeImageStatus !is QrCodeImageStatus.Hidden
+        ) {
             process(PairingIntents.LoadQrImage)
         }
         return null
@@ -49,7 +50,7 @@ class PairingModel(
             .subscribe(
                 { bitmap ->
                     process(PairingIntents.CompleteQrImageLoading(bitmap))
-                    Logging.logEvent(pairingEvent(PairingMethod.REVERSE))
+                    analytics.logEvent(PairingEvent(PairingMethod.REVERSE))
                 },
                 { process(PairingIntents.ShowQrError) })
 
@@ -58,14 +59,15 @@ class PairingModel(
             Single.fromObservable(authDataManager.getPairingEncryptionPassword(wallet.guid))
         } ?: Single.error(IllegalStateException("Wallet cannot be null"))
 
-    private fun generatePairingCodeObservable(encryptionPhrase: String): Single<Bitmap> {
+    private fun generatePairingCodeObservable(encryptionPhrase: String): Single<String> {
+        check(payloadDataManager.tempPassword != null)
         return payloadDataManager.wallet?.let { wallet ->
             qrCodeDataManager.generatePairingCode(
                 wallet.guid,
-                payloadDataManager.tempPassword,
+                payloadDataManager.tempPassword
+                    ?: throw java.lang.IllegalStateException("TempPassword is missing"),
                 wallet.sharedKey,
-                encryptionPhrase,
-                600
+                encryptionPhrase
             )
         } ?: Single.error(IllegalStateException("Wallet cannot be null"))
     }

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.login
 
+import android.net.Uri
+import androidx.annotation.VisibleForTesting
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class LoginIntents : MviIntent<LoginState> {
@@ -81,6 +83,35 @@ sealed class LoginIntents : MviIntent<LoginState> {
             oldState.copy(
                 currentStep = LoginStep.SHOW_SCAN_ERROR,
                 shouldRestartApp = shouldRestartApp
+            )
+    }
+
+    class CheckForExistingSessionOrDeepLink(val action: String, val uri: Uri) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState = oldState
+    }
+
+    object UnknownError : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState = oldState.copy(currentStep = LoginStep.UNKNOWN_ERROR)
+    }
+
+    object UserIsLoggedIn : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.ENTER_PIN
+            )
+    }
+
+    class UserAuthenticationRequired(
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        val action: String?,
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        val uri: Uri
+    ) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.NAVIGATE_FROM_DEEPLINK,
+                intentAction = action,
+                intentUri = uri
             )
     }
 }

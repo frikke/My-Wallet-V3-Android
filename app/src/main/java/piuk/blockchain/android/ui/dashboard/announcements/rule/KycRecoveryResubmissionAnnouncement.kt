@@ -2,9 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -15,19 +13,13 @@ import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCa
 
 class KycRecoveryResubmissionAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val userIdentity: UserIdentity,
-    private val accountRecoveryFF: FeatureFlag
+    private val userIdentity: UserIdentity
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
 
     override fun shouldShow(): Single<Boolean> =
-        accountRecoveryFF.enabled.zipWith(
-            userIdentity.shouldResubmitAfterRecovery()
-        )
-            .map { (enabled, shouldResubmit) ->
-                enabled && shouldResubmit
-            }
+        userIdentity.shouldResubmitAfterRecovery()
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

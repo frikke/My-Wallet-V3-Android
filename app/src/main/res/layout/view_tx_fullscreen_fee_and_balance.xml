@@ -93,6 +93,7 @@
         app:layout_constraintBottom_toTopOf="@+id/total_available_value"
         app:layout_constraintEnd_toStartOf="@+id/fee_for_full_available_label"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/max_available_value"
         app:layout_constraintVertical_chainStyle="packed" />
@@ -103,6 +104,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/tiny_margin"
+        app:layout_constraintHorizontal_bias="0"
         android:ellipsize="end"
         app:layout_constraintEnd_toStartOf="@+id/fee_for_full_available_value"
         app:layout_constraintHorizontal_chainStyle="spread_inside"

@@ -11,14 +11,15 @@ import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.RecurringBuyActivitySummaryItem
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
+import piuk.blockchain.android.util.visible
 import java.util.Date
 
 class CustodialRecurringBuyActivityItemDelegate(
@@ -61,7 +62,7 @@ private class CustodialRecurringBuyActivityViewHolder(
                 else -> icon.setTransactionHasFailed()
             }
 
-            txType.text = context.resources.getString(R.string.tx_title_buy, tx.asset.ticker)
+            txType.text = context.resources.getString(R.string.tx_title_bought, tx.asset.displayTicker)
             statusDate.setTxStatus(tx)
             setTextColours(tx.transactionState)
 
@@ -82,6 +83,7 @@ private class CustodialRecurringBuyActivityViewHolder(
                     statusDate.setTextColor(ContextCompat.getColor(context, R.color.grey_600))
                     assetBalanceFiat.setTextColor(ContextCompat.getColor(context, R.color.grey_600))
                     assetBalanceCrypto.setTextColor(ContextCompat.getColor(context, R.color.black))
+                    assetBalanceFiat.visible()
                 }
                 transactionState.hasFailed() -> {
                     txType.setTextColor(ContextCompat.getColor(context, R.color.black))

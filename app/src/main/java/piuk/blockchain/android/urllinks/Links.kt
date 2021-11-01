@@ -15,7 +15,6 @@ const val URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST =
 const val URL_THE_PIT_LANDING_LEARN_MORE = "https://exchange.blockchain.com"
 const val URL_THE_PIT_LAUNCH_SUPPORT = "https://exchange-support.blockchain.com/hc/en-us"
 
-const val URL_COINIFY_POLICY = "https://coinify.com/legal"
 const val URL_TOS_POLICY = "https://blockchain.com/terms"
 const val URL_BACKUP_INFO = "https://support.blockchain.com/hc/en-us/articles/209564506-Make-a-Wallet-Backup"
 const val URL_PRIVACY_POLICY = "https://blockchain.com/privacy"
@@ -71,3 +70,10 @@ const val DOLLAR_COST_AVERAGING =
 
 const val TRADING_ACCOUNT_LOCKS =
     "https://support.blockchain.com/hc/en-us/articles/360051018131-Trading-Account-Withdrawal-Holds"
+
+const val CONTACT_SUPPORT_FUNDS_RECOVERY =
+    "https://support.blockchain.com/hc/en-us/requests/new?ticket_form_id=360003112491"
+const val FUNDS_RECOVERY_INFO = "https://support.blockchain.com/hc/en-us/articles/4404679303700"
+
+const val URL_BLOCKCHAIN_CEUR_LEARN_MORE =
+    "http://why.blockchain.com/celo"

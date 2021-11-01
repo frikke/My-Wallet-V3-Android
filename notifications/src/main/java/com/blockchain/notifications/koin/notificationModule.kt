@@ -8,11 +8,14 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.logging.CrashLogger
 import com.blockchain.logging.EventLogger
 import com.blockchain.notifications.BuildConfig
+import com.blockchain.notifications.FirebaseNotificationTokenProvider
 import com.blockchain.notifications.NotificationService
 import com.blockchain.notifications.NotificationTokenManager
+import com.blockchain.notifications.NotificationTokenProvider
 import com.blockchain.notifications.analytics.AnalyticsImpl
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.InjectableLogging
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import com.blockchain.notifications.analytics.UserAnalytics
 import com.blockchain.notifications.analytics.UserAnalyticsImpl
 import com.blockchain.notifications.links.DynamicLinkHandler
@@ -22,7 +25,6 @@ import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.RemoteConfiguration
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
-import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import org.koin.dsl.bind
@@ -36,15 +38,16 @@ val notificationModule = module {
                 notificationService = get(),
                 payloadManager = get(),
                 prefs = get(),
-                firebaseInstanceId = get(),
-                rxBus = get(),
-                crashLogger = get()
+                crashLogger = get(),
+                authPrefs = get(),
+                notificationTokenProvider = get()
             )
         }
+
+        factory {
+            FirebaseNotificationTokenProvider()
+        }.bind(NotificationTokenProvider::class)
     }
-
-    single { FirebaseInstanceId.getInstance() }
-
     single { FirebaseAnalytics.getInstance(get()) }
 
     factory { NotificationService(get()) }
@@ -61,7 +64,9 @@ val notificationModule = module {
             nabuAnalytics = get(nabu),
             store = get()
         )
-    }.bind(Analytics::class)
+    }
+        .bind(Analytics::class)
+        .bind(ProviderSpecificAnalytics::class)
 
     factory { UserAnalyticsImpl(get()) }
         .bind(UserAnalytics::class)
@@ -70,16 +75,16 @@ val notificationModule = module {
 
     single {
         val config = FirebaseRemoteConfigSettings.Builder()
-            .setDeveloperModeEnabled(BuildConfig.DEBUG)
             .build()
         FirebaseRemoteConfig.getInstance().apply {
-            setConfigSettings(config)
+            setConfigSettingsAsync(config)
         }
     }
 
     factory {
         RemoteConfiguration(
-            remoteConfig = get()
+            remoteConfig = get(),
+            environmentConfig = get()
         )
     }.bind(RemoteConfig::class)
         .bind(ABTestExperiment::class)

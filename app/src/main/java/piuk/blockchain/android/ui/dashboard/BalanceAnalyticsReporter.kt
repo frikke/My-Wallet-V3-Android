@@ -4,7 +4,7 @@ import com.blockchain.notifications.analytics.UserAnalytics
 import com.blockchain.notifications.analytics.UserProperty
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.math.BigDecimal
 

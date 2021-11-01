@@ -137,7 +137,8 @@ class NabuAnalyticsTest {
                 type = "type$it",
                 originalTimestamp = "originalTimestamp$it",
                 properties = emptyMap(),
-                numericProperties = emptyMap()
+                numericProperties = emptyMap(),
+                booleanProperties = emptyMap()
             )
         }
     }

@@ -101,8 +101,9 @@ class PayloadDataManager internal constructor(
     val importedAddressesBalance: BigInteger
         get() = payloadManager.importedAddressesBalance
 
+    // if we have no wallet object, then we don't have double encryption
     val isDoubleEncrypted: Boolean
-        get() = wallet!!.isDoubleEncryption
+        get() = wallet?.isDoubleEncryption ?: false
 
     val isBackedUp: Boolean
         get() = payloadManager.isWalletBackedUp

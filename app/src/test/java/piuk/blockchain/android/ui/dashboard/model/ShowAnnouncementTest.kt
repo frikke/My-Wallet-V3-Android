@@ -6,13 +6,13 @@ import kotlin.test.assertEquals
 
 class ShowAnnouncementTest {
 
-    val subject = ShowAnnouncement(testAnnouncementCard_1)
+    val subject = DashboardIntent.ShowAnnouncement(testAnnouncementCard_1)
 
     @Test
     fun `showing an announcement, sets announcement and leaves other fields unchanged`() {
 
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -22,15 +22,15 @@ class ShowAnnouncementTest {
 
         val result = subject.reduce(initialState)
 
-        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeAssets, initialState.activeAssets)
         assertEquals(result.announcement, testAnnouncementCard_1)
     }
 
     @Test
     fun `replacing an announcement, sets announcement and leaves other fields unchanged`() {
 
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -40,7 +40,7 @@ class ShowAnnouncementTest {
 
         val result = subject.reduce(initialState)
 
-        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeAssets, initialState.activeAssets)
         assertEquals(result.announcement, testAnnouncementCard_1)
     }
 }

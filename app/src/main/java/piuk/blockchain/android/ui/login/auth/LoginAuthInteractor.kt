@@ -43,7 +43,7 @@ class LoginAuthInteractor(
     }
 
     fun getPayload(guid: String, sessionId: String): Single<JsonObject> =
-        authDataManager.getEncryptedPayloadObject(guid, sessionId)
+        authDataManager.getEncryptedPayloadObject(guid, sessionId, resend2FASms = false)
 
     fun verifyPassword(payload: String, password: String): Completable {
         return payloadDataManager.initializeFromPayload(payload, password)
@@ -69,7 +69,7 @@ class LoginAuthInteractor(
     fun requestNew2FaCode(guid: String, sessionId: String): Single<JsonObject> =
         if (getRemaining2FaRetries() > 0) {
             consume2FaRetry()
-            authDataManager.getEncryptedPayloadObject(guid, sessionId)
+            authDataManager.getEncryptedPayloadObject(guid, sessionId, resend2FASms = true)
         } else {
             Single.error(LoginAuthModel.TimeLockException())
         }
@@ -91,8 +91,11 @@ class LoginAuthInteractor(
         )
     }
 
-    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int) =
-        Completable.fromSingle(
-            authDataManager.updateMobileSetup(prefs.walletGuid, prefs.sharedKey, isMobileSetup, deviceType)
+    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Completable =
+        authDataManager.updateMobileSetup(
+            guid = prefs.walletGuid,
+            sharedKey = prefs.sharedKey,
+            isMobileSetup = isMobileSetup,
+            deviceType = deviceType
         )
 }

@@ -3,7 +3,7 @@ package com.blockchain.core.interest
 import com.blockchain.api.services.InterestBalanceDetails
 import com.blockchain.api.services.InterestService
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.rx.TimedCacheRequest
+import com.blockchain.caching.TimedCacheRequest
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

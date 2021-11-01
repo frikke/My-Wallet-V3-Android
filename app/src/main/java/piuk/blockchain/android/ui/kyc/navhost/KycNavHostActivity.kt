@@ -11,10 +11,15 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
-import org.koin.android.ext.android.inject
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -46,14 +51,16 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
         ActivityKycNavHostBinding.inflate(layoutInflater)
     }
 
-    private val presenter: KycNavHostPresenter by scopedInject()
-    private val analytics: Analytics by inject()
+    private val kycNavHastPresenter: KycNavHostPresenter by scopedInject()
     private var navInitialDestination: NavDestination? = null
     private val navController: NavController by lazy {
         (supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment).navController
     }
     private val currentFragment: Fragment?
         get() = supportFragmentManager.findFragmentById(R.id.nav_host)
+
+    private val compositeDisposable = CompositeDisposable()
+    private val userIdentity: UserIdentity by scopedInject()
 
     override val campaignType by unsafeLazy {
         intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
@@ -67,11 +74,14 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
         setContentView(binding.root)
         val title = R.string.identity_verification
         setupToolbar(binding.toolbarKyc, title)
-        analytics.logEvent(
-            KYCAnalyticsEvents.UpgradeKycVeriffClicked(
-                campaignType.toLaunchOrigin()
+        if (!showTiersLimitsSplash) {
+            analytics.logEvent(
+                KYCAnalyticsEvents.UpgradeKycVeriffClicked(
+                    campaignType.toLaunchOrigin(),
+                    Tier.GOLD
+                )
             )
-        )
+        }
         navController.setGraph(R.navigation.kyc_nav, intent.extras)
 
         onViewReady()
@@ -115,9 +125,27 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     }
 
     override fun onEmailVerified() {
-        navigate(
-            KycEmailEntryFragmentDirections.actionAfterValidation()
-        )
+        compositeDisposable +=
+            Singles.zip(
+                userIdentity.getUserCountry().defaultIfEmpty(""),
+                userIdentity.getUserState().defaultIfEmpty("")
+            )
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                    onSuccess = { (country, state) ->
+                        navigate(
+                            KycEmailEntryFragmentDirections.actionAfterValidation(country, state, state)
+                        )
+                    },
+                    onError = {
+                        toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                    }
+                )
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
     }
 
     override fun onEmailVerificationSkipped() {
@@ -158,11 +186,9 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
             // If not coming from settings, we want the 1st launched screen to be the 1st screen in the stack
             (navInitialDestination != null && navInitialDestination?.id == navController.currentDestination?.id)
 
-    override fun createPresenter(): KycNavHostPresenter = presenter
+    override fun createPresenter(): KycNavHostPresenter = kycNavHastPresenter
 
     override fun getView(): KycNavHostView = this
-
-    override fun startLogoutTimer() = Unit
 
     companion object {
 

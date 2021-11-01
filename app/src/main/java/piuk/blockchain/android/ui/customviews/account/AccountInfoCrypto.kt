@@ -8,19 +8,19 @@ import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import org.koin.core.component.KoinComponent
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.InterestAccount
-import piuk.blockchain.android.coincore.NullCryptoAccount
-import piuk.blockchain.android.coincore.toUserFiat
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.toUserFiat
 import piuk.blockchain.android.databinding.ViewAccountCryptoOverviewBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -88,11 +88,11 @@ class AccountInfoCrypto @JvmOverloads constructor(
                 }.startWithValueIfCondition(value = interestRate, condition = accountsAreTheSame)
                 .subscribeBy(
                     onNext = {
-                        assetSubtitle.text = resources.getString(R.string.dashboard_asset_balance_interest, it)
+                        assetSubtitle.text = resources.getString(R.string.dashboard_asset_balance_rewards, it)
                     },
                     onError = {
                         assetSubtitle.text = resources.getString(
-                            R.string.dashboard_asset_actions_interest_dsc_failed
+                            R.string.dashboard_asset_actions_rewards_dsc_failed
                         )
 
                         Timber.e("AssetActions error loading Interest rate: $it")
@@ -139,14 +139,22 @@ class AccountInfoCrypto @JvmOverloads constructor(
                 )
             compositeDisposable += cellDecorator.view(container.context)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    container.addViewToBottomWithConstraints(
-                        view = it,
-                        bottomOfView = assetSubtitle,
-                        startOfView = assetSubtitle,
-                        endOfView = walletBalanceCrypto
-                    )
-                }
+                .subscribeBy(
+                    onSuccess = {
+                        container.addViewToBottomWithConstraints(
+                            view = it,
+                            bottomOfView = assetSubtitle,
+                            startOfView = assetSubtitle,
+                            endOfView = walletBalanceCrypto
+                        )
+                    },
+                    onComplete = {
+                        container.removePossibleBottomView()
+                    },
+                    onError = {
+                        container.removePossibleBottomView()
+                    }
+                )
 
             container.alpha = 1f
             compositeDisposable += cellDecorator.isEnabled()
@@ -170,8 +178,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
                         }
                     }
                 )
-
-            container.removePossibleBottomView()
         }
     }
 

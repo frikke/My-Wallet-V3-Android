@@ -1,18 +1,27 @@
 package com.blockchain.koin
 
 import android.preference.PreferenceManager
+import com.blockchain.common.util.AndroidDeviceIdGenerator
+import com.blockchain.core.BuildConfig
+import com.blockchain.core.Database
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
-import com.blockchain.core.custodial.TradingBalanceCallCache
-import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.custodial.TradingBalanceCallCache
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
+import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
+import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.PaymentsDataManagerImpl
+import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
@@ -21,6 +30,7 @@ import com.blockchain.logging.NullLogger
 import com.blockchain.logging.TimberLogger
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.payload.PayloadDecrypt
+import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -41,21 +51,10 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.core.BuildConfig
-import piuk.blockchain.androidcore.data.access.AccessState
-import piuk.blockchain.androidcore.data.access.AccessStateImpl
-import piuk.blockchain.androidcore.data.access.LogoutTimer
+import piuk.blockchain.androidcore.data.access.PinRepository
+import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
-import com.blockchain.core.price.ExchangeRates
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.price.impl.AssetPriceStore
-import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
-import com.blockchain.core.price.impl.SparklineCallCache
-import com.blockchain.core.user.NabuUserDataManager
-import com.blockchain.core.user.NabuUserDataManagerImpl
-import com.blockchain.common.util.AndroidDeviceIdGenerator
-import com.blockchain.preferences.AppInfoPrefs
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -266,9 +265,8 @@ val coreModule = module {
                 prefs = get(),
                 authApiService = get(),
                 walletAuthService = get(),
-                accessState = get(),
+                pinRepository = get(),
                 aesUtilWrapper = get(),
-                prngHelper = get(),
                 crashLogger = get()
             )
         }
@@ -289,32 +287,24 @@ val coreModule = module {
         scoped {
             NabuUserDataManagerImpl(
                 nabuUserService = get(),
-                authenticator = get()
+                authenticator = get(),
+                tierService = get()
             )
         }.bind(NabuUserDataManager::class)
-    }
 
-    factory {
-        SparklineCallCache(
-            priceService = get()
-        )
+        scoped {
+            PaymentsDataManagerImpl(
+                paymentsService = get(),
+                authenticator = get()
+            )
+        }.bind(PaymentsDataManager::class)
     }
 
     single {
-        ExchangeRatesDataManagerImpl(
-            priceStore = get(),
-            sparklineCall = get(),
-            assetPriceService = get(),
-            currencyPrefs = get()
+        DynamicAssetsDataManagerImpl(
+            discoveryService = get()
         )
-    }.bind(ExchangeRatesDataManager::class)
-        .bind(ExchangeRates::class)
-
-    factory {
-        AssetPriceStore(
-            assetPriceService = get()
-        )
-    }
+    }.bind(DynamicAssetsDataManager::class)
 
     factory {
         AndroidDeviceIdGenerator(
@@ -342,7 +332,8 @@ val coreModule = module {
             backupStore = CloudBackupAgent.backupPrefs(ctx = get()),
             idGenerator = get(),
             uuidGenerator = get(),
-            crashLogger = get()
+            crashLogger = get(),
+            environmentConfig = get()
         )
     }.bind(PersistentPrefs::class)
         .bind(CurrencyPrefs::class)
@@ -382,27 +373,12 @@ val coreModule = module {
     }.bind(Logger::class)
 
     single {
-        AccessStateImpl(
-            context = get(),
-            prefs = get(),
-            rxBus = get(),
-            crashLogger = get(),
-            trust = get()
-        )
-    }.bind(AccessState::class)
-
-    factory {
-        val accessState = get<AccessState>()
-        object : LogoutTimer {
-            override fun start() {
-                accessState.startLogoutTimer()
-            }
-
-            override fun stop() {
-                accessState.stopLogoutTimer()
-            }
-        }
-    }.bind(LogoutTimer::class)
+        PinRepositoryImpl()
+    }.bind(PinRepository::class)
 
     factory { AESUtilWrapper() }
+
+    single {
+        Database(driver = get())
+    }
 }

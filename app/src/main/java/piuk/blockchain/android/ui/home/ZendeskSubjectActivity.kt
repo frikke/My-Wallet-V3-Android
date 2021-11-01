@@ -10,6 +10,7 @@ import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityZendeskSubjectBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import zendesk.chat.Chat
 import zendesk.chat.ChatConfiguration
 import zendesk.chat.ChatEngine
@@ -32,7 +33,7 @@ class ZendeskSubjectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setTitle(R.string.contact_support)
-        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
+        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
         supportActionBar?.let {
             it.setDisplayHomeAsUpEnabled(true)
             it.setHomeButtonEnabled(true)

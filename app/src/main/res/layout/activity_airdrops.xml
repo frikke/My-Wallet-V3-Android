@@ -15,7 +15,6 @@
         android:fitsSystemWindows="true">
 
         <include
-            android:id="@+id/toolbar_general"
             layout="@layout/toolbar_general" />
 
     </com.google.android.material.appbar.AppBarLayout>

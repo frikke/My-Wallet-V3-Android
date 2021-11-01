@@ -5,12 +5,12 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.base.BasePresenter
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 internal class OnboardingPresenter constructor(
     private val biometricsController: BiometricsController,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val settingsDataManager: SettingsDataManager
 ) : BasePresenter<OnboardingView>() {
 
@@ -35,7 +35,7 @@ internal class OnboardingPresenter constructor(
      */
     internal fun onEnableFingerprintClicked() {
         if (biometricsController.isBiometricAuthEnabled) {
-            val pin = accessState.pin
+            val pin = pinRepository.pin
 
             if (pin.isNotEmpty()) {
                 view.showFingerprintDialog(pin)
@@ -65,13 +65,5 @@ internal class OnboardingPresenter constructor(
             showFingerprints -> view.showFingerprintPrompt()
             else -> view.showEmailPrompt()
         }
-    }
-
-    internal fun disableAutoLogout() {
-        accessState.canAutoLogout = false
-    }
-
-    internal fun enableAutoLogout() {
-        accessState.canAutoLogout = true
     }
 }

@@ -1,5 +1,6 @@
 package com.blockchain.api.services
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.assetprice.data.AssetPriceDto
 import com.blockchain.api.assetprice.data.PriceRequestPairDto
@@ -27,6 +28,8 @@ data class SupportedAssetSymbols(
 )
 
 data class AssetPrice(
+    val base: String,
+    val quote: String,
     val price: Double,
     val timestamp: Long
 )
@@ -45,89 +48,79 @@ class AssetPriceService internal constructor(
                 )
             }
 
-    /** Get the current price index of a single currency pair */
-    fun getCurrentAssetPrice(
-        crypto: String,
-        fiat: String
-    ): Single<AssetPrice> =
+    /** Get the current prices of the requested assets in all the requested targets */
+    fun getCurrentPrices(
+        baseTickerList: Set<String>,
+        quoteTickerList: Set<String>
+    ): Single<List<AssetPrice>> =
         api.getCurrentPrices(
-            pairs = listOf(
-                PriceRequestPairDto(
-                    crypto = crypto,
-                    fiat = fiat
-                )
+            pairs = expandToPairs(
+                baseTickerList,
+                quoteTickerList
             ),
             apiKey = apiCode
         ).map { result ->
             result.map {
-                it.key.extractCryptoTicker() to it.value.toAssetPrice()
-            }.first()
-        }.map {
-            check(it.first == crypto)
-            it.second
+                it.value.toAssetPrice(it.key) ?: unavailablePrice(it.key)
+            }
         }
 
-    /** Get the current or at a specific time price index of a single currency pair */
-    fun getHistoricPrice(
-        crypto: String,
-        fiat: String,
-        time: Long
-    ): Single<AssetPrice> =
+    /** Get the historical prices of the requested assets in all the requested targets */
+    fun getHistoricPrices(
+        baseTickers: Set<String>,
+        quoteTickers: Set<String>,
+        time: Long // Seconds before now
+    ): Single<List<AssetPrice>> =
         api.getHistoricPrices(
-            pairs = listOf(
-                PriceRequestPairDto(
-                    crypto = crypto,
-                    fiat = fiat
-                )
-            ),
+            pairs = expandToPairs(baseTickers, quoteTickers),
             time = time,
             apiKey = apiCode
         ).map { result ->
             result.map {
-                it.key.extractCryptoTicker() to it.value.toAssetPrice()
-            }.first()
-        }.map {
-            check(it.first == crypto)
-            it.second
+                it.value.toAssetPrice(it.key) ?: unavailablePrice(it.key)
+            }
         }
 
-    /** Get the current price in a given fiat, for a set of crypto currencies */
-    fun getCurrentPrices(
-        cryptoTickerList: Set<String>,
-        fiat: String
-    ): Single<Map<String, AssetPrice>> =
-        api.getCurrentPrices(
-            pairs = cryptoTickerList.map { ticker ->
-                PriceRequestPairDto(
-                    crypto = ticker,
-                    fiat = fiat
-                )
-            },
-            apiKey = apiCode
-        ).map { result ->
-            result.map {
-                it.key.extractCryptoTicker() to it.value.toAssetPrice()
-            }.toMap()
-        }
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun expandToPairs(
+        sourceTickerList: Set<String>,
+        targetTickerList: Set<String>
+    ): List<PriceRequestPairDto> =
+        sourceTickerList
+            .map { src ->
+                val targets = targetTickerList.filterNot { src == it }
+                targets.map { tgt ->
+                    PriceRequestPairDto(
+                        base = src,
+                        quote = tgt
+                    )
+                }
+            }.flatten()
 
     /** Get a series of historical price index which covers a range of time represents in specific scale */
-    fun getHistoricPriceSince(
-        crypto: String,
-        fiat: String,
+    fun getHistoricPriceSeriesSince(
+        base: String,
+        quote: String,
         start: Long, // Epoch seconds
         scale: PriceTimescale
     ): Single<List<AssetPrice>> =
         api.getHistoricPriceSince(
-            crypto = crypto,
-            fiat = fiat,
+            base = base,
+            quote = quote,
             start = start,
             scale = scale.intervalSeconds,
             apiKey = apiCode
         ).map { list ->
-            list.filterNot { it.price == null }.map { it.toAssetPrice() }
+            list.filterNot { it.price == null }.map { it.toAssetPrice(base, quote) }
         }
 
-    private fun String.extractCryptoTicker(): String = substringBefore("-")
+    private fun unavailablePrice(pair: String): AssetPrice =
+        AssetPrice(
+            base = pair.extractBase(),
+            quote = pair.extractQuote(),
+            price = Double.NaN,
+            timestamp = System.currentTimeMillis()
+        )
 }
 
 private fun PriceSymbolDto.toAssetSymbol(): AssetSymbol =
@@ -138,11 +131,21 @@ private fun PriceSymbolDto.toAssetSymbol(): AssetSymbol =
         isFiat = isFiat
     )
 
-private fun AssetPriceDto.toAssetPrice(): AssetPrice {
-    checkNotNull(price)
-
-    return AssetPrice(
-        price = price,
+private fun AssetPriceDto.toAssetPrice(base: String, quote: String): AssetPrice =
+    AssetPrice(
+        base = base,
+        quote = quote,
+        price = price ?: Double.NaN,
         timestamp = timestamp
     )
-}
+
+private fun AssetPriceDto.toAssetPrice(pair: String): AssetPrice =
+    AssetPrice(
+        base = pair.extractBase(),
+        quote = pair.extractQuote(),
+        price = price ?: Double.NaN,
+        timestamp = timestamp
+    )
+
+private fun String.extractBase(): String = substringBeforeLast("-")
+private fun String.extractQuote(): String = substringAfterLast("-")

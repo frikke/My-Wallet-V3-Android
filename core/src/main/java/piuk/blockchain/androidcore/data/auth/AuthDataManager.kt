@@ -14,10 +14,9 @@ import io.reactivex.rxjava3.exceptions.Exceptions
 import kotlinx.serialization.json.JsonObject
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.handleResponse
 import piuk.blockchain.androidcore.utils.extensions.isValidPin
@@ -29,9 +28,8 @@ class AuthDataManager(
     private val prefs: PersistentPrefs,
     private val authApiService: AuthApiService,
     private val walletAuthService: WalletAuthService,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val aesUtilWrapper: AESUtilWrapper,
-    private val prngHelper: PrngFixer,
     private val crashLogger: CrashLogger
 ) {
 
@@ -60,12 +58,16 @@ class AuthDataManager(
      * the user that authentication (ie checking your email, 2FA etc) is required
      * @see .getSessionId
      */
-    fun getEncryptedPayload(guid: String, sessionId: String): Observable<Response<ResponseBody>> =
-        walletAuthService.getEncryptedPayload(guid, sessionId)
+    fun getEncryptedPayload(
+        guid: String,
+        sessionId: String,
+        resend2FASms: Boolean
+    ): Observable<Response<ResponseBody>> =
+        walletAuthService.getEncryptedPayload(guid, sessionId, resend2FASms)
             .applySchedulers()
 
-    fun getEncryptedPayloadObject(guid: String, sessionId: String): Single<JsonObject> =
-        walletAuthService.getEncryptedPayload(guid, sessionId)
+    fun getEncryptedPayloadObject(guid: String, sessionId: String, resend2FASms: Boolean): Single<JsonObject> =
+        walletAuthService.getEncryptedPayload(guid, sessionId, resend2FASms)
             .applySchedulers()
             .firstOrError()
             .flatMap {
@@ -130,11 +132,11 @@ class AuthDataManager(
         // Emit tick every 2 seconds
         return Observable.interval(2, TimeUnit.SECONDS)
             // For each emission from the timer, try to get the payload
-            .map { getEncryptedPayload(guid, sessionId).blockingFirst() }
+            .map { getEncryptedPayload(guid, sessionId, false).blockingFirst() }
             // If auth not required, emit payload
             .filter { s ->
                 s.errorBody() == null ||
-                        !s.errorBody()!!.string().contains(AUTHORIZATION_REQUIRED)
+                    !s.errorBody()!!.string().contains(AUTHORIZATION_REQUIRED)
             }
             // Return message in response
             .map { responseBodyResponse -> responseBodyResponse.body()!!.string() }
@@ -192,7 +194,7 @@ class AuthDataManager(
         if (!passedPin.isValidPin()) {
             return Observable.error(IllegalArgumentException("Invalid PIN"))
         } else {
-            accessState.setPin(passedPin)
+            pinRepository.setPin(passedPin)
             crashLogger.logEvent("validatePin. pin set. validity: ${passedPin.isValidPin()}")
         }
 
@@ -203,8 +205,8 @@ class AuthDataManager(
                 with a 403 { code: 1, error: "Incorrect PIN you have x attempts left" }
                  */
                 if (response.isSuccessful) {
-                    accessState.isNewlyCreated = false
-                    accessState.isRestored = false
+                    prefs.isNewlyCreated = false
+                    prefs.isRestored = false
                     val decryptionKey = response.body()!!.success
 
                     handleBackup(decryptionKey)
@@ -253,11 +255,9 @@ class AuthDataManager(
         if (!passedPin.isValidPin()) {
             return Completable.error(IllegalArgumentException("Invalid PIN"))
         } else {
-            accessState.setPin(passedPin)
+            pinRepository.setPin(passedPin)
             crashLogger.logEvent("createPin. pin set. validity: ${passedPin.isValidPin()}")
         }
-
-        prngHelper.applyPRNGFixes()
 
         return Completable.create { subscriber ->
             val bytes = ByteArray(16)
@@ -311,17 +311,6 @@ class AuthDataManager(
             .applySchedulers()
 
     /**
-    * Send email to verify device
-    *
-    * @param sessionId The token for the current session
-    * @param email The user's email
-    * @param captcha Captcha token
-    * @return A [Single] wrapping the result
-    */
-    fun sendEmailForDeviceVerification(sessionId: String, email: String, captcha: String): Single<ResponseBody> =
-        walletAuthService.sendEmailForDeviceVerification(sessionId, email, captcha)
-
-    /**
      * Update the account model fields for mobile setup
      *
      * @param guid The user's GUID
@@ -335,7 +324,7 @@ class AuthDataManager(
         sharedKey: String,
         isMobileSetup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> = walletAuthService.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
+    ): Completable = walletAuthService.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
 
     /**
      * Update the mnemonic backup date (calculated on the backend)

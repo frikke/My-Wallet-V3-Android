@@ -17,12 +17,19 @@ interface EnterAmountCustomisations {
     fun enterAmountTargetLabel(state: TransactionState): String
     fun enterAmountLoadSourceIcon(imageView: ImageView, state: TransactionState)
     fun defInputType(state: TransactionState, fiatCurrency: String): CurrencyType
-    fun selectIssueType(state: TransactionState): IssueType
     fun showTargetIcon(state: TransactionState): Boolean
     fun shouldDisableInput(errorState: TransactionErrorState): Boolean
-    fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String?
+    fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String
+    fun issueFlashMessageLegacy(state: TransactionState, input: CurrencyType?): String?
     fun issueFeesTooHighMessage(state: TransactionState): String?
-    fun installEnterAmountLowerSlotView(ctx: Context, frame: FrameLayout, state: TransactionState): EnterAmountWidget
+    fun shouldDisplayFeesErrorMessage(state: TransactionState): Boolean
+    fun selectIssueType(state: TransactionState): IssueType
+    fun installEnterAmountLowerSlotView(
+        ctx: Context,
+        frame: FrameLayout,
+        state: TransactionState
+    ): EnterAmountWidget
+
     fun installEnterAmountUpperSlotView(ctx: Context, frame: FrameLayout, state: TransactionState): EnterAmountWidget
     fun shouldShowMaxLimit(state: TransactionState): Boolean
     fun enterAmountLimitsViewTitle(state: TransactionState): String
@@ -30,4 +37,5 @@ interface EnterAmountCustomisations {
     fun enterAmountMaxNetworkFeeLabel(state: TransactionState): String
     fun shouldNotDisplayNetworkFee(state: TransactionState): Boolean
     fun enterAmountGetNoBalanceMessage(state: TransactionState): String
+    fun enterAmountCtaText(state: TransactionState): String
 }

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.service.TierService
@@ -21,12 +23,13 @@ class SimpleBuyFlowNavigatorTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val assetCatalogue: AssetCatalogue = mock()
+    private val exchangeRates: ExchangeRatesDataManager = mock()
     private lateinit var subject: SimpleBuyFlowNavigator
 
     @Before
     fun setUp() {
         subject = SimpleBuyFlowNavigator(
-            simpleBuyModel, tierService, currencyPrefs, custodialWalletManager
+            simpleBuyModel, tierService, currencyPrefs, custodialWalletManager, exchangeRates
         )
     }
 
@@ -48,6 +51,8 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if currency is  supported and state is clear and startedFromDashboard then screen should be enter amount`() {
         mockCurrencyIsSupported(true)
+        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
+            .thenReturn(Observable.just(btcExchangeRate))
         whenever(simpleBuyModel.state).thenReturn(Observable.just(SimpleBuyState()))
 
         val test =
@@ -63,6 +68,8 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if currency is supported and state is clear and startedFromApprovalDeepLink then screen should be payment`() {
         mockCurrencyIsSupported(true)
+        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
+            .thenReturn(Observable.just(btcExchangeRate))
         whenever(simpleBuyModel.state).thenReturn(Observable.just(SimpleBuyState()))
 
         val test =
@@ -79,6 +86,8 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if  current is screen is KYC and tier 2 approved then screen should be enter amount`() {
         mockCurrencyIsSupported(true)
+        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
+            .thenReturn(Observable.just(btcExchangeRate))
         whenever(simpleBuyModel.state)
             .thenReturn(
                 Observable.just(
@@ -100,6 +109,8 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if  current is screen is KYC and tier 2 is pending then screen should be kyc verification`() {
         mockCurrencyIsSupported(true)
+        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
+            .thenReturn(Observable.just(btcExchangeRate))
         whenever(simpleBuyModel.state)
             .thenReturn(
                 Observable.just(
@@ -124,6 +135,8 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if  current is screen is KYC and tier 2 is none then screen should be kyc`() {
         mockCurrencyIsSupported(true)
+        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
+            .thenReturn(Observable.just(btcExchangeRate))
         whenever(simpleBuyModel.state)
             .thenReturn(
                 Observable.just(
@@ -148,8 +161,12 @@ class SimpleBuyFlowNavigatorTest {
     private fun mockCurrencyIsSupported(supported: Boolean) {
         whenever(
             custodialWalletManager
-                .isCurrencySupportedForSimpleBuy("USD")
+                .isCurrencySupportedForSimpleBuy("GBP")
         ).thenReturn(Single.just(supported))
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn(("USD"))
+        whenever(currencyPrefs.selectedFiatCurrency).thenReturn(("GBP"))
+    }
+
+    companion object {
+        private val btcExchangeRate = ExchangeRate.FiatToCrypto("GBP", CryptoCurrency.BTC, null)
     }
 }

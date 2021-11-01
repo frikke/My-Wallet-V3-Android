@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.novoda.build-properties'
 apply from: '../quality/ktlint.gradle'
+apply plugin: 'com.squareup.sqldelight'
 
 buildProperties {
     secrets {
@@ -16,11 +17,7 @@ android {
     defaultConfig {
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode Versions.versionCode
-        versionName Versions.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        buildConfigBoolean "USE_MOCK_SIMPLE_BUY_BACKEND", false
     }
 
     compileOptions {
@@ -68,7 +65,6 @@ dependencies {
     api project(':balance')
 
     // Networking
-//    implementation(Libraries.retrofit) { exclude module: 'okhttp' }
     implementation Libraries.retrofitJacksonConverter
     implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
@@ -77,11 +73,17 @@ dependencies {
 
     implementation Libraries.koin
     implementation Libraries.cardForm
+    implementation Libraries.rxRelay
+
+    // Database
+    implementation Libraries.sqlDelight
+    implementation Libraries.rxSqlDelight
 
     // Logging
     implementation Libraries.timber
 
     // Firebase
+    implementation platform(Libraries.firebaseBom)
     implementation (Libraries.firebaseConfig) {
         exclude group:'com.google.protobuf', module: 'protobuf-lite'
     }

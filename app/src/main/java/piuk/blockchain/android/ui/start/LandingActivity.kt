@@ -5,23 +5,26 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.componentlib.carousel.CarouselViewType
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
-import com.blockchain.remoteconfig.FeatureFlag
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingBinding
+import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
+import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.StringUtils
@@ -31,38 +34,84 @@ import piuk.blockchain.android.util.visible
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
     override val presenter: LandingPresenter by scopedInject()
-
-    private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
-    private val compositeDisposable = CompositeDisposable()
     override val view: LandingView = this
+
+    private val internalFlags: InternalFeatureFlagApi by inject()
+    private val compositeDisposable = CompositeDisposable()
 
     private val binding: ActivityLandingBinding by lazy {
         ActivityLandingBinding.inflate(layoutInflater)
     }
 
+    private val onboardingBinding: ActivityLandingOnboardingBinding by lazy {
+        ActivityLandingOnboardingBinding.inflate(layoutInflater)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme_MainActivity)
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
 
-        with(binding) {
-            btnCreate.setOnClickListener { launchCreateWalletActivity() }
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            setContentView(onboardingBinding.root)
 
-            if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
-                showConnectivityWarning()
-            } else {
-                presenter.checkForRooted()
+            with(onboardingBinding) {
+
+                btnCreate.setOnClickListener { launchCreateWalletActivity() }
+
+                // Mock prices for now
+                carousel.submitList(
+                    listOf(
+                        CarouselViewType.ValueProp(
+                            com.blockchain.componentlib.R.drawable.carousel_brokerage,
+                            this@LandingActivity.getString(R.string.landing_value_prop_one)
+                        ),
+                        CarouselViewType.ValueProp(
+                            com.blockchain.componentlib.R.drawable.carousel_rewards,
+                            this@LandingActivity.getString(R.string.landing_value_prop_two_1)
+                        ),
+                        CarouselViewType.ValueProp(
+                            com.blockchain.componentlib.R.drawable.carousel_security,
+                            this@LandingActivity.getString(R.string.landing_value_prop_three)
+                        )
+                        /* TODO: Add back in once live prices are implemented
+                        CarouselViewType.PriceList(
+                            this@LandingActivity.getString(R.string.landing_value_prop_four),
+                            this@LandingActivity.getString(R.string.landing_live_prices)
+                        ) */
+                    )
+                )
+                carousel.setCarouselIndicator(carouselIndicators)
+                carousel.startAutoplay(CAROUSEL_PAGE_TIME)
             }
+        } else {
+            setContentView(binding.root)
 
-            textVersion.text =
-                "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) ${BuildConfig.COMMIT_HASH}"
+            with(binding) {
+                btnCreate.setOnClickListener { launchCreateWalletActivity() }
 
-            textVersion.copyHashOnLongClick(this@LandingActivity)
+                if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
+                    showConnectivityWarning()
+                } else {
+                    presenter.checkForRooted()
+                }
+
+                textVersion.text =
+                    "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) ${BuildConfig.COMMIT_HASH}"
+
+                textVersion.copyHashOnLongClick(this@LandingActivity)
+            }
         }
     }
 
     override fun onStart() {
         super.onStart()
-        setupSSOControls()
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            setupSSOControls(
+                onboardingBinding.btnLoginRestore.rightButton, onboardingBinding.btnLoginRestore.leftButton
+            )
+        } else {
+            setupSSOControls(binding.btnLogin, binding.btnRecover)
+        }
     }
 
     override fun onStop() {
@@ -73,33 +122,17 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     private fun launchSSOAccountRecoveryFlow() =
         startActivity(Intent(this, AccountRecoveryActivity::class.java))
 
-    private fun setupSSOControls() {
-        with(binding) {
-            btnLogin.setOnClickListener {
-                launchSSOLoginActivity()
-            }
-            compositeDisposable += ssoARFF.enabled
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onSuccess = { isAccountRecoveryEnabled ->
-                        btnRecover.apply {
-                            if (isAccountRecoveryEnabled) {
-                                text = getString(R.string.restore_wallet_cta)
-                                setOnClickListener { launchSSOAccountRecoveryFlow() }
-                            } else {
-                                text = getString(R.string.recover_funds)
-                                setOnClickListener { showFundRecoveryWarning() }
-                            }
-                        }
-                    },
-                    onError = {
-                        btnLogin.setOnClickListener { launchLoginActivity() }
-                        btnRecover.apply {
-                            text = getString(R.string.recover_funds)
-                            setOnClickListener { showFundRecoveryWarning() }
-                        }
-                    }
-                )
+    private fun setupSSOControls(loginButton: Button, recoverButton: Button) {
+        loginButton.setOnClickListener {
+            launchSSOLoginActivity()
+        }
+        setupRecoverButton(recoverButton)
+    }
+
+    private fun setupRecoverButton(recoverButton: Button) {
+        recoverButton.apply {
+                text = getString(R.string.restore_wallet_cta)
+                setOnClickListener { launchSSOAccountRecoveryFlow() }
         }
     }
 
@@ -107,11 +140,15 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         CreateWalletActivity.start(this)
     }
 
-    private fun launchLoginActivity() =
+    private fun launchLoginActivity() {
+        analytics.logEvent(LoginAnalytics.LoginClicked())
         startActivity(Intent(this, LoginActivity::class.java))
+    }
 
-    private fun launchSSOLoginActivity() =
+    private fun launchSSOLoginActivity() {
+        analytics.logEvent(LoginAnalytics.LoginClicked())
         startActivity(Intent(this, piuk.blockchain.android.ui.login.LoginActivity::class.java))
+    }
 
     private fun startRecoverFundsActivity() = RecoverFundsActivity.start(this)
 
@@ -132,7 +169,10 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         showAlert(AlertDialog.Builder(this, R.style.AlertDialogStyle)
             .setTitle(R.string.app_name)
             .setMessage(R.string.recover_funds_warning_message_1)
-            .setPositiveButton(R.string.dialog_continue) { _, _ -> startRecoverFundsActivity() }
+            .setPositiveButton(R.string.dialog_continue) { _, _ ->
+                analytics.logEvent(AccountRecoveryAnalytics.RecoveryOptionSelected(isCustodialAccount = false))
+                startRecoverFundsActivity()
+            }
             .setNegativeButton(android.R.string.cancel) { _, _ -> clearAlert() }
             .create()
         )
@@ -146,9 +186,14 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         )
 
     override fun showApiOutageMessage() {
-        binding.layoutWarning.root.visible()
+        val warningLayout = if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
+            onboardingBinding.layoutWarning
+        } else {
+            binding.layoutWarning
+        }
+        warningLayout.root.visible()
         val learnMoreMap = mapOf<String, Uri>("learn_more" to Uri.parse(WALLET_STATUS_URL))
-        binding.layoutWarning.warningMessage.apply {
+        warningLayout.warningMessage.apply {
             movementMethod = LinkMovementMethod.getInstance()
             text = StringUtils.getStringWithMappedAnnotations(
                 this@LandingActivity, R.string.wallet_issue_message, learnMoreMap
@@ -166,5 +211,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 context.startActivity(this)
             }
         }
+
+        private const val CAROUSEL_PAGE_TIME = 3000L
     }
 }

@@ -10,6 +10,7 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
@@ -29,10 +30,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAccount
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
@@ -42,14 +43,13 @@ import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 
-class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
+class SellIntroFragment : ViewPagerFragment() {
     interface SellIntroHost {
         fun onSellFinished()
         fun onSellInfoClicked()
@@ -60,6 +60,11 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
         parentFragment as? SellIntroHost ?: throw IllegalStateException(
             "Host fragment is not a SellIntroHost"
         )
+    }
+
+    private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        host.onSellFinished()
+        loadSellDetails(showLoader = false)
     }
 
     private var _binding: SellIntroFragmentBinding? = null
@@ -73,8 +78,6 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
     private val currencyPrefs: CurrencyPrefs by inject()
     private val analytics: Analytics by inject()
     private val accountsSorting: AccountsSorting by scopedInject()
-    private val txLauncher: TransactionLauncher by inject()
-
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(
@@ -274,14 +277,15 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
     private fun statusDecorator(account: BlockchainAccount): CellDecorator = SellCellDecorator(account)
 
     private fun startSellFlow(it: CryptoAccount) {
-        txLauncher.startFlow(
-            activity = requireActivity(),
-            sourceAccount = it,
-            action = AssetAction.Sell,
-            fragmentManager = fragmentManager ?: return,
-            flowHost = this@SellIntroFragment
-        )
         analytics.logEvent(BuySellViewedEvent(BuySellType.SELL))
+
+        startForResult.launch(
+            TransactionFlowActivity.newInstance(
+            context = requireActivity(),
+            sourceAccount = it,
+            action = AssetAction.Sell
+            )
+        )
     }
 
     private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
@@ -305,11 +309,8 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
     }
 
     companion object {
-        fun newInstance() = SellIntroFragment()
-    }
+        private const val TX_FLOW_REQUEST = 123
 
-    override fun onFlowFinished() {
-        host.onSellFinished()
-        loadSellDetails(showLoader = false)
+        fun newInstance() = SellIntroFragment()
     }
 }

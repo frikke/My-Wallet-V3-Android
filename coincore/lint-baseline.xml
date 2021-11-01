@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.1.2" client="gradle" variant="debug" version="4.1.2">
+
+    <issue
+        id="ObsoleteLintCustomCheck"
+        message="Lint found an issue registry (`androidx.annotation.experimental.lint.ExperimentalIssueRegistry`) which did not specify the Lint API version it was compiled with.&#xA;&#xA;**This means that the lint checks are likely not compatible.**&#xA;&#xA;If you are the author of this lint check, make your lint `IssueRegistry` class contain&#xA;  override val api: Int = com.android.tools.lint.detector.api.CURRENT_API&#xA;or from Java,&#xA;  @Override public int getApi() { return com.android.tools.lint.detector.api.ApiKt.CURRENT_API; }&#xA;&#xA;If you are just using lint checks from a third party library you have no control over, you can disable these lint checks (if they misbehave) like this:&#xA;&#xA;    android {&#xA;        lintOptions {&#xA;            disable &quot;UnsafeExperimentalUsageError&quot;,&#xA;                    &quot;UnsafeExperimentalUsageWarning&quot;&#xA;        }&#xA;    }&#xA;">
+        <location
+            file="../../../../.gradle/caches/transforms-3/16d19444afb2ec337e24227b378c7e3e/transformed/jetified-annotation-experimental-1.0.0-rc01/jars/lint.jar"/>
+    </issue>
+
+    <issue
+        id="ObsoleteLintCustomCheck"
+        message="Lint found an issue registry (`androidx.appcompat.AppCompatIssueRegistry`) which is older than the current API level; these checks may not work correctly.&#xA;&#xA;Recompile the checks against the latest version. Custom check API version is 7 (4.0), current lint API level is 8 (4.1+)">
+        <location
+            file="../../../../.gradle/caches/transforms-3/bf9c5cb3297c575470312ab5c695d2af/transformed/appcompat-1.2.0/jars/lint.jar"/>
+    </issue>
+
+    <issue
+        id="ObsoleteLintCustomCheck"
+        message="Lint found an issue registry (`timber.lint.TimberIssueRegistry`) which is older than the current API level; these checks may not work correctly.&#xA;&#xA;Recompile the checks against the latest version. Custom check API version is 1 (3.1), current lint API level is 8 (4.1+)">
+        <location
+            file="../../../../.gradle/caches/transforms-3/de66434387616d5f89dd05dd7936b14b/transformed/jetified-timber-4.7.1/jars/lint.jar"/>
+    </issue>
+
+</issues>

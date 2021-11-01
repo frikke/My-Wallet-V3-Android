@@ -18,7 +18,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries.Companion.NEW_ASSET_TICKER
@@ -84,8 +84,10 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `asset ticker raw json returns known ticker`() {
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(CryptoCurrency.BTC.ticker))
-        whenever(assetCatalogue.fromNetworkTicker(CryptoCurrency.BTC.ticker)).thenReturn(CryptoCurrency.BTC)
+        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER))
+            .thenReturn(Single.just(CryptoCurrency.BTC.networkTicker))
+        whenever(assetCatalogue.fromNetworkTicker(CryptoCurrency.BTC.networkTicker))
+            .thenReturn(CryptoCurrency.BTC)
 
         subject.getAssetFromCatalogue().test().assertValue(CryptoCurrency.BTC)
     }

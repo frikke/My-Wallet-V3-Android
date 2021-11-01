@@ -50,7 +50,7 @@ class Erc20TokenData {
 
     companion object {
         fun createTokenData(asset: AssetInfo, label: String): Erc20TokenData {
-            require(asset.l2chain == CryptoCurrency.ETHER)
+            require(asset.l1chainTicker == CryptoCurrency.ETHER.networkTicker)
             require(asset.l2identifier != null)
 
             return Erc20TokenData().apply {

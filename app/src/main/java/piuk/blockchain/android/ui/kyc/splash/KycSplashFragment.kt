@@ -12,7 +12,6 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
 import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.android.urllinks.URL_COINIFY_POLICY
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -23,13 +22,12 @@ import piuk.blockchain.android.databinding.FragmentKycSplashBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
-import piuk.blockchain.android.ui.kyc.hyperlinks.renderTermsLinks
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.navigate
+import piuk.blockchain.android.util.gone
 import timber.log.Timber
 
 class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), KycSplashView {
@@ -85,21 +83,14 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
             CampaignType.Resubmission,
             CampaignType.FiatFunds -> R.string.buy_sell_splash_title
             CampaignType.Swap -> R.string.kyc_splash_title
-            CampaignType.Interest -> R.string.earn_interest
+            CampaignType.Interest -> R.string.earn_rewards
             CampaignType.None -> R.string.identity_verification
         }
 
         progressListener.setHostTitle(title)
 
         with(binding) {
-            textViewKycTermsAndConditions.renderTermsLinks(
-                R.string.buy_sell_splash_terms_and_conditions,
-                URL_COINIFY_POLICY,
-                URL_COINIFY_POLICY
-            )
-            textViewKycTermsAndConditions.visible()
-
-            textViewKycSplashMessage.setText(R.string.buy_sell_splash_message)
+            textViewKycTermsAndConditions.gone()
         }
     }
 

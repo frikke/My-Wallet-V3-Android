@@ -1,6 +1,8 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellLimits
 import com.blockchain.nabu.datamanagers.BuySellOrder
@@ -89,7 +91,11 @@ class SimpleBuyModelTest {
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),
         getEligibilityAndNextPaymentDateUseCase = mock(),
-        bankPartnerCallbackProvider = mock()
+        bankPartnerCallbackProvider = mock(),
+        userIdentity = mock {
+            on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
+        },
+        currencyPrefs = mock()
     )
 
     @Ignore("Fails on CI, works locally. Re-enable ASAP")
@@ -315,7 +321,7 @@ class SimpleBuyModelTest {
             .awaitCount(3)
             .assertValueAt(0) { it == defaultState }
             .assertValueAt(1) { it == defaultState.copy(isLoading = true) }
-            .assertValueAt(2) { it == defaultState.copy(errorState = ErrorState.ApprovedBankRejected) }
+            .assertValueAt(2) { it == defaultState.copy(buyErrorState = ErrorState.ApprovedBankRejected) }
     }
 
     @Test
@@ -382,7 +388,7 @@ class SimpleBuyModelTest {
         whenever(interactor.eligiblePaymentMethods("USD", "123-321"))
             .thenReturn(Single.just(paymentMethodsUpdated))
 
-        val paymentMethodType: PaymentMethodType = mock()
+        val eligibleNextPaymentMethodType: EligibleAndNextPaymentRecurringBuy = mock()
         whenever(getEligibilityAndNextPaymentDateUseCase(Unit))
             .thenReturn(Single.just(listOf(eligibleAndNextPaymentDate)))
 
@@ -394,7 +400,7 @@ class SimpleBuyModelTest {
         )
 
         val state2 = state1.copy(
-            recurringBuyEligiblePaymentMethods = listOf(paymentMethodType),
+            eligibleAndNextPaymentRecurringBuy = listOf(eligibleNextPaymentMethodType),
             isLoading = false,
             selectedPaymentMethod = null,
             paymentOptions = PaymentOptions()
@@ -422,7 +428,7 @@ class SimpleBuyModelTest {
         )
 
         val state2 = state1.copy(
-            errorState = ErrorState.GenericError,
+            buyErrorState = ErrorState.GenericError,
             isLoading = false,
             confirmationActionRequested = false
         )

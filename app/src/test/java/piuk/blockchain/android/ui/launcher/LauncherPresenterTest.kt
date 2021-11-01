@@ -1,336 +1,141 @@
 package piuk.blockchain.android.ui.launcher
 
-import android.app.LauncherActivity
 import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
-import com.blockchain.core.user.NabuUserDataManager
-import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.notifications.NotificationTokenManager
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.wallet.api.data.Settings
-import info.blockchain.wallet.payload.data.Wallet
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyString
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import piuk.blockchain.android.BlockchainTestApplication
-import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import org.mockito.junit.MockitoJUnitRunner
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
-@Config(sdk = [24], application = BlockchainTestApplication::class)
-@RunWith(RobolectricTestRunner::class)
+@RunWith(MockitoJUnitRunner::class)
 class LauncherPresenterTest {
+
     private val launcherActivity: LauncherView = mock()
     private val prefsUtil: PersistentPrefs = mock()
-    private val appUtil: AppUtil = mock()
-    private val payloadDataManager: PayloadDataManager = mock()
     private val deepLinkPersistence: DeepLinkPersistence = mock()
-    private val settingsDataManager: SettingsDataManager = mock()
-    private val accessState: AccessState = mock()
-    private val intent: Intent = mock()
-    private val extras: Bundle = mock()
-    private val wallet: Wallet = mock()
-    private val notificationTokenManager: NotificationTokenManager = mock()
     private val environmentConfig: EnvironmentConfig = mock()
-    private val featureFlag: FeatureFlag = mock()
-    private val userIdentity: UserIdentity = mock()
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-        on { defaultFiatCurrency }.thenReturn(DEFAULT_FIAT)
-    }
-    private val analytics: Analytics = mock()
-    private val crashLogger: CrashLogger = mock()
-    private val prerequisites: Prerequisites = mock()
-    private val walletPrefs = mock<WalletStatus>()
-    private val nabuUserDataManager = mock<NabuUserDataManager>()
+    private val appUtil: AppUtil = mock()
+    private val viewIntentData: ViewIntentData = mock()
+    private val authPrefs: AuthPrefs = mock()
 
     private val subject = LauncherPresenter(
         appUtil,
-        payloadDataManager,
         prefsUtil,
         deepLinkPersistence,
-        accessState,
-        settingsDataManager,
-        notificationTokenManager,
         environmentConfig,
-        currencyPrefs,
-        analytics,
-        prerequisites,
-        userIdentity,
-        crashLogger,
-        walletPrefs,
-        nabuUserDataManager
+        authPrefs
     )
 
-    @Before
-    fun setUp() {
-        subject.initView(launcherActivity)
-
-        whenever(featureFlag.enabled).thenReturn(Single.just(false))
-        val settings: Settings = mock()
-        whenever(settingsDataManager.updateFiatUnit(anyString()))
-            .thenReturn(Observable.just(settings))
-        whenever(walletPrefs.countrySelectedOnSignUp).thenReturn("US")
-        whenever(walletPrefs.stateSelectedOnSignUp).thenReturn("US-FL")
-
-        whenever(
-            nabuUserDataManager.saveUserInitialLocation(
-                walletPrefs.countrySelectedOnSignUp,
-                walletPrefs.stateSelectedOnSignUp
-            )
-        ).thenReturn(Completable.complete())
-    }
-
     @Test
-    fun onViewReadyVerifiedEmailVerified() {
+    fun onViewAttached_setsBitcoinUri() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-        whenever(extras.getBoolean(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-        whenever(prefsUtil.pinId).thenReturn("1234567890")
-        whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
-        whenever(appUtil.isSane).thenReturn(true)
-        whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
-
-        val mockSettings: Settings = mock()
-        whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.just(mockSettings))
-        whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
-        whenever(accessState.isLoggedIn).thenReturn(true)
-
-        whenever(wallet.guid).thenReturn(WALLET_GUID)
-        whenever(wallet.sharedKey).thenReturn(SHARED_KEY)
-        whenever(mockSettings.isEmailVerified).thenReturn(true)
-        whenever(mockSettings.currency).thenReturn("USD")
-        whenever(notificationTokenManager.resendNotificationToken()).thenReturn(Completable.complete())
-
+        val bitcoinUriData: ViewIntentData = mock {
+            on { action }.thenReturn(Intent.ACTION_VIEW)
+            on { scheme }.thenReturn("bitcoin")
+            on { data }.thenReturn("bitcoin uri")
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(bitcoinUriData)
+        whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
+        whenever(prefsUtil.pinId).thenReturn(PIN_ID)
         // Act
-        subject.onViewReady()
-
-        // Assert
-        verify(launcherActivity).onStartMainActivity(null, false)
-    }
-
-    /**
-     * Everything is good, email not verified and getting [Settings] object failed. Should
-     * re-request PIN code.
-     */
-    @Test
-    fun onViewReadyNonVerifiedEmailSettingsFailure() {
-        // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-        whenever(extras.getBoolean(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-
-        whenever(prefsUtil.pinId).thenReturn("1234567890")
-        whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
-        whenever(appUtil.isSane).thenReturn(true)
-        whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(accessState.isLoggedIn).thenReturn(true)
-        whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
-        whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.error(Throwable()))
-        whenever(wallet.guid).thenReturn(WALLET_GUID)
-        whenever(wallet.sharedKey).thenReturn(SHARED_KEY)
-
-        // Act
-        subject.onViewReady()
-
-        // Assert
-        verify(launcherActivity).showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
-        verify(launcherActivity).onRequestPin()
-    }
-
-    /**
-     * Bitcoin URI is found, expected to step into Bitcoin branch and call [ ][LauncherActivity.onStartMainActivity]
-     */
-    @Test
-    fun onViewReadyBitcoinUri() {
-        // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.action).thenReturn(Intent.ACTION_VIEW)
-        whenever(intent.scheme).thenReturn("bitcoin")
-        whenever(intent.data).thenReturn(Uri.parse("bitcoin uri"))
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-        whenever(extras.getBoolean(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(true)
-        whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.pinId).thenReturn("1234567890")
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
-        whenever(appUtil.isSane).thenReturn(true)
-        whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(accessState.isLoggedIn).thenReturn(true)
-
-        whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
-
-        val mockSettings: Settings = mock()
-        whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.just(mockSettings))
-        whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
-
-        whenever(wallet.guid).thenReturn(WALLET_GUID)
-        whenever(wallet.sharedKey).thenReturn(SHARED_KEY)
-        whenever(mockSettings.isEmailVerified).thenReturn(true)
-        whenever(mockSettings.currency).thenReturn("USD")
-        whenever(notificationTokenManager.resendNotificationToken()).thenReturn(Completable.complete())
-
-        // Act
-        subject.onViewReady()
+        subject.attachView(launcherActivity)
 
         // Assert
         verify(prefsUtil).setValue(PersistentPrefs.KEY_SCHEME_URL, "bitcoin uri")
-        verify(launcherActivity).onStartMainActivity(null, false)
     }
 
-    /**
-     * Everything is fine, but PIN not validated.
-     */
     @Test
-    fun onViewReadyNotVerified() {
+    fun onViewAttached_setsMetadataUri() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
-        whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.pinId).thenReturn("1234567890")
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
-        whenever(appUtil.isSane).thenReturn(true)
-        whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(accessState.isLoggedIn).thenReturn(false)
-
-        // Act
-        subject.onViewReady()
-
-        // Assert
-        verify(launcherActivity).onRequestPin()
-    }
-
-    /**
-     * Everything is fine, but PIN not validated. However, [AccessState] returns logged in.
-     */
-    @Test
-    fun onViewReadyPinNotValidatedButLoggedIn() {
-        // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
-        whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.pinId).thenReturn("1234567890")
-        whenever(prefsUtil.isLoggedOut).thenReturn(false)
-        whenever(appUtil.isSane).thenReturn(true)
-        whenever(payloadDataManager.wallet).thenReturn(wallet)
-        whenever(accessState.isLoggedIn).thenReturn(true)
-        whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
-        val mockSettings: Settings = mock()
-        whenever(prerequisites.initSettings(WALLET_GUID, SHARED_KEY)).thenReturn(Single.just(mockSettings))
-        whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
-
-        whenever(wallet.guid).thenReturn(WALLET_GUID)
-        whenever(wallet.sharedKey).thenReturn(SHARED_KEY)
-        whenever(mockSettings.isEmailVerified).thenReturn(true)
-        whenever(mockSettings.currency).thenReturn("USD")
-        whenever(notificationTokenManager.resendNotificationToken()).thenReturn(Completable.complete())
-
-        // Act
-        subject.onViewReady()
-
-        // Assert
-        verify(accessState).isLoggedIn = true
-        verify(launcherActivity).onStartMainActivity(null, false)
-    }
-
-    /**
-     * GUID not found
-     */
-    @Test
-    fun onViewReadyNoGuid() {
-        // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
-        whenever(prefsUtil.walletGuid).thenReturn("")
-
-        // Act
-        subject.onViewReady()
-
-        // Assert
-        verify(launcherActivity).onNoGuid()
-    }
-
-    /**
-     * Pin not found
-     */
-    @Test
-    fun onViewReadyNoPin() {
-        // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
-        whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
+        val metadata: ViewIntentData = mock {
+            on { action }.thenReturn(Intent.ACTION_VIEW)
+            on { dataString }.thenReturn("blockchain")
+        }
+        whenever(launcherActivity.getViewIntentData()).thenReturn(metadata)
+        whenever(authPrefs.walletGuid).thenReturn("")
         whenever(prefsUtil.pinId).thenReturn("")
 
         // Act
-        subject.onViewReady()
+        subject.attachView(launcherActivity)
 
         // Assert
-        verify(launcherActivity).onRequestPin()
+        verify(prefsUtil).setValue(PersistentPrefs.KEY_METADATA_URI, "blockchain")
     }
 
     @Test
-    fun onViewReadyNotSane() {
+    fun onViewAttached_notValidGuid_callsOnCorruptPayload() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
-        whenever(prefsUtil.pinId).thenReturn("1234")
-        whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-        whenever(appUtil.isSane).thenReturn(false)
+        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
+        whenever(prefsUtil.pinId).thenReturn(PIN_ID)
+        whenever(authPrefs.walletGuid).thenReturn(INVALID_WALLET_GUID)
 
         // Act
-        subject.onViewReady()
+        subject.attachView(launcherActivity)
 
         // Assert
         verify(launcherActivity).onCorruptPayload()
     }
 
-    /**
-     * GUID exists, Shared Key exists but user logged out.
-     */
     @Test
-    fun onViewReadyUserLoggedOut() {
+    fun onViewAttached_noGuidAndNoPinId_callsOnRequestPin() {
         // Arrange
-        whenever(launcherActivity.getPageIntent()).thenReturn(intent)
-        whenever(intent.extras).thenReturn(extras)
-        whenever(extras.containsKey(AppUtil.INTENT_EXTRA_VERIFIED)).thenReturn(false)
-        whenever(prefsUtil.isLoggedOut).thenReturn(true)
-        whenever(prefsUtil.walletGuid).thenReturn(WALLET_GUID)
-
+        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
+        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
+        whenever(prefsUtil.pinId).thenReturn(PIN_ID)
         // Act
-        subject.onViewReady()
+        subject.attachView(launcherActivity)
 
         // Assert
-        verify(launcherActivity).onReEnterPassword()
+        verify(launcherActivity).onRequestPin()
+    }
+
+    @Test
+    fun onViewAttached_isLoggedOut_callsOnReenterPassword() {
+        // Arrange
+        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
+        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
+        whenever(prefsUtil.pinId).thenReturn("")
+        // Act
+        subject.attachView(launcherActivity)
+
+        // Assert
+        verify(launcherActivity).onReenterPassword()
+    }
+
+    @Test
+    fun onViewAttached_noGuidAndNoBackup_callsOnNoGuid() {
+        // Arrange
+        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
+        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(authPrefs.walletGuid).thenReturn("")
+        whenever(prefsUtil.pinId).thenReturn("")
+        // Act
+        subject.attachView(launcherActivity)
+
+        // Assert
+        verify(launcherActivity).onNoGuid()
+    }
+
+    @Test
+    fun onViewAttached_noGuidAndBackup_callsOnRequestPin() {
+        // Arrange
+        whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
+        whenever(prefsUtil.hasBackup()).thenReturn(true)
+        whenever(authPrefs.walletGuid).thenReturn("")
+        whenever(prefsUtil.pinId).thenReturn("")
+
+        // Act
+        subject.attachView(launcherActivity)
+
+        // Assert
+        verify(launcherActivity).onRequestPin()
     }
 
     @Test
@@ -340,14 +145,12 @@ class LauncherPresenterTest {
         // Act
         subject.clearCredentialsAndRestart()
         // Assert
-        verify(appUtil).clearCredentialsAndRestart(LauncherActivity::class.java)
+        verify(appUtil).clearCredentialsAndRestart()
     }
 
     companion object {
-        private const val WALLET_GUID = "0000-0000-0000-0000-0000"
-        private const val SHARED_KEY = "123123123"
-
-        private const val SELECTED_FIAT = "USD"
-        private const val DEFAULT_FIAT = "USD"
+        private const val WALLET_GUID = "d5f7c5db-072c-4178-b563-393259ec173a"
+        private const val INVALID_WALLET_GUID = "0000-0000-0000-0000-00231231223400"
+        private const val PIN_ID = "1234"
     }
 }

@@ -115,12 +115,12 @@
         style="@style/CtaButton.White.Slim"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/recurring_buy_one_time_short"
         android:layout_marginTop="@dimen/small_margin"
+        android:text="@string/recurring_buy_one_time_short"
         app:layout_constraintBottom_toTopOf="@id/payment_method"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_amount"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_amount" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/payment_method"
@@ -221,9 +221,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_margin"
-        android:text="@string/btn_continue"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/preview_buy"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root" />
+
+    <include
+        android:id="@+id/error_layout"
+        layout="@layout/error_container_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

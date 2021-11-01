@@ -30,8 +30,6 @@ interface PersistentPrefs :
     AppInfoPrefs,
     InternalFeatureFlagPrefs {
 
-    val isLoggedOut: Boolean
-
     val deviceId: String // Pre-IDV device identifier
     var devicePreIDVCheckFailed: Boolean // Pre-IDV check has failed! Don't show 'gold' announce cards etc
 
@@ -55,9 +53,7 @@ interface PersistentPrefs :
 
     fun clear()
 
-    fun logOut()
-
-    fun logIn()
+    fun unPairWallet()
 
     // Allow QA to randomise device ids when testing kyc
     var qaRandomiseDeviceId: Boolean
@@ -69,9 +65,6 @@ interface PersistentPrefs :
         const val KEY_EMAIL_VERIFIED = "code_verified"
         const val KEY_SCHEME_URL = "scheme_url"
         const val KEY_METADATA_URI = "metadata_uri"
-        const val KEY_NEWLY_CREATED_WALLET = "newly_created_wallet"
-        const val KEY_RESTORED_WALLET = "restored_wallet"
-        const val KEY_RECEIVE_SHORTCUTS_ENABLED = "receive_shortcuts_enabled"
         const val KEY_SCREENSHOTS_ENABLED = "screenshots_enabled"
         const val KEY_ONBOARDING_COMPLETE = "onboarding_complete_1"
         const val KEY_OVERLAY_TRUSTED = "overlay_trusted"

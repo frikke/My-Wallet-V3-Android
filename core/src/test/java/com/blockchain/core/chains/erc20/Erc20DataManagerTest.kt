@@ -387,22 +387,24 @@ class Erc20DataManagerTest {
         const val TX_HASH = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff"
 
         private val ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
-            ticker = "DUMMY",
+            displayTicker = "DUMMY",
+            networkTicker = "DUMMY",
             name = "Dummies",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
-            l2chain = ETHER,
+            l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456"
         ) { }
 
         private val UNKNOWN_ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
-            ticker = "WHATEVER",
+            displayTicker = "WHATEVER",
+            networkTicker = "WHATEVER",
             name = "Whatevs",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
-            l2chain = ETHER,
+            l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456"

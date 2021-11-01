@@ -12,17 +12,17 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AccountGroup
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.InterestAccount
-import piuk.blockchain.android.coincore.NullCryptoAccount
-import piuk.blockchain.android.coincore.SingleAccount
-import piuk.blockchain.android.coincore.impl.CryptoAccountCustodialGroup
-import piuk.blockchain.android.coincore.impl.CryptoAccountNonCustodialGroup
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.impl.CryptoAccountCustodialGroup
+import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
+import com.blockchain.coincore.selectFirstAccount
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.dashboard.sheets.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
@@ -39,8 +39,7 @@ enum class AssetDetailsStep(val addToBackStack: Boolean = false) {
 }
 
 class AssetDetailsFlow(
-    val asset: AssetInfo,
-    val coincore: Coincore
+    val asset: AssetInfo
 ) : DialogFlow(), KoinComponent, AccountSelectSheet.SelectAndBackHost {
 
     interface AssetDetailsHost : FlowHost {
@@ -57,6 +56,7 @@ class AssetDetailsFlow(
     private var localState: AssetDetailsState = AssetDetailsState()
     private val disposables = CompositeDisposable()
     private val model: AssetDetailsModel by scopedInject()
+    private val coincore: Coincore by scopedInject()
     private val analytics: Analytics by inject()
     private lateinit var assetFlowHost: AssetDetailsHost
 
@@ -188,7 +188,8 @@ class AssetDetailsFlow(
                 )
             }
             AssetAction.ViewStatement -> assetFlowHost.goToSummary(
-                newState.selectedAccount.selectFirstAccount(), newState.selectedAccount.selectFirstAccount().asset
+                newState.selectedAccount.selectFirstAccount(),
+                newState.selectedAccount.selectFirstAccount().asset
             )
             AssetAction.InterestDeposit -> {
                 val account = newState.selectedAccount.selectFirstAccount()
@@ -314,17 +315,4 @@ class AssetDetailsFlow(
     override fun onSheetClosed() {
         finishFlow()
     }
-}
-
-fun BlockchainAccount?.selectFirstAccount(): CryptoAccount {
-    val selectedAccount = when (this) {
-        is SingleAccount -> this
-        is AccountGroup -> this.accounts
-            .firstOrNull { a -> a.isDefault }
-            ?: this.accounts.firstOrNull()
-            ?: throw IllegalStateException("No SingleAccount found")
-        else -> throw IllegalStateException("Unknown account base")
-    }
-
-    return selectedAccount as CryptoAccount
 }

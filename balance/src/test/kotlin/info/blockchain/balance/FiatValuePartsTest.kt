@@ -38,7 +38,7 @@ class FiatValuePartsTest {
 
         5.86.usd()
             .toStringParts().apply {
-                symbol `should be equal to` "USD"
+                symbol `should be equal to` "US\$"
                 major `should be equal to` "5"
                 minor `should be equal to` "86"
                 majorAndMinor `should be equal to` "5.86"
@@ -64,7 +64,7 @@ class FiatValuePartsTest {
 
         1512.99.usd()
             .toStringParts().apply {
-                symbol `should be equal to` "USD"
+                symbol `should be equal to` "\$US"
                 major `should be equal to` "1 512"
                 minor `should be equal to` "99"
                 majorAndMinor `should be equal to` "1 512,99"

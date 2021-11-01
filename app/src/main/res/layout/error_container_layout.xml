@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/error_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/standard_margin"
+    android:layout_marginTop="@dimen/very_small_margin"
+    android:layout_marginEnd="@dimen/standard_margin"
+    android:background="@drawable/rounded_transaction_flow_error_background"
+    android:visibility="gone"
+    tools:visibility="visible">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/warning_icon"
+        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginBottom="@dimen/very_small_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/smallest_margin"
+        android:layout_marginStart="@dimen/small_margin"
+        android:src="@drawable/ic_warning"
+        android:tint="#FF9B22"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/error_message"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/error_message"
+        style="@style/Text.White.Semibold.Centered.16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constrainedWidth="true"
+        android:layout_marginStart="@dimen/smallest_margin"
+        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:layout_marginEnd="@dimen/small_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/warning_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="NononoNNNononoNNNononoNNNononoNNNononoNNNononoNNNononoNN" />
+</androidx.constraintlayout.widget.ConstraintLayout>

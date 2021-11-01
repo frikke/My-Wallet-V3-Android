@@ -7,7 +7,7 @@ import com.blockchain.nabu.datamanagers.CurrencyPair
 import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -16,7 +16,6 @@ import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.setTransactionIsConfirming
-import piuk.blockchain.android.util.visible
 import java.util.Date
 
 class SellActivityItemDelegate<in T>(
@@ -53,10 +52,10 @@ private class SellActivityItemViewHolder(
     ) {
         with(binding) {
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
-            (tx.currencyPair as? CurrencyPair.CryptoToFiatCurrencyPair)?.let {
+            (tx.currencyPair as? CurrencyPair.CryptoToFiatCurrencyPair)?.let { pair ->
                 txType.text = context.resources.getString(
-                    R.string.tx_title_sell,
-                    it.source.ticker
+                    R.string.tx_title_sold,
+                    pair.source.displayTicker
                 )
                 when {
                     tx.state.isPending -> icon.setTransactionIsConfirming()
@@ -64,16 +63,17 @@ private class SellActivityItemViewHolder(
                     else -> {
                         icon.apply {
                             setImageResource(R.drawable.ic_tx_sell)
-                            setAssetIconColoursWithTint(it.source)
+                            setAssetIconColoursWithTint(pair.source)
                         }
                     }
                 }
-                txRoot.setOnClickListener { onAccountClicked(tx.currencyPair.source, tx.txId, CryptoActivityType.SELL) }
+                txRoot.setOnClickListener {
+                    onAccountClicked(pair.source, tx.txId, CryptoActivityType.SELL)
+                }
             }
             setTextColours(tx.state.isPending)
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
-            assetBalanceFiat.text = tx.fiatValue.toStringWithSymbol()
-            assetBalanceFiat.visible()
+            assetBalanceFiat.text = tx.receivingValue.toStringWithSymbol()
         }
     }
 

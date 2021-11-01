@@ -84,7 +84,7 @@ class ResetPasswordModel(
                 },
                 onError = { throwable ->
                     Timber.e(throwable)
-                    process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ERROR))
+                    process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_WALLET_CREATION_FAILED))
                 }
             )
     }
@@ -102,7 +102,7 @@ class ResetPasswordModel(
                                 ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS)
                             else -> {
                                 Timber.e(throwable)
-                                ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ERROR)
+                                ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ACCOUNT_RESET_FAILED)
                             }
                         }
                     )
@@ -111,14 +111,16 @@ class ResetPasswordModel(
 
     private fun resetKyc() = interactor.resetUserKyc()
         .subscribeBy(
-            onComplete = { process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS)) },
+            onComplete = {
+                process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS))
+            },
             onError = { throwable ->
                 if (isErrorResponseConflict(throwable)) {
                     // Resetting KYC is already in progress
                     process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS))
                 } else {
                     Timber.e(throwable)
-                    process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ERROR))
+                    process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_RESET_KYC_FAILED))
                 }
             }
         )

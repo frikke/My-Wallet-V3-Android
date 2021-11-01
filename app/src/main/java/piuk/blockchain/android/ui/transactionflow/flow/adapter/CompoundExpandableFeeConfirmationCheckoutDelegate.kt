@@ -7,15 +7,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.FeeInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isErc20
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TxConfirmation
-import piuk.blockchain.android.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxConfirmation
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemFeeCheckoutCompoundExpandableInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
-import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
@@ -91,6 +91,7 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
                         compoundItemSendingGroup.visibleIf { isExpanded }
                     }
                     updateIcon()
+                    startAnimation()
                 }
             }
         }
@@ -101,11 +102,11 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
     private fun getFeeLabel(item: FeeInfo) =
         if (item.asset.isErc20()) {
             context.getString(
-                R.string.checkout_item_erc20_network_fee, CryptoCurrency.ETHER.ticker,
-                item.asset.ticker
+                R.string.checkout_item_erc20_network_fee, CryptoCurrency.ETHER.displayTicker,
+                item.asset.displayTicker
             )
         } else {
-            context.getString(R.string.checkout_item_network_fee, item.asset.ticker)
+            context.getString(R.string.checkout_item_network_fee, item.asset.displayTicker)
         }
 
     private fun updateIcon() {
@@ -117,7 +118,11 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
                 compoundItemIcon.setImageResource(R.drawable.collapse_animated)
                 compoundItemIcon.setColorFilter(context.getResolvedColor(R.color.grey_600))
             }
+        }
+    }
 
+    private fun startAnimation() {
+        with(binding) {
             val arrow = compoundItemIcon.drawable as Animatable
             arrow.start()
         }

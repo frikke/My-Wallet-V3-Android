@@ -9,16 +9,16 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AccountGroup
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAccount
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.selectFirstAccount
 import piuk.blockchain.android.databinding.ViewAccountCryptoOverviewBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.addViewToBottomWithConstraints
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem
-import piuk.blockchain.android.ui.dashboard.assetdetails.selectFirstAccount
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -60,7 +60,10 @@ private class AssetWalletViewHolder(
     private val labels: DefaultLabels
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: AssetDetailsItem.CryptoDetailsInfo, isFirstItemOfCategory: Boolean) {
+    fun bind(
+        item: AssetDetailsItem.CryptoDetailsInfo,
+        isFirstItemOfCategory: Boolean
+    ) {
         with(binding) {
             walletHeaderGroup.visibleIf { isFirstItemOfCategory }
 
@@ -70,7 +73,7 @@ private class AssetWalletViewHolder(
                 AssetFilter.NonCustodial,
                 AssetFilter.Custodial -> labels.getAssetMasterWalletLabel(asset)
                 AssetFilter.Interest -> context.resources.getString(
-                    R.string.dashboard_asset_balance_interest, item.interestRate
+                    R.string.dashboard_asset_balance_rewards, item.interestRate
                 )
                 else -> throw IllegalArgumentException("Not supported filter")
             }

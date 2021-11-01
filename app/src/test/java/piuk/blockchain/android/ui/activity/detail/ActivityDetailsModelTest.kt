@@ -19,10 +19,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.CustodialInterestActivitySummaryItem
-import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
-import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import java.util.Date
@@ -44,7 +44,8 @@ class ActivityDetailsModelTest {
         override val inputsMap: Map<String, CryptoValue> = mock(),
         override val outputsMap: Map<String, CryptoValue> = mock(),
         override val description: String? = "desc",
-        override val account: CryptoAccount = mock()
+        override val account: CryptoAccount = mock(),
+        override val supportsDescription: Boolean = true
     ) : NonCustodialActivitySummaryItem()
 
     private val custodialItem = CustodialTradingActivitySummaryItem(
@@ -60,7 +61,8 @@ class ActivityDetailsModelTest {
         paymentMethodId = "123",
         paymentMethodType = PaymentMethodType.PAYMENT_CARD,
         type = OrderType.BUY,
-        depositPaymentId = ""
+        depositPaymentId = "",
+        price = mock()
     )
 
     private val environmentConfig: EnvironmentConfig = mock {

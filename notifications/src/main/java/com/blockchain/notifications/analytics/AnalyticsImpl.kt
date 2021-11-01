@@ -9,7 +9,7 @@ class AnalyticsImpl internal constructor(
     private val firebaseAnalytics: FirebaseAnalytics,
     private val nabuAnalytics: Analytics,
     private val store: SharedPreferences
-) : Analytics {
+) : Analytics, ProviderSpecificAnalytics {
 
     private val sentAnalytics = mutableSetOf<String>()
 
@@ -50,4 +50,28 @@ class AnalyticsImpl internal constructor(
         store.edit().putBoolean("HAS_SENT_METRIC_$metricName", true).apply()
 
     private val nabuAnalyticsNames = AnalyticsNames.values().map { it.eventName }
+
+    override fun logSingUp(success: Boolean) {
+        val b = Bundle()
+        b.putString(FirebaseAnalytics.Param.METHOD, success.toString())
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, b)
+    }
+
+    override fun logLogin(success: Boolean) {
+        val b = Bundle()
+        b.putString(FirebaseAnalytics.Param.METHOD, success.toString())
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, b)
+    }
+
+    override fun logContentView(screen: String) {
+        val b = Bundle()
+        b.putString(FirebaseAnalytics.Param.ITEMS, screen)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, b)
+    }
+
+    override fun logShare(share: String) {
+        val b = Bundle()
+        b.putString(FirebaseAnalytics.Param.METHOD, share)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, b)
+    }
 }

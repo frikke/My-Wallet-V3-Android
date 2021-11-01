@@ -13,8 +13,8 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.android.ui.base.BasePresenter
+import thepit.PitLinking
 import timber.log.Timber
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit

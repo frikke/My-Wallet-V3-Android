@@ -9,8 +9,8 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.walletUpgradeEvent
+import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
+import com.blockchain.notifications.analytics.WalletUpgradeEvent
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.exceptions.AccountLockedException
@@ -31,28 +31,26 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 import java.net.SocketTimeoutException
 
 class PinEntryPresenter(
     private val analytics: Analytics,
+    private val specificAnalytics: ProviderSpecificAnalytics,
     private val authDataManager: AuthDataManager,
     private val appUtil: AppUtil,
     private val prefs: PersistentPrefs,
     private val payloadDataManager: PayloadDataManager,
     private val defaultLabels: DefaultLabels,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val walletOptionsDataManager: WalletOptionsDataManager,
-    private val prngFixer: PrngFixer,
     private val mobileNoticeRemoteConfig: MobileNoticeRemoteConfig,
     private val crashLogger: CrashLogger,
     private val apiStatus: ApiStatus,
@@ -86,23 +84,11 @@ class PinEntryPresenter(
         get() = prefs.pinId.isEmpty()
 
     private val isChangingPin: Boolean
-        get() = isCreatingNewPin && accessState.pin.isNotEmpty()
+        get() = isCreatingNewPin && pinRepository.pin.isNotEmpty()
 
     override fun onViewReady() {
-        prngFixer.applyPRNGFixes()
-
-        if (view.pageIntent != null) {
-            val extras = view.pageIntent?.extras
-            if (extras != null) {
-                if (extras.containsKey(KEY_VALIDATING_PIN_FOR_RESULT)) {
-                    isForValidatingPinForResult = extras.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT)
-                }
-                if (extras.containsKey(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD)) {
-                    isForValidatingAndLoadingPayloadResult =
-                        extras.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD)
-                }
-            }
-        }
+        isForValidatingPinForResult = view.isForValidatingPinForResult
+        isForValidatingAndLoadingPayloadResult = view.isForValidatingAndLoadingPayloadResult
 
         checkPinFails()
         checkFingerprintStatus()
@@ -139,9 +125,7 @@ class PinEntryPresenter(
 
     fun loginWithDecryptedPin(pincode: String) {
         canShowFingerprintDialog = false
-        for (view in view.pinBoxList) {
-            view.setImageResource(R.drawable.rounded_view_dark_blue)
-        }
+        view.fillPinBoxes()
         validatePIN(pincode)
     }
 
@@ -151,7 +135,7 @@ class PinEntryPresenter(
             userEnteredPin = userEnteredPin.substring(0, userEnteredPin.length - 1)
 
             // Clear last box
-            view.pinBoxList[userEnteredPin.length].setImageResource(R.drawable.rounded_view_blue_white_border)
+            view.clearPinBoxAtIndex(userEnteredPin.length)
         }
     }
 
@@ -163,9 +147,9 @@ class PinEntryPresenter(
         // Append tapped #
         userEnteredPin += string
 
-        for (i in 0 until userEnteredPin.length) {
+        for (i in userEnteredPin.indices) {
             // Ensures that all necessary dots are filled
-            view.pinBoxList[i].setImageResource(R.drawable.rounded_view_dark_blue)
+            view.fillPinBoxAtIndex(i)
         }
 
         // Perform appropriate action if PIN_LENGTH has been reached
@@ -200,9 +184,10 @@ class PinEntryPresenter(
                         }
                     }
                 )
-
-                // If user is changing their PIN and it matches their old one, disallow it
-            } else if (isChangingPin && userEnteredConfirmationPin == null && accessState.pin == userEnteredPin) {
+            // If user is changing their PIN and it matches their old one, disallow it
+            } else if (isChangingPin && userEnteredConfirmationPin == null &&
+                pinRepository.pin == userEnteredPin
+            ) {
                 showErrorToast(R.string.change_pin_new_matches_current)
                 clearPinViewAndReset()
             } else {
@@ -277,16 +262,16 @@ class PinEntryPresenter(
 
         setAccountLabelIfNecessary()
 
-        Logging.logLogin(true)
+        specificAnalytics.logLogin(true)
 
         if (payloadDataManager.isWalletUpgradeRequired) {
-            view?.walletUpgradeRequired(SECOND_PASSWORD_ATTEMPTS)
+            view?.walletUpgradeRequired(SECOND_PASSWORD_ATTEMPTS, isFromPinCreation)
         } else {
             onUpdateFinished(isFromPinCreation)
         }
     }
 
-    fun doUpgradeWallet(secondPassword: String?) {
+    fun doUpgradeWallet(secondPassword: String?, isFromPinCreation: Boolean) {
         // v2 -> v3 -> v4
         compositeDisposable += payloadDataManager.upgradeWalletPayload(
             secondPassword,
@@ -298,11 +283,11 @@ class PinEntryPresenter(
             .subscribeBy(
                 onComplete = {
                     view.dismissProgressDialog()
-                    onUpdateFinished(false)
-                    Logging.logEvent(walletUpgradeEvent((true)))
+                    onUpdateFinished(isFromPinCreation)
+                    analytics.logEvent(WalletUpgradeEvent(true))
                 },
                 onError = { throwable ->
-                    Logging.logEvent(walletUpgradeEvent((false)))
+                    analytics.logEvent(WalletUpgradeEvent(false))
                     crashLogger.logException(throwable)
                     view.onWalletUpgradeFailed()
                 })
@@ -323,8 +308,7 @@ class PinEntryPresenter(
     }
 
     private fun handlePayloadUpdateError(t: Throwable) {
-        Logging.logLogin(false)
-
+        specificAnalytics.logLogin(false)
         when (t) {
             is InvalidCredentialsException -> view.goToPasswordRequiredActivity()
             is ServerConnectionException,
@@ -340,7 +324,7 @@ class PinEntryPresenter(
             is InvalidCipherTextException -> {
                 // Password changed on web, needs re-pairing
                 crashLogger.logEvent("password changed elsewhere. Pin is reset")
-                accessState.clearPin()
+                pinRepository.clearPin()
                 appUtil.clearCredentials()
                 showFatalErrorToastAndRestart(R.string.password_changed_explanation, t)
             }
@@ -369,7 +353,7 @@ class PinEntryPresenter(
         prefs.removeValue(PersistentPrefs.KEY_PIN_FAILS)
         prefs.pinId = ""
         crashLogger.logEvent("new password. pin reset")
-        accessState.clearPin()
+        pinRepository.clearPin()
         view.restartPageAndClearTop()
     }
 
@@ -396,7 +380,7 @@ class PinEntryPresenter(
         if (tempPassword == null) {
             showErrorToast(R.string.create_pin_failed)
             prefs.clear()
-            appUtil.restartApp(LauncherActivity::class.java)
+            appUtil.restartApp()
             return
         }
 
@@ -412,7 +396,7 @@ class PinEntryPresenter(
                 onError = {
                     showErrorToast(R.string.create_pin_failed)
                     prefs.clear()
-                    appUtil.restartApp(LauncherActivity::class.java)
+                    appUtil.restartApp()
                 }
             )
     }
@@ -467,9 +451,7 @@ class PinEntryPresenter(
         prefs.pinFails = ++fails
         showErrorToast(R.string.invalid_pin)
         userEnteredPin = ""
-        for (textView in view.pinBoxList) {
-            textView.setImageResource(R.drawable.rounded_view_blue_white_border)
-        }
+        view.clearPinBoxes()
         view.setTitleVisibility(View.VISIBLE)
         view.setTitleString(R.string.pin_entry)
     }
@@ -493,7 +475,7 @@ class PinEntryPresenter(
     }
 
     private fun setAccountLabelIfNecessary() {
-        if (accessState.isNewlyCreated &&
+        if (prefs.isNewlyCreated &&
             payloadDataManager.accounts.isNotEmpty() &&
             payloadDataManager.getAccount(0).label.isEmpty()
         ) {
@@ -539,11 +521,11 @@ class PinEntryPresenter(
     private fun showFatalErrorToastAndRestart(@StringRes message: Int, t: Throwable) {
         view.showToast(message, ToastCustom.TYPE_ERROR)
         crashLogger.logException(PinEntryLogException(t))
-        appUtil.restartApp(LauncherActivity::class.java)
+        appUtil.restartApp()
     }
 
     internal fun clearLoginState() {
-        accessState.logout()
+        appUtil.logout()
     }
 
     fun fetchInfoMessage() {

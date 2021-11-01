@@ -18,7 +18,7 @@
             app:layout_constraintGuide_percent="0.60"
             android:orientation="vertical"/>
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/icon"
             android:layout_width="@dimen/asset_icon_size"
             android:layout_height="@dimen/asset_icon_size"
@@ -26,14 +26,18 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_default_asset_logo"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/currency"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/Text.Standard.20"
             android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/smallest_margin"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintHorizontal_bias="0"
+            android:maxLines="1"
             tools:text="Bitcoin"/>
 
         <com.elyeproj.loaderviewlibrary.LoaderTextView

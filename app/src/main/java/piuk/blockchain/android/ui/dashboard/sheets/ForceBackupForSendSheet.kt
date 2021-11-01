@@ -7,8 +7,8 @@ import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import com.blockchain.preferences.DashboardPrefs
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.SingleAccount
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.SingleAccount
 import piuk.blockchain.android.databinding.DialogBackupForSendBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 

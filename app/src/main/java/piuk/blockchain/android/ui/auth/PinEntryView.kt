@@ -1,7 +1,5 @@
 package piuk.blockchain.android.ui.auth
 
-import android.content.Intent
-import android.widget.ImageView
 import androidx.annotation.StringRes
 import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -9,11 +7,13 @@ import piuk.blockchain.android.util.ViewUtils
 
 interface PinEntryView : View {
 
-    val pageIntent: Intent?
-
-    val pinBoxList: List<ImageView>
-
     fun showProgressDialog(@StringRes messageId: Int)
+
+    fun fillPinBoxAtIndex(index: Int)
+
+    fun clearPinBoxAtIndex(index: Int)
+
+    fun fillPinBoxes()
 
     fun showToast(@StringRes message: Int, @ToastCustom.ToastType toastType: String)
 
@@ -29,7 +29,7 @@ interface PinEntryView : View {
 
     fun showWalletVersionNotSupportedDialog(walletVersion: String?)
 
-    fun walletUpgradeRequired(passwordTriesRemaining: Int)
+    fun walletUpgradeRequired(passwordTriesRemaining: Int, isFromPinCreation: Boolean)
 
     fun onWalletUpgradeFailed()
 
@@ -64,4 +64,8 @@ interface PinEntryView : View {
     fun askToUseBiometrics()
 
     fun showApiOutageMessage()
+
+    val isForValidatingPinForResult: Boolean
+
+    val isForValidatingAndLoadingPayloadResult: Boolean
 }

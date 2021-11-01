@@ -10,9 +10,9 @@ import androidx.annotation.StringRes
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView

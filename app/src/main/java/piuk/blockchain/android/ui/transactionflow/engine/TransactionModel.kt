@@ -1,5 +1,20 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
+import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.NeedsApprovalException
+import com.blockchain.coincore.NullAddress
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxValidationFailure
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
@@ -11,24 +26,9 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.CryptoAddress
-import piuk.blockchain.android.coincore.FiatAccount
-import piuk.blockchain.android.coincore.NeedsApprovalException
-import piuk.blockchain.android.coincore.NullAddress
-import piuk.blockchain.android.coincore.NullCryptoAccount
-import piuk.blockchain.android.coincore.PendingTx
-import piuk.blockchain.android.coincore.TransactionTarget
-import piuk.blockchain.android.coincore.TxConfirmationValue
-import piuk.blockchain.android.coincore.TxValidationFailure
-import piuk.blockchain.android.coincore.ValidationState
-import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.customviews.CurrencyType
-import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 import java.util.Stack
@@ -52,9 +52,7 @@ enum class TransactionErrorState {
     ADDRESS_IS_CONTRACT,
     INSUFFICIENT_FUNDS,
     INVALID_AMOUNT,
-    INVALID_POSTCODE,
     BELOW_MIN_LIMIT,
-    ABOVE_MAX_LIMIT,
     PENDING_ORDERS_LIMIT_REACHED,
     OVER_SILVER_TIER_LIMIT,
     OVER_GOLD_TIER_LIMIT,
@@ -88,7 +86,7 @@ fun BlockchainAccount.getZeroAmountForAccount() =
     }
 
 data class TransactionState(
-    val action: AssetAction = AssetAction.Send,
+    override val action: AssetAction = AssetAction.Send,
     val currentStep: TransactionStep = TransactionStep.ZERO,
     val sendingAccount: BlockchainAccount = NullCryptoAccount(),
     val selectedTarget: TransactionTarget = NullAddress,
@@ -98,7 +96,7 @@ data class TransactionState(
     val secondPassword: String = "",
     val nextEnabled: Boolean = false,
     val setMax: Boolean = false,
-    val errorState: TransactionErrorState = TransactionErrorState.NONE,
+    override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     val pendingTx: PendingTx? = null,
     val allowFiatInput: Boolean = false,
     val executionStatus: TxExecutionStatus = TxExecutionStatus.NotStarted,
@@ -107,18 +105,23 @@ data class TransactionState(
     val currencyType: CurrencyType? = null,
     val availableSources: List<BlockchainAccount> = emptyList(),
     val linkBankState: BankLinkingState = BankLinkingState.NotStarted
-) : MviState {
+) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
-    val sendingAsset: AssetInfo
+    override val sendingAsset: AssetInfo
         get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
+    override val minLimit: Money?
+        get() = pendingTx?.minLimit
 
-    val amount: Money
+    override val maxLimit: Money?
+        get() = pendingTx?.maxLimit
+
+    override val amount: Money
         get() = pendingTx?.amount ?: sendingAccount.getZeroAmountForAccount()
 
-    val availableBalance: Money
+    override val availableBalance: Money
         get() = pendingTx?.availableBalance ?: sendingAccount.getZeroAmountForAccount()
 
     val canGoBack: Boolean
@@ -177,7 +180,7 @@ class TransactionModel(
     crashLogger
 ) {
     override fun performAction(previousState: TransactionState, intent: TransactionIntent): Disposable? {
-        Timber.v("!TRANSACTION!> Transaction Model: performAction: ${intent.javaClass.simpleName}")
+        Timber.v("!TRANSACTION!> Transaction Model: performAction: %s", intent.javaClass.simpleName)
 
         return when (intent) {
             is TransactionIntent.InitialiseWithSourceAccount -> processAccountsListUpdate(
@@ -339,12 +342,12 @@ class TransactionModel(
 
     override fun onScanLoopError(t: Throwable) {
         super.onScanLoopError(TxFlowLogError.LoopFail(t))
-        Timber.v("!TRANSACTION!> Transaction Model: state error -> $t")
+        Timber.e(t, "!TRANSACTION!> Transaction Model: state error")
         throw t
     }
 
     override fun onStateUpdate(s: TransactionState) {
-        Timber.v("!TRANSACTION!> Transaction Model: state update -> $s")
+        Timber.v("!TRANSACTION!> Transaction Model: state update -> %s", s)
     }
 
     private fun processInvalidateTransaction(): Disposable =

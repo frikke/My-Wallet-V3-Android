@@ -1,17 +1,13 @@
 package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
-import android.app.Activity
+import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.core.price.ExchangeRates
-import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
-import piuk.blockchain.android.util.StringUtils
 
 class ConfirmTransactionDelegateAdapter(
-    stringUtils: StringUtils,
-    activityContext: Activity,
     model: TransactionModel,
     mapper: TxConfirmReadOnlyMapperCheckout,
     exchangeRates: ExchangeRates,
@@ -28,8 +24,8 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(CompoundExpandableFeeConfirmationCheckoutDelegate(mapper))
 
             addAdapterDelegate(ConfirmNoteItemDelegate(model))
-            addAdapterDelegate(ConfirmXlmMemoItemDelegate(model, stringUtils, activityContext))
-            addAdapterDelegate(ConfirmAgreementWithTAndCsItemDelegate(model, stringUtils, activityContext))
+            addAdapterDelegate(ConfirmXlmMemoItemDelegate(model))
+            addAdapterDelegate(ConfirmAgreementWithTAndCsItemDelegate(model))
             addAdapterDelegate(
                 ConfirmAgreementToTransferItemDelegate(
                     model,

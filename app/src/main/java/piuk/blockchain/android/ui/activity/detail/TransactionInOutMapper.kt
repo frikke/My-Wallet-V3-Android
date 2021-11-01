@@ -11,9 +11,9 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
-import piuk.blockchain.android.coincore.NullCryptoAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.NullCryptoAccount
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -124,7 +124,7 @@ class TransactionInOutMapper(
             val coinbase =
                 TransactionDetailModel(
                     address = stringUtils.getString(R.string.transaction_detail_coinbase),
-                    displayUnits = currency.ticker
+                    displayUnits = currency.displayTicker
                 )
             inputs.add(coinbase)
         }
@@ -163,7 +163,7 @@ class TransactionInOutMapper(
         TransactionDetailModel(
             label,
             value.toStringWithoutSymbol(),
-            cryptoCurrency.ticker
+            cryptoCurrency.displayTicker
         ).apply {
             if (address == TransactionSummary.ADDRESS_DECODE_ERROR) {
                 address = stringUtils.getString(R.string.tx_decode_error)

@@ -5,6 +5,7 @@ import android.os.Bundle
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.toast
@@ -29,7 +30,7 @@ class LoginActivity : MvpActivity<LoginView, LoginPresenter>(), LoginView {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.login_auto_pair_title)
+        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.login_auto_pair_title)
 
         with(binding) {
             stepOne.text = getString(R.string.pair_wallet_step_1, WEB_WALLET_URL_PROD)

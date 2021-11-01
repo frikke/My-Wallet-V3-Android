@@ -4,18 +4,18 @@ import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AccountGroup
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.FiatAccount
-import piuk.blockchain.android.coincore.InterestAccount
-import piuk.blockchain.android.coincore.TradingAccount
-import piuk.blockchain.android.coincore.fiat.FiatAccountGroup
-import piuk.blockchain.android.coincore.impl.AllWalletsAccount
-import piuk.blockchain.android.coincore.impl.CryptoAccountCustodialGroup
-import piuk.blockchain.android.coincore.impl.CryptoAccountNonCustodialGroup
-import piuk.blockchain.android.coincore.impl.CryptoExchangeAccount
-import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.fiat.FiatAccountGroup
+import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.coincore.impl.CryptoAccountCustodialGroup
+import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
+import com.blockchain.coincore.impl.CryptoExchangeAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 
 class AccountIcon(
     private val account: BlockchainAccount,
@@ -50,6 +50,7 @@ class AccountIcon(
     val indicator: Int?
         @DrawableRes get() = when (account) {
             is CryptoNonCustodialAccount -> R.drawable.ic_non_custodial_account_indicator
+            is FiatAccount -> null
             is InterestAccount -> R.drawable.ic_interest_account_indicator
             is TradingAccount -> R.drawable.ic_custodial_account_indicator
             is CryptoExchangeAccount -> R.drawable.ic_exchange_indicator

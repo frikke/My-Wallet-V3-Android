@@ -90,8 +90,7 @@ interface CustodialWalletManager {
 
     fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: String,
-        productType: String
+        fiatCurrency: String
     ): Single<BigInteger>
 
     fun createOrder(
@@ -276,9 +275,9 @@ interface CustodialWalletManager {
 
     val defaultFiatCurrency: String
 
-    fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>>
+    fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>>
 
-    fun getRecurringBuyForId(assetTicker: String): Single<RecurringBuy>
+    fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>
 
     fun cancelRecurringBuy(recurringBuyId: String): Completable
 }
@@ -403,7 +402,8 @@ data class FiatTransaction(
     val id: String,
     val date: Date,
     val type: TransactionType,
-    val state: TransactionState
+    val state: TransactionState,
+    val paymentId: String?
 )
 
 data class CryptoTransaction(
@@ -415,7 +415,8 @@ data class CryptoTransaction(
     val receivingAddress: String,
     val fee: Money,
     val txHash: String,
-    val currency: String
+    val currency: String,
+    val paymentId: String?
 )
 
 enum class TransactionType {
@@ -535,10 +536,13 @@ sealed class TransactionError : Throwable() {
 
 sealed class PaymentMethod(
     val id: String,
-    open val limits: PaymentLimits?,
+    open val limits: PaymentLimits,
     val order: Int,
     open val isEligible: Boolean
 ) : Serializable {
+
+    val availableBalance: Money?
+        get() = (this as? Funds)?.balance
 
     data class UndefinedCard(
         override val limits: PaymentLimits,
@@ -608,9 +612,12 @@ sealed class PaymentMethod(
 
         override fun methodDetails() = "$accountType $accountEnding"
 
-        @SuppressLint("DefaultLocale") // Yes, lint is broken
         val uiAccountType: String =
-            accountType.toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
+            accountType.lowercase(Locale.getDefault()).replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }
 
         override val paymentDetails: PaymentMethodType
             get() = PaymentMethodType.BANK_TRANSFER
@@ -738,10 +745,10 @@ data class TransferQuote(
 
 sealed class CurrencyPair(val rawValue: String) {
     data class CryptoCurrencyPair(val source: AssetInfo, val destination: AssetInfo) :
-        CurrencyPair("${source.ticker}-${destination.ticker}")
+        CurrencyPair("${source.networkTicker}-${destination.networkTicker}")
 
     data class CryptoToFiatCurrencyPair(val source: AssetInfo, val destination: String) :
-        CurrencyPair("${source.ticker}-$destination")
+        CurrencyPair("${source.networkTicker}-$destination")
 
     fun toSourceMoney(value: BigInteger): Money =
         when (this) {

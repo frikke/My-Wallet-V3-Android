@@ -1,16 +1,21 @@
 package piuk.blockchain.android.ui.activity.detail
 
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.testutils.satoshi
 import com.blockchain.testutils.satoshiCash
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.Wallet
+import io.reactivex.rxjava3.core.Observable
 import org.junit.Test
-import piuk.blockchain.android.coincore.TestNonCustodialSummaryItem
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import kotlin.test.assertEquals
 
@@ -293,3 +298,20 @@ class TransactionHelperTest {
         assertEquals(1, value.left.size)
     }
 }
+
+class TestNonCustodialSummaryItem(
+    override val exchangeRates: ExchangeRatesDataManager = mock(),
+    override val asset: AssetInfo = CryptoCurrency.BTC,
+    override val transactionType: TransactionSummary.TransactionType = TransactionSummary.TransactionType.RECEIVED,
+    override val timeStampMs: Long = 0,
+    override val value: CryptoValue = CryptoValue.zero(CryptoCurrency.BTC),
+    override val fee: Observable<CryptoValue> = Observable.just(CryptoValue.zero(CryptoCurrency.BTC)),
+    override val txId: String = "",
+    override val inputsMap: Map<String, CryptoValue> = emptyMap(),
+    override val outputsMap: Map<String, CryptoValue> = emptyMap(),
+    override val description: String? = null,
+    override val confirmations: Int = 0,
+    override val isFeeTransaction: Boolean = false,
+    override val account: CryptoAccount = mock(),
+    override val supportsDescription: Boolean = true
+) : NonCustodialActivitySummaryItem()

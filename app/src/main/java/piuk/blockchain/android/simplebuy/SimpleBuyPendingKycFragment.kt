@@ -115,7 +115,7 @@ class SimpleBuyPendingKycFragment :
 
             // Case when user is not eligible for a payment method after kyc is done
             // (Can happen only for bank at this state)
-            if (newState.errorState == ErrorState.LinkedBankNotSupported) {
+            if (newState.buyErrorState == ErrorState.LinkedBankNotSupported) {
                 kycIcon.setImageResource(R.drawable.ic_bank_details_big)
                 kycIcon.visible()
                 verifText.text = getString(R.string.common_oops)
@@ -127,7 +127,7 @@ class SimpleBuyPendingKycFragment :
                 kycIcon.visible()
             }
 
-            bankLinkedFailed.visibleIf { newState.errorState == ErrorState.LinkedBankNotSupported }
+            bankLinkedFailed.visibleIf { newState.buyErrorState == ErrorState.LinkedBankNotSupported }
             progress.visibleIf { newState.isLoading }
         }
     }

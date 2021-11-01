@@ -11,5 +11,11 @@ data class AuthNewLoginState(
     val ip: String = "",
     val info: String = "",
     val forcePin: Boolean = false,
-    val enableApproval: Boolean = false
+    val enableApproval: Boolean = false,
+    val errorState: NewLoginState = NewLoginState.NONE
 ) : MviState
+
+enum class NewLoginState {
+    NONE,
+    IP_MISMATCH
+}

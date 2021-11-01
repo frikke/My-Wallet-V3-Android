@@ -92,12 +92,13 @@ class PrefixedOrSuffixedEditText : AutofitEdittext {
         super.onSelectionChanged(selStart, selEnd)
         val textLength = text.toString().length
         suffix?.let {
-            if (selEnd > textLength - it.length) {
-                Selection.setSelection(text, 0, textLength - it.length)
+            val suffixLength = textLength - it.length
+            if (suffixLength in 1 until selEnd) {
+                Selection.setSelection(text, 0, suffixLength)
             }
         }
         prefix?.let {
-            if (selEnd < it.length && textLength >= it.length) {
+            if (it.length in (selEnd + 1)..textLength) {
                 Selection.setSelection(text, textLength)
             }
         }

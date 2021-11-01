@@ -34,10 +34,10 @@ class InterestAvailableAnnouncement(
                 name = name,
                 dismissRule = DismissRule.CardOneTime,
                 dismissEntry = dismissEntry,
-                titleText = R.string.interest_announcement_title,
-                bodyText = R.string.interest_announcement_description,
+                titleText = R.string.rewards_announcement_title,
+                bodyText = R.string.rewards_announcement_description,
                 iconImage = R.drawable.ic_interest_blue_circle,
-                ctaText = R.string.interest_announcement_action,
+                ctaText = R.string.rewards_announcement_action,
                 ctaFunction = {
                     analytics.logEvent(InterestAnalytics.InterestAnnouncementCta)
                     host.dismissAnnouncementCard()

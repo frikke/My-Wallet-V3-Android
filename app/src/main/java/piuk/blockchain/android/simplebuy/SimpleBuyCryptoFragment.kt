@@ -11,6 +11,8 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -52,6 +54,9 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics.Companion.S
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySelectionBottomSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoBottomSheet
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
@@ -64,13 +69,14 @@ class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
     RecurringBuySelectionBottomSheet.Host,
     SimpleBuyScreen,
-    PaymentMethodChangeListener,
-    ChangeCurrencyHost {
+    PaymentMethodChangeListener {
 
     override val model: SimpleBuyModel by scopedInject()
     private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
+    private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
+    private val gatedFeatures: InternalFeatureFlagApi by inject()
 
     private var lastState: SimpleBuyState? = null
     private val compositeDisposable = CompositeDisposable()
@@ -83,6 +89,10 @@ class SimpleBuyCryptoFragment :
 
     private val preselectedMethodId: String? by unsafeLazy {
         arguments?.getString(ARG_PAYMENT_METHOD_ID)
+    }
+
+    private val errorContainer by lazy {
+        binding.errorLayout.errorContainer
     }
 
     override fun navigator(): SimpleBuyNavigator =
@@ -105,7 +115,7 @@ class SimpleBuyCryptoFragment :
         super.onViewCreated(view, savedInstanceState)
 
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        activity.setupToolbar(getString(R.string.tx_title_buy, asset.ticker))
+        activity.setupToolbar(getString(R.string.tx_title_buy, asset.displayTicker))
 
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
         model.process(
@@ -140,18 +150,6 @@ class SimpleBuyCryptoFragment :
             if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT)
                 startBuy()
         }
-
-        binding.recurringBuyCta.setOnClickListener {
-            if (lastState?.isSelectedPaymentMethodRecurringBuyEligible() == true) {
-                showBottomSheet(
-                    lastState?.let {
-                        RecurringBuySelectionBottomSheet.newInstance()
-                    }
-                )
-            } else {
-                showDialogRecurringBuyUnavailable()
-            }
-        }
     }
 
     override fun showAvailableToAddPaymentMethods() =
@@ -171,55 +169,40 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun isAnyRecurringFrequencyAvailableForPaymentMethod(): Boolean {
-        val intervalSelected = lastState?.recurringBuyFrequency
-        val canBeUsedForRecurringBuy = lastState?.isSelectedPaymentMethodRecurringBuyEligible() ?: false
-        return !(!canBeUsedForRecurringBuy && intervalSelected != RecurringBuyFrequency.ONE_TIME)
-    }
-
-    private fun isPaymentMethodAllowingFrequencySelected(): Boolean {
-        val intervalSelected = lastState?.recurringBuyFrequency
-        val paymentSelectedType = lastState?.selectedPaymentMethod?.paymentMethodType
-        val eligible = lastState?.eligibleAndNextPaymentRecurringBuy?.firstOrNull { it.period == intervalSelected }
-        return eligible?.eligibleMethods?.contains(paymentSelectedType) ?: false
-    }
-
-    private fun isPaymentMethodUnselected(): Boolean {
-        return lastState?.selectedPaymentMethod == null ||
-            lastState?.selectedPaymentMethod?.id == PaymentMethod.UNDEFINED_CARD_PAYMENT_ID ||
-            lastState?.selectedPaymentMethod?.id == PaymentMethod.UNDEFINED_BANK_ACCOUNT_ID ||
-            lastState?.selectedPaymentMethod?.id == PaymentMethod.UNDEFINED_BANK_TRANSFER_PAYMENT_ID
-    }
-
     private fun startBuy() {
-        lastState?.let {
-            if (canContinue(it)) {
+        lastState?.let { state ->
+            if (canContinue(state)) {
                 model.process(SimpleBuyIntent.BuyButtonClicked)
                 model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
                 analytics.logEvent(
                     buyConfirmClicked(
-                        lastState?.order?.amount?.valueMinor.toString(),
-                        lastState?.fiatCurrency.orEmpty(),
-                        lastState?.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                        state.amount.toBigInteger().toString(),
+                        state.fiatCurrency,
+                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
                     )
                 )
-                check(lastState?.order?.amount != null)
-                check(lastState?.maxFiatAmount != null)
-                check(lastState?.selectedCryptoAsset != null)
+
+                val paymentMethodDetails = state.selectedPaymentMethodDetails
+                check(paymentMethodDetails != null)
 
                 analytics.logEvent(
                     BuyAmountEntered(
-                        lastState?.recurringBuyFrequency?.name ?: return,
-                        lastState?.order?.amount ?: return,
-                        lastState?.maxFiatAmount ?: return,
-                        lastState?.selectedCryptoAsset?.ticker ?: return
+                        frequency = state.recurringBuyFrequency.name,
+                        inputAmount = state.amount,
+                        maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
+                            paymentMethodDetails.limits.max
+                            state.amount
+                        } else null,
+                        outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
+                        paymentMethod = state.selectedPaymentMethod?.paymentMethodType
+                            ?: return
                     )
                 )
             }
         }
     }
 
-    private fun showDialogRecurringBuyUnavailable() {
+    private fun showDialogRecurringBuyUnavailable(paymentMethodDefined: Boolean) {
         showAlert(
             AlertDialog.Builder(requireContext(), R.style.AlertDialogStyle)
                 .setTitle(R.string.recurring_buy_unavailable_title)
@@ -233,26 +216,21 @@ class SimpleBuyCryptoFragment :
                 }
                 .create()
         )
-    }
 
-    override fun onFiatCurrencyChanged(fiatCurrency: String) {
-        if (fiatCurrency == lastState?.fiatCurrency) return
-        model.process(SimpleBuyIntent.FiatCurrencyUpdated(fiatCurrency))
-        model.process(
-            SimpleBuyIntent.FetchBuyLimits(
-                fiatCurrency,
-                lastState?.selectedCryptoAsset ?: return
+        if (paymentMethodDefined) {
+            analytics.logEvent(RecurringBuyAnalytics.RecurringBuyUnavailableShown(SELECT_PAYMENT))
+        } else {
+            analytics.logEvent(
+                RecurringBuyAnalytics.RecurringBuyUnavailableShown(PAYMENT_METHOD_UNAVAILABLE)
             )
-        )
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(currencyPrefs.selectedFiatCurrency))
-        analytics.logEvent(CurrencyChangedFromBuyForm(fiatCurrency))
+        }
     }
 
     override fun render(newState: SimpleBuyState) {
         lastState = newState
 
-        if (newState.errorState != null) {
-            handleErrorState(newState.errorState)
+        if (newState.buyErrorState != null) {
+            handleErrorState(newState.buyErrorState)
             return
         }
 
@@ -278,23 +256,25 @@ class SimpleBuyCryptoFragment :
             binding.priceDelta.asDeltaPercent(it.delta)
         }
 
-        newState.maxFiatAmount.takeIf { it.currencyCode == currencyPrefs.selectedFiatCurrency }?.let {
+        newState.maxLimit.takeIf { it.currencyCode == currencyPrefs.selectedFiatCurrency }?.let {
             binding.inputAmount.maxLimit = it
         }
 
         if (newState.paymentOptions.availablePaymentMethods.isEmpty()) {
             hidePaymentMethod()
+            disableRecurringBuyCta(false)
         } else {
-            newState.selectedPaymentMethodDetails?.let {
-                renderDefinedPaymentMethod(it)
+            newState.selectedPaymentMethodDetails?.let { paymentMethod ->
+                renderDefinedPaymentMethod(newState, paymentMethod)
             }
         }
 
         binding.btnContinue.isEnabled = canContinue(newState)
-        newState.error?.let {
-            handleError(it, newState)
-        } ?: kotlin.run {
-            clearError()
+        if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_TRANSACTION_FLOW_ERRORS)) {
+            updateInputStateUI(newState.errorState)
+            showCtaOrError(newState)
+        } else {
+            handleError(newState)
         }
 
         if (newState.confirmationActionRequested &&
@@ -318,11 +298,50 @@ class SimpleBuyCryptoFragment :
         }
     }
 
+    private fun showCtaOrError(newState: SimpleBuyState) {
+        val errorState = newState.errorState
+        val isAmountPositive = newState.amount.isPositive
+        when (errorState) {
+            TransactionErrorState.NONE -> {
+                showCta()
+            }
+            else -> {
+                if (isAmountPositive) {
+                    showError(newState)
+                } else {
+                    showCta()
+                }
+            }
+        }
+    }
+
+    private fun showError(state: SimpleBuyState) {
+        binding.btnContinue.gone()
+        binding.errorLayout.errorMessage.text = state.errorState.message(state)
+        errorContainer.visible()
+        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state)
+        bottomSheetInfo?.let { info ->
+            errorContainer.setOnClickListener {
+                TransactionFlowInfoBottomSheet.newInstance(info)
+                    .show(childFragmentManager, "BOTTOM_DIALOG")
+            }
+        } ?: errorContainer.setOnClickListener {}
+    }
+
+    private fun showCta() {
+        binding.btnContinue.visible()
+        errorContainer.gone()
+    }
+
     private fun handleNewPaymentMethodAdding(state: SimpleBuyState) {
         require(state.newPaymentMethodToBeAdded is UndefinedPaymentMethod)
-        addPaymentMethod(state.newPaymentMethodToBeAdded.paymentMethodType)
+        addPaymentMethod(state.newPaymentMethodToBeAdded.paymentMethodType, state.fiatCurrency)
         model.process(SimpleBuyIntent.AddNewPaymentMethodHandled)
         model.process(SimpleBuyIntent.SelectedPaymentMethodUpdate(state.newPaymentMethodToBeAdded))
+    }
+
+    private fun updateInputStateUI(newState: TransactionErrorState) {
+        binding.inputAmount.onAmountValidationUpdated(newState == TransactionErrorState.NONE)
     }
 
     private fun handlePostOrderCreationAction(newState: SimpleBuyState) {
@@ -331,7 +350,7 @@ class SimpleBuyCryptoFragment :
                 navigator().goToCheckOutScreen()
             }
             newState.selectedPaymentMethod?.isEligible == true -> {
-                addPaymentMethod(newState.selectedPaymentMethod.paymentMethodType)
+                addPaymentMethod(newState.selectedPaymentMethod.paymentMethodType, newState.fiatCurrency)
             }
             else -> {
                 require(newState.kycVerificationState != null)
@@ -377,8 +396,8 @@ class SimpleBuyCryptoFragment :
     private fun canContinue(state: SimpleBuyState) =
         state.isAmountValid && state.selectedPaymentMethod != null && !state.isLoading
 
-    private fun renderDefinedPaymentMethod(selectedPaymentMethod: PaymentMethod) {
-        renderRecurringBuy()
+    private fun renderDefinedPaymentMethod(state: SimpleBuyState, selectedPaymentMethod: PaymentMethod) {
+        renderRecurringBuy(state)
 
         when (selectedPaymentMethod) {
             is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
@@ -398,37 +417,40 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun renderRecurringBuy() {
-        with(binding) {
-            if (lastState?.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME &&
-                !isPaymentMethodAllowingFrequencySelected()
-            ) {
-                model.process(SimpleBuyIntent.RecurringBuyIntervalUpdated(RecurringBuyFrequency.ONE_TIME))
-            } else if (lastState?.isSelectedPaymentMethodRecurringBuyEligible() == true) {
-                recurringBuyCta.apply {
-                    background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_white_selector)
-                    setTextColor(requireContext().getResolvedColor(R.color.button_white_text_states))
-                }
-            } else {
-                if (!isAnyRecurringFrequencyAvailableForPaymentMethod()) {
-                    showDialogRecurringBuyUnavailable()
-                    sendRecurringBuyUnavailableShown()
-                }
-                recurringBuyCta.apply {
-                    background = requireContext().getResolvedDrawable(R.drawable.bkgd_grey_000_rounded)
-                    setTextColor(requireContext().getResolvedColor(R.color.grey_800))
-                }
+    private fun renderRecurringBuy(state: SimpleBuyState) {
+
+        val paymentMethodIsEligibleForSelectedFreq =
+            state.isSelectedPaymentMethodEligibleForSelectedFrequency() ||
+                state.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME
+
+        if (!paymentMethodIsEligibleForSelectedFreq) {
+            model.process(SimpleBuyIntent.RecurringBuyIntervalUpdated(RecurringBuyFrequency.ONE_TIME))
+        }
+
+        if (state.isSelectedPaymentMethodRecurringBuyEligible()) {
+            enableRecurringBuyCta()
+        } else {
+            disableRecurringBuyCta(state.selectedPaymentMethodDetails?.canUsedForPaying() ?: false)
+        }
+    }
+
+    private fun enableRecurringBuyCta() {
+        binding.recurringBuyCta.apply {
+            background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_white_selector)
+            setTextColor(requireContext().getResolvedColor(R.color.button_white_text_states))
+            setOnClickListener {
+                showBottomSheet(RecurringBuySelectionBottomSheet.newInstance())
             }
         }
     }
 
-    private fun sendRecurringBuyUnavailableShown() {
-        if (isPaymentMethodUnselected()) {
-            analytics.logEvent(RecurringBuyAnalytics.RecurringBuyUnavailableShown(SELECT_PAYMENT))
-        } else {
-            analytics.logEvent(
-                RecurringBuyAnalytics.RecurringBuyUnavailableShown(PAYMENT_METHOD_UNAVAILABLE)
-            )
+    private fun disableRecurringBuyCta(paymentMethodDefined: Boolean) {
+        binding.recurringBuyCta.apply {
+            background = requireContext().getResolvedDrawable(R.drawable.bkgd_grey_000_rounded)
+            setTextColor(requireContext().getResolvedColor(R.color.grey_800))
+            setOnClickListener {
+                showDialogRecurringBuyUnavailable(paymentMethodDefined)
+            }
         }
     }
 
@@ -515,12 +537,13 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun handleError(error: InputError, state: SimpleBuyState) {
-        when (error) {
-            InputError.ABOVE_MAX -> {
+    private fun handleError(state: SimpleBuyState) {
+        when (state.errorState) {
+            TransactionErrorState.OVER_GOLD_TIER_LIMIT,
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> {
                 binding.inputAmount.showError(
                     if (binding.inputAmount.configuration.inputCurrency.isFiat())
-                        resources.getString(R.string.maximum_buy, state.maxFiatAmount.toStringWithSymbol())
+                        resources.getString(R.string.maximum_buy, state.maxLimit.toStringWithSymbol())
                     else
                         resources.getString(
                             R.string.maximum_buy,
@@ -528,10 +551,10 @@ class SimpleBuyCryptoFragment :
                         )
                 )
             }
-            InputError.BELOW_MIN -> {
+            TransactionErrorState.BELOW_MIN_LIMIT -> {
                 binding.inputAmount.showError(
                     if (binding.inputAmount.configuration.inputCurrency.isFiat())
-                        resources.getString(R.string.minimum_buy, state.minFiatAmount.toStringWithSymbol())
+                        resources.getString(R.string.minimum_buy, state.minLimit.toStringWithSymbol())
                     else
                         resources.getString(
                             R.string.minimum_buy,
@@ -539,6 +562,7 @@ class SimpleBuyCryptoFragment :
                         )
                 )
             }
+            else -> clearError()
         }
     }
 
@@ -569,7 +593,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun addPaymentMethod(type: PaymentMethodType) {
+    private fun addPaymentMethod(type: PaymentMethodType, fiatCurrency: String) {
         when (type) {
             PaymentMethodType.PAYMENT_CARD -> {
                 val intent = Intent(activity, CardDetailsActivity::class.java)
@@ -578,7 +602,7 @@ class SimpleBuyCryptoFragment :
             PaymentMethodType.FUNDS -> {
                 showBottomSheet(
                     WireTransferAccountDetailsBottomSheet.newInstance(
-                        lastState?.fiatCurrency ?: return
+                        fiatCurrency
                     )
                 )
             }
@@ -632,7 +656,7 @@ class SimpleBuyCryptoFragment :
         fun newInstance(asset: AssetInfo, preselectedMethodId: String? = null): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_CRYPTO_ASSET, asset.ticker)
+                    putString(ARG_CRYPTO_ASSET, asset.networkTicker)
                     preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, preselectedMethodId) }
                 }
             }
@@ -642,6 +666,20 @@ class SimpleBuyCryptoFragment :
     private enum class PaymentMethodsChooserState {
         AVAILABLE_TO_PAY, AVAILABLE_TO_ADD
     }
+
+    private fun TransactionErrorState.message(state: SimpleBuyState): String =
+        when (this) {
+            TransactionErrorState.BELOW_MIN_LIMIT ->
+                resources.getString(R.string.minimum_buy, state.minLimit.toStringWithSymbol())
+            TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
+                R.string.not_enough_funds, state.fiatCurrency
+            )
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT,
+            TransactionErrorState.OVER_GOLD_TIER_LIMIT -> resources.getString(
+                R.string.maximum_with_value, state.maxLimit.toStringWithSymbol()
+            )
+            else -> resources.getString(R.string.empty)
+        }
 }
 
 fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String {
@@ -687,10 +725,6 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
 interface PaymentMethodChangeListener {
     fun onPaymentMethodChanged(paymentMethod: PaymentMethod)
     fun showAvailableToAddPaymentMethods()
-}
-
-interface ChangeCurrencyHost : SimpleBuyScreen {
-    fun onFiatCurrencyChanged(fiatCurrency: String)
 }
 
 fun PaymentMethod.Funds.icon() =

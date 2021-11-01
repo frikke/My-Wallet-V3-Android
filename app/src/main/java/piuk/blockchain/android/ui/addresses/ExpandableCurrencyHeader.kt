@@ -27,7 +27,7 @@ import info.blockchain.balance.CryptoCurrency
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.databinding.ViewExpandingCurrencyHeaderBinding
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.invisible
@@ -205,7 +205,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         when (asset) {
             CryptoCurrency.BTC -> R.drawable.vector_bitcoin_white
             CryptoCurrency.BCH -> R.drawable.vector_bitcoin_cash_white
-            else -> throw NotImplementedError("${asset.ticker} Not implemented")
+            else -> throw NotImplementedError("${asset.networkTicker} Not implemented")
         }
 
     /**

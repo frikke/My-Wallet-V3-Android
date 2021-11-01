@@ -9,16 +9,15 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
+import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.WalletStatus
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
-import piuk.blockchain.android.ui.transactionflow.transactionScopeOrNull
+import piuk.blockchain.android.ui.base.BlockchainActivity.Companion.LOGOUT_ACTION
 import piuk.blockchain.android.util.OSUtil
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import java.io.Serializable
 
 class LogoutActivity : AppCompatActivity() {
@@ -30,17 +29,17 @@ class LogoutActivity : AppCompatActivity() {
     private val assetActivityRepository: AssetActivityRepository by scopedInject()
     private val osUtil: OSUtil by inject()
     private val analytics: Analytics by inject()
-    private val loginState: AccessState by inject()
-    private val prefs: PersistentPrefs by inject()
+    private val dashboardPrefs: DashboardPrefs by inject()
+    private val walletPrefs: WalletStatus by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (intent?.action == AccessState.LOGOUT_ACTION) {
+        if (intent?.action == LOGOUT_ACTION) {
             val intent = Intent(this, CoinsWebSocketService::class.java)
 
             // When user logs out, assume onboarding has been completed
-            prefs.isOnBoardingComplete = true
+            dashboardPrefs.isOnBoardingComplete = true
 
             if (osUtil.isServiceRunning(CoinsWebSocketService::class.java)) {
                 stopService(intent)
@@ -58,20 +57,11 @@ class LogoutActivity : AppCompatActivity() {
         bchDataManager.clearAccountDetails()
         assetActivityRepository.clear()
         nabuDataManager.clearAccessToken()
-        resetTransaction()
 
         walletOptionsState.wipe()
 
-        loginState.isLoggedIn = false
+        walletPrefs.isAppUnlocked = false
         finishAffinity()
-    }
-
-    private fun resetTransaction() {
-        transactionScopeOrNull()?.let { scope ->
-            val model: TransactionModel = scope.get()
-            model.destroy()
-            scope.close()
-        }
     }
 }
 

@@ -1,9 +1,10 @@
 package piuk.blockchain.android.ui.login
 
-import com.blockchain.remoteconfig.FeatureFlag
+import android.net.Uri
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
+import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -14,12 +15,11 @@ class LoginInteractor(
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
     private val appUtil: AppUtil,
-    private val ssoAccountRecoveryFF: FeatureFlag
+    private val persistentPrefs: PersistentPrefs
 ) {
 
-    fun loginWithQrCode(qrString: String): Completable {
-
-        return payloadDataManager.handleQrCode(qrString)
+    fun loginWithQrCode(qrString: String): Completable =
+        payloadDataManager.handleQrCode(qrString)
             .doOnComplete {
                 payloadDataManager.wallet?.let { wallet ->
                     prefs.apply {
@@ -31,11 +31,9 @@ class LoginInteractor(
                 }
             }
             .doOnError { appUtil.clearCredentials() }
-    }
 
-    fun obtainSessionId(email: String): Single<ResponseBody> {
-        return authDataManager.createSessionId(email)
-    }
+    fun obtainSessionId(email: String): Single<ResponseBody> =
+        authDataManager.createSessionId(email)
 
     fun sendEmailForVerification(
         sessionId: String,
@@ -43,13 +41,19 @@ class LoginInteractor(
         captcha: String
     ): Completable {
         prefs.sessionId = sessionId
-        return ssoAccountRecoveryFF.enabled.flatMapCompletable { enabled ->
-            if (enabled) {
-                authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
-            } else {
-                authDataManager.sendEmailForDeviceVerification(sessionId, email, captcha)
-                    .ignoreElement()
-            }
-        }
+        return authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
     }
+
+    fun checkSessionDetails(intentAction: String, uri: Uri): LoginIntents =
+        when {
+            persistentPrefs.pinId.isNotEmpty() -> {
+                LoginIntents.UserIsLoggedIn
+            }
+            uri.hasDeeplinkData() -> LoginIntents.UserAuthenticationRequired(intentAction, uri)
+            else -> LoginIntents.UnknownError
+        }
+
+    private fun Uri.hasDeeplinkData() =
+        fragment?.let { data -> data.split(LoginAuthActivity.LINK_DELIMITER).size > 1 }
+            ?: false
 }

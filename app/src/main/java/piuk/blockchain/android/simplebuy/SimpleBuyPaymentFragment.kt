@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -32,7 +33,6 @@ import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
-import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import java.util.Locale
@@ -83,7 +83,7 @@ class SimpleBuyPaymentFragment :
             binding.transactionProgressView.setAssetIcon(it)
         }
 
-        newState.errorState?.let {
+        newState.buyErrorState?.let {
             handleErrorStates(it)
         }
 
@@ -178,7 +178,10 @@ class SimpleBuyPaymentFragment :
         startActivityForResult(
             BankAuthActivity.newInstance(
                 BankPaymentApproval(
-                    paymentId, authorisationUrl, linkedBank, orderValue
+                    paymentId = paymentId,
+                    authorisationUrl = authorisationUrl,
+                    linkedBank = linkedBank,
+                    orderValue = orderValue
                 ), BankAuthSource.SIMPLE_BUY, requireContext()
             ), BANK_APPROVAL
         )
@@ -205,7 +208,7 @@ class SimpleBuyPaymentFragment :
                         newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
                             .toLowerCase(Locale.getDefault()),
                         newState.orderValue.currency.name,
-                        newState.selectedCryptoAsset?.ticker
+                        newState.selectedCryptoAsset?.displayTicker
                     )
                 } else {
                     getString(
@@ -238,7 +241,7 @@ class SimpleBuyPaymentFragment :
                     getString(
                         R.string.completing_card_buy_1,
                         newState.order.amount?.toStringWithSymbol(),
-                        newState.selectedCryptoAsset?.ticker
+                        newState.selectedCryptoAsset?.displayTicker
                     ) + appendRecurringBuyInfo(
                         order = newState.order,
                         selectedCryptoAsset = newState.selectedCryptoAsset,
@@ -267,7 +270,7 @@ class SimpleBuyPaymentFragment :
                             } ?: getString(
                                 R.string.completing_card_buy_1,
                                 newState.order.amount?.toStringWithSymbol(),
-                                newState.selectedCryptoAsset?.ticker
+                                newState.selectedCryptoAsset?.displayTicker
                             ) + appendRecurringBuyInfo(
                                 order = newState.order,
                                 selectedCryptoAsset = newState.selectedCryptoAsset,
@@ -283,14 +286,14 @@ class SimpleBuyPaymentFragment :
                 }
             }
 
-            newState.errorState != null -> {
+            newState.buyErrorState != null -> {
                 binding.transactionProgressView.showTxError(
                     getString(R.string.common_oops),
                     if (newState.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
                         getString(
                             R.string.order_error_subtitle_rb,
                             newState.order.amount?.formatOrSymbolForZero(),
-                            newState.selectedCryptoAsset?.ticker
+                            newState.selectedCryptoAsset?.displayTicker
                         )
                     } else {
                         getString(R.string.order_error_subtitle)
@@ -309,7 +312,7 @@ class SimpleBuyPaymentFragment :
             "\n" + getString(
                 R.string.completing_card_buy_rb,
                 order.amount?.toStringWithSymbol(),
-                selectedCryptoAsset?.ticker,
+                selectedCryptoAsset?.displayTicker,
                 recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
             )
         } else ""

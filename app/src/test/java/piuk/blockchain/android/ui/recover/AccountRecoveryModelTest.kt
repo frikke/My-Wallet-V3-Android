@@ -39,6 +39,86 @@ class AccountRecoveryModelTest {
     }
 
     @Test
+    fun `verify lowercase seedphrase should succeed`() {
+        // Arrange
+        val seedPhrase = "seed phrase seed phrase seed phrase seed phrase seed phrase seed phrase"
+
+        whenever(interactor.recoverCredentials(seedPhrase)).thenReturn(
+            Completable.complete()
+        )
+
+        val testState = model.state.test()
+        model.process(AccountRecoveryIntents.VerifySeedPhrase(seedPhrase))
+
+        // Assert
+        testState.assertValues(
+            AccountRecoveryState(),
+            AccountRecoveryState(
+                seedPhrase = seedPhrase,
+                status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
+            ),
+            AccountRecoveryState(
+                seedPhrase = seedPhrase,
+                status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
+            )
+        )
+    }
+
+    @Test
+    fun `verify camel case seedphrase should succeed`() {
+        // Arrange
+        val seedPhrase = "Seed Phrase Seed Phrase Seed Phrase Seed Phrase Seed Phrase Seed Phrase"
+        val expectedCorrectedPhrase = seedPhrase.lowercase().trim()
+
+        whenever(interactor.recoverCredentials(expectedCorrectedPhrase)).thenReturn(
+            Completable.complete()
+        )
+
+        val testState = model.state.test()
+        model.process(AccountRecoveryIntents.VerifySeedPhrase(seedPhrase))
+
+        // Assert
+        testState.assertValues(
+            AccountRecoveryState(),
+            AccountRecoveryState(
+                seedPhrase = seedPhrase,
+                status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
+            ),
+            AccountRecoveryState(
+                seedPhrase = expectedCorrectedPhrase,
+                status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
+            )
+        )
+    }
+
+    @Test
+    fun `verify seedphrase with newlines or tabbed spaces should succeed`() {
+        // Arrange
+        val seedPhrase = "Seed Phrase\nSeed Phrase\rSeed Phrase\t Seed Phrase Seed Phrase Seed Phrase"
+        val expectedCorrectedPhrase = seedPhrase.lowercase().trim()
+
+        whenever(interactor.recoverCredentials(expectedCorrectedPhrase)).thenReturn(
+            Completable.complete()
+        )
+
+        val testState = model.state.test()
+        model.process(AccountRecoveryIntents.VerifySeedPhrase(seedPhrase))
+
+        // Assert
+        testState.assertValues(
+            AccountRecoveryState(),
+            AccountRecoveryState(
+                seedPhrase = seedPhrase,
+                status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
+            ),
+            AccountRecoveryState(
+                seedPhrase = expectedCorrectedPhrase,
+                status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
+            )
+        )
+    }
+
+    @Test
     fun `fail to verify short seedphrase should show word count error`() {
         // Arrange
         val seedPhrase = "seed phrase"

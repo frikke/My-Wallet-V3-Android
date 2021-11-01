@@ -35,11 +35,13 @@ sealed class AuthNewLoginIntents : MviIntent<AuthNewLoginState> {
     }
 
     data class EnableApproval(
-        private val enableApproval: Boolean
+        private val enableApproval: Boolean,
+        private val errorState: NewLoginState
     ) : AuthNewLoginIntents() {
         override fun reduce(oldState: AuthNewLoginState): AuthNewLoginState =
             oldState.copy(
-                enableApproval = enableApproval
+                enableApproval = enableApproval,
+                errorState = errorState
             )
     }
 

@@ -5,6 +5,7 @@ import java.math.BigInteger
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -69,8 +70,12 @@ fun ZonedDateTime.isLastDayOfTheMonth(): Boolean {
  */
 fun Date.toFormattedDateWithoutYear(): String {
     val zonedDateTime = ZonedDateTime.ofInstant(this.toInstant(), ZoneId.systemDefault())
-    return "${zonedDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT,
-        Locale.getDefault()).toString().capitalizeFirstChar()}, " +
+    return "${
+        zonedDateTime.dayOfWeek.getDisplayName(
+            TextStyle.SHORT,
+            Locale.getDefault()
+        ).toString().capitalizeFirstChar()
+    }, " +
         "${zonedDateTime.month.toString().capitalizeFirstChar()} " +
         "${zonedDateTime.dayOfMonth}"
 }
@@ -106,5 +111,11 @@ fun BigInteger.secondsToDays(): Long =
 
 fun Int.secondsToDays(): Int =
     ceil(this.toDouble() / SECONDS_OF_DAY).toInt()
+
+fun String.toZonedDateTime(): ZonedDateTime =
+    ZonedDateTime.ofInstant(
+        Instant.parse(this),
+        ZoneId.systemDefault()
+    )
 
 private const val SECONDS_OF_DAY: Long = 86400

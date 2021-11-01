@@ -7,7 +7,7 @@ import com.blockchain.nabu.datamanagers.CurrencyPair
 import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -16,7 +16,6 @@ import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.setTransactionIsConfirming
-import piuk.blockchain.android.util.visible
 import java.util.Date
 
 class SwapActivityItemDelegate<in T>(
@@ -53,23 +52,23 @@ private class SwapActivityItemViewHolder(
     ) {
         with(binding) {
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
-            (tx.currencyPair as? CurrencyPair.CryptoCurrencyPair)?.let {
+            (tx.currencyPair as? CurrencyPair.CryptoCurrencyPair)?.let { pair ->
                 txType.text = context.resources.getString(
-                    R.string.tx_title_swap,
-                    it.source.ticker,
-                    it.destination.ticker
+                    R.string.tx_title_swapped,
+                    pair.source.displayTicker,
+                    pair.destination.displayTicker
                 )
                 when {
                     tx.state.isPending -> icon.setTransactionIsConfirming()
                     tx.state.hasFailed -> icon.setTransactionHasFailed()
                     else -> {
                         icon.setImageResource(R.drawable.ic_tx_swap)
-                        icon.setAssetIconColoursWithTint(it.source)
+                        icon.setAssetIconColoursWithTint(pair.source)
                     }
                 }
                 txRoot.setOnClickListener {
                     onAccountClicked(
-                        tx.currencyPair.source, tx.txId, CryptoActivityType.SWAP
+                        pair.source, tx.txId, CryptoActivityType.SWAP
                     )
                 }
             }
@@ -78,7 +77,6 @@ private class SwapActivityItemViewHolder(
 
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.text = tx.fiatValue.toStringWithSymbol()
-            assetBalanceFiat.visible()
         }
     }
 

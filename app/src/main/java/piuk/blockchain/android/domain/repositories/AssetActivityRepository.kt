@@ -2,24 +2,24 @@ package piuk.blockchain.android.domain.repositories
 
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.repositories.ExpiringRepository
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
-import piuk.blockchain.android.coincore.AccountGroup
-import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.ActivitySummaryList
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoActivitySummaryItem
-import piuk.blockchain.android.coincore.CustodialInterestActivitySummaryItem
-import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
-import piuk.blockchain.android.coincore.CustodialTransferActivitySummaryItem
-import piuk.blockchain.android.coincore.FiatActivitySummaryItem
-import piuk.blockchain.android.coincore.InterestAccount
-import piuk.blockchain.android.coincore.TradeActivitySummaryItem
-import piuk.blockchain.android.coincore.impl.AllWalletsAccount
-import piuk.blockchain.android.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoActivitySummaryItem
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.CustodialTransferActivitySummaryItem
+import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.caching.ExpiringRepository
 import timber.log.Timber
 
 class AssetActivityRepository(
@@ -121,9 +121,14 @@ class AssetActivityRepository(
     fun findCachedTradeItem(asset: AssetInfo, txHash: String): TradeActivitySummaryItem? =
         transactionCache.filterIsInstance<TradeActivitySummaryItem>().find {
             when (it.currencyPair) {
-                is CurrencyPair.CryptoCurrencyPair -> it.currencyPair.source == asset && it.txId == txHash
-                is CurrencyPair.CryptoToFiatCurrencyPair ->
-                    it.currencyPair.source == asset && it.txId == txHash
+                is CurrencyPair.CryptoCurrencyPair -> {
+                    val pair = it.currencyPair as CurrencyPair.CryptoCurrencyPair
+                    pair.source == asset && it.txId == txHash
+                }
+                is CurrencyPair.CryptoToFiatCurrencyPair -> {
+                    val pair = it.currencyPair as CurrencyPair.CryptoToFiatCurrencyPair
+                    pair.source == asset && it.txId == txHash
+                }
             }
         }
 

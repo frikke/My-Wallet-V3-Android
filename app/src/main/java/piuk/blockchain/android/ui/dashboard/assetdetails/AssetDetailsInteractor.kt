@@ -1,5 +1,12 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.AvailableActions
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -9,18 +16,10 @@ import com.blockchain.nabu.models.data.FundsAccount
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.coincore.AccountGroup
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.AvailableActions
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAsset
 import timber.log.Timber
 
 typealias AssetDisplayMap = Map<AssetFilter, AssetDisplayInfo>
@@ -52,7 +51,6 @@ data class AssetDisplayInfo(
 )
 
 class AssetDetailsInteractor(
-    private val interestFeatureFlag: FeatureFlag,
     private val dashboardPrefs: DashboardPrefs,
     private val coincore: Coincore,
     private val custodialWalletManager: CustodialWalletManager
@@ -131,11 +129,10 @@ class AssetDetailsInteractor(
             asset.accountGroup(AssetFilter.NonCustodial).mapDetails(),
             asset.accountGroup(AssetFilter.Custodial).mapDetails(),
             asset.accountGroup(AssetFilter.Interest).mapDetails(),
-            asset.interestRate(),
-            interestFeatureFlag.enabled
-        ) { prices, nonCustodial, custodial, interest, interestRate, interestEnabled ->
+            asset.interestRate()
+        ) { prices, nonCustodial, custodial, interest, interestRate ->
             makeAssetDisplayMap(
-                prices.currentRate, nonCustodial, custodial, interest, interestRate, interestEnabled
+                prices.currentRate, nonCustodial, custodial, interest, interestRate
             )
         }.doOnError {
             Timber.e("Unable to load asset details. Why? $it")
@@ -147,8 +144,7 @@ class AssetDetailsInteractor(
         nonCustodial: Details,
         custodial: Details,
         interest: Details,
-        interestRate: Double,
-        interestEnabled: Boolean
+        interestRate: Double
     ): AssetDisplayMap = mutableMapOf<AssetFilter, AssetDisplayInfo>().apply {
         if (nonCustodial !is Details.NoDetails) {
             addToDisplayMap(this, AssetFilter.NonCustodial, nonCustodial, fiatRate)
@@ -158,8 +154,10 @@ class AssetDetailsInteractor(
             addToDisplayMap(this, AssetFilter.Custodial, custodial, fiatRate)
         }
 
-        if (interestEnabled && (interest as? Details.DetailsItem)?.isEnabled == true) {
-            addToDisplayMap(this, AssetFilter.Interest, interest, fiatRate, interestRate)
+        (interest as? Details.DetailsItem)?.let { item ->
+            if (item.isEnabled || item.balance.isPositive) {
+                addToDisplayMap(this, AssetFilter.Interest, interest, fiatRate, interestRate)
+            }
         }
     }
 
@@ -188,6 +186,6 @@ class AssetDetailsInteractor(
         }
     }
 
-    fun loadRecurringBuysForAsset(assetTicker: String) =
+    fun loadRecurringBuysForAsset(assetTicker: AssetInfo) =
         custodialWalletManager.getRecurringBuysForAsset(assetTicker)
 }

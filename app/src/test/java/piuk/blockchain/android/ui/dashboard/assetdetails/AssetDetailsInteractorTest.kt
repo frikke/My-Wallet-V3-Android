@@ -4,7 +4,6 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoValue
@@ -18,10 +17,10 @@ import io.reactivex.rxjava3.core.Observable
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.AccountBalance
-import piuk.blockchain.android.coincore.AccountGroup
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.CryptoAsset
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.CryptoAsset
 import java.util.Locale
 
 class AssetDetailsInteractorTest {
@@ -37,7 +36,6 @@ class AssetDetailsInteractorTest {
     private val custodialGroup: AccountGroup = mock()
     private val interestGroup: AccountGroup = mock()
     private val interestRate: Double = 5.0
-    private val interestEnabled: Boolean = true
 
     private val asset: CryptoAsset = mock {
         on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.just(totalGroup))
@@ -45,11 +43,8 @@ class AssetDetailsInteractorTest {
         on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.just(custodialGroup))
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
     }
-    private val featureFlagMock: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(interestEnabled))
-    }
 
-    private val subject = AssetDetailsInteractor(featureFlagMock, mock(), mock(), mock())
+    private val subject = AssetDetailsInteractor(mock(), mock(), mock())
 
     @Before
     fun setUp() {
@@ -66,24 +61,24 @@ class AssetDetailsInteractorTest {
             delta24h = 100.0
         )
 
-        val walletBalance = AccountBalance(
-            total = CryptoValue(TEST_ASSET, 2500.toBigInteger()),
-            actionable = CryptoValue(TEST_ASSET, 2500.toBigInteger()),
-            pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = currentRate
-        )
-        val custodialBalance = AccountBalance(
-            total = CryptoValue.zero(TEST_ASSET),
-            actionable = CryptoValue.zero(TEST_ASSET),
-            pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = currentRate
-        )
-        val interestBalance = AccountBalance(
-            total = CryptoValue.zero(TEST_ASSET),
-            actionable = CryptoValue.zero(TEST_ASSET),
-            pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = currentRate
-        )
+        val walletBalance = mock<AccountBalance> {
+            on { total }.thenReturn(CryptoValue(TEST_ASSET, 2500.toBigInteger()))
+            on { actionable }.thenReturn(CryptoValue(TEST_ASSET, 2500.toBigInteger()))
+            on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { exchangeRate }.thenReturn(currentRate)
+        }
+        val custodialBalance = mock<AccountBalance> {
+            on { total }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { actionable }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { exchangeRate }.thenReturn(currentRate)
+        }
+        val interestBalance = mock<AccountBalance> {
+            on { total }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { actionable }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { exchangeRate }.thenReturn(currentRate)
+        }
 
         val walletFiat = FiatValue.fromMinor(TEST_FIAT, 2500 * 30)
         val custodialFiat = FiatValue.fromMinor(TEST_FIAT, 0)
@@ -221,7 +216,8 @@ class AssetDetailsInteractorTest {
         private const val TEST_FIAT = "USD"
 
         private val TEST_ASSET = object : CryptoCurrency(
-            ticker = "NOPE",
+            displayTicker = "NOPE",
+            networkTicker = "NOPE",
             name = "Not a real thing",
             categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
             precisionDp = 2,

@@ -11,7 +11,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionInteractor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxFlowErrorReporting
-import piuk.blockchain.android.ui.transactionflow.flow.ActiveTransactionFlow
 import piuk.blockchain.android.ui.transactionflow.flow.AmountFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.CompoundNetworkFeeFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.EstimatedCompletionPropertyFormatter
@@ -33,9 +32,10 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiser
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiserImpl
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
 
-val transactionFlowScope = named("TransactionScope")
 val transactionFlowActivityScope = named("TransactionActivityScope")
 
 val transactionModule = module {
@@ -44,8 +44,7 @@ val transactionModule = module {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
             assetResources = get(),
-            stringUtils = get(),
-            featureFlags = get()
+            stringUtils = get()
         )
     }.bind(TransactionFlowCustomiser::class)
         .bind(EnterAmountCustomisations::class)
@@ -56,10 +55,10 @@ val transactionModule = module {
         .bind(TransactionFlowCustomisations::class)
 
     factory {
-        TransactionLauncher(
-            flags = get()
+        TransactionFlowInfoBottomSheetCustomiserImpl(
+            resources = get<Context>().resources
         )
-    }
+    }.bind(TransactionFlowInfoBottomSheetCustomiser::class)
 
     factory {
         ExchangePriceFormatter(
@@ -167,39 +166,6 @@ val transactionModule = module {
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get()
             )
-        }
-
-        scoped {
-            TransactionModel(
-                initialState = TransactionState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
-                errorLogger = get(),
-                environmentConfig = get(),
-                crashLogger = get()
-            )
-        }
-    }
-
-    scope(transactionFlowScope) {
-
-        scoped {
-            TransactionInteractor(
-                coincore = payloadScope.get(),
-                addressFactory = payloadScope.get(),
-                custodialRepository = payloadScope.get(),
-                custodialWalletManager = payloadScope.get(),
-                currencyPrefs = get(),
-                identity = payloadScope.get(),
-                accountsSorting = payloadScope.get(),
-                linkedBanksFactory = payloadScope.get(),
-                bankLinkingPrefs = payloadScope.get()
-            )
-        }
-
-        // hack. find a better way to handle flow navigation (Rx Activity result)
-        scoped {
-            ActiveTransactionFlow()
         }
 
         scoped {

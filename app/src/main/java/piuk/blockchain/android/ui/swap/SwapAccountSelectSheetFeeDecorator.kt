@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import io.reactivex.rxjava3.core.Maybe
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.TradingAccount
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.TradingAccount
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 
 class SwapAccountSelectSheetFeeDecorator(private val account: BlockchainAccount) : CellDecorator {

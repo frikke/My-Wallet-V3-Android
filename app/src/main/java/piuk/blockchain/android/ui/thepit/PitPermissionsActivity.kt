@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.Analytics
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.urllinks.URL_THE_PIT_LANDING_LEARN_MORE
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -13,6 +12,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPitKycPromoLayoutBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.thepit.PitAnalyticsEvent
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
@@ -23,7 +23,6 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
     override fun createPresenter(): PitPermissionsPresenter = pitPermissionsPresenter
     override fun getView(): PitPermissionsView = this
     private val pitPermissionsPresenter: PitPermissionsPresenter by scopedInject()
-    private val analytics: Analytics = get()
     private var loadingDialog: PitStateBottomDialog? = null
 
     private val compositeDisposable = CompositeDisposable()
@@ -40,7 +39,7 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.the_exchange_title)
+        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.the_exchange_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.connectNow.setOnClickListener {
@@ -66,9 +65,9 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
         analytics.logEvent(PitAnalyticsEvent.ConnectNowEvent)
         if (intent.isPitToWalletLink) {
             val linkId = intent.pitToWalletLinkId ?: throw IllegalStateException("Link id is missing")
-            presenter.tryToConnectPitToWallet(linkId)
+            presenter?.tryToConnectPitToWallet(linkId)
         } else {
-            presenter.tryToConnectWalletToPit()
+            presenter?.tryToConnectWalletToPit()
         }
     }
 
@@ -137,7 +136,7 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_VERIFY_EMAIL) {
-            presenter.checkEmailIsVerified()
+            presenter?.checkEmailIsVerified()
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
@@ -192,7 +191,7 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
 
     override fun onBackPressed() {
         super.onBackPressed()
-        presenter?.clearLinkPrefs()
+        pitPermissionsPresenter.clearLinkPrefs()
     }
 
     override fun onDestroy() {

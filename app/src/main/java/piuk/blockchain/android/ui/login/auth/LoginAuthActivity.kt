@@ -13,27 +13,24 @@ import android.util.Base64
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.signin.UnifiedSignInEventListener
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
-import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
 import piuk.blockchain.android.ui.start.ManualPairingActivity
@@ -51,7 +48,8 @@ import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 
 class LoginAuthActivity :
-    MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>() {
+    MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>(),
+    AccountUnificationBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = true
@@ -61,9 +59,9 @@ class LoginAuthActivity :
     private val crashLogger: CrashLogger by inject()
     private val walletPrefs: WalletStatus by inject()
 
-    private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
-
     private lateinit var currentState: LoginAuthState
+
+    private var willUnifyAccount: Boolean = false
     private var isAccountRecoveryEnabled: Boolean = false
     private var email: String = ""
     private var userId: String = ""
@@ -84,6 +82,9 @@ class LoginAuthActivity :
         }
     }
 
+    private val analyticsInfo: LoginAuthInfo?
+        get() = if (::currentState.isInitialized) currentState.authInfoForAnalytics else null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -92,18 +93,7 @@ class LoginAuthActivity :
 
     override fun onStart() {
         super.onStart()
-        compositeDisposable += ssoARFF.enabled.observeOn(AndroidSchedulers.mainThread())
-            .doFinally {
-                processIntentData()
-            }
-            .subscribeBy(
-                onSuccess = { enabled ->
-                    isAccountRecoveryEnabled = enabled
-                },
-                onError = {
-                    isAccountRecoveryEnabled = false
-                }
-            )
+        processIntentData()
     }
 
     override fun onStop() {
@@ -113,6 +103,8 @@ class LoginAuthActivity :
     }
 
     private fun processIntentData() {
+        analytics.logEvent(LoginAnalytics.DeviceVerified(analyticsInfo))
+
         val fragment = intent.data?.fragment ?: kotlin.run {
             model.process(LoginAuthIntents.ShowAuthRequired)
             return
@@ -153,9 +145,12 @@ class LoginAuthActivity :
                     codeTextLayout.clearErrorState()
                 }
             })
-            forgotPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
+            forgotPasswordButton.setOnClickListener {
+                launchPasswordRecoveryFlow()
+            }
 
             continueButton.setOnClickListener {
+                analytics.logEvent(LoginAnalytics.LoginPasswordEntered(analyticsInfo))
                 if (currentState.authMethod != TwoFAMethod.OFF) {
                     model.process(
                         LoginAuthIntents.SubmitTwoFactorCode(
@@ -163,6 +158,7 @@ class LoginAuthActivity :
                             code = codeText.text.toString()
                         )
                     )
+                    analytics.logEvent(LoginAnalytics.LoginTwoFaEntered(analyticsInfo))
                     analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
                 } else {
                     model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
@@ -186,6 +182,18 @@ class LoginAuthActivity :
     override fun initBinding(): ActivityLoginAuthBinding = ActivityLoginAuthBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginAuthState) {
+        renderAuthStatus(newState)
+        updateLoginData(newState)
+        update2FALayout(newState.authMethod)
+
+        newState.twoFaState?.let {
+            renderRemainingTries(it)
+        }
+
+        currentState = newState
+    }
+
+    private fun renderAuthStatus(newState: LoginAuthState) {
         when (newState.authStatus) {
             AuthStatus.None,
             AuthStatus.InitAuthInfo -> binding.progressBar.visible()
@@ -195,16 +203,25 @@ class LoginAuthActivity :
             AuthStatus.Submit2FA,
             AuthStatus.VerifyPassword,
             AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
-            AuthStatus.Complete -> startActivity(Intent(this, PinEntryActivity::class.java))
+            AuthStatus.AskForAccountUnification -> showUnificationBottomSheet(newState.accountType)
+            AuthStatus.Complete -> {
+                analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
+                startActivity(Intent(this, PinEntryActivity::class.java))
+            }
             AuthStatus.PairingFailed -> showErrorToast(R.string.pairing_failed)
             AuthStatus.InvalidPassword -> {
+                analytics.logEvent(LoginAnalytics.LoginPasswordDenied(analyticsInfo))
                 binding.progressBar.gone()
                 binding.passwordTextLayout.setErrorState(getString(R.string.invalid_password))
             }
-            AuthStatus.AuthFailed -> showErrorToast(R.string.auth_failed)
+            AuthStatus.AuthFailed -> {
+                analytics.logEvent(LoginAnalytics.LoginRequestDenied(analyticsInfo))
+                showErrorToast(R.string.auth_failed)
+            }
             AuthStatus.InitialError -> showErrorToast(R.string.common_error)
             AuthStatus.AuthRequired -> showToast(getString(R.string.auth_required))
             AuthStatus.Invalid2FACode -> {
+                analytics.logEvent(LoginAnalytics.LoginTwoFaDenied(analyticsInfo))
                 binding.progressBar.gone()
                 binding.codeTextLayout.setErrorState(getString(R.string.invalid_two_fa_code))
             }
@@ -224,19 +241,77 @@ class LoginAuthActivity :
                     .show()
             }
         }.exhaustive
-        updateLoginData(newState)
-        update2FALayout(newState.authMethod)
-
-        newState.twoFaState?.let {
-            renderRemainingTries(it)
-        }
-
-        currentState = newState
     }
 
     private fun clearKeyboardAndFinish() {
         ViewUtils.hideKeyboard(this)
         finish()
+    }
+
+    private fun showUnificationBottomSheet(accountType: BlockchainAccountType) {
+        val benefitsList = mutableListOf(
+            VerifyIdentityNumericBenefitItem(
+                title = getString(R.string.unification_sheet_item_one_title),
+                subtitle = getString(R.string.unification_sheet_item_one_blurb)
+            ),
+            VerifyIdentityNumericBenefitItem(
+                title = getString(R.string.unification_sheet_item_two_title),
+                subtitle = getString(R.string.unification_sheet_item_two_blurb)
+            )
+        )
+        when (accountType) {
+            BlockchainAccountType.EXCHANGE -> {
+                benefitsList.add(
+                    VerifyIdentityNumericBenefitItem(
+                        title = getString(R.string.unification_sheet_item_three_title),
+                        subtitle = getString(R.string.unification_sheet_item_three_blurb)
+                    )
+                )
+            }
+            BlockchainAccountType.WALLET_EXCHANGE_NOT_LINKED -> {
+                // TODO do we need anything for this case
+            }
+            else -> {
+                // TODO this case should never happen
+            }
+        }
+
+        showBottomSheet(
+            AccountUnificationBottomSheet.newInstance(benefitsList as ArrayList<VerifyIdentityNumericBenefitItem>)
+        )
+    }
+
+    override fun upgradeAccountClicked() {
+        willUnifyAccount = true
+    }
+
+    override fun doLaterClicked() {
+        willUnifyAccount = false
+    }
+
+    override fun onSheetClosed() {
+        if (willUnifyAccount) {
+            showUnificationUI()
+        } else {
+            model.process(LoginAuthIntents.ShowAuthComplete)
+        }
+    }
+
+    private fun showUnificationUI() {
+        with(binding) {
+            unifiedSignInWebview.initWebView(object : UnifiedSignInEventListener {
+                override fun onLoaded() {
+                    progressBar.gone()
+                }
+
+                override fun onError(error: String) {
+                    // TODO nothing for now
+                }
+            })
+
+            unifiedSignInWebview.visible()
+            progressBar.visible()
+        }
     }
 
     private fun renderRemainingTries(state: TwoFaCodeState) =
@@ -273,6 +348,7 @@ class LoginAuthActivity :
                 TwoFAMethod.YUBI_KEY -> {
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(R.string.hardware_key_hint)
+                    codeText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                     codeLabel.visible()
                     codeLabel.text = getString(R.string.tap_hardware_key_label)
                 }
@@ -314,7 +390,7 @@ class LoginAuthActivity :
                     model.process(
                         LoginAuthIntents.SubmitTwoFactorCode(
                             password = passwordText.text.toString(),
-                            code = codeText.text.toString()
+                            code = codeText.text.toString().trim()
                         )
                     )
                     analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
@@ -329,7 +405,9 @@ class LoginAuthActivity :
         binding.twoFaNotice.apply {
             visible()
             val links = mapOf(annotationForLink to Uri.parse(url))
-            text = StringUtils.getStringWithMappedAnnotations(context, textId, links)
+            text = StringUtils.getStringWithMappedAnnotations(context, textId, links) {
+                analytics.logEvent(LoginAnalytics.LoginLearnMoreClicked(analyticsInfo))
+            }
             movementMethod = LinkMovementMethod.getInstance()
         }
     }
@@ -347,16 +425,13 @@ class LoginAuthActivity :
     }
 
     private fun launchPasswordRecoveryFlow() {
-        if (isAccountRecoveryEnabled) {
-            val intent = Intent(this, AccountRecoveryActivity::class.java).apply {
-                putExtra(EMAIL, email)
-                putExtra(USER_ID, userId)
-                putExtra(RECOVERY_TOKEN, recoveryToken)
-            }
-            startActivity(intent)
-        } else {
-            RecoverFundsActivity.start(this)
+        analytics.logEvent(LoginAnalytics.LoginHelpClicked(analyticsInfo))
+        val intent = Intent(this, AccountRecoveryActivity::class.java).apply {
+            putExtra(EMAIL, email)
+            putExtra(USER_ID, userId)
+            putExtra(RECOVERY_TOKEN, recoveryToken)
         }
+        startActivity(intent)
     }
 
     private fun decodeToJsonString(payload: String): String {

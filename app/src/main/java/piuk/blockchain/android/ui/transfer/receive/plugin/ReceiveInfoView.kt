@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.ViewReceiveInfoBinding
 
 class ReceiveInfoView @JvmOverloads constructor(
@@ -20,7 +20,7 @@ class ReceiveInfoView @JvmOverloads constructor(
     fun update(account: CryptoAccount, onCloseClicked: () -> Unit) {
         with(binding) {
             infoDescription.text =
-                context.getString(R.string.receive_rotating_address_desc, account.asset.ticker, account.label)
+                context.getString(R.string.receive_rotating_address_desc, account.asset.displayTicker, account.label)
 
             infoClose.setOnClickListener {
                 onCloseClicked()

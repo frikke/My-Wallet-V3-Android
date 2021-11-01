@@ -4,6 +4,8 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.websocket.CoinsWebSocketInterface
+import com.blockchain.websocket.MessagesSocketHandler
 import com.google.gson.Gson
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -32,11 +34,9 @@ import piuk.blockchain.android.data.coinswebsocket.models.SocketRequest
 import piuk.blockchain.android.data.coinswebsocket.models.SocketResponse
 import piuk.blockchain.android.data.coinswebsocket.models.TokenTransfer
 import piuk.blockchain.android.data.coinswebsocket.models.TransactionState
-import piuk.blockchain.android.data.coinswebsocket.service.MessagesSocketHandler
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.data.access.AccessState
+import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.events.TransactionsUpdatedEvent
@@ -72,11 +72,11 @@ class CoinsWebSocketStrategy(
     private val gson: Gson,
     private val rxBus: RxBus,
     private val prefs: PersistentPrefs,
-    private val accessState: AccessState,
+    private val pinRepository: PinRepository,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
     private val assetCatalogue: AssetCatalogue
-) {
+) : CoinsWebSocketInterface {
 
     private var coinWebSocketInput: CoinWebSocketInput? = null
     private val compositeDisposable = CompositeDisposable()
@@ -148,8 +148,8 @@ class CoinsWebSocketStrategy(
                 Timber.e(throwable)
                 if (throwable is DecryptionException) {
                     messagesSocketHandler?.showToast(R.string.wallet_updated)
-                    accessState.unpairWallet()
-                    appUtil.restartApp(LauncherActivity::class.java)
+                    appUtil.unpairWallet()
+                    appUtil.restartApp()
                 }
             }
 
@@ -328,14 +328,14 @@ class CoinsWebSocketStrategy(
             )
     }
 
-    fun subscribeToXpubBtc(xpub: String) {
+    override fun subscribeToXpubBtc(xpub: String) {
         val updatedList = (coinWebSocketInput?.xPubsBtc?.toMutableList() ?: mutableListOf()) + xpub
         coinWebSocketInput = coinWebSocketInput?.copy(xPubsBtc = updatedList)
 
         subscribeXpub(Coin.BTC, xpub)
     }
 
-    fun subscribeToExtraBtcAddress(address: String) =
+    override fun subscribeToExtraBtcAddress(address: String) {
         coinWebSocketInput?.let { input ->
             val updatedList = input.receiveBtcAddresses.toMutableList() + address
             coinWebSocketInput = input.copy(receiveBtcAddresses = updatedList)
@@ -349,6 +349,7 @@ class CoinsWebSocketStrategy(
                 )
             )
         }
+    }
 
     fun close() {
         unsubscribeFromAddresses()

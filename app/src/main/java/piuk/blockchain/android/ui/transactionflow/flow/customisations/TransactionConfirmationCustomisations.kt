@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.transactionflow.flow.customisations
 
 import android.content.Context
 import android.widget.FrameLayout
-import piuk.blockchain.android.coincore.AssetAction
+import com.blockchain.coincore.AssetAction
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.plugin.ConfirmSheetWidget
 

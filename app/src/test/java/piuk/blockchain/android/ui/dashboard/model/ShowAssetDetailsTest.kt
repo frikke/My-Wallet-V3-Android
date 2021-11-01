@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.dashboard.model
 
-import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
@@ -8,14 +7,14 @@ import kotlin.test.assertEquals
 
 class ShowAssetDetailsTest {
 
-    private val flow = AssetDetailsFlow(CryptoCurrency.ETHER, mock())
-    private val subject = UpdateLaunchDialogFlow(flow)
+    private val flow = AssetDetailsFlow(CryptoCurrency.ETHER)
+    private val subject = DashboardIntent.UpdateLaunchDialogFlow(flow)
 
     @Test
     fun `showing asset details, sets asset type and leaves other fields unchanged`() {
 
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -26,7 +25,7 @@ class ShowAssetDetailsTest {
 
         val result = subject.reduce(initialState)
 
-        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeAssets, initialState.activeAssets)
         assertEquals(result.activeFlow, flow)
         assertEquals(result.announcement, testAnnouncementCard_1)
     }
@@ -34,8 +33,8 @@ class ShowAssetDetailsTest {
     @Test
     fun `replacing asset details type, sets asset and leaves other fields unchanged`() {
 
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
@@ -46,15 +45,15 @@ class ShowAssetDetailsTest {
 
         val result = subject.reduce(initialState)
 
-        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeAssets, initialState.activeAssets)
         assertEquals(result.activeFlow, flow)
         assertEquals(result.announcement, testAnnouncementCard_1)
     }
 
     @Test
     fun `replacing an asset details type with the same type has no effect`() {
-        val initialState = PortfolioState(
-            assets = mapOfAssets(
+        val initialState = DashboardState(
+            activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState

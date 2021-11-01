@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import androidx.annotation.VisibleForTesting
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder

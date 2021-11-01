@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.base
 
+import android.app.PendingIntent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.MotionEvent
@@ -17,11 +18,11 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BlockchainApplication
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
@@ -31,7 +32,6 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 abstract class BlockchainActivity : ToolBarActivity() {
 
-    private val logoutTimer: LogoutTimer by inject()
     private val securityPrefs: SecurityPrefs by inject()
 
     val analytics: Analytics by inject()
@@ -49,6 +49,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             environment.isCompanyInternalBuild()
 
     protected open val enableLogoutTimer: Boolean = true
+    private lateinit var logoutPendingIntent: PendingIntent
 
     private var alertDialog: AlertDialog? = null
         @UiThread
@@ -79,7 +80,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     @CallSuper
     override fun onResume() {
         super.onResume()
-        stopLogoutTimer()
+        (application as BlockchainApplication).stopLogoutTimer()
         ApplicationLifeCycle.getInstance().onActivityResumed()
 
         if (enableScreenshots) {
@@ -106,18 +107,12 @@ abstract class BlockchainActivity : ToolBarActivity() {
     @CallSuper
     override fun onPause() {
         super.onPause()
-        startLogoutTimer()
+        if (enableLogoutTimer) {
+            (application as BlockchainApplication).startLogoutTimer()
+        }
         ApplicationLifeCycle.getInstance().onActivityPaused()
         compositeDisposable.clear()
     }
-
-    private fun startLogoutTimer() {
-        if (enableLogoutTimer) {
-            logoutTimer.start()
-        }
-    }
-
-    private fun stopLogoutTimer() = logoutTimer.stop()
 
     private fun disallowScreenshots() =
         window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
@@ -131,7 +126,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     // Detect if touch events are being obscured by hidden overlays - These could be used for tapjacking
     // There is a possible problem, here, in that once overlays have been accepted, new apps could install
-    // an untrusted overlay. TODO: Think about how best to deal with this
+    // an untrusted overlay.
     private fun detectObscuredWindow(event: MotionEvent): Boolean {
         if (!securityPrefs.trustScreenOverlay && event.isObscuredTouch()) {
             showAlert(overlayAlertDlg())
@@ -146,7 +141,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             .setMessage(R.string.screen_overlay_note)
             .setCancelable(false)
             .setPositiveButton(R.string.dialog_continue) { _, _ ->
-                securityPrefs.trustScreenOverlay = true //
+                securityPrefs.trustScreenOverlay = true
             }
             .setNegativeButton(R.string.exit) { _, _ -> this.finish() }
             .create()
@@ -231,6 +226,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     companion object {
         private const val BOTTOM_DIALOG = "BOTTOM_DIALOG"
+        const val LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT"
     }
 }
 

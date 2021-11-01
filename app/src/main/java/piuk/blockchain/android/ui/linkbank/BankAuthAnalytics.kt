@@ -37,12 +37,17 @@ enum class BankAuthAnalytics(
     PIS_EXTERNAL_FLOW_RETRY("ob_pis_retry"),
     PIS_EXTERNAL_FLOW_CANCEL("ob_pis_cancel");
 
-    class LinkBankConditionsApproved(private val bankName: String, private val provider: String) : AnalyticsEvent {
+    class LinkBankConditionsApproved(
+        private val bankName: String,
+        private val provider: String,
+        private val partner: String
+    ) : AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.LINK_BANK_CONDITIONS_APPROVED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "bank_name" to bankName,
+                "partner" to partner,
                 "provider" to provider
             )
     }
@@ -54,13 +59,15 @@ enum class BankAuthAnalytics(
             get() = mapOf()
     }
 
-    class BankSelected(private val bankName: String, private val provider: String) : AnalyticsEvent {
+    class BankSelected(private val bankName: String, private val provider: String, private val partner: String) :
+        AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.BANK_SELECTED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "bank_name" to bankName,
-                "provider" to provider
+                "provider" to provider,
+                "partner" to partner
             )
     }
 }
@@ -116,4 +123,4 @@ fun String.toAnalyticsBankProvider() =
         this.toLowerCase(Locale.ROOT).contains("safeconnect") -> "SAFE_CONNECT"
         this.toLowerCase(Locale.ROOT).contains("fintecture") -> "FINTECTURE"
         else -> this
-}
+    }

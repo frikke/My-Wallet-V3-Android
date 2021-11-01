@@ -6,7 +6,10 @@ enum class AssetCategory {
 }
 
 interface AssetInfo {
-    val ticker: String
+    // Use for UI only.
+    val displayTicker: String
+    // If the ticker is NOT being directly displayed to the user in the UI, use this.
+    val networkTicker: String
     val name: String
     val categories: Set<AssetCategory>
     // token price start times in epoch-seconds. null if charting not supported
@@ -15,7 +18,7 @@ interface AssetInfo {
     val precisionDp: Int
     val requiredConfirmations: Int
     // If non-null, then this is an l2 asset, and this contains the ticker of the chain on which this is implemented?
-    val l2chain: AssetInfo?
+    val l1chainTicker: String?
     // If non-null, then this an l2 asset and this is the id on the l1 chain. Ie contract address for erc20 assets
     val l2identifier: String?
     // Resources
@@ -36,6 +39,11 @@ val AssetInfo.isNonCustodialOnly: Boolean
 val AssetInfo.isNonCustodial: Boolean
     get() = categories.contains(AssetCategory.NON_CUSTODIAL)
 
+fun AssetInfo.l1chain(assetCatalogue: AssetCatalogue): AssetInfo? =
+    l1chainTicker?.let { ticker ->
+        assetCatalogue.fromNetworkTicker(ticker)
+    }
+
 interface AssetCatalogue {
     val supportedFiatAssets: List<String>
     val supportedCryptoAssets: List<AssetInfo>
@@ -48,21 +56,40 @@ interface AssetCatalogue {
 }
 
 open class CryptoCurrency(
-    override val ticker: String,
+    override val displayTicker: String,
+    override val networkTicker: String,
     override val name: String,
     override val categories: Set<AssetCategory>,
     override val precisionDp: Int,
     override val startDate: Long? = null, // token price start times in epoch-seconds. null if charting not supported
     override val requiredConfirmations: Int,
-    override val l2chain: AssetInfo? = null,
+    override val l1chainTicker: String? = null,
     override val l2identifier: String? = null,
     override val colour: String,
     override val logo: String = "",
     override val txExplorerUrlBase: String? = null
 ) : AssetInfo {
 
+    override fun equals(other: Any?): Boolean =
+        when {
+            other === this -> true
+            other !is AssetInfo -> false
+            other.networkTicker == networkTicker &&
+                other.l1chainTicker == l1chainTicker &&
+                other.l2identifier == l2identifier -> true
+            else -> false
+        }
+
+    override fun hashCode(): Int {
+        var result = networkTicker.hashCode()
+        result = 31 * result + (l1chainTicker?.hashCode() ?: 0)
+        result = 31 * result + (l2identifier?.hashCode() ?: 0)
+        return result
+    }
+
     object BTC : CryptoCurrency(
-        ticker = "BTC",
+        displayTicker = "BTC",
+        networkTicker = "BTC",
         name = "Bitcoin",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
@@ -74,7 +101,8 @@ open class CryptoCurrency(
     )
 
     object ETHER : CryptoCurrency(
-        ticker = "ETH",
+        displayTicker = "ETH",
+        networkTicker = "ETH",
         name = "Ether",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 18,
@@ -86,7 +114,8 @@ open class CryptoCurrency(
     )
 
     object BCH : CryptoCurrency(
-        ticker = "BCH",
+        displayTicker = "BCH",
+        networkTicker = "BCH",
         name = "Bitcoin Cash",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
@@ -98,7 +127,8 @@ open class CryptoCurrency(
     )
 
     object XLM : CryptoCurrency(
-        ticker = "XLM",
+        displayTicker = "XLM",
+        networkTicker = "XLM",
         name = "Stellar",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 7,
@@ -111,4 +141,4 @@ open class CryptoCurrency(
 }
 
 fun AssetInfo.isErc20() =
-    l2chain?.equals(CryptoCurrency.ETHER) == true
+    l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true

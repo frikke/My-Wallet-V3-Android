@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="15dp"
+        tools:context="com.blockchain.core.ui.demo.TypographyFragment">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Display - Semibold 40pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Display"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Title1 - Semibold 32pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title1"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Title2 - Semibold 24pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Title3 - Semibold 20pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Subheading - Medium 20pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Subheading"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Body Mono - Medium 16pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.BodyMono"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Body1 - Medium 16pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Body1"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Body2 - Semibold 16pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Body2"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="ParagraphMono - Medium 14pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.ParagraphMono"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Paragraph1 - Medium 14pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Paragraph1"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Paragraph2 - Semibold 14pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Paragraph2"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Caption1 - Medium 12pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Caption1"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Caption2 - Semibold 12pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Caption2"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Overline - Bold 12pt"
+            android:textAppearance="@style/TextAppearance.Blockchain.Overline"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+</ScrollView>

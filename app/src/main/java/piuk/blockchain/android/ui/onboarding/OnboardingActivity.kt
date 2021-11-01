@@ -74,14 +74,14 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
             fragmentManager.beginTransaction()
                 .replace(
                     R.id.content_frame,
-                    EmailPromptFragment.newInstance(presenter.email!!)
+                    EmailPromptFragment.newInstance(presenter?.email!!)
                 )
                 .commit()
         }
     }
 
     override fun onEnableFingerprintClicked() {
-        presenter.onEnableFingerprintClicked()
+        presenter?.onEnableFingerprintClicked()
     }
 
     override fun showFingerprintDialog(pincode: String) {
@@ -141,10 +141,12 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
     }
 
     override fun onVerifyEmailClicked() {
-        presenter.disableAutoLogout()
         emailLaunched = true
         val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_APP_EMAIL)
+        intent.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addCategory(Intent.CATEGORY_APP_EMAIL)
+        }
         startActivity(Intent.createChooser(intent, getString(R.string.security_centre_email_check)))
     }
 
@@ -159,19 +161,8 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
         progressDialog = null
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == EMAIL_CLIENT_REQUEST) {
-            presenter.enableAutoLogout()
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     companion object {
-
-        private const val EMAIL_CLIENT_REQUEST = 5400
-
         fun launchForFingerprints(ctx: Context) {
-
             Intent(ctx, OnboardingActivity::class.java).let {
                 it.showEmail = false
                 it.showFingerprints = true

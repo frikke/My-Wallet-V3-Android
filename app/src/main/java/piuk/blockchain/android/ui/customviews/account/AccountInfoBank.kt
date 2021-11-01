@@ -10,8 +10,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.databinding.ViewAccountBankOverviewBinding
 import piuk.blockchain.android.ui.customviews.StatusPill
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics

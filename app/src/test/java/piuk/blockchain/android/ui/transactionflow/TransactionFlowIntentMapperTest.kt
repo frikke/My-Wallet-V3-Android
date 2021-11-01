@@ -3,12 +3,13 @@ package piuk.blockchain.android.ui.transactionflow
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert
 import org.junit.Test
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.FiatAccount
-import piuk.blockchain.android.coincore.NullCryptoAccount
-import piuk.blockchain.android.coincore.TransactionTarget
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.TransactionTarget
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowIntentMapper
 
 class TransactionFlowIntentMapperTest {
 

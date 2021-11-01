@@ -6,19 +6,23 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.FiatActivitySummaryItem
 import piuk.blockchain.android.databinding.LayoutFiatActivityItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
+import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setTransactionHasFailed
+import piuk.blockchain.android.util.visible
 import java.util.Date
 
 class CustodialFiatActivityItemDelegate<in T>(
+    private val prefs: CurrencyPrefs,
     private val onItemClicked: (String, String) -> Unit
 ) : AdapterDelegate<T> {
 
@@ -33,6 +37,7 @@ class CustodialFiatActivityItemDelegate<in T>(
     override fun onBindViewHolder(items: List<T>, position: Int, holder: RecyclerView.ViewHolder) {
         (holder as FiatActivityItemViewHolder).bind(
             items[position] as FiatActivitySummaryItem,
+            prefs.selectedFiatCurrency,
             onItemClicked
         )
     }
@@ -44,6 +49,7 @@ private class FiatActivityItemViewHolder(
 
     fun bind(
         tx: FiatActivitySummaryItem,
+        selectedFiatCurrency: String,
         onAccountClicked: (String, String) -> Unit
     ) {
         with(binding) {
@@ -59,6 +65,13 @@ private class FiatActivityItemViewHolder(
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
 
             assetBalanceFiat.text = tx.value.toStringWithSymbol()
+
+            if (tx.currency != selectedFiatCurrency) {
+                assetBalanceFiatExchange.visible()
+                assetBalanceFiatExchange.text = tx.fiatValue(selectedFiatCurrency).toStringWithSymbol()
+            } else {
+                assetBalanceFiatExchange.gone()
+            }
 
             txRoot.setOnClickListener { onAccountClicked(tx.currency, tx.txId) }
         }
@@ -78,7 +91,7 @@ private class FiatActivityItemViewHolder(
 
         txType.setTextColor(context.getResolvedColor(R.color.black))
         statusDate.setTextColor(context.getResolvedColor(R.color.grey_600))
-        assetBalanceFiat.setTextColor(context.getResolvedColor(R.color.grey_600))
+        assetBalanceFiat.setTextColor(context.getResolvedColor(R.color.black))
     }
 
     private fun LayoutFiatActivityItemBinding.renderPending() {
@@ -111,7 +124,7 @@ private class FiatActivityItemViewHolder(
 
 private fun AppCompatTextView.setTxLabel(currency: String, type: TransactionType) {
     text = when (type) {
-        TransactionType.DEPOSIT -> context.getString(R.string.tx_title_deposit, currency)
-        else -> context.getString(R.string.tx_title_withdraw, currency)
+        TransactionType.DEPOSIT -> context.getString(R.string.tx_title_deposited, currency)
+        else -> context.getString(R.string.tx_title_withdrawn, currency)
     }
 }

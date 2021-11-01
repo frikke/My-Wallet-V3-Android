@@ -7,9 +7,9 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.CryptoActivitySummaryItem
-import com.blockchain.data.activity.historicRate.HistoricRateFetcher
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.CryptoActivitySummaryItem
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
@@ -30,7 +30,7 @@ class ActivitiesDelegateAdapter(
             addAdapterDelegate(SwapActivityItemDelegate(onCryptoItemClicked))
             addAdapterDelegate(CustodialTradingActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))
             addAdapterDelegate(SellActivityItemDelegate(onCryptoItemClicked))
-            addAdapterDelegate(CustodialFiatActivityItemDelegate(onFiatItemClicked))
+            addAdapterDelegate(CustodialFiatActivityItemDelegate(prefs, onFiatItemClicked))
             addAdapterDelegate(CustodialInterestActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))
             addAdapterDelegate(CustodialRecurringBuyActivityItemDelegate(onCryptoItemClicked))
             addAdapterDelegate(CustodialSendActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))

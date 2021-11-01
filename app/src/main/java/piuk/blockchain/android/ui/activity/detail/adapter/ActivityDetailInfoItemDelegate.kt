@@ -21,6 +21,7 @@ import piuk.blockchain.android.ui.activity.detail.BuyPurchaseAmount
 import piuk.blockchain.android.ui.activity.detail.Copyable
 import piuk.blockchain.android.ui.activity.detail.Created
 import piuk.blockchain.android.ui.activity.detail.Description
+import piuk.blockchain.android.ui.activity.detail.HistoricCryptoPrice
 import piuk.blockchain.android.ui.activity.detail.Fee
 import piuk.blockchain.android.ui.activity.detail.FeeAmount
 import piuk.blockchain.android.ui.activity.detail.FeeForTransaction
@@ -35,7 +36,6 @@ import piuk.blockchain.android.ui.activity.detail.SwapReceiveAmount
 import piuk.blockchain.android.ui.activity.detail.To
 import piuk.blockchain.android.ui.activity.detail.TotalCostAmount
 import piuk.blockchain.android.ui.activity.detail.TransactionId
-import piuk.blockchain.android.ui.activity.detail.Value
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
@@ -100,37 +100,24 @@ private class InfoItemViewHolder(
             is NextPayment -> context.getString(R.string.recurring_buy_details_next_payment)
             is Amount -> context.getString(R.string.activity_details_amount)
             is Fee -> context.getString(R.string.activity_details_fee)
-            is Value -> context.getString(R.string.activity_details_value)
-            is HistoricValue -> {
-                when (infoType.transactionType) {
-                    TransactionSummary.TransactionType.SENT,
-                    TransactionSummary.TransactionType.SELL ->
-                        context.getString(R.string.activity_details_historic_sent)
-                    TransactionSummary.TransactionType.RECEIVED,
-                    TransactionSummary.TransactionType.BUY ->
-                        context.getString(R.string.activity_details_historic_received)
-                    TransactionSummary.TransactionType.TRANSFERRED,
-                    TransactionSummary.TransactionType.SWAP
-                    -> context.getString(R.string.activity_details_historic_transferred)
-                    else -> context.getString(R.string.empty)
-                }
-            }
+            is HistoricValue -> context.getString(R.string.common_total)
+            is HistoricCryptoPrice -> context.getString(R.string.activity_details_exchange_rate)
             is To -> context.getString(R.string.activity_details_to)
             is From -> context.getString(R.string.activity_details_from)
             is FeeForTransaction -> context.getString(R.string.activity_details_transaction_fee)
             is BuyFee -> context.getString(R.string.activity_details_buy_fee)
-            is BuyPurchaseAmount -> context.getString(R.string.activity_details_buy_purchase_amount)
+            is BuyPurchaseAmount -> context.getString(R.string.activity_details_buy_purchase_amount_1)
             is TotalCostAmount -> context.getString(R.string.common_total)
             is FeeAmount -> context.getString(R.string.recurring_buy_details_fee)
             is SellPurchaseAmount -> context.getString(R.string.common_total)
             is TransactionId -> context.getString(R.string.activity_details_buy_tx_id)
             is BuyCryptoWallet,
-            is SellCryptoWallet -> context.getString(R.string.activity_details_buy_sending_to)
+            is SellCryptoWallet -> context.getString(R.string.activity_details_buy_deposited_to)
             is BuyPaymentMethod -> context.getString(R.string.activity_details_buy_payment_method)
             is SwapReceiveAmount -> context.getString(R.string.activity_details_swap_for)
             is NetworkFee -> context.getString(
                 R.string.tx_confirmation_network_fee,
-                (infoType.feeValue as CryptoValue).currency.ticker
+                (infoType.feeValue as CryptoValue).currency.displayTicker
             )
             is XlmMemo -> context.getString(R.string.xlm_memo_text)
             is RecurringBuyFrequency -> context.getString(R.string.recurring_buy_frequency_label_1)
@@ -141,22 +128,30 @@ private class InfoItemViewHolder(
         when (infoType) {
             is Created -> infoType.date.toFormattedString()
             is NextPayment -> infoType.date.toFormattedString()
-            is RecurringBuyFrequency -> "${
-                infoType.frequency.toHumanReadableRecurringBuy(context)
-            } ${infoType.frequency.toHumanReadableRecurringDate(context,
-                ZonedDateTime.ofInstant(infoType.nextPayment.toInstant(),
-                ZoneId.systemDefault()))}"
+            is RecurringBuyFrequency -> {
+                val recurringFrequency = infoType.frequency.toHumanReadableRecurringBuy(context)
+                val recurringDate = infoType.frequency.toHumanReadableRecurringDate(
+                    context,
+                    ZonedDateTime.ofInstant(
+                        infoType.nextPayment.toInstant(),
+                        ZoneId.systemDefault()
+                    )
+                )
+                context.getString(R.string.common_spaced_strings, recurringFrequency, recurringDate)
+            }
             is Amount -> infoType.value.toStringWithSymbol()
             is Fee -> infoType.feeValue?.toStringWithSymbol() ?: context.getString(
                 R.string.activity_details_fee_load_fail
-            )
-            is Value -> infoType.currentFiatValue?.toStringWithSymbol() ?: context.getString(
-                R.string.activity_details_value_load_fail
             )
             is HistoricValue -> infoType.fiatAtExecution?.toStringWithSymbol()
                 ?: context.getString(
                     R.string.activity_details_historic_value_load_fail
                 )
+            is HistoricCryptoPrice -> context.getString(
+                R.string.activity_details_exchange_rate_value,
+                infoType.price?.toStringWithSymbol(),
+                infoType.cryptoCurrency
+            )
             is To -> infoType.toAddress ?: context.getString(
                 R.string.activity_details_to_load_fail
             )
@@ -180,7 +175,7 @@ private class InfoItemViewHolder(
             is FeeAmount -> infoType.fundedFiat.toStringWithSymbol()
             is TransactionId -> infoType.txId
             is BuyCryptoWallet -> context.getString(
-                R.string.custodial_wallet_default_label_2, infoType.crypto.ticker
+                R.string.custodial_wallet_default_label_2, infoType.crypto.displayTicker
             )
             is SellCryptoWallet -> context.getString(
                 R.string.fiat_currency_funds_wallet_name_1, infoType.currency
@@ -212,11 +207,7 @@ private class InfoItemViewHolder(
                             }
                         }
                         paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
-                            if (label.isNullOrBlank()) {
-                                context.getString(R.string.checkout_funds_label)
-                            } else {
-                                context.getString(R.string.recurring_buy_funds_label, label)
-                            }
+                            context.getString(R.string.checkout_funds_label_1, label)
                         }
                         else -> {
                             context.getString(R.string.activity_details_payment_load_fail)

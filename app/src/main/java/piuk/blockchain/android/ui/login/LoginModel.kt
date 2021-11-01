@@ -32,13 +32,16 @@ class LoginModel(
                     intent.selectedEmail,
                     intent.captcha
                 )
+            is LoginIntents.CheckForExistingSessionOrDeepLink -> {
+                process(interactor.checkSessionDetails(intent.action, intent.uri))
+                null
+            }
             else -> null
         }
     }
 
-    private fun loginWithQrCode(qrString: String): Disposable {
-
-        return interactor.loginWithQrCode(qrString)
+    private fun loginWithQrCode(qrString: String): Disposable =
+        interactor.loginWithQrCode(qrString)
             .subscribeBy(
                 onComplete = {
                     process(LoginIntents.StartPinEntry)
@@ -52,11 +55,9 @@ class LoginModel(
                     )
                 }
             )
-    }
 
-    private fun obtainSessionId(email: String, captcha: String): Disposable {
-
-        return interactor.obtainSessionId(email)
+    private fun obtainSessionId(email: String, captcha: String): Disposable =
+        interactor.obtainSessionId(email)
             .subscribeBy(
                 onSuccess = { responseBody ->
                     val response = JSONObject(responseBody.string())
@@ -69,23 +70,22 @@ class LoginModel(
                 },
                 onError = { throwable ->
                     Timber.e(throwable)
-                    process(LoginIntents.GetSessionIdFailed) }
+                    process(LoginIntents.GetSessionIdFailed)
+                }
             )
-    }
 
     private fun sendVerificationEmail(
         sessionId: String,
         email: String,
         captcha: String
-    ): Disposable {
-        return interactor.sendEmailForVerification(sessionId, email, captcha)
-            .subscribeBy(
-                onComplete = { process(LoginIntents.ShowEmailSent) },
-                onError = { throwable ->
-                    Timber.e(throwable)
-                    process(LoginIntents.ShowEmailFailed) }
-            )
-    }
+    ): Disposable = interactor.sendEmailForVerification(sessionId, email, captcha)
+        .subscribeBy(
+            onComplete = { process(LoginIntents.ShowEmailSent) },
+            onError = { throwable ->
+                Timber.e(throwable)
+                process(LoginIntents.ShowEmailFailed)
+            }
+        )
 
     companion object {
         private const val SESSION_TOKEN = "token"

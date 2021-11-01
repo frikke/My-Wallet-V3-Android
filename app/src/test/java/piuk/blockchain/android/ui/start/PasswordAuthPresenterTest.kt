@@ -19,11 +19,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -93,7 +93,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.success(responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("1234567890"))
@@ -119,7 +119,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.success(responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("1234567890"))
@@ -144,7 +144,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.success(responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("1234567890"))
@@ -169,7 +169,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.success(responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("1234567890"))
@@ -183,7 +183,7 @@ class PasswordAuthPresenterTest {
         verify(view).showToast(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
-        verify(appUtil).clearCredentialsAndRestart(LauncherActivity::class.java)
+        verify(appUtil).clearCredentialsAndRestart()
     }
 
     /**
@@ -195,7 +195,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = TWO_FA_RESPONSE.toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.success(responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("1234567890"))
@@ -222,7 +222,7 @@ class PasswordAuthPresenterTest {
     @Test
     fun onContinueClickedPairingFailure() {
         // Arrange
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.error(Throwable()))
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
@@ -237,30 +237,6 @@ class PasswordAuthPresenterTest {
         verify(view).dismissProgressDialog()
     }
 
-    /**
-     * AuthDataManager returns failure when polling auth status, should trigger [ ][ManualPairingActivity.showToast]
-     */
-//    @Ignore("This has never actually worked, but refactoring has highlighted the failure")
-//    @Test
-//    fun onContinueClickedCreateFailure() {
-//        // Arrange
-//        whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
-//        val responseBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
-//        val response = Response.success(responseBody)
-//        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
-//            .thenReturn(Observable.just(response))
-//        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-//            .thenReturn(Observable.error(Throwable()))
-//        // Act
-//        subject.onContinueClicked()
-//        // Assert
-//
-//        verify(view).showToast(any(), any())
-//        verify(view).resetPasswordField()
-//        verify(view).dismissProgressDialog()
-//        verify(analytics, never()).logEvent(any())
-//    }
-//
     /**
      * AuthDataManager returns an error when getting session ID, should trigger
      * AppUtil#clearCredentialsAndRestart()
@@ -284,7 +260,7 @@ class PasswordAuthPresenterTest {
         // Arrange
         whenever(authDataManager.getSessionId(anyString()))
             .thenReturn(Observable.just("1234567890"))
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.error(Throwable()))
         // Act
         subject.verifyPassword(PASSWORD, GUID)
@@ -305,7 +281,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = KEY_AUTH_REQUIRED_JSON.toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.error<ResponseBody>(500, responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just(PasswordAuthPresenter.KEY_AUTH_REQUIRED))
@@ -329,7 +305,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = KEY_AUTH_REQUIRED_JSON.toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.error<ResponseBody>(500, responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("{}"))
@@ -355,7 +331,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = KEY_AUTH_REQUIRED_JSON.toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.error<ResponseBody>(500, responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("{}"))
@@ -378,7 +354,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = INITIAL_ERROR_RESPONSE.toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.error<ResponseBody>(500, responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
 
         // Act
@@ -395,7 +371,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = INITIAL_ERROR_RESPONSE_MALFORMED.toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.error<ResponseBody>(500, responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
 
         // Act
@@ -418,7 +394,7 @@ class PasswordAuthPresenterTest {
         val responseBody = KEY_AUTH_REQUIRED_JSON.toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.error<ResponseBody>(500, responseBody)
 
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.createCheckEmailTimer()).thenReturn(Observable.just(1))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
@@ -441,7 +417,7 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
         val responseBody = KEY_AUTH_REQUIRED_JSON.toResponseBody("application/json".toMediaTypeOrNull())
         val response = Response.error<ResponseBody>(500, responseBody)
-        whenever(authDataManager.getEncryptedPayload(anyString(), anyString()))
+        whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.createCheckEmailTimer()).thenReturn(Observable.just(0))
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))

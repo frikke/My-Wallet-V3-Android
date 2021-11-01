@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/standard_margin"
-    android:layout_marginEnd="@dimen/standard_margin"
     android:gravity="center"
     android:orientation="horizontal"
     android:paddingTop="@dimen/very_small_margin"
@@ -14,7 +12,9 @@
         android:id="@+id/confirm_details_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
         android:background="@color/white"
+        android:padding="@dimen/very_small_margin"
         android:button="@drawable/checkbox_selector_blue" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -22,6 +22,6 @@
         style="@style/Text.Standard.14"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/very_small_margin"
-        tools:text="@string/send_confirmation_interest_tos_pp" />
+        android:layout_marginEnd="@dimen/small_margin"
+        tools:text="@string/send_confirmation_rewards_tos_pp" />
 </LinearLayout>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/standard_margin"
+        android:text="@string/withdrawal_summary_on_hold"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_close" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text"
+        style="@style/TextAppearance.Blockchain.Paragraph1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/standard_margin"
+        android:text="@string/withdrawal_details_text"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <View
+        android:id="@+id/sep1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:background="@color/grey_000"
+        app:layout_constraintTop_toBottomOf="@+id/text" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/available_title"
+        style="@style/TextAppearance.Blockchain.Paragraph1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/small_margin"
+        android:text="@string/withdrawal_summary_available"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sep1" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/available_amount"
+        style="@style/TextAppearance.Blockchain.Paragraph2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sep1"
+        tools:text="$100" />
+
+    <View
+        android:id="@+id/sep2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/small_margin"
+        android:background="@color/grey_000"
+        app:layout_constraintTop_toBottomOf="@+id/available_title" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/on_hold_title"
+        style="@style/TextAppearance.Blockchain.Paragraph1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/small_margin"
+        android:text="@string/withdrawal_summary_on_hold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sep2" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/see_details"
+        style="@style/TextAppearance.Blockchain.Caption1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/withdrawal_summary_details"
+        android:textColor="@color/blue_600"
+        app:layout_constraintStart_toStartOf="@id/on_hold_title"
+        app:layout_constraintTop_toBottomOf="@id/on_hold_title" />
+
+    <TextView
+        android:id="@+id/on_hold_amount"
+        style="@style/TextAppearance.Blockchain.Paragraph2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constraintBottom_toTopOf="@+id/sep3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sep2"
+        tools:text="$100" />
+
+    <View
+        android:id="@+id/sep3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/small_margin"
+        android:background="@color/grey_000"
+        app:layout_constraintTop_toBottomOf="@+id/see_details" />
+
+    <FrameLayout
+        android:id="@+id/open_details"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintBottom_toTopOf="@id/sep3"
+        app:layout_constraintTop_toBottomOf="@id/sep2" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/ok_button"
+        style="@style/CtaButton.Blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/huge_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:text="@string/withdrawal_summary_cta"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sep3" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -10,6 +9,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.AaveYfiDotAvailab
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BackupPhraseAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BitpayAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BuyBitcoinAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.CeloEurAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsNoKycAnnouncement
@@ -244,8 +244,14 @@ val dashboardAnnouncementsModule = module {
         factory {
             KycRecoveryResubmissionAnnouncement(
                 dismissRecorder = get(),
-                userIdentity = get(),
-                accountRecoveryFF = get(ssoAccountRecoveryFeatureFlag)
+                userIdentity = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            CeloEurAnnouncement(
+                announcementQueries = get(),
+                dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
     }

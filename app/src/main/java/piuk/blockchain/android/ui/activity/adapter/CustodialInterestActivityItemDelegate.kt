@@ -13,14 +13,13 @@ import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.CustodialInterestActivitySummaryItem
-import com.blockchain.data.activity.historicRate.HistoricRateFetcher
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import java.util.Date
@@ -77,7 +76,6 @@ private class CustodialInterestActivityItemViewHolder(
                 }
             }
 
-            assetBalanceFiat.gone()
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
 
@@ -139,20 +137,20 @@ private fun TextView.setTxLabel(
 ) {
     text = when (type) {
         TransactionSummary.TransactionType.DEPOSIT -> context.resources.getString(
-            R.string.tx_title_transfer,
-            asset.ticker
+            R.string.tx_title_transferred,
+            asset.displayTicker
         )
         TransactionSummary.TransactionType.INTEREST_EARNED -> context.resources.getString(
-            R.string.tx_title_interest,
-            asset.ticker
+            R.string.tx_title_rewards,
+            asset.displayTicker
         )
         TransactionSummary.TransactionType.WITHDRAW -> context.resources.getString(
-            R.string.tx_title_withdraw,
-            asset.ticker
+            R.string.tx_title_withdrawn,
+            asset.displayTicker
         )
         else -> context.resources.getString(
-            R.string.tx_title_transfer,
-            asset.ticker
+            R.string.tx_title_transferred,
+            asset.displayTicker
         )
     }
 }

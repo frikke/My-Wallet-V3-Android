@@ -7,7 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.FiatAccount
+import com.blockchain.coincore.FiatAccount
+import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsBorderedBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsParentBinding
@@ -55,7 +56,7 @@ private class FundsCardViewHolder(
 
     fun bind(funds: FiatAssetState) {
         if (funds.fiatAccounts.size == 1) {
-            showSingleAsset(funds.fiatAccounts[0])
+            showSingleAsset(funds.fiatAccounts.values.first())
         } else {
             with(binding) {
                 fundsSingleItem.gone()
@@ -64,7 +65,7 @@ private class FundsCardViewHolder(
                         LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
                     adapter = multipleFundsAdapter
                 }
-                multipleFundsAdapter.items = funds.fiatAccounts
+                multipleFundsAdapter.items = funds.fiatAccounts.values.toList()
             }
         }
     }
@@ -83,7 +84,8 @@ private class FundsCardViewHolder(
             fundsBalance.text = if (selectedFiat == ticker) {
                 assetInfo.balance.toStringWithSymbol()
             } else {
-                assetInfo.userFiat.toStringWithSymbol()
+                val fiat = assetInfo.userFiat ?: FiatValue.zero(selectedFiat)
+                fiat.toStringWithSymbol()
             }
             fundsIcon.setIcon(ticker)
         }
@@ -132,9 +134,9 @@ private class MultipleFundsAdapter(
                 borderedFundsTitle.setStringFromTicker(context, ticker)
                 borderedFundsFiatTicker.text = ticker
                 borderedFundsBalance.text = if (selectedFiat == ticker) {
-                    assetInfo.balance.toStringWithSymbol()
+                    assetInfo.balance?.toStringWithSymbol()
                 } else {
-                    assetInfo.userFiat.toStringWithSymbol()
+                    assetInfo.userFiat?.toStringWithSymbol()
                 }
                 borderedFundsIcon.setIcon(ticker)
             }

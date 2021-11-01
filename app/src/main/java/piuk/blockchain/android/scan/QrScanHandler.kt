@@ -3,9 +3,22 @@ package piuk.blockchain.android.scan
 import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.bitpay.BITPAY_LIVE_BASE
+import com.blockchain.bitpay.BitPayDataManager
+import com.blockchain.bitpay.BitPayInvoiceTarget
+import com.blockchain.bitpay.PATH_BITPAY_INVOICE
+import com.blockchain.coincore.AddressFactory
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.filterByAction
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.util.FormatsUtil
 import info.blockchain.wallet.util.FormatsUtil.BCH_PREFIX
@@ -13,28 +26,11 @@ import info.blockchain.wallet.util.FormatsUtil.BTC_PREFIX
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.SingleSubject
 import io.reactivex.rxjava3.subjects.MaybeSubject
-
+import io.reactivex.rxjava3.subjects.SingleSubject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AddressFactory
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.CryptoAddress
-import piuk.blockchain.android.coincore.CryptoTarget
-import piuk.blockchain.android.coincore.SingleAccountList
-import piuk.blockchain.android.coincore.filterByAction
-import piuk.blockchain.android.coincore.impl.BitPayInvoiceTarget
-import piuk.blockchain.android.data.api.bitpay.BITPAY_LIVE_BASE
-import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
-import piuk.blockchain.android.data.api.bitpay.PATH_BITPAY_INVOICE
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
-import java.lang.IllegalArgumentException
 import java.security.KeyPair
 
 sealed class ScanResult(
@@ -67,21 +63,8 @@ class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
 }
 
 class QrScanResultProcessor(
-    private val bitPayDataManager: BitPayDataManager,
-    mwaFeatureFlag: FeatureFlag
+    private val bitPayDataManager: BitPayDataManager
 ) {
-    private var isMWAEnabled: Boolean = false
-
-    init {
-        val compositeDisposable = mwaFeatureFlag.enabled.observeOn(Schedulers.io()).subscribe(
-            { result ->
-                isMWAEnabled = result
-            },
-            {
-                isMWAEnabled = false
-            }
-        )
-    }
 
     fun processScan(scanResult: String, isDeeplinked: Boolean = false): Single<ScanResult> =
         when {
@@ -90,7 +73,7 @@ class QrScanResultProcessor(
                 .map {
                     ScanResult.TxTarget(setOf(it), isDeeplinked)
                 }
-            isMWAEnabled && scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
+            scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
             else -> {
                 val addressParser: AddressFactory = payloadScope.get()
                 addressParser.parse(scanResult)
@@ -167,7 +150,7 @@ class QrScanResultProcessor(
         val asset = target.asset
         val coincore = payloadScope.get<Coincore>()
 
-        coincore[asset].accountGroup(AssetFilter.All)
+        coincore[asset].accountGroup(if (target is BitPayInvoiceTarget) AssetFilter.NonCustodial else AssetFilter.All)
             .map { group -> group.accounts }
             .defaultIfEmpty(emptyList())
             .flatMap { list -> list.filterByAction(AssetAction.Send) }

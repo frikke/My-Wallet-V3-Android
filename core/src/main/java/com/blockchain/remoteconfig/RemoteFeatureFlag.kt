@@ -1,17 +1,13 @@
 package com.blockchain.remoteconfig
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.core.BuildConfig
-import timber.log.Timber
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import piuk.blockchain.androidcore.utils.extensions.then
 
 interface ABTestExperiment {
     fun getABVariant(key: String): Single<String>
-
-    companion object {
-//        const val AB_THE_PIT_SIDE_NAV_VARIANT = "ab_the_pit_side_nav_variant"
-//        const val AB_THE_PIT_ANNOUNCEMENT_VARIANT = "ab_the_pit_announcement_variant"
-    }
 }
 
 interface RemoteConfig {
@@ -23,15 +19,47 @@ interface RemoteConfig {
     fun getFeatureCount(key: String): Single<Long>
 }
 
-class RemoteConfiguration(private val remoteConfig: FirebaseRemoteConfig) :
-    RemoteConfig, ABTestExperiment {
+class RemoteConfiguration(
+    private val remoteConfig: FirebaseRemoteConfig,
+    private val environmentConfig: EnvironmentConfig
+) : RemoteConfig, ABTestExperiment {
+
+    val timeout: Long
+        get() = if (environmentConfig.isRunningInDebugMode()) 0L else 14400L
 
     private val configuration: Single<FirebaseRemoteConfig> =
-        Single.just(remoteConfig.fetch(if (BuildConfig.DEBUG) 0L else 14400L))
+        fetchRemoteConfig()
+            .then {
+                activate().onErrorComplete()
+            }
             .cache()
-            .doOnSuccess { remoteConfig.activateFetched() }
-            .doOnError { Timber.e(it, "Failed to load Firebase Remote Config") }
-            .map { remoteConfig }
+            .toSingle { remoteConfig }
+
+    private fun fetchRemoteConfig(): Completable {
+        return Completable.create { emitter ->
+            remoteConfig.fetch(timeout).addOnCompleteListener {
+                if (!emitter.isDisposed)
+                    emitter.onComplete()
+            }
+                .addOnFailureListener {
+                    if (!emitter.isDisposed)
+                        emitter.onError(it)
+                }
+        }
+    }
+
+    private fun activate(): Completable {
+        return Completable.create { emitter ->
+            remoteConfig.activate().addOnCompleteListener {
+                if (!emitter.isDisposed)
+                    emitter.onComplete()
+            }
+                .addOnFailureListener {
+                    if (!emitter.isDisposed)
+                        emitter.onError(it)
+                }
+        }.onErrorComplete()
+    }
 
     override fun getRawJson(key: String): Single<String> =
         configuration.map {

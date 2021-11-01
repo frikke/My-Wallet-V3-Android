@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.login
 
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
+import com.blockchain.koin.unifiedSignInFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.login.auth.LoginAuthInteractor
@@ -27,7 +27,7 @@ val loginUiModule = module {
                 payloadDataManager = get(),
                 prefs = get(),
                 appUtil = get(),
-                ssoAccountRecoveryFF = get(ssoAccountRecoveryFeatureFlag)
+                persistentPrefs = get()
             )
         }
 
@@ -37,7 +37,8 @@ val loginUiModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 crashLogger = get(),
-                interactor = get()
+                interactor = get(),
+                unifiedSignInFlag = get(unifiedSignInFeatureFlag)
             )
         }
 

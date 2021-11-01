@@ -5,6 +5,7 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.websocket.MessagesSocketHandler
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -24,7 +25,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.R
-import piuk.blockchain.android.data.coinswebsocket.service.MessagesSocketHandler
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
@@ -37,12 +37,13 @@ private const val DUMMY_ERC20_1_TICKER = "DUMMY"
 private const val DUMMY_ERC20_1_CONTRACT_ADDRESS = "0xF00F00F00F00F00F00FAB"
 @Suppress("ClassName")
 private object DUMMY_ERC20_1 : CryptoCurrency(
-    ticker = DUMMY_ERC20_1_TICKER,
+    displayTicker = DUMMY_ERC20_1_TICKER,
+    networkTicker = DUMMY_ERC20_1_TICKER,
     name = "Dummies",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
     requiredConfirmations = 5,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = DUMMY_ERC20_1_CONTRACT_ADDRESS,
     colour = "#123456"
 )
@@ -50,12 +51,13 @@ private object DUMMY_ERC20_1 : CryptoCurrency(
 private const val DUMMY_ERC20_2_TICKER = "FAKE"
 @Suppress("ClassName")
 private object DUMMY_ERC20_2 : CryptoCurrency(
-    ticker = DUMMY_ERC20_2_TICKER,
+    displayTicker = DUMMY_ERC20_2_TICKER,
+    networkTicker = DUMMY_ERC20_2_TICKER,
     name = "Fakes",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
     requiredConfirmations = 5,
-    l2chain = ETHER,
+    l1chainTicker = ETHER.networkTicker,
     l2identifier = "0xF0DF0DF0DF0DF0DF0DFAD",
     colour = "#123456"
 )
@@ -149,7 +151,7 @@ class CoinsWebSocketStrategyTest {
         gson = Gson(),
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,
-        accessState = mock(),
+        pinRepository = mock(),
         appUtil = mock(),
         prefs = prefs,
         rxBus = rxBus,

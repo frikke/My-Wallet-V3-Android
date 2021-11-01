@@ -27,7 +27,7 @@ sealed class RecurringBuyAnalytics(
                 FREQUENCY to frequency.name,
                 INPUT_AMOUNT to inputValue.toBigDecimal(),
                 INPUT_CURRENCY to inputValue.currencyCode,
-                OUTPUT_CURRENCY to outputCurrency.ticker,
+                OUTPUT_CURRENCY to outputCurrency.networkTicker,
                 PAYMENT_METHOD to paymentMethodType.name
             )
         )

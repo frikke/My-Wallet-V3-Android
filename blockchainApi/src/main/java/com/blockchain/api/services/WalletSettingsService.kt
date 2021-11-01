@@ -19,4 +19,19 @@ class WalletSettingsService internal constructor(
         guid: String,
         sharedKey: String
     ): Completable = api.triggerAlert(guid = guid, sharedKey = sharedKey)
+
+    fun triggerOnChainTransaction(
+        guid: String,
+        sharedKey: String,
+        currency: String,
+        amount: String
+    ): Completable {
+        return api.triggerOnChainTransaction(
+            guid = guid,
+            sharedKey = sharedKey,
+            currency = currency,
+            amount = amount,
+            apiCode = apiCode
+        )
+    }
 }

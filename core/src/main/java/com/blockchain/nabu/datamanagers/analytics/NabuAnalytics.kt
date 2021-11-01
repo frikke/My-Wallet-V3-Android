@@ -129,9 +129,10 @@ private fun AnalyticsEvent.toNabuAnalyticsEvent(): NabuAnalyticsEvent =
         name = this.event,
         type = "EVENT",
         originalTimestamp = Date().toUtcIso8601(Locale.ENGLISH),
-        properties = this.params.filter { it.value is String }.mapValues { it.value.toString() }
+        properties = this.params.filterValues { it is String }.mapValues { it.value.toString() }
             .plusOriginIfAvailable(this.origin),
-        numericProperties = this.params.filter { it.value is Number }.mapValues { BigDecimal(it.value.toString()) }
+        numericProperties = this.params.filterValues { it is Number }.mapValues { BigDecimal(it.value.toString()) },
+        booleanProperties = this.params.filterValues { it is Boolean }.mapValues { it.value as Boolean }
     )
 
 private fun Map<String, String>.plusOriginIfAvailable(launchOrigin: LaunchOrigin?): Map<String, String> {

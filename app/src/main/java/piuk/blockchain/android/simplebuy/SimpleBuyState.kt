@@ -1,5 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CustodialQuote
@@ -19,7 +21,8 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.cards.EverypayAuthOptions
 import piuk.blockchain.android.ui.base.mvi.MviState
-import piuk.blockchain.android.ui.sell.ExchangePriceWithDelta
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.io.Serializable
 import java.math.BigInteger
@@ -33,8 +36,8 @@ import java.util.Date
 data class SimpleBuyState constructor(
     val id: String? = null,
     val supportedPairsAndLimits: List<BuySellPair>? = null,
-    private val amount: FiatValue? = null,
     val fiatCurrency: String = "USD",
+    override val amount: FiatValue = FiatValue.zero(fiatCurrency),
     val selectedCryptoAsset: AssetInfo? = null,
     val orderState: OrderState = OrderState.UNINITIALISED,
     private val expirationDate: Date? = null,
@@ -55,7 +58,8 @@ data class SimpleBuyState constructor(
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
-    @Transient val errorState: ErrorState? = null,
+    @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
+    @Transient val buyErrorState: ErrorState? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
     @Transient val isLoading: Boolean = false,
     @Transient val everypayAuthOptions: EverypayAuthOptions? = null,
@@ -67,9 +71,8 @@ data class SimpleBuyState constructor(
     @Transient val transferLimits: TransferLimits? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
     @Transient val confirmationActionRequested: Boolean = false,
-    @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
-    @Transient private val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> = emptyList()
-) : MviState {
+    @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null
+) : MviState, TransactionFlowStateInfo {
 
     @delegate:Transient
     val order: SimpleBuyOrder by unsafeLazy {
@@ -82,6 +85,12 @@ data class SimpleBuyState constructor(
     }
 
     @delegate:Transient
+    private val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> by lazy {
+        eligibleAndNextPaymentRecurringBuy.flatMap { it.eligibleMethods }
+            .distinct()
+    }
+
+    @delegate:Transient
     val selectedPaymentMethodDetails: PaymentMethod? by unsafeLazy {
         selectedPaymentMethod?.id?.let { id ->
             paymentOptions.availablePaymentMethods.firstOrNull { it.id == id }
@@ -89,7 +98,7 @@ data class SimpleBuyState constructor(
     }
 
     @delegate:Transient
-    val maxFiatAmount: Money by unsafeLazy {
+    override val maxLimit: Money by unsafeLazy {
         val maxPaymentMethodLimit = selectedPaymentMethodDetails.maxLimit()
         val maxUserLimit = transferLimits?.maxLimit
 
@@ -100,7 +109,7 @@ data class SimpleBuyState constructor(
     }
 
     @delegate:Transient
-    val minFiatAmount: Money by unsafeLazy {
+    override val minLimit: Money by unsafeLazy {
         val minPaymentMethodLimit = selectedPaymentMethodDetails.minLimit()
         val minUserLimit = transferLimits?.minLimit
 
@@ -115,7 +124,7 @@ data class SimpleBuyState constructor(
             exchangeRates.getLastFiatToCryptoRate(
                 sourceFiat = fiatCurrency,
                 targetCrypto = selectedCryptoAsset
-            ).convert(maxFiatAmount)
+            ).convert(maxLimit)
         }
 
     fun minCryptoAmount(exchangeRates: ExchangeRatesDataManager): Money? =
@@ -123,7 +132,7 @@ data class SimpleBuyState constructor(
             exchangeRates.getLastFiatToCryptoRate(
                 sourceFiat = fiatCurrency,
                 targetCrypto = selectedCryptoAsset
-            ).convert(minFiatAmount)
+            ).convert(minLimit)
         }
 
     fun isSelectedPaymentMethodRecurringBuyEligible(): Boolean =
@@ -134,29 +143,34 @@ data class SimpleBuyState constructor(
             else -> false
         }
 
+    fun isSelectedPaymentMethodEligibleForSelectedFrequency(): Boolean =
+        selectedPaymentMethod?.paymentMethodType?.let { paymentMethodType ->
+            val eligible =
+                eligibleAndNextPaymentRecurringBuy.firstOrNull { it.frequency == recurringBuyFrequency } ?: return false
+            eligible.eligibleMethods.contains(paymentMethodType)
+        } ?: false
+
     private fun PaymentMethod?.maxLimit(): Money? = this?.limits?.max
     private fun PaymentMethod?.minLimit(): Money? = this?.limits?.min
 
     @delegate:Transient
     val isAmountValid: Boolean by unsafeLazy {
         order.amount?.let {
-            it <= maxFiatAmount && it >= minFiatAmount
+            it <= maxLimit && it >= minLimit
         } ?: false
-    }
-
-    @delegate:Transient
-    val error: InputError? by unsafeLazy {
-        order.amount?.takeIf { it.isPositive }?.let {
-            when {
-                it > maxFiatAmount -> InputError.ABOVE_MAX
-                it < minFiatAmount -> InputError.BELOW_MIN
-                else -> null
-            }
-        }
     }
 
     fun shouldLaunchExternalFlow(): Boolean =
         authorisePaymentUrl != null && linkedBank != null && id != null
+
+    override val action: AssetAction
+        get() = AssetAction.Buy
+
+    override val sendingAsset: AssetInfo?
+        get() = null
+
+    override val availableBalance: Money?
+        get() = selectedPaymentMethodDetails?.availableBalance
 }
 
 enum class KycState {
@@ -183,10 +197,6 @@ enum class KycState {
 
 enum class FlowScreen {
     ENTER_AMOUNT, KYC, KYC_VERIFICATION, CHECKOUT
-}
-
-enum class InputError {
-    BELOW_MIN, ABOVE_MAX
 }
 
 sealed class ErrorState : Serializable {

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.coincore.Coincore
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.BuySellPairs
@@ -22,7 +23,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
@@ -134,7 +134,7 @@ class BuyIntroFragment : ViewPagerFragment() {
                         startActivity(
                             SimpleBuyActivity.newInstance(
                                 activity as Context,
-                                pair.cryptoCurrency.ticker,
+                                pair.cryptoCurrency,
                                 launchFromNavigationBar = true,
                                 launchKycResume = false
                             )
@@ -183,9 +183,4 @@ data class BuyCryptoItem(
     val price: Money,
     val percentageDelta: Double,
     val click: () -> Unit
-)
-
-data class ExchangePriceWithDelta(
-    val price: Money,
-    val delta: Double
 )

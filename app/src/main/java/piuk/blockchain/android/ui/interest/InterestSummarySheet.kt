@@ -3,16 +3,24 @@ package piuk.blockchain.android.ui.interest
 import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.toUserFiat
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.secondsToDays
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -21,13 +29,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.InterestAccount
-import piuk.blockchain.android.coincore.SingleAccount
-import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.databinding.DialogSheetInterestDetailsBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
@@ -66,6 +67,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
+
     @Suppress("unused")
     private val features: InternalFeatureFlagApi by inject()
 
@@ -76,6 +78,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
             layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             adapter = listAdapter
+            layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.layout_animation_fall_down)
         }
 
         binding.apply {
@@ -91,10 +94,12 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                 .onErrorReturn { emptyList() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy { accounts ->
-                    if (accounts.isNotEmpty()) {
+                    if (accounts.isNotEmpty() && accounts.any { it is InterestAccount }) {
+                        interestDetailsDepositCta.alpha = 0f
                         interestDetailsDepositCta.visible()
+                        interestDetailsDepositCta.animate().alpha(1f).start()
                         interestDetailsDepositCta.text =
-                            getString(R.string.tx_title_deposit, asset.ticker)
+                            getString(R.string.tx_title_deposit, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(InterestAnalytics.InterestSummaryDepositCta)
                             host.goToInterestDeposit(account as InterestAccount)
@@ -133,13 +138,15 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         with(binding) {
             if (composite.balance.isPositive) {
                 interestDetailsWithdrawCta.text =
-                    getString(R.string.tx_title_withdraw, asset.ticker)
+                    getString(R.string.tx_title_withdraw, asset.displayTicker)
                 interestDetailsWithdrawCta.visible()
                 interestDetailsWithdrawCta.setOnClickListener {
-                    analytics.logEvent(InterestAnalytics.InterestWithdrawalClicked(
-                        currency = composite.balance.currencyCode,
-                        origin = LaunchOrigin.SAVINGS_PAGE
-                    ))
+                    analytics.logEvent(
+                        InterestAnalytics.InterestWithdrawalClicked(
+                            currency = composite.balance.currencyCode,
+                            origin = LaunchOrigin.SAVINGS_PAGE
+                        )
+                    )
                     analytics.logEvent(InterestAnalytics.InterestSummaryWithdrawCta)
                     host.goToInterestWithdraw(account as InterestAccount)
                 }
@@ -150,30 +157,30 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         itemList.apply {
             add(
                 InterestSummaryInfoItem(
-                    getString(R.string.interest_summary_total),
+                    getString(R.string.rewards_summary_total),
                     composite.totalInterest.toStringWithSymbol()
                 )
             )
 
             val sdf = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
             val formattedDate = sdf.format(composite.nextInterestPayment)
-            add(InterestSummaryInfoItem(getString(R.string.interest_summary_next_payment), formattedDate))
+            add(InterestSummaryInfoItem(getString(R.string.rewards_summary_next_payment), formattedDate))
 
             add(
                 InterestSummaryInfoItem(
-                    getString(R.string.interest_summary_accrued),
+                    getString(R.string.rewards_summary_accrued),
                     composite.pendingInterest.toStringWithSymbol()
                 )
             )
 
             add(
                 InterestSummaryInfoItem(
-                    getString(R.string.interest_summary_hold_period),
-                    getString(R.string.interest_summary_hold_period_days, composite.lockupDuration)
+                    getString(R.string.rewards_summary_hold_period),
+                    getString(R.string.rewards_summary_hold_period_days, composite.lockupDuration)
                 )
             )
 
-            add(InterestSummaryInfoItem(getString(R.string.interest_summary_rate), "${composite.interestRate}%"))
+            add(InterestSummaryInfoItem(getString(R.string.rewards_summary_rate), "${composite.interestRate}%"))
         }
 
         composite.balance.run {

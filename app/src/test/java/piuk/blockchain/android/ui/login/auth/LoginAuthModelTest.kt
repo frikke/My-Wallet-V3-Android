@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -24,6 +25,7 @@ class LoginAuthModelTest {
     }
 
     private val interactor: LoginAuthInteractor = mock()
+    private val unifiedSignInFlag: FeatureFlag = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -38,7 +40,8 @@ class LoginAuthModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             crashLogger = mock(),
-            interactor = interactor
+            interactor = interactor,
+            unifiedSignInFlag = unifiedSignInFlag
         )
     }
 
@@ -71,7 +74,8 @@ class LoginAuthModelTest {
                 email = EMAIL,
                 recoveryToken = RECOVERY_TOKEN,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.GetSessionId
+                authStatus = AuthStatus.GetSessionId,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -80,7 +84,8 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.AuthorizeApproval
+                authStatus = AuthStatus.AuthorizeApproval,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -89,7 +94,8 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.GetPayload
+                authStatus = AuthStatus.GetPayload,
+                authInfoForAnalytics = testAuthInfo
             )
         )
     }
@@ -124,7 +130,8 @@ class LoginAuthModelTest {
                 email = EMAIL,
                 recoveryToken = RECOVERY_TOKEN,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.GetSessionId
+                authStatus = AuthStatus.GetSessionId,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -133,7 +140,8 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.AuthorizeApproval
+                authStatus = AuthStatus.AuthorizeApproval,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -142,16 +150,8 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.GetPayload
-            ),
-            LoginAuthState(
-                guid = GUID,
-                userId = USER_ID,
-                email = EMAIL,
-                recoveryToken = RECOVERY_TOKEN,
-                sessionId = sessionId,
-                authToken = AUTH_TOKEN,
-                authStatus = AuthStatus.AuthRequired
+                authStatus = AuthStatus.GetPayload,
+                authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
                 guid = GUID,
@@ -161,7 +161,18 @@ class LoginAuthModelTest {
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.AuthRequired,
-                twoFaState = twoFaState
+                authInfoForAnalytics = testAuthInfo
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                sessionId = sessionId,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.AuthRequired,
+                twoFaState = twoFaState,
+                authInfoForAnalytics = testAuthInfo
             )
         )
     }
@@ -178,6 +189,7 @@ class LoginAuthModelTest {
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
             Completable.complete()
         )
+        whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.VerifyPassword(password))
@@ -247,6 +259,7 @@ class LoginAuthModelTest {
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
             Completable.complete()
         )
+        whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.SubmitTwoFactorCode(password, twoFACode))
@@ -379,8 +392,16 @@ class LoginAuthModelTest {
                 nabuAccountInfo = NabuAccountInfo(
                     userId = USER_ID,
                     recoveryToken = RECOVERY_TOKEN
-                )
-            )
+                ),
+                isMobileSetUp = true,
+                mobileDeviceType = 1,
+                lastMnemonicBackup = 0L,
+                hasCloudBackup = false,
+                twoFaType = 1
+            ),
+            isUpgradeable = false,
+            isMergeable = false,
+            userType = "123"
         )
 
         private const val INPUT_JSON = "{\"wallet\":{...}}"

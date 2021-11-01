@@ -4,7 +4,7 @@ import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.android.ui.kyc.splash.UiState
+import piuk.blockchain.android.ui.kyc.navhost.models.UiState
 
 interface VeriffSplashView : View {
 

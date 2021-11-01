@@ -1,5 +1,6 @@
 package com.blockchain.api.assetprice.data
 
+import com.blockchain.api.assetprice.serialiser.AssetPriceDeserializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -25,20 +26,22 @@ data class AvailableSymbolsDto(
     val quoteSymbols: Map<String, PriceSymbolDto>
 )
 
-@Serializable
+@Serializable(with = AssetPriceDeserializer::class)
 internal data class AssetPriceDto(
     @SerialName("timestamp")
     val timestamp: Long,
     @SerialName("price")
-    val price: Double?,
+    val price: Double? = null,
     @SerialName("volume24h")
-    val volume24h: Double?
+    val volume24h: Double? = null
 )
 
 @Serializable
 internal data class PriceRequestPairDto(
     @SerialName("base")
-    val crypto: String,
+    val base: String,
     @SerialName("quote")
-    val fiat: String
+    val quote: String
 )
+
+internal typealias PriceResponseMapDto = Map<String, AssetPriceDto>

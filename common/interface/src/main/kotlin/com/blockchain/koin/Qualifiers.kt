@@ -3,12 +3,11 @@ package com.blockchain.koin
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 
-val interestAccountFeatureFlag = StringQualifier("ff_interest_account")
 val obFeatureFlag = StringQualifier("ff_ob")
 val achDepositWithdrawFeatureFlag = StringQualifier("ff_ach_deposit_withdrawal")
 val sddFeatureFlag = StringQualifier("ff_sdd")
-val mwaFeatureFlag = StringQualifier("ff_modern_wallet_auth")
-val ssoAccountRecoveryFeatureFlag = StringQualifier("ff_account_recovery")
+val unifiedSignInFeatureFlag = StringQualifier("ff_unified_sign_in")
+val dynamicAssetsFeatureFlag = StringQualifier("ff_dynamic_assets")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")
 val kotlinApiRetrofit = StringQualifier("kotlin-api")

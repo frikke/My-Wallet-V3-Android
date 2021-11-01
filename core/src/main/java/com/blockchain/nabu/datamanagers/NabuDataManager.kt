@@ -440,7 +440,7 @@ internal class NabuDataManagerImpl(
         asset: AssetInfo
     ): Single<SendToMercuryAddressResponse> =
         authenticate(offlineTokenResponse) {
-            nabuService.fetchPitSendToAddressForCrypto(it, asset.ticker)
+            nabuService.fetchPitSendToAddressForCrypto(it, asset.networkTicker)
         }
 
     private fun <T> refreshOrReturnError(

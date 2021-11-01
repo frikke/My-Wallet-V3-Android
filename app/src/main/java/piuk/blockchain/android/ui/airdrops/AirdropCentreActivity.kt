@@ -15,6 +15,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.databinding.ActivityAirdropsBinding
 import piuk.blockchain.android.databinding.ItemAirdropHeaderBinding
 import piuk.blockchain.android.databinding.ItemAirdropStatusBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.util.context
@@ -37,9 +38,9 @@ class AirdropCentreActivity : MvpActivity<AirdropCentreView, AirdropCentrePresen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.airdrop_activity_title)
+        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.airdrop_activity_title)
 
-        binding.toolbarGeneral.toolbarGeneral.setNavigationOnClickListener { finish() }
+        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral.setNavigationOnClickListener { finish() }
 
         binding.airdropList.layoutManager = LinearLayoutManager(this)
     }
@@ -96,7 +97,7 @@ class StatusViewHolder(private val binding: ItemAirdropStatusBinding) :
     fun bind(item: ListItem.AirdropItem, assetResources: AssetResources, onClick: (String) -> Unit) {
         with(binding) {
             assetResources.loadAssetIcon(icon, item.airdrop.asset)
-            currency.text = item.airdrop.asset.ticker
+            currency.text = item.airdrop.asset.displayTicker
             val formatted = DateFormat.getDateInstance(DateFormat.SHORT).format(item.airdrop.date)
             binding.root.setOnClickListenerDebounced { onClick(item.airdrop.name) }
             date.text = context.resources.getString(

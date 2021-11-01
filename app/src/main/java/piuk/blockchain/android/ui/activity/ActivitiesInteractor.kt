@@ -8,9 +8,9 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.coincore.ActivitySummaryList
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import timber.log.Timber
 

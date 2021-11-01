@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
+import com.blockchain.coincore.FeeLevel
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsNames
-import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.FEE_SCHEDULE
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.PARAM_ASSET
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.PARAM_ERROR
@@ -36,7 +36,7 @@ sealed class SendAnalyticsEvent(
     ) : SendAnalyticsEvent(
         "send_summary_confirm",
         mapOf(
-            PARAM_ASSET to asset.ticker,
+            PARAM_ASSET to asset.networkTicker,
             PARAM_SOURCE to source,
             PARAM_TARGET to target,
             FEE_SCHEDULE to feeLevel
@@ -47,7 +47,7 @@ sealed class SendAnalyticsEvent(
         SendAnalyticsEvent(
             "send_confirm_success",
             mapOf(
-                PARAM_ASSET to asset.ticker,
+                PARAM_ASSET to asset.networkTicker,
                 PARAM_TARGET to target,
                 PARAM_SOURCE to source
             )
@@ -61,7 +61,7 @@ sealed class SendAnalyticsEvent(
     ) : SendAnalyticsEvent(
         "send_confirm_error",
         mapOf(
-            PARAM_ASSET to asset.ticker,
+            PARAM_ASSET to asset.networkTicker,
             PARAM_TARGET to target,
             PARAM_SOURCE to source,
             PARAM_ERROR to error
@@ -116,7 +116,7 @@ sealed class SendAnalyticsEvent(
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "currency" to currency,
-                "fee_type" to feeType.name,
+                "fee_rate" to feeType.name,
                 "from_account_type" to fromAccountType.name,
                 "to_account_type" to toAccountType.name
             )

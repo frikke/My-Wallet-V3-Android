@@ -85,7 +85,7 @@ class FiatValueTests {
     fun `can format CAD in US`() {
         Locale.setDefault(Locale.US)
         FiatValue.fromMajor("CAD", 4.56.toBigDecimal())
-            .toStringWithSymbol() `should be equal to` "CAD4.56"
+            .toStringWithSymbol() `should be equal to` "CA$4.56"
     }
 
     @Test
@@ -99,7 +99,7 @@ class FiatValueTests {
     fun `can format YEN in US`() {
         Locale.setDefault(Locale.US)
         FiatValue.fromMajor("JPY", 456.toBigDecimal())
-            .toStringWithSymbol() `should be equal to` "JPY456"
+            .toStringWithSymbol() `should be equal to` "¥456"
     }
 
     @Test

@@ -74,8 +74,8 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         if (isFirstTimeBuyer()) {
             eligibleAndNextPaymentRecurringBuys.first { it.eligibleMethods.contains(paymentMethodType) }
                 .let {
-                    binding.recurringBuySelectionGroup.check(intervalToId(it.period))
-                    selectedFrequency = it.period
+                    binding.recurringBuySelectionGroup.check(intervalToId(it.frequency))
+                    selectedFrequency = it.frequency
                 }
         } else {
             binding.recurringBuySelectionGroup.check(intervalToId(currentFrequency))
@@ -105,13 +105,13 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         with(binding) {
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
+            }
+            recurringBuySelectCta.setOnClickListener {
                 analytics.logEvent(
                     BuyFrequencySelected(
                         frequency = selectedFrequency.name
                     )
                 )
-            }
-            recurringBuySelectCta.setOnClickListener {
                 host.onIntervalSelected(selectedFrequency)
                 dismiss()
             }
@@ -125,7 +125,7 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
 
         eligibleAndNextPaymentRecurringBuys.forEach {
             binding.apply {
-                when (it.period) {
+                when (it.frequency) {
                     RecurringBuyFrequency.DAILY -> {
                         if (it.eligibleMethods.contains(paymentMethodType)) {
                             rbDaily.visibleIf { it.eligibleMethods.contains(paymentMethodType) }
@@ -196,7 +196,6 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         }
 
     companion object {
-        const val PREVIOUS_SELECTED_STATE = "recurring_buy_check"
         const val FIAT_AMOUNT_SPENT = "fiat_amount_spent"
         const val CRYPTO_CODE = "crypto_asset_selected"
         fun newInstance(

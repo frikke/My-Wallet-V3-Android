@@ -21,19 +21,19 @@
     <uses-feature android:name="android.hardware.location.gps" />
 
     <application
-        android:label="${APP_NAME}"
-        tools:replace="android:label, android:allowBackup"
         android:name=".BlockchainApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:backupAgent="piuk.blockchain.androidcore.utils.CloudBackupAgent"
         android:icon="@mipmap/ic_launcher"
+        android:label="${APP_NAME}"
+        android:launchMode="singleTask"
         android:resizeableActivity="false"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/AppTheme">
-        <activity
-            android:name=".ui.launcher.LauncherActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask">
+        android:theme="@style/AppTheme"
+        tools:replace="android:label, android:allowBackup">
+        <activity android:name=".ui.launcher.LauncherActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
@@ -77,10 +77,21 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.launcher.loader.LoaderActivity"
+            android:theme="@style/AppTheme.Loader"
+            android:noHistory="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTask" />
+        <activity
             android:name=".ui.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
             android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
+            android:clearTaskOnLaunch="true"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".ui.home.MainActivity"
@@ -99,8 +110,9 @@
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize"
-            android:launchMode="singleTask" >
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -120,7 +132,7 @@
         <activity
             android:name=".ui.start.LandingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.start.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -156,10 +168,6 @@
             android:name=".ui.recover.AccountRecoveryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".ui.shortcuts.receive.ReceiveQrActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/AppTheme.ReceiveQrWindow" />
         <activity
             android:name=".ui.onboarding.OnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
@@ -198,12 +206,15 @@
             android:name=".ui.linkbank.BankAuthActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
-            android:name=".ui.transactionflow.fullscreen.TransactionFlowActivity"
+            android:name=".ui.transactionflow.flow.TransactionFlowActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".ui.home.ZendeskSubjectActivity" />
+        <activity
+            android:name=".ui.locks.LocksDetailsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

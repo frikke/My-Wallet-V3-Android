@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.interest
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -14,23 +20,17 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.SingleAccount
 import piuk.blockchain.android.databinding.FragmentInterestDashboardBinding
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
@@ -53,18 +53,17 @@ class InterestDashboardFragment : Fragment() {
     private val binding: FragmentInterestDashboardBinding
         get() = _binding!!
 
-    private val disposables = CompositeDisposable()
+    private val compositeDisposable = CompositeDisposable()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val interestBalances: InterestBalanceDataManager by scopedInject()
     private val kycTierService: TierService by scopedInject()
     private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
-    private val txLauncher: TransactionLauncher by inject()
 
     private val listAdapter: InterestDashboardAdapter by lazy {
         InterestDashboardAdapter(
             assetResources = assetResources,
-            disposables = disposables,
+            disposables = compositeDisposable,
             custodialWalletManager = custodialWalletManager,
             interestBalance = interestBalances,
             verificationClicked = ::startKyc,
@@ -93,7 +92,7 @@ class InterestDashboardFragment : Fragment() {
     }
 
     private fun loadInterestDetails() {
-        disposables +=
+        compositeDisposable +=
             Singles.zip(
                 kycTierService.tiers(),
                 custodialWalletManager.getInterestEnabledAssets()
@@ -115,10 +114,11 @@ class InterestDashboardFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        disposables.clear()
+        compositeDisposable.clear()
         _binding = null
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun renderInterestDetails(
         tiers: KycTiers,
         enabledAssets: List<AssetInfo>
@@ -130,7 +130,10 @@ class InterestDashboardFragment : Fragment() {
             items.add(InterestIdentityVerificationItem)
         }
 
-        enabledAssets.map {
+        // we load balance per item, so at least ensure some consistency when loading the list
+        enabledAssets.sortedBy {
+            it.name
+        }.map {
             items.add(InterestAssetInfoItem(isKycGold, it))
         }
 
@@ -149,8 +152,8 @@ class InterestDashboardFragment : Fragment() {
             interestDashboardProgress.gone()
 
             interestError.setDetails(
-                title = R.string.interest_error_title,
-                description = R.string.interest_error_desc,
+                title = R.string.rewards_error_title,
+                description = R.string.rewards_error_desc,
                 contactSupportEnabled = true
             ) {
                 loadInterestDetails()
@@ -165,17 +168,17 @@ class InterestDashboardFragment : Fragment() {
     }
 
     private fun interestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
-        disposables += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
+        compositeDisposable += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
             val interestAccount = it.accounts.first()
             if (hasBalance) {
                 host.showInterestSummarySheet(interestAccount, cryptoCurrency)
             } else {
-                txLauncher.startFlow(
-                    activity = requireActivity(),
-                    target = it.accounts.first(),
-                    action = AssetAction.InterestDeposit,
-                    fragmentManager = parentFragmentManager,
-                    flowHost = activity as DialogFlow.FlowHost
+                startActivity(
+                    TransactionFlowActivity.newInstance(
+                        context = requireContext(),
+                        target = it.accounts.first(),
+                        action = AssetAction.InterestDeposit
+                    )
                 )
             }
         }

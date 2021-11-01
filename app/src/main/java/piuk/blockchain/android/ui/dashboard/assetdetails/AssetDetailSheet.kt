@@ -29,11 +29,11 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.CryptoAsset
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAsset
 import piuk.blockchain.android.databinding.DialogSheetDashboardAssetDetailsBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
@@ -108,9 +108,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             onGotAssetDetails(assetDisplayMap)
         }
 
-        newState.recurringBuys?.let {
-            renderRecurringBuys(it)
-        }
+        renderRecurringBuys(newState.recurringBuys, newState.assetDisplayMap ?: emptyMap())
 
         configureTimespanSelectionUI(binding, newState.timeSpan)
 
@@ -148,7 +146,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             configureTabs(chartPricePeriods)
 
             currentPriceTitle.text =
-                getString(R.string.dashboard_price_for_asset, asset.ticker)
+                getString(R.string.dashboard_price_for_asset, asset.displayTicker)
 
             assetList.apply {
                 adapter = adapterDelegate
@@ -177,11 +175,11 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
         clearList()
 
-        recurringBuy.asset?.let {
+        recurringBuy.asset.let {
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
                     LaunchOrigin.CURRENCY_PAGE,
-                    it.ticker
+                    it.networkTicker
                 )
             )
         }
@@ -198,7 +196,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         adapterDelegate.notifyDataSetChanged()
     }
 
-    private fun renderRecurringBuys(recurringBuys: Map<String, RecurringBuy>) {
+    private fun renderRecurringBuys(recurringBuys: Map<String, RecurringBuy>, assetDisplayMap: AssetDisplayMap) {
         if (recurringBuys.keys.isNotEmpty()) {
             val recurringBuysItems = recurringBuys.values.map {
                 AssetDetailsItem.RecurringBuyInfo(
@@ -206,7 +204,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 )
             }
             listItems.addAll(recurringBuysItems)
-        } else {
+        } else if (assetDisplayMap.containsKey(AssetFilter.Custodial)) {
             listItems.add(AssetDetailsItem.RecurringBuyBanner)
         }
 
@@ -491,7 +489,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         fun newInstance(asset: AssetInfo): AssetDetailSheet {
             return AssetDetailSheet().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_CRYPTO_ASSET, asset.ticker)
+                    putString(ARG_CRYPTO_ASSET, asset.networkTicker)
                 }
             }
         }
@@ -500,8 +498,8 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             Currency.getInstance(currencyCode).getSymbol(locale)
 
         private fun numOfDecimalsForChart(asset: AssetInfo): Int =
-            when (asset.ticker) {
-                CryptoCurrency.XLM.ticker -> 4
+            when (asset.networkTicker) {
+                CryptoCurrency.XLM.networkTicker -> 4
                 else -> 2
             }
     }

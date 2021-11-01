@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers.repositories.interest
 
-import com.blockchain.rx.TimedCacheRequest
+import com.blockchain.caching.TimedCacheRequest
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
@@ -27,7 +27,7 @@ class InterestRepository(
     fun getLimitForAsset(asset: AssetInfo): Single<InterestLimits> =
         limitsCache.getCachedSingle().map { limitsList ->
             limitsList.list.find { it.cryptoCurrency == asset }
-                ?: throw NoSuchElementException("Unable to get limits for ${asset.ticker}")
+                ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
         }
 
     fun getAvailabilityForAsset(ccy: AssetInfo): Single<Boolean> =

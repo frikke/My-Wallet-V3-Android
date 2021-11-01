@@ -16,9 +16,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -30,7 +27,6 @@ import com.blockchain.notifications.analytics.RequestAnalyticsEvents
 import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.TransactionsAnalyticsEvents
 import com.blockchain.notifications.analytics.activityShown
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
@@ -43,16 +39,19 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
-import org.koin.android.ext.android.inject
-import piuk.blockchain.android.Database
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.CryptoTarget
-import piuk.blockchain.android.coincore.NullCryptoAccount
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.core.Database
+import com.blockchain.koin.dynamicAssetsFeatureFlag
+import com.blockchain.remoteconfig.FeatureFlag
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityMainBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.BuySellClicked
@@ -75,7 +74,6 @@ import piuk.blockchain.android.ui.home.analytics.SideNavEvent
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity.Companion.LINKED_BANK_CURRENCY
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity.Companion.LINKED_BANK_ID_KEY
@@ -84,7 +82,6 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
-import piuk.blockchain.android.ui.pairingcode.PairingBottomSheet
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -93,13 +90,11 @@ import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transfer.TransferFragment
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.ui.transfer.receive.ReceiveSheet
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.ui.upsell.UpsellHost
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
@@ -110,13 +105,15 @@ import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
+import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 import java.net.URLDecoder
 
 class MainActivity : MvpActivity<MainView, MainPresenter>(),
     HomeNavigator,
     MainView,
-    DialogFlow.FlowHost,
     SlidingModalBottomDialog.Host,
     UpsellHost,
     AuthNewLoginSheet.Host,
@@ -130,16 +127,13 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override val presenter: MainPresenter by scopedInject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
     private val userIdentity: NabuUserIdentity by scopedInject()
-    private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
-    private val txLauncher: TransactionLauncher by inject()
     private val database: Database by inject()
-
-    @Suppress("unused")
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
-
     private val compositeDisposable = CompositeDisposable()
 
-    private var isMWAEnabled: Boolean = false
+    private val dynamicAssetsFF: FeatureFlag by inject(dynamicAssetsFeatureFlag)
+    private val useDynamicAssets: Boolean by unsafeLazy {
+        dynamicAssetsFF.enabled.blockingGet()
+    }
 
     override val view: MainView = this
 
@@ -152,8 +146,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     val refreshAnnouncements: Observable<Unit>
         get() = _refreshAnnouncements
 
-    private val toolbar: Toolbar
-        get() = binding.toolbarGeneral.toolbarGeneral
+    private val toolbar: Toolbar by lazy {
+        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
+    }
 
     private var activityResultAction: () -> Unit = {}
 
@@ -251,6 +246,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 selectedItemId = currentItem
             }
         }
+        binding.navigationView.getHeaderView(0)?.setOnApplyWindowInsetsListener { view, insets ->
+            view.setPadding(0, insets.systemWindowInsetTop, 0, 0)
+            insets
+        }
 
         if (intent.hasExtra(SHOW_SWAP) && intent.getBooleanExtra(SHOW_SWAP, false)) {
             startSwapFlow()
@@ -269,14 +268,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             }
         }
 
-        compositeDisposable.add(mwaFF.enabled.observeOn(Schedulers.io()).subscribe(
-            { result ->
-                isMWAEnabled = result
-            },
-            {
-                isMWAEnabled = false
-            }
-        ))
         compositeDisposable += userIdentity.checkForUserWalletLinkErrors()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
@@ -425,20 +416,14 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 Intent(this, AccountActivity::class.java),
                 ACCOUNT_EDIT
             )
-            R.id.login_web_wallet -> {
-                if (isMWAEnabled) {
-                    QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
-                } else {
-                    showBottomSheet(PairingBottomSheet())
-                }
-            }
+            R.id.login_web_wallet -> QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
             R.id.nav_settings -> startActivityForResult(
                 Intent(this, SettingsActivity::class.java),
                 SETTINGS_EDIT
             )
             R.id.nav_support -> onSupportClicked()
             R.id.nav_logout -> showLogoutDialog()
-            R.id.nav_interest -> launchInterestDashboard()
+            R.id.nav_interest -> launchInterestDashboard(LaunchOrigin.NAVIGATION)
             R.id.nav_debug_menu -> startActivity(Intent(this, FeatureFlagsHandlingActivity::class.java))
         }
         binding.drawerLayout.closeDrawers()
@@ -461,6 +446,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             .setPositiveButton(R.string.btn_logout) { _, _ ->
                 analytics.logEvent(AnalyticsEvents.Logout)
                 presenter.unPair()
+                // We probably don't need to clear these, since the cached values remain valid, TODO Review this
                 database.historicRateQueries.clear()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -473,8 +459,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         compositeDisposable += Singles.zip(
             userIdentity.isEligibleFor(Feature.SimpleBuy),
             userIdentity.getBasicProfileInformation()
-        )
-            .subscribeOn(Schedulers.io())
+        ).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { (isSimpleBuyEligible, userInformation) ->
@@ -554,13 +539,13 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = { sourceAccount ->
-                        txLauncher.startFlow(
-                            activity = this,
-                            fragmentManager = currentFragment.childFragmentManager,
-                            action = AssetAction.Send,
-                            flowHost = this@MainActivity,
-                            sourceAccount = sourceAccount,
-                            target = targetAddress
+                        startActivity(
+                            TransactionFlowActivity.newInstance(
+                                context = this,
+                                sourceAccount = sourceAccount,
+                                target = targetAddress,
+                                action = AssetAction.Send
+                            )
                         )
                     },
                     onComplete = {
@@ -576,7 +561,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     private fun showNoAccountFromScanToast(asset: AssetInfo) {
-        val msg = getString(R.string.scan_no_available_account, asset.ticker)
+        val msg = getString(R.string.scan_no_available_account, asset.displayTicker)
         toast(msg)
     }
 
@@ -650,6 +635,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun logout() {
         analytics.logEvent(AnalyticsEvents.Logout)
         presenter.unPair()
+        // We probably don't need to clear these, since the cached values remain valid, TODO Review this
         database.historicRateQueries.clear()
     }
 
@@ -660,7 +646,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         setCurrentTabItem(R.id.nav_transfer)
         toolbar.title = getString(R.string.transfer)
 
-        val transferFragment = TransferFragment.newInstance(viewToShow)
+        val transferFragment = TransferFragment.newInstance(useDynamicAssets, viewToShow)
         showFragment(transferFragment, reload)
     }
 
@@ -675,13 +661,13 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             val swapFragment = SwapFragment.newInstance()
             showFragment(swapFragment, reload)
         } else if (sourceAccount != null) {
-            txLauncher.startFlow(
-                activity = this,
-                sourceAccount = sourceAccount,
-                target = destinationAccount ?: NullCryptoAccount(),
-                action = AssetAction.Swap,
-                fragmentManager = supportFragmentManager,
-                flowHost = this@MainActivity
+            startActivity(
+                TransactionFlowActivity.newInstance(
+                    context = this,
+                    sourceAccount = sourceAccount,
+                    target = destinationAccount ?: NullCryptoAccount(),
+                    action = AssetAction.Swap
+                )
             )
         }
     }
@@ -699,20 +685,20 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         action: AssetAction? = null,
         currency: String? = null
     ): Fragment =
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+        if (useDynamicAssets) {
             DashboardFragment.newInstance(action, currency)
         } else {
-            PortfolioFragment.newInstance(action, currency)
+            PortfolioFragment.newInstance(false, action, currency)
         }
 
     private fun startBuyAndSellFragment(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        ticker: String? = null,
+        asset: AssetInfo? = null,
         reload: Boolean = true
     ) {
         setCurrentTabItem(R.id.nav_buy_and_sell)
         toolbar.title = getString(R.string.buy_and_sell)
-        val buySellFragment = BuySellFragment.newInstance(ticker, viewType)
+        val buySellFragment = BuySellFragment.newInstance(asset, viewType)
         showFragment(buySellFragment, reload)
     }
 
@@ -777,7 +763,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 state.fiatCurrency, getString(R.string.yapily_payment_to_fiat_wallet_title, state.fiatCurrency),
                 getString(
                     R.string.yapily_payment_to_fiat_wallet_subtitle,
-                    state.selectedCryptoAsset?.ticker ?: getString(
+                    state.selectedCryptoAsset?.displayTicker ?: getString(
                         R.string.yapily_payment_to_fiat_wallet_default
                     ),
                     state.fiatCurrency
@@ -851,10 +837,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         )
     }
 
-    override fun onFlowFinished() {
-        Timber.d("On finished")
-    }
-
     override fun onSheetClosed() {
         Timber.d("On closed")
     }
@@ -900,6 +882,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun launchVerifyEmail() {
         Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_APP_EMAIL)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
         }
     }
@@ -920,11 +903,11 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         launchBuySell()
     }
 
-    override fun launchInterestDashboard() {
+    override fun launchInterestDashboard(origin: LaunchOrigin) {
         startActivityForResult(
             InterestDashboardActivity.newInstance(this), INTEREST_DASHBOARD
         )
-        analytics.logEvent(InterestAnalytics.InterestClicked)
+        analytics.logEvent(InterestAnalytics.InterestClicked(origin = LaunchOrigin.DASHBOARD_PROMO))
     }
 
     override fun resumeSimpleBuyKyc() {
@@ -936,12 +919,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         )
     }
 
-    override fun launchSimpleBuy(ticker: String) {
+    override fun launchSimpleBuy(asset: AssetInfo) {
         startActivity(
             SimpleBuyActivity.newInstance(
                 context = this,
                 launchFromNavigationBar = true,
-                ticker = ticker
+                asset = asset
             )
         )
     }
@@ -962,7 +945,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         action: AssetAction,
         account: BlockchainAccount?
     ) = when (action) {
-        AssetAction.Receive -> replaceBottomSheet(ReceiveSheet.newInstance(account as CryptoAccount))
+        AssetAction.Receive -> replaceBottomSheet(ReceiveDetailSheet.newInstance(account as CryptoAccount))
         AssetAction.Swap -> launchSwap(sourceAccount = account as CryptoAccount)
         AssetAction.ViewActivity -> startActivitiesFragment(account)
         else -> {
@@ -985,8 +968,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         startActivity(SimpleBuyActivity.newInstance(this, launchFromApprovalDeepLink = true))
     }
 
-    override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, ticker: String?) {
-        startBuyAndSellFragment(viewType, ticker)
+    override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
+        startBuyAndSellFragment(viewType, asset)
     }
 
     override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) =
@@ -995,11 +978,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun launchPendingVerificationScreen(campaignType: CampaignType) {
         KycStatusActivity.start(this, campaignType)
     }
-    // endregion
 
     companion object {
-
-        val TAG: String = MainActivity::class.java.simpleName
         const val START_BUY_SELL_INTRO_KEY = "START_BUY_SELL_INTRO_KEY"
         const val SHOW_SWAP = "SHOW_SWAP"
         const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"

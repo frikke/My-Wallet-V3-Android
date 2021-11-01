@@ -56,14 +56,14 @@ class UnlockHigherLimitsBottomSheet : SlidingModalBottomDialog<UnlockHigherLimit
                             icon = R.drawable.ic_bank_details
                         ),
                         VerifyIdentityIconedBenefitItem(
-                            title = getString(R.string.earn_interest),
-                            subtitle = getString(R.string.earn_interest_description),
+                            title = getString(R.string.earn_rewards),
+                            subtitle = getString(R.string.earn_rewards_description),
                             icon = R.drawable.ic_interest
                         )
                     ),
                     title = getString(R.string.unlock_gold_level_trading),
                     description = if (limit.isNotEmpty()) getString(
-                        R.string.verify_your_identity_limits, limit
+                        R.string.verify_your_identity_limits_1, limit
                     ) else getString(R.string.empty),
                     icon = R.drawable.ic_gold_square,
                     primaryButton = ButtonOptions(

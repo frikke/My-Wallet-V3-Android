@@ -4,13 +4,15 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.UnknownValue
 import info.blockchain.balance.ValueTypeMismatchException
+import java.lang.IllegalStateException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Currency
 
 sealed class ExchangeRate {
-    abstract val rate: BigDecimal
+    abstract val rate: BigDecimal?
 
     abstract fun convert(value: Money, round: Boolean = true): Money
     abstract fun price(): Money
@@ -19,132 +21,189 @@ sealed class ExchangeRate {
     class CryptoToCrypto(
         val from: AssetInfo,
         val to: AssetInfo,
-        override val rate: BigDecimal
+        override val rate: BigDecimal?
     ) : ExchangeRate() {
-        fun applyRate(cryptoValue: CryptoValue): CryptoValue {
+        internal fun applyRate(cryptoValue: CryptoValue): Money {
             validateCurrency(from, cryptoValue.currency)
-            return CryptoValue.fromMajor(
-                to,
-                rate.multiply(cryptoValue.toBigDecimal())
-            )
+            return rate?.let {
+                CryptoValue.fromMajor(
+                    to,
+                    it.multiply(cryptoValue.toBigDecimal())
+                )
+            } ?: UnknownValue.unknownCryptoValue(to)
         }
 
         override fun convert(value: Money, round: Boolean): Money =
             applyRate(value as CryptoValue)
 
         override fun price(): Money =
-            CryptoValue.fromMajor(to, rate)
+            rate?.let { CryptoValue.fromMajor(to, it) } ?: UnknownValue.unknownCryptoValue(to)
 
         override fun inverse(roundingMode: RoundingMode, scale: Int) =
-            CryptoToCrypto(
+            rate?.let {
+                CryptoToCrypto(
+                    to,
+                    from,
+                    BigDecimal.ONE.divide(
+                        rate,
+                        if (scale == -1) from.precisionDp else scale,
+                        roundingMode
+                    ).stripTrailingZeros()
+                )
+            } ?: CryptoToCrypto(
                 to,
                 from,
-                BigDecimal.ONE.divide(
-                    rate,
-                    if (scale == -1) from.precisionDp else scale,
-                    roundingMode
-                ).stripTrailingZeros()
+                rate
             )
     }
 
     data class CryptoToFiat(
         val from: AssetInfo,
         val to: String,
-        override val rate: BigDecimal
+        override val rate: BigDecimal?
     ) : ExchangeRate() {
-        fun applyRate(cryptoValue: CryptoValue, round: Boolean = false): FiatValue {
+        internal fun applyRate(cryptoValue: CryptoValue, round: Boolean = false): Money {
             validateCurrency(from, cryptoValue.currency)
-            return FiatValue.fromMajor(
-                currencyCode = to,
-                major = rate.multiply(cryptoValue.toBigDecimal()),
-                round = round
-            )
+            return rate?.let {
+                FiatValue.fromMajor(
+                    currencyCode = to,
+                    major = it.multiply(cryptoValue.toBigDecimal()),
+                    round = round
+                )
+            } ?: UnknownValue.unknownFiatValue(to)
         }
 
         override fun convert(value: Money, round: Boolean): Money =
             applyRate(value as CryptoValue, round)
 
         override fun price(): Money =
-            FiatValue.fromMajor(to, rate)
+            rate?.let { FiatValue.fromMajor(to, it) } ?: UnknownValue.unknownFiatValue(to)
 
         override fun inverse(roundingMode: RoundingMode, scale: Int) =
-            FiatToCrypto(
+            rate?.let {
+                FiatToCrypto(
+                    to,
+                    from,
+                    BigDecimal.ONE.divide(
+                        rate,
+                        if (scale == -1) from.precisionDp else scale,
+                        roundingMode
+                    ).stripTrailingZeros()
+                )
+            } ?: FiatToCrypto(
                 to,
                 from,
-                BigDecimal.ONE.divide(
-                    rate,
-                    if (scale == -1) from.precisionDp else scale,
-                    roundingMode
-                ).stripTrailingZeros()
+                rate
             )
     }
 
     class FiatToCrypto(
         val from: String,
         val to: AssetInfo,
-        override val rate: BigDecimal
+        override val rate: BigDecimal?
     ) : ExchangeRate() {
-        fun applyRate(fiatValue: FiatValue): CryptoValue {
+        internal fun applyRate(fiatValue: FiatValue): Money {
             validateCurrency(from, fiatValue.currencyCode)
-            return CryptoValue.fromMajor(
-                to,
-                rate.multiply(fiatValue.toBigDecimal())
-            )
+            return rate?.let {
+                CryptoValue.fromMajor(
+                    to,
+                    rate.multiply(fiatValue.toBigDecimal())
+                )
+            } ?: UnknownValue.unknownCryptoValue(to)
         }
 
         override fun convert(value: Money, round: Boolean): Money =
             applyRate(value as FiatValue)
 
         override fun price(): Money =
-            CryptoValue.fromMajor(to, rate)
+            rate?.let { CryptoValue.fromMajor(to, it) } ?: UnknownValue.unknownCryptoValue(to)
 
         override fun inverse(roundingMode: RoundingMode, scale: Int) =
-            CryptoToFiat(
+            rate?.let {
+                CryptoToFiat(
+                    to,
+                    from,
+                    BigDecimal.ONE.divide(
+                        rate,
+                        if (scale == -1) {
+                            Currency.getInstance(from).defaultFractionDigits
+                        } else {
+                            scale
+                        },
+                        roundingMode
+                    ).stripTrailingZeros()
+                )
+            } ?: CryptoToFiat(
                 to,
                 from,
-                BigDecimal.ONE.divide(
-                    rate,
-                    if (scale == -1) Currency.getInstance(from).defaultFractionDigits else scale,
-                    roundingMode
-                ).stripTrailingZeros()
+                rate
             )
     }
 
     class FiatToFiat(
         val from: String,
         val to: String,
-        override val rate: BigDecimal
+        override val rate: BigDecimal?
     ) : ExchangeRate() {
-        fun applyRate(fiatValue: FiatValue): FiatValue {
+        private fun applyRate(fiatValue: FiatValue): Money {
             validateCurrency(from, fiatValue.currencyCode)
-            return FiatValue.fromMajor(
-                to,
-                rate.multiply(fiatValue.toBigDecimal())
-            )
+            return rate?.let {
+                FiatValue.fromMajor(
+                    to,
+                    it.multiply(fiatValue.toBigDecimal())
+                )
+            } ?: UnknownValue.unknownFiatValue(to)
         }
 
         override fun convert(value: Money, round: Boolean): Money =
             applyRate(value as FiatValue)
 
         override fun price(): Money =
-            FiatValue.fromMajor(to, rate)
+            rate?.let { FiatValue.fromMajor(to, it) } ?: UnknownValue.unknownFiatValue(to)
 
         override fun inverse(roundingMode: RoundingMode, scale: Int) =
-            FiatToFiat(
+            rate?.let {
+                FiatToFiat(
+                    to,
+                    from,
+                    BigDecimal.ONE.divide(
+                        rate,
+                        if (scale == -1) {
+                            Currency.getInstance(from).defaultFractionDigits
+                        } else {
+                            scale
+                        },
+                        roundingMode
+                    ).stripTrailingZeros()
+                )
+            } ?: FiatToFiat(
                 to,
                 from,
-                BigDecimal.ONE.divide(
-                    rate,
-                    if (scale == -1) Currency.getInstance(from).defaultFractionDigits else scale,
-                    roundingMode
-                ).stripTrailingZeros()
+                rate
             )
+    }
+
+    object InvalidRate : ExchangeRate() {
+        override val rate: BigDecimal
+            get() = BigDecimal.ZERO
+
+        override fun convert(value: Money, round: Boolean): Money {
+            throw IllegalStateException("Convert called on Invalid Exchange Rate")
+        }
+
+        override fun price(): Money {
+            throw IllegalStateException("Convert called on Invalid Exchange Rate")
+        }
+
+        override fun inverse(roundingMode: RoundingMode, scale: Int): ExchangeRate {
+            return this
+        }
     }
 
     companion object {
         private fun validateCurrency(expected: AssetInfo, got: AssetInfo) {
             if (expected != got)
-                throw ValueTypeMismatchException("exchange", expected.ticker, got.ticker)
+                throw ValueTypeMismatchException("exchange", expected.networkTicker, got.networkTicker)
         }
 
         private fun validateCurrency(expected: String, got: String) {
@@ -178,6 +237,7 @@ fun ExchangeRate.hasSameSourceAndTarget(other: ExchangeRate): Boolean =
         is ExchangeRate.FiatToCrypto -> (other as? ExchangeRate.FiatToCrypto)?.from == from && other.to == to
         is ExchangeRate.FiatToFiat -> (other as? ExchangeRate.FiatToFiat)?.from == from && other.to == to
         is ExchangeRate.CryptoToCrypto -> (other as? ExchangeRate.CryptoToCrypto)?.from == from && other.to == to
+        is ExchangeRate.InvalidRate -> throw IllegalStateException("Use of Invalid Rate")
     }
 
 fun ExchangeRate.hasOppositeSourceAndTarget(other: ExchangeRate): Boolean =
@@ -189,4 +249,5 @@ fun ExchangeRate.canConvert(value: Money): Boolean =
         is ExchangeRate.CryptoToFiat -> (value is CryptoValue && value.currency == this.from)
         is ExchangeRate.FiatToFiat -> (value is FiatValue && value.currencyCode == this.from)
         is ExchangeRate.CryptoToCrypto -> (value is CryptoValue && value.currency == this.from)
+        is ExchangeRate.InvalidRate -> false
     }

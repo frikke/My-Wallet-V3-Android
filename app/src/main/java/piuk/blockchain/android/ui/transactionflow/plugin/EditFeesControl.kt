@@ -21,9 +21,9 @@ import piuk.blockchain.android.urllinks.URL_TX_FEES
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.FeeState
-import piuk.blockchain.android.coincore.FeeLevel
-import piuk.blockchain.android.coincore.FeeSelection
+import com.blockchain.coincore.FeeState
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
 import piuk.blockchain.android.databinding.ViewEditTxFeesCtrlBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent

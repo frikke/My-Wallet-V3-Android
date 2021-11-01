@@ -21,10 +21,10 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAccount
-import com.blockchain.data.activity.historicRate.HistoricRateFetcher
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
@@ -153,7 +153,7 @@ class ActivitiesFragment :
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
                     LaunchOrigin.TRANSACTION_LIST,
-                    assetInfo.ticker
+                    assetInfo.networkTicker
                 )
             )
         }

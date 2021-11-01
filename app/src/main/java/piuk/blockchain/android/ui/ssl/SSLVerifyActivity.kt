@@ -12,7 +12,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), SSLVerifyView {
 
-    private val presenter: SSLVerifyPresenter by inject()
+    private val sslSSLVerifyPresenter: SSLVerifyPresenter by inject()
 
     private val allowRetry: Boolean by unsafeLazy {
         intent.getBooleanExtra(EXTRA_ALLOW_RETRY, false)
@@ -23,16 +23,12 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_launcher)
+        setContentView(R.layout.activity_loader)
 
         onViewReady()
     }
 
-    override fun startLogoutTimer() {
-        // No-op
-    }
-
-    override fun createPresenter() = presenter
+    override fun createPresenter() = sslSSLVerifyPresenter
 
     override fun getView() = this
 
@@ -45,7 +41,7 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
         if (allowRetry) {
             builder.setPositiveButton(
                 R.string.retry
-            ) { _, _ -> presenter.validateSSL() }
+            ) { _, _ -> presenter?.validateSSL() }
         }
 
         builder.setNegativeButton(

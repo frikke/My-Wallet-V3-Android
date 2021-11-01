@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetAction
+import com.blockchain.coincore.AssetAction
 import piuk.blockchain.android.databinding.FragmentDashboardBinding
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -106,9 +106,9 @@ class DashboardPagerAdapter(
 
     private val dashboardFragment: Fragment by unsafeLazy {
         if (flowToLaunch != null && flowCurrency != null) {
-            PortfolioFragment.newInstance(flowToLaunch, flowCurrency)
+            PortfolioFragment.newInstance(true, flowToLaunch, flowCurrency)
         } else {
-            PortfolioFragment.newInstance()
+            PortfolioFragment.newInstance(true)
         }
     }
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CarouselIndicatorView">
+        <attr name="numberOfIndicators" format="integer" />
+        <attr name="indicatorColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="PillButton">
+        <attr name="android:text" />
+        <attr name="android:enabled" />
+        <attr name="pillButtonType" format="enum">
+            <enum name="primary" value="0" />
+            <enum name="secondary" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="SplitButton">
+        <attr name="leftButtonText" format="string"/>
+        <attr name="rightButtonText" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="LoadingMessageView">
+        <attr name="android:text" />
+    </declare-styleable>
+</resources>

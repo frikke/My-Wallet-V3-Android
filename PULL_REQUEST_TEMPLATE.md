@@ -14,6 +14,10 @@
 
 *If the change is UI related, paste a screenshot here and include an assessment of design accuracy if applicable.*
 
+|Before|After|
+| -- | -- |
+| <img src="..." height="500" /> | <img src="..." height="500" /> |
+
 ## Merge Checklist
 
 - [ ] The PR uses a title supported by [.changelogrc](https://github.com/blockchain/My-Wallet-V3-iOS/blob/dev/.changelogrc#L6...L69).

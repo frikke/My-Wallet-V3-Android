@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="PillButton"
+            android:textAppearance="@style/TextAppearance.Blockchain.Body2"
+            tools:ignore="HardcodedText" />
+
+        <com.blockchain.componentlib.PillButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Primary Pill Button"
+            app:pillButtonType="primary" />
+
+        <com.blockchain.componentlib.PillButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Secondary Pill Button"
+            app:pillButtonType="secondary" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="SplitButton"
+            android:textAppearance="@style/TextAppearance.Blockchain.Body2"
+            tools:ignore="HardcodedText" />
+
+        <com.blockchain.componentlib.SplitButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:leftButtonText="Left Button"
+            app:rightButtonText="Right Button" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Carousel View"
+            android:textAppearance="@style/TextAppearance.Blockchain.Body2"
+            tools:ignore="HardcodedText" />
+
+        <com.blockchain.componentlib.carousel.CarouselView
+            android:id="@+id/carousel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp" />
+
+        <com.blockchain.componentlib.carousel.CarouselIndicatorView
+            android:id="@+id/carouselIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:indicatorColor="@color/paletteBaseBlack" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="DummyPriceListView"
+            android:textAppearance="@style/TextAppearance.Blockchain.Body2"
+            tools:ignore="HardcodedText" />
+
+        <com.blockchain.componentlib.price.DummyPriceListView
+            android:id="@+id/priceList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp" />
+
+    </LinearLayout>
+</ScrollView>

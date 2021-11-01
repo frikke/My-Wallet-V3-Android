@@ -1,14 +1,15 @@
 package info.blockchain.wallet.api
 
+import com.blockchain.api.ApiException
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.blockchain.api.ApiException
 import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
@@ -24,10 +25,11 @@ class WalletApi(
 ) {
     fun updateFirebaseNotificationToken(
         token: String,
-        guid: String?,
-        sharedKey: String?
+        guid: String,
+        sharedKey: String
     ): Observable<ResponseBody> {
-        return explorerInstance.postToWallet("update-firebase",
+        return explorerInstance.postToWallet(
+            "update-firebase",
             guid,
             sharedKey,
             token,
@@ -35,6 +37,19 @@ class WalletApi(
             getApiCode()
         )
     }
+
+    fun removeFirebaseNotificationToken(
+        guid: String,
+        sharedKey: String
+    ): Completable =
+        explorerInstance.postToWallet(
+            method = "revoke-firebase",
+            guid = guid,
+            sharedKey = sharedKey,
+            payload = "",
+            length = 0,
+            apiCode = getApiCode()
+        ).ignoreElements()
 
     fun sendSecureChannel(
         message: String
@@ -49,26 +64,28 @@ class WalletApi(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    @JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.NONE,
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         setterVisibility = JsonAutoDetect.Visibility.NONE,
         creatorVisibility = JsonAutoDetect.Visibility.NONE,
-        isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+    )
     class IPResponse {
         @JsonProperty("ip")
         var ip: String = ""
     }
 
     fun getExternalIP(): Single<String> {
-        return explorerInstance.externalIP.map { it.ip }
+        return explorerInstance.getExternalIp().map { it.ip }
     }
 
-    fun setAccess(key: String?, value: String, pin: String?): Observable<Response<Status>> {
+    fun setAccess(key: String, value: String, pin: String): Observable<Response<Status>> {
         val hex = Hex.toHexString(value.toByteArray())
         return explorerInstance.pinStore(key, pin, hex, "put", getApiCode())
     }
 
-    fun validateAccess(key: String?, pin: String?): Observable<Response<Status>> {
+    fun validateAccess(key: String, pin: String): Observable<Response<Status>> {
         return explorerInstance.pinStore(key, pin, null, "get", getApiCode())
     }
 
@@ -133,7 +150,7 @@ class WalletApi(
         )
     }
 
-    fun fetchWalletData(guid: String?, sharedKey: String?): Call<ResponseBody> {
+    fun fetchWalletData(guid: String, sharedKey: String): Call<ResponseBody> {
         return explorerInstance.fetchWalletData(
             "wallet.aes.json",
             guid,
@@ -158,19 +175,22 @@ class WalletApi(
         )
     }
 
-    fun getSessionId(guid: String?): Observable<Response<ResponseBody>> {
+    fun getSessionId(guid: String): Observable<Response<ResponseBody>> {
         return explorerInstance.getSessionId(guid)
     }
 
-    fun fetchEncryptedPayload(guid: String?, sessionId: String): Observable<Response<ResponseBody>> {
-        return explorerInstance.fetchEncryptedPayload(
+    fun fetchEncryptedPayload(
+        guid: String,
+        sessionId: String,
+        resend2FASms: Boolean
+    ): Observable<Response<ResponseBody>> =
+        explorerInstance.fetchEncryptedPayload(
             guid,
             "SID=$sessionId",
             "json",
-            true,
+            resend2FASms,
             getApiCode()
         )
-    }
 
     fun fetchPairingEncryptionPasswordCall(guid: String?): Call<ResponseBody> {
         return explorerInstance.fetchPairingEncryptionPasswordCall(
@@ -188,7 +208,7 @@ class WalletApi(
         )
     }
 
-    fun fetchSettings(method: String?, guid: String?, sharedKey: String?): Observable<Settings> {
+    fun fetchSettings(method: String, guid: String, sharedKey: String): Observable<Settings> {
         return explorerInstance.fetchSettings(
             method,
             guid,
@@ -199,9 +219,9 @@ class WalletApi(
     }
 
     fun updateSettings(
-        method: String?,
-        guid: String?,
-        sharedKey: String?,
+        method: String,
+        guid: String,
+        sharedKey: String,
         payload: String,
         context: String?
     ): Observable<ResponseBody> {
@@ -220,7 +240,7 @@ class WalletApi(
     val walletOptions: Observable<WalletOptions>
         get() = explorerInstance.getWalletOptions(getApiCode())
 
-    fun getSignedJsonToken(guid: String?, sharedKey: String?, partner: String?): Single<String> {
+    fun getSignedJsonToken(guid: String, sharedKey: String, partner: String?): Single<String> {
         return explorerInstance.getSignedJsonToken(
             guid,
             sharedKey,
@@ -249,23 +269,12 @@ class WalletApi(
             true
         )
 
-    fun sendEmailForVerification(sessionId: String, email: String, captcha: String): Single<ResponseBody> {
-        return explorerInstance.sendEmailForVerification(
-            sessionId.withBearerPrefix(),
-            "send-guid-reminder",
-            getApiCode(),
-            email,
-            captcha,
-            captchaSiteKey
-        )
-    }
-
     fun updateMobileSetup(
         guid: String,
         sharedKey: String,
         isMobileSetup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> {
+    ): Completable {
         return explorerInstance.updateMobileSetup(
             "update-mobile-setup",
             guid,

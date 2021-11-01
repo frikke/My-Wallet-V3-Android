@@ -1,23 +1,23 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
+import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.FeeLevel
-import piuk.blockchain.android.coincore.InvoiceTarget
-import piuk.blockchain.android.coincore.NullAddress
-import piuk.blockchain.android.coincore.NullCryptoAccount
-import piuk.blockchain.android.coincore.PendingTx
-import piuk.blockchain.android.coincore.TransactionTarget
-import piuk.blockchain.android.coincore.TxConfirmationValue
-import piuk.blockchain.android.coincore.TxValidationFailure
-import piuk.blockchain.android.coincore.ValidationState
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.InvoiceTarget
+import com.blockchain.coincore.NullAddress
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxValidationFailure
+import com.blockchain.coincore.ValidationState
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.customviews.CurrencyType
-import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import java.util.Stack
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
@@ -533,7 +533,6 @@ private fun ValidationState.mapToTransactionError() =
         ValidationState.HAS_TX_IN_FLIGHT -> TransactionErrorState.TRANSACTION_IN_FLIGHT
         ValidationState.OPTION_INVALID,
         ValidationState.MEMO_INVALID -> TransactionErrorState.TX_OPTION_INVALID
-        ValidationState.OVER_MAX_LIMIT -> TransactionErrorState.ABOVE_MAX_LIMIT
         ValidationState.OVER_SILVER_TIER_LIMIT -> TransactionErrorState.OVER_SILVER_TIER_LIMIT
         ValidationState.OVER_GOLD_TIER_LIMIT -> TransactionErrorState.OVER_GOLD_TIER_LIMIT
         ValidationState.INVOICE_EXPIRED, // We shouldn't see this here

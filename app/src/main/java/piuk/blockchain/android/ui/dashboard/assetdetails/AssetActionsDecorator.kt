@@ -6,8 +6,8 @@ import android.view.View
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.TxSourceState
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.TxSourceState
 import piuk.blockchain.android.databinding.StatusLineInfoBinding
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 

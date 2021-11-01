@@ -4,7 +4,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.core.BuildConfig
+import com.blockchain.core.BuildConfig
 
 import retrofit2.HttpException
 import timber.log.Timber

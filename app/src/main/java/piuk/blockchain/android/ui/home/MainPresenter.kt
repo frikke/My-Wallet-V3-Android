@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.home
 import android.content.Intent
 import android.net.Uri
 import androidx.annotation.StringRes
+import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.extensions.exhaustive
 import com.blockchain.extensions.valueOf
 import com.blockchain.logging.CrashLogger
@@ -30,41 +31,42 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.campaign.SunriverCardType
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoTarget
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoTarget
+import com.blockchain.network.PollResult
+import com.blockchain.network.PollService
+import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.notifications.analytics.SecondPasswordEvent
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
-import piuk.blockchain.android.networking.PollResult
-import piuk.blockchain.android.networking.PollService
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.sunriver.CampaignLinkState
-import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.secondPasswordEvent
 import com.blockchain.utils.capitalizeFirstChar
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.android.util.AppUtil
+import thepit.PitLinking
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -99,7 +101,8 @@ interface MainView : MvpView, HomeNavigator {
 
 class MainPresenter internal constructor(
     private val prefs: PersistentPrefs,
-    private val accessState: AccessState,
+    private val assetCatalogue: AssetCatalogue,
+    private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
     private val qrProcessor: QrScanResultProcessor,
     private val kycStatusHelper: KycStatusHelper,
@@ -122,7 +125,7 @@ class MainPresenter internal constructor(
     override val enableLogoutTimer: Boolean = true
 
     override fun onViewAttached() {
-        if (!accessState.isLoggedIn) {
+        if (!prefs.isAppUnlocked) {
             // This should never happen, but handle the scenario anyway by starting the launcher
             // activity, which handles all login/auth/corruption scenarios itself
             view?.kickToLauncherPage()
@@ -506,11 +509,11 @@ class MainPresenter internal constructor(
 
     private fun logEvents() {
         analytics.logEventOnce(AnalyticsEvents.WalletSignupFirstLogIn)
-        Logging.logEvent(secondPasswordEvent(payloadDataManager.isDoubleEncrypted))
+        analytics.logEvent(SecondPasswordEvent(payloadDataManager.isDoubleEncrypted))
     }
 
     internal fun clearLoginState() {
-        accessState.logout()
+        appUtil.logout()
     }
 
     fun onThePitMenuClicked() {
@@ -577,17 +580,34 @@ class MainPresenter internal constructor(
             BlockchainLinkState.TwoFa -> view?.launchSetup2Fa()
             BlockchainLinkState.VerifyEmail -> view?.launchVerifyEmail()
             BlockchainLinkState.SetupFingerprint -> view?.launchSetupFingerprintLogin()
-            BlockchainLinkState.Interest -> view?.launchInterestDashboard()
+            BlockchainLinkState.Interest -> view?.launchInterestDashboard(LaunchOrigin.DEEPLINK)
             BlockchainLinkState.Receive -> view?.launchReceive()
             BlockchainLinkState.Send -> view?.launchSend()
-            is BlockchainLinkState.Sell -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL, link.ticker)
+            is BlockchainLinkState.Sell -> view?.launchBuySell(
+                BuySellFragment.BuySellViewType.TYPE_SELL,
+                assetFromTicker(link.ticker)
+            )
             is BlockchainLinkState.Activities -> view?.launchAssetAction(AssetAction.ViewActivity)
-            is BlockchainLinkState.Buy -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, link.ticker)
-            is BlockchainLinkState.SimpleBuy -> view?.launchSimpleBuy(link.ticker)
+            is BlockchainLinkState.Buy -> view?.launchBuySell(
+                BuySellFragment.BuySellViewType.TYPE_BUY,
+                assetFromTicker(link.ticker)
+            )
+            is BlockchainLinkState.SimpleBuy -> view?.launchSimpleBuy(
+                assetFromTicker(
+                    link.ticker
+                ) ?: throw IllegalStateException("Unknown asset ticker ${link.ticker}")
+            )
             is BlockchainLinkState.KycCampaign ->
-                view?.launchKyc(valueOf<CampaignType>(link.campaignType.capitalizeFirstChar()) ?: CampaignType.None)
+                view?.launchKyc(valueOf<CampaignType>(
+                    link.campaignType.capitalizeFirstChar()
+                ) ?: CampaignType.None)
         }
     }
+
+    private fun assetFromTicker(ticker: String?): AssetInfo? =
+        ticker?.let {
+            assetCatalogue.fromNetworkTicker(ticker)
+        }
 
     private fun NabuApiException.getWalletIdHint(): String =
         getErrorDescription().split(NabuApiException.USER_WALLET_LINK_ERROR_PREFIX).last()

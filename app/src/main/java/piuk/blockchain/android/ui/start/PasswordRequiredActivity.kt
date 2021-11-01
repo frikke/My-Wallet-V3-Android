@@ -97,12 +97,12 @@ class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequi
     override fun updateWaitingForAuthDialog(secondsRemaining: Int) =
         updateProgressDialog(getString(R.string.check_email_to_auth_login) + " " + secondsRemaining)
 
-    override fun showForgetWalletWarning(onForgetConfirmed: () -> Unit) {
+    override fun showForgetWalletWarning() {
         showAlert(
             AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.warning)
                 .setMessage(R.string.forget_wallet_warning)
-                .setPositiveButton(R.string.forget_wallet) { _, _ -> onForgetConfirmed() }
+                .setPositiveButton(R.string.forget_wallet) { _, _ -> presenter.onForgetWalletConfirmed() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }
                 .create()
         )
@@ -120,23 +120,26 @@ class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequi
         val dialog = getTwoFactorDialog(this, authType,
             walletPrefs,
             positiveAction = {
-                presenter.submitTwoFactorCode(responseObject,
+                presenter.submitTwoFactorCode(
+                    responseObject,
                     sessionId,
                     guid,
                     password,
                     it
                 )
             }, resendAction = { limitReached ->
-            if (!limitReached) {
-                presenter.requestNew2FaCode(password, guid)
-            } else {
-                ToastCustom.makeText(this, getString(R.string.two_factor_retries_exceeded),
-                    Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR)
-                if (!isTwoFATimerRunning) {
-                    twoFATimer.start()
+                if (!limitReached) {
+                    presenter.requestNew2FaCode(password, guid)
+                } else {
+                    ToastCustom.makeText(
+                        this, getString(R.string.two_factor_retries_exceeded),
+                        Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
+                    )
+                    if (!isTwoFATimerRunning) {
+                        twoFATimer.start()
+                    }
                 }
-            }
-        })
+            })
 
         showAlert(dialog)
     }

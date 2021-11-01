@@ -1,6 +1,6 @@
 package com.blockchain.nabu.service.wallet
 
-import com.blockchain.nabu.api.wallet.RETAIL_JWT_TOKEN
+import com.blockchain.nabu.api.wallet.RETAIL_JWT_TOKEN_PATH
 import com.blockchain.nabu.api.wallet.RetailWallet
 import com.blockchain.nabu.models.responses.wallet.RetailJwtResponse
 import com.blockchain.nabu.service.RetailWalletTokenService
@@ -36,13 +36,13 @@ class RetailWalletTokenServiceTest {
         val expectedResponse = RetailJwtResponse(true, "token", null)
 
         whenever(
-            retailWallet.requestJwt(RETAIL_JWT_TOKEN, guid, sharedKey, apiKey)
+            retailWallet.requestJwt(RETAIL_JWT_TOKEN_PATH, guid, sharedKey, apiKey)
         ).thenReturn(
             Single.just(expectedResponse)
         )
 
         subject.requestJwt(
-            path = RETAIL_JWT_TOKEN,
+            path = RETAIL_JWT_TOKEN_PATH,
             guid = guid,
             sharedKey = sharedKey
         ).test().waitForCompletionWithoutErrors().assertValue {

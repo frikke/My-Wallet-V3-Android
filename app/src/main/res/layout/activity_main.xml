@@ -26,7 +26,6 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <include
-                    android:id="@+id/toolbar_general"
                     layout="@layout/toolbar_general"
                     android:fitsSystemWindows="true" />
 

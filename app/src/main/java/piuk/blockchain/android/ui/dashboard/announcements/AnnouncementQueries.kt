@@ -1,14 +1,15 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.coincore.Coincore
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
+import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.UserCampaignState
 import com.blockchain.nabu.service.TierService
 import com.blockchain.remoteconfig.RemoteConfig
@@ -18,10 +19,18 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import piuk.blockchain.android.campaign.blockstackCampaignName
-import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+
+@Serializable
+data class RenamedAsset(
+    val networkTicker: String,
+    val oldTicker: String
+)
 
 class AnnouncementQueries(
     private val nabuToken: NabuToken,
@@ -129,9 +138,24 @@ class AnnouncementQueries(
                 ?: Maybe.empty()
         }
 
+    fun getAssetFromCatalogueByTicker(ticker: String): AssetInfo? = assetCatalogue.fromNetworkTicker(ticker)
+
+    fun getCountryCode(): Single<String> = userIdentity.getUserCountry().switchIfEmpty(Single.just(""))
+
+    fun getRenamedAssetFromCatalogue(): Maybe<Pair<String, AssetInfo>> =
+        remoteConfig.getRawJson(RENAME_ASSET_TICKER).flatMapMaybe { json ->
+            val renamedAsset = Json.decodeFromString<RenamedAsset>(json)
+            assetCatalogue.fromNetworkTicker(renamedAsset.networkTicker)?.let { asset ->
+                Maybe.just(Pair(renamedAsset.oldTicker, asset))
+            }
+                ?: Maybe.empty()
+        }
+
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val NEW_ASSET_TICKER = "new_asset_announcement_ticker"
+
+        private const val RENAME_ASSET_TICKER = "rename_asset_announcement_ticker"
     }
 }
 

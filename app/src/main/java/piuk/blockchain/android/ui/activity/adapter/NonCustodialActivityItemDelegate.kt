@@ -8,20 +8,19 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.toFormattedDate
+import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.data.activity.historicRate.HistoricRateFetcher
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
-import piuk.blockchain.android.util.gone
 import java.util.Date
 
 class NonCustodialActivityItemDelegate<in T>(
@@ -77,7 +76,6 @@ private class NonCustodialActivityItemViewHolder(
 
             setTextColours(tx.isConfirmed)
 
-            assetBalanceFiat.gone()
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
 
@@ -144,15 +142,15 @@ private fun TextView.setTxLabel(
         R.string.tx_title_fee
     } else {
         when (transactionType) {
-            TransactionSummary.TransactionType.TRANSFERRED -> R.string.tx_title_transfer
-            TransactionSummary.TransactionType.RECEIVED -> R.string.tx_title_receive
-            TransactionSummary.TransactionType.SENT -> R.string.tx_title_send
-            TransactionSummary.TransactionType.BUY -> R.string.tx_title_buy
-            TransactionSummary.TransactionType.SELL -> R.string.tx_title_sell
-            TransactionSummary.TransactionType.SWAP -> R.string.tx_title_swap
+            TransactionSummary.TransactionType.TRANSFERRED -> R.string.tx_title_transferred
+            TransactionSummary.TransactionType.RECEIVED -> R.string.tx_title_received
+            TransactionSummary.TransactionType.SENT -> R.string.tx_title_sent
+            TransactionSummary.TransactionType.BUY -> R.string.tx_title_bought
+            TransactionSummary.TransactionType.SELL -> R.string.tx_title_sold
+            TransactionSummary.TransactionType.SWAP -> R.string.tx_title_swapped
             else -> R.string.empty
         }
     }
 
-    text = context.resources.getString(resId, asset.ticker)
+    text = context.resources.getString(resId, asset.displayTicker)
 }

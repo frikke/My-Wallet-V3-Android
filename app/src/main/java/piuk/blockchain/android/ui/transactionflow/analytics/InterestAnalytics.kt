@@ -16,7 +16,9 @@ sealed class InterestAnalytics(
     object InterestDashboardAction : InterestAnalytics("earn_interest_clicked")
     object InterestSummaryDepositCta : InterestAnalytics("earn_deposit_clicked")
     object InterestSummaryWithdrawCta : InterestAnalytics("earn_withdraw_clicked")
-    object InterestClicked : InterestAnalytics(AnalyticsNames.INTEREST_CLICKED.eventName)
+
+    class InterestClicked(override val origin: LaunchOrigin) :
+        InterestAnalytics(AnalyticsNames.INTEREST_CLICKED.eventName)
 
     class InterestDepositAmountEntered(
         currency: String,
@@ -80,5 +82,6 @@ sealed class InterestAnalytics(
         private const val CURRENCY = "currency"
         private const val SOURCE_ACCOUNT_TYPE = "from_account_type"
         private const val INPUT_AMOUNT = "input_amount"
+        private const val INTEREST_RATE = "interest_rate"
     }
 }

@@ -188,7 +188,6 @@ data class DepositRequestBody(
 
 data class WithdrawLocksCheckRequestBody(
     private val paymentMethod: String,
-    private val product: String,
     private val currency: String
 )
 
@@ -212,6 +211,7 @@ data class TransactionResponse(
     val insertedAt: String,
     val type: String,
     val state: String,
+    val beneficiaryId: String? = null,
     val extraAttributes: TransactionAttributesResponse,
     val txHash: String?
 ) {

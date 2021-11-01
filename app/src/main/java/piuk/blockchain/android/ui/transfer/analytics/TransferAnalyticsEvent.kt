@@ -3,8 +3,9 @@ package piuk.blockchain.android.ui.transfer.analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAccount
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.analytics.toCategory
 import java.io.Serializable
@@ -22,7 +23,7 @@ sealed class TransferAnalyticsEvent(
     ) : TransferAnalyticsEvent(
         "send_wallet_select",
         mapOf(
-            PARAM_ASSET to wallet.asset.ticker,
+            PARAM_ASSET to wallet.asset.networkTicker,
             PARAM_WALLET to (wallet as BlockchainAccount).toCategory()
         )
     )
@@ -48,27 +49,27 @@ sealed class TransferAnalyticsEvent(
 
     class ReceiveAccountSelected(
         private val accountType: TxFlowAnalyticsAccountType,
-        private val currency: String
+        private val asset: AssetInfo
     ) : AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.RECEIVE_ACCOUNT_SELECTED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "account_type" to accountType.name,
-                "currency" to currency
+                "currency" to asset.networkTicker
             )
     }
 
     class ReceiveDetailsCopied(
         private val accountType: TxFlowAnalyticsAccountType,
-        private val currency: String
+        private val asset: AssetInfo
     ) : AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.RECEIVE_ADDRESS_COPIED.eventName
         override val params: Map<String, Serializable>
             get() = mapOf(
                 "account_type" to accountType.name,
-                "currency" to currency
+                "currency" to asset.networkTicker
             )
     }
 

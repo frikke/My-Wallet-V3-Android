@@ -1,19 +1,23 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class SimpleBuyFlowNavigator(
     private val simpleBuyModel: SimpleBuyModel,
     private val tierService: TierService,
     private val currencyPrefs: CurrencyPrefs,
-    private val custodialWalletManager: CustodialWalletManager
+    private val custodialWalletManager: CustodialWalletManager,
+    private val exchangeRates: ExchangeRatesDataManager
 ) {
 
     private fun stateCheck(
@@ -76,7 +80,18 @@ class SimpleBuyFlowNavigator(
                     BuyNavigation.CurrencySelection(it)
                 }
             } else {
-                stateCheck(startedFromKycResume, startedFromDashboard, startedFromApprovalDeepLink, preselectedCrypto)
+                // TODO use cryptoToUserFiatRate inside FiatCryptoInputView to ensure the price is cached
+                val ensurePriceIsFetched = preselectedCrypto?.let {
+                    exchangeRates.cryptoToUserFiatRate(preselectedCrypto).firstOrError().ignoreElement()
+                } ?: Completable.complete()
+                ensurePriceIsFetched.thenSingle {
+                    stateCheck(
+                        startedFromKycResume,
+                        startedFromDashboard,
+                        startedFromApprovalDeepLink,
+                        preselectedCrypto
+                    )
+                }
             }
         }
     }

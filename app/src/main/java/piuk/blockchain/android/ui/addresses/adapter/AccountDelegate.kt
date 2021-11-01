@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.ItemAccountsRowBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
@@ -30,7 +30,7 @@ class AccountDelegate(
         holder: RecyclerView.ViewHolder
     ) {
         val accountViewHolder = holder as AccountViewHolder
-        accountViewHolder.bind(items[position] as AccountListItem.Account, listener)
+        accountViewHolder.bind(items[position] as AccountListItem.Account, listener, position)
     }
 
     override fun isForViewType(items: List<AccountListItem>, position: Int) =
@@ -42,7 +42,8 @@ class AccountDelegate(
 
         fun bind(
             item: AccountListItem.Account,
-            listener: AccountAdapter.Listener
+            listener: AccountAdapter.Listener,
+            position: Int
         ) {
             with(binding) {
                 if (item.account.isArchived) {

@@ -8,9 +8,9 @@ import com.nhaarman.mockitokotlin2.any
 import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
-import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 
 class KycUpgradePromptManagerTest {
 

@@ -11,6 +11,7 @@ import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import java.lang.reflect.Type
 
 interface SimpleBuyPrefsSerializer {
@@ -42,7 +43,7 @@ internal class SimpleBuyPrefsSerializerImpl(
                         shouldShowUnlockHigherFunds = false,
                         paymentPending = false,
                         confirmationActionRequested = false,
-                        recurringBuyEligiblePaymentMethods = emptyList()
+                        errorState = TransactionErrorState.NONE
                     )
             } catch (t: Throwable) {
                 prefs.clearBuyState()
@@ -65,7 +66,7 @@ private class AssetTickerSerializer : JsonSerializer<AssetInfo> {
         src: AssetInfo,
         typeOfSrc: Type,
         context: JsonSerializationContext
-    ): JsonElement = JsonPrimitive(src.ticker)
+    ): JsonElement = JsonPrimitive(src.networkTicker)
 }
 
 private class AssetTickerDeserializer(

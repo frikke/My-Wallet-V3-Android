@@ -5,21 +5,20 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
+import com.blockchain.coincore.AssetAction
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
-import org.koin.android.ext.android.inject
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.databinding.ActivityKycStatusBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
@@ -29,17 +28,16 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
-    KycStatusView,
-    DialogFlow.FlowHost {
+    KycStatusView {
 
     private val binding: ActivityKycStatusBinding by lazy {
         ActivityKycStatusBinding.inflate(layoutInflater)
     }
 
-    private val txLauncher: TransactionLauncher by inject()
-    private val presenter: KycStatusPresenter by scopedInject()
+    private val statusPresenter: KycStatusPresenter by scopedInject()
     private val campaignType by unsafeLazy { intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType }
     private var progressDialog: MaterialProgressDialog? = null
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,18 +59,22 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
         onViewReady()
     }
 
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
+
     override fun startExchange() {
         startSwapFlow()
     }
 
-    private fun startSwapFlow() {
-        txLauncher.startFlow(
-            activity = this,
-            action = AssetAction.Swap,
-            fragmentManager = supportFragmentManager,
-            flowHost = this@KycStatusActivity
+    private fun startSwapFlow() =
+        startActivity(
+            TransactionFlowActivity.newInstance(
+                context = this,
+                action = AssetAction.Swap
+            )
         )
-    }
 
     override fun renderUi(kycState: KycTierState) {
         when (kycState) {
@@ -128,7 +130,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
     private fun displayNotificationButton() {
         binding.buttonKycStatusNext.apply {
             setText(R.string.kyc_status_button_notify_me)
-            setOnClickListener { presenter.onClickNotifyUser() }
+            setOnClickListener { presenter?.onClickNotifyUser() }
             visible()
         }
         binding.textViewKycStatusNoThanks.apply {
@@ -155,7 +157,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
             textViewVerificationMessage.setText(R.string.kyc_status_message_verified)
             buttonKycStatusNext.apply {
                 setText(R.string.kyc_status_button_get_started)
-                setOnClickListener { presenter.onClickContinue() }
+                setOnClickListener { presenter?.onClickContinue() }
                 ConstraintSet().apply {
                     clone(constraintLayoutKycStatus)
                     setMargin(
@@ -186,15 +188,10 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
 
     override fun showProgressDialog() {
         progressDialog = MaterialProgressDialog(this).apply {
-            setOnCancelListener { presenter.onProgressCancelled() }
+            setOnCancelListener { presenter?.onProgressCancelled() }
             setMessage(R.string.kyc_country_selection_please_wait)
             show()
         }
-    }
-
-    override fun dismissProgressDialog() {
-        progressDialog?.apply { dismiss() }
-        progressDialog = null
     }
 
     override fun finishPage() {
@@ -204,7 +201,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
 
     override fun onSupportNavigateUp(): Boolean = consume { finish() }
 
-    override fun createPresenter(): KycStatusPresenter = presenter
+    override fun createPresenter(): KycStatusPresenter = statusPresenter
 
     override fun getView(): KycStatusView = this
 
@@ -219,8 +216,5 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
                 .apply { putExtra(EXTRA_CAMPAIGN_TYPE, campaignType) }
                 .run { context.startActivity(this) }
         }
-    }
-
-    override fun onFlowFinished() {
     }
 }

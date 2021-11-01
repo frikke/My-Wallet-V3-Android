@@ -1,5 +1,6 @@
 package com.blockchain.notifications.analytics
 
+import com.blockchain.nabu.Tier
 import java.io.Serializable
 
 sealed class KYCAnalyticsEvents(override val event: String, override val params: Map<String, String> = mapOf()) :
@@ -22,11 +23,22 @@ sealed class KYCAnalyticsEvents(override val event: String, override val params:
             get() = emptyMap()
     }
 
-    class UpgradeKycVeriffClicked(override val origin: LaunchOrigin) : AnalyticsEvent {
+    class UpgradeKycVeriffClicked(override val origin: LaunchOrigin, private val tier: Tier) : AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.UPGRADE_KYC_VERIFICATION_CLICKED.eventName
         override val params: Map<String, Serializable>
-            get() = emptyMap()
+            get() = mapOf(
+                "tier" to tier.ordinal
+            )
+    }
+
+    class KycResumedEvent(private val entryPoint: String) : AnalyticsEvent {
+        override val event: String
+            get() = "User Resumed KYC flow"
+        override val params: Map<String, Serializable>
+            get() = mapOf(
+                "User resumed KYC" to entryPoint
+            )
     }
 
     class EmailVeriffSkipped(override val origin: LaunchOrigin) : AnalyticsEvent {

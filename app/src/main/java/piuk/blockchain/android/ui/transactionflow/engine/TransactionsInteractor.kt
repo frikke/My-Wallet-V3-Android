@@ -1,5 +1,16 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
+import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.coincore.AddressFactory
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionProcessor
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.TxValidationFailure
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
@@ -17,29 +28,18 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
-import piuk.blockchain.android.coincore.AddressFactory
-import piuk.blockchain.android.coincore.AddressParseError
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.FeeLevel
-import piuk.blockchain.android.coincore.FiatAccount
-import piuk.blockchain.android.coincore.InterestAccount
-import piuk.blockchain.android.coincore.NonCustodialAccount
-import piuk.blockchain.android.coincore.PendingTx
-import piuk.blockchain.android.coincore.ReceiveAddress
-import piuk.blockchain.android.coincore.SingleAccount
-import piuk.blockchain.android.coincore.SingleAccountList
-import piuk.blockchain.android.coincore.TransactionProcessor
-import piuk.blockchain.android.coincore.TransactionTarget
-import piuk.blockchain.android.coincore.TxConfirmationValue
-import piuk.blockchain.android.coincore.TxValidationFailure
-import piuk.blockchain.android.coincore.ValidationState
-import piuk.blockchain.android.coincore.fiat.LinkedBanksFactory
+import com.blockchain.coincore.AddressParseError
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NonCustodialAccount
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.androidcore.utils.extensions.mapList
@@ -185,7 +185,7 @@ class TransactionInteractor(
                 require(targetAccount is CryptoAccount)
                 coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter()).map {
                     it.filter { acc ->
-                        acc is CryptoAccount && acc.asset == targetAccount.asset
+                        acc is CryptoAccount && acc.asset == targetAccount.asset && acc != targetAccount
                     }
                 }
             }

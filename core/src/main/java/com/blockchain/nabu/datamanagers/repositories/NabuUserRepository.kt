@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers.repositories
 
-import com.blockchain.rx.TimedCacheRequest
+import com.blockchain.caching.TimedCacheRequest
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Single

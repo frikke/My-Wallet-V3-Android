@@ -24,6 +24,7 @@ enum class AuthStatus {
     Submit2FA,
     UpdateMobileSetup,
     Complete,
+    AskForAccountUnification,
     PairingFailed,
     InvalidPassword,
     Invalid2FACode,
@@ -32,6 +33,15 @@ enum class AuthStatus {
     InitialError,
     ShowManualPairing,
     AccountLocked
+}
+
+enum class BlockchainAccountType {
+    UNKNOWN,
+    WALLET,
+    EXCHANGE,
+    WALLET_EXCHANGE_LINKED,
+    WALLET_EXCHANGE_NOT_LINKED,
+    WALLET_EXCHANGE_BOTH
 }
 
 data class LoginAuthState(
@@ -48,7 +58,10 @@ data class LoginAuthState(
     val code: String = "",
     val isMobileSetup: Boolean = false,
     val deviceType: Int = 0,
-    val twoFaState: TwoFaCodeState? = null
+    val twoFaState: TwoFaCodeState? = null,
+    val authInfoForAnalytics: LoginAuthInfo? = null,
+    val shouldRequestAccountUnification: Boolean = false,
+    val accountType: BlockchainAccountType = BlockchainAccountType.UNKNOWN
 ) : MviState {
     companion object {
         const val TWO_FA_COUNTDOWN = 60000L

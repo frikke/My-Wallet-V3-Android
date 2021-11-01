@@ -4,7 +4,7 @@ import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.TradingBalance
 import com.blockchain.api.services.TradingBalanceList
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.rx.TimedCacheRequest
+import com.blockchain.caching.TimedCacheRequest
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

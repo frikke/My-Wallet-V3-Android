@@ -166,6 +166,7 @@ platform :android do
        ci_test_balance
        ci_test_common
        ci_test_blockchainApi
+       ci_test_coincore
        ci_test_core
        ci_test_notifications
        ci_test_sunriver
@@ -202,6 +203,15 @@ platform :android do
       )
       gradle(
         task: "common:interface:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI coincore"
+    lane :ci_test_coincore do
+      gradle(
+        task: "coincore:test",
         flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
       )
 

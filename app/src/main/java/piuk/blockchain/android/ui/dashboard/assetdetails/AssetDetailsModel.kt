@@ -1,19 +1,22 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
-import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AvailableActions
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AvailableActions
-import piuk.blockchain.android.coincore.BlockchainAccount
-import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -26,7 +29,7 @@ data class AssetDetailsState(
     val actions: AvailableActions = emptySet(),
     val assetDetailsCurrentStep: AssetDetailsStep = AssetDetailsStep.ZERO,
     val assetDisplayMap: AssetDisplayMap? = null,
-    val recurringBuys: Map<String, RecurringBuy>? = null,
+    val recurringBuys: Map<String, RecurringBuy> = emptyMap(),
     val timeSpan: HistoricalTimeSpan = HistoricalTimeSpan.DAY,
     val chartLoading: Boolean = false,
     val chartData: HistoricalRateList = emptyList(),
@@ -55,6 +58,7 @@ class AssetDetailsModel(
     initialState: AssetDetailsState,
     mainScheduler: Scheduler,
     private val interactor: AssetDetailsInteractor,
+    private val assetActionsComparator: Comparator<AssetAction>,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<AssetDetailsState, AssetDetailsIntent>(
@@ -176,7 +180,7 @@ class AssetDetailsModel(
                 })
 
     private fun loadRecurringBuysForAsset(asset: CryptoAsset): Disposable =
-        interactor.loadRecurringBuysForAsset(asset.asset.ticker)
+        interactor.loadRecurringBuysForAsset(asset.asset)
             .subscribeBy(
                 onSuccess = { list ->
                     process(RecurringBuyDataLoaded(list.map { it.id to it }.toMap()))
@@ -200,9 +204,25 @@ class AssetDetailsModel(
             )
 
     private fun accountActions(account: BlockchainAccount): Disposable =
-        account.actions.subscribeBy(
-            onSuccess = {
-                process(AccountActionsLoaded(account, it))
+        Singles.zip(
+            account.actions,
+            account.isEnabled
+        ).subscribeBy(
+            onSuccess = { (actions, enabled) ->
+                val sortedActions = when (account.selectFirstAccount()) {
+                    is InterestAccount -> {
+                        when {
+                            !enabled && account.isFunded -> {
+                                actions - AssetAction.InterestDeposit + AssetAction.InterestWithdraw
+                            }
+                            else -> {
+                                actions + AssetAction.InterestDeposit
+                            }
+                        }
+                    }
+                    else -> actions - AssetAction.InterestDeposit
+                }.sortedWith(assetActionsComparator)
+                process(AccountActionsLoaded(account, sortedActions.toSet()))
             },
             onError = { Timber.e("***> Error Loading account actions: $it") }
         )

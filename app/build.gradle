@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'com.novoda.build-properties'
 apply from: '../quality/ktlint.gradle'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.squareup.sqldelight'
 
 buildProperties {
@@ -128,6 +128,7 @@ android {
             buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
             buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
             buildConfigBoolean "INTERNAL", false
+            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
@@ -165,6 +166,7 @@ android {
             buildConfigString "DEEPLINK_HOST", buildProperties.secrets['prodDynamicLink']
             buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
             buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
+            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
             applicationId "com.blockchain.wallet.internal"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -204,6 +206,7 @@ android {
             buildConfigString "DEEPLINK_HOST", buildProperties.secrets['stagingDynamicLink']
             buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
             buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
+            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['stagingLoginPortal']
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
@@ -292,15 +295,17 @@ kapt {
 
 dependencies {
     implementation project(':notifications')
-    implementation project(':sunriver')
+    implementation project(':sunriver') // Just for pit linking TODO: Fix that
+    implementation project(':coincore')
     implementation project(':core')
-    implementation project(':notifications')
     implementation project(':veriff')
     implementation project(':blockchainApi')
+    implementation project(':componentlib')
     implementation project(':biometrics')
     implementation project(':wallet')
     implementation project(':common:interface')
     implementation project(':common:network')
+    implementation project(':common-view')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

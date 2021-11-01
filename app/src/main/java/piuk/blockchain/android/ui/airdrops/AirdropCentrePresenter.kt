@@ -111,7 +111,7 @@ class AirdropCentrePresenter(
         // When we get full-dynamic assets _and_ it's supported, we can take this out TODO
         return when {
             asset != null -> asset
-            ticker.compareTo(AIRDROP_STX.ticker, ignoreCase = true) == 0 -> AIRDROP_STX
+            ticker.compareTo(AIRDROP_STX.networkTicker, ignoreCase = true) == 0 -> AIRDROP_STX
             else -> throw IllegalStateException("Unknown crypto currency: $ticker")
         }
     }
@@ -155,7 +155,8 @@ class AirdropCentrePresenter(
     // STUB Asset; only used in the airdrop screen
     @Suppress("ClassName")
     private object AIRDROP_STX : CryptoCurrency(
-        ticker = "STX",
+        displayTicker = "STX",
+        networkTicker = "STX",
         name = "Stacks",
         categories = emptySet(),
         precisionDp = 6,

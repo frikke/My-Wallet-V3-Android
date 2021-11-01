@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.View
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.coincore.BlockchainAccount
+import com.blockchain.coincore.BlockchainAccount
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 
 class SellCellDecorator(private val account: BlockchainAccount) : CellDecorator {
