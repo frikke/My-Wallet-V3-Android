@@ -12,7 +12,9 @@ import org.json.JSONObject
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import retrofit2.HttpException
 import timber.log.Timber
+import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLPeerUnverifiedException
 
 class LoginModel(
@@ -46,10 +48,61 @@ class LoginModel(
                 interactor.cancelPolling()
                 null
             }
+            is LoginIntents.CancelPolling -> {
+                interactor.cancelPolling()
+                null
+            }
+            is LoginIntents.ApproveLoginRequest -> handleApprovalStatusUpdate(
+                isLoginApproved = true,
+                sessionId = previousState.payload?.accountWallet?.sessionId.orEmpty(),
+                base64Payload = previousState.payloadBase64String
+            )
+            is LoginIntents.DenyLoginRequest -> handleApprovalStatusUpdate(
+                isLoginApproved = false,
+                sessionId = previousState.payload?.accountWallet?.sessionId.orEmpty(),
+                base64Payload = previousState.payloadBase64String
+            )
             is LoginIntents.StartAuthPolling -> handlePayloadPollingResponse(previousState)
+            is LoginIntents.CheckShouldNavigateToOtherScreen -> {
+                if (interactor.shouldContinueToPinEntry()) {
+                    process(LoginIntents.StartPinEntry)
+                }
+                null
+            }
             else -> null
         }
     }
+
+    private fun handleApprovalStatusUpdate(
+        isLoginApproved: Boolean,
+        sessionId: String,
+        base64Payload: String
+    ): Disposable =
+        interactor.updateApprovalStatus(
+            isLoginApproved = isLoginApproved,
+            sessionId = sessionId,
+            base64Payload = base64Payload
+        ).subscribeBy(
+            onComplete = {
+                // TODO for AND-5317 here we will look at the returned values from the API instead of receiving a completable
+                proceedToNextScreen(isLoginApproved)
+            },
+            onError = {
+                // TODO for AND-5317 here we will look at the returned values from the API instead of receiving a completable
+                if (it is HttpException && it.code() == HttpsURLConnection.HTTP_CONFLICT) {
+                    proceedToNextScreen(isLoginApproved)
+                } else {
+                    process(LoginIntents.UnknownError)
+                }
+            }
+        )
+
+    private fun proceedToNextScreen(isLoginApproved: Boolean) =
+        if (interactor.shouldContinueToPinEntry()) {
+            process(LoginIntents.StartPinEntryWithLoggingInPrompt(isLoginApproved = isLoginApproved))
+        } else {
+            process(LoginIntents.RevertToLauncher(isLoginApproved = isLoginApproved))
+        }
 
     private fun handlePayloadPollingResponse(previousState: LoginState) =
         interactor.pollForAuth(previousState.sessionId)

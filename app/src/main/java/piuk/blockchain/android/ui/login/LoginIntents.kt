@@ -82,6 +82,13 @@ sealed class LoginIntents : MviIntent<LoginState> {
             )
     }
 
+    object CancelPolling : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                pollingState = AuthPollingState.NOT_STARTED
+            )
+    }
+
     object AuthPollingDenied : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
@@ -111,6 +118,30 @@ sealed class LoginIntents : MviIntent<LoginState> {
             )
     }
 
+    class StartPinEntryWithLoggingInPrompt(private val isLoginApproved: Boolean) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.ENTER_PIN,
+                loginApprovalState = if (isLoginApproved) {
+                    LoginApprovalState.APPROVED
+                } else {
+                    LoginApprovalState.REJECTED
+                }
+            )
+    }
+
+    class RevertToLauncher(private val isLoginApproved: Boolean) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.NAVIGATE_TO_LANDING_PAGE,
+                loginApprovalState = if (isLoginApproved) {
+                    LoginApprovalState.APPROVED
+                } else {
+                    LoginApprovalState.REJECTED
+                }
+            )
+    }
+
     data class LoginWithQr(val qrString: String) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
@@ -130,15 +161,44 @@ sealed class LoginIntents : MviIntent<LoginState> {
         override fun reduce(oldState: LoginState): LoginState = oldState
     }
 
+    object CheckShouldNavigateToOtherScreen : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(loginApprovalState = LoginApprovalState.NONE)
+    }
+
     object UnknownError : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState = oldState.copy(currentStep = LoginStep.UNKNOWN_ERROR)
     }
 
-    object UserIsLoggedIn : LoginIntents() {
+    object UserLoggedInWithoutDeeplinkData : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
                 currentStep = LoginStep.ENTER_PIN
             )
+    }
+
+    class ReceivedExternalLoginApprovalRequest(
+        private val base64Payload: String,
+        private val payload: LoginAuthInfo.ExtendedAccountInfo
+    ) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.REQUEST_APPROVAL,
+                payloadBase64String = base64Payload,
+                payload = payload
+            )
+    }
+
+    object ApproveLoginRequest : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState = oldState
+    }
+
+    object DenyLoginRequest : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState = oldState
+    }
+
+    object ResetState : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState = LoginState()
     }
 
     class UserAuthenticationRequired(

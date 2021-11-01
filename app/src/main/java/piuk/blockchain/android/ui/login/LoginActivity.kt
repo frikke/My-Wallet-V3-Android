@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
+import androidx.appcompat.app.AlertDialog
 import com.blockchain.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -122,6 +123,11 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         }
     }
 
+    override fun onPause() {
+        model.process(LoginIntents.CancelPolling)
+        super.onPause()
+    }
+
     override fun onDestroy() {
         recaptchaClient.close()
         super.onDestroy()
@@ -141,14 +147,11 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             LoginStep.SHOW_SCAN_ERROR -> {
                 toast(R.string.pairing_failed, ToastCustom.TYPE_ERROR)
                 if (newState.shouldRestartApp) {
-                    startActivity(
-                        Intent(this, LauncherActivity::class.java).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                    )
+                    restartToLauncherActivity()
                 }
             }
             LoginStep.ENTER_PIN -> {
+                showLoginApprovalStatePrompt(newState.loginApprovalState)
                 startActivity(
                     Intent(this, PinEntryActivity::class.java).apply {
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -168,17 +171,66 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     startActivity(LoginAuthActivity.newInstance(this, it))
                 }
             }
-            LoginStep.UNKNOWN_ERROR -> toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
-            LoginStep.POLLING_PAYLOAD_ERROR -> handlePollingError(newState)
+            LoginStep.UNKNOWN_ERROR -> {
+                model.process(LoginIntents.CheckShouldNavigateToOtherScreen)
+                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+            }
+            LoginStep.POLLING_PAYLOAD_ERROR -> handlePollingError(newState.pollingState)
             LoginStep.ENTER_EMAIL -> returnToEmailInput()
+            // TODO AND-5317 this should display a bottom sheet with info about what device we're authorising
+            LoginStep.REQUEST_APPROVAL -> showLoginApprovalDialog()
+            LoginStep.NAVIGATE_TO_LANDING_PAGE -> {
+                showLoginApprovalStatePrompt(newState.loginApprovalState)
+                model.process(LoginIntents.ResetState)
+                restartToLauncherActivity()
+                finish()
+            }
             else -> {
                 // do nothing
             }
         }
     }
 
-    private fun handlePollingError(newState: LoginState) =
-        when (newState.pollingState) {
+    private fun showLoginApprovalStatePrompt(loginApprovalState: LoginApprovalState) =
+        when (loginApprovalState) {
+            LoginApprovalState.NONE -> {
+                // do nothing
+            }
+            LoginApprovalState.APPROVED ->
+                ToastCustom.makeText(
+                    this, getString(R.string.login_approved_toast), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK
+                )
+            LoginApprovalState.REJECTED -> ToastCustom.makeText(
+                this, getString(R.string.login_denied_toast), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR
+            )
+        }
+
+    private fun restartToLauncherActivity() {
+        startActivity(
+            Intent(this, LauncherActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        )
+    }
+
+    private fun showLoginApprovalDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.login_approval_dialog_title)
+            .setMessage(R.string.login_approval_dialog_message)
+            .setPositiveButton(R.string.common_approve) { di, _ ->
+                model.process(LoginIntents.ApproveLoginRequest)
+                di.dismiss()
+            }
+            .setNegativeButton(R.string.common_deny) { di, _ ->
+                model.process(LoginIntents.DenyLoginRequest)
+                di.dismiss()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun handlePollingError(state: AuthPollingState) =
+        when (state) {
             AuthPollingState.TIMEOUT -> {
                 ToastCustom.makeText(
                     this, getString(R.string.login_polling_timeout), ToastCustom.LENGTH_LONG,

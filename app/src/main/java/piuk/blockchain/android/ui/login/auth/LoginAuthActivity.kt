@@ -3,14 +3,12 @@ package piuk.blockchain.android.ui.login.auth
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
 import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.text.method.LinkMovementMethod
-import android.util.Base64
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -30,6 +28,7 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.login.LoginAnalytics
+import piuk.blockchain.android.ui.login.PayloadHandler
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
@@ -64,13 +63,10 @@ class LoginAuthActivity :
     private lateinit var currentState: LoginAuthState
 
     private val pollingPayload: LoginAuthInfo.ExtendedAccountInfo? by lazy {
-        if (intent.hasExtra(POLLING_PAYLOAD)) {
-            intent.getSerializableExtra(POLLING_PAYLOAD) as LoginAuthInfo.ExtendedAccountInfo
-        } else null
+        intent.getSerializableExtra(POLLING_PAYLOAD) as? LoginAuthInfo.ExtendedAccountInfo
     }
 
     private var willUnifyAccount: Boolean = false
-    private var isAccountRecoveryEnabled: Boolean = false
     private var email: String = ""
     private var userId: String = ""
     private var recoveryToken: String = ""
@@ -113,40 +109,29 @@ class LoginAuthActivity :
     private fun processIntentData() {
         analytics.logEvent(LoginAnalytics.DeviceVerified(analyticsInfo))
 
-        if (pollingPayload != null) {
-            model.process(LoginAuthIntents.GetSessionId(pollingPayload as LoginAuthInfo.ExtendedAccountInfo))
-            return
-        }
+        val payload = pollingPayload
+        val data = PayloadHandler.getDataFromIntent(intent)
 
-        val fragment = intent.data?.fragment ?: kotlin.run {
-            model.process(LoginAuthIntents.ShowAuthRequired)
-            return
+        // data from the intent is either a GUID or a base64 from deep-linking that we need to decode.
+        val loginAuthIntent = when {
+            payload != null -> LoginAuthIntents.GetSessionId(payload)
+            data == null -> LoginAuthIntents.ShowAuthRequired
+            data.isValidGuid() -> LoginAuthIntents.ShowManualPairing(data)
+            else -> decodeBase64PayloadToIntent(data)
         }
-
-        // Two possible cases here, string is either a GUID or a base64 from deep-linking that we need to decode.
-        val data = fragment.substringAfterLast(LINK_DELIMITER)
-        when {
-            data.isValidGuid() -> {
-                model.process(LoginAuthIntents.ShowManualPairing(data))
-            }
-            else -> {
-                decodeBase64Payload(data)
-            }
-        }
+        model.process(loginAuthIntent)
     }
 
-    private fun decodeBase64Payload(data: String) {
-        val json: String = try {
-            decodeToJsonString(data)
+    private fun decodeBase64PayloadToIntent(data: String) =
+        try {
+            val json = PayloadHandler.decodeToJsonString(data)
+            LoginAuthIntents.InitLoginAuthInfo(json)
         } catch (ex: Exception) {
             Timber.e(ex)
             crashLogger.logException(ex)
             // Fall back to legacy manual pairing
-            model.process(LoginAuthIntents.ShowManualPairing(null))
-            return
+            LoginAuthIntents.ShowManualPairing(null)
         }
-        model.process(LoginAuthIntents.InitLoginAuthInfo(json))
-    }
 
     private fun initControls() {
         with(binding) {
@@ -460,32 +445,6 @@ class LoginAuthActivity :
         startActivity(intent)
     }
 
-    private fun decodeToJsonString(payload: String): String {
-        val urlSafeEncodedData = payload.apply {
-            unEscapedCharactersMap.map { entry ->
-                replace(entry.key, entry.value)
-            }
-        }
-        val decodedData = tryDecode(urlSafeEncodedData.toByteArray(Charsets.UTF_8))
-        return String(decodedData)
-    }
-
-    private fun tryDecode(urlSafeEncodedData: ByteArray): ByteArray {
-        return try {
-            Base64.decode(
-                urlSafeEncodedData,
-                Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
-            )
-        } catch (ex: Exception) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // The getUrlDecoder() returns the URL_SAFE Base64 decoder
-                java.util.Base64.getUrlDecoder().decode(urlSafeEncodedData)
-            } else {
-                throw ex
-            }
-        }
-    }
-
     companion object {
         fun newInstance(context: Activity, pollingPayload: LoginAuthInfo.ExtendedAccountInfo): Intent =
             Intent(context, LoginAuthActivity::class.java).apply {
@@ -500,13 +459,6 @@ class LoginAuthActivity :
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
-
-        private val unEscapedCharactersMap = mapOf(
-            "%2B" to "+",
-            "%2F" to "/",
-            "%2b" to "+",
-            "%2f" to "/"
-        )
 
         private const val PAYLOAD = "{ }" // TODO add magic link payload here for internal testing
     }

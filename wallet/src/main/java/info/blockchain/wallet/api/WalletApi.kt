@@ -313,6 +313,17 @@ class WalletApi(
         sessionId = sessionId.withBearerPrefix()
     )
 
+    fun updateLoginApprovalStatus(
+        sessionId: String,
+        payload: String,
+        confirmDevice: Boolean
+    ): Completable = explorerInstance.updateDeeplinkApprovalStatus(
+        method = "authorize-verify-device",
+        sessionId = sessionId,
+        payload = payload,
+        confirmDevice = confirmDevice
+    )
+
     private fun getApiCode(): String {
         return apiCode.apiCode
     }

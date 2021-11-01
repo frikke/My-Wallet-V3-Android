@@ -5,8 +5,12 @@ import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
+import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -17,8 +21,7 @@ class LoginInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
-    private val appUtil: AppUtil,
-    private val persistentPrefs: PersistentPrefs
+    private val appUtil: AppUtil
 ) {
     private lateinit var authPollService: PollService<ResponseBody>
 
@@ -48,14 +51,47 @@ class LoginInteractor(
         return authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
     }
 
-    fun checkSessionDetails(intentAction: String, uri: Uri): LoginIntents =
-        when {
-            persistentPrefs.pinId.isNotEmpty() -> {
-                LoginIntents.UserIsLoggedIn
+    @ExperimentalSerializationApi
+    fun checkSessionDetails(intentAction: String, uri: Uri): LoginIntents {
+        val builder = Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
+
+        return when {
+            prefs.pinId.isNotEmpty() -> {
+                if (uri.hasDeeplinkData()) {
+                    decodePayloadAndNavigate(uri, builder, intentAction)
+                } else {
+                    LoginIntents.UserLoggedInWithoutDeeplinkData
+                }
             }
-            uri.hasDeeplinkData() -> LoginIntents.UserAuthenticationRequired(intentAction, uri)
+            uri.hasDeeplinkData() -> decodePayloadAndNavigate(uri, builder, intentAction)
             else -> LoginIntents.UnknownError
         }
+    }
+
+    @ExperimentalSerializationApi
+    private fun decodePayloadAndNavigate(uri: Uri, builder: Json, intentAction: String): LoginIntents =
+        try {
+            PayloadHandler.getDataFromUri(uri)?.let { data ->
+                val sessionId = prefs.sessionId
+                val decodedJson = PayloadHandler.decodeToJsonString(data)
+                val accountInfo = builder.decodeFromString<LoginAuthInfo.ExtendedAccountInfo>(decodedJson)
+                if (sessionId.isEmpty() || accountInfo.accountWallet.sessionId != sessionId) {
+                    LoginIntents.ReceivedExternalLoginApprovalRequest(data, accountInfo)
+                } else {
+                    LoginIntents.UserAuthenticationRequired(intentAction, uri)
+                }
+            } ?: LoginIntents.UnknownError
+        } catch (e: Throwable) {
+            LoginIntents.UnknownError
+        }
+
+    fun shouldContinueToPinEntry() = prefs.pinId.isNotEmpty()
+
+    fun updateApprovalStatus(isLoginApproved: Boolean, sessionId: String, base64Payload: String): Completable =
+        authDataManager.updateLoginApprovalStatus(sessionId, base64Payload, isLoginApproved)
 
     fun cancelPolling() {
         if (::authPollService.isInitialized) {

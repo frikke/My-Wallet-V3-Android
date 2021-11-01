@@ -189,7 +189,7 @@ class LoginModelTest {
         val action = Intent.ACTION_VIEW
 
         whenever(interactor.checkSessionDetails(action, uri)).thenReturn(
-            LoginIntents.UserIsLoggedIn
+            LoginIntents.UserLoggedInWithoutDeeplinkData
         )
 
         val testState = model.state.test()
@@ -513,6 +513,31 @@ class LoginModelTest {
                     pollingState = AuthPollingState.ERROR
                 )
             )
+    }
+
+    @Test
+    fun `check cancel polling works`() {
+        // TODO in AND-5317
+    }
+
+    @Test
+    fun `check approval status updates when approved`() {
+        // TODO in AND-5317
+    }
+
+    @Test
+    fun `check approval status updates when denied`() {
+        // TODO in AND-5317
+    }
+
+    @Test
+    fun `check approval status updates when api conflict`() {
+        // TODO in AND-5317
+    }
+
+    @Test
+    fun `check navigation after error when logged in`() {
+        // TODO in AND-5317
     }
 
     companion object {

@@ -222,8 +222,18 @@ interface WalletExplorerEndpoints {
         @Field("mobile_device_type") deviceType: Int
     ): Single<ResponseBody>
 
+    // TODO move these to the blockchainApi module
     @GET("wallet/poll-for-wallet-info")
     fun getDeeplinkPayload(
         @Header("Authorization") sessionId: String
     ): Single<ResponseBody>
+
+    @FormUrlEncoded
+    @POST("wallet")
+    fun updateDeeplinkApprovalStatus(
+        @Field("method") method: String,
+        @Field("fromSessionId") sessionId: String,
+        @Field("payload") payload: String,
+        @Field("confirm_device") confirmDevice: Boolean
+    ): Completable
 }

@@ -26,8 +26,7 @@ val loginUiModule = module {
                 authDataManager = get(),
                 payloadDataManager = get(),
                 prefs = get(),
-                appUtil = get(),
-                persistentPrefs = get()
+                appUtil = get()
             )
         }
 

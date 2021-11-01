@@ -9,6 +9,8 @@ enum class LoginStep {
     LOG_IN,
     SHOW_SCAN_ERROR,
     ENTER_PIN,
+    REQUEST_APPROVAL,
+    NAVIGATE_TO_LANDING_PAGE,
     ENTER_EMAIL,
     NAVIGATE_FROM_DEEPLINK,
     NAVIGATE_FROM_PAYLOAD,
@@ -30,7 +32,9 @@ data class LoginState(
     val intentAction: String? = null,
     val intentUri: Uri? = null,
     val pollingState: AuthPollingState = AuthPollingState.NOT_STARTED,
-    val payload: LoginAuthInfo.ExtendedAccountInfo? = null
+    val payload: LoginAuthInfo.ExtendedAccountInfo? = null,
+    val payloadBase64String: String = "",
+    val loginApprovalState: LoginApprovalState = LoginApprovalState.NONE
 ) : MviState {
     val isLoading: Boolean
         get() = setOf(LoginStep.LOG_IN, LoginStep.GET_SESSION_ID, LoginStep.SEND_EMAIL).contains(currentStep)
@@ -45,4 +49,10 @@ enum class AuthPollingState {
     COMPLETE,
     ERROR,
     DENIED
+}
+
+enum class LoginApprovalState {
+    NONE,
+    APPROVED,
+    REJECTED
 }

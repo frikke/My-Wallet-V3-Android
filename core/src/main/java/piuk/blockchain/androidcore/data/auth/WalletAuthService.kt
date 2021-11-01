@@ -183,4 +183,10 @@ class WalletAuthService(private val walletApi: WalletApi) {
     fun getDeeplinkPayload(
         sessionId: String
     ): Single<ResponseBody> = walletApi.getDeeplinkPayload(sessionId)
+
+    fun updateLoginApprovalStatus(
+        sessionId: String,
+        payload: String,
+        confirmDevice: Boolean
+    ): Completable = walletApi.updateLoginApprovalStatus(sessionId, payload, confirmDevice)
 }

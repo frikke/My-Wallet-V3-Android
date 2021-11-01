@@ -120,6 +120,7 @@ class AuthNewLoginSheet :
         const val ORIGIN_IP = "ORIGIN_IP"
         const val ORIGIN_LOCATION = "ORIGIN_LOCATION"
         const val ORIGIN_BROWSER = "ORIGIN_BROWSER"
+
         fun newInstance(
             pubKeyHash: String?,
             messageInJson: String?,

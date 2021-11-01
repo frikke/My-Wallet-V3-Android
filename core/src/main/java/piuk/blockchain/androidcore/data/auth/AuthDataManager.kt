@@ -370,6 +370,12 @@ class AuthDataManager(
 
     fun getDeeplinkPayload(sessionId: String) = walletAuthService.getDeeplinkPayload(sessionId)
 
+    fun updateLoginApprovalStatus(
+        sessionId: String,
+        payload: String,
+        confirmDevice: Boolean
+    ): Completable = walletAuthService.updateLoginApprovalStatus(sessionId, payload, confirmDevice)
+
     companion object {
         @VisibleForTesting
         internal const val AUTHORIZATION_REQUIRED = "authorization_required"
