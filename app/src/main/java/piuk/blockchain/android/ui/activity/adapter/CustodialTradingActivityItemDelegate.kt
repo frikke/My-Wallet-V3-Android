@@ -133,8 +133,8 @@ private fun TextView.setTxStatus(tx: CustodialTradingActivitySummaryItem) {
         OrderState.FINISHED -> Date(tx.timeStampMs).toFormattedDate()
         OrderState.UNINITIALISED -> context.getString(R.string.activity_state_uninitialised)
         OrderState.INITIALISED -> context.getString(R.string.activity_state_initialised)
-        OrderState.AWAITING_FUNDS -> context.getString(R.string.activity_state_awaiting_funds)
-        OrderState.PENDING_EXECUTION -> context.getString(R.string.activity_state_pending)
+        OrderState.AWAITING_FUNDS,
+        OrderState.PENDING_EXECUTION,
         OrderState.PENDING_CONFIRMATION -> context.getString(R.string.activity_state_pending)
         OrderState.UNKNOWN -> context.getString(R.string.activity_state_unknown)
         OrderState.CANCELED -> context.getString(R.string.activity_state_canceled)

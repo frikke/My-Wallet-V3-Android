@@ -379,7 +379,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                             transactionType == TransactionSummary.TransactionType.BUY ->
                                 if (pending && !pendingExecution) {
                                     analytics.logEvent(ActivityAnalytics.DETAILS_BUY_AWAITING_FUNDS)
-                                    R.string.activity_details_label_waiting_on_funds
+                                    R.string.activity_details_label_pending
                                 } else {
                                     analytics.logEvent(ActivityAnalytics.DETAILS_BUY_PENDING)
                                     R.string.activity_details_label_pending_execution

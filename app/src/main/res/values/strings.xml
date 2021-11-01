@@ -1435,7 +1435,6 @@
     <string name="select_send_source_title">Send from</string>
     <string name="activity_state_initialised">Initialised</string>
     <string name="activity_state_uninitialised">Uninitialised</string>
-    <string name="activity_state_awaiting_funds">Waiting On Funds</string>
     <string name="activity_state_pending">Pending</string>
     <string name="activity_state_canceled">Cancelled</string>
     <string name="activity_state_unknown">Unknown</string>
