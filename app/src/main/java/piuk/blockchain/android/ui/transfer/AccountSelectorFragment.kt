@@ -11,8 +11,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import io.reactivex.rxjava3.core.Single
@@ -35,7 +33,6 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
 
     private val coincore: Coincore by scopedInject()
     private val accountsSorting: AccountsSorting by scopedInject()
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
     private val paymentsDataManager: PaymentsDataManager by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private lateinit var introHeaderView: IntroHeaderView
@@ -102,10 +99,8 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     private fun showWithdrawalLocks(): Single<List<AccountLocks>> =
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
-            paymentsDataManager.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
-                .map { listOf(AccountLocks(it)) }
-        } else Single.just(emptyList())
+        paymentsDataManager.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
+            .map { listOf(AccountLocks(it)) }
 
     private fun accounts(): Single<List<BlockchainAccount>> =
         coincore.allWalletsWithActions(setOf(fragmentAction), accountsSorting.sorter()).map {

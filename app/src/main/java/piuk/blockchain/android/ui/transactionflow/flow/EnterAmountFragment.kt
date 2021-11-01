@@ -153,11 +153,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterAmountFragment")
 
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS) &&
-            newState.action.requiresDisplayLocks()
-        ) {
-            model.process(TransactionIntent.LoadWithdrawalLocks)
-        }
+        if (newState.action.requiresDisplayLocks()) model.process(TransactionIntent.LoadWithdrawalLocks)
 
         with(binding) {
 
@@ -375,6 +371,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 root.visible()
                 root.setOnClickListener { onExtraAccountInfoClicked(state.action, fundsLocks, available) }
             }
+            onHoldCellSeparator.visible()
         }
     }
 

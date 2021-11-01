@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.databinding.FundsLockedSummaryItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
+import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 
 class AccountLocksDelegate(
@@ -34,7 +35,7 @@ private class LocksViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(accountLocks: AccountLocks) {
-        if (accountLocks.fundsLocks != null) {
+        if (accountLocks.fundsLocks != null && accountLocks.fundsLocks.locks.isNotEmpty()) {
             with(binding) {
                 val amount = accountLocks.fundsLocks.onHoldTotalAmount
                 val total = if (amount.isPositive) amount else FiatValue.zero(amount.currencyCode)
@@ -44,6 +45,8 @@ private class LocksViewHolder(
                 }
                 totalAmountLocked.text = total.toStringWithSymbol()
             }
+        } else {
+            binding.root.gone()
         }
     }
 }

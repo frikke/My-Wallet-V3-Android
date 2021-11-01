@@ -32,8 +32,6 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.BuySellType
@@ -109,7 +107,6 @@ class PortfolioFragment :
     private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
@@ -205,43 +202,24 @@ class PortfolioFragment :
 
     private fun updateDisplayList(newState: DashboardState) {
         with(displayList) {
-            val withdrawalLockEnabled = gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)
-            val isDisplayListEmpty = isEmpty()
-            val newMap = when {
-                withdrawalLockEnabled && isDisplayListEmpty ->
-                    mapOf(
-                        IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
-                        IDX_CARD_BALANCE to newState,
-                        IDX_WITHDRAWAL_LOCKS to newState.fundsLocks,
-                        IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
-                    )
-                !withdrawalLockEnabled && isDisplayListEmpty ->
-                    mapOf(
-                        IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
-                        IDX_CARD_BALANCE to newState,
-                        IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
-                    )
-                withdrawalLockEnabled && !isDisplayListEmpty ->
-                    mapOf(
-                        IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
-                        IDX_CARD_BALANCE to newState,
-                        IDX_WITHDRAWAL_LOCKS to newState.fundsLocks,
-                        IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
-                            newState.fiatAssets
-                        } else {
-                            get(IDX_FUNDS_BALANCE)
-                        }
-                    )
-                else -> // WITHDRAWAL_LOCKS disabled AND NOT displayList.isEmpty()
-                    mapOf(
-                        IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
-                        IDX_CARD_BALANCE to newState,
-                        IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
-                            newState.fiatAssets
-                        } else {
-                            get(IDX_FUNDS_BALANCE - 1) // TODO: Clean up once WITHDRAWAL_LOCKS is released
-                        }
-                    )
+            val newMap = if (isEmpty()) {
+                mapOf(
+                    IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
+                    IDX_CARD_BALANCE to newState,
+                    IDX_WITHDRAWAL_LOCKS to newState.fundsLocks,
+                    IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
+                )
+            } else {
+                mapOf(
+                    IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
+                    IDX_CARD_BALANCE to newState,
+                    IDX_WITHDRAWAL_LOCKS to newState.fundsLocks,
+                    IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
+                        newState.fiatAssets
+                    } else {
+                        get(IDX_FUNDS_BALANCE)
+                    }
+                )
             }
 
             // Add assets, sorted by fiat balance then alphabetically
@@ -393,9 +371,7 @@ class PortfolioFragment :
         setupRecycler()
         setupCtaButtons()
 
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
-            model.process(DashboardIntent.LoadFundsLocked)
-        }
+        model.process(DashboardIntent.LoadFundsLocked)
 
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
