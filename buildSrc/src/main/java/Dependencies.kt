@@ -7,7 +7,7 @@ object Versions {
     const val targetSdk = 30
     const val compileSdk = 30
 
-    const val versionCode = 15814
+    const val versionCode = 16830
     const val versionName = "8.16.0"
 
     const val buildTools = "30.0.2"
@@ -49,6 +49,7 @@ object Versions {
     const val firebaseBom = "28.4.0"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
+    const val adsIdentifier = "17.0.0"
 
     // Networking, RxJava
     const val chucker = "3.4.0"
@@ -186,7 +187,7 @@ object Libraries {
         "com.google.android.gms:play-services-recaptcha:${Versions.googleServicesReCaptcha}"
     const val googlePlayCore = "com.google.android.play:core:${Versions.googlePlayCore}"
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
-
+    const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitJacksonConverter = "com.squareup.retrofit2:converter-jackson:${Versions.retrofit}"
@@ -261,7 +262,6 @@ object Libraries {
     const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
     const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
-
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"

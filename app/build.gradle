@@ -350,6 +350,7 @@ dependencies {
     }
     implementation Libraries.googlePlayServicesAuth
     implementation Libraries.googlePlaces
+    implementation Libraries.adsIdentifier
     implementation Libraries.googleServicesReCaptcha
     implementation Libraries.biometricsApi
 
