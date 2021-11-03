@@ -56,6 +56,8 @@ dependencies {
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
     implementation Libraries.composeActivity
+    implementation Libraries.composeCoil
+    implementation Libraries.composeCoilSvg
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling

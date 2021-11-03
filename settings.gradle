@@ -16,3 +16,5 @@ include ':app',
         ':common-mp:interface',
         ':biometrics',
         ':common-view'
+include ':blockchain-component-library-catalog',
+        ':componentlib'

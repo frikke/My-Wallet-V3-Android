@@ -98,6 +98,7 @@ object Versions {
 
     // Compose
     const val compose = "1.0.4"
+    const val coil = "1.4.0"
     const val composeActivity = "1.3.1"
 
     // zxing 3.4.0 crashes with:
@@ -262,6 +263,8 @@ object Libraries {
     const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
     const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
+    const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
+    const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
