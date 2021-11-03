@@ -61,6 +61,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             }
             is LoaderStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoaderStep.EmailVerification -> launchEmailVerification()
+            is LoaderStep.RequestPin -> onRequestPin()
             null -> {
             }
         }
