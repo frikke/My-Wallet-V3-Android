@@ -19,8 +19,24 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.coincore.xlm.STATE_MEMO
+import piuk.blockchain.androidcore.utils.extensions.then
+
+private fun PendingTx.setMemo(memo: TxConfirmationValue.Memo): PendingTx =
+    this.copy(
+        engineState = engineState.copyAndPut(STATE_MEMO, memo)
+    )
+
+private val PendingTx.memo: String?
+    get() {
+        val memo = (this.engineState[STATE_MEMO] as? TxConfirmationValue.Memo)
+        return memo?.let {
+            return memo.text ?: memo.id.toString()
+        }
+    }
 
 // Transfer from a custodial trading account to an onChain non-custodial account
 class TradingToOnChainTxEngine(
@@ -122,11 +138,20 @@ class TradingToOnChainTxEngine(
             )
         )
 
+    override fun doOptionUpdateRequest(pendingTx: PendingTx, newConfirmation: TxConfirmationValue): Single<PendingTx> {
+        return super.doOptionUpdateRequest(pendingTx, newConfirmation)
+            .map { tx ->
+                (newConfirmation as? TxConfirmationValue.Memo)?.let {
+                    tx.setMemo(newConfirmation)
+                } ?: tx
+            }
+    }
+
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
         validateAmounts(pendingTx).updateTxValidity(pendingTx)
 
     override fun doValidateAll(pendingTx: PendingTx): Single<PendingTx> =
-        validateAmounts(pendingTx).updateTxValidity(pendingTx)
+        validateAmounts(pendingTx).then { validateOptions(pendingTx) }.updateTxValidity(pendingTx)
 
     private fun validateAmounts(pendingTx: PendingTx): Completable =
         Completable.defer {
@@ -147,11 +172,35 @@ class TradingToOnChainTxEngine(
             }
         }
 
+    private fun isMemoValid(memoConfirmation: String?): Boolean {
+        return if (memoConfirmation.isNullOrBlank()) {
+            true
+        } else {
+            memoConfirmation.length in 1..28
+        }
+    }
+
+    private fun getMemoOption(pendingTx: PendingTx) =
+        pendingTx.memo
+
+    private fun validateOptions(pendingTx: PendingTx): Completable =
+        Completable.fromCallable {
+            if (!isMemoValid(getMemoOption(pendingTx))) {
+                throw TxValidationFailure(ValidationState.OPTION_INVALID)
+            }
+        }
+
     // The custodial balance now returns an id, so it is possible to add a note via this
-    // processor at some point. TODO
+    // processor at some point.
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> {
         val targetAddress = txTarget as CryptoAddress
-        return walletManager.transferFundsToWallet(pendingTx.amount as CryptoValue, targetAddress.address)
+        val address = pendingTx.memo?.let {
+            "${targetAddress.address}:$it"
+        } ?: targetAddress.address
+
+        return walletManager.transferFundsToWallet(
+            pendingTx.amount as CryptoValue, address
+        )
             .map {
                 TxResult.UnHashedTxResult(pendingTx.amount)
             }

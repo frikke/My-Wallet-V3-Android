@@ -72,7 +72,7 @@ class XlmOnChainTxEngine(
                         id = null
                     )
                 )
-            }
+            } ?: px
         }
     }
 
