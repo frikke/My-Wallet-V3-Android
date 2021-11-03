@@ -50,6 +50,7 @@ interface ExchangeRatesDataManager : ExchangeRates {
 
     fun getHistoricRate(fromAsset: AssetInfo, secSinceEpoch: Long): Single<ExchangeRate>
     fun getPricesWith24hDelta(fromAsset: AssetInfo): Observable<Prices24HrWithDelta>
+    fun getPricesWith24hDelta(fromAsset: AssetInfo, fiat: String): Observable<Prices24HrWithDelta>
 
     fun getHistoricPriceSeries(
         asset: AssetInfo,

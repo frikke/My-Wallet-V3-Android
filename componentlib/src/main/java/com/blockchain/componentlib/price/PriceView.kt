@@ -6,7 +6,6 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.R
@@ -19,11 +18,12 @@ class PriceView : ConstraintLayout {
     private val binding = ViewPriceRowBinding.inflate(LayoutInflater.from(context), this)
 
     data class Price(
-        @DrawableRes val icon: Int,
+        val icon: String,
         val name: String,
-        val ticker: String,
-        val price: String,
-        val gain: Double
+        val displayTicker: String,
+        val networkTicker: String,
+        val price: String = "",
+        val gain: Double = 0.0
     )
 
     constructor(context: Context) : super(context) {
@@ -53,7 +53,7 @@ class PriceView : ConstraintLayout {
                     .load(value.icon)
                     .into(binding.icon)
                 binding.name.text = value.name
-                binding.ticker.text = value.ticker
+                binding.ticker.text = value.displayTicker
                 binding.price.text = value.price
                 binding.gain.text = getGainSpannable(value.gain)
             }
@@ -64,7 +64,7 @@ class PriceView : ConstraintLayout {
     private fun getGainSpannable(gain: Double): SpannableString {
         val percentFormatter = NumberFormat.getPercentInstance()
         percentFormatter.minimumFractionDigits = 2
-        val percent = percentFormatter.format(gain)
+        val percent = percentFormatter.format(gain / 100)
 
         val spannableString = if (gain < 0) {
             SpannableString("↓ $percent")

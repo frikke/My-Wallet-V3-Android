@@ -11,7 +11,7 @@ import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicReference
 
-internal class AssetCatalogueImpl(
+class AssetCatalogueImpl internal constructor(
     private val fixedAssets: Set<AssetInfo>,
     private val featureFlag: FeatureFlag,
     private val featureConfig: AssetRemoteFeatureLookup,

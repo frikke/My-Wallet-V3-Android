@@ -52,6 +52,8 @@ class Coincore internal constructor(
                 crashLogger.logEvent("Coincore initialisation failed! $it")
             }
 
+    fun initialiseAssetCatalogue() = assetCatalogue.initialise()
+
     val fiatAssets: Asset
         get() = fiatAsset
 

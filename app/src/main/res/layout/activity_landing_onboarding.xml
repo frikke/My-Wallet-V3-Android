@@ -18,7 +18,7 @@
 
     <com.blockchain.componentlib.carousel.CarouselView
         android:id="@+id/carousel"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         tools:listitem="@layout/view_carousel_value"
         app:layout_constraintBottom_toTopOf="@id/btn_create"

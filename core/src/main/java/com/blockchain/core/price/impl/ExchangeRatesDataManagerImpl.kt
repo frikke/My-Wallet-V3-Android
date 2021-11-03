@@ -159,9 +159,12 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun getPricesWith24hDelta(fromAsset: AssetInfo): Observable<Prices24HrWithDelta> =
+        getPricesWith24hDelta(fromAsset, userFiat)
+
+    override fun getPricesWith24hDelta(fromAsset: AssetInfo, fiat: String): Observable<Prices24HrWithDelta> =
         priceStore.getPriceForAsset(
             fromAsset.networkTicker,
-            userFiat
+            fiat
         ).map { price ->
             Prices24HrWithDelta(
                 delta24h = price.priceDelta(),

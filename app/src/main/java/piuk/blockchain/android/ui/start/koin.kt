@@ -12,7 +12,9 @@ val startupUiModule = module {
                 environmentSettings = get(),
                 prefs = get(),
                 rootUtil = get(),
-                apiStatus = get()
+                apiStatus = get(),
+                assetCatalogue = get(),
+                exchangeRatesDataManager = get()
             )
         }
 

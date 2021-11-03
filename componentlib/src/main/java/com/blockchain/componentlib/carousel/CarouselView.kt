@@ -1,24 +1,29 @@
 package com.blockchain.componentlib.carousel
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SnapHelper
+import androidx.viewpager2.widget.ViewPager2
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.databinding.ViewCarouselBinding
 import com.blockchain.componentlib.databinding.ViewCarouselListBinding
 import com.blockchain.componentlib.databinding.ViewCarouselValueBinding
-import kotlin.concurrent.fixedRateTimer
+import com.blockchain.componentlib.price.PriceListView
+import com.blockchain.componentlib.price.PriceView
+import com.google.android.material.appbar.AppBarLayout
 
-class CarouselView : RecyclerView {
+class CarouselView : ConstraintLayout {
+
+    private val binding = ViewCarouselBinding.inflate(LayoutInflater.from(context), this)
 
     constructor(context: Context) : super(context) {
         initWithAttributes()
@@ -39,11 +44,12 @@ class CarouselView : RecyclerView {
     private val listAdapter = CarouselAdapter()
     private var carouselIndicatorView: CarouselIndicatorView? = null
 
+    @SuppressLint("WrongConstant")
     private fun initWithAttributes() {
-        layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
-        adapter = listAdapter
-        val helper: SnapHelper = PagerSnapHelper()
-        helper.attachToRecyclerView(this)
+        binding.viewPager.apply {
+            offscreenPageLimit = OFFSCREEN_LIMIT
+            adapter = listAdapter
+        }
     }
 
     fun submitList(carouselItems: List<CarouselViewType>) {
@@ -54,35 +60,38 @@ class CarouselView : RecyclerView {
     fun setCarouselIndicator(carouselIndicator: CarouselIndicatorView) {
         carouselIndicatorView = carouselIndicator
         val currentList = listAdapter.currentList
-        this.setOnScrollChangeListener { _, _, _, _, _ ->
-            val currentItem =
-                (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition()
-            if (currentItem != NO_POSITION) {
-                carouselIndicatorView?.selectedIndicator = (currentItem ?: 0) % currentList.size
-            }
-        }
-
         carouselIndicatorView?.numberOfIndicators = currentList.size
+
+        binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                carouselIndicatorView?.selectedIndicator = (position ?: 0) % currentList.size
+                super.onPageSelected(position)
+            }
+        })
     }
 
-    fun startAutoplay(pageTime: Long) {
-        fixedRateTimer(CAROUSEL_TIMER, false, 0L, pageTime) {
-            val currentItem =
-                (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: 0
-            if (currentItem != NO_POSITION) {
-                smoothScrollToPosition(currentItem + 1)
-            }
-        }
+
+    fun onLoadPrices(prices: List<PriceView.Price>) {
+        listAdapter.priceList?.submitList(prices)
+    }
+
+    fun setOnPricesRequest(onPriceRequest: (PriceView.Price) -> Unit) {
+        listAdapter.onPriceRequest = onPriceRequest
+    }
+
+    fun setOnPricesAlphaChangeListener(alphaChangeListener: (Float) -> Unit) {
+        listAdapter.onAlphaChangeListener = alphaChangeListener
     }
 
     companion object {
-        private const val CAROUSEL_TIMER = "carousel_timer"
+        private const val OFFSCREEN_LIMIT = 3
     }
+
 }
 
 sealed class CarouselViewType {
     data class ValueProp(@DrawableRes val image: Int, val text: String) : CarouselViewType()
-    data class PriceList(val text: String, val secondaryText: String) :
+    data class PriceList(val text: String, val secondaryText: String, val prices: List<PriceView.Price> = emptyList()) :
         CarouselViewType()
 }
 
@@ -112,16 +121,34 @@ private class CarouselAdapter(
 
     class CarouselViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
+    var onPriceRequest: ((PriceView.Price) -> Unit) = {}
+    var onAlphaChangeListener: ((Float) -> Unit) = {}
+
+    var priceList: PriceListView? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarouselViewHolder {
         return when (viewType) {
             ViewType.ValueProp.ordinal -> CarouselViewHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.view_carousel_value, parent, false)
             )
-            ViewType.List.ordinal -> CarouselViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.view_carousel_list, parent, false)
-            )
+            ViewType.List.ordinal -> {
+                val carousel = CarouselViewHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.view_carousel_list, parent, false)
+                )
+                val itemBinding = ViewCarouselListBinding.bind(carousel.itemView)
+                priceList = itemBinding.priceList
+
+                itemBinding.appbarLayout.addOnOffsetChangedListener(
+                    AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
+                        val alpha = (itemBinding.headerContainer.height - itemBinding.headerContainer.minHeight + verticalOffset) / 100f
+                        itemBinding.title.alpha = alpha
+                        onAlphaChangeListener.invoke(alpha)
+                    }
+                )
+                carousel
+            }
             else -> throw java.lang.RuntimeException("Unexpected view type")
         }
     }
@@ -132,6 +159,7 @@ private class CarouselAdapter(
                 val itemBinding = ViewCarouselListBinding.bind(holder.itemView)
                 itemBinding.title.text = item.text
                 itemBinding.livePriceText.text = item.secondaryText
+                itemBinding.priceList.setOnPriceRequest(onPriceRequest)
             }
             is CarouselViewType.ValueProp -> {
                 val itemBinding = ViewCarouselValueBinding.bind(holder.itemView)

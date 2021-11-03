@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.start
 
+import com.blockchain.coincore.loader.AssetCatalogueImpl
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -7,8 +9,6 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
-
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
@@ -26,12 +26,16 @@ class LandingPresenterTest {
     private val environmentSettings: EnvironmentConfig =
         mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
 
+    private val assetCatalogue: AssetCatalogueImpl = mock()
+    private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
+
     private val prefs: PersistentPrefs = mock()
     private val rootUtil: RootUtil = mock()
 
     @Before
     fun setUp() {
-        subject = LandingPresenter(environmentSettings, prefs, rootUtil, apiStatus)
+        subject =
+            LandingPresenter(environmentSettings, prefs, rootUtil, apiStatus, assetCatalogue, exchangeRatesDataManager)
     }
 
     @Test
