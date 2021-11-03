@@ -9,7 +9,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.data.api.interceptors.ApiInterceptor
+import piuk.blockchain.androidcore.data.api.interceptors.ApiLoggingInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.DeviceIdInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.RequestIdInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.SSLPinningInterceptor
@@ -31,7 +31,7 @@ val apiInterceptorsModule = module {
             ).apply {
                 if (env.isRunningInDebugMode()) {
                     add(StethoInterceptor())
-                    add(ApiInterceptor())
+                    add(ApiLoggingInterceptor())
                     if (env.environment != Environment.PRODUCTION) {
                         add(ChuckerInterceptor.Builder(androidContext()).build())
                     }

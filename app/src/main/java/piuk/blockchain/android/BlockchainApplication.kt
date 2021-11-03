@@ -76,7 +76,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
     private lateinit var logoutPendingIntent: PendingIntent
 
     private val lifecycleListener: AppLifecycleListener by lazy {
-        AppLifecycleListener(lifeCycleInterestedComponent)
+        AppLifecycleListener(lifeCycleInterestedComponent, crashLogger)
     }
 
     override fun onCreate() {
@@ -95,9 +95,9 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
         // Build the DI graphs:
         KoinStarter.start(this)
-        initLifecycleListener()
         crashLogger.init(this)
         crashLogger.userLanguageLocale(resources.configuration.locale.language)
+        initLifecycleListener()
 
         if (environmentSettings.isRunningInDebugMode()) {
             Stetho.initializeWithDefaults(this)

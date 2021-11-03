@@ -11,6 +11,7 @@ import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should not be`
 import org.junit.After
 import org.junit.Test
+import com.blockchain.logging.CrashLogger
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -30,6 +31,7 @@ class PayloadManagerWipingTest : KoinTest {
                 walletModule,
                 module {
                     single { mock<WalletApi>() }
+                    single { mock<CrashLogger>() }
                     single { mock<NonCustodialBitcoinService>() }
                 }
             ))

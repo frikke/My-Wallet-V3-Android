@@ -432,12 +432,6 @@ val applicationModule = module {
         }
 
         factory {
-            DeepLinkPersistence(
-                prefs = get()
-            )
-        }
-
-        factory {
             SimpleBuyInteractor(
                 withdrawLocksRepository = get(),
                 tierService = get(),
@@ -664,16 +658,6 @@ val applicationModule = module {
         }
 
         factory {
-            LauncherPresenter(
-                appUtil = get(),
-                prefs = get(),
-                deepLinkPersistence = get(),
-                envSettings = get(),
-                authPrefs = get()
-            )
-        }
-
-        factory {
             Prerequisites(
                 metadataManager = get(),
                 settingsDataManager = get(),
@@ -814,6 +798,22 @@ val applicationModule = module {
             schema = Database.Schema,
             context = get(),
             name = "cache.db"
+        )
+    }
+
+    factory {
+        LauncherPresenter(
+            appUtil = get(),
+            prefs = get(),
+            deepLinkPersistence = get(),
+            envSettings = get(),
+            authPrefs = get()
+        )
+    }
+
+    factory {
+        DeepLinkPersistence(
+            prefs = get()
         )
     }
 }

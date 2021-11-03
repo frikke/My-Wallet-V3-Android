@@ -8,7 +8,6 @@ import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import org.koin.android.ext.android.inject
@@ -79,7 +78,7 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         startActivity(intent)
     }
 
-    override val presenter: LauncherPresenter by scopedInject()
+    override val presenter: LauncherPresenter by inject()
     override val view: LauncherView
         get() = this
 
