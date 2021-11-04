@@ -71,6 +71,6 @@ class CeloEurAnnouncement(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val DISMISS_KEY = "CeloEurAnnouncement_DISMISSED"
         const val TICKER_NAME = "CEUR"
-        private val excludedCountries = listOf("US", "GB", "IT")
+        private val excludedCountries = listOf("US", "IT")
     }
 }
