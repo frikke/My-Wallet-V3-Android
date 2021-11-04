@@ -7,7 +7,6 @@ import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.databinding.FundsLockedSummaryItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.model.Locks
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 
 class FundsLockedDelegate(
@@ -37,6 +36,9 @@ private class FundsLockedViewHolder(
 
     fun bind(locks: Locks) {
         if (locks.fundsLocks != null && locks.fundsLocks.locks.isNotEmpty()) {
+            itemView.layoutParams = RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            )
             with(binding) {
                 val amount = locks.fundsLocks.onHoldTotalAmount
                 val total = if (amount.isPositive) amount else FiatValue.zero(amount.currencyCode)
@@ -47,7 +49,7 @@ private class FundsLockedViewHolder(
                 totalAmountLocked.text = total.toStringWithSymbol()
             }
         } else {
-            binding.root.gone()
+            itemView.layoutParams = RecyclerView.LayoutParams(0, 0)
         }
     }
 }

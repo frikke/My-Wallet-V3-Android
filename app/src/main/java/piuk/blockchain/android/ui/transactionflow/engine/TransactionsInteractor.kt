@@ -231,7 +231,7 @@ class TransactionInteractor(
     fun loadWithdrawalLocks(model: TransactionModel, available: Money): Disposable =
         coincore.getWithdrawalLocks(showLocksInFiat(available)).subscribeBy(
             onSuccess = { locks ->
-                model.process(TransactionIntent.WithdrawalLocksLoaded(locks))
+                model.process(TransactionIntent.FundsLocksLoaded(locks))
             },
             onError = {
                 Timber.e(it)

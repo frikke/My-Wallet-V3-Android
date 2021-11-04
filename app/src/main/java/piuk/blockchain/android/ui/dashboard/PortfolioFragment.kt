@@ -206,14 +206,14 @@ class PortfolioFragment :
                 mapOf(
                     IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
                     IDX_CARD_BALANCE to newState,
-                    IDX_WITHDRAWAL_LOCKS to newState.fundsLocks,
+                    IDX_WITHDRAWAL_LOCKS to newState.locks,
                     IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
                 )
             } else {
                 mapOf(
                     IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
                     IDX_CARD_BALANCE to newState,
-                    IDX_WITHDRAWAL_LOCKS to newState.fundsLocks,
+                    IDX_WITHDRAWAL_LOCKS to newState.locks,
                     IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
                         newState.fiatAssets
                     } else {
@@ -316,7 +316,6 @@ class PortfolioFragment :
             "GBP" -> R.drawable.ic_funds_gbp
             else -> R.drawable.ic_funds_usd // show dollar if currency isn't selected
         }
-
         return KycBenefitsBottomSheet.newInstance(
             KycBenefitsBottomSheet.BenefitsDetails(
                 title = getString(R.string.fiat_funds_no_kyc_announcement_title),

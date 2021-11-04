@@ -277,7 +277,7 @@ class TransactionModel(
             is TransactionIntent.NavigateBackFromEnterAmount ->
                 processTransactionInvalidation(previousState.action)
             is TransactionIntent.StartLinkABank -> processLinkABank(previousState)
-            is TransactionIntent.LoadWithdrawalLocks -> interactor.loadWithdrawalLocks(
+            is TransactionIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(
                 model = this,
                 available = previousState.availableBalance
             )
@@ -286,7 +286,7 @@ class TransactionModel(
             is TransactionIntent.ClearBackStack,
             is TransactionIntent.ApprovalRequired,
             is TransactionIntent.ClearSelectedTarget,
-            is TransactionIntent.WithdrawalLocksLoaded -> null
+            is TransactionIntent.FundsLocksLoaded -> null
         }
     }
 

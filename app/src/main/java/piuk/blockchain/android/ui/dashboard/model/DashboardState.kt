@@ -171,7 +171,7 @@ data class DashboardState(
     val linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction? = null,
     val hasLongCallInProgress: Boolean = false,
     val isLoadingAssets: Boolean = true,
-    val fundsLocks: Locks = Locks()
+    val locks: Locks = Locks()
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

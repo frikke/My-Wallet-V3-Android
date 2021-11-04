@@ -418,6 +418,9 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     object LoadFundsLocked : DashboardIntent() {
+
+        override fun isValidFor(oldState: DashboardState): Boolean = oldState.locks.fundsLocks == null
+
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
@@ -426,7 +429,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
-                fundsLocks = Locks(fundsLocks)
+                locks = Locks(fundsLocks)
             )
     }
 }

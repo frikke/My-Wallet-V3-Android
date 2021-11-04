@@ -519,14 +519,14 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             this
         }
 
-    object LoadWithdrawalLocks : TransactionIntent() {
+    object LoadFundsLocked : TransactionIntent() {
 
         override fun isValidFor(oldState: TransactionState): Boolean = oldState.locks == null
 
         override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
 
-    class WithdrawalLocksLoaded(
+    class FundsLocksLoaded(
         private val fundsLocks: FundsLocks
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =

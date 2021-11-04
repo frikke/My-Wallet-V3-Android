@@ -153,7 +153,9 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterAmountFragment")
 
-        if (newState.action.requiresDisplayLocks()) model.process(TransactionIntent.LoadWithdrawalLocks)
+        if (newState.action.requiresDisplayLocks()) {
+            model.process(TransactionIntent.LoadFundsLocked)
+        }
 
         with(binding) {
 
