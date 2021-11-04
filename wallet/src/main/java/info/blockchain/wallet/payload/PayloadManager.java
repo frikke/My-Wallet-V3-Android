@@ -69,7 +69,8 @@ public class PayloadManager {
 
     private static Logger log = LoggerFactory.getLogger(PayloadManager.class);
 
-    private boolean isV4Enabled = false;
+    // TODO: clean up the v4 flags and refactor the tests
+    private boolean isV4Enabled = true;
     private WalletBase walletBase;
     private String password;
 

@@ -1,7 +1,6 @@
 package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.annotations.BurnCandidate
-import com.blockchain.logging.CrashLogger
 import com.blockchain.api.ApiException
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -23,9 +22,7 @@ import java.util.LinkedHashMap
 // provides an rx wrapper for some PayloadManager calls. This is, at best, confusing and this can be merged
 // into PayloadManager
 internal class PayloadService(
-    private val payloadManager: PayloadManager,
-    private val versionController: PayloadVersionController,
-    private val crashLogger: CrashLogger
+    private val payloadManager: PayloadManager
 ) {
 
     // /////////////////////////////////////////////////////////////////////////
@@ -70,7 +67,7 @@ internal class PayloadService(
             walletName,
             email,
             password,
-            versionController.isFullRolloutV4
+            true
         )
     }
 
@@ -91,7 +88,7 @@ internal class PayloadService(
             walletName,
             email,
             password,
-            versionController.isFullRolloutV4
+            true
         )
     }
 
@@ -108,18 +105,14 @@ internal class PayloadService(
         sharedKey: String,
         guid: String,
         password: String
-    ): Completable = versionController.isV4Enabled(guid, sharedKey)
-        .doOnSuccess { crashLogger.logState("Segwit enabled", it.toString()) }
-        .flatMapCompletable { v4Enabled ->
-            Completable.fromCallable {
-                payloadManager.initializeAndDecrypt(
-                    sharedKey,
-                    guid,
-                    password,
-                    v4Enabled
-                )
-            }
-        }
+    ): Completable = Completable.fromCallable {
+        payloadManager.initializeAndDecrypt(
+            sharedKey,
+            guid,
+            password,
+            true
+        )
+    }
 
     /**
      * Initializes and decrypts a user's payload given valid QR code scan data.
@@ -132,7 +125,7 @@ internal class PayloadService(
     ): Completable = Completable.fromCallable {
         payloadManager.initializeAndDecryptFromQR(
             data,
-            versionController.isFullRolloutV4
+            true
         )
     }
 

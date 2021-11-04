@@ -65,8 +65,6 @@ import piuk.blockchain.androidcore.data.metadata.MoshiMetadataRepositoryAdapter
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManagerSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payload.PayloadService
-import piuk.blockchain.androidcore.data.payload.PayloadVersionController
-import piuk.blockchain.androidcore.data.payload.PayloadVersionControllerImpl
 import piuk.blockchain.androidcore.data.payload.PromptingSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payments.PaymentService
 import piuk.blockchain.androidcore.data.payments.SendDataManager
@@ -195,9 +193,7 @@ val coreModule = module {
 
         factory {
             PayloadService(
-                payloadManager = get(),
-                versionController = get(),
-                crashLogger = get()
+                payloadManager = get()
             )
         }
 
@@ -210,12 +206,6 @@ val coreModule = module {
                 crashLogger = get()
             )
         }
-
-        factory {
-            PayloadVersionControllerImpl(
-                settingsApi = get()
-            )
-        }.bind(PayloadVersionController::class)
 
         factory {
             DataManagerPayloadDecrypt(

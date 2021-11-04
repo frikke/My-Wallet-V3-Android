@@ -9,7 +9,6 @@ import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.Wallet
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,16 +19,12 @@ import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
-import io.reactivex.rxjava3.core.Single
 
 @Suppress("IllegalIdentifier")
 class PayloadServiceTest {
 
     private lateinit var subject: PayloadService
     private val mockPayloadManager: PayloadManager = mock(defaultAnswer = RETURNS_DEEP_STUBS)
-    private val versionController: PayloadVersionController = mock {
-        on { isFullRolloutV4 }.thenReturn(false)
-    }
 
     @Suppress("unused")
     @get:Rule
@@ -41,9 +36,7 @@ class PayloadServiceTest {
     @Before
     fun setUp() {
         subject = PayloadService(
-            payloadManager = mockPayloadManager,
-            versionController = versionController,
-            crashLogger = mock()
+            payloadManager = mockPayloadManager
         )
     }
 
@@ -65,28 +58,6 @@ class PayloadServiceTest {
     }
 
     @Test
-    fun restoreHdWallet_v3() {
-        // Arrange
-        val mnemonic = "MNEMONIC"
-        val walletName = "WALLET_NAME"
-        val email = "EMAIL"
-        val password = "PASSWORD"
-        val mockWallet: Wallet = mock()
-        val v4Enabled = false
-        whenever(mockPayloadManager.recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled))
-            .thenReturn(mockWallet)
-
-        // Act
-        val testObserver = subject.restoreHdWallet(mnemonic, walletName, email, password).test()
-
-        // Assert
-        verify(mockPayloadManager).recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled)
-        verifyNoMoreInteractions(mockPayloadManager)
-        testObserver.assertComplete()
-        testObserver.assertValue(mockWallet)
-    }
-
-    @Test
     fun restoreHdWallet_v4() {
         // Arrange
         val mnemonic = "MNEMONIC"
@@ -95,7 +66,6 @@ class PayloadServiceTest {
         val password = "PASSWORD"
         val mockWallet: Wallet = mock()
         val v4Enabled = true
-        whenever(versionController.isFullRolloutV4).thenReturn(true)
         whenever(mockPayloadManager.recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled))
             .thenReturn(mockWallet)
 
@@ -104,28 +74,6 @@ class PayloadServiceTest {
 
         // Assert
         verify(mockPayloadManager).recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled)
-        verifyNoMoreInteractions(mockPayloadManager)
-        testObserver.assertComplete()
-        testObserver.assertValue(mockWallet)
-    }
-
-    @Test
-    fun createHdWallet_v3() {
-        // Arrange
-        val password = "PASSWORD"
-        val walletName = "WALLET_NAME"
-        val email = "EMAIL"
-        val mockWallet: Wallet = mock()
-        val v4Enabled = false
-
-        whenever(mockPayloadManager.create(walletName, email, password, v4Enabled))
-            .thenReturn(mockWallet)
-
-        // Act
-        val testObserver = subject.createHdWallet(password, walletName, email).test()
-
-        // Assert
-        verify(mockPayloadManager).create(walletName, email, password, v4Enabled)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
         testObserver.assertValue(mockWallet)
@@ -139,7 +87,6 @@ class PayloadServiceTest {
         val email = "EMAIL"
         val mockWallet: Wallet = mock()
         val v4Enabled = true
-        whenever(versionController.isFullRolloutV4).thenReturn(true)
         whenever(mockPayloadManager.create(walletName, email, password, v4Enabled)).thenReturn(mockWallet)
         // Act
         val testObserver = subject.createHdWallet(password, walletName, email).test()
@@ -151,39 +98,12 @@ class PayloadServiceTest {
     }
 
     @Test
-    fun initializeAndDecrypt_v3() {
-        // Arrange
-        val sharedKey = "SHARED_KEY"
-        val guid = "GUID"
-        val password = "PASSWORD"
-        val v4Enabled = false
-        whenever(versionController.isV4Enabled(guid, sharedKey))
-            .thenReturn(Single.just(v4Enabled))
-
-        // Act
-        val testObserver = subject.initializeAndDecrypt(sharedKey, guid, password)
-            .test()
-
-        // Assert
-        verify(mockPayloadManager).initializeAndDecrypt(
-            sharedKey,
-            guid,
-            password,
-            v4Enabled
-        )
-        verifyNoMoreInteractions(mockPayloadManager)
-        testObserver.assertComplete()
-    }
-
-    @Test
     fun initializeAndDecrypt_v4() {
         // Arrange
         val sharedKey = "SHARED_KEY"
         val guid = "GUID"
         val password = "PASSWORD"
         val v4Enabled = true
-        whenever(versionController.isV4Enabled(guid, sharedKey))
-            .thenReturn(Single.just(v4Enabled))
 
         // Act
         val testObserver = subject.initializeAndDecrypt(sharedKey, guid, password)
@@ -196,20 +116,6 @@ class PayloadServiceTest {
             password,
             v4Enabled
         )
-        verifyNoMoreInteractions(mockPayloadManager)
-        testObserver.assertComplete()
-    }
-
-    @Test
-    fun handleQrCode_v3() {
-        // Arrange
-        val qrString = "QR_STRING"
-        val v4Enabled = false
-
-        // Act
-        val testObserver = subject.handleQrCode(qrString).test()
-        // Assert
-        verify(mockPayloadManager).initializeAndDecryptFromQR(qrString, v4Enabled)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }
@@ -219,7 +125,6 @@ class PayloadServiceTest {
         // Arrange
         val qrString = "QR_STRING"
         val v4Enabled = true
-        whenever(versionController.isFullRolloutV4).thenReturn(true)
 
         // Act
         val testObserver = subject.handleQrCode(qrString).test()
