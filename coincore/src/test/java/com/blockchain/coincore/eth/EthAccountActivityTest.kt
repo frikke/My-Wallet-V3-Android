@@ -1,11 +1,14 @@
 package com.blockchain.coincore.eth
 
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -18,13 +21,9 @@ import info.blockchain.wallet.ethereum.EthereumAccount
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import io.reactivex.rxjava3.core.Single
-
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.spy
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.fees.FeeDataManager

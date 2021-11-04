@@ -5,12 +5,12 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import piuk.blockchain.android.util.throttledClicks
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.databinding.PitEmailVerifiedBottomDialogBinding
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.util.visible
 
 class PitEmailVerifiedBottomDialog : ErrorBottomDialog<PitEmailVerifiedBottomDialogBinding>() {

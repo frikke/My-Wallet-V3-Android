@@ -15,7 +15,7 @@ fun ToggleTableRow(
     onCheckedChange: (isChecked: Boolean) -> Unit,
     title: String,
     body: String? = null,
-    isChecked: Boolean = false,
+    isChecked: Boolean = false
 ) {
     TableRow(
         content = {
@@ -41,7 +41,7 @@ fun ToggleTableRow(
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = AppTheme.colors.primary,
                     uncheckedThumbColor = AppTheme.colors.dark,
-                    uncheckedTrackColor = AppTheme.colors.dark,
+                    uncheckedTrackColor = AppTheme.colors.dark
                 )
             )
         }

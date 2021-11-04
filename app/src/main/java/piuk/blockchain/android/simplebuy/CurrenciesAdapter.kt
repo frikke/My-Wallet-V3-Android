@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import kotlin.properties.Delegates
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.CurrencySelectionItemBinding
-import kotlin.properties.Delegates
 
 class CurrenciesAdapter(
     private val showSectionDivider: Boolean = false,

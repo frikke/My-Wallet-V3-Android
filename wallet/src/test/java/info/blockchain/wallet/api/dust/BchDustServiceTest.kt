@@ -1,7 +1,7 @@
 package info.blockchain.wallet.api.dust
 
-import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.blockchain.testutils.rxInit
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.ApiCode

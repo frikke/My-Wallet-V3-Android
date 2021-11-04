@@ -20,6 +20,7 @@ import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.isCustodialOnly
+import java.time.ZonedDateTime
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.ui.base.ErrorDialogData
@@ -36,7 +37,6 @@ import piuk.blockchain.android.util.setOnClickListenerDebounced
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.time.ZonedDateTime
 
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),
@@ -273,7 +273,8 @@ class SimpleBuyCheckoutFragment :
                 )
             } else null,
             buildPaymentFee(
-                state, StringUtils.getStringWithMappedAnnotations(
+                state,
+                StringUtils.getStringWithMappedAnnotations(
                     requireContext(),
                     R.string.checkout_item_price_fee,
                     linksMap
@@ -282,7 +283,8 @@ class SimpleBuyCheckoutFragment :
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.common_total),
                 (state.order.amount?.plus(state.fee ?: FiatValue.zero(state.fiatCurrency)) as? FiatValue)
-                    .addStringWithSymbolOrDefault(state.fiatCurrency), true
+                    .addStringWithSymbolOrDefault(state.fiatCurrency),
+                true
             )
         )
     }

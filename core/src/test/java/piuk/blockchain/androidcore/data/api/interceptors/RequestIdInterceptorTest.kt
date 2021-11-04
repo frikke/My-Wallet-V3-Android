@@ -1,10 +1,10 @@
 package piuk.blockchain.androidcore.data.api.interceptors
 
 import com.nhaarman.mockitokotlin2.mock
+import kotlin.test.assertEquals
 import okhttp3.Interceptor
 import okhttp3.Request
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class RequestIdInterceptorTest {
     private val generatedHeaderValue = "489a62fd-a936-473d-8687-8f702aefd30c"

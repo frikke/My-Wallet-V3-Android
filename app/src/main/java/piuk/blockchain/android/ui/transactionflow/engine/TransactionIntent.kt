@@ -1,10 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
 import com.blockchain.banking.BankPaymentApproval
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
@@ -17,9 +13,13 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.models.data.LinkBankTransfer
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Money
+import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
-import java.util.Stack
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
 

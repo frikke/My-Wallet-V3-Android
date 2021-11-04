@@ -31,6 +31,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.time.ZonedDateTime
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -64,7 +65,6 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.time.ZonedDateTime
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -159,15 +159,18 @@ class SimpleBuyCryptoFragment :
 
     private fun showPaymentMethodsBottomSheet(state: PaymentMethodsChooserState) {
         lastState?.paymentOptions?.let {
-            showBottomSheet(PaymentMethodChooserBottomSheet.newInstance(
-                when (state) {
-                    PaymentMethodsChooserState.AVAILABLE_TO_PAY -> it.availablePaymentMethods.filter { method ->
-                        method.canUsedForPaying()
+            showBottomSheet(
+                PaymentMethodChooserBottomSheet.newInstance(
+                    when (state) {
+                        PaymentMethodsChooserState.AVAILABLE_TO_PAY -> it.availablePaymentMethods.filter { method ->
+                            method.canUsedForPaying()
+                        }
+                        PaymentMethodsChooserState.AVAILABLE_TO_ADD -> it.availablePaymentMethods.filter { method ->
+                            method.canBeAdded()
+                        }
                     }
-                    PaymentMethodsChooserState.AVAILABLE_TO_ADD -> it.availablePaymentMethods.filter { method ->
-                        method.canBeAdded()
-                    }
-                }))
+                )
+            )
         }
     }
 
@@ -297,7 +300,8 @@ class SimpleBuyCryptoFragment :
             startActivityForResult(
                 BankAuthActivity.newInstance(
                     it, BankAuthSource.SIMPLE_BUY, requireContext()
-                ), BankAuthActivity.LINK_BANK_REQUEST_CODE
+                ),
+                BankAuthActivity.LINK_BANK_REQUEST_CODE
             )
         }
     }

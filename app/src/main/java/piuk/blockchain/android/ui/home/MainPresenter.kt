@@ -4,6 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.annotation.StringRes
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoTarget
 import com.blockchain.extensions.exhaustive
 import com.blockchain.extensions.valueOf
 import com.blockchain.logging.CrashLogger
@@ -15,29 +18,33 @@ import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
+import com.blockchain.network.PollResult
+import com.blockchain.network.PollService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.notifications.analytics.SecondPasswordEvent
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.sunriver.XlmDataManager
+import com.blockchain.utils.capitalizeFirstChar
 import com.google.gson.JsonSyntaxException
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.payload.PayloadManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.campaign.SunriverCardType
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoTarget
-import com.blockchain.network.PollResult
-import com.blockchain.network.PollService
-import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.notifications.analytics.SecondPasswordEvent
+import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
 import piuk.blockchain.android.deeplink.LinkState
@@ -57,20 +64,13 @@ import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
+import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import com.blockchain.utils.capitalizeFirstChar
-import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.deeplink.BlockchainLinkState
-import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.util.AppUtil
 import thepit.PitLinking
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 interface MainView : MvpView, HomeNavigator {
     fun refreshAnnouncements()
@@ -146,8 +146,10 @@ class MainPresenter internal constructor(
     private fun doPushNotifications() {
         if (prefs.arePushNotificationsEnabled) {
             compositeDisposable += payloadDataManager.syncPayloadAndPublicKeys()
-                .subscribe({ /*no-op*/ },
-                    { throwable -> Timber.e(throwable) })
+                .subscribe(
+                    { /*no-op*/ },
+                    { throwable -> Timber.e(throwable) }
+                )
         }
     }
 
@@ -365,10 +367,10 @@ class MainPresenter internal constructor(
                             handleOrderState(it)
                         } ?: view?.handleBuyApprovalError()
                     }, onError = {
-                        Timber.e("Error doing SB sync for bank linking $it")
-                        resetLocalBankAuthState()
-                        view?.handleBuyApprovalError()
-                    }
+                    Timber.e("Error doing SB sync for bank linking $it")
+                    resetLocalBankAuthState()
+                    view?.handleBuyApprovalError()
+                }
                 )
         }
     }
@@ -468,12 +470,13 @@ class MainPresenter internal constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { view?.showProgressDialog(R.string.please_wait) }
                 .doOnEvent { _, _ -> view?.hideProgressDialog() }
-                .subscribe({ status ->
-                    prefs.setValue(SunriverCardType.JoinWaitList.javaClass.simpleName, true)
-                    if (status != KycState.Verified) {
-                        view?.launchKyc(CampaignType.Sunriver)
-                    }
-                }, { throwable ->
+                .subscribe(
+                    { status ->
+                        prefs.setValue(SunriverCardType.JoinWaitList.javaClass.simpleName, true)
+                        if (status != KycState.Verified) {
+                            view?.launchKyc(CampaignType.Sunriver)
+                        }
+                    }, { throwable ->
                     Timber.e(throwable)
                     if (throwable is NabuApiException) {
                         val errorMessageStringId =
@@ -598,9 +601,11 @@ class MainPresenter internal constructor(
                 ) ?: throw IllegalStateException("Unknown asset ticker ${link.ticker}")
             )
             is BlockchainLinkState.KycCampaign ->
-                view?.launchKyc(valueOf<CampaignType>(
-                    link.campaignType.capitalizeFirstChar()
-                ) ?: CampaignType.None)
+                view?.launchKyc(
+                    valueOf<CampaignType>(
+                        link.campaignType.capitalizeFirstChar()
+                    ) ?: CampaignType.None
+                )
         }
     }
 

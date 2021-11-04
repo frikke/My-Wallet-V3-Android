@@ -6,21 +6,21 @@ import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.service.TierService
-import info.blockchain.balance.AssetInfo
-import com.blockchain.notifications.analytics.LaunchOrigin
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.selectFirstAccount
+import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.models.responses.nabu.KycTierLevel
+import com.blockchain.nabu.service.TierService
+import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAssetActionsSheetBinding
 import piuk.blockchain.android.databinding.ItemAssetActionBinding
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
@@ -150,7 +150,8 @@ class AssetActionsSheet :
                     getString(
                         R.string.dashboard_asset_actions_send_dsc,
                         asset.displayTicker
-                    ), asset, action
+                    ),
+                    asset, action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.SEND_CLICKED, asset)
                     processAction(AssetAction.Send)
@@ -167,7 +168,8 @@ class AssetActionsSheet :
                     getString(
                         R.string.dashboard_asset_actions_receive_dsc,
                         asset.displayTicker
-                    ), asset, action
+                    ),
+                    asset, action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.RECEIVE_CLICKED, asset)
                     processAction(AssetAction.Receive)

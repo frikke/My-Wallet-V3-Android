@@ -1,6 +1,8 @@
 package piuk.blockchain.androidcore.data.settings
 
 import com.blockchain.nabu.NabuUserSync
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
@@ -10,8 +12,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doThrow
 import org.junit.Test
 
 class SettingsEmailAndSyncUpdaterTest {

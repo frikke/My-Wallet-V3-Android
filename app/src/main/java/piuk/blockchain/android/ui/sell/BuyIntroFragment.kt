@@ -80,19 +80,19 @@ class BuyIntroFragment : ViewPagerFragment() {
                     t.map { it as PriceHistory } to pairs.copy(pairs = pairs.pairs)
                 }
             }.subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe {
-                binding.buyEmpty.gone()
-            }
-            .trackProgress(activityIndicator)
-            .subscribeBy(
-                onSuccess = { (exchangeRates, buyPairs) ->
-                    renderBuyIntro(buyPairs, exchangeRates)
-                },
-                onError = {
-                    renderErrorState()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    binding.buyEmpty.gone()
                 }
-            )
+                .trackProgress(activityIndicator)
+                .subscribeBy(
+                    onSuccess = { (exchangeRates, buyPairs) ->
+                        renderBuyIntro(buyPairs, exchangeRates)
+                    },
+                    onError = {
+                        renderErrorState()
+                    }
+                )
     }
 
     private fun renderBuyIntro(

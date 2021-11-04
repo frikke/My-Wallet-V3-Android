@@ -17,8 +17,8 @@ fun DefaultStackedIconTableRow(
     primaryText: String,
     secondaryText: String,
     iconTopUrl: String,
-    iconButtomUrl: String,
-    onClick: () -> Unit,
+    iconBottomUrl: String,
+    onClick: () -> Unit
 ) {
     TableRow(
         content = {
@@ -30,23 +30,23 @@ fun DefaultStackedIconTableRow(
                 Text(
                     text = primaryText,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title,
+                    color = AppTheme.colors.title
                 )
                 Text(
                     text = secondaryText,
                     style = AppTheme.typography.paragraph1,
-                    color = AppTheme.colors.body,
+                    color = AppTheme.colors.body
                 )
             }
         },
         contentEnd = {
             StackedIcons(
                 iconTopUrl = iconTopUrl,
-                iconButtomUrl = iconButtomUrl,
+                iconBottomUrl = iconBottomUrl,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
         },
-        onContentClicked = onClick,
+        onContentClicked = onClick
     )
 }
 
@@ -59,8 +59,8 @@ fun DefaultStackedIconTableRow_Basic() {
                 primaryText = "Primary text",
                 secondaryText = "Secondary text",
                 iconTopUrl = "",
-                iconButtomUrl = "",
-                onClick = {},
+                iconBottomUrl = "",
+                onClick = {}
             )
         }
     }

@@ -20,9 +20,9 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
@@ -169,7 +169,8 @@ class FiatDepositTxEngine(
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         sourceAccount.receiveAddress.flatMap {
             walletManager.startBankTransfer(
-                it.address, pendingTx.amount, pendingTx.amount.currencyCode, if (isOpenBankingCurrency()) {
+                it.address, pendingTx.amount, pendingTx.amount.currencyCode,
+                if (isOpenBankingCurrency()) {
                     bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
                 } else null
             )

@@ -291,7 +291,8 @@ open class BlockchainApplication : Application(), FrameworkInterface {
                         onProviderInstallerNotAvailable()
                     }
                 }
-            })
+            }
+        )
     }
 
     /**

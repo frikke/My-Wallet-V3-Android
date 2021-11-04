@@ -13,7 +13,9 @@ import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.blockchain.nabu.util.toISO8601DateString
 import com.blockchain.testutils.date
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
@@ -21,11 +23,10 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import java.util.Locale
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.amshove.kluent.`should throw`
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,7 +35,6 @@ import piuk.blockchain.android.ui.validOfflineTokenMetadata
 import piuk.blockchain.android.util.StringUtils
 import retrofit2.HttpException
 import retrofit2.Response
-import java.util.Locale
 
 class KycProfilePresenterTest {
 
@@ -310,11 +310,13 @@ class KycProfilePresenterTest {
                 dateOfBirth.toISO8601DateString(),
                 offlineToken.mapFromMetadata()
             )
-        ).thenReturn(Completable.error {
-            NabuApiException.fromResponseBody(
-                HttpException(Response.error<Unit>(409, responseBody))
-            )
-        })
+        ).thenReturn(
+            Completable.error {
+                NabuApiException.fromResponseBody(
+                    HttpException(Response.error<Unit>(409, responseBody))
+                )
+            }
+        )
         // Act
         subject.onContinueClicked()
         // Assert

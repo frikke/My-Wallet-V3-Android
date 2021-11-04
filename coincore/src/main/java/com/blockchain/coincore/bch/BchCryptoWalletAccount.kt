@@ -1,5 +1,14 @@
 package com.blockchain.coincore.bch
 
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TxEngine
+import com.blockchain.coincore.impl.AccountRefreshTrigger
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.transactionFetchCount
+import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
@@ -14,22 +23,13 @@ import info.blockchain.wallet.coin.GenericMetadataAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.atomic.AtomicBoolean
 import org.bitcoinj.core.LegacyAddress
-import com.blockchain.coincore.ActivitySummaryList
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.TxEngine
-import com.blockchain.coincore.impl.AccountRefreshTrigger
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.transactionFetchCount
-import com.blockchain.coincore.impl.transactionFetchOffset
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import piuk.blockchain.androidcore.utils.extensions.then
-import java.util.concurrent.atomic.AtomicBoolean
 
 /*internal*/ class BchCryptoWalletAccount private constructor(
     payloadManager: PayloadDataManager,

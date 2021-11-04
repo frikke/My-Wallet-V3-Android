@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.kyc.profile
 
+import java.util.Calendar
 import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
-import java.util.Calendar
 
 interface KycProfileView : View {
 

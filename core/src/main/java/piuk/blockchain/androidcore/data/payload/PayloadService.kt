@@ -14,8 +14,8 @@ import info.blockchain.wallet.payload.model.Balance
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import org.bitcoinj.core.ECKey
 import java.util.LinkedHashMap
+import org.bitcoinj.core.ECKey
 
 @BurnCandidate("Not useful")
 // This class is only used my PayloadDataManager, which also has an instance on PayloadManager, and
@@ -84,7 +84,7 @@ internal class PayloadService(
         walletName: String,
         email: String
     ): Single<Wallet> = Single.fromCallable {
-            payloadManager.create(
+        payloadManager.create(
             walletName,
             email,
             password,

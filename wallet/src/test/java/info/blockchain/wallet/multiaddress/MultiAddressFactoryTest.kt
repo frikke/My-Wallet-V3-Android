@@ -25,7 +25,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
     private val dormantAddress = "1jH7K4RJrQBXijtLj1JpzqPRhR7MdFtaW"
     private val dormantXpub =
         "xpub6CFgfYG9chNp7rzZ7ByXyAJruku5JSVhtGmGqR9tmeLRwu3jtioyBZpXC" +
-                "6GAnpMQPBQg5rviqTwMN4EwgMCZNVT3N22sSnM1yEfBQzjHXJt"
+            "6GAnpMQPBQg5rviqTwMN4EwgMCZNVT3N22sSnM1yEfBQzjHXJt"
 
     @Test
     fun getMultiAddress_legacyAddressOnly() {
@@ -164,10 +164,10 @@ class MultiAddressFactoryTest : MockedResponseTest() {
 
         val xpub1 =
             "xpub6Bx1J3neE11W2XpvKRFQVwWpZFsDfnRkLJ2V4JjPWNRD" +
-                    "XbRvZrwnytbSbBng2F1fRejxkMWAi6fYJuAJrGg6TP8Key4jvs9YqpVo5LJ8jSk"
+                "XbRvZrwnytbSbBng2F1fRejxkMWAi6fYJuAJrGg6TP8Key4jvs9YqpVo5LJ8jSk"
         val xpub2 =
             "xpub6Bx1J3neE11W3XsMUTWVBKECFJee9Tj" +
-                    "JDSZJ53LKhr7AaAPJpNtz4KZTCe8nctTdu6kLYB4uZncjsy7EBi18mKb4HLg3WLfhPFW2KFGjScE"
+                "JDSZJ53LKhr7AaAPJpNtz4KZTCe8nctTdu6kLYB4uZncjsy7EBi18mKb4HLg3WLfhPFW2KFGjScE"
         val address = "1DtkXqBjvXWsboMpc72U1kfRrK8JTntBLQ"
 
         val resource = loadResourceContent("multiaddress/multi_address_1Dtk.txt")
@@ -257,10 +257,10 @@ class MultiAddressFactoryTest : MockedResponseTest() {
     fun getMultiAddress_MoreCases2() {
         val xpub1 =
             "xpub6CdH6yzYXhTtR7UHJHtoTeWm3nbuyg9msj3rJvFnfMew9C" +
-                    "Bff6Rp62zdTrC57Spz4TpeRPL8m9xLiVaddpjEx4Dzidtk44rd4N2xu9XTrSV"
+                "Bff6Rp62zdTrC57Spz4TpeRPL8m9xLiVaddpjEx4Dzidtk44rd4N2xu9XTrSV"
         val xpub2 =
             "xpub6CdH6yzYXhTtTGPPL4Djjp1HqFmAPx4uyqoG6Ffz9nPysv8vR8t8PEJ" +
-                    "3RGaSRwMm7kRZ3MAcKgB6u4g1znFo82j4q2hdShmDyw3zuMxhDSL"
+                "3RGaSRwMm7kRZ3MAcKgB6u4g1znFo82j4q2hdShmDyw3zuMxhDSL"
         val address = "189iKJLruPtUorasDuxmc6fMRVxz6zxpPS"
 
         val resource = loadResourceContent("multiaddress/wallet_v3_6_m1.txt")

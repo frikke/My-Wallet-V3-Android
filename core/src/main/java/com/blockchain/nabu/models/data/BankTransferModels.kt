@@ -66,7 +66,8 @@ enum class BankPartner {
 
 interface LinkBankAttributes
 
-data class YodleeAttributes(val fastlinkUrl: String, val token: String, val configName: String) : LinkBankAttributes,
+data class YodleeAttributes(val fastlinkUrl: String, val token: String, val configName: String) :
+    LinkBankAttributes,
     Serializable
 
 data class YapilyAttributes(

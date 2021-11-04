@@ -13,7 +13,7 @@ class TradeDataManagerImpl(
     private val authenticator: Authenticator,
     private val accumulatedInPeriodMapper: Mapper<List<AccumulatedInPeriod>, Boolean>,
     private val nextPaymentRecurringBuyMapper:
-    Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>
+        Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>
 ) : TradeDataManager {
 
     override fun isFirstTimeBuyer(): Single<Boolean> {

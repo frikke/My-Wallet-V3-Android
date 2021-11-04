@@ -6,9 +6,9 @@ import com.blockchain.testutils.stroops
 import com.nhaarman.mockitokotlin2.internal.createInstance
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
-import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should not be`
 import org.amshove.kluent.`should throw`
 import org.junit.Test

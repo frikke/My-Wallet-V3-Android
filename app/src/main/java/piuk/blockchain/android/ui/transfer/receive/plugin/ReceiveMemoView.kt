@@ -6,10 +6,10 @@ import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import piuk.blockchain.android.urllinks.URL_XLM_MEMO
-import piuk.blockchain.android.R
 import com.blockchain.coincore.CryptoAddress
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewReceiveMemoBinding
+import piuk.blockchain.android.urllinks.URL_XLM_MEMO
 import piuk.blockchain.android.util.StringUtils
 
 class ReceiveMemoView @JvmOverloads constructor(

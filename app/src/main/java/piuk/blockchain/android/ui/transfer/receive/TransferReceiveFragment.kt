@@ -2,6 +2,9 @@ package piuk.blockchain.android.ui.transfer.receive
 
 import android.os.Bundle
 import android.view.View
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -9,9 +12,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.AccountSelectorFragment

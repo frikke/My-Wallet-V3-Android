@@ -19,6 +19,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.notifications.analytics.Analytics
 import com.google.gson.Gson
+import java.net.URLEncoder
 import org.json.JSONException
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
@@ -37,9 +38,10 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
-import java.net.URLEncoder
 
-class YodleeWebViewFragment : Fragment(), FastLinkInterfaceHandler.FastLinkListener,
+class YodleeWebViewFragment :
+    Fragment(),
+    FastLinkInterfaceHandler.FastLinkListener,
     YodleeWebClient.YodleeWebClientInterface {
 
     private var _binding: FragmentYodleeWebviewBinding? = null

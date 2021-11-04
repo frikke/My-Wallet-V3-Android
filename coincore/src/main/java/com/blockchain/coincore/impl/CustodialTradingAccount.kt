@@ -1,25 +1,5 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.BuySellOrder
-import com.blockchain.nabu.datamanagers.CryptoTransaction
-import com.blockchain.nabu.datamanagers.CustodialOrderState
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransactionState
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
@@ -36,9 +16,29 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.takeEnabledIf
 import com.blockchain.coincore.toFiat
+import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.CryptoTransaction
 import com.blockchain.nabu.datamanagers.CurrencyPair
-import piuk.blockchain.androidcore.utils.extensions.mapList
+import com.blockchain.nabu.datamanagers.CustodialOrderState
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransactionState
+import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
+import piuk.blockchain.androidcore.utils.extensions.mapList
 
 class CustodialTradingAccount(
     override val asset: AssetInfo,
@@ -260,13 +260,19 @@ class CustodialTradingAccount(
     private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {
         return flattenAsObservable { list ->
             list.filter {
-                (it is CustodialTradingActivitySummaryItem && displayedStates.contains(
-                    it.status
-                )) or (it is CustodialTransferActivitySummaryItem && displayedStates.contains(
-                    it.state
-                )) or (it is TradeActivitySummaryItem && displayedStates.contains(
-                    it.state
-                )) or (it is RecurringBuyActivitySummaryItem)
+                (
+                    it is CustodialTradingActivitySummaryItem && displayedStates.contains(
+                        it.status
+                    )
+                    ) or (
+                    it is CustodialTransferActivitySummaryItem && displayedStates.contains(
+                        it.state
+                    )
+                    ) or (
+                    it is TradeActivitySummaryItem && displayedStates.contains(
+                        it.state
+                    )
+                    ) or (it is RecurringBuyActivitySummaryItem)
             }
         }.toList()
     }

@@ -8,7 +8,11 @@ import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.annotations.CommonCode
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -21,10 +25,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import com.blockchain.coincore.ActivitySummaryItem
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
@@ -50,7 +50,8 @@ import timber.log.Timber
 
 class ActivitiesFragment :
     HomeScreenMviFragment<ActivitiesModel, ActivitiesIntent, ActivitiesState, FragmentActivitiesBinding>(),
-    AccountSelectSheet.SelectionHost, CryptoActivityDetailsBottomSheet.Host {
+    AccountSelectSheet.SelectionHost,
+    CryptoActivityDetailsBottomSheet.Host {
 
     override val model: ActivitiesModel by scopedInject()
 

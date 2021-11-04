@@ -32,7 +32,7 @@ class TransferFragment : Fragment() {
     private var _binding: FragmentTransferBinding? = null
 
     private val binding: FragmentTransferBinding
-    get() = _binding!!
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,7 +63,8 @@ class TransferFragment : Fragment() {
                 when (startingView) {
                     TransferViewType.TYPE_SEND -> TransferViewType.TYPE_SEND.ordinal
                     TransferViewType.TYPE_RECEIVE -> TransferViewType.TYPE_RECEIVE.ordinal
-                }, true
+                },
+                true
             )
         }
     }

@@ -2,9 +2,9 @@ package info.blockchain.wallet.payment
 
 import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payment.Fees.estimatedSize
+import java.math.BigInteger
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import java.math.BigInteger
 
 class FeesTest {
 

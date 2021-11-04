@@ -1,14 +1,13 @@
 package info.blockchain.wallet.payload
 
-import info.blockchain.balance.AssetInfo
-import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.BalanceResponseDto
+import com.blockchain.api.services.NonCustodialBitcoinService
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
-import retrofit2.Call
-
 import java.math.BigInteger
+import retrofit2.Call
 
 abstract class BalanceManager constructor(
     val bitcoinApi: NonCustodialBitcoinService,
@@ -34,8 +33,10 @@ abstract class BalanceManager constructor(
     }
 
     fun getAddressBalance(xpub: XPubs): CryptoValue =
-        (getXpubBalance(xpub.forDerivation(XPub.Format.LEGACY)) +
-            getXpubBalance(xpub.forDerivation(XPub.Format.SEGWIT))) as CryptoValue
+        (
+            getXpubBalance(xpub.forDerivation(XPub.Format.LEGACY)) +
+                getXpubBalance(xpub.forDerivation(XPub.Format.SEGWIT))
+            ) as CryptoValue
 
     private fun getXpubBalance(xpub: XPub?): CryptoValue =
         xpub?.address?.let {

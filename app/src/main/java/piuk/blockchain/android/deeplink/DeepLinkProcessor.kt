@@ -56,8 +56,8 @@ internal class DeepLinkProcessor(
             }
             LinkState.NoUri
         }.switchIfEmpty(Maybe.just(LinkState.NoUri))
-        .toSingle()
-        .onErrorResumeNext { Single.just(LinkState.NoUri) }
+            .toSingle()
+            .onErrorResumeNext { Single.just(LinkState.NoUri) }
 }
 
 sealed class LinkState {

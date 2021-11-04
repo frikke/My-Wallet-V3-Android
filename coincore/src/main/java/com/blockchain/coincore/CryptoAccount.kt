@@ -1,5 +1,6 @@
 package com.blockchain.coincore
 
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.interest.InterestAccountBalance
 import com.blockchain.core.price.ExchangeRate
@@ -11,7 +12,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.impl.CustodialTradingAccount
 
 data class AccountBalance internal constructor(
     val total: Money,

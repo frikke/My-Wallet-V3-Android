@@ -2,11 +2,11 @@ package info.blockchain.wallet.metadata
 
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.metadata.data.RemoteMetadataNodes
-import org.bitcoinj.core.ECKey
-import org.bitcoinj.crypto.DeterministicKey
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
+import org.bitcoinj.core.ECKey
+import org.bitcoinj.crypto.DeterministicKey
 
 class MetadataNodeFactory(
     guid: String,

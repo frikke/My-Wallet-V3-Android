@@ -35,8 +35,10 @@ class WalletCredentialsMetadataUpdaterTest {
         whenever(payloadDataManager.tempPassword).thenReturn(PASSWORD_1)
         whenever(payloadDataManager.sharedKey).thenReturn(KEY_1)
 
-        whenever(metadataRepository.loadMetadata(
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java)
+        whenever(
+            metadataRepository.loadMetadata(
+                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java
+            )
         ).thenReturn(
             Maybe.empty<WalletCredentialsMetadata>()
         )
@@ -46,11 +48,13 @@ class WalletCredentialsMetadataUpdaterTest {
         val updateResult = Completable.complete()
             .doOnSubscribe { subFlag = true }
 
-        whenever(metadataRepository.saveMetadata(
-            WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
-            WalletCredentialsMetadata::class.java,
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
-        )).thenReturn(updateResult)
+        whenever(
+            metadataRepository.saveMetadata(
+                WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
+                WalletCredentialsMetadata::class.java,
+                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
+            )
+        ).thenReturn(updateResult)
 
         subject.checkAndUpdate()
             .test()
@@ -81,8 +85,10 @@ class WalletCredentialsMetadataUpdaterTest {
         whenever(payloadDataManager.tempPassword).thenReturn(PASSWORD_1)
         whenever(payloadDataManager.sharedKey).thenReturn(KEY_1)
 
-        whenever(metadataRepository.loadMetadata(
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java)
+        whenever(
+            metadataRepository.loadMetadata(
+                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java
+            )
         ).thenReturn(
             Maybe.just(
                 WalletCredentialsMetadata(
@@ -118,8 +124,10 @@ class WalletCredentialsMetadataUpdaterTest {
         whenever(payloadDataManager.tempPassword).thenReturn(PASSWORD_1)
         whenever(payloadDataManager.sharedKey).thenReturn(KEY_1)
 
-        whenever(metadataRepository.loadMetadata(
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java)
+        whenever(
+            metadataRepository.loadMetadata(
+                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java
+            )
         ).thenReturn(
             Maybe.just(
                 WalletCredentialsMetadata(

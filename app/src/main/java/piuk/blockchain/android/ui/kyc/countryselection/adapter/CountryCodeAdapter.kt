@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.kyc.countryselection.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import kotlin.properties.Delegates
 import piuk.blockchain.android.databinding.ItemCountryInfoBinding
 import piuk.blockchain.android.ui.kyc.countryselection.util.CountryDisplayModel
 import piuk.blockchain.android.util.autoNotify
-import kotlin.properties.Delegates
 
 class CountryCodeAdapter(
     private val countrySelector: (CountryDisplayModel) -> Unit

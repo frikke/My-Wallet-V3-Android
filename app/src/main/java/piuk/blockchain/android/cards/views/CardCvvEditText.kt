@@ -11,7 +11,8 @@ class CardCvvEditText : CvvEditText {
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
         context,
         attrs,
-        defStyle) {
+        defStyle
+    ) {
     }
 
     override fun getErrorMessage(): String {

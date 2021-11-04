@@ -1,8 +1,8 @@
 package info.blockchain.balance
 
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should not be`
+import org.amshove.kluent.`should not be equal to`
 import org.junit.Test
 
 class MoneyEqualityTests {

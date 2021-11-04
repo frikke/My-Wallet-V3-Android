@@ -2,6 +2,10 @@ package info.blockchain.wallet.util
 
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.bch.CashAddress
+import java.math.BigInteger
+import java.util.Locale
+import java.util.regex.Pattern
+import javax.annotation.Nonnull
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.Base58
 import org.bitcoinj.core.Coin
@@ -15,10 +19,6 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.web3j.crypto.Hash
 import org.web3j.utils.Numeric
-import java.math.BigInteger
-import java.util.Locale
-import java.util.regex.Pattern
-import javax.annotation.Nonnull
 
 object FormatsUtil {
     private val ignoreCaseEthPattern = Pattern.compile("(?i)^(0x)?[0-9a-f]{40}$")

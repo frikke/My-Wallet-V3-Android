@@ -6,15 +6,15 @@ import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.PriceTimescale
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.preferences.CurrencyPrefs
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
-import com.nhaarman.mockitokotlin2.any
+import java.util.Calendar
 import org.junit.Rule
 import org.junit.Test
-import java.util.Calendar
 
 class ExchangeRatesDataManagerImplTest {
 
@@ -133,7 +133,7 @@ class ExchangeRatesDataManagerImplTest {
         subject.getHistoricPriceSeries(
             OLD_ASSET,
             HistoricalTimeSpan.DAY,
-        calendar
+            calendar
         ).test()
             .assertComplete()
             .assertNoErrors()

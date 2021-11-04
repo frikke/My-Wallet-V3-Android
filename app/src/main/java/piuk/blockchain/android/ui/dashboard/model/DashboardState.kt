@@ -13,13 +13,13 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
+import java.io.Serializable
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.io.Serializable
 
 data class AssetPriceState(
     val assetInfo: AssetInfo,

@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.kyc.navhost
 
-import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AlertDialog
 import android.view.View
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import piuk.blockchain.android.R
 
 internal fun showHelpDialog(activity: AppCompatActivity) {

@@ -65,9 +65,11 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
 
     override fun exitWithSuccess(card: PaymentMethod.Card) {
         val data = Intent().apply {
-            putExtras(Bundle().apply {
-                putSerializable(CARD_KEY, card)
-            })
+            putExtras(
+                Bundle().apply {
+                    putSerializable(CARD_KEY, card)
+                }
+            )
         }
         setResult(RESULT_OK, data)
         finish()

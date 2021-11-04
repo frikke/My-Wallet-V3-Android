@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails.delegates
 
-import com.blockchain.nabu.models.data.RecurringBuy
-import com.blockchain.wallet.DefaultLabels
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.wallet.DefaultLabels
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem

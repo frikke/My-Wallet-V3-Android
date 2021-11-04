@@ -2,20 +2,20 @@ package piuk.blockchain.android.ui.transactionflow.flow
 
 import android.content.Context
 import android.text.SpannableStringBuilder
-import piuk.blockchain.android.urllinks.CHECKOUT_PRICE_EXPLANATION
-import piuk.blockchain.android.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
-import piuk.blockchain.android.urllinks.NETWORK_ERC20_EXPLANATION
-import piuk.blockchain.android.urllinks.NETWORK_FEE_EXPLANATION
-import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.isErc20
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.isErc20
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl
+import piuk.blockchain.android.urllinks.CHECKOUT_PRICE_EXPLANATION
+import piuk.blockchain.android.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
+import piuk.blockchain.android.urllinks.NETWORK_ERC20_EXPLANATION
+import piuk.blockchain.android.urllinks.NETWORK_FEE_EXPLANATION
 import piuk.blockchain.android.util.StringUtils
 
 class TxConfirmReadOnlyMapperCheckout(

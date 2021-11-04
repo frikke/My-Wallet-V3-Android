@@ -9,9 +9,9 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.android.campaign.CampaignType
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicBoolean
 
 interface AnnouncementHost {
     val disposables: CompositeDisposable

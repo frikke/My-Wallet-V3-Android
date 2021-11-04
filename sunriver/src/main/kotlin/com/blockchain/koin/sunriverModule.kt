@@ -14,17 +14,19 @@ val sunriverModule = module {
 
         factory { XlmSecretAccess(get()) }
 
-        scoped { XlmDataManager(
-            horizonProxy = get(),
-            metaDataInitializer = get(),
-            xlmSecretAccess = get(),
-            memoMapper = get(),
-            xlmFeesFetcher = get(),
-            xlmTimeoutFetcher = get(),
-            lastTxUpdater = get(),
-            eventLogger = get(),
-            xlmHorizonUrlFetcher = get(),
-            xlmHorizonDefUrl = getProperty("HorizonURL"))
+        scoped {
+            XlmDataManager(
+                horizonProxy = get(),
+                metaDataInitializer = get(),
+                xlmSecretAccess = get(),
+                memoMapper = get(),
+                xlmFeesFetcher = get(),
+                xlmTimeoutFetcher = get(),
+                lastTxUpdater = get(),
+                eventLogger = get(),
+                xlmHorizonUrlFetcher = get(),
+                xlmHorizonDefUrl = getProperty("HorizonURL")
+            )
         }
 
         factory { HorizonProxy { Server(it) } }

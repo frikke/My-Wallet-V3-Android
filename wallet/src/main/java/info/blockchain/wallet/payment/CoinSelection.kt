@@ -114,9 +114,9 @@ private fun transactionBytes(
     val legacyInputs = inputs.size - segwitInputs
 
     return COST_BASE +
-            COST_PER_INPUT_LEGACY.multiply(legacyInputs.toBigInteger()) +
-            COST_PER_INPUT_SEGWIT.multiply(segwitInputs.toBigInteger()) +
-            outputType.cost.multiply(outputs.toBigInteger())
+        COST_PER_INPUT_LEGACY.multiply(legacyInputs.toBigInteger()) +
+        COST_PER_INPUT_SEGWIT.multiply(segwitInputs.toBigInteger()) +
+        outputType.cost.multiply(outputs.toBigInteger())
 }
 
 private fun effectiveValue(coin: Utxo, feePerByte: BigInteger): BigInteger {

@@ -8,9 +8,14 @@ import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
-import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -27,13 +32,14 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
+import java.math.RoundingMode
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Currency
+import java.util.Date
+import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAsset
 import piuk.blockchain.android.databinding.DialogSheetDashboardAssetDetailsBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
@@ -49,12 +55,6 @@ import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.setOnTabSelectedListener
 import piuk.blockchain.android.util.visible
-import java.math.RoundingMode
-import java.text.NumberFormat
-import java.text.SimpleDateFormat
-import java.util.Currency
-import java.util.Date
-import java.util.Locale
 
 class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     AssetDetailsIntent, AssetDetailsState, DialogSheetDashboardAssetDetailsBinding>() {
@@ -287,21 +287,23 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                     )
                 }
 
-            this.data = LineData(LineDataSet(entries, null).apply {
-                color = ContextCompat.getColor(context, getDataRepresentationColor(data))
-                lineWidth = 2f
-                mode = LineDataSet.Mode.LINEAR
-                setDrawValues(false)
-                setDrawCircles(false)
-                isHighlightEnabled = true
-                setDrawHighlightIndicators(false)
-                marker = ValueMarker(
-                    context,
-                    R.layout.price_chart_marker,
-                    getFiatSymbol(currencyPrefs.selectedFiatCurrency),
-                    numOfDecimalsForChart(asset)
-                )
-            })
+            this.data = LineData(
+                LineDataSet(entries, null).apply {
+                    color = ContextCompat.getColor(context, getDataRepresentationColor(data))
+                    lineWidth = 2f
+                    mode = LineDataSet.Mode.LINEAR
+                    setDrawValues(false)
+                    setDrawCircles(false)
+                    isHighlightEnabled = true
+                    setDrawHighlightIndicators(false)
+                    marker = ValueMarker(
+                        context,
+                        R.layout.price_chart_marker,
+                        getFiatSymbol(currencyPrefs.selectedFiatCurrency),
+                        numOfDecimalsForChart(asset)
+                    )
+                }
+            )
             animateX(500)
         }
     }
@@ -390,9 +392,9 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
         percentageView.text =
             FiatValue.fromMajor(
-                currencyPrefs.selectedFiatCurrency,
-                difference.toBigDecimal()
-            ).toStringWithSymbol() + " ($percentChangeTxt%)"
+            currencyPrefs.selectedFiatCurrency,
+            difference.toBigDecimal()
+        ).toStringWithSymbol() + " ($percentChangeTxt%)"
 
         percentageView.setDeltaColour(
             delta = difference,

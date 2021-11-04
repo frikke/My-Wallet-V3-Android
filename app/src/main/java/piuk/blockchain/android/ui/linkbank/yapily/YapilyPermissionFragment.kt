@@ -236,7 +236,8 @@ class YapilyPermissionFragment : Fragment() {
                     BankAuthAnalytics.PIS_PERMISSIONS_APPROVED
                 } else {
                     BankAuthAnalytics.AIS_PERMISSIONS_APPROVED
-                }, authSource
+                },
+                authSource
             )
         )
 
@@ -247,7 +248,8 @@ class YapilyPermissionFragment : Fragment() {
                     BankAuthAnalytics.PIS_PERMISSIONS_DENIED
                 } else {
                     BankAuthAnalytics.AIS_PERMISSIONS_DENIED
-                }, authSource
+                },
+                authSource
             )
         )
 

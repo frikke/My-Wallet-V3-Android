@@ -20,6 +20,7 @@ import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
@@ -35,7 +36,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
-import java.util.Locale
 
 class SimpleBuyPaymentFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyPaymentBinding>(),
@@ -182,8 +182,10 @@ class SimpleBuyPaymentFragment :
                     authorisationUrl = authorisationUrl,
                     linkedBank = linkedBank,
                     orderValue = orderValue
-                ), BankAuthSource.SIMPLE_BUY, requireContext()
-            ), BANK_APPROVAL
+                ),
+                BankAuthSource.SIMPLE_BUY, requireContext()
+            ),
+            BANK_APPROVAL
         )
     }
 
@@ -245,7 +247,8 @@ class SimpleBuyPaymentFragment :
                     ) + appendRecurringBuyInfo(
                         order = newState.order,
                         selectedCryptoAsset = newState.selectedCryptoAsset,
-                        recurringBuyFrequency = newState.recurringBuyFrequency)
+                        recurringBuyFrequency = newState.recurringBuyFrequency
+                    )
                 )
             }
             newState.paymentPending && newState.orderValue != null -> {
@@ -274,7 +277,8 @@ class SimpleBuyPaymentFragment :
                             ) + appendRecurringBuyInfo(
                                 order = newState.order,
                                 selectedCryptoAsset = newState.selectedCryptoAsset,
-                                recurringBuyFrequency = newState.recurringBuyFrequency)
+                                recurringBuyFrequency = newState.recurringBuyFrequency
+                            )
                         )
                     }
                     else -> {

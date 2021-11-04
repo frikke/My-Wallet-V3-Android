@@ -11,11 +11,11 @@ import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import java.math.BigInteger
 
 interface Erc20DataManager {
     val accountHash: String

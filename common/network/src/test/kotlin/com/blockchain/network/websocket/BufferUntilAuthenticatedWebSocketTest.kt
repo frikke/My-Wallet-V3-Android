@@ -1,9 +1,9 @@
 package com.blockchain.network.websocket
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 
 class BufferUntilAuthenticatedWebSocketTest {

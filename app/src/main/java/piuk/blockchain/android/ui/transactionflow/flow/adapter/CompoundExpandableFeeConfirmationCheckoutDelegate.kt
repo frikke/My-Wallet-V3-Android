@@ -8,11 +8,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.FeeInfo
+import com.blockchain.coincore.TxConfirmation
+import com.blockchain.coincore.TxConfirmationValue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isErc20
 import piuk.blockchain.android.R
-import com.blockchain.coincore.TxConfirmation
-import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemFeeCheckoutCompoundExpandableInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey

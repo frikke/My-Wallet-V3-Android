@@ -18,10 +18,12 @@ class AnalyticsNabuUserReporterImpl(
     }
 
     override fun reportUser(nabuUser: NabuUser) {
-        userAnalytics.logUserProperty(UserProperty(
-            UserAnalytics.KYC_LEVEL,
-            nabuUser.tierInProgressOrCurrentTier.toString()
-        ))
+        userAnalytics.logUserProperty(
+            UserProperty(
+                UserAnalytics.KYC_LEVEL,
+                nabuUser.tierInProgressOrCurrentTier.toString()
+            )
+        )
         nabuUser.updatedAt?.let {
             userAnalytics.logUserProperty(UserProperty(UserAnalytics.KYC_UPDATED_DATE, it))
         }

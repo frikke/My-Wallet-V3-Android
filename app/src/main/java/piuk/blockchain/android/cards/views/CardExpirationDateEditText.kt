@@ -12,7 +12,8 @@ class CardExpirationDateEditText : ExpirationDateEditText {
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
         context,
         attrs,
-        defStyle)
+        defStyle
+    )
 
     /*
     We need to do that because ExpirationDateEditText accepts expiration date only in mm / yy or mm / yyyy

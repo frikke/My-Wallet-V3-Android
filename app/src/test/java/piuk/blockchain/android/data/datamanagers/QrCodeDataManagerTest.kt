@@ -1,10 +1,10 @@
 package piuk.blockchain.android.data.datamanagers
 
 import com.blockchain.android.testutils.rxInit
+import java.lang.Exception
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.scan.QrCodeDataManager
-import java.lang.Exception
 
 class QrCodeDataManagerTest {
     private val subject: QrCodeDataManager = QrCodeDataManager()

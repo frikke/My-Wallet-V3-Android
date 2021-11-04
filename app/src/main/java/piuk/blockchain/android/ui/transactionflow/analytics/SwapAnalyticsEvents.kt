@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
 import com.blockchain.notifications.analytics.AnalyticsEvent
-import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.constructMap
 import java.io.Serializable
 import java.math.BigDecimal
+import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.constructMap
 
 sealed class SwapAnalyticsEvents(
     override val event: String,
@@ -47,7 +47,8 @@ sealed class SwapAnalyticsEvents(
         val source: String,
         val target: String
     ) : SwapAnalyticsEvents(
-        "swap_checkout_success", params = constructMap(
+        "swap_checkout_success",
+        params = constructMap(
             asset = asset,
             target = target,
             source = source
@@ -60,7 +61,8 @@ sealed class SwapAnalyticsEvents(
         val source: String?,
         val error: String
     ) : SwapAnalyticsEvents(
-        "swap_checkout_error", params = constructMap(
+        "swap_checkout_error",
+        params = constructMap(
             asset = asset,
             target = target,
             source = source,

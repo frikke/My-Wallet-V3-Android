@@ -25,6 +25,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
+import java.math.BigInteger
+import kotlin.test.assertEquals
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
@@ -32,8 +34,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
-import java.math.BigInteger
-import kotlin.test.assertEquals
 
 @Suppress("IllegalIdentifier")
 class PayloadDataManagerTest {
@@ -418,10 +418,12 @@ class PayloadDataManagerTest {
         val mockAccount: Account = mock()
         val accounts = listOf(mockAccount)
         whenever(payloadManager.payload?.walletBody?.accounts).thenReturn(accounts)
-        whenever(payloadManager.getNextReceiveAddressAndReserve(
-            mockAccount,
-            addressLabel
-        )).thenReturn(address)
+        whenever(
+            payloadManager.getNextReceiveAddressAndReserve(
+                mockAccount,
+                addressLabel
+            )
+        ).thenReturn(address)
 
         // Act
         val testObserver = subject.getNextReceiveAddressAndReserve(accountIndex, addressLabel).test()

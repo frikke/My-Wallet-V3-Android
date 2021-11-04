@@ -20,7 +20,6 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.YapilyAttributes
-import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
@@ -28,6 +27,7 @@ import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
@@ -85,7 +85,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 R.string.approve_payment
             } else {
                 R.string.link_a_bank
-            }, false
+            },
+            false
         )
 
         activity.onBackPressedDispatcher.addCallback(
@@ -451,7 +452,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 ErrorState.LinkedBankAccountUnsupported -> BankAuthAnalytics.INCORRECT_ACCOUNT_RETRY
                 ErrorState.LinkedBankNamesMismatched -> BankAuthAnalytics.ACCOUNT_MISMATCH_RETRY
                 else -> BankAuthAnalytics.GENERIC_ERROR_RETRY
-            }, partner
+            },
+            partner
         )
 
     private fun logCancelAnalytics(state: ErrorState, partner: BankPartner?) =
@@ -461,7 +463,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 ErrorState.LinkedBankAccountUnsupported -> BankAuthAnalytics.INCORRECT_ACCOUNT_CANCEL
                 ErrorState.LinkedBankNamesMismatched -> BankAuthAnalytics.ACCOUNT_MISMATCH_CANCEL
                 else -> BankAuthAnalytics.GENERIC_ERROR_CANCEL
-            }, partner
+            },
+            partner
         )
 
     private fun logAnalytics(event: BankAuthAnalytics, partner: BankPartner?) {
@@ -526,7 +529,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     BankAuthAnalytics.PIS_EXTERNAL_FLOW_RETRY
                 } else {
                     BankAuthAnalytics.AIS_EXTERNAL_FLOW_RETRY
-                }, authSource
+                },
+                authSource
             )
         )
 

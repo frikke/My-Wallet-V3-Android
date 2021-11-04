@@ -11,6 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
@@ -18,10 +22,9 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -30,10 +33,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
@@ -45,6 +44,7 @@ import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountsSorting
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
@@ -159,7 +159,8 @@ class SellIntroFragment : ViewPagerFragment() {
                     VerifyIdentityNumericBenefitItem(
                         getString(R.string.invalid_id),
                         getString(R.string.invalid_id_description)
-                    ), VerifyIdentityNumericBenefitItem(
+                    ),
+                    VerifyIdentityNumericBenefitItem(
                         getString(R.string.information_missmatch),
                         getString(R.string.information_missmatch_description)
                     ),
@@ -191,7 +192,8 @@ class SellIntroFragment : ViewPagerFragment() {
                     VerifyIdentityNumericBenefitItem(
                         getString(R.string.sell_intro_kyc_title_1),
                         getString(R.string.sell_intro_kyc_subtitle_1)
-                    ), VerifyIdentityNumericBenefitItem(
+                    ),
+                    VerifyIdentityNumericBenefitItem(
                         getString(R.string.sell_intro_kyc_title_2),
                         getString(R.string.sell_intro_kyc_subtitle_2)
                     ),
@@ -281,9 +283,9 @@ class SellIntroFragment : ViewPagerFragment() {
 
         startForResult.launch(
             TransactionFlowActivity.newInstance(
-            context = requireActivity(),
-            sourceAccount = it,
-            action = AssetAction.Sell
+                context = requireActivity(),
+                sourceAccount = it,
+                action = AssetAction.Sell
             )
         )
     }

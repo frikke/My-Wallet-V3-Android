@@ -1,11 +1,14 @@
 package com.blockchain.coincore.btc
 
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.impl.AccountRefreshTrigger
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -18,16 +21,12 @@ import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import io.reactivex.rxjava3.core.Single
-
+import java.math.BigInteger
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.coincore.impl.AccountRefreshTrigger
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
-import java.math.BigInteger
 
 class BtcAccountActivityTest : CoincoreTestBase() {
 

@@ -15,6 +15,9 @@ import com.blockchain.preferences.BrowserIdentityMapping
 import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
 import info.blockchain.wallet.crypto.AESUtil
+import java.util.Currency
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -23,9 +26,6 @@ import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
-import java.util.Currency
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 interface UUIDGenerator {
     fun generateUUID(): String

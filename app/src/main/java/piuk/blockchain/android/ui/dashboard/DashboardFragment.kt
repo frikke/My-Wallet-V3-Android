@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentDashboardBinding
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -56,7 +56,8 @@ class DashboardFragment : Fragment() {
                 when (startingView) {
                     DashboardViewType.TYPE_PORTFOLIO -> DashboardViewType.TYPE_PORTFOLIO.ordinal
                     DashboardViewType.TYPE_PRICES -> DashboardViewType.TYPE_PRICES.ordinal
-                }, true
+                },
+                true
             )
         }
     }

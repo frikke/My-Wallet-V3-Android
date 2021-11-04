@@ -9,12 +9,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -23,7 +17,14 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.core.payments.model.FundsLocks
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
+import java.io.Serializable
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAccountSelectBankBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectCryptoBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectFiatBinding
@@ -36,7 +37,6 @@ import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.trackProgress
-import java.io.Serializable
 
 typealias StatusDecorator = (BlockchainAccount) -> CellDecorator
 

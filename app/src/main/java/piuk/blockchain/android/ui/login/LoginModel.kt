@@ -6,6 +6,8 @@ import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLPeerUnverifiedException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
@@ -15,8 +17,6 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import retrofit2.HttpException
 import timber.log.Timber
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLPeerUnverifiedException
 
 class LoginModel(
     initialState: LoginState,

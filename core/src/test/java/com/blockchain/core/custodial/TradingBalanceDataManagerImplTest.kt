@@ -43,8 +43,8 @@ class TradingBalanceDataManagerImplTest {
             .assertValue {
                 val total = it.total
                 total is CryptoValue &&
-                total.currency == CRYPTO_ASSET_1 &&
-                total.isPositive
+                    total.currency == CRYPTO_ASSET_1 &&
+                    total.isPositive
             }
     }
 
@@ -64,8 +64,8 @@ class TradingBalanceDataManagerImplTest {
             .assertValue {
                 val total = it.total
                 total is CryptoValue &&
-                total.currency == CRYPTO_ASSET_2 &&
-                total.isZero
+                    total.currency == CRYPTO_ASSET_2 &&
+                    total.isZero
             }
     }
 

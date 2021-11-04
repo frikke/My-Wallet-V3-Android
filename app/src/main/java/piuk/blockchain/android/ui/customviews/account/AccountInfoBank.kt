@@ -4,14 +4,14 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.databinding.ViewAccountBankOverviewBinding
 import piuk.blockchain.android.ui.customviews.StatusPill
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -54,7 +54,8 @@ class AccountInfoBank @JvmOverloads constructor(
                     context.getString(R.string.bank_account_info_default)
                 } else {
                     account.accountType
-                }, account.accountNumber
+                },
+                account.accountNumber
             )
         }
         setOnClickListener { onAccountClicked(account) }
@@ -112,7 +113,8 @@ class AccountInfoBank @JvmOverloads constructor(
                             bankStatusMin.update(
                                 context.getString(
                                     R.string.bank_wire_transfer_min_withdrawal, it.minLimit.toStringWithSymbol()
-                                ), StatusPill.StatusType.LABEL
+                                ),
+                                StatusPill.StatusType.LABEL
                             )
                         }
                     },

@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.login
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import java.io.Serializable
+import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 
 sealed class LoginAnalytics(
     override val event: String,

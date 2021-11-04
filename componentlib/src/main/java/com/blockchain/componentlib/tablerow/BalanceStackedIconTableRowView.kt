@@ -17,7 +17,7 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
     var iconTopUrl by mutableStateOf("")
-    var iconButtomUrl by mutableStateOf("")
+    var iconBottomUrl by mutableStateOf("")
     var titleStart by mutableStateOf(buildAnnotatedString { })
     var titleEnd by mutableStateOf(buildAnnotatedString { })
     var bodyStart by mutableStateOf(buildAnnotatedString { })
@@ -34,7 +34,7 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
             bodyEnd = bodyEnd,
             onClick = onClick,
             iconTopUrl = iconTopUrl,
-            iconButtomUrl = iconButtomUrl,
+            iconBottomUrl = iconBottomUrl
         )
     }
 }

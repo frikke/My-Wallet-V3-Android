@@ -9,12 +9,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.toFiat
 import com.blockchain.core.price.ExchangeRates
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
-import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.coincore.toFiat
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementTransferBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -94,9 +94,11 @@ private class AgreementTextItemViewHolder(
             .append(introToHolding)
             .append(amountInBold)
             .append(outroToHolding)
-        sb.setSpan(StyleSpan(BOLD), introToHolding.length,
+        sb.setSpan(
+            StyleSpan(BOLD), introToHolding.length,
             introToHolding.length + amountInBold.length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
         return sb
     }
 }

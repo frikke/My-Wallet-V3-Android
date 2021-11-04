@@ -21,7 +21,7 @@ object Versions {
 
     const val googleServicesPlugin = "4.3.3"
     const val buildProperties = "0.4"
-    const val ktlint = "0.27.0"
+    const val ktlint = "0.43.0"
     const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
 
@@ -154,7 +154,7 @@ object Libraries {
     const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val buildProperties = "com.novoda:gradle-build-properties-plugin:${Versions.buildProperties}"
-    const val ktlint = "com.github.shyiko:ktlint:${Versions.ktlint}"
+    const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
 
     // Support Libraries
     const val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"

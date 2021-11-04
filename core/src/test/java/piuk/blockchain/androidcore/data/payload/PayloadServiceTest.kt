@@ -1,24 +1,24 @@
 package piuk.blockchain.androidcore.data.payload
 
+import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.ApiException
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.Wallet
+import info.blockchain.wallet.payload.data.XPub
+import info.blockchain.wallet.payload.data.XPubs
+import info.blockchain.wallet.payload.model.Balance
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.ApiException
-import info.blockchain.wallet.keys.SigningKey
-import info.blockchain.wallet.payload.data.XPub
-import info.blockchain.wallet.payload.data.XPubs
-import info.blockchain.wallet.payload.model.Balance
 
 @Suppress("IllegalIdentifier")
 class PayloadServiceTest {

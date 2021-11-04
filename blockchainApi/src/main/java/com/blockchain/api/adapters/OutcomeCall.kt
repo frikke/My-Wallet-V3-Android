@@ -1,12 +1,12 @@
 package com.blockchain.api.adapters
 
+import java.io.IOException
+import java.lang.reflect.Type
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.IOException
-import java.lang.reflect.Type
 
 class OutcomeCall<R>(
     private val delegate: Call<R>,

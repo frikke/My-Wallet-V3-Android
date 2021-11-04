@@ -1,9 +1,9 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.caching.ParameteredSingleTimedCacheRequest
 import io.reactivex.rxjava3.core.Single
 
 interface SimpleBuyEligibilityProvider {

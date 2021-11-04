@@ -6,14 +6,15 @@ import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.metadata.Metadata
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.MetadataInteractor
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Locale
+import java.util.NoSuchElementException
 import org.bitcoinj.crypto.MnemonicCode
 import org.bitcoinj.crypto.MnemonicException
-import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadata
@@ -21,7 +22,6 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.util.NoSuchElementException
 
 class RecoverFundsPresenter(
     private val payloadDataManager: PayloadDataManager,
@@ -81,10 +81,10 @@ class RecoverFundsPresenter(
                 metadataDerivation = metadataDerivation
             )
         )
-        .map {
-            moshi.adapter(WalletCredentialsMetadata::class.java)
-                .fromJson(it) ?: throw NoSuchElementException()
-        }.toSingle()
+            .map {
+                moshi.adapter(WalletCredentialsMetadata::class.java)
+                    .fromJson(it) ?: throw NoSuchElementException()
+            }.toSingle()
     }
 
     private fun recoverWallet(recoveryPhrase: String) {
@@ -96,23 +96,23 @@ class RecoverFundsPresenter(
                     creds.password
                 )
             }
-        .observeOn(Schedulers.io())
-        .subscribeOn(AndroidSchedulers.mainThread())
-        .doOnSubscribe {
-            view.showProgressDialog(R.string.restoring_wallet)
-        }.doOnTerminate {
-            view.dismissProgressDialog()
-        }.subscribeBy(
-            onComplete = {
-                prefs.sharedKey = payloadDataManager.wallet!!.sharedKey
-                prefs.walletGuid = payloadDataManager.wallet!!.guid
-                prefs.isOnBoardingComplete = true
-                view.startPinEntryActivity()
-            },
-            onError = {
-                Timber.e(it)
-                view.gotoCredentialsActivity(recoveryPhrase)
-            }
-        )
+            .observeOn(Schedulers.io())
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                view.showProgressDialog(R.string.restoring_wallet)
+            }.doOnTerminate {
+                view.dismissProgressDialog()
+            }.subscribeBy(
+                onComplete = {
+                    prefs.sharedKey = payloadDataManager.wallet!!.sharedKey
+                    prefs.walletGuid = payloadDataManager.wallet!!.guid
+                    prefs.isOnBoardingComplete = true
+                    view.startPinEntryActivity()
+                },
+                onError = {
+                    Timber.e(it)
+                    view.gotoCredentialsActivity(recoveryPhrase)
+                }
+            )
     }
 }

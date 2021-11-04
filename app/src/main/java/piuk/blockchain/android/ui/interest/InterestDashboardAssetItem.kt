@@ -173,8 +173,10 @@ private class InterestAssetItemViewHolder(
             .append(rateIntro)
             .append(rateInfo)
             .append(rateOutro)
-        sb.setSpan(StyleSpan(Typeface.BOLD), rateIntro.length,
-            rateIntro.length + rateInfo.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        sb.setSpan(
+            StyleSpan(Typeface.BOLD), rateIntro.length,
+            rateIntro.length + rateInfo.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
 
         itemInterestInfoText.setText(sb, TextView.BufferType.SPANNABLE)
     }

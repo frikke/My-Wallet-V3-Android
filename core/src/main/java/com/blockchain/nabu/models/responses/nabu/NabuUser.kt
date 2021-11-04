@@ -1,7 +1,7 @@
 package com.blockchain.nabu.models.responses.nabu
 
-import com.blockchain.serialization.JsonSerializable
 import com.blockchain.nabu.datamanagers.BillingAddress
+import com.blockchain.serialization.JsonSerializable
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonDataException

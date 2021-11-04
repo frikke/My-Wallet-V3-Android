@@ -10,8 +10,8 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import java.math.RoundingMode
+import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 internal data class ConvertedAmounts(
     val inputAmount: Money,
@@ -55,11 +55,11 @@ internal class FiatCryptoConversionModel(
         return when (input) {
             is CurrencyType.Fiat -> when (output) {
                 is CurrencyType.Crypto -> exchangeRates.cryptoToFiatRate(
-                        fromAsset = output.cryptoCurrency,
-                        toFiat = input.fiatCurrency
-                    ).map {
-                        it.inverse(RoundingMode.FLOOR, CryptoValue.DISPLAY_DP)
-                    }
+                    fromAsset = output.cryptoCurrency,
+                    toFiat = input.fiatCurrency
+                ).map {
+                    it.inverse(RoundingMode.FLOOR, CryptoValue.DISPLAY_DP)
+                }
                 is CurrencyType.Fiat -> {
                     exchangeRates.fiatToFiatRate(input.fiatCurrency, output.fiatCurrency)
                 }

@@ -1,8 +1,8 @@
 package piuk.blockchain.androidcore.data.api.interceptors
 
+import java.util.Locale
 import okhttp3.Interceptor
 import okhttp3.Response
-import java.util.Locale
 
 class UserAgentInterceptor(
     private val versionName: String,

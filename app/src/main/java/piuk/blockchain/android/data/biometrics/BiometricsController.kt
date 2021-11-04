@@ -14,9 +14,9 @@ import com.blockchain.biometrics.BiometricsType
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.PromptInfo
 import com.blockchain.logging.CrashLogger
+import java.util.concurrent.Executor
 import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.R
-import java.util.concurrent.Executor
 
 interface BiometricsController : BiometricAuth {
     fun authenticate(fragment: Fragment, type: BiometricsType, callback: BiometricsCallback<WalletBiometricData>)

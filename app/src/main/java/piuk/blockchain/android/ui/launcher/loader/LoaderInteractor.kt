@@ -14,12 +14,12 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
+import java.io.Serializable
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import java.io.Serializable
 
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,
@@ -99,8 +99,8 @@ class LoaderInteractor(
                     }
                     emitter.onComplete()
                 }, onError = { throwable ->
-                    emitter.onError(throwable)
-                }
+                emitter.onError(throwable)
+            }
             )
         }
     }

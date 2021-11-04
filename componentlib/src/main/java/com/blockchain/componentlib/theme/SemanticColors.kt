@@ -19,7 +19,7 @@ class SemanticColors(
     warning: Color,
     error: Color,
 
-    //The following are not defined in the design system yet
+    // The following are not defined in the design system yet
     tagDefaultBackground: Color,
     tagDefaultText: Color,
     tagInfoAltBackground: Color,
@@ -108,7 +108,7 @@ class SemanticColors(
         tagErrorBackground: Color = this.tagErrorBackground,
         tagErrorText: Color = this.tagErrorText,
 
-        isLight: Boolean = this.isLight,
+        isLight: Boolean = this.isLight
     ) = SemanticColors(
         title = title,
         body = body,
@@ -134,7 +134,7 @@ class SemanticColors(
         tagErrorBackground = tagErrorBackground,
         tagErrorText = tagErrorText,
 
-        isLight = isLight,
+        isLight = isLight
     )
 
     fun updateColorsFrom(colors: SemanticColors) {

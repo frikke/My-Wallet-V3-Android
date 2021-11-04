@@ -1,7 +1,7 @@
 package info.blockchain.wallet.multiaddress
 
-import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.MultiAddress
+import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.data.legacyXpubAddresses
 import retrofit2.Call

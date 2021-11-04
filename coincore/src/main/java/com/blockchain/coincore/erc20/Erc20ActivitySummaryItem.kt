@@ -1,5 +1,7 @@
 package com.blockchain.coincore.erc20
 
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -8,10 +10,8 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.math.BigInteger
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 /*internal*/ class Erc20ActivitySummaryItem(
     override val asset: AssetInfo,
@@ -26,8 +26,8 @@ import java.math.BigInteger
 
     override val transactionType: TransactionSummary.TransactionType by unsafeLazy {
         when {
-            event.isToAccount(accountHash)
-                && event.isFromAccount(accountHash) -> TransactionSummary.TransactionType.TRANSFERRED
+            event.isToAccount(accountHash) &&
+                event.isFromAccount(accountHash) -> TransactionSummary.TransactionType.TRANSFERRED
             event.isFromAccount(accountHash) -> TransactionSummary.TransactionType.SENT
             else -> TransactionSummary.TransactionType.RECEIVED
         }

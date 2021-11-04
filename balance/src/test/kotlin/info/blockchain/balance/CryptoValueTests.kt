@@ -1,10 +1,10 @@
 package info.blockchain.balance
 
+import java.math.BigDecimal
+import java.math.BigInteger
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import java.math.BigDecimal
-import java.math.BigInteger
 
 class CryptoValueTests {
 

@@ -1,6 +1,8 @@
 package piuk.blockchain.androidcore.data.api.interceptors
 
 import com.blockchain.network.interceptor.DoNotLogResponseBody
+import java.io.IOException
+import java.util.Locale
 import okhttp3.Interceptor
 import okhttp3.RequestBody
 import okhttp3.Response
@@ -8,8 +10,6 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 import retrofit2.Invocation
 import timber.log.Timber
-import java.io.IOException
-import java.util.Locale
 
 class ApiLoggingInterceptor : Interceptor {
 

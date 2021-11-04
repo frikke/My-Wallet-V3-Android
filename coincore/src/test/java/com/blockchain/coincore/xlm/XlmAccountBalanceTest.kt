@@ -1,12 +1,13 @@
 package com.blockchain.coincore.xlm
 
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.preferences.WalletStatus
-import com.blockchain.sunriver.XlmDataManager
-import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
+import com.blockchain.sunriver.XlmDataManager
+import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.testutils.lumens
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -16,7 +17,6 @@ import io.reactivex.rxjava3.core.Single
 import junit.framework.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 
@@ -155,9 +155,9 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.total == 5.lumens() &&
-                it.actionable.isZero &&
-                it.pending.isZero &&
-                it.exchangeRate == XLM_TO_USER_RATE
+                    it.actionable.isZero &&
+                    it.pending.isZero &&
+                    it.exchangeRate == XLM_TO_USER_RATE
             }
 
         assert(subject.isFunded)
@@ -180,9 +180,9 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.total.isZero &&
-                it.actionable.isZero &&
-                it.pending.isZero &&
-                it.exchangeRate == XLM_TO_USER_RATE
+                    it.actionable.isZero &&
+                    it.pending.isZero &&
+                    it.exchangeRate == XLM_TO_USER_RATE
             }
 
         assertFalse(subject.isFunded)

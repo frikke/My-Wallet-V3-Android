@@ -56,7 +56,7 @@ fun MinimalButton(
             backgroundColor = if (isPressed) Color.White else Color.Transparent,
             contentColor = Color.Unspecified,
             disabledContentColor = Color.Unspecified,
-            disabledBackgroundColor = Color.Unspecified,
+            disabledBackgroundColor = Color.Unspecified
         ),
         interactionSource = interactionSource,
         border = BorderStroke(width = 1.dp, color = buttonBorderColor)
@@ -66,7 +66,7 @@ fun MinimalButton(
                 modifier = Modifier
                     .size(24.dp)
                     .alpha(spinnerAlpha),
-                color = AppTheme.colors.primary,
+                color = AppTheme.colors.primary
             )
             Text(
                 text = text,
@@ -85,7 +85,7 @@ fun MinimalButton_Basic() {
         Surface(color = Color.White) {
             MinimalButton(
                 onClick = { },
-                text = "Button",
+                text = "Button"
             )
         }
     }
@@ -99,7 +99,7 @@ fun MinimalButton_Loading() {
             MinimalButton(
                 onClick = { },
                 text = "Button",
-                state = MinimalButtonState.Loading,
+                state = MinimalButtonState.Loading
             )
         }
     }
@@ -113,7 +113,7 @@ fun MinimalButton_Disabled() {
             MinimalButton(
                 onClick = { },
                 text = "Button",
-                state = MinimalButtonState.Disabled,
+                state = MinimalButtonState.Disabled
             )
         }
     }
@@ -133,4 +133,3 @@ fun MinimalButton_FullWidth() {
         }
     }
 }
-

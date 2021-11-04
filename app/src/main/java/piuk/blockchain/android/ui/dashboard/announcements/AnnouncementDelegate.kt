@@ -2,25 +2,25 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import androidx.annotation.ColorRes
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
+import android.graphics.drawable.GradientDrawable
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.notifications.analytics.Analytics
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ItemAnnouncementMiniBinding
+import piuk.blockchain.android.databinding.ItemAnnouncementStandardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.isVisible
 import piuk.blockchain.android.util.visible
-import android.graphics.drawable.GradientDrawable
-import android.view.LayoutInflater
-import com.blockchain.notifications.analytics.Analytics
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import piuk.blockchain.android.databinding.ItemAnnouncementMiniBinding
-import piuk.blockchain.android.databinding.ItemAnnouncementStandardBinding
 
 class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
     AdapterDelegate<T> {

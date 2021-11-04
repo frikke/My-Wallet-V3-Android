@@ -8,6 +8,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import com.blockchain.annotations.CommonCode
 import com.blockchain.koin.scopedInject
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecoverFundsBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
@@ -16,7 +17,6 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ViewUtils
-import java.util.Locale
 
 internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverFundsPresenter>(), RecoverFundsView {
 

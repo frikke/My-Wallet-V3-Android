@@ -2,7 +2,9 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.CrashLogger
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -12,8 +14,6 @@ import io.reactivex.rxjava3.core.Observable
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -24,12 +24,12 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import retrofit2.Response
 
 class TestAuthPresenter(
@@ -472,8 +472,9 @@ class PasswordAuthPresenterTest {
                 )
             )
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
-            .thenReturn(Completable.complete()
-        )
+            .thenReturn(
+                Completable.complete()
+            )
 
         // Act
         subject.submitTwoFactorCode(responseObject, sessionId, GUID, PASSWORD, code)

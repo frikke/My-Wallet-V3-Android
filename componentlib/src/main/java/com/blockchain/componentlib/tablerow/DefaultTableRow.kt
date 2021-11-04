@@ -22,7 +22,7 @@ fun DefaultTableRow(
     onClick: () -> Unit,
     secondaryText: String? = null,
     paragraphText: String? = null,
-    tags: List<TagViewState>? = null,
+    tags: List<TagViewState>? = null
 ) {
     TableRow(
         content = {
@@ -34,13 +34,13 @@ fun DefaultTableRow(
                 Text(
                     text = primaryText,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title,
+                    color = AppTheme.colors.title
                 )
                 if (secondaryText != null) {
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
-                        color = AppTheme.colors.body,
+                        color = AppTheme.colors.body
                     )
                 }
             }
@@ -62,7 +62,7 @@ fun DefaultTableRow(
                         modifier = Modifier
                             .padding(
                                 top = 4.dp,
-                                bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp,
+                                bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp
                             )
                     )
                 }
@@ -84,7 +84,7 @@ fun DefaultTableRow_Basic() {
         AppSurface {
             DefaultTableRow(
                 primaryText = "Navigate over here",
-                onClick = {},
+                onClick = {}
             )
         }
     }
@@ -98,7 +98,7 @@ fun DefaultTableRow_TwoLine() {
             DefaultTableRow(
                 primaryText = "Navigate over here",
                 secondaryText = "Text for more info",
-                onClick = {},
+                onClick = {}
             )
         }
     }
@@ -111,7 +111,7 @@ fun DefaultTableRow_Basic_Dark() {
         AppSurface {
             DefaultTableRow(
                 primaryText = "Navigate over here",
-                onClick = {},
+                onClick = {}
             )
         }
     }
@@ -125,7 +125,7 @@ fun DefaultTableRow_TwoLine_Dark() {
             DefaultTableRow(
                 primaryText = "Navigate over here",
                 secondaryText = "Text for more info",
-                onClick = {},
+                onClick = {}
             )
         }
     }
@@ -145,7 +145,7 @@ fun DefaultTableRow_Tag() {
                         value = "Completed",
                         type = TagType.Success
                     )
-                ),
+                )
             )
         }
     }
@@ -184,8 +184,8 @@ fun DefaultTableRow_Tag_Dark() {
                     TagViewState(
                         value = "Warning",
                         type = TagType.Warning
-                    ),
-                ),
+                    )
+                )
             )
         }
     }
@@ -199,14 +199,14 @@ fun DefaultTableRow_Long_Tag() {
             DefaultTableRow(
                 primaryText = "Navigate over here",
                 secondaryText = "Text for more info",
-                paragraphText = "This is a long paragraph which wraps, This is a long paragraph which wraps, This is a long paragraph which wraps, This is a long paragraph which wraps, This is a long paragraph which wraps,",
+                paragraphText = "This is a long paragraph which wraps, ".repeat(5),
                 onClick = {},
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
                         type = TagType.Success
                     )
-                ),
+                )
             )
         }
     }
@@ -220,7 +220,7 @@ fun DefaultTableRow_Long_Tag_Dark() {
             DefaultTableRow(
                 primaryText = "Navigate over here",
                 secondaryText = "Text for more info",
-                paragraphText = "This is a long paragraph which wraps, This is a long paragraph which wraps, This is a long paragraph which wraps, This is a long paragraph which wraps, This is a long paragraph which wraps,",
+                paragraphText = "This is a long paragraph which wraps, ".repeat(5),
                 onClick = {},
                 tags = listOf(
                     TagViewState(
@@ -246,10 +246,9 @@ fun DefaultTableRow_Long_Tag_Dark() {
                     TagViewState(
                         value = "Warning",
                         type = TagType.Warning
-                    ),
-                ),
+                    )
+                )
             )
         }
     }
 }
-

@@ -2,6 +2,9 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.coincore.Coincore
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPairs
@@ -29,20 +32,18 @@ import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.service.TierService
+import com.blockchain.network.PollResult
+import com.blockchain.network.PollService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.cards.CardIntent
-import com.blockchain.coincore.Coincore
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.network.PollResult
-import com.blockchain.network.PollService
-import info.blockchain.balance.Money
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -52,7 +53,6 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.trackProgress
-import java.util.concurrent.TimeUnit
 
 class SimpleBuyInteractor(
     private val tierService: TierService,
@@ -302,12 +302,14 @@ class SimpleBuyInteractor(
 
     fun eligiblePaymentMethods(fiatCurrency: String, preselectedId: String?):
         Single<SimpleBuyIntent.PaymentMethodsUpdated> =
-        tierService.tiers().zipWith(custodialWalletManager.isSimplifiedDueDiligenceEligible().onErrorReturn { false }
-            .doOnSuccess {
-                if (it) {
-                    analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE)
+        tierService.tiers().zipWith(
+            custodialWalletManager.isSimplifiedDueDiligenceEligible().onErrorReturn { false }
+                .doOnSuccess {
+                    if (it) {
+                        analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE)
+                    }
                 }
-            })
+        )
             .flatMap { (tier, sddEligible) ->
                 custodialWalletManager.fetchSuggestedPaymentMethod(
                     fiatCurrency = fiatCurrency,

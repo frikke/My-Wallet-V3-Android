@@ -26,7 +26,7 @@ fun BalanceTableRow(
     bodyEnd: AnnotatedString? = null,
     startIconUrl: String,
     tags: List<TagViewState>,
-    onClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     TableRow(
         content = {
@@ -39,13 +39,13 @@ fun BalanceTableRow(
                     startText = titleStart,
                     endText = titleEnd,
                     textStyle = AppTheme.typography.body2,
-                    textColor = AppTheme.colors.title,
+                    textColor = AppTheme.colors.title
                 )
                 TableRowText(
                     startText = bodyStart,
                     endText = bodyEnd,
                     textStyle = AppTheme.typography.paragraph1,
-                    textColor = AppTheme.colors.body,
+                    textColor = AppTheme.colors.body
                 )
             }
         },
@@ -73,6 +73,6 @@ fun BalanceTableRow(
                 )
             }
         },
-        onContentClicked = onClick,
+        onContentClicked = onClick
     )
 }

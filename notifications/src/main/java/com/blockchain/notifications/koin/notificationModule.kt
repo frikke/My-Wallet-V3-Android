@@ -2,18 +2,18 @@ package com.blockchain.notifications.koin
 
 import android.app.NotificationManager
 import android.content.Context
-import com.blockchain.notifications.CrashLoggerImpl
 import com.blockchain.koin.nabu
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.logging.CrashLogger
 import com.blockchain.logging.EventLogger
 import com.blockchain.notifications.BuildConfig
+import com.blockchain.notifications.CrashLoggerImpl
 import com.blockchain.notifications.FirebaseNotificationTokenProvider
 import com.blockchain.notifications.NotificationService
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationTokenProvider
-import com.blockchain.notifications.analytics.AnalyticsImpl
 import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.analytics.AnalyticsImpl
 import com.blockchain.notifications.analytics.InjectableLogging
 import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import com.blockchain.notifications.analytics.UserAnalytics

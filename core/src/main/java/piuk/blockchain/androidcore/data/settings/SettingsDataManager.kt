@@ -124,10 +124,12 @@ class SettingsDataManager(
                 .flatMap { updateNotifications(notificationType) }
                 .applySchedulers()
         } else if (notifications.size == 1 &&
-            (notifications.contains(SettingsManager.NOTIFICATION_TYPE_EMAIL) &&
+            (
+                notifications.contains(SettingsManager.NOTIFICATION_TYPE_EMAIL) &&
                     notificationType == SettingsManager.NOTIFICATION_TYPE_SMS ||
                     notifications.contains(SettingsManager.NOTIFICATION_TYPE_SMS) &&
-                    notificationType == SettingsManager.NOTIFICATION_TYPE_EMAIL)
+                    notificationType == SettingsManager.NOTIFICATION_TYPE_EMAIL
+                )
         ) {
             // Contains another type already, send "All"
             settingsService.enableNotifications(true)

@@ -10,9 +10,12 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.utils.capitalizeFirstChar
+import com.blockchain.utils.toFormattedDateWithoutYear
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.Date
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyInfoBinding
 import piuk.blockchain.android.simplebuy.CheckoutAdapterDelegate
@@ -28,11 +31,8 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
 import piuk.blockchain.android.ui.dashboard.assetdetails.ClearSelectedRecurringBuy
 import piuk.blockchain.android.ui.dashboard.assetdetails.DeleteRecurringBuy
-import piuk.blockchain.android.ui.dashboard.assetdetails.ReturnToPreviousStep
 import piuk.blockchain.android.ui.dashboard.assetdetails.GetPaymentDetails
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.Date
+import piuk.blockchain.android.ui.dashboard.assetdetails.ReturnToPreviousStep
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 
 class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,

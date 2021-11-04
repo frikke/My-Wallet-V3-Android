@@ -19,7 +19,8 @@ class AccountLimitsView @JvmOverloads constructor(
     attr: AttributeSet? = null,
     defStyle: Int = 0
 ) : ConstraintLayout(ctx, attr, defStyle),
-    EnterAmountWidget, KoinComponent {
+    EnterAmountWidget,
+    KoinComponent {
 
     private lateinit var model: TransactionModel
     private lateinit var customiser: EnterAmountCustomisations

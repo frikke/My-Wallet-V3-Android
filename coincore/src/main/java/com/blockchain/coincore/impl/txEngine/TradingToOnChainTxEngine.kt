@@ -16,8 +16,12 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.coincore.xlm.STATE_MEMO
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.AssetCategory
@@ -25,10 +29,6 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.xlm.STATE_MEMO
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
-import com.blockchain.nabu.UserIdentity
 import piuk.blockchain.androidcore.utils.extensions.then
 
 private fun PendingTx.setMemo(memo: TxConfirmationValue.Memo): PendingTx =

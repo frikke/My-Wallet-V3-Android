@@ -53,12 +53,14 @@ class EmailVeriffModelTest {
 
         statesTest.assertValueAt(0, EmailVeriffState())
         statesTest.assertValueAt(
-            1, EmailVeriffState(
+            1,
+            EmailVeriffState(
                 email = Email("address@example.com", false)
             )
         )
         statesTest.assertValueAt(
-            2, EmailVeriffState(
+            2,
+            EmailVeriffState(
                 email = Email("address@example.com", true)
             )
         )

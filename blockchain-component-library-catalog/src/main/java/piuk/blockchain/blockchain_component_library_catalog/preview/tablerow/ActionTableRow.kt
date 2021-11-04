@@ -74,7 +74,7 @@ fun ActionStackedIconTableRowPreview() {
                 primaryText = "Primary text",
                 secondaryText = "Secondary text",
                 iconTopUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
-                iconButtomUrl = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
+                iconBottomUrl = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
                 onClick = {},
             )
         }

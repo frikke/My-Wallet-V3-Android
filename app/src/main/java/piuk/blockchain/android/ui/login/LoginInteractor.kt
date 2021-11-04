@@ -5,6 +5,7 @@ import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import java.nio.charset.Charset
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -15,7 +16,6 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import java.nio.charset.Charset
 
 class LoginInteractor(
     private val authDataManager: AuthDataManager,

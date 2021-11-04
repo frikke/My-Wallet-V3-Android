@@ -2,6 +2,8 @@ package com.blockchain.sunriver
 
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import java.math.BigDecimal
+import java.math.BigInteger
 import org.stellar.sdk.AssetTypeNative
 import org.stellar.sdk.CreateAccountOperation
 import org.stellar.sdk.KeyPair
@@ -16,8 +18,6 @@ import org.stellar.sdk.requests.RequestBuilder
 import org.stellar.sdk.responses.AccountResponse
 import org.stellar.sdk.responses.TransactionResponse
 import org.stellar.sdk.responses.operations.OperationResponse
-import java.math.BigDecimal
-import java.math.BigInteger
 
 private val basePerOperationFee = CryptoValue.fromMinor(CryptoCurrency.XLM, 100.toBigInteger())
 

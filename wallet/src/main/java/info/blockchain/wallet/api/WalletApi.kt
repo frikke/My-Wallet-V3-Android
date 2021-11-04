@@ -12,11 +12,11 @@ import info.blockchain.wallet.api.data.WalletOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.net.URLEncoder
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
 import retrofit2.Call
 import retrofit2.Response
-import java.net.URLEncoder
 
 class WalletApi(
     private val explorerInstance: WalletExplorerEndpoints,

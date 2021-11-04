@@ -27,8 +27,10 @@ class FiatFundsKycAnnouncement(
         }
 
         // if eligible for simple buy balance then user is KYC gold
-        return Singles.zip(featureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE),
-            custodialWalletManager.getBanks()) { isEligible, linkedBanks ->
+        return Singles.zip(
+            featureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE),
+            custodialWalletManager.getBanks()
+        ) { isEligible, linkedBanks ->
             isEligible && linkedBanks.isEmpty()
         }
     }

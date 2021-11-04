@@ -10,8 +10,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import io.reactivex.rxjava3.core.Maybe
-
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
 

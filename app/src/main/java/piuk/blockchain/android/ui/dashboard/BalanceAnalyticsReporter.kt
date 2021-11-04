@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.coincore.Coincore
 import com.blockchain.notifications.analytics.UserAnalytics
 import com.blockchain.notifications.analytics.UserProperty
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import com.blockchain.coincore.Coincore
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.math.BigDecimal
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class BalanceAnalyticsReporter(
     private val analytics: UserAnalytics,

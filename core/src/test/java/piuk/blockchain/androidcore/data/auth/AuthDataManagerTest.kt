@@ -13,6 +13,7 @@ import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.crypto.AESUtil
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Observable
+import java.util.concurrent.TimeUnit
 import junit.framework.TestCase.assertTrue
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
@@ -26,7 +27,6 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import retrofit2.Response
-import java.util.concurrent.TimeUnit
 
 class AuthDataManagerTest : RxTest() {
 

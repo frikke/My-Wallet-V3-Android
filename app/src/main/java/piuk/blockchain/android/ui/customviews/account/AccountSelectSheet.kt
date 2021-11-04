@@ -3,13 +3,13 @@ package piuk.blockchain.android.ui.customviews.account
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.activityShown
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.databinding.DialogSheetAccountSelectorBinding
 import piuk.blockchain.android.ui.base.HostedBottomSheet
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
@@ -75,15 +75,15 @@ class AccountSelectSheet(
             accountListTitle.text = getString(sheetTitle)
             accountListSubtitle.text = getString(sheetSubtitle)
             accountListSubtitle.visibleIf { getString(sheetSubtitle).isNotEmpty() }
-            }
-            if (host is SelectAndBackHost) {
-                showBackArrow()
-            } else {
-                binding.accountListBack.gone()
-            }
-
-            binding.accountList.initialise(accountList, statusDecorator)
         }
+        if (host is SelectAndBackHost) {
+            showBackArrow()
+        } else {
+            binding.accountListBack.gone()
+        }
+
+        binding.accountList.initialise(accountList, statusDecorator)
+    }
 
     private fun showBackArrow() {
         binding.accountListBack.visible()

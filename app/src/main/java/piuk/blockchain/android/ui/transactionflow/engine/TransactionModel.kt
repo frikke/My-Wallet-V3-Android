@@ -30,12 +30,12 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
-import java.util.Stack
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
     ZERO,

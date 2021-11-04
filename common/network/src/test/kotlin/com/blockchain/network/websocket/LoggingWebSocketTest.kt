@@ -108,13 +108,15 @@ class LoggingWebSocketWithNullLoggerTest : KoinTest {
     @Before
     fun setup() {
         startKoin {
-            modules(listOf(
-                module {
-                    single {
-                        NullLogger
-                    }.bind(Logger::class)
-                }
-            ))
+            modules(
+                listOf(
+                    module {
+                        single {
+                            NullLogger
+                        }.bind(Logger::class)
+                    }
+                )
+            )
         }
     }
 

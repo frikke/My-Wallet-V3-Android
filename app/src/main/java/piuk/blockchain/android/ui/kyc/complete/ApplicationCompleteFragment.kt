@@ -10,7 +10,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import piuk.blockchain.android.util.throttledClicks
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -26,6 +25,7 @@ import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
+import piuk.blockchain.android.util.throttledClicks
 import timber.log.Timber
 
 class ApplicationCompleteFragment : Fragment() {
@@ -63,7 +63,8 @@ class ApplicationCompleteFragment : Fragment() {
             binding.buttonDone
                 .throttledClicks().zipWith(
                     if (progressListener.campaignType == CampaignType.Swap ||
-                        progressListener.campaignType == CampaignType.None) {
+                        progressListener.campaignType == CampaignType.None
+                    ) {
                         tierService.tiers().toObservable()
                             .map { it.isApprovedFor(KycTierLevel.SILVER) || it.isApprovedFor(KycTierLevel.GOLD) }
                             .onErrorReturn { false }

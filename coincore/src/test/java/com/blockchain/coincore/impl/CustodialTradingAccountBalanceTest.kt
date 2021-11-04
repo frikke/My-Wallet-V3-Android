@@ -1,5 +1,7 @@
 package com.blockchain.coincore.impl
 
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
@@ -13,12 +15,10 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.TestScheduler
+import java.util.concurrent.TimeUnit
 import junit.framework.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.testutil.CoincoreTestBase
-import java.util.concurrent.TimeUnit
 
 class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
@@ -28,15 +28,15 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
     private val features: InternalFeatureFlagApi = mock()
 
     private val subject = CustodialTradingAccount(
-            asset = TEST_ASSET,
-            label = "Test Account",
-            exchangeRates = exchangeRates,
-            custodialWalletManager = custodialManager,
-            tradingBalances = tradingBalances,
-            identity = identity,
-            features = features,
-            baseActions = ACTIONS
-        )
+        asset = TEST_ASSET,
+        label = "Test Account",
+        exchangeRates = exchangeRates,
+        custodialWalletManager = custodialManager,
+        tradingBalances = tradingBalances,
+        identity = identity,
+        features = features,
+        baseActions = ACTIONS
+    )
 
     @Before
     fun setup() {
@@ -62,9 +62,9 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
             .assertComplete()
             .assertValue {
                 it.total == balance.total &&
-                it.actionable == balance.actionable &&
-                it.pending == balance.pending &&
-                it.exchangeRate == TEST_TO_USER_RATE_1
+                    it.actionable == balance.actionable &&
+                    it.pending == balance.pending &&
+                    it.exchangeRate == TEST_TO_USER_RATE_1
             }
 
         assert(subject.isFunded)

@@ -9,10 +9,10 @@ import com.nhaarman.mockitokotlin2.verify
 import com.squareup.moshi.Moshi
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import java.math.BigDecimal
 import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
-import java.math.BigDecimal
 
 class MoshiMetadataRepositoryAdapterTest {
 

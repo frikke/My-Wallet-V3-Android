@@ -20,7 +20,7 @@ fun BalanceStackedIconTableRow(
     bodyEnd: AnnotatedString? = null,
     onClick: () -> Unit,
     iconTopUrl: String,
-    iconButtomUrl: String,
+    iconBottomUrl: String
 ) {
     TableRow(
         content = {
@@ -33,7 +33,7 @@ fun BalanceStackedIconTableRow(
                     startText = titleStart,
                     endText = titleEnd,
                     textStyle = AppTheme.typography.body2,
-                    textColor = AppTheme.colors.title,
+                    textColor = AppTheme.colors.title
                 )
                 TableRowText(
                     startText = bodyStart,
@@ -46,7 +46,7 @@ fun BalanceStackedIconTableRow(
         contentStart = {
             StackedIcons(
                 iconTopUrl = iconTopUrl,
-                iconButtomUrl = iconButtomUrl,
+                iconBottomUrl = iconBottomUrl,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .padding(end = 16.dp)

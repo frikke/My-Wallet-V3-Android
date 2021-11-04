@@ -8,14 +8,16 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.FloatRange
 import androidx.core.content.ContextCompat
-import piuk.blockchain.android.R
 import kotlin.math.min
+import piuk.blockchain.android.R
 
 class RoundedCornersProgressView : View {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs,
-        defStyleAttr)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context, attrs,
+        defStyleAttr
+    )
 
     private val progressPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -49,8 +51,10 @@ class RoundedCornersProgressView : View {
 
     private fun updateRect() {
         val strokeWidth = backgroundPaint.strokeWidth
-        rect.set(strokeWidth, strokeWidth, diameter - strokeWidth,
-            diameter - strokeWidth)
+        rect.set(
+            strokeWidth, strokeWidth, diameter - strokeWidth,
+            diameter - strokeWidth
+        )
     }
 
     private fun drawCircle(angle: Float, canvas: Canvas, paint: Paint) {

@@ -1,20 +1,15 @@
 package com.blockchain.coincore
 
-import com.blockchain.koin.payloadScope
-import com.blockchain.koin.payloadScopeQualifier
-import info.blockchain.balance.AssetCatalogue
-import org.koin.dsl.bind
-import org.koin.dsl.module
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.EthAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
+import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.AssetLoaderSwitcher
 import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
 import com.blockchain.coincore.loader.DynamicAssetLoader
@@ -22,8 +17,13 @@ import com.blockchain.coincore.loader.StaticAssetLoader
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.koin.dynamicAssetsFeatureFlag
+import com.blockchain.koin.payloadScope
+import com.blockchain.koin.payloadScopeQualifier
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
 val coincoreModule = module {
 

@@ -5,9 +5,8 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
-import info.blockchain.wallet.payload.data.WalletBody
 import info.blockchain.wallet.payload.data.Wallet
-
+import info.blockchain.wallet.payload.data.WalletBody
 import org.amshove.kluent.`should be`
 import org.junit.Test
 

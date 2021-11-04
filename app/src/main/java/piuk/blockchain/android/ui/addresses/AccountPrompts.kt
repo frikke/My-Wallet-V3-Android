@@ -92,12 +92,12 @@ fun showAddressQrCode(
     bitmap: Bitmap,
     qrString: String
 ) = showAddressQrCode(
-        ctx,
-        heading,
-        ctx.getString(note),
-        copyBtn,
-        bitmap,
-        qrString
+    ctx,
+    heading,
+    ctx.getString(note),
+    copyBtn,
+    bitmap,
+    qrString
 )
 
 fun showAddressQrCode(

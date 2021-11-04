@@ -11,6 +11,8 @@ import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.Currency
+import java.util.Locale
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBinding
@@ -19,8 +21,6 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.util.Locale
-import java.util.Currency
 
 class SimpleBuySelectCurrencyFragment :
     MviBottomSheet<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyCurrencySelectionBinding>(),

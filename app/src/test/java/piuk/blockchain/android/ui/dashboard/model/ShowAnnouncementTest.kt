@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import info.blockchain.balance.CryptoCurrency
-import org.junit.Test
 import kotlin.test.assertEquals
+import org.junit.Test
 
 class ShowAnnouncementTest {
 

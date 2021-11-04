@@ -11,10 +11,10 @@ import android.view.inputmethod.EditorInfo
 import com.blockchain.utils.tryParseBigDecimal
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
-import piuk.blockchain.android.ui.customviews.AutofitEdittext
-import piuk.blockchain.android.util.AfterTextChangedWatcher
 import java.math.BigDecimal
 import kotlin.properties.Delegates
+import piuk.blockchain.android.ui.customviews.AutofitEdittext
+import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class PrefixedOrSuffixedEditText : AutofitEdittext {
 

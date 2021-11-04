@@ -1,17 +1,17 @@
 package piuk.blockchain.android.ui.activity
 
-import com.blockchain.notifications.analytics.Analytics
-import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.preferences.SimpleBuyPrefs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import com.blockchain.coincore.ActivitySummaryList
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
+import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import timber.log.Timber
 
 class ActivitiesInteractor(
@@ -32,12 +32,12 @@ class ActivitiesInteractor(
 
     fun cancelSimpleBuyOrder(orderId: String): Disposable? {
         return custodialWalletManager.deleteBuyOrder(orderId)
-                .subscribeBy(
-                    onComplete = { simpleBuyPrefs.clearBuyState() },
-                    onError = { error ->
-                        analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_ERROR)
-                        Timber.e(error)
-                    }
-                )
+            .subscribeBy(
+                onComplete = { simpleBuyPrefs.clearBuyState() },
+                onError = { error ->
+                    analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_ERROR)
+                    Timber.e(error)
+                }
+            )
     }
 }

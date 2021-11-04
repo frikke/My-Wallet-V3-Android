@@ -10,13 +10,13 @@ import androidx.fragment.app.Fragment
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.notifications.analytics.Analytics
-import piuk.blockchain.android.urllinks.YODLEE_LEARN_MORE
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimpleBuyYodleeSplashBinding
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
 import piuk.blockchain.android.ui.linkbank.bankAuthEvent
+import piuk.blockchain.android.urllinks.YODLEE_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
 
 class YodleeSplashFragment : Fragment() {

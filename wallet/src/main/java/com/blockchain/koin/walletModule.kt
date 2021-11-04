@@ -5,8 +5,8 @@ import info.blockchain.wallet.api.dust.DustApi
 import info.blockchain.wallet.api.dust.DustService
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthEndpoints
-import info.blockchain.wallet.metadata.MetadataService
 import info.blockchain.wallet.metadata.MetadataInteractor
+import info.blockchain.wallet.metadata.MetadataService
 import info.blockchain.wallet.multiaddress.MultiAddressFactory
 import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc
 import info.blockchain.wallet.payload.BalanceManagerBch

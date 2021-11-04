@@ -104,43 +104,43 @@ private class XlmMemoItemViewHolder(
         }
     }
 
-        private fun AppCompatEditText.setupOnDoneListener(
-            model: TransactionModel,
-            item: TxConfirmationValue.Memo
-        ) {
-            inputType = INPUT_FIELD_FLAGS
-            filters = arrayOf(InputFilter.LengthFilter(maxCharacters))
+    private fun AppCompatEditText.setupOnDoneListener(
+        model: TransactionModel,
+        item: TxConfirmationValue.Memo
+    ) {
+        inputType = INPUT_FIELD_FLAGS
+        filters = arrayOf(InputFilter.LengthFilter(maxCharacters))
 
-            setOnEditorActionListener { v, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
-                    if (binding.confirmDetailsMemoSpinner.selectedItemPosition == TEXT_INDEX) {
-                        if (haveContentsChanged(v.text.toString(), item.text)) {
-                            model.process(
-                                TransactionIntent.ModifyTxOption(
-                                    item.copy(
-                                        id = null,
-                                        text = v.text.toString()
-                                    )
+        setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
+                if (binding.confirmDetailsMemoSpinner.selectedItemPosition == TEXT_INDEX) {
+                    if (haveContentsChanged(v.text.toString(), item.text)) {
+                        model.process(
+                            TransactionIntent.ModifyTxOption(
+                                item.copy(
+                                    id = null,
+                                    text = v.text.toString()
                                 )
                             )
-                        }
-                    } else {
-                        if (haveContentsChanged(v.text.toString(), item.text)) {
-                            model.process(
-                                TransactionIntent.ModifyTxOption(
-                                    item.copy(
-                                        id = v.text.toString().toLong(),
-                                        text = null
-                                    )
-                                )
-                            )
-                        }
+                        )
                     }
-                    clearFocus()
+                } else {
+                    if (haveContentsChanged(v.text.toString(), item.text)) {
+                        model.process(
+                            TransactionIntent.ModifyTxOption(
+                                item.copy(
+                                    id = v.text.toString().toLong(),
+                                    text = null
+                                )
+                            )
+                        )
+                    }
                 }
-                true
+                clearFocus()
             }
+            true
         }
+    }
 
     private fun AppCompatSpinner.setupSpinner() {
         val spinnerArrayAdapter: ArrayAdapter<String> =

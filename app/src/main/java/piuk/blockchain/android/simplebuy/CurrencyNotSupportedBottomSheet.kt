@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import java.lang.IllegalStateException
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyCurrencyNotSupportedBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.lang.IllegalStateException
 
 class CurrencyNotSupportedBottomSheet : SlidingModalBottomDialog<SimpleBuyCurrencyNotSupportedBinding>() {
 

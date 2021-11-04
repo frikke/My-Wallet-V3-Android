@@ -156,8 +156,10 @@ class SimpleBuyPendingKycFragment :
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CardDetailsActivity.ADD_CARD_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                val card = (data?.extras?.getSerializable(CardDetailsActivity.CARD_KEY) as?
-                    PaymentMethod.Card) ?: return
+                val card = (
+                    data?.extras?.getSerializable(CardDetailsActivity.CARD_KEY) as?
+                        PaymentMethod.Card
+                    ) ?: return
                 val cardId = card.cardId
                 val cardLabel = card.uiLabel()
                 val cardPartner = card.partner

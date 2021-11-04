@@ -5,9 +5,9 @@ import com.blockchain.notifications.analytics.apiError
 import com.blockchain.notifications.analytics.networkError
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
+import retrofit2.HttpException
 
 fun <T : Any> Observable<T>.logAnalyticsError(analytics: Analytics): Observable<T> =
     doOnError {
@@ -27,8 +27,12 @@ private fun HttpException.logError(analytics: Analytics) {
     val scheme = url.scheme
     val path = url.toString().removePrefix("$scheme://$host")
     if (this is SocketTimeoutException || this is IOException) {
-        analytics.logEvent(networkError(host,
-            path, message()))
+        analytics.logEvent(
+            networkError(
+                host,
+                path, message()
+            )
+        )
     } else {
         val rawError = response()?.errorBody()?.string()
         val requestId = response()?.headers()?.get("x-request-id")

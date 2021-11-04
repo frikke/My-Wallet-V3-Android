@@ -83,14 +83,14 @@ private fun OperationResponse.toXlmTransaction(
     from: String,
     fee: CryptoValue
 ) = XlmTransaction(
-        timeStamp = createdAt,
-        value = deltaValueForAccount(usersAccountId, KeyPair.fromAccountId(from), amount),
-        fee = fee,
-        hash = transactionHash,
-        memo = mapMemo(memo),
-        to = KeyPair.fromAccountId(to).toHorizonKeyPair().neuter(),
-        from = KeyPair.fromAccountId(from).toHorizonKeyPair().neuter()
-    )
+    timeStamp = createdAt,
+    value = deltaValueForAccount(usersAccountId, KeyPair.fromAccountId(from), amount),
+    fee = fee,
+    hash = transactionHash,
+    memo = mapMemo(memo),
+    to = KeyPair.fromAccountId(to).toHorizonKeyPair().neuter(),
+    from = KeyPair.fromAccountId(from).toHorizonKeyPair().neuter()
+)
 
 private fun deltaValueForAccount(
     usersAccountId: String,

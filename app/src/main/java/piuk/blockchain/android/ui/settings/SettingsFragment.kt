@@ -62,6 +62,9 @@ import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.util.Calendar
+import java.util.Locale
+import kotlin.math.roundToInt
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -117,11 +120,9 @@ import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Locale
-import kotlin.math.roundToInt
 
-class SettingsFragment : PreferenceFragmentCompat(),
+class SettingsFragment :
+    PreferenceFragmentCompat(),
     SettingsView,
     RemovePaymentMethodBottomSheetHost,
     BankLinkingHost {
@@ -705,7 +706,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     override fun showFingerprintDialog(pincode: String) {
         biometricsController.authenticate(
-            this, BiometricsType.TYPE_REGISTER, object : BiometricsCallback<WalletBiometricData> {
+            this, BiometricsType.TYPE_REGISTER,
+            object : BiometricsCallback<WalletBiometricData> {
                 override fun onAuthSuccess(data: WalletBiometricData) {
                     updateFingerprintPreferenceStatus()
                 }
@@ -718,12 +720,14 @@ class SettingsFragment : PreferenceFragmentCompat(),
                     settingsPresenter.setFingerprintUnlockDisabled()
                     updateFingerprintPreferenceStatus()
                 }
-            })
+            }
+        )
     }
 
     private fun handleAuthFailed(error: BiometricAuthError) {
         when (error) {
-            is BiometricKeysInvalidated -> BiometricPromptUtil.showActionableInvalidatedKeysDialog(requireContext(),
+            is BiometricKeysInvalidated -> BiometricPromptUtil.showActionableInvalidatedKeysDialog(
+                requireContext(),
                 positiveActionCallback = {
                     settingsPresenter.onFingerprintClicked()
                 },
@@ -738,7 +742,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
                         ),
                         REQUEST_CODE_BIOMETRIC_ENROLLMENT
                     )
-                })
+                }
+            )
             is BiometricsNoSuitableMethods -> showNoFingerprintsAddedDialog()
             is BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(requireContext())
             is BiometricAuthLockoutPermanent -> BiometricPromptUtil.showPermanentAuthLockoutDialog(requireContext())

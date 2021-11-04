@@ -152,24 +152,26 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     }
 
     private fun showConnectivityWarning() =
-        showAlert(AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setMessage(getString(R.string.check_connectivity_exit))
-            .setCancelable(false)
-            .setNegativeButton(R.string.exit) { _, _ -> finishAffinity() }
-            .setPositiveButton(R.string.retry) { _, _ ->
-                val intent = Intent(this, LandingActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-            }
-            .create()
+        showAlert(
+            AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setMessage(getString(R.string.check_connectivity_exit))
+                .setCancelable(false)
+                .setNegativeButton(R.string.exit) { _, _ -> finishAffinity() }
+                .setPositiveButton(R.string.retry) { _, _ ->
+                    val intent = Intent(this, LandingActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                }
+                .create()
         )
 
     override fun showIsRootedWarning() =
-        showAlert(AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setMessage(R.string.device_rooted)
-            .setCancelable(false)
-            .setPositiveButton(R.string.dialog_continue) { _, _ -> clearAlert() }
-            .create()
+        showAlert(
+            AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setMessage(R.string.device_rooted)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_continue) { _, _ -> clearAlert() }
+                .create()
         )
 
     override fun showApiOutageMessage() {

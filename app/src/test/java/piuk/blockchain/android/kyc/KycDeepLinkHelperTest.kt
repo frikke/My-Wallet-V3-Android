@@ -3,10 +3,9 @@ package piuk.blockchain.android.kyc
 import android.net.Uri
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.notifications.links.PendingLink
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import io.reactivex.rxjava3.core.Maybe
-
-import com.nhaarman.mockitokotlin2.any
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

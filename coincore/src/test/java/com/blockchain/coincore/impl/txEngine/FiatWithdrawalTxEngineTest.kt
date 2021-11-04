@@ -1,17 +1,6 @@
 package com.blockchain.coincore.impl.txEngine
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.FiatValue
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
-import org.junit.Before
-import org.junit.Test
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -24,8 +13,19 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.FiatValue
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import org.junit.Before
+import org.junit.Test
 
 class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
 
@@ -416,7 +416,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             .assertValue {
                 it.amount == pendingTx.amount &&
                     it.limits == pendingTx.limits
-                    it.validationState == ValidationState.CAN_EXECUTE
+                it.validationState == ValidationState.CAN_EXECUTE
             }
     }
 

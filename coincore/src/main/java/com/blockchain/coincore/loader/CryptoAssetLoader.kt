@@ -1,9 +1,9 @@
 package com.blockchain.coincore.loader
 
-import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Completable
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.remoteconfig.FeatureFlag
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 // TODO this will change to support both fiat and crypto, when we have a common interface/class for both

@@ -7,9 +7,9 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.l1chain
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicReference
+import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class AssetCatalogueImpl internal constructor(
     private val fixedAssets: Set<AssetInfo>,
@@ -103,42 +103,42 @@ class AssetCatalogueImpl internal constructor(
         supportedCryptoAssets.filter { it.l1chainTicker == chain.networkTicker }
 
     companion object {
-    private val staticAssets: Set<AssetInfo> =
-        setOf(
-            WDGLD,
-            PAX,
-            USDT,
-            AAVE,
-            YFI
-        )
+        private val staticAssets: Set<AssetInfo> =
+            setOf(
+                WDGLD,
+                PAX,
+                USDT,
+                AAVE,
+                YFI
+            )
 
-    private val dynamicAssets: Set<AssetInfo> =
-        setOf(
-            ALGO,
-            DOT,
-            DOGE,
-            CLOUT,
-            LTC,
-            ETC,
-            XTZ,
-            STX,
-            MOB,
-            THETA,
-            NEAR,
-            EOS,
-            OGN,
-            ENJ,
-            COMP,
-            LINK,
-            TBTC,
-            WBTC,
-            SNX,
-            SUSHI,
-            ZRX,
-            USDC,
-            UNI,
-            DAI,
-            BAT
-        )
+        private val dynamicAssets: Set<AssetInfo> =
+            setOf(
+                ALGO,
+                DOT,
+                DOGE,
+                CLOUT,
+                LTC,
+                ETC,
+                XTZ,
+                STX,
+                MOB,
+                THETA,
+                NEAR,
+                EOS,
+                OGN,
+                ENJ,
+                COMP,
+                LINK,
+                TBTC,
+                WBTC,
+                SNX,
+                SUSHI,
+                ZRX,
+                USDC,
+                UNI,
+                DAI,
+                BAT
+            )
     }
 }

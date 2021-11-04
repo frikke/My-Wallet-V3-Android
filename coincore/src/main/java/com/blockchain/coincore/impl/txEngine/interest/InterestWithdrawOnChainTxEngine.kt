@@ -1,14 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
@@ -24,7 +16,15 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 class InterestWithdrawOnChainTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -62,7 +62,8 @@ class InterestWithdrawOnChainTxEngine(
                     feeAmount = CryptoValue.fromMinor(sourceAsset, minLimits.fee),
                     feeForFullAvailable = CryptoValue.zero(sourceAsset)
                 )
-            })
+            }
+        )
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         availableBalance.map { balance ->
@@ -157,7 +158,9 @@ class InterestWithdrawOnChainTxEngine(
     }
 
     private fun addMemoIfNeeded(receiveAddress: String, memo: String?) =
-        receiveAddress + (memo?.let {
-            ":$it"
-        } ?: "")
+        receiveAddress + (
+            memo?.let {
+                ":$it"
+            } ?: ""
+            )
 }

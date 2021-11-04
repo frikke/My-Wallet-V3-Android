@@ -1,11 +1,5 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.core.price.ExchangeRates
-import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActivitySummaryList
@@ -14,6 +8,12 @@ import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 
 class AllWalletsAccount(
     override val accounts: SingleAccountList,

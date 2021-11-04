@@ -30,7 +30,7 @@ class ActionTableRowView @JvmOverloads constructor(
             paragraphText = paragraphText,
             onClick = onClick,
             tags = tags,
-            startIconUrl = startIconUrl,
+            startIconUrl = startIconUrl
         )
     }
 }

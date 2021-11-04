@@ -1,7 +1,9 @@
 package com.blockchain.nabu.datamanagers
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.ApiException
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
@@ -21,8 +23,6 @@ import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.utils.Optional
 import com.blockchain.veriff.VeriffApplicantAndToken
 import info.blockchain.balance.AssetInfo
-import com.blockchain.api.ApiException
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.MaybeSource

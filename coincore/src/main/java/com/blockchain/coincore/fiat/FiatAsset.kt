@@ -1,12 +1,5 @@
 package com.blockchain.coincore.fiat
 
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.wallet.DefaultLabels
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.Asset
 import com.blockchain.coincore.AssetFilter
@@ -14,6 +7,13 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.wallet.DefaultLabels
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 
 class FiatAsset(
     private val labels: DefaultLabels,

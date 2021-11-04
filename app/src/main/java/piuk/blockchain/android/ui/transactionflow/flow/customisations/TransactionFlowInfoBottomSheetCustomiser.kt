@@ -4,14 +4,13 @@ import android.content.res.Resources
 import android.os.Parcelable
 import com.blockchain.coincore.AssetAction
 import info.blockchain.balance.AssetInfo
+import java.io.Serializable
+import java.math.RoundingMode
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
-import java.io.Serializable
-import java.lang.IllegalArgumentException
-import java.math.RoundingMode
 
 interface TransactionFlowInfoBottomSheetCustomiser {
     fun info(state: TransactionFlowStateInfo, input: CurrencyType): TransactionFlowBottomSheetInfo?

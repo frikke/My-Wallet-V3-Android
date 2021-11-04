@@ -1,6 +1,8 @@
 package info.blockchain.wallet.metadata
 
 import info.blockchain.wallet.keys.MasterKey
+import java.security.MessageDigest
+import java.util.Arrays
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.LegacyAddress
 import org.bitcoinj.core.Utils
@@ -8,8 +10,6 @@ import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
 import org.bitcoinj.params.MainNetParams
-import java.security.MessageDigest
-import java.util.Arrays
 
 class MetadataDerivation {
 
@@ -23,7 +23,9 @@ class MetadataDerivation {
     fun deriveSharedMetadataNode(node: MasterKey): String {
         return HDKeyDerivation.deriveChildKey(
             node.toDeterministicKey(),
-            getPurpose("mdid") or ChildNumber.HARDENED_BIT).serializePrivB58(MainNetParams.get()
+            getPurpose("mdid") or ChildNumber.HARDENED_BIT
+        ).serializePrivB58(
+            MainNetParams.get()
         )
     }
 

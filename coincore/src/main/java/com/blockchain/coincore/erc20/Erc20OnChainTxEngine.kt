@@ -1,17 +1,5 @@
 package com.blockchain.coincore.erc20
 
-import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.preferences.WalletStatus
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import info.blockchain.wallet.api.data.FeeOptions
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
-import org.web3j.crypto.RawTransaction
-import org.web3j.utils.Convert
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeInfo
@@ -26,10 +14,22 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
+import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.preferences.WalletStatus
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import info.blockchain.wallet.api.data.FeeOptions
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 import java.math.BigInteger
+import org.web3j.crypto.RawTransaction
+import org.web3j.utils.Convert
+import piuk.blockchain.androidcore.data.fees.FeeDataManager
+import piuk.blockchain.androidcore.utils.extensions.then
 
 open class Erc20OnChainTxEngine(
     private val erc20DataManager: Erc20DataManager,
@@ -255,15 +255,15 @@ open class Erc20OnChainTxEngine(
         return feeOptions()
             .flatMap { fees ->
                 erc20DataManager.createErc20Transaction(
-                asset = sourceAsset,
-                to = tgt.address,
-                amount = pendingTx.amount.toBigInteger(),
-                gasPriceWei = fees.gasPrice(
-                    pendingTx.feeSelection.selectedLevel
-                ),
-                gasLimitGwei = fees.gasLimitGwei
-            )
-        }
+                    asset = sourceAsset,
+                    to = tgt.address,
+                    amount = pendingTx.amount.toBigInteger(),
+                    gasPriceWei = fees.gasPrice(
+                        pendingTx.feeSelection.selectedLevel
+                    ),
+                    gasLimitGwei = fees.gasLimitGwei
+                )
+            }
     }
 
     private fun FeeOptions.gasPrice(feeLevel: FeeLevel): BigInteger =

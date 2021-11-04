@@ -18,14 +18,14 @@ fun ActionStackedIconTableRow(
     primaryText: String,
     onClick: () -> Unit,
     iconTopUrl: String,
-    iconButtomUrl: String,
-    secondaryText: String? = null,
+    iconBottomUrl: String,
+    secondaryText: String? = null
 ) {
     TableRow(
         contentStart = {
             StackedIcons(
                 iconTopUrl = iconTopUrl,
-                iconButtomUrl = iconButtomUrl,
+                iconBottomUrl = iconBottomUrl,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .padding(end = 16.dp)
@@ -40,13 +40,13 @@ fun ActionStackedIconTableRow(
                 Text(
                     text = primaryText,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title,
+                    color = AppTheme.colors.title
                 )
                 if (secondaryText != null) {
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
-                        color = AppTheme.colors.body,
+                        color = AppTheme.colors.body
                     )
                 }
             }
@@ -57,6 +57,6 @@ fun ActionStackedIconTableRow(
                 contentDescription = null
             )
         },
-        onContentClicked = onClick,
+        onContentClicked = onClick
     )
 }

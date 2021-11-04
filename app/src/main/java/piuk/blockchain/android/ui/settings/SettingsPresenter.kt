@@ -18,13 +18,14 @@ import com.blockchain.preferences.RatingPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.settings.SettingsManager
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.io.Serializable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.scan.QrScanError
@@ -46,7 +47,6 @@ import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import thepit.PitLinking
 import thepit.PitLinkingState
 import timber.log.Timber
-import java.io.Serializable
 
 class SettingsPresenter(
     private val authDataManager: AuthDataManager,
@@ -156,7 +156,8 @@ class SettingsPresenter(
                     },
                     onError = {
                         Timber.e(it)
-                    })
+                    }
+                )
     }
 
     private fun onCardsUpdated(cards: List<PaymentMethod.Card>) {
@@ -481,14 +482,18 @@ class SettingsPresenter(
     }
 
     private fun Settings.isNotificationTypeEnabled(type: Int): Boolean {
-        return isNotificationsOn && (notificationsType.contains(type) ||
-            notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_ALL))
+        return isNotificationsOn && (
+            notificationsType.contains(type) ||
+                notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_ALL)
+            )
     }
 
     private fun Settings.isNotificationTypeDisabled(type: Int): Boolean {
         return notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_NONE) ||
-            (!notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_ALL) &&
-                !notificationsType.contains(type))
+            (
+                !notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_ALL) &&
+                    !notificationsType.contains(type)
+                )
     }
 
     /**
@@ -521,7 +526,8 @@ class SettingsPresenter(
                     analytics.logEvent(SettingsAnalytics.PasswordChanged_Old)
                     analytics.logEvent(SettingsAnalytics.PasswordChanged(TxFlowAnalyticsAccountType.USERKEY))
                 },
-                onError = { showUpdatePasswordFailed(fallbackPassword) })
+                onError = { showUpdatePasswordFailed(fallbackPassword) }
+            )
     }
 
     private fun showUpdatePasswordFailed(fallbackPassword: String) {

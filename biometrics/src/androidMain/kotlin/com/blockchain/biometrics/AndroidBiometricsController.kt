@@ -17,9 +17,9 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricAuthError.BiometricsNoSuitableMethods
 import com.blockchain.logging.CrashLogger
-import timber.log.Timber
 import java.util.concurrent.Executor
 import javax.crypto.IllegalBlockSizeException
+import timber.log.Timber
 
 interface AndroidBiometricsController<TBiometricData : BiometricData> : BiometricAuth {
     fun authenticate(

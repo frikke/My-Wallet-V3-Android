@@ -6,7 +6,6 @@ import android.content.Intent
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationsUtil
-import piuk.blockchain.android.R
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.WalletStatus
@@ -19,12 +18,13 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.encodeToString
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
+import piuk.blockchain.androidcore.data.rxjava.RxBus
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
@@ -150,29 +150,29 @@ class FcmCallbackService : FirebaseMessagingService() {
         payload.type == NotificationPayload.NotificationType.SECURE_CHANNEL_MESSAGE
 
     private fun createSecureChannelIntent(payload: MutableMap<String, String>, foreground: Boolean): Maybe<Intent> {
-            val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH]
-                ?: return Maybe.empty()
-            val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE]
-                ?: return Maybe.empty()
+        val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH]
+            ?: return Maybe.empty()
+        val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE]
+            ?: return Maybe.empty()
 
-            val message = secureChannelManager.decryptMessage(pubKeyHash, messageRawEncrypted)
-                ?: return Maybe.empty()
+        val message = secureChannelManager.decryptMessage(pubKeyHash, messageRawEncrypted)
+            ?: return Maybe.empty()
 
-            return Maybe.just(
-                Intent(applicationContext, MainActivity::class.java).apply {
-                    putExtra(MainActivity.LAUNCH_AUTH_FLOW, true)
-                    putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
-                    putExtra(AuthNewLoginSheet.MESSAGE, SecureChannelManager.jsonBuilder.encodeToString(message))
+        return Maybe.just(
+            Intent(applicationContext, MainActivity::class.java).apply {
+                putExtra(MainActivity.LAUNCH_AUTH_FLOW, true)
+                putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
+                putExtra(AuthNewLoginSheet.MESSAGE, SecureChannelManager.jsonBuilder.encodeToString(message))
 
-                    putExtra(AuthNewLoginSheet.ORIGIN_IP, payload[NotificationPayload.ORIGIN_IP])
-                    putExtra(AuthNewLoginSheet.ORIGIN_LOCATION, payload[NotificationPayload.ORIGIN_COUNTRY])
-                    putExtra(AuthNewLoginSheet.ORIGIN_BROWSER, payload[NotificationPayload.ORIGIN_BROWSER])
-                    putExtra(AuthNewLoginSheet.FORCE_PIN, !foreground)
-                    if (foreground) {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
+                putExtra(AuthNewLoginSheet.ORIGIN_IP, payload[NotificationPayload.ORIGIN_IP])
+                putExtra(AuthNewLoginSheet.ORIGIN_LOCATION, payload[NotificationPayload.ORIGIN_COUNTRY])
+                putExtra(AuthNewLoginSheet.ORIGIN_BROWSER, payload[NotificationPayload.ORIGIN_BROWSER])
+                putExtra(AuthNewLoginSheet.FORCE_PIN, !foreground)
+                if (foreground) {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-            )
+            }
+        )
     }
 
     /**

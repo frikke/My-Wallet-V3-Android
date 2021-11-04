@@ -17,7 +17,8 @@ sealed class AppAnalytics(
         installBeginSeconds: Long,
         adId: String
     ) : AppAnalytics(
-        AnalyticsNames.APP_INSTALLED.eventName, mapOf(
+        AnalyticsNames.APP_INSTALLED.eventName,
+        mapOf(
             BUILD to versionCode,
             VERSION to versionName,
             INSTALL_REFERRER to installReferrer,
@@ -32,7 +33,8 @@ sealed class AppAnalytics(
         currentVersionName: String,
         currentVersionCode: Int
     ) : AppAnalytics(
-        AnalyticsNames.APP_UPDATED.eventName, mapOf(
+        AnalyticsNames.APP_UPDATED.eventName,
+        mapOf(
             PREVIOUS_BUILD to previousVersionCode?.toString(),
             INSTALLED_VERSION to installedVersion,
             BUILD to currentVersionName,

@@ -1,5 +1,9 @@
 package com.blockchain.coincore.impl
 
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.testutils.numberToBigDecimal
 import com.nhaarman.mockitokotlin2.mock
@@ -9,10 +13,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.testutil.CoincoreTestBase
 
 class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
 
@@ -119,20 +119,26 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
     @Test
     fun `group with three accounts returns the union of possible actions`() {
         // Arrange
-        val accountActions1 = Single.just(setOf(
-            AssetAction.Send,
-            AssetAction.Receive
-        ))
+        val accountActions1 = Single.just(
+            setOf(
+                AssetAction.Send,
+                AssetAction.Receive
+            )
+        )
 
-        val accountActions2 = Single.just(setOf(
-            AssetAction.Send,
-            AssetAction.Swap
-        ))
+        val accountActions2 = Single.just(
+            setOf(
+                AssetAction.Send,
+                AssetAction.Swap
+            )
+        )
 
-        val accountActions3 = Single.just(setOf(
-            AssetAction.Send,
-            AssetAction.Receive
-        ))
+        val accountActions3 = Single.just(
+            setOf(
+                AssetAction.Send,
+                AssetAction.Receive
+            )
+        )
 
         val expectedResult = setOf(
             AssetAction.Send,

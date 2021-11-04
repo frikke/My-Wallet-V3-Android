@@ -7,6 +7,8 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.utils.toFormattedString
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemListInfoRowBinding
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
@@ -21,11 +23,11 @@ import piuk.blockchain.android.ui.activity.detail.BuyPurchaseAmount
 import piuk.blockchain.android.ui.activity.detail.Copyable
 import piuk.blockchain.android.ui.activity.detail.Created
 import piuk.blockchain.android.ui.activity.detail.Description
-import piuk.blockchain.android.ui.activity.detail.HistoricCryptoPrice
 import piuk.blockchain.android.ui.activity.detail.Fee
 import piuk.blockchain.android.ui.activity.detail.FeeAmount
 import piuk.blockchain.android.ui.activity.detail.FeeForTransaction
 import piuk.blockchain.android.ui.activity.detail.From
+import piuk.blockchain.android.ui.activity.detail.HistoricCryptoPrice
 import piuk.blockchain.android.ui.activity.detail.HistoricValue
 import piuk.blockchain.android.ui.activity.detail.NetworkFee
 import piuk.blockchain.android.ui.activity.detail.NextPayment
@@ -39,8 +41,6 @@ import piuk.blockchain.android.ui.activity.detail.TransactionId
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import piuk.blockchain.android.util.visible
 
 class ActivityDetailInfoItemDelegate<in T>(

@@ -2,27 +2,27 @@ package piuk.blockchain.android.ui.kyc.settings
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.exceptions.MetadataNotFoundException
-import piuk.blockchain.android.ui.getBlankNabuUser
+import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
-import com.blockchain.nabu.models.responses.nabu.Scope
-import piuk.blockchain.android.ui.validOfflineToken
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
+import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
+import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierService
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.getBlankNabuUser
 import piuk.blockchain.android.ui.tiers
+import piuk.blockchain.android.ui.validOfflineToken
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class KycStatusHelperTest {
@@ -312,7 +312,7 @@ class KycStatusHelperTest {
         testObserver.assertNoErrors()
         testObserver.assertValue {
             it.isRejectedFor(KycTierLevel.GOLD) &&
-                    it.isRejectedFor(KycTierLevel.SILVER)
+                it.isRejectedFor(KycTierLevel.SILVER)
         }
     }
 

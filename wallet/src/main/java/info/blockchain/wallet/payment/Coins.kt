@@ -39,7 +39,7 @@ internal object Coins {
         }
 
         val selection = CoinSelection(utxoList, feePerKbToFeePerByte(feePerKb))
-                .selectAll(targetOutputType, coinSortingMethod)
+            .selectAll(targetOutputType, coinSortingMethod)
 
         return Pair(selection.spendableBalance, selection.absoluteFee)
     }

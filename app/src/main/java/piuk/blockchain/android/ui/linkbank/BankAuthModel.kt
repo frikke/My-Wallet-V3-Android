@@ -32,9 +32,11 @@ class BankAuthModel(
     override fun performAction(previousState: BankAuthState, intent: BankAuthIntent): Disposable? =
         when (intent) {
             is BankAuthIntent.CancelOrder,
-            is BankAuthIntent.CancelOrderAndResetAuthorisation -> (previousState.id?.let {
-                interactor.cancelOrder(it)
-            } ?: Completable.complete())
+            is BankAuthIntent.CancelOrderAndResetAuthorisation -> (
+                previousState.id?.let {
+                    interactor.cancelOrder(it)
+                } ?: Completable.complete()
+                )
                 .subscribeBy(
                     onComplete = {
                         process(BankAuthIntent.OrderCanceled)

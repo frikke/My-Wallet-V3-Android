@@ -33,9 +33,11 @@ class WalletsNonArchivedImportedAddressesExtensionTest {
     @Test
     fun `one without private key`() {
         Wallet().apply {
-            importedAddressList.add(ImportedAddress().apply {
-                address = "Address1"
-            })
+            importedAddressList.add(
+                ImportedAddress().apply {
+                    address = "Address1"
+                }
+            )
         }.nonArchivedImportedAddressStrings() `should be equal to` listOf("Address1")
     }
 

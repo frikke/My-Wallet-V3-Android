@@ -4,9 +4,9 @@ import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.ether
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import java.math.BigDecimal
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import java.math.BigDecimal
 
 class BigDecimalJsonTests {
 

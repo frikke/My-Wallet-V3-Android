@@ -1,7 +1,14 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CoincoreInitFailure
+import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NonCustodialSupport
+import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
+import com.blockchain.coincore.erc20.Erc20Asset
+import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -17,17 +24,10 @@ import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
-import com.blockchain.coincore.erc20.Erc20Asset
+import io.reactivex.rxjava3.core.Single
+import java.lang.IllegalStateException
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import java.lang.IllegalStateException
-import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.CoincoreInitFailure
-import com.blockchain.coincore.NonCustodialSupport
-import com.blockchain.coincore.wrap.FormatUtilities
 import thepit.PitLinking
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
@@ -79,9 +79,9 @@ internal class StaticAssetLoader(
                         .doOnError {
                             crashLogger.logException(
                                 CoincoreInitFailure("Failed init: ${(asset as CryptoAsset).asset.networkTicker}", it)
-                        )
-                    }
-            }.toList()
+                            )
+                        }
+                }.toList()
         )
 
     // When building the asset list, make sure that any l1 asset are earlier in the list than any l2 for that

@@ -2,20 +2,6 @@ package piuk.blockchain.android.ui.addresses
 
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
-import com.blockchain.notifications.analytics.AddressAnalytics
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.WalletAnalytics
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.wallet.exceptions.DecryptionException
-import info.blockchain.wallet.util.PrivateKeyFactory
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
@@ -25,6 +11,20 @@ import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.notifications.analytics.AddressAnalytics
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.notifications.analytics.WalletAnalytics
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.wallet.exceptions.DecryptionException
+import info.blockchain.wallet.util.PrivateKeyFactory
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import timber.log.Timber
@@ -118,10 +118,10 @@ class AccountPresenter internal constructor(
         compositeDisposable += account.actionableBalance
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
-            if (it.isPositive) {
-                view?.showTransferFunds(account)
+                if (it.isPositive) {
+                    view?.showTransferFunds(account)
+                }
             }
-        }
     }
 
     internal fun importRequiresPassword(data: String): Boolean =
@@ -177,16 +177,16 @@ class AccountPresenter internal constructor(
             keyPassword,
             walletSecondPassword
         ).showProgress()
-        .subscribeBy(
-            onSuccess = {
-                view?.showSuccess(R.string.private_key_successfully_imported)
-                view?.showRenameImportedAddressDialog(it)
-                analytics.logEvent(AddressAnalytics.ImportBTCAddress)
-            },
-            onError = {
-                view?.showError(R.string.no_private_key)
-            }
-        )
+            .subscribeBy(
+                onSuccess = {
+                    view?.showSuccess(R.string.private_key_successfully_imported)
+                    view?.showRenameImportedAddressDialog(it)
+                    analytics.logEvent(AddressAnalytics.ImportBTCAddress)
+                },
+                onError = {
+                    view?.showError(R.string.no_private_key)
+                }
+            )
     }
 
     private fun fetchAccountList(asset: AssetInfo) {
@@ -201,7 +201,7 @@ class AccountPresenter internal constructor(
                     Timber.e("Failed to get account list for asset: $e")
                 }
             )
-        }
+    }
 
     private fun processCoincoreList(asset: AssetInfo, list: SingleAccountList) {
         val internal = mutableListOf<CryptoNonCustodialAccount>()
@@ -209,18 +209,18 @@ class AccountPresenter internal constructor(
 
         list.filterIsInstance<CryptoNonCustodialAccount>()
             .forEach {
-            if (it.isInternalAccount) {
-                internal.add(it)
-            } else {
-                imported.add(it)
+                if (it.isInternalAccount) {
+                    internal.add(it)
+                } else {
+                    imported.add(it)
+                }
             }
-        }
         view?.renderAccountList(asset, internal, imported)
     }
 
     private fun <T> Single<T>.showProgress() =
         this.doOnSubscribe { view?.showProgressDialog(R.string.please_wait) }
-        .doAfterTerminate { view?.dismissProgressDialog() }
+            .doAfterTerminate { view?.dismissProgressDialog() }
 
     private fun Completable.showProgress() =
         this.doOnSubscribe { view?.showProgressDialog(R.string.please_wait) }

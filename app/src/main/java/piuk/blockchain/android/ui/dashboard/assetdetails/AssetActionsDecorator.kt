@@ -3,11 +3,11 @@ package piuk.blockchain.android.ui.dashboard.assetdetails
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.TxSourceState
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.TxSourceState
 import piuk.blockchain.android.databinding.StatusLineInfoBinding
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 
@@ -17,8 +17,10 @@ class AssetActionsDecorator(private val account: CryptoAccount) : CellDecorator 
             when (it) {
                 TxSourceState.TRANSACTION_IN_FLIGHT ->
                     viewWithText(context.getString(R.string.send_state_send_in_flight), context)
-                TxSourceState.NOT_ENOUGH_GAS -> viewWithText(context.getString(R.string.send_state_not_enough_gas),
-                    context)
+                TxSourceState.NOT_ENOUGH_GAS -> viewWithText(
+                    context.getString(R.string.send_state_not_enough_gas),
+                    context
+                )
                 else -> Maybe.empty()
             }
         }
@@ -30,6 +32,6 @@ class AssetActionsDecorator(private val account: CryptoAccount) : CellDecorator 
     }
 
     override fun isEnabled(): Single<Boolean> = account.sourceState.map {
-            it != TxSourceState.TRANSACTION_IN_FLIGHT && it != TxSourceState.NOT_ENOUGH_GAS
+        it != TxSourceState.TRANSACTION_IN_FLIGHT && it != TxSourceState.NOT_ENOUGH_GAS
     }
 }

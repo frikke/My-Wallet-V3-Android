@@ -24,7 +24,7 @@ fun TableRowText(
     startText: AnnotatedString,
     endText: AnnotatedString?,
     textStyle: TextStyle,
-    textColor: Color,
+    textColor: Color
 ) {
     Row(
         modifier = Modifier
@@ -45,7 +45,7 @@ fun TableRowText(
                 text = endText,
                 style = textStyle,
                 modifier = Modifier.wrapContentSize(),
-                color = textColor,
+                color = textColor
             )
         }
     }
@@ -64,7 +64,7 @@ fun TableRowText_Basic() {
                     append("Ending text")
                 },
                 textStyle = AppTheme.typography.body2,
-                textColor = AppTheme.colors.title,
+                textColor = AppTheme.colors.title
             )
         }
     }

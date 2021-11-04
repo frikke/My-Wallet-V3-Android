@@ -1,11 +1,12 @@
 package piuk.blockchain.androidcore.data.settings.datastore
 
-import info.blockchain.wallet.api.data.Settings
-import io.reactivex.rxjava3.core.Observable
 import com.blockchain.data.datastores.PersistentStore
 import com.blockchain.utils.Optional
+import info.blockchain.wallet.api.data.Settings
+import io.reactivex.rxjava3.core.Observable
 
-class SettingsMemoryStore : SettingsStore,
+class SettingsMemoryStore :
+    SettingsStore,
     PersistentStore<Settings> {
 
     private var settings: Optional<Settings> = Optional.None

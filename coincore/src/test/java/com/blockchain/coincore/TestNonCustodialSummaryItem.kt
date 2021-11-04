@@ -1,12 +1,12 @@
 package com.blockchain.coincore
 
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Observable
-import com.nhaarman.mockitokotlin2.mock
 
 class TestNonCustodialSummaryItem(
     override val exchangeRates: ExchangeRatesDataManager = mock(),

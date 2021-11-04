@@ -4,14 +4,14 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.toFiat
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import piuk.blockchain.android.ui.resources.AccountIcon
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.toFiat
 import piuk.blockchain.android.databinding.ViewCheckoutSwapHeaderBinding
+import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel

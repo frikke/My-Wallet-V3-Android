@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import com.blockchain.coincore.BlockchainAccount
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import com.blockchain.coincore.BlockchainAccount
 import piuk.blockchain.android.databinding.PendingBalanceRowBinding
 
 interface CellDecorator {

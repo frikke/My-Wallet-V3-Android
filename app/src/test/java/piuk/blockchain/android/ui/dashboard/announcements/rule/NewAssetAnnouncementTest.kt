@@ -20,9 +20,9 @@ class NewAssetAnnouncementTest {
     @Before
     fun setUp() {
         subject = NewAssetAnnouncement(
-                dismissRecorder = dismissRecorder,
-                announcementQueries = announcementQueries
-            )
+            dismissRecorder = dismissRecorder,
+            announcementQueries = announcementQueries
+        )
     }
 
     @Test

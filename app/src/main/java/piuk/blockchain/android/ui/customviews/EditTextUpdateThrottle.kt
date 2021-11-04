@@ -28,11 +28,14 @@ class EditTextUpdateThrottle(
     override fun afterTextChanged(s: Editable?) {
         timer?.cancel()
         timer = Timer().apply {
-            schedule(object : TimerTask() {
-                override fun run() {
-                    handler.post { updateFn.invoke(s) }
-                }
-            }, updateDelayMillis)
+            schedule(
+                object : TimerTask() {
+                    override fun run() {
+                        handler.post { updateFn.invoke(s) }
+                    }
+                },
+                updateDelayMillis
+            )
         }
     }
 

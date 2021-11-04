@@ -4,9 +4,9 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.remoteconfig.RemoteConfig
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
+import java.lang.IllegalArgumentException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.lang.IllegalArgumentException
 
 private typealias RemoteFeatureMap = Map<String, List<String>>
 

@@ -1,36 +1,36 @@
 package com.blockchain.coincore.eth
 
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.logging.CrashLogger
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.isCustodialOnly
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
+import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
+import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.wrap.FormatUtilities
+import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.WalletStatus
+import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.isCustodialOnly
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import com.blockchain.coincore.impl.BackendNotificationUpdater
-import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.impl.NotificationAddresses
-import info.blockchain.balance.CryptoValue
 import thepit.PitLinking
 
 internal class EthAsset(
@@ -63,7 +63,8 @@ internal class EthAsset(
     crashLogger,
     identity,
     features
-), NonCustodialSupport {
+),
+    NonCustodialSupport {
     override val asset: AssetInfo
         get() = CryptoCurrency.ETHER
 

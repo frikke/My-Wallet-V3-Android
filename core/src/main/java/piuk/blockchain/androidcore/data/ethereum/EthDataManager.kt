@@ -16,6 +16,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.math.BigInteger
+import java.util.HashMap
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
@@ -24,8 +26,6 @@ import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import timber.log.Timber
-import java.math.BigInteger
-import java.util.HashMap
 
 class EthDataManager(
     private val payloadDataManager: PayloadDataManager,

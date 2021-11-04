@@ -5,15 +5,15 @@ import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.models.responses.simplebuy.EveryPayAttrs
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import io.reactivex.rxjava3.core.Single
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.Random
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.everypay.models.CardDetailRequest
 import piuk.blockchain.android.everypay.models.CardDetailResponse
 import piuk.blockchain.android.everypay.models.CcDetails
 import piuk.blockchain.android.everypay.service.EveryPayService
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.Random
 
 interface CardActivator {
     val partner: Partner
@@ -31,7 +31,8 @@ class EverypayCardActivator(
     override fun activateCard(cardData: CardData, cardId: String):
         Single<CompleteCardActivation.EverypayCompleteCardActivationDetails> =
         custodialWalletManager.activateCard(
-            cardId, SimpleBuyConfirmationAttributes(
+            cardId,
+            SimpleBuyConfirmationAttributes(
                 everypay = EveryPayAttrs(redirectUrl)
             )
         ).flatMap { credentials ->
@@ -65,7 +66,8 @@ class EverypayCardActivator(
                     cvc = cardData.cvv,
                     holderName = cardData.fullName
                 )
-            ), "Bearer $mobileToken"
+            ),
+            "Bearer $mobileToken"
         )
 
     private fun timestamp(): String =

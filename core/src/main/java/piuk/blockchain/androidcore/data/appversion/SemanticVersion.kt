@@ -11,9 +11,11 @@ data class SemanticVersion(val patch: Int, val major: Int, val minor: Int) {
     companion object {
         operator fun invoke(latestVersion: String): SemanticVersion {
             return latestVersion.takeIf { it.split(".").size == 3 }?.let {
-                return@let SemanticVersion(latestVersion.split(".")[0].toIntOrNull() ?: 0,
+                return@let SemanticVersion(
+                    latestVersion.split(".")[0].toIntOrNull() ?: 0,
                     latestVersion.split(".")[1].toIntOrNull() ?: 0,
-                    latestVersion.split(".")[2].toIntOrNull() ?: 0)
+                    latestVersion.split(".")[2].toIntOrNull() ?: 0
+                )
             } ?: return SemanticVersion(0, 0, 0)
         }
     }

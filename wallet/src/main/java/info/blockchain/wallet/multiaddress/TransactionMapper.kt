@@ -124,11 +124,11 @@ internal fun Transaction.toTransactionSummary(
             )
         },
         confirmations =
-            if (latestBlock > 0 && blockHeight > 0) {
-                (latestBlock - blockHeight + 1).toInt()
-            } else {
-                0
-            }
+        if (latestBlock > 0 && blockHeight > 0) {
+            (latestBlock - blockHeight + 1).toInt()
+        } else {
+            0
+        }
     )
 }
 
@@ -145,7 +145,7 @@ private fun isExternalSend(
     type: TransactionSummary.TransactionType,
     taggedOuts: List<TaggedOutput>
 ): Boolean = (type == TransactionSummary.TransactionType.SENT) &&
-        taggedOuts.any { it.type == OutputType.EXTERNAL }
+    taggedOuts.any { it.type == OutputType.EXTERNAL }
 
 private fun isInternalSend(
     type: TransactionSummary.TransactionType,

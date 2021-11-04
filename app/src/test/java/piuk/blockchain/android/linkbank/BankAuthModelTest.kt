@@ -84,7 +84,8 @@ class BankAuthModelTest {
         test.assertValueAt(0, defaultState)
 
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 errorState = ErrorState.GenericError
             )
         )
@@ -113,7 +114,8 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 linkBankTransfer = linkBankTransfer,
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
@@ -145,13 +147,15 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 linkBankTransfer = linkBankTransfer,
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 linkBankTransfer = linkBankTransfer,
                 bankLinkingProcessState = BankLinkingProcessState.NONE,
                 errorState = ErrorState.BankLinkingUpdateFailed
@@ -187,12 +191,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING_SUCCESS,
                 linkedBank = expectedBank,
                 selectedPaymentMethod = SelectedPaymentMethod(
@@ -233,12 +239,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.IN_EXTERNAL_FLOW
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING_SUCCESS,
                 linkedBank = expectedBank,
                 selectedPaymentMethod = SelectedPaymentMethod(
@@ -279,12 +287,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankAlreadyLinked,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -319,12 +329,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -358,12 +370,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankAccountUnsupported,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -398,12 +412,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankNamesMismatched,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -438,12 +454,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankRejected,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -478,12 +496,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankExpired,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -518,12 +538,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankFailure,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -558,12 +580,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -598,7 +622,8 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
@@ -632,13 +657,15 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
 
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingTimeout,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -655,13 +682,15 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
 
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -699,12 +728,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING_SUCCESS,
                 linkedBank = expectedBank,
                 selectedPaymentMethod = SelectedPaymentMethod(
@@ -749,12 +780,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankAlreadyLinked,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -793,12 +826,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -836,12 +871,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankAccountUnsupported,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -880,12 +917,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankNamesMismatched,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -924,12 +963,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankRejected,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -968,12 +1009,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankExpired,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -1012,12 +1055,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankFailure,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -1038,12 +1083,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )

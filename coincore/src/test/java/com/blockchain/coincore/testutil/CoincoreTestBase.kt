@@ -1,7 +1,7 @@
 package com.blockchain.coincore.testutil
 
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.logging.CrashLogger

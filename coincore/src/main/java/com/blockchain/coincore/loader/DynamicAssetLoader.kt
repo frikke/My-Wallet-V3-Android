@@ -1,7 +1,14 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CoincoreInitFailure
+import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NonCustodialSupport
+import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
+import com.blockchain.coincore.erc20.Erc20Asset
+import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -16,20 +23,13 @@ import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
-import com.blockchain.coincore.erc20.Erc20Asset
+import io.reactivex.rxjava3.core.Single
+import java.lang.IllegalStateException
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.CoincoreInitFailure
-import com.blockchain.coincore.NonCustodialSupport
-import com.blockchain.coincore.wrap.FormatUtilities
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import thepit.PitLinking
 import timber.log.Timber
-import java.lang.IllegalStateException
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
 private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
@@ -93,9 +93,9 @@ internal class DynamicAssetLoader(
                         .doOnError {
                             crashLogger.logException(
                                 CoincoreInitFailure("Failed init: ${(asset as CryptoAsset).asset.networkTicker}", it)
-                        )
-                    }
-            }.toList()
+                            )
+                        }
+                }.toList()
         )
 
     private fun doLoadAssets(

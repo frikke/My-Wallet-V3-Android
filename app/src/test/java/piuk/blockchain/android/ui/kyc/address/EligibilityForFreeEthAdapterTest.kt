@@ -1,17 +1,17 @@
 package piuk.blockchain.android.ui.kyc.address
 
 import com.blockchain.android.testutils.rxInit
-import piuk.blockchain.android.ui.getBlankNabuUser
+import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.TierLevels
-import com.blockchain.nabu.NabuToken
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.getBlankNabuUser
 import piuk.blockchain.android.ui.validOfflineToken
 
 class EligibilityForFreeEthAdapterTest {
@@ -37,12 +37,15 @@ class EligibilityForFreeEthAdapterTest {
         ).thenReturn(Single.just(validOfflineToken))
 
         whenever(nabuDataManager.getUser(validOfflineToken))
-            .thenReturn(Single.just(
-                getBlankNabuUser()
-                .copy(
-                    tiers = TierLevels(1, 1, 2))
-                .copy(tags = mapOf())
-            ))
+            .thenReturn(
+                Single.just(
+                    getBlankNabuUser()
+                        .copy(
+                            tiers = TierLevels(1, 1, 2)
+                        )
+                        .copy(tags = mapOf())
+                )
+            )
 
         val testEligibleObserver = eligibilityForFreeEthAdapter.isEligible().test()
 
@@ -58,11 +61,13 @@ class EligibilityForFreeEthAdapterTest {
         ).thenReturn(Single.just(validOfflineToken))
 
         whenever(nabuDataManager.getUser(validOfflineToken))
-            .thenReturn(Single.just(
-                getBlankNabuUser()
-                .copy(tiers = TierLevels(1, 1, 2))
-                .copy(tags = mapOf("POWER_PAX" to mapOf("some key" to "some key")))
-            ))
+            .thenReturn(
+                Single.just(
+                    getBlankNabuUser()
+                        .copy(tiers = TierLevels(1, 1, 2))
+                        .copy(tags = mapOf("POWER_PAX" to mapOf("some key" to "some key")))
+                )
+            )
 
         val testEligibleObserver = eligibilityForFreeEthAdapter.isEligible().test()
 
@@ -78,11 +83,13 @@ class EligibilityForFreeEthAdapterTest {
         ).thenReturn(Single.just(validOfflineToken))
 
         whenever(nabuDataManager.getUser(validOfflineToken))
-            .thenReturn(Single.just(
-                getBlankNabuUser()
-                .copy(tiers = TierLevels(2, 2, 2))
-                .copy(tags = mapOf("POWER_PAX" to mapOf("some key" to "some key")))
-            ))
+            .thenReturn(
+                Single.just(
+                    getBlankNabuUser()
+                        .copy(tiers = TierLevels(2, 2, 2))
+                        .copy(tags = mapOf("POWER_PAX" to mapOf("some key" to "some key")))
+                )
+            )
 
         val testEligibleObserver = eligibilityForFreeEthAdapter.isEligible().test()
 
@@ -98,11 +105,13 @@ class EligibilityForFreeEthAdapterTest {
         ).thenReturn(Single.just(validOfflineToken))
 
         whenever(nabuDataManager.getUser(validOfflineToken))
-            .thenReturn(Single.just(
-                getBlankNabuUser()
-                .copy(tiers = TierLevels(2, 2, 2))
-                .copy(tags = mapOf())
-            ))
+            .thenReturn(
+                Single.just(
+                    getBlankNabuUser()
+                        .copy(tiers = TierLevels(2, 2, 2))
+                        .copy(tags = mapOf())
+                )
+            )
 
         val testEligibleObserver = eligibilityForFreeEthAdapter.isEligible().test()
 

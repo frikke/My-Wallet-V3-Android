@@ -27,7 +27,8 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
-class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
+class KycStatusActivity :
+    BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
     KycStatusView {
 
     private val binding: ActivityKycStatusBinding by lazy {

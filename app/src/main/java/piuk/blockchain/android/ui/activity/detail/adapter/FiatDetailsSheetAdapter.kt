@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.activity.detail.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import kotlin.properties.Delegates
 import piuk.blockchain.android.databinding.ItemFiatActivityDetailsBinding
 import piuk.blockchain.android.ui.activity.detail.FiatDetailItem
-import kotlin.properties.Delegates
 
 class FiatDetailsSheetAdapter : RecyclerView.Adapter<FiatDetailsSheetAdapter.FiatDetailsViewHolder>() {
 

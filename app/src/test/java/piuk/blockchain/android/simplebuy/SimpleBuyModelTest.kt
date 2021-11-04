@@ -29,6 +29,7 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Date
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +37,6 @@ import piuk.blockchain.android.cards.EverypayAuthOptions
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import java.util.Date
 
 @Ignore("Ignoring because CI fails on this, re-enabling ASAP")
 class SimpleBuyModelTest {

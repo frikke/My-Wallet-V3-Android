@@ -21,12 +21,12 @@ import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import org.amshove.kluent.shouldEqual
 import org.bitcoinj.core.Transaction
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.math.BigInteger
 
 class SendDataManagerTest {
 

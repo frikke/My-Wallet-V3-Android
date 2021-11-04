@@ -1,30 +1,30 @@
 package piuk.blockchain.android.ui.kyc.address
 
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
-import com.blockchain.nabu.models.responses.nabu.Scope
-import piuk.blockchain.android.ui.kyc.address.models.AddressModel
-import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
+import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.network.PollService
 import com.blockchain.notifications.analytics.Analytics
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.SortedMap
 import piuk.blockchain.android.R
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
+import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import piuk.blockchain.android.ui.kyc.address.models.AddressModel
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.util.SortedMap
 
 interface KycNextStepDecision {
 

@@ -4,12 +4,6 @@ import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.bitpay.BitPayDataManager
 import com.blockchain.bitpay.BitPayInvoiceTarget
 import com.blockchain.bitpay.BitpayTxEngine
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.preferences.WalletStatus
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
@@ -35,9 +29,15 @@ import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.preferences.WalletStatus
+import io.reactivex.rxjava3.core.Single
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
@@ -297,20 +297,21 @@ class TxProcessorFactory(
                     )
                 )
             )
-        is CryptoAccount -> target.receiveAddress
-            .map {
-                TransactionProcessor(
-                    exchangeRates = exchangeRates,
-                    sourceAccount = source,
-                    txTarget = it,
-                    engine = TradingToOnChainTxEngine(
-                        walletManager = walletManager,
-                        limitsDataManager = limitsDataManager,
-                        userIdentity = userIdentity,
-                        isNoteSupported = source.isNoteSupported
+        is CryptoAccount ->
+            target.receiveAddress
+                .map {
+                    TransactionProcessor(
+                        exchangeRates = exchangeRates,
+                        sourceAccount = source,
+                        txTarget = it,
+                        engine = TradingToOnChainTxEngine(
+                            walletManager = walletManager,
+                            limitsDataManager = limitsDataManager,
+                            userIdentity = userIdentity,
+                            isNoteSupported = source.isNoteSupported
+                        )
                     )
-                )
-            }
+                }
         else -> Single.error(TransferError("Cannot send custodial crypto to a non-crypto target"))
     }
 }

@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.kyc.tiersplash
 import androidx.navigation.NavDirections
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.models.responses.nabu.KycTierState
+import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.TierResponse
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.testutils.usd
@@ -16,7 +16,6 @@ import com.nhaarman.mockitokotlin2.verify
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.KycNavXmlDirections

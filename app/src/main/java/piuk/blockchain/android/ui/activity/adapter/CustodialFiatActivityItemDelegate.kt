@@ -11,6 +11,7 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
+import java.util.Date
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LayoutFiatActivityItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -19,7 +20,6 @@ import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.visible
-import java.util.Date
 
 class CustodialFiatActivityItemDelegate<in T>(
     private val prefs: CurrencyPrefs,

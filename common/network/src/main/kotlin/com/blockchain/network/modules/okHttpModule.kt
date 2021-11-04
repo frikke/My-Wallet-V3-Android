@@ -2,14 +2,14 @@ package com.blockchain.network.modules
 
 import com.blockchain.appinfo.AppInfo
 import com.blockchain.network.TLSSocketFactory
-import okhttp3.Cache
-import okhttp3.ConnectionSpec
-import okhttp3.OkHttpClient
-import org.koin.dsl.module
 import com.blockchain.network.interceptor.RequestCacheInterceptor
 import com.blockchain.network.interceptor.ResponseCacheInterceptor
 import java.io.File
 import java.util.concurrent.TimeUnit
+import okhttp3.Cache
+import okhttp3.ConnectionSpec
+import okhttp3.OkHttpClient
+import org.koin.dsl.module
 
 private const val API_TIMEOUT = 30L
 private const val PING_INTERVAL = 10L

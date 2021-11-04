@@ -25,6 +25,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.net.SocketTimeoutException
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricsController
@@ -39,7 +40,6 @@ import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
-import java.net.SocketTimeoutException
 
 class PinEntryPresenter(
     private val analytics: Analytics,
@@ -77,8 +77,10 @@ class PinEntryPresenter(
     internal var bAllowExit = true
 
     internal val ifShouldShowFingerprintLogin: Boolean
-        get() = (!(isForValidatingPinForResult || isCreatingNewPin) &&
-            biometricsController.isBiometricUnlockEnabled)
+        get() = (
+            !(isForValidatingPinForResult || isCreatingNewPin) &&
+                biometricsController.isBiometricUnlockEnabled
+            )
 
     val isCreatingNewPin: Boolean
         get() = prefs.pinId.isEmpty()
@@ -184,7 +186,7 @@ class PinEntryPresenter(
                         }
                     }
                 )
-            // If user is changing their PIN and it matches their old one, disallow it
+                // If user is changing their PIN and it matches their old one, disallow it
             } else if (isChangingPin && userEnteredConfirmationPin == null &&
                 pinRepository.pin == userEnteredPin
             ) {
@@ -290,7 +292,8 @@ class PinEntryPresenter(
                     analytics.logEvent(WalletUpgradeEvent(false))
                     crashLogger.logException(throwable)
                     view.onWalletUpgradeFailed()
-                })
+                }
+            )
     }
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) {
@@ -559,8 +562,8 @@ class PinEntryPresenter(
                 onSuccess = {
                     action.invoke(it.toInt())
                 }, onError = {
-                    Timber.d("Error getting PIN tries from remote config: $it")
-                }
+                Timber.d("Error getting PIN tries from remote config: $it")
+            }
             )
     }
 

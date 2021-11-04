@@ -1,17 +1,20 @@
 package com.blockchain.coincore.xlm
 
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.CustodialOrderState
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.HorizonKeyPair
+import com.blockchain.sunriver.Memo
+import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.sunriver.models.XlmTransaction
-import com.blockchain.nabu.datamanagers.CurrencyPair
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.CustodialOrderState
-import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.sunriver.Memo
-import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.testutils.stroops
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -21,13 +24,10 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import org.junit.Test
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import java.math.BigInteger
 
 class XlmAccountActivityTest : CoincoreTestBase() {
 
@@ -91,7 +91,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
         val summaryList = listOf(swapSummary)
         whenever(
             custodialWalletManager.getCustodialActivityForAsset(
-                CryptoCurrency.XLM, setOf(
+                CryptoCurrency.XLM,
+                setOf(
                     TransferDirection.ON_CHAIN,
                     TransferDirection.FROM_USERKEY
                 )
@@ -131,7 +132,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
 
         verify(xlmDataManager).getTransactionList()
         verify(custodialWalletManager).getCustodialActivityForAsset(
-            CryptoCurrency.XLM, setOf(
+            CryptoCurrency.XLM,
+            setOf(
                 TransferDirection.ON_CHAIN,
                 TransferDirection.FROM_USERKEY
             )
@@ -176,7 +178,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
         val summaryList = listOf(swapSummary)
         whenever(
             custodialWalletManager.getCustodialActivityForAsset(
-                CryptoCurrency.XLM, setOf(
+                CryptoCurrency.XLM,
+                setOf(
                     TransferDirection.ON_CHAIN,
                     TransferDirection.FROM_USERKEY
                 )
@@ -212,7 +215,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
 
         verify(xlmDataManager).getTransactionList()
         verify(custodialWalletManager).getCustodialActivityForAsset(
-            CryptoCurrency.XLM, setOf(
+            CryptoCurrency.XLM,
+            setOf(
                 TransferDirection.ON_CHAIN,
                 TransferDirection.FROM_USERKEY
             )
@@ -254,7 +258,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
         val summaryList = listOf(swapSummary)
         whenever(
             custodialWalletManager.getCustodialActivityForAsset(
-                CryptoCurrency.XLM, setOf(
+                CryptoCurrency.XLM,
+                setOf(
                     TransferDirection.ON_CHAIN,
                     TransferDirection.FROM_USERKEY
                 )
@@ -285,7 +290,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
 
         verify(xlmDataManager).getTransactionList()
         verify(custodialWalletManager).getCustodialActivityForAsset(
-            CryptoCurrency.XLM, setOf(
+            CryptoCurrency.XLM,
+            setOf(
                 TransferDirection.ON_CHAIN,
                 TransferDirection.FROM_USERKEY
             )

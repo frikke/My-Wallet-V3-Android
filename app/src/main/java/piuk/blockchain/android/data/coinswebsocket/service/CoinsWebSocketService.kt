@@ -10,10 +10,10 @@ import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.websocket.MessagesSocketHandler
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -47,14 +47,15 @@ class CoinsWebSocketService(
                     coinsWebSocketStrategy.close()
                 }
             }
-        }
+    }
 
     override fun showToast(message: Int) {
         ToastCustom.makeText(
             applicationContext,
             applicationContext.getString(message),
             ToastCustom.LENGTH_SHORT,
-            ToastCustom.TYPE_GENERAL)
+            ToastCustom.TYPE_GENERAL
+        )
     }
 
     override fun triggerNotification(title: String, marquee: String, text: String) {
@@ -65,7 +66,8 @@ class CoinsWebSocketService(
             applicationContext,
             0,
             notifyIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         NotificationsUtil(
             context = applicationContext,

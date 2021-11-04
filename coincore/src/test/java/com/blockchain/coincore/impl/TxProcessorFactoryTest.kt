@@ -4,16 +4,6 @@ import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.bitpay.BitPayDataManager
 import com.blockchain.bitpay.BitPayInvoiceTarget
 import com.blockchain.bitpay.BitpayTxEngine
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.preferences.WalletStatus
-import com.nhaarman.mockitokotlin2.mock
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Single
-import org.junit.Before
-import org.junit.Test
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
@@ -36,10 +26,20 @@ import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TEST_ASSET
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.preferences.WalletStatus
+import com.nhaarman.mockitokotlin2.mock
+import info.blockchain.balance.CryptoCurrency
+import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
+import org.junit.Before
+import org.junit.Test
 
 class TxProcessorFactoryTest {
 

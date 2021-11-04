@@ -1,9 +1,9 @@
 package com.blockchain.nabu.service
 
+import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.models.responses.banktransfer.BankTransferPaymentBody
 import com.blockchain.nabu.models.responses.banktransfer.CreateLinkBankRequestBody
 import com.blockchain.nabu.models.responses.banktransfer.OpenBankingTokenBody
@@ -61,7 +61,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 
-class NabuService internal constructor (
+class NabuService internal constructor(
     private val nabu: Nabu
 ) {
     internal fun getAuthToken(

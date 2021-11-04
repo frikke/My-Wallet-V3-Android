@@ -8,6 +8,7 @@ import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import java.util.Arrays
 import okhttp3.ResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -17,7 +18,6 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
-import java.util.Arrays
 
 class SettingsDataManagerTest : RxTest() {
 

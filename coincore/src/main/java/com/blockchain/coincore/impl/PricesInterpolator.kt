@@ -45,7 +45,8 @@ class PricesInterpolator(
                             is CurrencyPair.CryptoToFiatCurrencyPair ->
                                 Currency.getInstance(pair.destination).defaultFractionDigits
                         }
-                    ))
+                    )
+                )
             }
         }
         return pair.toDestinationMoney(BigInteger.ZERO)

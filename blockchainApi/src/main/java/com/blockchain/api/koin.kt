@@ -8,11 +8,10 @@ import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
-import com.blockchain.api.nabu.NabuUserApi
-import com.blockchain.api.wallet.WalletApiInterface
-import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.custodial.CustodialBalanceApi
+import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.interest.InterestApiInterface
+import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
@@ -30,6 +29,7 @@ import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
+import com.blockchain.api.wallet.WalletApiInterface
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -103,7 +103,6 @@ val blockchainApiModule = module {
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())
             )
-
             .build()
     }
 

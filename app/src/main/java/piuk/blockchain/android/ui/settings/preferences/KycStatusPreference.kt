@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.settings.preferences
 
 import android.content.Context
-import androidx.core.content.ContextCompat
 import android.util.AttributeSet
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import piuk.blockchain.android.R

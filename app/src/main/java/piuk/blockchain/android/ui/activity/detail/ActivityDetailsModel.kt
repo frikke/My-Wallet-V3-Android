@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.activity.detail
 
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
@@ -14,13 +16,11 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.coincore.RecurringBuyActivitySummaryItem
+import java.util.Date
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import java.util.Date
 
 interface Copyable {
     val filed: String
@@ -190,7 +190,8 @@ class ActivityDetailsModel(
                 },
                 onError = {
                     process(ListItemsFailedToLoadIntent)
-                })
+                }
+            )
         } ?: process(ActivityDetailsLoadFailedIntent)
     }
 
@@ -246,7 +247,8 @@ class ActivityDetailsModel(
                 },
                 onError = {
                     process(ListItemsFailedToLoadIntent)
-                })
+                }
+            )
         } ?: process(ActivityDetailsLoadFailedIntent)
 
     private fun loadRecurringBuyTransactionDetails(intent: LoadActivityDetailsIntent) =
@@ -287,7 +289,8 @@ class ActivityDetailsModel(
                 },
                 onError = {
                     process(ListItemsFailedToLoadIntent)
-                })
+                }
+            )
         } ?: process(ActivityDetailsLoadFailedIntent)
 
     private fun loadCustodialTransferActivityDetails(intent: LoadActivityDetailsIntent) =
@@ -302,7 +305,8 @@ class ActivityDetailsModel(
                 },
                 onError = {
                     process(ListItemsFailedToLoadIntent)
-                })
+                }
+            )
         } ?: process(ActivityDetailsLoadFailedIntent)
 
     private fun loadSwapActivityDetails(intent: LoadActivityDetailsIntent) =
@@ -317,7 +321,8 @@ class ActivityDetailsModel(
                 },
                 onError = {
                     process(ListItemsFailedToLoadIntent)
-                })
+                }
+            )
         } ?: process(ActivityDetailsLoadFailedIntent)
 
     private fun loadFeeTransactionItems(
@@ -380,6 +385,7 @@ class ActivityDetailsModel(
                 },
                 onError = {
                     process(ListItemsFailedToLoadIntent)
-                })
+                }
+            )
         }
 }

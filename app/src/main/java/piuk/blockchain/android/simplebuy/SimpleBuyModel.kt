@@ -94,16 +94,20 @@ class SimpleBuyModel(
                         onError = { process(SimpleBuyIntent.ErrorIntent()) }
                     )
             is SimpleBuyIntent.CancelOrder,
-            is SimpleBuyIntent.CancelOrderAndResetAuthorisation -> (previousState.id?.let {
-                interactor.cancelOrder(it)
-            } ?: Completable.complete())
+            is SimpleBuyIntent.CancelOrderAndResetAuthorisation -> (
+                previousState.id?.let {
+                    interactor.cancelOrder(it)
+                } ?: Completable.complete()
+                )
                 .subscribeBy(
                     onComplete = { process(SimpleBuyIntent.OrderCanceled) },
                     onError = { process(SimpleBuyIntent.ErrorIntent()) }
                 )
-            is SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne -> (previousState.id?.let {
-                interactor.cancelOrder(it)
-            } ?: Completable.complete()).thenSingle {
+            is SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne -> (
+                previousState.id?.let {
+                    interactor.cancelOrder(it)
+                } ?: Completable.complete()
+                ).thenSingle {
                 processCreateOrder(
                     previousState.selectedCryptoAsset,
                     previousState.selectedPaymentMethod,
@@ -217,7 +221,8 @@ class SimpleBuyModel(
                         },
                         onError = {
                             process(SimpleBuyIntent.ErrorIntent())
-                        })
+                        }
+                    )
             is SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible -> interactor.eligiblePaymentMethods(
                 intent.fiatCurrency, null
             ).subscribeBy(

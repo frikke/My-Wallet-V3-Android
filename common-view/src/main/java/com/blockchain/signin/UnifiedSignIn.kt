@@ -8,8 +8,8 @@ import android.webkit.SslErrorHandler
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.blockchain.common_view.BuildConfig
-import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
+import timber.log.Timber
 
 internal class UnifiedSignInInterfaceHandler(val listener: WebViewComms) {
     @JavascriptInterface

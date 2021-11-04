@@ -11,13 +11,13 @@ import info.blockchain.wallet.payload.model.toBchUtxo
 import info.blockchain.wallet.payload.model.toBtcUtxo
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import okhttp3.ResponseBody
 import org.bitcoinj.core.Coin
 import org.bitcoinj.core.Transaction
 import org.bitcoinj.params.MainNetParams
 import org.spongycastle.util.encoders.Hex
 import retrofit2.Call
-import java.math.BigInteger
 
 class Payment(
     private val bitcoinApi: NonCustodialBitcoinService

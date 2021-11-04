@@ -14,6 +14,7 @@ import com.blockchain.api.services.Geolocation
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
+import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CountryPickerItem
@@ -43,9 +44,9 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.util.Locale
 
-class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPresenter>(),
+class CreateWalletActivity :
+    BaseMvpActivity<CreateWalletView, CreateWalletPresenter>(),
     CreateWalletView,
     PickerItemListener,
     SlidingModalBottomDialog.Host,
@@ -143,11 +144,12 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
 
     private fun initializeCountrySpinner() {
         binding.country.setOnClickListener {
-            SearchPickerItemBottomSheet.newInstance(Locale.getISOCountries()
-                .toList()
-                .map { countryCode ->
-                    CountryPickerItem(countryCode)
-                }
+            SearchPickerItemBottomSheet.newInstance(
+                Locale.getISOCountries()
+                    .toList()
+                    .map { countryCode ->
+                        CountryPickerItem(countryCode)
+                    }
             ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
         }
     }

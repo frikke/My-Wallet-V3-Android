@@ -43,13 +43,16 @@ private class InterestAssetVerificationViewHolder(
             benefits = listOf(
                 VerifyIdentityNumericBenefitItem(
                     context.getString(R.string.rewards_dashboard_verify_point_one_title),
-                    context.getString(R.string.rewards_dashboard_verify_point_one_label)),
+                    context.getString(R.string.rewards_dashboard_verify_point_one_label)
+                ),
                 VerifyIdentityNumericBenefitItem(
                     context.getString(R.string.rewards_dashboard_verify_point_two_title),
-                    context.getString(R.string.rewards_dashboard_verify_point_two_label)),
+                    context.getString(R.string.rewards_dashboard_verify_point_two_label)
+                ),
                 VerifyIdentityNumericBenefitItem(
                     context.getString(R.string.rewards_dashboard_verify_point_three_title),
-                    context.getString(R.string.rewards_dashboard_verify_point_three_label))
+                    context.getString(R.string.rewards_dashboard_verify_point_three_label)
+                )
             ),
             title = context.getString(R.string.rewards_dashboard_verify_title),
             description = context.getString(R.string.rewards_dashboard_verify_label),

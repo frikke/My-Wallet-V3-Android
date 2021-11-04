@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
-
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries

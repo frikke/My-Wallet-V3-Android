@@ -2,10 +2,10 @@
 package com.blockchain.api.bitcoin.data
 
 import com.blockchain.api.serializers.BigIntSerializer
+import java.math.BigInteger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import java.math.BigInteger
 
 @Serializable
 data class Output(

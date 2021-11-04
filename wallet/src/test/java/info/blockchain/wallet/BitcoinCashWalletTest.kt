@@ -1,19 +1,19 @@
 package info.blockchain.wallet
 
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.wallet.BitcoinCashWallet.Companion.create
 import info.blockchain.wallet.BitcoinCashWallet.Companion.restore
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.test_data.TestVectorBip39
 import info.blockchain.wallet.test_data.TestVectorBip39List
-import com.nhaarman.mockitokotlin2.mock
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
 import org.bitcoinj.core.NetworkParameters
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
 
 class BitcoinCashWalletTest {
     private val params: NetworkParameters = BchMainNetParams.get()

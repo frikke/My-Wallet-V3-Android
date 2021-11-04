@@ -19,13 +19,19 @@ import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import java.math.BigInteger
+import java.math.RoundingMode
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Currency
+import java.util.Locale
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.customviews.account.AccountInfoBank
 import piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
 import piuk.blockchain.android.ui.customviews.account.AccountInfoFiat
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.swap.SwapAccountSelectSheetFeeDecorator
@@ -47,12 +53,6 @@ import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.setImageDrawable
 import timber.log.Timber
-import java.math.BigInteger
-import java.math.RoundingMode
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Currency
-import java.util.Locale
 
 interface TransactionFlowCustomiser :
     EnterAmountCustomisations,
@@ -321,7 +321,8 @@ class TransactionFlowCustomiserImpl(
 
     override fun confirmTitle(state: TransactionState): String =
         resources.getString(
-            R.string.common_parametrised_confirm, when (state.action) {
+            R.string.common_parametrised_confirm,
+            when (state.action) {
                 AssetAction.Send -> resources.getString(R.string.send_confirmation_title)
                 AssetAction.Swap -> resources.getString(R.string.common_swap)
                 AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
@@ -381,7 +382,8 @@ class TransactionFlowCustomiserImpl(
                         resources.getString(
                             R.string.funds_locked_warning,
                             days
-                        ), R.string.common_linked_learn_more,
+                        ),
+                        R.string.common_linked_learn_more,
                         TRADING_ACCOUNT_LOCKS, context, R.color.blue_600
                     )
                 } else ""
@@ -562,9 +564,11 @@ class TransactionFlowCustomiserImpl(
             if (state.targetCount > MAX_ACCOUNTS_FOR_SHEET) {
                 TargetAddressSheetState.SelectAccountWhenOverMaxLimitSurpassed
             } else {
-                TargetAddressSheetState.SelectAccountWhenWithinMaxLimit(state.availableTargets.take(
-                    MAX_ACCOUNTS_FOR_SHEET
-                ).map { it as BlockchainAccount })
+                TargetAddressSheetState.SelectAccountWhenWithinMaxLimit(
+                    state.availableTargets.take(
+                        MAX_ACCOUNTS_FOR_SHEET
+                    ).map { it as BlockchainAccount }
+                )
             }
         } else {
             TargetAddressSheetState.TargetAccountSelected(state.selectedTarget)
@@ -574,7 +578,8 @@ class TransactionFlowCustomiserImpl(
     override fun enterTargetAddressFragmentState(state: TransactionState): TargetAddressSheetState {
         return if (state.selectedTarget == NullAddress) {
             TargetAddressSheetState.SelectAccountWhenWithinMaxLimit(
-                state.availableTargets.map { it as BlockchainAccount })
+                state.availableTargets.map { it as BlockchainAccount }
+            )
         } else {
             TargetAddressSheetState.TargetAccountSelected(state.selectedTarget)
         }
@@ -582,9 +587,9 @@ class TransactionFlowCustomiserImpl(
 
     override fun issueFlashMessageLegacy(state: TransactionState, input: CurrencyType?): String? {
         if (state.pendingTx?.amount?.toBigInteger() == BigInteger.ZERO && (
-                state.errorState == TransactionErrorState.INVALID_AMOUNT ||
-                    state.errorState == TransactionErrorState.BELOW_MIN_LIMIT
-                )
+            state.errorState == TransactionErrorState.INVALID_AMOUNT ||
+                state.errorState == TransactionErrorState.BELOW_MIN_LIMIT
+            )
         ) return null
         return when (state.errorState) {
             TransactionErrorState.NONE -> null

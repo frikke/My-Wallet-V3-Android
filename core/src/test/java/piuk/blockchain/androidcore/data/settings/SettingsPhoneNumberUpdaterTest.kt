@@ -1,13 +1,12 @@
 package piuk.blockchain.androidcore.data.settings
 
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
-
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.any
 import org.junit.Test
 
 class SettingsPhoneNumberUpdaterTest {

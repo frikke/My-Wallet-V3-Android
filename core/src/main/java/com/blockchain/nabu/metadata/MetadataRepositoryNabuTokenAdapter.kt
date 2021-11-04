@@ -4,10 +4,10 @@ import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
-import com.blockchain.rx.maybeCache
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.mapToMetadata
+import com.blockchain.rx.maybeCache
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.metadata.MetadataManager

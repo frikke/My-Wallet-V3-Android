@@ -1,8 +1,8 @@
 package com.blockchain.api.adapters
 
+import java.lang.reflect.Type
 import retrofit2.Call
 import retrofit2.CallAdapter
-import java.lang.reflect.Type
 
 class OutcomeCallAdapter<R>(
     private val successType: Type

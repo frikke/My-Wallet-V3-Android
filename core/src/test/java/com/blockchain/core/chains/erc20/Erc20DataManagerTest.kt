@@ -3,28 +3,28 @@ package com.blockchain.core.chains.erc20
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCategory
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
-import java.math.BigInteger
 
 class Erc20DataManagerTest {
 
@@ -192,11 +192,11 @@ class Erc20DataManagerTest {
         ).test()
             .assertValue { raw ->
                 raw.nonce == nonce &&
-                raw.gasPrice == gasPrice &&
-                raw.gasLimit == gasLimit &&
-                raw.to == CONTRACT_ADDRESS &&
-                raw.value == BigInteger.ZERO &&
-                raw.data == expectedPayload
+                    raw.gasPrice == gasPrice &&
+                    raw.gasLimit == gasLimit &&
+                    raw.to == CONTRACT_ADDRESS &&
+                    raw.value == BigInteger.ZERO &&
+                    raw.data == expectedPayload
             }
 
         verify(ethDataManager).getNonce()

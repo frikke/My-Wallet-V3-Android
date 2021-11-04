@@ -2,13 +2,11 @@ package com.blockchain.componentlib.tablerow
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
-import androidx.compose.ui.res.painterResource
 import com.blockchain.componentlib.tag.TagViewState
 
 class DefaultTableRowView @JvmOverloads constructor(
@@ -25,12 +23,12 @@ class DefaultTableRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-            DefaultTableRow(
-                primaryText = primaryText,
-                secondaryText = secondaryText,
-                paragraphText = paragraphText,
-                onClick = onClick,
-                tags = tags,
-            )
+        DefaultTableRow(
+            primaryText = primaryText,
+            secondaryText = secondaryText,
+            paragraphText = paragraphText,
+            onClick = onClick,
+            tags = tags
+        )
     }
 }

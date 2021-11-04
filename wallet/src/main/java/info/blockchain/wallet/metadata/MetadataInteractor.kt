@@ -9,13 +9,13 @@ import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import java.nio.charset.StandardCharsets
+import java.util.concurrent.TimeUnit
 import org.json.JSONException
 import org.spongycastle.crypto.CryptoException
 import org.spongycastle.util.encoders.Base64
 import org.spongycastle.util.encoders.Hex
 import retrofit2.HttpException
-import java.nio.charset.StandardCharsets
-import java.util.concurrent.TimeUnit
 
 class MetadataInteractor(
     private val metadataService: MetadataService
@@ -58,13 +58,13 @@ class MetadataInteractor(
                 errors.zipWith(
                     Flowable.range(0, FETCH_MAGIC_HASH_ATTEMPT_LIMIT)
                 )
-                .flatMap { (error, attempt) ->
-                    if (error is HttpException && error.code() == 404 && attempt < FETCH_MAGIC_HASH_ATTEMPT_LIMIT) {
-                        Flowable.timer(1, TimeUnit.SECONDS)
-                    } else {
-                        Flowable.error(error)
+                    .flatMap { (error, attempt) ->
+                        if (error is HttpException && error.code() == 404 && attempt < FETCH_MAGIC_HASH_ATTEMPT_LIMIT) {
+                            Flowable.timer(1, TimeUnit.SECONDS)
+                        } else {
+                            Flowable.error(error)
+                        }
                     }
-                }
             }
     }
 

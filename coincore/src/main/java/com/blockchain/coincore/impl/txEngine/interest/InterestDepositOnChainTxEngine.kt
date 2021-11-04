@@ -1,12 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
@@ -19,7 +13,13 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

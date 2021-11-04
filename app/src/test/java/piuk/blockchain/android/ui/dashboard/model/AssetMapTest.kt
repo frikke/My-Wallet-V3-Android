@@ -1,16 +1,16 @@
 package piuk.blockchain.android.ui.dashboard.model
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.ether
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import org.junit.Test
-import com.blockchain.coincore.AccountBalance
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
+import org.junit.Test
 
 class AssetMapTest {
 

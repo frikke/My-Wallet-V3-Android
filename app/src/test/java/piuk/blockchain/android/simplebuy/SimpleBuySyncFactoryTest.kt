@@ -19,12 +19,12 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
-import org.junit.Ignore
-import org.junit.Rule
-import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.test.assertEquals
+import org.junit.Ignore
+import org.junit.Rule
+import org.junit.Test
 
 @Suppress("UnnecessaryVariable")
 class SimpleBuySyncFactoryTest {

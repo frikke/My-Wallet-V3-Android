@@ -18,7 +18,7 @@ class ActionStackedIconTableRowView @JvmOverloads constructor(
     var secondaryText by mutableStateOf(null as? String?)
     var onClick by mutableStateOf({})
     var iconTopUrl by mutableStateOf("")
-    var iconButtomUrl by mutableStateOf("")
+    var iconBottomUrl by mutableStateOf("")
 
     @Composable
     override fun Content() {
@@ -27,7 +27,7 @@ class ActionStackedIconTableRowView @JvmOverloads constructor(
             secondaryText = secondaryText,
             onClick = onClick,
             iconTopUrl = iconTopUrl,
-            iconButtomUrl = iconButtomUrl,
+            iconBottomUrl = iconBottomUrl
         )
     }
 }

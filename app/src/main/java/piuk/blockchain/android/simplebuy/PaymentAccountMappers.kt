@@ -13,14 +13,20 @@ class GBPPaymentAccountMapper(private val stringUtils: StringUtils) : PaymentAcc
         if (bankAccountResponse.currency != "GBP") return null
         return BankAccount(
             listOf(
-                BankDetail(stringUtils.getString(R.string.account_number),
+                BankDetail(
+                    stringUtils.getString(R.string.account_number),
                     bankAccountResponse.agent.account ?: return null,
-                    true),
-                BankDetail(stringUtils.getString(R.string.sort_code),
+                    true
+                ),
+                BankDetail(
+                    stringUtils.getString(R.string.sort_code),
                     bankAccountResponse.agent.code ?: return null,
-                    true),
-                BankDetail(stringUtils.getString(R.string.recipient_name),
-                    bankAccountResponse.agent.recipient ?: return null)
+                    true
+                ),
+                BankDetail(
+                    stringUtils.getString(R.string.recipient_name),
+                    bankAccountResponse.agent.recipient ?: return null
+                )
             )
         )
     }
@@ -33,22 +39,32 @@ class EURPaymentAccountMapper(private val stringUtils: StringUtils) : PaymentAcc
         return BankAccount(
             listOf(
 
-                BankDetail(stringUtils.getString(R.string.bank_code_swift_bic),
+                BankDetail(
+                    stringUtils.getString(R.string.bank_code_swift_bic),
                     bankAccountResponse.agent.account ?: "LHVBEE22",
-                    true),
+                    true
+                ),
 
-                BankDetail(stringUtils.getString(R.string.bank_name),
+                BankDetail(
+                    stringUtils.getString(R.string.bank_name),
                     bankAccountResponse.agent.name ?: return null,
-                    true),
+                    true
+                ),
 
-                BankDetail(stringUtils.getString(R.string.bank_country),
-                    bankAccountResponse.agent.country ?: stringUtils.getString(R.string.estonia)),
+                BankDetail(
+                    stringUtils.getString(R.string.bank_country),
+                    bankAccountResponse.agent.country ?: stringUtils.getString(R.string.estonia)
+                ),
 
-                BankDetail(stringUtils.getString(R.string.iban),
-                    bankAccountResponse.address ?: return null, true),
+                BankDetail(
+                    stringUtils.getString(R.string.iban),
+                    bankAccountResponse.address ?: return null, true
+                ),
 
-                BankDetail(stringUtils.getString(R.string.recipient_name),
-                    bankAccountResponse.agent.recipient ?: "")
+                BankDetail(
+                    stringUtils.getString(R.string.recipient_name),
+                    bankAccountResponse.agent.recipient ?: ""
+                )
             )
         )
     }
@@ -61,25 +77,37 @@ class USDPaymentAccountMapper(private val stringUtils: StringUtils) : PaymentAcc
         return BankAccount(
             listOf(
 
-                BankDetail(stringUtils.getString(R.string.account_number),
+                BankDetail(
+                    stringUtils.getString(R.string.account_number),
                     bankAccountResponse.agent.account ?: "LHVBEE22",
-                    true),
+                    true
+                ),
 
-                BankDetail(stringUtils.getString(R.string.bank_name),
+                BankDetail(
+                    stringUtils.getString(R.string.bank_name),
                     bankAccountResponse.agent.name ?: return null,
-                    true),
+                    true
+                ),
 
-                BankDetail(stringUtils.getString(R.string.bank_country),
-                    bankAccountResponse.agent.country ?: stringUtils.getString(R.string.estonia)),
+                BankDetail(
+                    stringUtils.getString(R.string.bank_country),
+                    bankAccountResponse.agent.country ?: stringUtils.getString(R.string.estonia)
+                ),
 
-                BankDetail(stringUtils.getString(R.string.bank_code_swift_bic),
-                    bankAccountResponse.agent.swiftCode ?: return null, true),
+                BankDetail(
+                    stringUtils.getString(R.string.bank_code_swift_bic),
+                    bankAccountResponse.agent.swiftCode ?: return null, true
+                ),
 
-                BankDetail(stringUtils.getString(R.string.recipient_name),
-                    bankAccountResponse.agent.recipient ?: ""),
+                BankDetail(
+                    stringUtils.getString(R.string.recipient_name),
+                    bankAccountResponse.agent.recipient ?: ""
+                ),
 
-                BankDetail(stringUtils.getString(R.string.routing_number),
-                bankAccountResponse.agent.routingNumber ?: "", true)
+                BankDetail(
+                    stringUtils.getString(R.string.routing_number),
+                    bankAccountResponse.agent.routingNumber ?: "", true
+                )
             )
         )
     }

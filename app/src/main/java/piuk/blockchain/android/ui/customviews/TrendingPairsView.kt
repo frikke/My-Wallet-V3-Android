@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.resources.AssetResources
 import com.blockchain.coincore.TrendingPair
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemTrendingPairRowBinding
 import piuk.blockchain.android.databinding.ViewTrendingPairsBinding
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
@@ -117,7 +117,7 @@ private class TrendingPairsAdapter(
                 trendingRoot.apply {
                     contentDescription =
                         "$TRENDING_PAIR_SWAP_VIEW_ID${item.sourceAccount.asset.networkTicker}" +
-                            "$FOR_CONTENT_DESCRIPTION${item.destinationAccount.asset.networkTicker}"
+                        "$FOR_CONTENT_DESCRIPTION${item.destinationAccount.asset.networkTicker}"
                     if (item.enabled) {
                         setOnClickListener { itemClicked(item) }
                         alpha = 1f

@@ -27,17 +27,21 @@ class SettingsActivity : BlockchainActivity() {
 
         fun startFor2Fa(context: Context) {
             val starter = Intent(context, SettingsActivity::class.java)
-            starter.putExtras(Bundle().apply {
-                this.putBoolean(SettingsFragment.EXTRA_SHOW_TWO_FA_DIALOG, true)
-            })
+            starter.putExtras(
+                Bundle().apply {
+                    this.putBoolean(SettingsFragment.EXTRA_SHOW_TWO_FA_DIALOG, true)
+                }
+            )
             context.startActivity(starter)
         }
 
         fun startForVerifyEmail(context: Context) {
             val starter = Intent(context, SettingsActivity::class.java)
-            starter.putExtras(Bundle().apply {
-                this.putBoolean(SettingsFragment.EXTRA_SHOW_ADD_EMAIL_DIALOG, true)
-            })
+            starter.putExtras(
+                Bundle().apply {
+                    this.putBoolean(SettingsFragment.EXTRA_SHOW_ADD_EMAIL_DIALOG, true)
+                }
+            )
             context.startActivity(starter)
         }
     }

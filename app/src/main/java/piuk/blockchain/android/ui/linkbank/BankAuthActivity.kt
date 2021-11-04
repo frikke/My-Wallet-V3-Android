@@ -26,7 +26,9 @@ import piuk.blockchain.android.ui.linkbank.yodlee.YodleeSplashFragment
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeWebViewFragment
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
-class BankAuthActivity : BlockchainActivity(), BankAuthFlowNavigator,
+class BankAuthActivity :
+    BlockchainActivity(),
+    BankAuthFlowNavigator,
     SlidingModalBottomDialog.Host {
 
     private val linkBankTransfer: LinkBankTransfer
@@ -117,7 +119,8 @@ class BankAuthActivity : BlockchainActivity(), BankAuthFlowNavigator,
     override fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String) {
         supportFragmentManager.beginTransaction()
             .replace(
-                R.id.content_frame, YapilyPermissionFragment.newInstance(
+                R.id.content_frame,
+                YapilyPermissionFragment.newInstance(
                     institution = institution,
                     entity = entity,
                     authSource = authSource

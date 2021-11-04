@@ -21,7 +21,7 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun StackedIcons(
     iconTopUrl: String,
-    iconButtomUrl: String,
+    iconBottomUrl: String,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -29,7 +29,7 @@ fun StackedIcons(
     ) {
         Image(
             painter = rememberImagePainter(
-                data = iconButtomUrl,
+                data = iconBottomUrl,
                 builder = {
                     crossfade(true)
                     placeholder(ColorDrawable(AppTheme.colors.light.toArgb()))
@@ -69,7 +69,7 @@ fun StackedIcons_Basic() {
         AppSurface {
             StackedIcons(
                 iconTopUrl = "",
-                iconButtomUrl = ""
+                iconBottomUrl = ""
             )
         }
     }

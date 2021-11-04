@@ -30,15 +30,18 @@ class InterestLimitsMapAdapter {
                                     when (reader.selectName(SUB_KEYS)) {
                                         0 -> currency = reader.nextString()
                                         1 -> lockUpDuration = reader.nextInt()
-                                        2 -> maxWithdrawalAmount =
-                                            reader.nextString()
+                                        2 ->
+                                            maxWithdrawalAmount =
+                                                reader.nextString()
                                         3 -> minDepositAmount = reader.nextString()
                                     }
                                 }
                                 reader.endObject()
-                                map[k] = InterestLimitsResponse(currency, lockUpDuration,
+                                map[k] = InterestLimitsResponse(
+                                    currency, lockUpDuration,
                                     maxWithdrawalAmount,
-                                    minDepositAmount)
+                                    minDepositAmount
+                                )
                             }
                             reader.endObject()
                         }

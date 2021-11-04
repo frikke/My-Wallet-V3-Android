@@ -23,8 +23,8 @@ class EmailVeriffModel(
                 onSuccess = {
                     process(EmailVeriffIntent.EmailUpdated(it))
                 }, onError = {
-                    process(EmailVeriffIntent.ErrorEmailVerification)
-                }
+                process(EmailVeriffIntent.ErrorEmailVerification)
+            }
             )
             EmailVeriffIntent.CancelEmailVerification -> interactor.cancelPolling().subscribeBy(
                 onComplete = {},

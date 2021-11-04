@@ -18,7 +18,6 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import io.github.novacrypto.bip39.SeedCalculator
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
-
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
@@ -691,13 +690,15 @@ private fun KStubbing<MetadataRepository>.loads(expectedData: XlmMetaData) {
 
 private fun KStubbing<MetadataRepository>.emptyAtFirstThenLoads(expectedData: XlmMetaData) {
     var count = 1
-    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) }.thenReturn(Maybe.defer {
-        if (count-- > 0) {
-            Maybe.empty()
-        } else {
-            Maybe.just(expectedData)
+    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) }.thenReturn(
+        Maybe.defer {
+            if (count-- > 0) {
+                Maybe.empty()
+            } else {
+                Maybe.just(expectedData)
+            }
         }
-    })
+    )
 }
 
 private fun KStubbing<MetadataRepository>.successfulSave() {

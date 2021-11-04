@@ -7,13 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
-import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
+import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
 
-class CardVerificationFragment : MviFragment<CardModel, CardIntent, CardState, FragmentCardVerificationBinding>(),
+class CardVerificationFragment :
+    MviFragment<CardModel, CardIntent, CardState, FragmentCardVerificationBinding>(),
     AddCardFlowFragment {
 
     override val model: CardModel by scopedInject()

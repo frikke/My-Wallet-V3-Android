@@ -451,7 +451,8 @@ class SettingsPresenterTest {
 
         whenever(
             settingsDataManager.enableNotification(
-                SettingsManager.NOTIFICATION_TYPE_EMAIL, listOf(
+                SettingsManager.NOTIFICATION_TYPE_EMAIL,
+                listOf(
                     SettingsManager.NOTIFICATION_TYPE_NONE
                 )
             )
@@ -462,7 +463,8 @@ class SettingsPresenterTest {
         // Assert
         verify(settingsDataManager)
             .enableNotification(
-                SettingsManager.NOTIFICATION_TYPE_EMAIL, listOf(
+                SettingsManager.NOTIFICATION_TYPE_EMAIL,
+                listOf(
                     SettingsManager.NOTIFICATION_TYPE_NONE
                 )
             )

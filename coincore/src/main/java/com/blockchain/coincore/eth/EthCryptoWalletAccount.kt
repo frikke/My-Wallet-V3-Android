@@ -1,9 +1,15 @@
 package com.blockchain.coincore.eth
 
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TxEngine
+import com.blockchain.coincore.TxSourceState
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -12,16 +18,10 @@ import info.blockchain.wallet.ethereum.EthereumAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.ActivitySummaryList
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.TxEngine
-import com.blockchain.coincore.TxSourceState
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import java.util.concurrent.atomic.AtomicBoolean
 
 /*internal*/ class EthCryptoWalletAccount internal constructor(
     payloadManager: PayloadDataManager,

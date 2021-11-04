@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import io.reactivex.rxjava3.core.Single
-import org.koin.android.ext.android.inject
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.SingleAccount
+import io.reactivex.rxjava3.core.Single
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState

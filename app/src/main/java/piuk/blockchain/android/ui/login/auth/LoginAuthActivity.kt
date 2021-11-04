@@ -18,6 +18,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -46,7 +47,6 @@ import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicBoolean
 
 class LoginAuthActivity :
     MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>(),
@@ -300,25 +300,28 @@ class LoginAuthActivity :
 
     private fun showUnificationUI() {
         with(binding) {
-            unifiedSignInWebview.initWebView(object : UnifiedSignInEventListener {
-                override fun onLoaded() {
-                    progressBar.gone()
-                }
+            unifiedSignInWebview.initWebView(
+                object : UnifiedSignInEventListener {
+                    override fun onLoaded() {
+                        progressBar.gone()
+                    }
 
-                override fun onFatalError(error: Throwable) {
-                    // TODO nothing for now
-                }
+                    override fun onFatalError(error: Throwable) {
+                        // TODO nothing for now
+                    }
 
-                override fun onTimeout() {
-                    // TODO show timeout message?
-                }
+                    override fun onTimeout() {
+                        // TODO show timeout message?
+                    }
 
-                override fun onAuthComplete() {
-                    progressBar.visible()
-                    unifiedSignInWebview.gone()
-                    model.process(LoginAuthIntents.ShowAuthComplete)
-                }
-            }, BuildConfig.WEB_WALLET_URL, PAYLOAD)
+                    override fun onAuthComplete() {
+                        progressBar.visible()
+                        unifiedSignInWebview.gone()
+                        model.process(LoginAuthIntents.ShowAuthComplete)
+                    }
+                },
+                BuildConfig.WEB_WALLET_URL, PAYLOAD
+            )
 
             unifiedSignInWebview.visible()
             progressBar.visible()

@@ -1,8 +1,8 @@
 package info.blockchain.wallet.multiaddress
 
 import com.blockchain.api.ApiException
-import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.MultiAddress
+import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.wallet.payload.data.AddressLabel
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs

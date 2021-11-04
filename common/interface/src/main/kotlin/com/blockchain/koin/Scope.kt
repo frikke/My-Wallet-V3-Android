@@ -14,12 +14,12 @@ val payloadScope: Scope
         return koin.getScopeOrNull(SCOPE_ID) ?: koin.createScope(SCOPE_ID, payloadScopeQualifier).also {
             crashLogger.logState("Payload Scope", "Payload scope opened")
         }.apply {
-                this.registerCallback(
-                    object : ScopeCallback {
-                        override fun onScopeClose(scope: Scope) {
-                            crashLogger.logState("Payload Scope", "Payload scope closed")
-                        }
+            this.registerCallback(
+                object : ScopeCallback {
+                    override fun onScopeClose(scope: Scope) {
+                        crashLogger.logState("Payload Scope", "Payload scope closed")
                     }
-                )
-            }
+                }
+            )
+        }
     }

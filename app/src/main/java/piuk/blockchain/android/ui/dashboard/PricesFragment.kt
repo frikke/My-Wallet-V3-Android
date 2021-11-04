@@ -9,12 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.koin.scopedInject
-import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.AssetInfo
-import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -22,9 +16,15 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPricesBinding
@@ -424,9 +424,9 @@ internal class PricesFragment :
     override fun goToSellFrom(account: CryptoAccount) =
         startActivity(
             TransactionFlowActivity.newInstance(
-            context = requireActivity(),
-            sourceAccount = account,
-            action = AssetAction.Sell
+                context = requireActivity(),
+                sourceAccount = account,
+                action = AssetAction.Sell
             )
         )
 

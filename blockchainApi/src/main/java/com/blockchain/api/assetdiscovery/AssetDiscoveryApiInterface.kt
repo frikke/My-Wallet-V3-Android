@@ -4,7 +4,6 @@ import com.blockchain.api.assetdiscovery.data.DynamicCurrencyList
 import com.blockchain.network.interceptor.Cacheable
 import com.blockchain.network.interceptor.DoNotLogResponseBody
 import io.reactivex.rxjava3.core.Single
-
 import retrofit2.http.GET
 
 internal interface AssetDiscoveryApiInterface {

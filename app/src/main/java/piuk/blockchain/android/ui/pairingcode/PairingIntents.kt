@@ -36,7 +36,7 @@ sealed class PairingIntents : MviIntent<PairingState> {
                     is QrCodeImageStatus.Ready -> QrCodeImageStatus.Ready(oldState.imageStatus.qrUri)
                 }
             )
-        }
+    }
 
     object HideQrImage : PairingIntents() {
         override fun reduce(oldState: PairingState): PairingState =

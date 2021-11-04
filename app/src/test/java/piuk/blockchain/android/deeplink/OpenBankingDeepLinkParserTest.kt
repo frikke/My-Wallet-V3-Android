@@ -1,13 +1,13 @@
 package piuk.blockchain.android.deeplink
 
 import android.net.Uri
+import kotlin.test.assertNull
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import piuk.blockchain.android.BlockchainTestApplication
-import kotlin.test.assertNull
 
 @Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)

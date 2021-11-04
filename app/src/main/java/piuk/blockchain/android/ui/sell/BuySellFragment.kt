@@ -20,6 +20,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlin.properties.Delegates
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBuySellBinding
@@ -37,9 +38,11 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import kotlin.properties.Delegates
 
-class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIntroHost,
+class BuySellFragment :
+    HomeScreenFragment,
+    Fragment(),
+    SellIntroFragment.SellIntroHost,
     SlidingModalBottomDialog.Host {
 
     private var _binding: FragmentBuySellBinding? = null
@@ -130,7 +133,8 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                                 context = activity as Context,
                                 asset = action.selectedAsset,
                                 launchFromNavigationBar = true
-                            ), SB_ACTIVITY
+                            ),
+                            SB_ACTIVITY
                         )
                     }
                 }

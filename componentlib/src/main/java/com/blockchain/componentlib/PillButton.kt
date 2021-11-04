@@ -56,7 +56,8 @@ class PillButton : ConstraintLayout {
 
     private fun setButtonStyle(buttonType: PillButtonType) {
         val backgroundTintList = AppCompatResources.getColorStateList(
-            context, when (buttonType) {
+            context,
+            when (buttonType) {
                 PillButtonType.PRIMARY -> R.color.paletteBasePrimary
                 PillButtonType.SECONDARY -> R.color.paletteBaseWhite
             }

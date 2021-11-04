@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.dashboard
 
 import android.annotation.SuppressLint
-import androidx.core.content.ContextCompat
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.elyeproj.loaderviewlibrary.LoaderTextView
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
-import piuk.blockchain.android.R
 import info.blockchain.balance.Money
+import piuk.blockchain.android.R
 
 fun LoaderTextView.showLoading() =
     resetLoader()

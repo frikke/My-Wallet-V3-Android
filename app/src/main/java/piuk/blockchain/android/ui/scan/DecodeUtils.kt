@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.scan
 import android.content.Intent
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.DecodeHintType
-import timber.log.Timber
 import java.util.EnumMap
 import java.util.EnumSet
+import timber.log.Timber
 
 fun parseDecodeHints(intent: Intent): Map<DecodeHintType, Any> {
 

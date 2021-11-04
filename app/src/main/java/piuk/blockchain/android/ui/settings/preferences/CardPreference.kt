@@ -11,15 +11,15 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class CardPreference(
     private val card: PaymentMethod? = null,
@@ -33,8 +33,10 @@ class CardPreference(
         this.title = title // Forces setting fonts when Title is set via XML
 
         title = (card as? PaymentMethod.Card)?.uiLabel() ?: context.getString(R.string.add_card_title)
-        icon = ContextCompat.getDrawable(context, (card as? PaymentMethod.Card)?.cardType?.icon()
-            ?: R.drawable.ic_payment_card
+        icon = ContextCompat.getDrawable(
+            context,
+            (card as? PaymentMethod.Card)?.cardType?.icon()
+                ?: R.drawable.ic_payment_card
         )
     }
 

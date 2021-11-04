@@ -1,12 +1,12 @@
 package piuk.blockchain.androidcore.data.settings.datastore
 
+import com.blockchain.utils.Optional
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.wallet.api.data.Settings
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.testutils.RxTest
-import com.blockchain.utils.Optional
 
 class SettingsMemoryStoreTest : RxTest() {
 

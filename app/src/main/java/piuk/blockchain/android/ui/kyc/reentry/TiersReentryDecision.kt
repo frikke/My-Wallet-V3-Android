@@ -28,8 +28,10 @@ class TiersReentryDecision : ReentryDecision {
 
     private fun tier0ProfileIncompleteOrResubmitAllowed(): Boolean {
         return isTierZero &&
-            (nabuUser.isProfileIncomplete() ||
-                nabuUser.isMarkedForRecoveryResubmission)
+            (
+                nabuUser.isProfileIncomplete() ||
+                    nabuUser.isMarkedForRecoveryResubmission
+                )
     }
 
     private fun tier0AndCanAdvance() = isTierZero && nabuUser.tiers!!.next == 1

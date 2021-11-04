@@ -6,8 +6,8 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.wallet.payload.data.WalletBody
 import info.blockchain.wallet.payload.data.Wallet
+import info.blockchain.wallet.payload.data.WalletBody
 import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Test

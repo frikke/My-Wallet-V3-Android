@@ -1,10 +1,5 @@
 package com.blockchain.coincore.impl
 
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.isCustodialOnly
-import info.blockchain.balance.isErc20
-import io.reactivex.rxjava3.core.Completable
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.bch.BchAddress
@@ -13,6 +8,11 @@ import com.blockchain.coincore.custodialonly.DynamicCustodialAddress
 import com.blockchain.coincore.erc20.Erc20Address
 import com.blockchain.coincore.eth.EthAddress
 import com.blockchain.coincore.xlm.XlmAddress
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.isCustodialOnly
+import info.blockchain.balance.isErc20
+import io.reactivex.rxjava3.core.Completable
 
 internal fun makeExternalAssetAddress(
     asset: AssetInfo,

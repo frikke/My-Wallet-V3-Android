@@ -3,8 +3,8 @@ package com.blockchain.sunriver.datamanager
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serialization.fromMoshiJson
 import com.blockchain.serialization.toMoshiJson
-import com.blockchain.testutils.`should be assignable from`
 import com.blockchain.testutils.getStringFromResource
+import com.blockchain.testutils.`should be assignable from`
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test

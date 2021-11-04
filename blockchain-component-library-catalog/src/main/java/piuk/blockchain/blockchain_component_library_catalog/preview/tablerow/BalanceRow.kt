@@ -7,7 +7,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.tablerow.BalanceStackedIconTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
-import com.blockchain.componentlib.tablerow.DefaultStackedIconTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
@@ -115,7 +114,7 @@ fun BalanceStackedIconTableRowPreview() {
                     }
                 },
                 iconTopUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
-                iconButtomUrl = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
+                iconBottomUrl = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
                 onClick = {},
             )
         }

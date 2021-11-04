@@ -1,10 +1,6 @@
 package piuk.blockchain.android.domain.repositories
 
-import com.blockchain.nabu.datamanagers.CurrencyPair
-import com.blockchain.nabu.datamanagers.TransactionType
-import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
+import com.blockchain.caching.ExpiringRepository
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
@@ -19,7 +15,11 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
-import com.blockchain.caching.ExpiringRepository
+import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.TransactionType
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import timber.log.Timber
 
 class AssetActivityRepository(

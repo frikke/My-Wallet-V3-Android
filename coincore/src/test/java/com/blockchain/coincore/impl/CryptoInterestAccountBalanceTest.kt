@@ -1,5 +1,6 @@
 package com.blockchain.coincore.impl
 
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.InterestAccountBalance
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
@@ -12,11 +13,10 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.TestScheduler
+import java.util.concurrent.TimeUnit
 import junit.framework.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.testutil.CoincoreTestBase
-import java.util.concurrent.TimeUnit
 
 class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
@@ -60,9 +60,9 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             .assertComplete()
             .assertValue {
                 it.total == balance.totalBalance &&
-                it.actionable == 40.testValue(TEST_ASSET) &&
-                it.pending == balance.pendingDeposit &&
-                it.exchangeRate == TEST_TO_USER_RATE_1
+                    it.actionable == 40.testValue(TEST_ASSET) &&
+                    it.pending == balance.pendingDeposit &&
+                    it.exchangeRate == TEST_TO_USER_RATE_1
             }
 
         assert(subject.isFunded)
@@ -90,7 +90,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             .assertComplete()
             .assertValue {
                 it.total == balance.totalBalance &&
-                it.exchangeRate == TEST_TO_USER_RATE_1
+                    it.exchangeRate == TEST_TO_USER_RATE_1
             }
 
         assertFalse(subject.isFunded)

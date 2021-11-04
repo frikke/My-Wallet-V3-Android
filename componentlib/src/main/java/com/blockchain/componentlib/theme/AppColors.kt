@@ -73,7 +73,7 @@ fun getLightColors() = SemanticColors(
     tagErrorBackground = Red100,
     tagErrorText = Red600,
 
-    isLight = true,
+    isLight = true
 )
 
 fun getDarkColors() = SemanticColors(
@@ -101,7 +101,7 @@ fun getDarkColors() = SemanticColors(
     tagErrorBackground = Red400,
     tagErrorText = Dark900,
 
-    isLight = false,
+    isLight = false
 )
 
 val LocalColors = staticCompositionLocalOf { getLightColors() }

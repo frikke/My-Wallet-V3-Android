@@ -7,7 +7,7 @@ class OSUtil(private val context: Context) {
 
     fun isServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = context.getSystemService(Context.ACTIVITY_SERVICE)
-                as? ActivityManager ?: return false
+            as? ActivityManager ?: return false
         for (s in manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.name == s.service.className) {
                 return true

@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.kyc.address
 
 import androidx.annotation.StringRes
-import piuk.blockchain.android.ui.kyc.address.models.AddressModel
-import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.ui.base.View
+import piuk.blockchain.android.ui.kyc.address.models.AddressModel
+import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 
 interface KycHomeAddressView : View {
 

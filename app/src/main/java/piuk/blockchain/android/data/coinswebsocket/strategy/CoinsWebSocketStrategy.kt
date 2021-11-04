@@ -14,12 +14,14 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.isErc20
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.payload.data.allAddresses
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.math.BigDecimal
+import java.util.Locale
 import org.web3j.utils.Convert
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.coinswebsocket.models.BtcBchResponse
@@ -45,8 +47,6 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import timber.log.Timber
-import java.math.BigDecimal
-import java.util.Locale
 
 data class WebSocketReceiveEvent(
     val address: String,
@@ -186,7 +186,8 @@ class CoinsWebSocketStrategy(
             }
             if (output.addr != null && hash != null) {
                 rxBus.emitEvent(
-                    WebSocketReceiveEvent::class.java, WebSocketReceiveEvent(
+                    WebSocketReceiveEvent::class.java,
+                    WebSocketReceiveEvent(
                         output.addr,
                         hash
                     )
@@ -402,9 +403,9 @@ class CoinsWebSocketStrategy(
                     Entity.Account,
                     coin,
                     Parameters.SimpleAddress(address)
-                    )
                 )
             )
+        )
 
     private fun unsubscribeErc20(ethAddress: String?, asset: AssetInfo) {
         ethAddress?.let {

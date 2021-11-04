@@ -2,9 +2,8 @@ package com.blockchain.network.websocket
 
 import com.nhaarman.mockitokotlin2.mock
 import io.reactivex.rxjava3.core.Observable
-
-import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be instance of`
 import org.junit.Test
 
 class ChannelFilterTest {

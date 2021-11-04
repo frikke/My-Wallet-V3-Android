@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.search
 
-import piuk.blockchain.android.ui.kyc.countryselection.util.CountryDisplayModel
 import io.reactivex.rxjava3.core.Observable
+import piuk.blockchain.android.ui.kyc.countryselection.util.CountryDisplayModel
 
 fun Observable<List<CountryDisplayModel>>.filterCountries(
     query: Observable<CharSequence>

@@ -20,7 +20,7 @@ fun WarningTag(text: String) {
         modifier = Modifier
             .clip(AppTheme.shapes.small)
             .background(AppTheme.colors.tagWarningBackground)
-            .padding(horizontal = 6.dp, vertical = 4.dp),
+            .padding(horizontal = 6.dp, vertical = 4.dp)
     )
 }
 

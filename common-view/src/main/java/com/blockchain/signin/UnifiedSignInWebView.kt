@@ -53,16 +53,19 @@ class UnifiedSignInWebView @JvmOverloads constructor(
         })
 
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        addJavascriptInterface(UnifiedSignInInterfaceHandler(
-            object : WebViewComms {
-                override fun onMessageReceived(data: String?) {
-                    // TODO this will contain messaging logic when contract is finalised
-                    sendMessage(payload)
-                    // TODO for now, call complete on message reception, we have the password in memory
-                    listener.onAuthComplete()
+        addJavascriptInterface(
+            UnifiedSignInInterfaceHandler(
+                object : WebViewComms {
+                    override fun onMessageReceived(data: String?) {
+                        // TODO this will contain messaging logic when contract is finalised
+                        sendMessage(payload)
+                        // TODO for now, call complete on message reception, we have the password in memory
+                        listener.onAuthComplete()
+                    }
                 }
-            }
-        ), WEB_INTERFACE_NAME)
+            ),
+            WEB_INTERFACE_NAME
+        )
     }
 
     fun initWebView(listener: UnifiedSignInEventListener, url: String, payload: String) {

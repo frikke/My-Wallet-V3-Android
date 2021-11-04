@@ -7,17 +7,17 @@ import android.view.LayoutInflater
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import com.jakewharton.rxbinding4.appcompat.queryTextChanges
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.SortedMap
+import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSelectCountryBinding
 import piuk.blockchain.android.util.gone
 import timber.log.Timber
-import java.util.SortedMap
-import java.util.concurrent.TimeUnit
 
 class CountryDialog(
     context: Context,

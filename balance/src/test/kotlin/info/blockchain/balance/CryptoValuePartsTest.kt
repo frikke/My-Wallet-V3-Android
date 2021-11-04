@@ -1,8 +1,8 @@
 package info.blockchain.balance
 
+import java.util.Locale
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import java.util.Locale
 
 class CryptoValuePartsTest {
 

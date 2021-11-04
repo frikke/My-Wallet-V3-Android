@@ -14,6 +14,8 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.Calendar
+import java.util.Date
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
@@ -23,8 +25,6 @@ import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import java.util.Calendar
-import java.util.Date
 
 class AddNewCardFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentAddNewCardBinding>(), AddCardFlowFragment {

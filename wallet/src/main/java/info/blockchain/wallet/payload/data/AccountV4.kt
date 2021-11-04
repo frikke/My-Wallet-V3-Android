@@ -10,11 +10,13 @@ import java.lang.IllegalStateException
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(fieldVisibility = Visibility.ANY,
+@JsonAutoDetect(
+    fieldVisibility = Visibility.ANY,
     getterVisibility = Visibility.NONE,
     setterVisibility = Visibility.NONE,
     creatorVisibility = Visibility.NONE,
-    isGetterVisibility = Visibility.NONE)
+    isGetterVisibility = Visibility.NONE
+)
 data class AccountV4(
     @JsonProperty("label")
     override var label: String = "",
@@ -77,7 +79,8 @@ data class AccountV4(
         derivations += Derivation.createSegwit(
             hdAccount.xPriv,
             hdAccount.xpub,
-            AddressCache.setCachedXPubs(hdAccount))
+            AddressCache.setCachedXPubs(hdAccount)
+        )
         defaultType = Derivation.SEGWIT_BECH32_TYPE
     }
 }

@@ -20,7 +20,7 @@ fun DefaultTag(text: String) {
         modifier = Modifier
             .clip(AppTheme.shapes.small)
             .background(AppTheme.colors.tagDefaultBackground)
-            .padding(horizontal = 6.dp, vertical = 4.dp),
+            .padding(horizontal = 6.dp, vertical = 4.dp)
     )
 }
 

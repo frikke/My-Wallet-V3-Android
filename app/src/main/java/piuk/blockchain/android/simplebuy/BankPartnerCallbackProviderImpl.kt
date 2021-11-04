@@ -3,8 +3,8 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.nabu.models.data.BankPartner
-import piuk.blockchain.android.BuildConfig
 import java.lang.IllegalStateException
+import piuk.blockchain.android.BuildConfig
 
 class BankPartnerCallbackProviderImpl : BankPartnerCallbackProvider {
     override fun callback(partner: BankPartner, action: BankTransferAction): String =

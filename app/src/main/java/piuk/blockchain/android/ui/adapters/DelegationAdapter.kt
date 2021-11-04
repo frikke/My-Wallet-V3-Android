@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.adapters
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 /**

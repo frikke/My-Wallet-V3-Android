@@ -36,7 +36,7 @@ class ReplayProtection(private val nonReplayableInput: Utxo) : CoinSortingMethod
             it.isReplayable
         }
         return listOf(nonReplayable.firstOrNull() ?: nonReplayableInput) +
-                DescentDraw.sort(replayable) +
-                DescentDraw.sort(nonReplayable.drop(1))
+            DescentDraw.sort(replayable) +
+            DescentDraw.sort(nonReplayable.drop(1))
     }
 }

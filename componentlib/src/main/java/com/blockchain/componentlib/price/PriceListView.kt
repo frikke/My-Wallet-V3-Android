@@ -5,9 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 class PriceListView : RecyclerView {

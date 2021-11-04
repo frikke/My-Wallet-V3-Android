@@ -88,11 +88,12 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
                     (parentFragment as? RemovePaymentMethodBottomSheetHost)?.onLinkedBankRemoved(bank.id)
                     dismiss()
                 }, onError = {
-                    ToastCustom.makeText(
-                        requireContext(), getString(R.string.settings_bank_remove_error), Toast.LENGTH_LONG,
-                        ToastCustom.TYPE_ERROR
-                    )
-                })
+                ToastCustom.makeText(
+                    requireContext(), getString(R.string.settings_bank_remove_error), Toast.LENGTH_LONG,
+                    ToastCustom.TYPE_ERROR
+                )
+            }
+            )
     }
 
     private fun updateUi(isLoading: Boolean) {

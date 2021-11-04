@@ -1,17 +1,17 @@
 package piuk.blockchain.android.ui.activity.detail
 
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payment.Payment
-import org.apache.commons.lang3.tuple.Pair
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.TreeMap
+import org.apache.commons.lang3.tuple.Pair
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 @Deprecated("Switch to coincore")
 class TransactionHelper(

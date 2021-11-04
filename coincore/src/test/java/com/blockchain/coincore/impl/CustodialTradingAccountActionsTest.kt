@@ -1,5 +1,7 @@
 package com.blockchain.coincore.impl
 
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
@@ -16,8 +18,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.testutil.CoincoreTestBase
 
 class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 

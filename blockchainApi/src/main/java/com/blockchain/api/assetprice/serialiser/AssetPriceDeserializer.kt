@@ -3,8 +3,8 @@ package com.blockchain.api.assetprice.serialiser
 import com.blockchain.api.assetprice.data.AssetPriceDto
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -27,18 +27,20 @@ internal class AssetPriceDeserializer : KSerializer<AssetPriceDto> {
                     when (val i = decodeElementIndex(descriptor)) {
                         CompositeDecoder.DECODE_DONE -> break@loop
                         ELEMENT_IDX_TIMESTAMP -> timestamp = decodeLongElement(descriptor, i)
-                        ELEMENT_IDX_PRICE -> price =
-                            if (decoder.decodeNotNullMark()) {
-                                decodeDoubleElement(descriptor, i)
-                            } else {
-                                null
-                            }
-                        ELEMENT_IDX_VOLUME -> volume24h =
-                            if (decoder.decodeNotNullMark()) {
-                                decodeDoubleElement(descriptor, i)
-                            } else {
-                                null
-                            }
+                        ELEMENT_IDX_PRICE ->
+                            price =
+                                if (decoder.decodeNotNullMark()) {
+                                    decodeDoubleElement(descriptor, i)
+                                } else {
+                                    null
+                                }
+                        ELEMENT_IDX_VOLUME ->
+                            volume24h =
+                                if (decoder.decodeNotNullMark()) {
+                                    decodeDoubleElement(descriptor, i)
+                                } else {
+                                    null
+                                }
                         else -> throw SerializationException("Unknown index $i")
                     }
                 }

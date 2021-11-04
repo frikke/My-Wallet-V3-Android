@@ -17,11 +17,11 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
-import java.util.Stack
 
 data class AssetDetailsState(
     val asset: CryptoAsset? = null,
@@ -177,7 +177,8 @@ class AssetDetailsModel(
                 },
                 onError = {
                     process(AssetDisplayDetailsFailed)
-                })
+                }
+            )
 
     private fun loadRecurringBuysForAsset(asset: CryptoAsset): Disposable =
         interactor.loadRecurringBuysForAsset(asset.asset)

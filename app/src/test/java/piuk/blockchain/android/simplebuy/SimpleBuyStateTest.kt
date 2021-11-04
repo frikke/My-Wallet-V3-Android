@@ -3,9 +3,9 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.nabu.datamanagers.TransferLimits
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
-import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.junit.Test
 
 class SimpleBuyStateTest {
 

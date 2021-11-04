@@ -1,17 +1,17 @@
 package com.blockchain.bitpay
 
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.InvoiceTarget
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.CryptoTarget
-import com.blockchain.coincore.InvoiceTarget
-import timber.log.Timber
 import java.lang.IllegalStateException
 import java.util.regex.Pattern
+import timber.log.Timber
 
 class BitPayInvoiceTarget(
     override val asset: AssetInfo,

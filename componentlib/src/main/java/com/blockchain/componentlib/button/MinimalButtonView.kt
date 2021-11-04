@@ -29,4 +29,3 @@ class MinimalButtonView @JvmOverloads constructor(
         )
     }
 }
-

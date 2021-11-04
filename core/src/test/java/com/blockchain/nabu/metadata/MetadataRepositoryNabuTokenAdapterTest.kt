@@ -15,8 +15,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-
-import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
@@ -48,8 +46,10 @@ class MetadataRepositoryNabuTokenAdapterTest {
         ).fetchNabuToken()
             .test()
             .values()
-            .single() `should be equal to` NabuOfflineTokenResponse(userId = "User1",
-            token = "TOKEN123")
+            .single() `should be equal to` NabuOfflineTokenResponse(
+            userId = "User1",
+            token = "TOKEN123"
+        )
     }
 
     @Test

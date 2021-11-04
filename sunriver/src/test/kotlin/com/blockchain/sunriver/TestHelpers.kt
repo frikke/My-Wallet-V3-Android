@@ -1,8 +1,8 @@
 package com.blockchain.sunriver
 
 import com.nhaarman.mockitokotlin2.argThat
-import org.stellar.sdk.KeyPair
 import java.util.Arrays
+import org.stellar.sdk.KeyPair
 
 fun keyPairEq(expected: KeyPair) = argThat<KeyPair> {
     keyPairEquality(expected, this)

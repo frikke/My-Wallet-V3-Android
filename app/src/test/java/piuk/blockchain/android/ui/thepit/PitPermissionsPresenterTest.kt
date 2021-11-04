@@ -1,14 +1,15 @@
 package piuk.blockchain.android.ui.thepit
 
+import com.blockchain.android.testutils.rxInit
 import com.blockchain.annotations.CommonCode
+import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.nabu.NabuToken
 import com.blockchain.preferences.ThePitLinkingPrefs
-import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -16,7 +17,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import junit.framework.Assert.assertEquals
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -260,10 +260,10 @@ class PitPermissionsPresenterTest {
         private const val EMAIL_ADDRESS_PLUS = "test+test@test.com"
         private const val FORMATTED_LINK =
             BuildConfig.PIT_LINKING_URL + LINK_ID + "?email=test%40test.com&utm_source=" +
-                    "android_wallet&utm_medium=wallet_linking"
+                "android_wallet&utm_medium=wallet_linking"
         private const val FORMATTED_LINK_PLUS =
             BuildConfig.PIT_LINKING_URL + LINK_ID + "?email=test%2Btest%40test.com&utm_source=" +
-                    "android_wallet&utm_medium=wallet_linking"
+                "android_wallet&utm_medium=wallet_linking"
 
         private const val LINK_ERROR = "That went well"
     }

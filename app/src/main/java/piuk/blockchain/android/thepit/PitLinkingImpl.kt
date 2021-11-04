@@ -1,14 +1,14 @@
 package piuk.blockchain.android.thepit
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
-import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.sunriver.XlmDataManager
 import info.blockchain.balance.CryptoCurrency
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -16,12 +16,12 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
+import java.lang.IllegalStateException
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import thepit.PitLinking
 import thepit.PitLinkingState
 import timber.log.Timber
-import java.lang.IllegalStateException
 
 class PitLinkingImpl(
     private val nabu: NabuDataManager,

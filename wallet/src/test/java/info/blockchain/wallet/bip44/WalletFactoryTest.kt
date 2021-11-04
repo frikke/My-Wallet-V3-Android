@@ -2,15 +2,13 @@ package info.blockchain.wallet.bip44
 
 import info.blockchain.wallet.bip44.HDWalletFactory.Language
 import info.blockchain.wallet.payload.data.Derivation
-
+import java.security.SecureRandom
 import org.bitcoinj.params.MainNetParams
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
-
 import org.spongycastle.util.encoders.Hex.toHexString
-import java.security.SecureRandom
 
 class WalletFactoryTest {
 
@@ -73,7 +71,7 @@ class WalletFactoryTest {
         )
         assertEquals(
             "50f4cb14e1cebfccf865118487bb3a6264f51eb410894e1458a9b" +
-                    "c9cb241886fbce65249611c4822dc957b2da47674dbddd02e003f0507bc757c20e835b0992f",
+                "c9cb241886fbce65249611c4822dc957b2da47674dbddd02e003f0507bc757c20e835b0992f",
             toHexString(wallet.hdSeed)
         )
         assertEquals(16, wallet.seed.size.toLong())
@@ -92,7 +90,7 @@ class WalletFactoryTest {
     fun testSTXAddressDerivationFromHDWallet() {
         val mnemonic =
             "one remember hint unlock finger reform utility acid speed cushion split" +
-                    " client bitter myself protect actor frame forward rather better mercy clay card awesome"
+                " client bitter myself protect actor frame forward rather better mercy clay card awesome"
 
         val wallet = HDWalletFactory
             .restoreWallet(
@@ -153,7 +151,7 @@ class WalletFactoryTest {
 
         val restoredWallet1 = HDWalletFactory.restoreWallet(
             Language.US,
-        "all all all all all all all all all all all all",
+            "all all all all all all all all all all all all",
             passphrase1,
             1,
             Derivation.LEGACY_PURPOSE
@@ -161,23 +159,27 @@ class WalletFactoryTest {
 
         val restoredWallet2 = HDWalletFactory.restoreWallet(
             Language.US,
-        "all all all all all all all all all all all all",
+            "all all all all all all all all all all all all",
             passphrase1,
             1, Derivation.LEGACY_PURPOSE
         )
 
         assertEquals(
             restoredWallet2.getAccount(0).receive.getAddressAt(
-                0, Derivation.LEGACY_PURPOSE).formattedAddress,
+                0, Derivation.LEGACY_PURPOSE
+            ).formattedAddress,
             restoredWallet1.getAccount(0).receive.getAddressAt(
-                0, Derivation.LEGACY_PURPOSE).formattedAddress
+                0, Derivation.LEGACY_PURPOSE
+            ).formattedAddress
         )
 
         assertEquals(
             restoredWallet2.getAccount(0).change.getAddressAt(
-                0, Derivation.LEGACY_PURPOSE).formattedAddress,
+                0, Derivation.LEGACY_PURPOSE
+            ).formattedAddress,
             restoredWallet1.getAccount(0).change.getAddressAt(
-                0, Derivation.LEGACY_PURPOSE).formattedAddress
+                0, Derivation.LEGACY_PURPOSE
+            ).formattedAddress
         )
     }
 
@@ -223,23 +225,25 @@ class WalletFactoryTest {
         var account = HDAccount(
             MainNetParams.get(),
             "xpub6CbTPgFYkRqMQZiX2WYEiVHWGJUjAsZAvSvMq3z52KczYQr" +
-                    "ZPQ9DjKwHQBmAMJVY3kLeBQ4T818MBf2cTiGkJSkmS8CDT1Wp7Dw4vFMygEV",
+                "ZPQ9DjKwHQBmAMJVY3kLeBQ4T818MBf2cTiGkJSkmS8CDT1Wp7Dw4vFMygEV",
             1
         )
 
         assertEquals(
             "xpub6CbTPgFYkRqMQZiX2WYEiVHWGJUjAsZAvSvMq3z52KczYQrZPQ9" +
-                    "DjKwHQBmAMJVY3kLeBQ4T818MBf2cTiGkJSkmS8CDT1Wp7Dw4vFMygEV",
+                "DjKwHQBmAMJVY3kLeBQ4T818MBf2cTiGkJSkmS8CDT1Wp7Dw4vFMygEV",
             account.xpub
         )
         assertEquals(1, account.id.toLong())
 
-        account = HDAccount(MainNetParams.get(),
+        account = HDAccount(
+            MainNetParams.get(),
             "xpub6CbTPgFYkRqMQZiX2WYEiVHWGJUjAsZAvSvMq3z52KczYQrZPQ9DjKwHQ" +
-                    "BmAMJVY3kLeBQ4T818MBf2cTiGkJSkmS8CDT1Wp7Dw4vFMygEV")
+                "BmAMJVY3kLeBQ4T818MBf2cTiGkJSkmS8CDT1Wp7Dw4vFMygEV"
+        )
         assertEquals(
             "xpub6CbTPgFYkRqMQZiX2WYEiVHWGJUjAsZAvSvMq3z52KczYQrZPQ9Dj" +
-                    "KwHQBmAMJVY3kLeBQ4T818MBf2cTiGkJSkmS8CDT1Wp7Dw4vFMygEV",
+                "KwHQBmAMJVY3kLeBQ4T818MBf2cTiGkJSkmS8CDT1Wp7Dw4vFMygEV",
             account.xpub
         )
         assertEquals(0, account.id.toLong())

@@ -9,7 +9,6 @@ import io.github.novacrypto.bip39.SeedCalculator
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.observers.TestObserver
 import org.amshove.kluent.`should be equal to`
-
 import org.junit.Rule
 import org.junit.Test
 

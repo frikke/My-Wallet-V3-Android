@@ -1,5 +1,13 @@
 package com.blockchain.coincore.bch
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoinCash
@@ -20,17 +28,9 @@ import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.BlockchainAccount
-import kotlin.test.assertEquals
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
@@ -236,13 +236,15 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
             on { absoluteFee }.thenReturn(totalFee.toBigInteger())
         }
 
-        whenever(sendDataManager.getSpendableCoins(
-            unspentOutputs,
-            TARGET_OUTPUT_TYPE,
-            CHANGE_OUTPUT_TYPE,
-            inputAmount,
-            feePerKb
-        )).thenReturn(utxoBundle)
+        whenever(
+            sendDataManager.getSpendableCoins(
+                unspentOutputs,
+                TARGET_OUTPUT_TYPE,
+                CHANGE_OUTPUT_TYPE,
+                inputAmount,
+                feePerKb
+            )
+        ).thenReturn(utxoBundle)
 
         subject.start(
             sourceAccount,
@@ -271,10 +273,10 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         ).test()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == totalSweepable &&
-                it.feeForFullAvailable == totalFee &&
-                it.feeAmount == totalFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == totalSweepable &&
+                    it.feeForFullAvailable == totalFee &&
+                    it.feeAmount == totalFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
             .assertComplete()
@@ -479,9 +481,9 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         ).test()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == totalSweepable &&
-                it.feeAmount == totalFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == totalSweepable &&
+                    it.feeAmount == totalFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
             .assertComplete()

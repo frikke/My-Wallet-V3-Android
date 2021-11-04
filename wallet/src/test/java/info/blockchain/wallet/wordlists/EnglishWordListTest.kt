@@ -1,10 +1,10 @@
 package info.blockchain.wallet.wordlists
 
+import java.security.MessageDigest
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.Test
 import org.spongycastle.util.encoders.Hex
-import java.security.MessageDigest
 
 class EnglishWordListTest {
 

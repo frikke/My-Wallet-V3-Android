@@ -1,20 +1,20 @@
 package com.blockchain.coincore.impl
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyOrNull
-import com.nhaarman.mockitokotlin2.mock
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Completable
-import org.amshove.kluent.`should be`
-import org.junit.Before
-import org.junit.Test
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
 import com.blockchain.coincore.loader.RemoteFeature
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.remoteconfig.FeatureFlag
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.mock
+import info.blockchain.balance.CryptoCurrency
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import org.amshove.kluent.`should be`
+import org.junit.Before
+import org.junit.Test
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 class AssetCatalogueTest : CoincoreTestBase() {
@@ -31,7 +31,7 @@ class AssetCatalogueTest : CoincoreTestBase() {
     private val assetList = listOf(
         TEST_ASSET,
         SECONDARY_TEST_ASSET
-        )
+    )
 
     private val assetsManager: DynamicAssetsDataManager = mock {
         on { availableCryptoAssets() }.thenReturn(Single.just(assetList))

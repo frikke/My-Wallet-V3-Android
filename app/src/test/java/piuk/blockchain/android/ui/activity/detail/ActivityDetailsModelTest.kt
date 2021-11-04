@@ -1,6 +1,10 @@
 package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialTradingActivitySummaryItem
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
@@ -16,16 +20,12 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Date
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CustodialInterestActivitySummaryItem
-import com.blockchain.coincore.CustodialTradingActivitySummaryItem
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import java.util.Date
 
 class ActivityDetailsModelTest {
 
@@ -143,7 +143,8 @@ class ActivityDetailsModelTest {
 
         testObserver.assertValueAt(0, state)
         testObserver.assertValueAt(
-            1, state.copy(
+            1,
+            state.copy(
                 transactionType = item.transactionType,
                 amount = item.value,
                 isPending = item.isPending,
@@ -161,7 +162,8 @@ class ActivityDetailsModelTest {
 
         testObserver.assertValueAt(0, state)
         testObserver.assertValueAt(
-            1, state.copy(
+            1,
+            state.copy(
                 transactionType = TransactionSummary.TransactionType.BUY,
                 amount = custodialItem.value as CryptoValue,
                 isPending = false,
@@ -241,7 +243,8 @@ class ActivityDetailsModelTest {
 
         testObserver.assertValueAt(0, state)
         testObserver.assertValueAt(
-            1, state.copy(
+            1,
+            state.copy(
                 listOfItems = currentList
             )
         )

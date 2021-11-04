@@ -13,11 +13,11 @@ class AuthApiService internal constructor(
         return api.sendEmailForAuthentication(
             sessionId.withBearerPrefix(),
             SendEmailRequest(
-            apiCode,
-            email,
-            captcha,
-            PRODUCT_WALLET,
-            captchaSiteKey
+                apiCode,
+                email,
+                captcha,
+                PRODUCT_WALLET,
+                captchaSiteKey
             )
         )
     }

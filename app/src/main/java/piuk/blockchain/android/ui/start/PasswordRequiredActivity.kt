@@ -23,7 +23,8 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STE
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.util.ViewUtils
 
-class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),
+class PasswordRequiredActivity :
+    MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),
     PasswordRequiredView {
     private val binding: ActivityPasswordRequiredBinding by lazy {
         ActivityPasswordRequiredBinding.inflate(layoutInflater)
@@ -117,7 +118,8 @@ class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequi
     ) {
         ViewUtils.hideKeyboard(this)
 
-        val dialog = getTwoFactorDialog(this, authType,
+        val dialog = getTwoFactorDialog(
+            this, authType,
             walletPrefs,
             positiveAction = {
                 presenter.submitTwoFactorCode(
@@ -128,18 +130,19 @@ class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequi
                     it
                 )
             }, resendAction = { limitReached ->
-                if (!limitReached) {
-                    presenter.requestNew2FaCode(password, guid)
-                } else {
-                    ToastCustom.makeText(
-                        this, getString(R.string.two_factor_retries_exceeded),
-                        Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
-                    )
-                    if (!isTwoFATimerRunning) {
-                        twoFATimer.start()
-                    }
+            if (!limitReached) {
+                presenter.requestNew2FaCode(password, guid)
+            } else {
+                ToastCustom.makeText(
+                    this, getString(R.string.two_factor_retries_exceeded),
+                    Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
+                )
+                if (!isTwoFATimerRunning) {
+                    twoFATimer.start()
                 }
-            })
+            }
+        }
+        )
 
         showAlert(dialog)
     }

@@ -4,7 +4,6 @@ import android.view.View
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
-
 import org.junit.Test
 
 class GoneIfTest {

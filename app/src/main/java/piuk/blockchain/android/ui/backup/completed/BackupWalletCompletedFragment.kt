@@ -7,17 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
 import com.blockchain.koin.scopedInject
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.FragmentBackupCompleteBinding
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setOnClickListenerDebounced
-import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.FragmentBackupCompleteBinding
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
+import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.setOnClickListenerDebounced
 
 class BackupWalletCompletedFragment :
     BaseFragment<BackupWalletCompletedView, BackupWalletCompletedPresenter>(),

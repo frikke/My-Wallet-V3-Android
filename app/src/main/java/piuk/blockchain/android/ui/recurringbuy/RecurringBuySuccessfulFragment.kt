@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
 import com.blockchain.koin.scopedInject
 import com.blockchain.utils.secondsToDays
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentRecurringBuySuccessfulBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyIntent
@@ -19,7 +20,6 @@ import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColours
-import java.util.Locale
 
 class RecurringBuySuccessfulFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentRecurringBuySuccessfulBinding>() {

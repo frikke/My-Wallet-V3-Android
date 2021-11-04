@@ -28,6 +28,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.math.BigInteger
+import java.util.LinkedHashMap
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
 import org.bitcoinj.core.NetworkParameters
@@ -37,8 +39,6 @@ import org.bitcoinj.script.Script
 import piuk.blockchain.androidcore.data.metadata.MetadataCredentials
 import piuk.blockchain.androidcore.utils.RefreshUpdater
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
-import java.math.BigInteger
-import java.util.LinkedHashMap
 
 class WalletUpgradeFailure(
     msg: String,
@@ -400,7 +400,7 @@ class PayloadDataManager internal constructor(
                 account
             )
         }.subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
 
     /**
      * Allows you to generate a receive address at an arbitrary number of positions on the chain
@@ -459,7 +459,7 @@ class PayloadDataManager internal constructor(
                 account
             )
         }.subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
 
     /**
      * Returns an [SigningKey] for a given [ImportedAddress], optionally with a second password
@@ -602,9 +602,9 @@ class PayloadDataManager internal constructor(
 
     fun getAccountTransactions(xpub: XPubs, limit: Int, offset: Int):
         Single<List<TransactionSummary>> =
-            Single.fromCallable {
-                payloadManager.getAccountTransactions(xpub, limit, offset)
-            }
+        Single.fromCallable {
+            payloadManager.getAccountTransactions(xpub, limit, offset)
+        }
 
     /**
      * Returns the transaction notes for a given transaction hash. May return null if not found.

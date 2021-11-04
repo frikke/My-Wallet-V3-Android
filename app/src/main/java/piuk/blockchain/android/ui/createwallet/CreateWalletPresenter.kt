@@ -11,6 +11,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlin.math.roundToInt
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
@@ -21,7 +22,6 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import timber.log.Timber
-import kotlin.math.roundToInt
 
 interface CreateWalletView : View {
     fun showError(@StringRes message: Int)
@@ -101,9 +101,9 @@ class CreateWalletPresenter(
         countryCode: String,
         stateIsoCode: String? = null
     ) = when {
-            recoveryPhrase.isNotEmpty() -> recoverWallet(email, password, recoveryPhrase)
-            else -> createWallet(email, password, countryCode, stateIsoCode)
-        }
+        recoveryPhrase.isNotEmpty() -> recoverWallet(email, password, recoveryPhrase)
+        else -> createWallet(email, password, countryCode, stateIsoCode)
+    }
 
     private fun createWallet(
         emailEntered: String,

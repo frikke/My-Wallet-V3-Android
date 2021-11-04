@@ -108,12 +108,12 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
 import io.reactivex.rxjava3.kotlin.zipWith
-import okhttp3.internal.toLongOrDefault
 import java.lang.IllegalArgumentException
 import java.math.BigInteger
 import java.util.Calendar
 import java.util.Date
 import java.util.UnknownFormatConversionException
+import okhttp3.internal.toLongOrDefault
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
@@ -770,13 +770,15 @@ class LiveCustodialWalletManager(
         authenticator.authenticate {
             nabuService.activateCard(it, cardId, attributes)
         }.map {
-            PartnerCredentials(it.everypay?.let { response ->
-                EveryPayCredentials(
-                    response.apiUsername,
-                    response.mobileToken,
-                    response.paymentLink
-                )
-            })
+            PartnerCredentials(
+                it.everypay?.let { response ->
+                    EveryPayCredentials(
+                        response.apiUsername,
+                        response.mobileToken,
+                        response.paymentLink
+                    )
+                }
+            )
         }
 
     override fun getCardDetails(cardId: String): Single<PaymentMethod.Card> =
@@ -1254,7 +1256,7 @@ class LiveCustodialWalletManager(
             amount = FiatValue.fromMinor(this.amount.symbol, this.amountMinor.toLong()),
             authorisationUrl = this.extraAttributes.authorisationUrl,
             status = this.state?.toBankTransferStatus() ?: this.extraAttributes.status?.toBankTransferStatus()
-            ?: BankTransferStatus.UNKNOWN
+                ?: BankTransferStatus.UNKNOWN
         )
 
     private fun String.toBankTransferStatus() =
@@ -1293,12 +1295,14 @@ class LiveCustodialWalletManager(
             inputMoney = CryptoValue.fromMinor(
                 assetCatalogue.fromNetworkTicker(
                     this.pair.toCryptoCurrencyPair()?.source?.networkTicker.toString()
-                ) ?: return null, this.priceFunnel.inputMoney.toBigInteger()
+                ) ?: return null,
+                this.priceFunnel.inputMoney.toBigInteger()
             ),
             outputMoney = CryptoValue.fromMinor(
                 assetCatalogue.fromNetworkTicker(
                     this.pair.toCryptoCurrencyPair()?.destination?.networkTicker.toString()
-                ) ?: return null, this.priceFunnel.outputMoney.toBigInteger()
+                ) ?: return null,
+                this.priceFunnel.outputMoney.toBigInteger()
             )
         )
     }
@@ -1515,7 +1519,8 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
                 PaymentMethodType.FUNDS -> PaymentMethod.FUNDS_PAYMENT_ID
                 PaymentMethodType.BANK_TRANSFER -> PaymentMethod.UNDEFINED_BANK_TRANSFER_PAYMENT_ID
                 else -> PaymentMethod.UNDEFINED_CARD_PAYMENT_ID
-            }),
+            }
+            ),
         paymentMethodType = paymentType.toPaymentMethodType(),
         price = price?.let {
             FiatValue.fromMinor(fiatCurrency, it.toLong())

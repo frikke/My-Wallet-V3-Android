@@ -2,29 +2,31 @@ package piuk.blockchain.android.ui.thepit
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.annotations.CommonCode
-import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
-import com.nhaarman.mockitokotlin2.mock
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
-import java.util.concurrent.TimeUnit
 
 @CommonCode("Also exists in nabu/test/TestHelper.kt")
 private val validOfflineToken
-    get() = NabuOfflineTokenResponse("userId",
-        "lifetimeToken")
+    get() = NabuOfflineTokenResponse(
+        "userId",
+        "lifetimeToken"
+    )
 
 open class PitVerifyEmailPresenterTestBase {
 

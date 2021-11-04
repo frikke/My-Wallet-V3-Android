@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import java.lang.IllegalStateException
+import kotlin.jvm.Throws
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

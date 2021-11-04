@@ -1,20 +1,20 @@
 package piuk.blockchain.android.cards
 
 import com.blockchain.logging.CrashLogger
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.gson.Gson
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.lang.IllegalStateException
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import java.lang.IllegalStateException
 
 class CardModel(
     uiScheduler: Scheduler,
@@ -28,10 +28,11 @@ class CardModel(
 ) : MviModel<CardState, CardIntent>(
     initialState = gson.fromJson(prefs.cardState(), CardState::class.java)
         ?: CardState(
-            fiatCurrency = currencyPrefs.selectedFiatCurrency),
-            uiScheduler = uiScheduler,
-            environmentConfig = environmentConfig,
-            crashLogger = crashLogger
+            fiatCurrency = currencyPrefs.selectedFiatCurrency
+        ),
+    uiScheduler = uiScheduler,
+    environmentConfig = environmentConfig,
+    crashLogger = crashLogger
 ) {
 
     override fun performAction(previousState: CardState, intent: CardIntent): Disposable? =

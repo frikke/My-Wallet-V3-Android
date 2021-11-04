@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.carousel
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -62,14 +61,13 @@ class CarouselView : ConstraintLayout {
         val currentList = listAdapter.currentList
         carouselIndicatorView?.numberOfIndicators = currentList.size
 
-        binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 carouselIndicatorView?.selectedIndicator = (position ?: 0) % currentList.size
                 super.onPageSelected(position)
             }
         })
     }
-
 
     fun onLoadPrices(prices: List<PriceView.Price>) {
         listAdapter.priceList?.submitList(prices)
@@ -86,7 +84,6 @@ class CarouselView : ConstraintLayout {
     companion object {
         private const val OFFSCREEN_LIMIT = 3
     }
-
 }
 
 sealed class CarouselViewType {
@@ -142,7 +139,8 @@ private class CarouselAdapter(
 
                 itemBinding.appbarLayout.addOnOffsetChangedListener(
                     AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
-                        val alpha = (itemBinding.headerContainer.height - itemBinding.headerContainer.minHeight + verticalOffset) / 100f
+                        val fullOffset = itemBinding.headerContainer.minHeight + verticalOffset
+                        val alpha = (itemBinding.headerContainer.height - fullOffset) / 100f
                         itemBinding.title.alpha = alpha
                         onAlphaChangeListener.invoke(alpha)
                     }

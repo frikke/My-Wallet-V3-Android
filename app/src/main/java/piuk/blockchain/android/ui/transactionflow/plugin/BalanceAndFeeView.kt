@@ -86,11 +86,13 @@ class BalanceAndFeeView @JvmOverloads constructor(
     private fun makeAmountString(value: Money, state: TransactionState): String =
         if ((value.isPositive || value.isZero) && state.fiatRate != null) {
             showFiatOrCryptoValues(
-                currencyType = state.currencyType ?: (state.pendingTx?.selectedFiat?.let {
-                    val defaultMode = customiser.defInputType(state, it)
-                    model.process(TransactionIntent.DisplayModeChanged(defaultMode))
-                    defaultMode
-                } ?: CurrencyType.Crypto(state.sendingAsset)),
+                currencyType = state.currencyType ?: (
+                    state.pendingTx?.selectedFiat?.let {
+                        val defaultMode = customiser.defInputType(state, it)
+                        model.process(TransactionIntent.DisplayModeChanged(defaultMode))
+                        defaultMode
+                    } ?: CurrencyType.Crypto(state.sendingAsset)
+                    ),
                 state.fiatRate,
                 value
             )

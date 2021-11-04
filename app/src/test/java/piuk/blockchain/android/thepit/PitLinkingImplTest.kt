@@ -3,12 +3,12 @@ package piuk.blockchain.android.thepit
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.annotations.CommonCode
 import com.blockchain.core.chains.bitcoincash.BchDataManager
-import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.sunriver.XlmAccountReference
+import com.blockchain.sunriver.XlmDataManager
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doAnswer

@@ -1,11 +1,11 @@
 package com.blockchain.network.interceptor
 
+import java.util.concurrent.TimeUnit
 import okhttp3.CacheControl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import retrofit2.Invocation
-import java.util.concurrent.TimeUnit
 
 private const val HEADER_PRAGMA = "Pragma"
 private const val HEADER_CACHE_CONTROL = "Cache-Control"

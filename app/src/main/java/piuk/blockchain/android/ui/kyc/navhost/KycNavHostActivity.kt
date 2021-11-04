@@ -44,8 +44,10 @@ internal class KycStarter : StartKyc {
     }
 }
 
-class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
-    KycProgressListener, KycNavHostView {
+class KycNavHostActivity :
+    BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
+    KycProgressListener,
+    KycNavHostView {
 
     private val binding: ActivityKycNavHostBinding by lazy {
         ActivityKycNavHostBinding.inflate(layoutInflater)

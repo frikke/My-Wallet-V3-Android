@@ -3,13 +3,13 @@ package info.blockchain.wallet.crypto
 import com.blockchain.preferences.BrowserIdentity
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.keys.SigningKeyImpl
+import java.nio.charset.Charset
+import java.security.SecureRandom
+import javax.crypto.AEADBadTagException
 import junit.framework.Assert.assertEquals
 import org.bitcoinj.core.ECKey
 import org.junit.Test
 import org.spongycastle.util.encoders.Hex
-import java.nio.charset.Charset
-import java.security.SecureRandom
-import javax.crypto.AEADBadTagException
 
 class ECDHUtilTest {
 
@@ -81,10 +81,11 @@ class ECDHUtilTest {
     @Test
     fun `should correctly decrypt from test vectors`() {
         val decrypted = ECDHUtil.decrypt(
-                Hex.decode(
-                    "83e77704adf28646b602047763a179b5991a5d5d4457658200" +
-                    "c84936c71e5e7ffb54a1dcf665d836cb2ce34a471747eb64392e80"),
-                Hex.decode("9cd3b16e10bd574fed3743d8e0de0b7b4e6c69f3245ab5a168ef010d22bfefa0")
+            Hex.decode(
+                "83e77704adf28646b602047763a179b5991a5d5d4457658200" +
+                    "c84936c71e5e7ffb54a1dcf665d836cb2ce34a471747eb64392e80"
+            ),
+            Hex.decode("9cd3b16e10bd574fed3743d8e0de0b7b4e6c69f3245ab5a168ef010d22bfefa0")
         )
         assertEquals("This is a test sentence!", decrypted.toString(Charset.defaultCharset()))
     }

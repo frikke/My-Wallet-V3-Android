@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.appcompat.widget.LinearLayoutCompat
 import info.blockchain.wallet.util.PasswordUtil
+import kotlin.math.roundToInt
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
@@ -15,7 +16,6 @@ import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import kotlin.math.roundToInt
 
 class PasswordView @JvmOverloads constructor(
     context: Context,

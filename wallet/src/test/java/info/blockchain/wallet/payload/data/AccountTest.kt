@@ -1,15 +1,15 @@
 package info.blockchain.wallet.payload.data
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
+import org.bitcoinj.crypto.HDKeyDerivation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.bitcoinj.crypto.HDKeyDerivation
 import org.junit.Before
 import org.junit.Test
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
 
 class AccountTest {
     @Before

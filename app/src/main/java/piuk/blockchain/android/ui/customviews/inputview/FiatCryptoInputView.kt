@@ -13,14 +13,18 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
+import java.text.DecimalFormatSymbols
+import java.util.Currency
+import java.util.Locale
+import kotlin.properties.Delegates
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.util.AfterTextChangedWatcher
@@ -28,10 +32,6 @@ import piuk.blockchain.android.util.afterMeasured
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import java.text.DecimalFormatSymbols
-import java.util.Currency
-import java.util.Locale
-import kotlin.properties.Delegates
 
 class FiatCryptoInputView(
     context: Context,

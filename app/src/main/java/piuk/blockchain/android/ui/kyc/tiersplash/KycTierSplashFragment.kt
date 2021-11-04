@@ -48,7 +48,8 @@ import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
-class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPresenter>(),
+class KycTierSplashFragment :
+    BaseFragment<KycTierSplashView, KycTierSplashPresenter>(),
     KycTierSplashView {
 
     private val presenter: KycTierSplashPresenter by scopedInject()

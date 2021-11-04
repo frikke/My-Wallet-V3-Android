@@ -27,7 +27,7 @@ fun ActionTableRow(
     onClick: () -> Unit,
     secondaryText: String? = null,
     paragraphText: String? = null,
-    tags: List<TagViewState>? = null,
+    tags: List<TagViewState>? = null
 ) {
     TableRow(
         contentStart = {
@@ -55,13 +55,13 @@ fun ActionTableRow(
                 Text(
                     text = primaryText,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title,
+                    color = AppTheme.colors.title
                 )
                 if (secondaryText != null) {
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
-                        color = AppTheme.colors.body,
+                        color = AppTheme.colors.body
                     )
                 }
             }
@@ -83,7 +83,7 @@ fun ActionTableRow(
                         modifier = Modifier
                             .padding(
                                 top = 4.dp,
-                                bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp,
+                                bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp
                             )
                     )
                 }

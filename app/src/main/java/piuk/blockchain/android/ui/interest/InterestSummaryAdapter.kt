@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import piuk.blockchain.android.databinding.ItemInterestSummaryBinding
 import kotlin.properties.Delegates
+import piuk.blockchain.android.databinding.ItemInterestSummaryBinding
 
 class InterestSummaryAdapter : RecyclerView.Adapter<InterestSummaryAdapter.ViewHolder>() {
 

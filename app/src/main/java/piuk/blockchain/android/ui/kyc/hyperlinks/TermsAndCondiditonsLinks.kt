@@ -11,9 +11,9 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.StringRes
+import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
-import piuk.blockchain.android.R
 
 fun TextView.renderTermsLinks(
     @StringRes startText: Int,

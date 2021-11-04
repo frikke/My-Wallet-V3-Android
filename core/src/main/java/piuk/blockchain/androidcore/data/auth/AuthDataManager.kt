@@ -11,6 +11,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.exceptions.Exceptions
+import java.security.SecureRandom
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.json.JsonObject
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
@@ -21,8 +23,6 @@ import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.handleResponse
 import piuk.blockchain.androidcore.utils.extensions.isValidPin
 import retrofit2.Response
-import java.security.SecureRandom
-import java.util.concurrent.TimeUnit
 
 class AuthDataManager(
     private val prefs: PersistentPrefs,

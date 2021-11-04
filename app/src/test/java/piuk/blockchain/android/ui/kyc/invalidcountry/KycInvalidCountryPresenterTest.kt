@@ -5,13 +5,13 @@ import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -95,7 +95,8 @@ class KycInvalidCountryPresenterTest {
             metadataRepo.saveMetadata(
                 any(),
                 eq(NabuCredentialsMetadata::class.java),
-                eq(NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE))
+                eq(NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE)
+            )
         ).thenReturn(Completable.complete())
     }
 

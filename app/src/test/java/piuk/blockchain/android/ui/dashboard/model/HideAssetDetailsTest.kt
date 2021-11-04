@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import info.blockchain.balance.CryptoCurrency
-import org.junit.Test
-import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import org.junit.Test
+import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 
 class HideAssetDetailsTest {
 

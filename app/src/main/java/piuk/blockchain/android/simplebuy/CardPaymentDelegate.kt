@@ -4,14 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.PaymentMethod
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.CardPaymentMethodLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
 

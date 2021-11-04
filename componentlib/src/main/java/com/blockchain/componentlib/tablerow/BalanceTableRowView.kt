@@ -33,7 +33,7 @@ class BalanceTableRowView @JvmOverloads constructor(
             bodyEnd = bodyEnd,
             startIconUrl = startIconUrl,
             tags = tags.orEmpty(),
-            onClick = onClick,
+            onClick = onClick
         )
     }
 }

@@ -1,10 +1,10 @@
 package piuk.blockchain.androidcore.data.api.interceptors
 
+import javax.net.ssl.SSLPeerUnverifiedException
 import okhttp3.Interceptor
 import okhttp3.Protocol
 import okhttp3.Response
 import piuk.blockchain.androidcore.data.rxjava.SSLPinningEmitter
-import javax.net.ssl.SSLPeerUnverifiedException
 
 class SSLPinningInterceptor(val sslPinningEmitter: SSLPinningEmitter) : Interceptor {
 

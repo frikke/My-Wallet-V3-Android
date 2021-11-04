@@ -15,8 +15,10 @@ class DecimalDigitsInputFilter(
     private val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
 
     private val pattern =
-        Pattern.compile("-?[0-9]{0," + digitsBeforeZero + "}+((\\$decimalSeparator[0-9]{0," +
-                digitsAfterZero + "})?)||(\\$decimalSeparator)?")
+        Pattern.compile(
+            "-?[0-9]{0," + digitsBeforeZero + "}+((\\$decimalSeparator[0-9]{0," +
+                digitsAfterZero + "})?)||(\\$decimalSeparator)?"
+        )
 
     override fun filter(
         source: CharSequence,
@@ -29,8 +31,10 @@ class DecimalDigitsInputFilter(
         if (source.toString() == prefixOrSuffix) return null
         val replacement = source.subSequence(start, end).toString()
 
-        val newVal = (dest.subSequence(0, dstart).toString() + replacement +
-                dest.subSequence(dend, dest.length).toString())
+        val newVal = (
+            dest.subSequence(0, dstart).toString() + replacement +
+                dest.subSequence(dend, dest.length).toString()
+            )
         val matcher = pattern.matcher(newVal.removePrefix(prefixOrSuffix).removeSuffix(prefixOrSuffix))
 
         if (matcher.matches()) return null

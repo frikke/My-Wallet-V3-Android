@@ -21,6 +21,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain`
 import org.junit.Rule
@@ -30,7 +31,6 @@ import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import java.math.BigInteger
 
 class EthDataManagerTest {
 
@@ -319,10 +319,12 @@ class EthDataManagerTest {
         val byteArray = ByteArray(32)
         val masterKey: MasterKey = mock()
 
-        whenever(ethDataStore.ethWallet!!.account!!.signTransaction(
-            eq(rawTransaction),
-            eq(masterKey)
-        )).thenReturn(byteArray)
+        whenever(
+            ethDataStore.ethWallet!!.account!!.signTransaction(
+                eq(rawTransaction),
+                eq(masterKey)
+            )
+        ).thenReturn(byteArray)
 
         whenever(payloadManager.masterKey).thenReturn(masterKey)
 

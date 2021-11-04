@@ -1,7 +1,7 @@
 package info.blockchain.wallet.metadata
 
-import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.blockchain.testutils.FakeHttpExceptionFactory
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.metadata.data.MetadataResponse
@@ -28,8 +28,10 @@ class MetadataInteractorTest {
 
     private val metadataDerivation = MetadataDerivation()
     private val fakeMetadata = Metadata.newInstance(
-        metaDataHDNode = metadataDerivation.deserializeMetadataNode("xprv9vM7oGsuM9zGW2tneNriS8NJF6DNrZEK" +
-                "vYMXSwP8SJNJRUuX6iXjZLQCCy52cXJKKb6XwWF3vr6mQCyy9d5msL9TrycrBmbPibKd2LhzjDW"),
+        metaDataHDNode = metadataDerivation.deserializeMetadataNode(
+            "xprv9vM7oGsuM9zGW2tneNriS8NJF6DNrZEK" +
+                "vYMXSwP8SJNJRUuX6iXjZLQCCy52cXJKKb6XwWF3vr6mQCyy9d5msL9TrycrBmbPibKd2LhzjDW"
+        ),
         type = 6,
         metadataDerivation = metadataDerivation
     )
