@@ -52,7 +52,7 @@ class LoginInteractor(
     }
 
     @ExperimentalSerializationApi
-    fun checkSessionDetails(intentAction: String, uri: Uri): LoginIntents {
+    fun checkSessionDetails(intentAction: String, uri: Uri, isApprovalEnabled: Boolean): LoginIntents {
         val builder = Json {
             isLenient = true
             ignoreUnknownKeys = true
@@ -60,13 +60,17 @@ class LoginInteractor(
 
         return when {
             prefs.pinId.isNotEmpty() -> {
-                if (uri.hasDeeplinkData()) {
+                if (isApprovalEnabled && uri.hasDeeplinkData()) {
                     decodePayloadAndNavigate(uri, builder, intentAction)
                 } else {
                     LoginIntents.UserLoggedInWithoutDeeplinkData
                 }
             }
-            uri.hasDeeplinkData() -> decodePayloadAndNavigate(uri, builder, intentAction)
+            uri.hasDeeplinkData() -> if (isApprovalEnabled) {
+                decodePayloadAndNavigate(uri, builder, intentAction)
+            } else {
+                LoginIntents.UserAuthenticationRequired(intentAction, uri)
+            }
             else -> LoginIntents.UnknownError
         }
     }

@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.login
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.network.PollResult
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -22,7 +23,8 @@ class LoginModel(
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger,
-    private val interactor: LoginInteractor
+    private val interactor: LoginInteractor,
+    private val ssoPollingFlag: FeatureFlag
 ) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
 
     override fun performAction(previousState: LoginState, intent: LoginIntents): Disposable? {
@@ -40,10 +42,7 @@ class LoginModel(
                     intent.captcha,
                     previousState.pollingState
                 )
-            is LoginIntents.CheckForExistingSessionOrDeepLink -> {
-                process(interactor.checkSessionDetails(intent.action, intent.uri))
-                null
-            }
+            is LoginIntents.CheckForExistingSessionOrDeepLink -> checkExistingSession(intent)
             is LoginIntents.RevertToEmailInput -> {
                 interactor.cancelPolling()
                 null
@@ -72,6 +71,17 @@ class LoginModel(
             else -> null
         }
     }
+
+    private fun checkExistingSession(intent: LoginIntents.CheckForExistingSessionOrDeepLink) =
+        ssoPollingFlag.enabled
+            .subscribeBy(
+                onSuccess = { pollingEnabled ->
+                    process(interactor.checkSessionDetails(intent.action, intent.uri, pollingEnabled))
+                },
+                onError = {
+                    process(interactor.checkSessionDetails(intent.action, intent.uri, false))
+                }
+            )
 
     private fun handleApprovalStatusUpdate(
         isLoginApproved: Boolean,
@@ -190,19 +200,21 @@ class LoginModel(
         email: String,
         captcha: String,
         pollingState: AuthPollingState
-    ): Disposable = interactor.sendEmailForVerification(sessionId, email, captcha)
-        .subscribeBy(
-            onComplete = {
-                process(LoginIntents.ShowEmailSent)
-                if (pollingState == AuthPollingState.NOT_STARTED) {
-                    process(LoginIntents.StartAuthPolling)
+    ): Disposable =
+        interactor.sendEmailForVerification(sessionId, email, captcha)
+            .andThen(ssoPollingFlag.enabled)
+            .subscribeBy(
+                onSuccess = { pollingEnabled ->
+                    process(LoginIntents.ShowEmailSent)
+                    if (pollingEnabled && pollingState == AuthPollingState.NOT_STARTED) {
+                        process(LoginIntents.StartAuthPolling)
+                    }
+                },
+                onError = { throwable ->
+                    Timber.e(throwable)
+                    process(LoginIntents.ShowEmailFailed)
                 }
-            },
-            onError = { throwable ->
-                Timber.e(throwable)
-                process(LoginIntents.ShowEmailFailed)
-            }
-        )
+            )
 
     companion object {
         private const val SESSION_TOKEN = "token"

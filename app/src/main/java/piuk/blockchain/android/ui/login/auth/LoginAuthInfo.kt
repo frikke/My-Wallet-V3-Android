@@ -77,7 +77,7 @@ data class AccountWalletInfo(
     @SerialName("exchange")
     val accountExchange: AccountExchangeInfo = AccountExchangeInfo(),
     @SerialName("session_id")
-    val sessionId: String
+    val sessionId: String = ""
 ) : java.io.Serializable
 
 @Serializable
