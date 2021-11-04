@@ -18,10 +18,14 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.limits.LimitsDataManager
+import info.blockchain.balance.AssetCategory
 
 class FiatWithdrawalTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager
+    val walletManager: CustodialWalletManager,
+    private val limitsDataManager: LimitsDataManager
 ) : TxEngine() {
 
     override fun assertInputsValid() {
@@ -35,19 +39,27 @@ class FiatWithdrawalTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> {
         check(txTarget is LinkedBankAccount)
         check(sourceAccount is FiatAccount)
-
+        val withdrawFeeAndMinLimit = (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit().cache()
+        val zeroFiat = FiatValue.zero((sourceAccount as FiatAccount).fiatCurrency)
         return Single.zip(
             sourceAccount.balance.firstOrError(),
-            (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit(),
-            { balance, limitAndFee ->
-                val zeroFiat = FiatValue.zero((sourceAccount as FiatAccount).fiatCurrency)
+            withdrawFeeAndMinLimit,
+            limitsDataManager.getLimits(
+                outputCurrency = zeroFiat.currencyCode,
+                sourceCurrency = zeroFiat.currencyCode,
+                targetCurrency = zeroFiat.currencyCode,
+                sourceAccountType = AssetCategory.CUSTODIAL,
+                targetAccountType = AssetCategory.NON_CUSTODIAL,
+                legacyLimits = withdrawFeeAndMinLimit.map { it as LegacyLimits }
+            ),
+            { balance, withdrawalFee, limits ->
                 PendingTx(
                     amount = zeroFiat,
-                    minLimit = limitAndFee.minLimit,
-                    availableBalance = balance.actionable - limitAndFee.fee,
+                    minLimit = limits.min.amount,
+                    availableBalance = balance.actionable - withdrawalFee.fee,
                     feeForFullAvailable = zeroFiat,
                     totalBalance = balance.total,
-                    feeAmount = limitAndFee.fee,
+                    feeAmount = withdrawalFee.fee,
                     selectedFiat = userFiat,
                     feeSelection = FeeSelection()
                 )
@@ -56,7 +68,6 @@ class FiatWithdrawalTxEngine(
     }
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
-
         (txTarget as LinkedBankAccount).receiveAddress.flatMapCompletable {
             walletManager.createWithdrawOrder(
                 amount = pendingTx.amount,

@@ -208,7 +208,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
 
-                if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_TRANSACTION_FLOW_ERRORS)) {
+                if (gatedFeatures.isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS)) {
                     updateInputStateUI(newState)
                     showCtaOrError(newState)
                 } else {

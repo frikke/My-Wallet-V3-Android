@@ -35,6 +35,7 @@ import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
+import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 
@@ -42,6 +43,7 @@ class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletManager: CustodialWalletManager,
+    private val limitsDataManager: LimitsDataManager,
     private val interestBalances: InterestBalanceDataManager,
     private val walletPrefs: WalletStatus,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
@@ -115,6 +117,7 @@ class TxProcessorFactory(
                             walletManager = walletManager,
                             userIdentity = userIdentity,
                             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
+                            limitsDataManager = limitsDataManager,
                             withdrawLocksRepository = withdrawLocksRepository
                         )
                     )
@@ -138,7 +141,8 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = FiatWithdrawalTxEngine(
-                            walletManager = walletManager
+                            walletManager = walletManager,
+                            limitsDataManager = limitsDataManager
                         )
                     )
                 )
@@ -210,6 +214,7 @@ class TxProcessorFactory(
                             engine = OnChainSwapTxEngine(
                                 quotesEngine = quotesEngine,
                                 walletManager = walletManager,
+                                limitsDataManager = limitsDataManager,
                                 userIdentity = userIdentity,
                                 engine = engine
                             )
@@ -224,6 +229,7 @@ class TxProcessorFactory(
                     engine = OnChainSellTxEngine(
                         quotesEngine = quotesEngine,
                         walletManager = walletManager,
+                        limitsDataManager = limitsDataManager,
                         userIdentity = userIdentity,
                         engine = engine
                     )
@@ -246,6 +252,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = TradingToOnChainTxEngine(
                         walletManager = walletManager,
+                        limitsDataManager = limitsDataManager,
                         isNoteSupported = source.isNoteSupported
                     )
                 )
@@ -270,6 +277,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = TradingSellTxEngine(
                         walletManager = walletManager,
+                        limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
                         userIdentity = userIdentity
                     )
@@ -283,6 +291,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = TradingToTradingSwapTxEngine(
                         walletManager = walletManager,
+                        limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
                         userIdentity = userIdentity
                     )
@@ -296,6 +305,7 @@ class TxProcessorFactory(
                     txTarget = it,
                     engine = TradingToOnChainTxEngine(
                         walletManager = walletManager,
+                        limitsDataManager = limitsDataManager,
                         isNoteSupported = source.isNoteSupported
                     )
                 )

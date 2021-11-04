@@ -14,7 +14,7 @@ enum class GatedFeature(
 ) {
     ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets"),
     NEW_ONBOARDING("New onboarding design"),
-    NEW_TRANSACTION_FLOW_ERRORS("New transaction flow errors", true),
+    SEAMLESS_LIMITS("New transaction flow errors and Limits API", true),
     ENABLE_DYNAMIC_ASSETS("Enable dynamic assets and split dashboard", true),
     AUTOCOMPLETE_ADDRESS("Enable autocomplete address kyc flow"),
 }

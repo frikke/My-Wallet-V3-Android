@@ -34,7 +34,11 @@ import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.UserIdentity
+import com.nhaarman.mockitokotlin2.any
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import kotlin.test.assertEquals
 
@@ -43,11 +47,25 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(MIN_GOLD_LIMIT_ASSET),
+                    max = TxLimit.Limited(MAX_GOLD_LIMIT_ASSET),
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
+
     private val environmentConfig: EnvironmentConfig = mock()
 
     private val subject = TradingToTradingSwapTxEngine(
         walletManager = walletManager,
         quotesEngine = quotesEngine,
+        limitsDataManager = limitsDataManager,
         userIdentity = userIdentity
     )
 
@@ -223,14 +241,14 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.amount == CryptoValue.zero(SRC_ASSET) &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == totalBalance &&
-                it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
-                it.selectedFiat == TEST_USER_FIAT &&
-                it.confirmations.isEmpty() &&
-                it.minLimit == expectedMinLimit &&
-                it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
-                it.validationState == ValidationState.UNINITIALISED
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == totalBalance &&
+                    it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
+                    it.selectedFiat == TEST_USER_FIAT &&
+                    it.confirmations.isEmpty() &&
+                    it.minLimit == expectedMinLimit &&
+                    it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
+                    it.validationState == ValidationState.UNINITIALISED
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
@@ -243,7 +261,6 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
-        verify(exchangeRates).getLastCryptoToUserFiatRate(SRC_ASSET)
 
         noMoreInteractions(txTarget)
     }
@@ -277,16 +294,16 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.amount == CryptoValue.zero(SRC_ASSET) &&
-                it.totalBalance == CryptoValue.zero(SRC_ASSET) &&
-                it.availableBalance == CryptoValue.zero(SRC_ASSET) &&
-                it.feeForFullAvailable == CryptoValue.zero(SRC_ASSET) &&
-                it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
-                it.selectedFiat == TEST_USER_FIAT &&
-                it.confirmations.isEmpty() &&
-                it.minLimit == null &&
-                it.maxLimit == null &&
-                it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
-                it.engineState.isEmpty()
+                    it.totalBalance == CryptoValue.zero(SRC_ASSET) &&
+                    it.availableBalance == CryptoValue.zero(SRC_ASSET) &&
+                    it.feeForFullAvailable == CryptoValue.zero(SRC_ASSET) &&
+                    it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
+                    it.selectedFiat == TEST_USER_FIAT &&
+                    it.confirmations.isEmpty() &&
+                    it.minLimit == null &&
+                    it.maxLimit == null &&
+                    it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
+                    it.engineState.isEmpty()
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()

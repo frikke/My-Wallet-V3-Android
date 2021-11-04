@@ -6,7 +6,6 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.TransferLimits
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -26,6 +25,9 @@ import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.UserIdentity
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -37,8 +39,9 @@ const val OUTGOING_FEE = "OUTGOING_FEE"
 abstract class SwapTxEngineBase(
     quotesEngine: TransferQuotesEngine,
     userIdentity: UserIdentity,
-    private val walletManager: CustodialWalletManager
-) : QuotedEngine(quotesEngine, userIdentity, walletManager, Product.TRADE) {
+    private val walletManager: CustodialWalletManager,
+    limitsDataManager: LimitsDataManager
+) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.TRADE) {
 
     private lateinit var minApiLimit: Money
 
@@ -55,19 +58,18 @@ abstract class SwapTxEngineBase(
         }
 
     override fun onLimitsForTierFetched(
-        limits: TransferLimits,
+        limits: TxLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): PendingTx {
-        val exchangeRate = exchangeRates.getLastCryptoToUserFiatRate(sourceAsset)
-
-        minApiLimit = exchangeRate.inverse()
-            .convert(limits.minLimit) as CryptoValue
+        minApiLimit = limits.min.amount
 
         return pendingTx.copy(
             minLimit = minLimit(pricedQuote.price),
-            maxLimit = (exchangeRate.inverse().convert(limits.maxLimit) as CryptoValue)
-                .withUserDpRounding(RoundingMode.FLOOR)
+            maxLimit = when (val max = limits.max) {
+                is TxLimit.Limited -> max.amount
+                TxLimit.Unlimited -> null
+            }
         )
     }
 

@@ -21,18 +21,34 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
+import com.nhaarman.mockitokotlin2.any
 import io.reactivex.rxjava3.core.Observable
 
 class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(FiatValue.fromMinor(TEST_API_FIAT, 100L)),
+                    max = TxLimit.Unlimited,
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private lateinit var subject: FiatWithdrawalTxEngine
 
     @Before
     fun setup() {
         initMocks()
-        subject = FiatWithdrawalTxEngine(walletManager)
+        subject = FiatWithdrawalTxEngine(walletManager, limitsDataManager)
     }
 
     @Test

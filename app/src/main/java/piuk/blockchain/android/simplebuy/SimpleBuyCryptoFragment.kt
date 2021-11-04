@@ -270,7 +270,7 @@ class SimpleBuyCryptoFragment :
         }
 
         binding.btnContinue.isEnabled = canContinue(newState)
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_TRANSACTION_FLOW_ERRORS)) {
+        if (gatedFeatures.isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS)) {
             updateInputStateUI(newState.errorState)
             showCtaOrError(newState)
         } else {

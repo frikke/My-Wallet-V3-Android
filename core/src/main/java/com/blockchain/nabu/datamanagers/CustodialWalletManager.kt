@@ -1,6 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
 import android.annotation.SuppressLint
+import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -694,7 +695,7 @@ interface UndefinedPaymentMethod {
     val paymentMethodType: PaymentMethodType
 }
 
-data class PaymentLimits(val min: FiatValue, val max: FiatValue) : Serializable {
+data class PaymentLimits(override val min: FiatValue, override val max: FiatValue) : Serializable, LegacyLimits {
     constructor(min: Long, max: Long, currency: String) : this(
         FiatValue.fromMinor(currency, min),
         FiatValue.fromMinor(currency, max)
@@ -795,12 +796,17 @@ data class TransferLimits(
     val minLimit: FiatValue,
     val maxOrder: FiatValue,
     val maxLimit: FiatValue
-) {
+) : LegacyLimits {
     constructor(currency: String) : this(
         minLimit = FiatValue.zero(currency),
         maxOrder = FiatValue.zero(currency),
         maxLimit = FiatValue.zero(currency)
     )
+
+    override val min: Money
+        get() = minLimit
+    override val max: Money
+        get() = maxLimit
 }
 
 data class CustodialOrder(

@@ -1,12 +1,6 @@
 package com.blockchain.coincore.impl.txEngine
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeInfo
@@ -22,6 +16,15 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.xlm.STATE_MEMO
 import piuk.blockchain.androidcore.utils.extensions.then
 
@@ -43,7 +46,8 @@ class TradingToOnChainTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val isNoteSupported: Boolean,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager
+    val walletManager: CustodialWalletManager,
+    private val limitsDataManager: LimitsDataManager
 ) : TxEngine() {
 
     override fun assertInputsValid() {
@@ -52,25 +56,42 @@ class TradingToOnChainTxEngine(
         check(sourceAccount is SingleAccount)
     }
 
-    override fun doInitialiseTx(): Single<PendingTx> =
-        Single.zip(
+    override fun doInitialiseTx(): Single<PendingTx> {
+        val withdrawFeeAndMinLimit = walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY).cache()
+        return Single.zip(
             sourceAccount.balance.firstOrError(),
-            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY),
-            { balance, cryptoFeeAndMin ->
+            withdrawFeeAndMinLimit,
+            limitsDataManager.getLimits(
+                outputCurrency = sourceAsset.networkTicker,
+                sourceCurrency = sourceAsset.networkTicker,
+                targetCurrency = (txTarget as CryptoAddress).asset.networkTicker,
+                sourceAccountType = AssetCategory.CUSTODIAL,
+                targetAccountType = AssetCategory.NON_CUSTODIAL,
+                legacyLimits = withdrawFeeAndMinLimit.map { limits ->
+                    object : LegacyLimits {
+                        override val min: Money
+                            get() = CryptoValue.fromMinor(sourceAsset, limits.minLimit)
+                        override val max: Money?
+                            get() = null
+                    }
+                }
+            ),
+            { balance, cryptoFee, limits ->
                 PendingTx(
                     amount = CryptoValue.zero(sourceAsset),
                     totalBalance = balance.total,
                     availableBalance = balance.actionable.minus(
-                        CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee)
+                        CryptoValue.fromMinor(sourceAsset, cryptoFee.fee)
                     ),
-                    feeForFullAvailable = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee),
-                    feeAmount = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee),
+                    feeForFullAvailable = CryptoValue.fromMinor(sourceAsset, cryptoFee.fee),
+                    feeAmount = CryptoValue.fromMinor(sourceAsset, cryptoFee.fee),
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat,
-                    minLimit = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.minLimit)
+                    minLimit = limits.min.amount
                 )
             }
         )
+    }
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)

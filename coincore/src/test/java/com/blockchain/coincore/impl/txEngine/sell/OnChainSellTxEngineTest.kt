@@ -44,6 +44,9 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.UserIdentity
 
 class OnChainSellTxEngineTest : CoincoreTestBase() {
@@ -51,6 +54,19 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
+
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(MIN_GOLD_LIMIT_ASSET),
+                    max = TxLimit.Limited(MAX_GOLD_LIMIT_ASSET),
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private val onChainEngine: OnChainTxEngineBase = mock {
         on { sourceAsset }.thenReturn(SRC_ASSET)
@@ -60,7 +76,8 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         engine = onChainEngine,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
-        userIdentity = userIdentity
+        userIdentity = userIdentity,
+        limitsDataManager = limitsDataManager
     )
 
     @Before
@@ -245,7 +262,6 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
-        verify(exchangeRates).getLastCryptoToFiatRate(SRC_ASSET, TEST_API_FIAT)
         verify(onChainEngine).doInitialiseTx()
         // todo fix once start engine returns completable
         // verify(onChainEngine).assertInputsValid()
@@ -307,7 +323,6 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
-        verify(exchangeRates).getLastCryptoToFiatRate(SRC_ASSET, TEST_API_FIAT)
         verify(onChainEngine).doInitialiseTx()
         // todo fix once start engine returns completable
         // verify(onChainEngine).assertInputsValid()

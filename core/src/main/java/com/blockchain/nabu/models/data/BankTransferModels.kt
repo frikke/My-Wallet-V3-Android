@@ -1,11 +1,13 @@
 package com.blockchain.nabu.models.data
 
+import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.banktransfer.LinkBankAttrsResponse
 import com.blockchain.nabu.models.responses.banktransfer.YapilyMediaResponse
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
 import java.net.MalformedURLException
@@ -145,7 +147,12 @@ enum class LinkedBankState {
 data class FiatWithdrawalFeeAndLimit(
     val minLimit: FiatValue,
     val fee: FiatValue
-)
+) : LegacyLimits {
+    override val min: Money
+        get() = minLimit
+    override val max: Money?
+        get() = null
+}
 
 data class CryptoWithdrawalFeeAndLimit(
     val minLimit: BigInteger,

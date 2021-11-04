@@ -12,15 +12,17 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 
 class TradingToTradingSwapTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
+    limitsDataManager: LimitsDataManager,
     quotesEngine: TransferQuotesEngine,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity
-) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager) {
+) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager) {
 
     override val availableBalance: Single<Money>
         get() = sourceAccount.accountBalance

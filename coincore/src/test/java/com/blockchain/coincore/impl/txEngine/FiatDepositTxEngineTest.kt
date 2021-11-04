@@ -20,11 +20,15 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.nhaarman.mockitokotlin2.any
 import java.math.BigInteger
 
 class FiatDepositTxEngineTest : CoincoreTestBase() {
@@ -33,6 +37,24 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
+    private val limits = PaymentLimits(
+        min = FiatValue.fromMinor(TEST_USER_FIAT, 100L),
+        max = FiatValue.fromMinor(TEST_USER_FIAT, 1000L)
+    )
+
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(limits.min),
+                    max = TxLimit.Limited(limits.max),
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
+
     private val userIdentity: UserIdentity = mock {
         on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
     }
@@ -44,7 +66,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             walletManager = walletManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
             userIdentity = userIdentity,
-            withdrawalLocksRepository
+            withdrawLocksRepository = withdrawalLocksRepository,
+            limitsDataManager = limitsDataManager
         )
     }
 
@@ -100,10 +123,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
     @Test
     fun `PendingTx is correctly initialised`() {
-        val limits = PaymentLimits(
-            min = FiatValue.fromMinor(TEST_USER_FIAT, 100L),
-            max = FiatValue.fromMinor(TEST_USER_FIAT, 1000L)
-        )
+
         whenever(walletManager.getBankTransferLimits(TEST_USER_FIAT, true))
             .thenReturn(Single.just(limits))
 

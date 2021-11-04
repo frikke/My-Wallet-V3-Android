@@ -17,6 +17,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 
 class OnChainSellTxEngine(
@@ -24,11 +25,12 @@ class OnChainSellTxEngine(
     val engine: OnChainTxEngineBase,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
+    limitsDataManager: LimitsDataManager,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity,
     quotesEngine: TransferQuotesEngine
 ) : SellTxEngineBase(
-    walletManager, userIdentity, quotesEngine
+    walletManager, limitsDataManager, userIdentity, quotesEngine
 ) {
     override val direction: TransferDirection
         get() = TransferDirection.FROM_USERKEY

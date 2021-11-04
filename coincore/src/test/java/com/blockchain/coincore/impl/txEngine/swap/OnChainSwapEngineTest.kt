@@ -44,6 +44,9 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.UserIdentity
 
 class OnChainSwapEngineTest : CoincoreTestBase() {
@@ -51,6 +54,18 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(MIN_GOLD_LIMIT_ASSET),
+                    max = TxLimit.Limited(MAX_GOLD_LIMIT_ASSET),
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private val onChainEngine: OnChainTxEngineBase = mock {
         on { sourceAsset }.thenReturn(SRC_ASSET)
@@ -60,6 +75,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         engine = onChainEngine,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
+        limitsDataManager = limitsDataManager,
         userIdentity = userIdentity
     )
 
@@ -289,7 +305,6 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
-        verify(exchangeRates).getLastCryptoToUserFiatRate(SRC_ASSET)
         verify(onChainEngine).doInitialiseTx()
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -355,7 +370,6 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
-        verify(exchangeRates).getLastCryptoToUserFiatRate(SRC_ASSET)
         verify(onChainEngine).doInitialiseTx()
 
         noMoreInteractions(sourceAccount, txTarget)

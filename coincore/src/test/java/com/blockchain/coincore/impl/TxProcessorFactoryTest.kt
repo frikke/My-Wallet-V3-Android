@@ -36,6 +36,7 @@ import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TEST_ASSET
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
+import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import java.lang.IllegalStateException
@@ -50,6 +51,7 @@ class TxProcessorFactoryTest {
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val analytics: Analytics = mock()
+    private val limitsDataManager: LimitsDataManager = mock()
     private val userIdentity: UserIdentity = mock()
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
 
@@ -63,6 +65,7 @@ class TxProcessorFactoryTest {
             walletManager = walletManager,
             interestBalances = interestBalances,
             walletPrefs = walletPrefs,
+            limitsDataManager = limitsDataManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
             quotesEngine = quotesEngine,
             analytics = analytics,

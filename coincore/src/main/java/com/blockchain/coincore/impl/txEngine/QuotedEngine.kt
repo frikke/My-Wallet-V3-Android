@@ -3,10 +3,8 @@ package com.blockchain.coincore.impl.txEngine
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import info.blockchain.balance.CryptoValue
@@ -25,9 +23,14 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.makeExternalAssetAddress
+import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import info.blockchain.balance.AssetCategory
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import java.math.RoundingMode
@@ -40,6 +43,7 @@ abstract class QuotedEngine(
     protected val quotesEngine: TransferQuotesEngine,
     private val userIdentity: UserIdentity,
     private val walletManager: CustodialWalletManager,
+    private val limitsDataManager: LimitsDataManager,
     private val productType: Product
 ) : TxEngine() {
     protected abstract val direction: TransferDirection
@@ -54,7 +58,20 @@ abstract class QuotedEngine(
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): Single<PendingTx> =
-        walletManager.getProductTransferLimits(fiat, productType, direction).map { limits ->
+        limitsDataManager.getLimits(
+            outputCurrency = sourceAsset.networkTicker,
+            sourceCurrency = sourceAsset.networkTicker,
+            targetCurrency = when (val target = txTarget) {
+                is CryptoAccount -> target.asset.networkTicker
+                is FiatAccount -> target.fiatCurrency
+                else -> throw IllegalStateException("Only CryptoAccount and FiatAccount txTarget are supported")
+            },
+            legacyLimits = walletManager.getProductTransferLimits(fiat, productType, direction).map {
+                it as LegacyLimits
+            },
+            sourceAccountType = direction.sourceAccountType(),
+            targetAccountType = direction.targetAccountType()
+        ).map { limits ->
             onLimitsForTierFetched(limits, pendingTx, pricedQuote)
         }
 
@@ -80,7 +97,7 @@ abstract class QuotedEngine(
     }
 
     protected abstract fun onLimitsForTierFetched(
-        limits: TransferLimits,
+        limits: TxLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): PendingTx
@@ -188,4 +205,22 @@ abstract class QuotedEngine(
         (this as? CryptoValue)?.let {
             CryptoValue.fromMajor(it.currency, it.toBigDecimal().setScale(CryptoValue.DISPLAY_DP, roundingMode))
         } ?: throw IllegalStateException("Method only support cryptovalues")
+}
+
+private fun TransferDirection.sourceAccountType(): AssetCategory {
+    return when (this) {
+        TransferDirection.FROM_USERKEY,
+        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.INTERNAL,
+        TransferDirection.TO_USERKEY -> AssetCategory.CUSTODIAL
+    }
+}
+
+private fun TransferDirection.targetAccountType(): AssetCategory {
+    return when (this) {
+        TransferDirection.TO_USERKEY,
+        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.INTERNAL,
+        TransferDirection.FROM_USERKEY -> AssetCategory.CUSTODIAL
+    }
 }

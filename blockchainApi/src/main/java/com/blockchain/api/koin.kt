@@ -25,8 +25,10 @@ import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.TradeService
+import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.trade.TradeApi
+import com.blockchain.api.txlimits.TxLimitsApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -195,6 +197,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(TradeApi::class.java)
         TradeService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(TxLimitsApi::class.java)
+        TxLimitsService(
             api = api
         )
     }

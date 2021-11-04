@@ -21,7 +21,6 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldBeEqualTo
-
 import org.junit.Before
 import org.junit.Test
 import com.blockchain.coincore.CryptoAccount
@@ -36,7 +35,11 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.UserIdentity
+import com.nhaarman.mockitokotlin2.any
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class TradingSellTxEngineTest : CoincoreTestBase() {
@@ -45,11 +48,24 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
     private val quotesEngine: TransferQuotesEngine = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val userIdentity: UserIdentity = mock()
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(MIN_GOLD_LIMIT_ASSET),
+                    max = TxLimit.Limited(MAX_GOLD_LIMIT_ASSET),
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private val subject = TradingSellTxEngine(
         walletManager = walletManager,
         quotesEngine = quotesEngine,
-        userIdentity = userIdentity
+        userIdentity = userIdentity,
+        limitsDataManager = limitsDataManager
     )
 
     @Before
@@ -211,7 +227,6 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
         verifyQuotesEngineStarted()
         verify(quotesEngine).pricedQuote
         verifyLimitsFetched()
-        verify(exchangeRates).getLastCryptoToFiatRate(SRC_ASSET, TEST_API_FIAT)
 
         noMoreInteractions(txTarget)
     }

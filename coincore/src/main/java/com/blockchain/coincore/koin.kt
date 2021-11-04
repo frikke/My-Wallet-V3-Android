@@ -203,6 +203,7 @@ val coincoreModule = module {
                 exchangeRates = get(),
                 interestBalances = get(),
                 walletManager = get(),
+                limitsDataManager = get(),
                 walletPrefs = get(),
                 quotesEngine = get(),
                 analytics = get(),

@@ -18,6 +18,8 @@ import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.PaymentsDataManagerImpl
 import com.blockchain.core.user.NabuUserDataManager
@@ -121,6 +123,16 @@ val coreModule = module {
                 balanceCallCache = get()
             )
         }.bind(TradingBalanceDataManager::class)
+
+        scoped {
+            LimitsDataManagerImpl(
+                internalFeatureFlagApi = get(),
+                limitsService = get(),
+                exchangeRatesDataManager = get(),
+                assetCatalogue = get(),
+                authenticator = get()
+            )
+        }.bind(LimitsDataManager::class)
 
         factory {
             InterestBalanceCallCache(

@@ -26,7 +26,11 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.erc20.Erc20NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoAccountCompoundGroupTest.Companion.testValue
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
+import com.nhaarman.mockitokotlin2.any
 import io.reactivex.rxjava3.core.Observable
 import java.math.BigInteger
 import kotlin.test.assertEquals
@@ -35,10 +39,24 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
     private val isNoteSupported = false
     private val walletManager: CustodialWalletManager = mock()
+    private val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit)),
+                    max = TxLimit.Unlimited,
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private val subject = TradingToOnChainTxEngine(
         walletManager = walletManager,
-        isNoteSupported = isNoteSupported
+        isNoteSupported = isNoteSupported,
+        limitsDataManager = limitsDataManager
     )
 
     @Before
@@ -129,7 +147,6 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             on { asset }.thenReturn(ASSET)
         }
 
-        val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
         whenever(walletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY))
             .thenReturn(Single.just(feesAndLimits))
 

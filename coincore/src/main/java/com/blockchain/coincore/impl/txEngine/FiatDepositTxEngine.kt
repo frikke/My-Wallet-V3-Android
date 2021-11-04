@@ -18,6 +18,9 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -27,6 +30,7 @@ import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.network.PollService
 import com.blockchain.utils.secondsToDays
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -34,11 +38,13 @@ import io.reactivex.rxjava3.core.Single
 import java.security.InvalidParameterException
 
 const val WITHDRAW_LOCKS = "locks"
+
 class FiatDepositTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
+    private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity,
     private val withdrawLocksRepository: WithdrawLocksRepository
 ) : TxEngine() {
@@ -55,21 +61,33 @@ class FiatDepositTxEngine(
         check(sourceAccount is BankAccount)
         check(txTarget is FiatAccount)
         val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
+        val zeroFiat = FiatValue.zero(sourceAccountCurrency)
         return Single.zip(
-            walletManager.getBankTransferLimits(sourceAccountCurrency, true),
+            limitsDataManager.getLimits(
+                outputCurrency = sourceAccountCurrency,
+                sourceCurrency = sourceAccountCurrency,
+                targetCurrency = sourceAccountCurrency,
+                sourceAccountType = AssetCategory.NON_CUSTODIAL,
+                targetAccountType = AssetCategory.CUSTODIAL,
+                legacyLimits = walletManager.getBankTransferLimits(sourceAccountCurrency, true).map {
+                    it as LegacyLimits
+                }
+            ),
             withdrawLocksRepository.getWithdrawLockTypeForPaymentMethod(
                 paymentMethodType = PaymentMethodType.BANK_TRANSFER,
                 fiatCurrency = sourceAccountCurrency
             )
         ) { limits, locks ->
-            val zeroFiat = FiatValue.zero(sourceAccountCurrency)
             PendingTx(
                 amount = zeroFiat,
                 totalBalance = zeroFiat,
                 availableBalance = zeroFiat,
                 feeForFullAvailable = zeroFiat,
-                maxLimit = limits.max,
-                minLimit = limits.min,
+                minLimit = limits.min.amount,
+                maxLimit = when (val max = limits.max) {
+                    is TxLimit.Limited -> max.amount
+                    TxLimit.Unlimited -> null
+                },
                 feeAmount = zeroFiat,
                 selectedFiat = userFiat,
                 feeSelection = FeeSelection(),

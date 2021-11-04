@@ -5,7 +5,6 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.TransferLimits
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -25,32 +24,32 @@ import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.UserIdentity
-import java.math.RoundingMode
 
 abstract class SellTxEngineBase(
     private val walletManager: CustodialWalletManager,
+    limitsDataManager: LimitsDataManager,
     userIdentity: UserIdentity,
     quotesEngine: TransferQuotesEngine
-) : QuotedEngine(quotesEngine, userIdentity, walletManager, Product.SELL) {
+) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.SELL) {
 
     val target: FiatAccount
         get() = txTarget as FiatAccount
 
     override fun onLimitsForTierFetched(
-        limits: TransferLimits,
+        limits: TxLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
-    ): PendingTx {
-        val exchangeRate = exchangeRates.getLastCryptoToFiatRate(sourceAsset, target.fiatCurrency)
-
-        return pendingTx.copy(
-            minLimit = (exchangeRate.inverse().convert(limits.minLimit) as CryptoValue)
-                .withUserDpRounding(RoundingMode.CEILING),
-            maxLimit = (exchangeRate.inverse().convert(limits.maxLimit) as CryptoValue)
-                .withUserDpRounding(RoundingMode.FLOOR)
-        )
-    }
+    ): PendingTx = pendingTx.copy(
+        minLimit = limits.min.amount,
+        maxLimit = when (val max = limits.max) {
+            is TxLimit.Limited -> max.amount
+            TxLimit.Unlimited -> null
+        }
+    )
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
         validateAmount(pendingTx).updateTxValidity(pendingTx)
