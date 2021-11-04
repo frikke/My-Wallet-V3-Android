@@ -12,6 +12,8 @@ import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.Account
+import info.blockchain.wallet.payload.data.AccountV3
+import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.Wallet
@@ -207,7 +209,10 @@ class PayloadDataManager internal constructor(
             sharedKey = sharedKey,
             guid = guid,
             password = password
-        ).applySchedulers()
+        ).doOnComplete {
+            logWalletStats()
+        }
+            .applySchedulers()
 
     /**
      * Initializes and decrypts a user's payload given valid QR code scan data.
@@ -252,6 +257,44 @@ class PayloadDataManager internal constructor(
             crashLogger.logState("body count", (payload.walletBodies?.size ?: 0).toString())
             crashLogger.logState("account count", (payload.walletBody?.accounts?.size ?: 0).toString())
             crashLogger.logState("imported count", payload.importedAddressList.size.toString())
+        }
+    }
+
+    private fun logWalletStats() {
+        logWalletUpgradeStats()
+        payloadManager.payload?.let { payload ->
+            crashLogger.logState("wallet wrapper version", payload.walletBody?.wrapperVersion.toString())
+            payload.walletBody?.accounts?.map { account ->
+                crashLogger.logState("account is archived", account.isArchived.toString())
+                val hasNullOrEmptyXPub = account.xpubs.allAddresses().find { address ->
+                    address.isNullOrEmpty()
+                } != null
+                crashLogger.logState("account has null or empty xpub", hasNullOrEmptyXPub.toString())
+                when (account) {
+                    is AccountV3 -> {
+                        crashLogger.logState("account type", "V3")
+                        crashLogger.logState(
+                            "accountV3 is legacy xpub empty",
+                            account.legacyXpub.isEmpty().toString()
+                        )
+                    }
+                    is AccountV4 -> {
+                        crashLogger.logState("account type", "V4")
+                        // Address labels returns empty if the derivation is null
+                        crashLogger.logState(
+                            "accountV4 derivation is null",
+                            account.addressLabels.isEmpty().toString()
+                        )
+                        val hasEmptyXPub = account.derivations.find {
+                            it.xpub.isEmpty()
+                        }
+                        crashLogger.logState("accountV4 has empty xpub", hasEmptyXPub.toString())
+                    }
+                    else -> {
+                        // Do nothing
+                    }
+                }
+            }
         }
     }
     // /////////////////////////////////////////////////////////////////////////
