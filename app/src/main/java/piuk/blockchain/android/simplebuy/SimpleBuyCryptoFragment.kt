@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflags.GatedFeature
@@ -109,6 +110,7 @@ class SimpleBuyCryptoFragment :
     override fun onResume() {
         super.onResume()
         model.process(SimpleBuyIntent.FetchBuyLimits(currencyPrefs.selectedFiatCurrency, asset))
+        model.process(SimpleBuyIntent.UpdateExchangeRate(currencyPrefs.selectedFiatCurrency, asset))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -256,7 +258,9 @@ class SimpleBuyCryptoFragment :
             binding.priceDelta.asDeltaPercent(it.delta)
         }
 
-        newState.maxLimit.takeIf { it.currencyCode == currencyPrefs.selectedFiatCurrency }?.let {
+        (newState.limits.max as? TxLimit.Limited)?.amount?.takeIf {
+            it.currencyCode == currencyPrefs.selectedFiatCurrency
+        }?.let {
             binding.inputAmount.maxLimit = it
         }
 
@@ -319,7 +323,7 @@ class SimpleBuyCryptoFragment :
         binding.btnContinue.gone()
         binding.errorLayout.errorMessage.text = state.errorState.message(state)
         errorContainer.visible()
-        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state)
+        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state, CurrencyType.Fiat(state.fiatCurrency))
         bottomSheetInfo?.let { info ->
             errorContainer.setOnClickListener {
                 TransactionFlowInfoBottomSheet.newInstance(info)
@@ -543,7 +547,7 @@ class SimpleBuyCryptoFragment :
             TransactionErrorState.OVER_SILVER_TIER_LIMIT -> {
                 binding.inputAmount.showError(
                     if (binding.inputAmount.configuration.inputCurrency.isFiat())
-                        resources.getString(R.string.maximum_buy, state.maxLimit.toStringWithSymbol())
+                        resources.getString(R.string.maximum_buy, state.limits.maxAmount.toStringWithSymbol())
                     else
                         resources.getString(
                             R.string.maximum_buy,
@@ -554,7 +558,7 @@ class SimpleBuyCryptoFragment :
             TransactionErrorState.BELOW_MIN_LIMIT -> {
                 binding.inputAmount.showError(
                     if (binding.inputAmount.configuration.inputCurrency.isFiat())
-                        resources.getString(R.string.minimum_buy, state.minLimit.toStringWithSymbol())
+                        resources.getString(R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol())
                     else
                         resources.getString(
                             R.string.minimum_buy,
@@ -670,13 +674,13 @@ class SimpleBuyCryptoFragment :
     private fun TransactionErrorState.message(state: SimpleBuyState): String =
         when (this) {
             TransactionErrorState.BELOW_MIN_LIMIT ->
-                resources.getString(R.string.minimum_buy, state.minLimit.toStringWithSymbol())
+                resources.getString(R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol())
             TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
                 R.string.not_enough_funds, state.fiatCurrency
             )
             TransactionErrorState.OVER_SILVER_TIER_LIMIT,
             TransactionErrorState.OVER_GOLD_TIER_LIMIT -> resources.getString(
-                R.string.maximum_with_value, state.maxLimit.toStringWithSymbol()
+                R.string.maximum_with_value, state.limits.maxAmount.toStringWithSymbol()
             )
             else -> resources.getString(R.string.empty)
         }

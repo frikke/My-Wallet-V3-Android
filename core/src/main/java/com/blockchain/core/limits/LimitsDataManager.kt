@@ -1,7 +1,7 @@
 package com.blockchain.core.limits
 
 import com.blockchain.api.services.TxLimitsService
-import com.blockchain.api.txlimits.data.Amount
+import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.GatedFeature
@@ -14,7 +14,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.math.RoundingMode
 
@@ -72,7 +71,7 @@ class LimitsDataManagerImpl(
                 )
             ) { legacyLimits, seamlessLimits ->
                 val maxLegacyLimit = legacyLimits.max
-                val maxSeamlessLimit = seamlessLimits.current?.available?.toOutputCurrency(outputAsset)
+                val maxSeamlessLimit = seamlessLimits.current?.available?.toMoneyValue()
                 val maxLimit = when {
                     maxSeamlessLimit != null && maxLegacyLimit != null -> TxLimit.Limited(
                         Money.min(maxLegacyLimit, maxSeamlessLimit)
@@ -85,21 +84,21 @@ class LimitsDataManagerImpl(
                 val periodicLimits = listOfNotNull(
                     seamlessLimits.current?.daily?.let {
                         TxPeriodicLimit(
-                            it.limit.toOutputCurrency(outputAsset),
+                            it.limit.toMoneyValue(),
                             TxLimitPeriod.DAILY,
                             it.effective ?: false
                         )
                     },
                     seamlessLimits.current?.monthly?.let {
                         TxPeriodicLimit(
-                            it.limit.toOutputCurrency(outputAsset),
+                            it.limit.toMoneyValue(),
                             TxLimitPeriod.MONTHLY,
                             it.effective ?: false
                         )
                     },
                     seamlessLimits.current?.yearly?.let {
                         TxPeriodicLimit(
-                            it.limit.toOutputCurrency(outputAsset),
+                            it.limit.toMoneyValue(),
                             TxLimitPeriod.YEARLY,
                             it.effective ?: false
                         )
@@ -109,21 +108,21 @@ class LimitsDataManagerImpl(
                 val upgradedLimits = listOfNotNull(
                     seamlessLimits.suggestedUpgrade?.daily?.let {
                         TxPeriodicLimit(
-                            it.limit.toOutputCurrency(outputAsset),
+                            it.limit.toMoneyValue(),
                             TxLimitPeriod.DAILY,
                             false
                         )
                     },
                     seamlessLimits.suggestedUpgrade?.monthly?.let {
                         TxPeriodicLimit(
-                            it.limit.toOutputCurrency(outputAsset),
+                            it.limit.toMoneyValue(),
                             TxLimitPeriod.MONTHLY,
                             false
                         )
                     },
                     seamlessLimits.suggestedUpgrade?.yearly?.let {
                         TxPeriodicLimit(
-                            it.limit.toOutputCurrency(outputAsset),
+                            it.limit.toMoneyValue(),
                             TxLimitPeriod.YEARLY,
                             false
                         )
@@ -136,8 +135,7 @@ class LimitsDataManagerImpl(
                     periodicLimits = periodicLimits,
                     suggestedUpgrade = seamlessLimits.suggestedUpgrade?.let {
                         SuggestedUpgrade(
-                            // TODO(aromano): how to get this?
-                            type = UpgradeType.Kyc(Tier.SILVER, Tier.GOLD),
+                            type = UpgradeType.Kyc(Tier.values()[it.requiredTier]),
                             upgradedLimits = upgradedLimits
                         )
                     }
@@ -183,11 +181,11 @@ class LimitsDataManagerImpl(
             }
         }
     }
-}
 
-private fun Amount.toOutputCurrency(outputAsset: AssetInfo?) = when (outputAsset) {
-    null -> FiatValue.fromMinor(currency, value.toLong())
-    else -> CryptoValue.fromMinor(outputAsset, value.toBigInteger())
+    private fun Limit.toMoneyValue(): Money =
+        assetCatalogue.fromNetworkTicker(currency)?.let {
+            CryptoValue.fromMinor(it, value.toBigInteger())
+        } ?: FiatValue.fromMinor(currency, value.toLong())
 }
 
 private fun Money.toOutputCryptoCurrency(
@@ -201,20 +199,48 @@ private fun Money.toOutputCryptoCurrency(
     else -> throw IllegalStateException("Conversion cannot be performed.")
 }
 
-sealed class TxLimit {
-    data class Limited(val amount: Money) : TxLimit()
-    object Unlimited : TxLimit()
+sealed class TxLimit(private val _amount: Money?) {
+    data class Limited(private val value: Money) : TxLimit(value)
+    object Unlimited : TxLimit(null)
+
+    val amount: Money
+        get() = when (this) {
+            is Limited -> _amount ?: throw IllegalStateException("Limited limit must have an amount")
+            else -> throw IllegalStateException("Requesting value of an infinitive limit")
+        }
 }
 
 data class TxLimits(
     val min: TxLimit.Limited,
     val max: TxLimit,
-    val periodicLimits: List<TxPeriodicLimit>,
-    val suggestedUpgrade: SuggestedUpgrade?
+    val periodicLimits: List<TxPeriodicLimit> = emptyList(),
+    val suggestedUpgrade: SuggestedUpgrade? = null
 ) {
-    fun validate(test: Money): Completable {
-        // TODO(aromano): implement
-        TODO()
+
+    val minAmount: Money
+        get() = min.amount
+
+    val maxAmount: Money
+        get() = max.amount
+
+    fun isMinViolatedByAmount(amount: Money) = min.amount > amount
+
+    fun isMaxViolatedByAmount(amount: Money) = (max as? TxLimit.Limited)?.let {
+        it.amount < amount
+    } ?: false
+
+    companion object {
+        fun fromAmounts(min: Money, max: Money) =
+            TxLimits(
+                min = TxLimit.Limited(min),
+                max = TxLimit.Limited(max)
+            )
+
+        fun withMinAndUnlimitedMax(min: Money) =
+            TxLimits(
+                min = TxLimit.Limited(min),
+                max = TxLimit.Unlimited
+            )
     }
 }
 
@@ -236,5 +262,5 @@ data class SuggestedUpgrade(
 )
 
 sealed class UpgradeType {
-    class Kyc(val currentTier: Tier, val proposedTier: Tier) : UpgradeType()
+    class Kyc(val proposedTier: Tier) : UpgradeType()
 }

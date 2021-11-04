@@ -15,6 +15,8 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
@@ -92,7 +94,7 @@ data class TransactionState(
     val currentStep: TransactionStep = TransactionStep.ZERO,
     val sendingAccount: BlockchainAccount = NullCryptoAccount(),
     val selectedTarget: TransactionTarget = NullAddress,
-    val fiatRate: ExchangeRate? = null,
+    override val fiatRate: ExchangeRate? = null,
     val targetRate: ExchangeRate? = null,
     val passwordRequired: Boolean = false,
     val secondPassword: String = "",
@@ -115,11 +117,8 @@ data class TransactionState(
         get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
-    override val minLimit: Money?
-        get() = pendingTx?.minLimit
-
-    override val maxLimit: Money?
-        get() = pendingTx?.maxLimit
+    override val limits: TxLimits?
+        get() = pendingTx?.limits
 
     override val amount: Money
         get() = pendingTx?.amount ?: sendingAccount.getZeroAmountForAccount()
@@ -139,7 +138,7 @@ data class TransactionState(
                 val available = availableToAmountCurrency(it.availableBalance, amount)
                 Money.min(
                     available,
-                    it.maxLimit ?: available
+                    (it.limits?.max as? TxLimit.Limited)?.amount ?: available
                 )
             } ?: sendingAccount.getZeroAmountForAccount()
         }

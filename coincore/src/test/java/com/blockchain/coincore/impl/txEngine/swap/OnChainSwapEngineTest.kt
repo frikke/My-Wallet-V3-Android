@@ -289,8 +289,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == expectedMinLimit &&
-                    it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
+                    it.limits == TxLimits.fromAmounts(min = expectedMinLimit, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
@@ -354,8 +353,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == expectedMinLimit &&
-                    it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
+                    it.limits == TxLimits.fromAmounts(min = expectedMinLimit, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
@@ -408,8 +406,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == null &&
-                    it.maxLimit == null &&
+                    it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()
             }

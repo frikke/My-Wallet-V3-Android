@@ -305,7 +305,8 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             binding.amountSheetCtaButton.gone()
             binding.errorLayout.errorMessage.text = it
             errorContainer.visible()
-            val bottomSheetInfo = bottomSheetInfoCustomiser.info(state)
+            val bottomSheetInfo =
+                bottomSheetInfoCustomiser.info(state, binding.amountSheetInput.configuration.inputCurrency)
             bottomSheetInfo?.let { info ->
                 errorContainer.setOnClickListener {
                     TransactionFlowInfoBottomSheet.newInstance(info)
@@ -419,7 +420,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         rate: ExchangeRate.CryptoToFiat,
         state: TransactionState
     ): Money {
-        val min = state.pendingTx?.minLimit ?: return rate.inverse().convert(amount)
+        val min = state.pendingTx?.limits?.minAmount ?: return rate.inverse().convert(amount)
         val max = state.maxSpendable
         val roundedUpAmount = rate.inverse(RoundingMode.CEILING, CryptoValue.DISPLAY_DP)
             .convert(amount)

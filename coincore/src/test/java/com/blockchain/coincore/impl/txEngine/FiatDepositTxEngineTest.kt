@@ -160,8 +160,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == zeroFiat &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == limits.min &&
-                    it.maxLimit == limits.max &&
+                    it.limits == TxLimits.fromAmounts(min = limits.min, max = limits.max) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.containsKey(WITHDRAW_LOCKS)
             }
@@ -273,8 +272,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TGT_ASSET,
             feeSelection = FeeSelection(),
-            minLimit = null,
-            maxLimit = null
+            limits = null
         )
 
         subject.doValidateAmount(
@@ -313,8 +311,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TGT_ASSET,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         subject.doValidateAmount(
@@ -353,8 +350,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TGT_ASSET,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         subject.doValidateAmount(
@@ -393,8 +389,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TGT_ASSET,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = null
         )
 
         subject.doValidateAmount(
@@ -404,8 +399,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == pendingTx.amount &&
-                    it.minLimit == pendingTx.minLimit &&
-                    it.maxLimit == pendingTx.maxLimit
+                    it.limits == pendingTx.limits
             }
     }
 
@@ -438,8 +432,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TGT_ASSET,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         val txId = "12234"
@@ -488,8 +481,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TGT_ASSET,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         val exception = IllegalStateException("")

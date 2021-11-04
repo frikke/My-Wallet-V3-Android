@@ -247,8 +247,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_GOLD_LIMIT_ASSET &&
-                    it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
+                    it.limits == TxLimits.fromAmounts(min = MIN_GOLD_LIMIT_ASSET, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -308,8 +307,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_GOLD_LIMIT_ASSET &&
-                    it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
+                    it.limits == TxLimits.fromAmounts(min = MIN_GOLD_LIMIT_ASSET, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -361,8 +359,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == null &&
-                    it.maxLimit == null &&
+                    it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()
             }

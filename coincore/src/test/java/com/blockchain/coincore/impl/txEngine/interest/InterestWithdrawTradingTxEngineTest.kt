@@ -29,6 +29,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.TxLimits
 import java.math.BigInteger
 
 class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
@@ -62,7 +63,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
                     to = TEST_API_FIAT,
                     rate = ASSET_TO_API_FIAT_RATE
                 )
-        )
+            )
         subject = InterestWithdrawTradingTxEngine(
             walletManager = custodialWalletManager,
             interestBalances = interestBalances
@@ -145,8 +146,9 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == CryptoValue.fromMinor(ASSET, fees.minLimit) &&
-                    it.maxLimit == MAX_WITHDRAW_AMOUNT_CRYPTO &&
+                    it.limits == TxLimits.fromAmounts(
+                    CryptoValue.fromMinor(ASSET, fees.minLimit), MAX_WITHDRAW_AMOUNT_CRYPTO
+                ) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -258,8 +260,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
                 feeSelection = FeeSelection(),
                 selectedFiat = TEST_USER_FIAT,
                 confirmations = listOf(),
-                minLimit = money,
-                maxLimit = money
+                limits = TxLimits.fromAmounts(min = money, max = money)
             )
 
         // Act

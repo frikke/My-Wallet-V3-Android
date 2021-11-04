@@ -55,7 +55,7 @@ class FiatWithdrawalTxEngine(
             { balance, withdrawalFee, limits ->
                 PendingTx(
                     amount = zeroFiat,
-                    minLimit = limits.min.amount,
+                    limits = limits,
                     availableBalance = balance.actionable - withdrawalFee.fee,
                     feeForFullAvailable = zeroFiat,
                     totalBalance = balance.total,
@@ -123,9 +123,9 @@ class FiatWithdrawalTxEngine(
 
     private fun validateAmount(pendingTx: PendingTx): Completable =
         Completable.defer {
-            if (pendingTx.minLimit != null) {
+            if (pendingTx.limits != null) {
                 when {
-                    pendingTx.amount < pendingTx.minLimit -> Completable.error(
+                    pendingTx.isMinLimitViolated() -> Completable.error(
                         TxValidationFailure(
                             ValidationState.UNDER_MIN_LIMIT
                         )

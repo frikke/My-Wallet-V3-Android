@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPairs
 import com.blockchain.nabu.datamanagers.CustodialQuote
@@ -237,6 +238,16 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     data class FetchBuyLimits(val fiatCurrency: String, val asset: AssetInfo) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(fiatCurrency = fiatCurrency, selectedCryptoAsset = asset)
+    }
+
+    data class UpdateExchangeRate(val fiatCurrency: String, val asset: AssetInfo) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState
+    }
+
+    data class ExchangeRateUpdated(private val exchangeRate: ExchangeRate) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(fiatRate = exchangeRate)
     }
 
     data class FlowCurrentScreen(val flowScreen: FlowScreen) : SimpleBuyIntent() {

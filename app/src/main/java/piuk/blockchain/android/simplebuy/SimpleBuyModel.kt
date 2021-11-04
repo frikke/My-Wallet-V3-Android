@@ -82,6 +82,11 @@ class SimpleBuyModel(
                         },
                         onError = { process(SimpleBuyIntent.ErrorIntent()) }
                     )
+            is SimpleBuyIntent.UpdateExchangeRate -> interactor.updateExchangeRate(intent.fiatCurrency, intent.asset)
+                .subscribeBy(
+                    onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },
+                    onError = { process(SimpleBuyIntent.ErrorIntent()) }
+                )
             is SimpleBuyIntent.FetchSupportedFiatCurrencies ->
                 interactor.fetchSupportedFiatCurrencies()
                     .subscribeBy(
@@ -285,8 +290,8 @@ class SimpleBuyModel(
             is SimpleBuyIntent.AmountUpdated -> validateAmount(
                 balance = previousState.availableBalance,
                 amount = intent.amount,
-                minLimit = previousState.minLimit,
-                maxLimit = previousState.maxLimit
+                minLimit = previousState.limits.minAmount,
+                maxLimit = previousState.limits.maxAmount
             ).subscribeBy(
                 onSuccess = {
                     process(SimpleBuyIntent.UpdateErrorState(it))

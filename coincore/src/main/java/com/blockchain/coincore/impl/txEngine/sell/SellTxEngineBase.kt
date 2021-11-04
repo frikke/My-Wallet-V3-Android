@@ -25,7 +25,6 @@ import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LimitsDataManager
-import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.UserIdentity
 
@@ -44,11 +43,7 @@ abstract class SellTxEngineBase(
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): PendingTx = pendingTx.copy(
-        minLimit = limits.min.amount,
-        maxLimit = when (val max = limits.max) {
-            is TxLimit.Limited -> max.amount
-            TxLimit.Unlimited -> null
-        }
+        limits = limits
     )
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
@@ -57,16 +52,16 @@ abstract class SellTxEngineBase(
     private fun validateAmount(pendingTx: PendingTx): Completable {
         return availableBalance.flatMapCompletable { balance ->
             if (pendingTx.amount <= balance) {
-                if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
+                if (pendingTx.limits != null) {
                     when {
-                        pendingTx.amount + feeInSourceCurrency(
-                            pendingTx
-                        ) < pendingTx.minLimit -> throw TxValidationFailure(
+                        pendingTx.limits.isMinViolatedByAmount(
+                            pendingTx.amount + feeInSourceCurrency(pendingTx)
+                        ) -> throw TxValidationFailure(
                             ValidationState.UNDER_MIN_LIMIT
                         )
-                        pendingTx.amount - feeInSourceCurrency(
-                            pendingTx
-                        ) > pendingTx.maxLimit -> validationFailureForTier()
+                        pendingTx.limits.isMaxViolatedByAmount(
+                            pendingTx.amount - feeInSourceCurrency(pendingTx)
+                        ) -> validationFailureForTier()
                         else -> Completable.complete()
                     }
                 } else {

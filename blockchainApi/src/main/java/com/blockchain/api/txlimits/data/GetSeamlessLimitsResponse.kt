@@ -6,17 +6,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LimitRange(
     @SerialName("limit")
-    val limit: Amount,
+    val limit: Limit,
     @SerialName("available")
-    val available: Amount,
+    val available: Limit,
     @SerialName("used")
-    val used: Amount
+    val used: Limit
 )
 
 @Serializable
-data class Limit(
+data class PeriodicLimit(
     @SerialName("limit")
-    val limit: Amount,
+    val limit: Limit,
     @SerialName("effective")
     val effective: Boolean? = null
 )
@@ -24,19 +24,19 @@ data class Limit(
 @Serializable
 data class CurrentLimits(
     @SerialName("available")
-    val available: Amount,
+    val available: Limit,
     @SerialName("daily")
-    val daily: Limit? = null,
+    val daily: PeriodicLimit? = null,
     @SerialName("monthly")
-    val monthly: Limit? = null,
+    val monthly: PeriodicLimit? = null,
     @SerialName("yearly")
-    val yearly: Limit? = null
+    val yearly: PeriodicLimit? = null
 )
 
 @Serializable
 data class SuggestedUpgrade(
     @SerialName("available")
-    val available: Amount,
+    val available: Limit,
     @SerialName("daily")
     val daily: LimitRange? = null,
     @SerialName("monthly")
@@ -60,7 +60,7 @@ data class GetSeamlessLimitsResponse(
 )
 
 @Serializable
-data class Amount(
+data class Limit(
     @SerialName("currency")
     val currency: String,
     @SerialName("value")

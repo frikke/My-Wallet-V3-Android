@@ -13,6 +13,7 @@ import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
+import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.CryptoValue
@@ -280,7 +281,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit ->
                 resources.getString(
                     R.string.deposit_enter_amount_limit_label,
-                    state.pendingTx?.maxLimit?.toStringWithSymbol() ?: ""
+                    (state.pendingTx?.limits?.max as? TxLimit.Limited)?.amount?.toStringWithSymbol() ?: ""
                 )
             AssetAction.Withdraw -> state.availableBalance.toStringWithSymbol()
             else -> throw java.lang.IllegalStateException("Limits info view not configured for ${state.action}")
@@ -593,7 +594,9 @@ class TransactionFlowCustomiserImpl(
             )
             TransactionErrorState.INVALID_AMOUNT -> resources.getString(
                 R.string.send_enter_amount_error_invalid_amount_1,
-                state.pendingTx?.minLimit?.formatOrSymbolForZero() ?: throw IllegalStateException("Missing limit")
+                state.pendingTx?.limits?.minAmount?.formatOrSymbolForZero() ?: throw IllegalStateException(
+                    "Missing limit"
+                )
             )
             TransactionErrorState.INVALID_ADDRESS -> resources.getString(
                 R.string.send_error_not_valid_asset_address,
@@ -618,10 +621,10 @@ class TransactionFlowCustomiserImpl(
                 val exchangeRate = state.fiatRate ?: return ""
                 val amount =
                     input?.let {
-                        state.pendingTx?.maxLimit?.toEnteredCurrency(
+                        state.pendingTx?.limits?.maxAmount?.toEnteredCurrency(
                             it, exchangeRate, RoundingMode.FLOOR
                         )
-                    } ?: state.pendingTx?.maxLimit?.toStringWithSymbol()
+                    } ?: state.pendingTx?.limits?.maxAmount?.toStringWithSymbol()
 
                 resources.getString(R.string.swap_enter_amount_over_limit, amount)
             }
@@ -648,7 +651,9 @@ class TransactionFlowCustomiserImpl(
             )
             TransactionErrorState.INVALID_AMOUNT -> resources.getString(
                 R.string.send_enter_amount_error_invalid_amount_1,
-                state.pendingTx?.minLimit?.formatOrSymbolForZero() ?: throw IllegalStateException("Missing limit")
+                state.pendingTx?.limits?.minAmount?.formatOrSymbolForZero() ?: throw IllegalStateException(
+                    "Missing limit"
+                )
             )
             TransactionErrorState.INVALID_ADDRESS -> resources.getString(
                 R.string.send_error_not_valid_asset_address,
@@ -769,10 +774,10 @@ class TransactionFlowCustomiserImpl(
         val exchangeRate = state.fiatRate ?: return ""
         val amount =
             input?.let {
-                state.pendingTx?.minLimit?.toEnteredCurrency(
+                state.pendingTx?.limits?.minAmount?.toEnteredCurrency(
                     it, exchangeRate, RoundingMode.CEILING
                 )
-            } ?: state.pendingTx?.minLimit?.toStringWithSymbol()
+            } ?: state.pendingTx?.limits?.minAmount?.toStringWithSymbol()
 
         return when (state.action) {
             AssetAction.InterestDeposit -> resources.getString(
@@ -998,29 +1003,6 @@ class TransactionFlowCustomiserImpl(
             return sdf.format(cal.time)
         }
     }
-
-    private fun Money.toEnteredCurrency(
-        input: CurrencyType,
-        exchangeRate: ExchangeRate,
-        roundingMode: RoundingMode
-    ): String {
-        if (input.isSameType(this)) {
-            return toStringWithSymbol()
-        }
-        if (input.isFiat() && this is CryptoValue) {
-            val cryptoToFiatRate = exchangeRate as ExchangeRate.CryptoToFiat
-            return FiatValue.fromMajor(
-                cryptoToFiatRate.to,
-                cryptoToFiatRate.convert(this, round = false).toBigDecimal().setScale(
-                    Currency.getInstance(exchangeRate.to).defaultFractionDigits, roundingMode
-                )
-            ).toStringWithSymbol()
-        }
-        if (input.isCrypto() && this is FiatValue) {
-            return exchangeRate.inverse().convert(this).toStringWithSymbol()
-        }
-        throw IllegalStateException("Not valid currency")
-    }
 }
 
 private fun BlockchainAccount.uiCurrency(): String {
@@ -1042,4 +1024,27 @@ sealed class TargetAddressSheetState(val accounts: List<TransactionTarget>) {
     class TargetAccountSelected(account: TransactionTarget) : TargetAddressSheetState(listOf(account))
     class SelectAccountWhenWithinMaxLimit(accounts: List<BlockchainAccount>) :
         TargetAddressSheetState(accounts.map { it as TransactionTarget })
+}
+
+fun Money.toEnteredCurrency(
+    input: CurrencyType,
+    exchangeRate: ExchangeRate,
+    roundingMode: RoundingMode
+): String {
+    if (input.isSameType(this)) {
+        return toStringWithSymbol()
+    }
+    if (input.isFiat() && this is CryptoValue) {
+        val cryptoToFiatRate = exchangeRate as ExchangeRate.CryptoToFiat
+        return FiatValue.fromMajor(
+            cryptoToFiatRate.to,
+            cryptoToFiatRate.convert(this, round = false).toBigDecimal().setScale(
+                Currency.getInstance(exchangeRate.to).defaultFractionDigits, roundingMode
+            )
+        ).toStringWithSymbol()
+    }
+    if (input.isCrypto() && this is FiatValue) {
+        return exchangeRate.inverse().convert(this).toStringWithSymbol()
+    }
+    throw IllegalStateException("Not valid currency")
 }

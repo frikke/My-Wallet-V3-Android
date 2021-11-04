@@ -3,6 +3,7 @@ package com.blockchain.coincore
 import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.replace
@@ -79,8 +80,7 @@ data class PendingTx(
     val feeSelection: FeeSelection,
     val selectedFiat: String,
     val confirmations: List<TxConfirmationValue> = emptyList(),
-    val minLimit: Money? = null,
-    val maxLimit: Money? = null,
+    val limits: TxLimits? = null,
     val validationState: ValidationState = ValidationState.UNINITIALISED,
     val engineState: Map<String, Any> = emptyMap()
 ) {
@@ -114,6 +114,12 @@ data class PendingTx(
                 opts.toList()
             }
         )
+
+    internal fun isMinLimitViolated(): Boolean =
+        limits?.isMinViolatedByAmount(amount) ?: throw IllegalStateException("Limits are undefined")
+
+    internal fun isMaxLimitViolated() =
+        limits?.isMaxViolatedByAmount(amount) ?: throw IllegalStateException("Limits are undefined")
 }
 
 enum class TxConfirmation {
@@ -517,7 +523,9 @@ private fun updateOptionsWithValidityWarning(pendingTx: PendingTx): PendingTx =
         pendingTx.addOrReplaceOption(
             TxConfirmationValue.ErrorNotice(
                 status = pendingTx.validationState,
-                money = if (pendingTx.validationState == ValidationState.UNDER_MIN_LIMIT) pendingTx.minLimit else null
+                money = if (pendingTx.validationState == ValidationState.UNDER_MIN_LIMIT)
+                    pendingTx.limits?.minAmount
+                else null
             )
         )
     } else {

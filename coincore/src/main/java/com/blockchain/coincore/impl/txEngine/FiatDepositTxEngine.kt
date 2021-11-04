@@ -20,7 +20,6 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
-import com.blockchain.core.limits.TxLimit
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -83,11 +82,7 @@ class FiatDepositTxEngine(
                 totalBalance = zeroFiat,
                 availableBalance = zeroFiat,
                 feeForFullAvailable = zeroFiat,
-                minLimit = limits.min.amount,
-                maxLimit = when (val max = limits.max) {
-                    is TxLimit.Limited -> max.amount
-                    TxLimit.Unlimited -> null
-                },
+                limits = limits,
                 feeAmount = zeroFiat,
                 selectedFiat = userFiat,
                 feeSelection = FeeSelection(),
@@ -144,15 +139,15 @@ class FiatDepositTxEngine(
 
     private fun validateAmount(pendingTx: PendingTx): Completable =
         Completable.defer {
-            if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
+            if (pendingTx.limits != null) {
                 when {
                     pendingTx.amount.isZero -> Completable.error(TxValidationFailure(ValidationState.INVALID_AMOUNT))
-                    pendingTx.amount < pendingTx.minLimit -> Completable.error(
+                    pendingTx.isMinLimitViolated() -> Completable.error(
                         TxValidationFailure(
                             ValidationState.UNDER_MIN_LIMIT
                         )
                     )
-                    pendingTx.amount > pendingTx.maxLimit -> {
+                    pendingTx.isMaxLimitViolated() -> {
                         userIsGoldVerified.flatMapCompletable {
                             if (it) {
                                 Completable.error(TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT))

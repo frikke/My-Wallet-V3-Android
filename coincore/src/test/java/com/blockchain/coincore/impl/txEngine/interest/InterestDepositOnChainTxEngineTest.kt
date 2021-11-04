@@ -34,6 +34,7 @@ import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.TxLimits
 
 class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
@@ -215,8 +216,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_DEPOSIT_AMOUNT_CRYPTO &&
-                    it.maxLimit == null &&
+                    it.limits == TxLimits.withMinAndUnlimitedMax(MIN_DEPOSIT_AMOUNT_CRYPTO) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }

@@ -38,6 +38,8 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.cards.CardIntent
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import info.blockchain.balance.Money
@@ -60,6 +62,7 @@ class SimpleBuyInteractor(
     private val analytics: Analytics,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val coincore: Coincore,
     private val bankLinkingPrefs: BankLinkingPrefs
 ) {
@@ -389,6 +392,10 @@ class SimpleBuyInteractor(
     fun updateOneTimeTokenPath(callbackPath: String) {
         val sanitisedUrl = callbackPath.removePrefix("nabu-gateway/")
         bankLinkingPrefs.setDynamicOneTimeTokenUrl(sanitisedUrl)
+    }
+
+    fun updateExchangeRate(fiat: String, asset: AssetInfo): Single<ExchangeRate> {
+        return exchangeRatesDataManager.cryptoToFiatRate(asset, fiat).firstOrError()
     }
 
     companion object {

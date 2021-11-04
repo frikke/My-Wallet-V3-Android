@@ -22,6 +22,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.TxLimits
 
 class InterestDepositTradingEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -48,7 +49,9 @@ class InterestDepositTradingEngine(
             val cryptoAsset = limits.cryptoCurrency
             PendingTx(
                 amount = CryptoValue.zero(sourceAsset),
-                minLimit = limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset),
+                limits = TxLimits.withMinAndUnlimitedMax(
+                    limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset)
+                ),
                 feeSelection = FeeSelection(),
                 selectedFiat = userFiat,
                 availableBalance = balance,
@@ -120,10 +123,12 @@ class InterestDepositTradingEngine(
 
     private fun checkIfAmountIsBelowMinLimit(pendingTx: PendingTx) =
         when {
-            pendingTx.minLimit == null -> {
+            pendingTx.limits == null -> {
                 throw TxValidationFailure(ValidationState.UNINITIALISED)
             }
-            pendingTx.amount < pendingTx.minLimit -> throw TxValidationFailure(ValidationState.UNDER_MIN_LIMIT)
+            pendingTx.isMinLimitViolated() -> throw TxValidationFailure(
+                ValidationState.UNDER_MIN_LIMIT
+            )
             else -> Completable.complete()
         }
 

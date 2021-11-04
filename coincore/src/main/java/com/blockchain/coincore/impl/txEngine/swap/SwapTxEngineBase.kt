@@ -65,11 +65,9 @@ abstract class SwapTxEngineBase(
         minApiLimit = limits.min.amount
 
         return pendingTx.copy(
-            minLimit = minLimit(pricedQuote.price),
-            maxLimit = when (val max = limits.max) {
-                is TxLimit.Limited -> max.amount
-                TxLimit.Unlimited -> null
-            }
+            limits = limits.copy(
+                min = TxLimit.Limited(minLimit(pricedQuote.price))
+            )
         )
     }
 
@@ -79,19 +77,21 @@ abstract class SwapTxEngineBase(
     private fun validateAmount(pendingTx: PendingTx): Completable {
         return availableBalance.flatMapCompletable { balance ->
             if (pendingTx.amount <= balance) {
-                if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
+                if (pendingTx.limits != null) {
                     when {
-                        pendingTx.amount < pendingTx.minLimit -> throw TxValidationFailure(
-                            ValidationState.UNDER_MIN_LIMIT
+                        pendingTx.isMinLimitViolated() -> Completable.error(
+                            TxValidationFailure(
+                                ValidationState.UNDER_MIN_LIMIT
+                            )
                         )
-                        pendingTx.amount > pendingTx.maxLimit -> validationFailureForTier()
+                        pendingTx.isMaxLimitViolated() -> validationFailureForTier()
                         else -> Completable.complete()
                     }
                 } else {
-                    throw TxValidationFailure(ValidationState.UNKNOWN_ERROR)
+                    Completable.error(TxValidationFailure(ValidationState.UNINITIALISED))
                 }
             } else {
-                throw TxValidationFailure(ValidationState.INSUFFICIENT_FUNDS)
+                Completable.error(TxValidationFailure(ValidationState.INSUFFICIENT_FUNDS))
             }
         }
     }
@@ -147,7 +147,7 @@ abstract class SwapTxEngineBase(
 
     private fun addOrReplaceConfirmations(pendingTx: PendingTx, pricedQuote: PricedQuote): PendingTx =
         pendingTx.copy(
-            minLimit = minLimit(pricedQuote.price)
+            limits = pendingTx.limits?.copy(min = TxLimit.Limited(minLimit(pricedQuote.price)))
         ).apply {
             addOrReplaceOption(
                 TxConfirmationValue.SwapExchange(

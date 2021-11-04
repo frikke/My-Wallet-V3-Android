@@ -2,6 +2,9 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CustodialQuote
@@ -60,6 +63,7 @@ data class SimpleBuyState constructor(
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     @Transient val buyErrorState: ErrorState? = null,
+    @Transient override val fiatRate: ExchangeRate? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
     @Transient val isLoading: Boolean = false,
     @Transient val everypayAuthOptions: EverypayAuthOptions? = null,
@@ -98,7 +102,7 @@ data class SimpleBuyState constructor(
     }
 
     @delegate:Transient
-    override val maxLimit: Money by unsafeLazy {
+    private val maxLimit: Money by unsafeLazy {
         val maxPaymentMethodLimit = selectedPaymentMethodDetails.maxLimit()
         val maxUserLimit = transferLimits?.maxLimit
 
@@ -108,8 +112,14 @@ data class SimpleBuyState constructor(
             maxPaymentMethodLimit ?: maxUserLimit ?: FiatValue.zero(fiatCurrency)
     }
 
+    override val limits: TxLimits
+        get() = TxLimits(
+            min = TxLimit.Limited(minLimit),
+            max = TxLimit.Limited(maxLimit)
+        )
+
     @delegate:Transient
-    override val minLimit: Money by unsafeLazy {
+    private val minLimit: Money by unsafeLazy {
         val minPaymentMethodLimit = selectedPaymentMethodDetails.minLimit()
         val minUserLimit = transferLimits?.minLimit
 

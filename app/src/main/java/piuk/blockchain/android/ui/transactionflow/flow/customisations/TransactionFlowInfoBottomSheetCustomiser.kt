@@ -6,13 +6,15 @@ import com.blockchain.coincore.AssetAction
 import info.blockchain.balance.AssetInfo
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import java.io.Serializable
 import java.lang.IllegalArgumentException
+import java.math.RoundingMode
 
 interface TransactionFlowInfoBottomSheetCustomiser {
-    fun info(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo?
+    fun info(state: TransactionFlowStateInfo, input: CurrencyType): TransactionFlowBottomSheetInfo?
 }
 
 @Parcelize
@@ -38,20 +40,26 @@ enum class InfoActionType {
 class TransactionFlowInfoBottomSheetCustomiserImpl(
     private val resources: Resources
 ) : TransactionFlowInfoBottomSheetCustomiser {
-    override fun info(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo? {
+    override fun info(state: TransactionFlowStateInfo, input: CurrencyType): TransactionFlowBottomSheetInfo? {
         return when (state.errorState) {
             TransactionErrorState.NONE -> null
             TransactionErrorState.ADDRESS_IS_CONTRACT -> null
             TransactionErrorState.INSUFFICIENT_FUNDS -> infoForInsufficientFunds(state)
-            TransactionErrorState.BELOW_MIN_LIMIT -> infoForBelowMinLimit(state)
+            TransactionErrorState.BELOW_MIN_LIMIT -> infoForBelowMinLimit(state, input)
             TransactionErrorState.OVER_GOLD_TIER_LIMIT,
             TransactionErrorState.OVER_SILVER_TIER_LIMIT -> null
             else -> null
         }
     }
 
-    private fun infoForBelowMinLimit(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo? {
-        val min = state.minLimit?.toStringWithSymbol() ?: return null
+    private fun infoForBelowMinLimit(
+        state: TransactionFlowStateInfo,
+        input: CurrencyType
+    ): TransactionFlowBottomSheetInfo? {
+        val fiatRate = state.fiatRate ?: return null
+        val min = state.limits?.minAmount?.toEnteredCurrency(
+            input, fiatRate, RoundingMode.CEILING
+        ) ?: return null
         return when (state.action) {
             AssetAction.Withdraw -> {
                 return TransactionFlowBottomSheetInfo(

@@ -26,6 +26,9 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.xlm.STATE_MEMO
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import piuk.blockchain.androidcore.utils.extensions.then
 
 private fun PendingTx.setMemo(memo: TxConfirmationValue.Memo): PendingTx =
@@ -47,6 +50,7 @@ class TradingToOnChainTxEngine(
     val isNoteSupported: Boolean,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
+    private val userIdentity: UserIdentity,
     private val limitsDataManager: LimitsDataManager
 ) : TxEngine() {
 
@@ -87,7 +91,7 @@ class TradingToOnChainTxEngine(
                     feeAmount = CryptoValue.fromMinor(sourceAsset, cryptoFee.fee),
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat,
-                    minLimit = limits.min.amount
+                    limits = limits
                 )
             }
         )
@@ -176,22 +180,31 @@ class TradingToOnChainTxEngine(
 
     private fun validateAmounts(pendingTx: PendingTx): Completable =
         Completable.defer {
-            val min = pendingTx.minLimit ?: CryptoValue.zero(sourceAsset)
-            if (pendingTx.amount.isPositive &&
-                pendingTx.availableBalance >= pendingTx.amount &&
-                min <= pendingTx.amount
-            ) {
-                Completable.complete()
-            } else {
-                throw TxValidationFailure(
-                    if (pendingTx.amount > pendingTx.availableBalance) {
-                        ValidationState.INSUFFICIENT_FUNDS
-                    } else {
-                        ValidationState.INVALID_AMOUNT
-                    }
+            when {
+                pendingTx.isMinLimitViolated() -> Completable.error(
+                    TxValidationFailure(ValidationState.UNDER_MIN_LIMIT)
                 )
+                pendingTx.isMaxLimitViolated() -> aboveTierLimit()
+                pendingTx.amount > pendingTx.availableBalance -> Completable.error(
+                    TxValidationFailure(ValidationState.INSUFFICIENT_FUNDS)
+                )
+                else -> Completable.complete()
             }
         }
+
+    private fun aboveTierLimit(): Completable {
+        return userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).onErrorReturnItem(false)
+            .flatMapCompletable { gold ->
+                if (gold)
+                    Completable.error(
+                        TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT)
+                    )
+                else
+                    Completable.error(
+                        TxValidationFailure(ValidationState.OVER_SILVER_TIER_LIMIT)
+                    )
+            }
+    }
 
     private fun isMemoValid(memoConfirmation: String?): Boolean {
         return if (memoConfirmation.isNullOrBlank()) {

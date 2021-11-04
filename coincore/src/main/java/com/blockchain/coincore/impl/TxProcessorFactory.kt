@@ -59,7 +59,7 @@ class TxProcessorFactory(
     ): Single<TransactionProcessor> =
         when (source) {
             is CryptoNonCustodialAccount -> createOnChainProcessor(source, target, action)
-            is CustodialTradingAccount -> createTradingProcessor(source, target, action)
+            is CustodialTradingAccount -> createTradingProcessor(source, target)
             is CryptoInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
             is BankAccount -> createFiatDepositProcessor(source, target, action)
             is FiatAccount -> createFiatWithdrawalProcessor(source, target, action)
@@ -241,8 +241,7 @@ class TxProcessorFactory(
 
     private fun createTradingProcessor(
         source: CustodialTradingAccount,
-        target: TransactionTarget,
-        action: AssetAction
+        target: TransactionTarget
     ) = when (target) {
         is CryptoAddress ->
             Single.just(
@@ -252,6 +251,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = TradingToOnChainTxEngine(
                         walletManager = walletManager,
+                        userIdentity = userIdentity,
                         limitsDataManager = limitsDataManager,
                         isNoteSupported = source.isNoteSupported
                     )
@@ -306,6 +306,7 @@ class TxProcessorFactory(
                     engine = TradingToOnChainTxEngine(
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
+                        userIdentity = userIdentity,
                         isNoteSupported = source.isNoteSupported
                     )
                 )

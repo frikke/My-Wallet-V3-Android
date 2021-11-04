@@ -176,8 +176,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == null &&
-                    it.maxLimit == null &&
+                    it.limits == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }

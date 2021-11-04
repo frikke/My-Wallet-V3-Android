@@ -24,6 +24,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.TxLimits
 
 class InterestWithdrawOnChainTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -50,8 +51,10 @@ class InterestWithdrawOnChainTxEngine(
             { minLimits, maxLimits, balance ->
                 PendingTx(
                     amount = CryptoValue.zero(sourceAsset),
-                    minLimit = CryptoValue.fromMinor(sourceAsset, minLimits.minLimit),
-                    maxLimit = maxLimits.maxWithdrawalFiatValue.toCrypto(exchangeRates, sourceAsset),
+                    limits = TxLimits.fromAmounts(
+                        min = CryptoValue.fromMinor(sourceAsset, minLimits.minLimit),
+                        max = maxLimits.maxWithdrawalFiatValue.toCrypto(exchangeRates, sourceAsset)
+                    ),
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat,
                     availableBalance = balance,
@@ -74,10 +77,10 @@ class InterestWithdrawOnChainTxEngine(
 
     private fun checkIfAmountIsBelowMinLimit(pendingTx: PendingTx) =
         when {
-            pendingTx.minLimit == null -> {
+            pendingTx.limits == null -> {
                 throw TxValidationFailure(ValidationState.UNINITIALISED)
             }
-            pendingTx.amount < pendingTx.minLimit -> throw TxValidationFailure(ValidationState.UNDER_MIN_LIMIT)
+            pendingTx.isMinLimitViolated() -> throw TxValidationFailure(ValidationState.UNDER_MIN_LIMIT)
             else -> Completable.complete()
         }
 

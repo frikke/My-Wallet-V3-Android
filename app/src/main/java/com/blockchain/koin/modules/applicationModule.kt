@@ -441,6 +441,7 @@ val applicationModule = module {
                 eligibilityProvider = get(),
                 bankLinkingPrefs = get(),
                 analytics = get(),
+                exchangeRatesDataManager = get(),
                 bankPartnerCallbackProvider = get()
             )
         }

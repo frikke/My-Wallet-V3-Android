@@ -145,15 +145,14 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.amount == CryptoValue.zero(ASSET) &&
-                it.totalBalance == CryptoValue.zero(ASSET) &&
-                it.availableBalance == CryptoValue.zero(ASSET) &&
-                it.feeAmount == CryptoValue.zero(ASSET) &&
-                it.selectedFiat == TEST_USER_FIAT &&
-                it.confirmations.isEmpty() &&
-                it.minLimit == null &&
-                it.maxLimit == null &&
-                it.validationState == ValidationState.UNINITIALISED &&
-                it.engineState.isEmpty()
+                    it.totalBalance == CryptoValue.zero(ASSET) &&
+                    it.availableBalance == CryptoValue.zero(ASSET) &&
+                    it.feeAmount == CryptoValue.zero(ASSET) &&
+                    it.selectedFiat == TEST_USER_FIAT &&
+                    it.confirmations.isEmpty() &&
+                    it.limits == null &&
+                    it.validationState == ValidationState.UNINITIALISED &&
+                    it.engineState.isEmpty()
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
             .assertNoErrors()
@@ -209,9 +208,9 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == expectedAvailable &&
-                it.feeAmount == expectedFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == expectedAvailable &&
+                    it.feeAmount == expectedFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
@@ -330,10 +329,10 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == expectedAvailable &&
-                it.feeForFullAvailable == expectedFullFee &&
-                it.feeAmount == expectedFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == expectedAvailable &&
+                    it.feeForFullAvailable == expectedFullFee &&
+                    it.feeAmount == expectedFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
@@ -652,18 +651,18 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<EthCryptoWalletAccount> {
-            on { asset }.thenReturn(ASSET)
-            on { balance }.thenReturn(
-                Observable.just(
-                    AccountBalance(
-                        total = totalBalance,
-                        actionable = availableBalance,
-                        pending = CryptoValue.zero(CryptoCurrency.ETHER),
-                        exchangeRate = ExchangeRate.InvalidRate
-                    )
+        on { asset }.thenReturn(ASSET)
+        on { balance }.thenReturn(
+            Observable.just(
+                AccountBalance(
+                    total = totalBalance,
+                    actionable = availableBalance,
+                    pending = CryptoValue.zero(CryptoCurrency.ETHER),
+                    exchangeRate = ExchangeRate.InvalidRate
                 )
             )
-        }
+        )
+    }
 
     private fun mockNonContractTarget() = mock<EthAddress> {
         on { asset }.thenReturn(ASSET)

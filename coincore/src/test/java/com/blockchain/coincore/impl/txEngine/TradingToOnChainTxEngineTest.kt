@@ -30,6 +30,7 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.UserIdentity
 import com.nhaarman.mockitokotlin2.any
 import io.reactivex.rxjava3.core.Observable
 import java.math.BigInteger
@@ -38,6 +39,7 @@ import kotlin.test.assertEquals
 class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
     private val isNoteSupported = false
+    private val userIdentity: UserIdentity = mock()
     private val walletManager: CustodialWalletManager = mock()
     private val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
     private val limitsDataManager: LimitsDataManager = mock {
@@ -56,7 +58,8 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
     private val subject = TradingToOnChainTxEngine(
         walletManager = walletManager,
         isNoteSupported = isNoteSupported,
-        limitsDataManager = limitsDataManager
+        limitsDataManager = limitsDataManager,
+        userIdentity = userIdentity
     )
 
     @Before
@@ -168,8 +171,9 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit) &&
-                    it.maxLimit == null &&
+                    it.limits == TxLimits.withMinAndUnlimitedMax(
+                    CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit)
+                ) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
