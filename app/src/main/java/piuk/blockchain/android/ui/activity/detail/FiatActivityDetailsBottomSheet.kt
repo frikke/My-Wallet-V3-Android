@@ -5,30 +5,26 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.utils.toFormattedString
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
-import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.activity.detail.adapter.FiatDetailsSheetAdapter
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 import java.util.Date
 
 class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActivityDetailsBinding>() {
-    private val assetActivityRepository: AssetActivityRepository by scopedInject()
-    private val paymentsDataManager: PaymentsDataManager by scopedInject()
+    private val model: FiatActivityDetailsModel by scopedInject()
     private val fiatDetailsSheetAdapter = FiatDetailsSheetAdapter()
     private val currency: String by unsafeLazy {
         arguments?.getString(CURRENCY_KEY) ?: throw IllegalStateException("No currency  provided")
@@ -56,6 +52,7 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
                 addItemDecoration(BlockchainListDividerDecor(requireContext()))
                 adapter = fiatDetailsSheetAdapter
             }
+            fiatDetailsSheetAdapter.items = getItemsForSummaryItem(fiatActivitySummaryItem)
         }
     }
 
@@ -64,21 +61,30 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
             confirmationProgress.gone()
             confirmationLabel.gone()
             custodialTxButton.gone()
+        }
+    }
 
-            assetActivityRepository.findCachedItem(currency, txHash)?.let { fiatActivitySummaryItem ->
-                initView((fiatActivitySummaryItem))
-                paymentsDataManager.getPaymentMethodDetailsForId(
-                    fiatActivitySummaryItem.paymentMethodId.orEmpty()
-                ).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeBy(
-                        onSuccess = {
-                            fiatDetailsSheetAdapter.items = getItemsForSummaryItem(fiatActivitySummaryItem, it)
-                        },
-                        onError = {
-                            Timber.e(it.localizedMessage)
-                            fiatDetailsSheetAdapter.items = getItemsForSummaryItem(fiatActivitySummaryItem)
-                        })
+    override fun onStart() {
+        super.onStart()
+        parentFragment?.viewLifecycleOwner?.lifecycleScope?.launch {
+            model.uiState.collect(::render)
+        }
+        model.findCachedItem(currency, txHash)
+    }
+
+    private fun render(state: FiatActivityDetailsViewState) {
+        when {
+            state.activityItem != null && state.paymentDetails != null ->
+                fiatDetailsSheetAdapter.items = getItemsForSummaryItem(state.activityItem, state.paymentDetails)
+            state.activityItem != null -> {
+                initView((state.activityItem))
+                model.loadPaymentDetails(state.activityItem)
+            }
+            state.errorMessage.isNotEmpty() -> {
+                // TODO Add error handling
+            }
+            else -> {
+                // TODO Add loading indicator
             }
         }
     }

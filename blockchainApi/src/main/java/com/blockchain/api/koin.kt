@@ -1,5 +1,6 @@
 package com.blockchain.api
 
+import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
@@ -55,6 +56,8 @@ val blockchainApiModule = module {
 
     single { RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()) }
 
+    single { OutcomeCallAdapterFactory() }
+
     single(blockchainApi) {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("blockchain-api"))
@@ -78,6 +81,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("nabu-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .addConverterFactory(jsonConverter)
             .build()
     }

@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.activity
 
+import com.blockchain.koin.ioDispatcher
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.activity.detail.ActivityDetailState
 import piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor
 import piuk.blockchain.android.ui.activity.detail.ActivityDetailsModel
+import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsModel
 import piuk.blockchain.android.ui.activity.detail.TransactionHelper
 import piuk.blockchain.android.ui.activity.detail.TransactionInOutMapper
 
@@ -71,6 +73,14 @@ val activitiesModule = module {
             TransactionHelper(
                 payloadDataManager = get(),
                 bchDataManager = get()
+            )
+        }
+
+        factory {
+            FiatActivityDetailsModel(
+                assetActivityRepository = get(),
+                paymentsDataManager = get(),
+                dispatcher = get(ioDispatcher)
             )
         }
     }

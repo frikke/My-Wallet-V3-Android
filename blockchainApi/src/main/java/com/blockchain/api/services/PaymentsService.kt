@@ -1,5 +1,8 @@
 package com.blockchain.api.services
 
+import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.Outcome
+import com.blockchain.api.adapters.map
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_ACCOUNT
@@ -11,10 +14,10 @@ import io.reactivex.rxjava3.core.Single
 class PaymentsService internal constructor(
     private val api: PaymentsApi
 ) {
-    fun getPaymentMethodDetailsForId(
+    suspend fun getPaymentMethodDetailsForId(
         authHeader: String,
         paymentId: String
-    ): Single<PaymentMethodDetails> =
+    ): Outcome<ApiError, PaymentMethodDetails> =
         api.getPaymentMethodDetailsForId(authHeader, paymentId)
             .map { it.toPaymentDetails() }
 

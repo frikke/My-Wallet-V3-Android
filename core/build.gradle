@@ -90,6 +90,9 @@ dependencies {
 
     coreLibraryDesugaring Libraries.desugaring
 
+    implementation Libraries.kotlinCoroutines
+    implementation Libraries.rxjava3Coroutines
+
     // Unit Test dependencies
     testImplementation Libraries.junit
     testImplementation Libraries.mockito

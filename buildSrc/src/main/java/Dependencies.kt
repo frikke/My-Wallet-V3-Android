@@ -16,6 +16,9 @@ object Versions {
     const val androidPlugin = "7.0.2"
     const val kotlin = "1.5.31"
 
+    // Coroutines
+    const val coroutines = "1.5.2"
+
     const val googleServicesPlugin = "4.3.3"
     const val buildProperties = "0.4"
     const val ktlint = "0.27.0"
@@ -36,7 +39,7 @@ object Versions {
     const val desugaring = "1.1.5"
     const val installReferrer = "2.2"
     const val navigation = "2.3.5"
-    const val lifecycle = "2.1.0"
+    const val lifecycle = "2.3.1"
     const val camera = "1.0.0-rc04"
     const val cameraView = "1.0.0-alpha23"
 
@@ -146,6 +149,9 @@ object Libraries {
     const val kotlinSerializationPlugin = "org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}"
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
+    const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+    const val androidCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val buildProperties = "com.novoda:gradle-build-properties-plugin:${Versions.buildProperties}"
     const val ktlint = "com.github.shyiko:ktlint:${Versions.ktlint}"
@@ -168,7 +174,8 @@ object Libraries {
     const val navigationControllerSafeArgsPlugin =
         "androidx.navigation:navigation-safe-args-gradle-plugin:${Versions.navigation}"
     const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel:${Versions.lifecycle}"
-    const val lifecycleExtensions = "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
+    const val lifecycleViewModelExtensions = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+    const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
     const val camera = "androidx.camera:camera-camera2:${Versions.camera}"
     const val cameraView = "androidx.camera:camera-view:${Versions.cameraView}"
     const val cameraLifecycle = "androidx.camera:camera-lifecycle:${Versions.camera}"

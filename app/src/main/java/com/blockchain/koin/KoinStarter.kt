@@ -19,6 +19,7 @@ import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
 import com.blockchain.coincore.coincoreModule
 import com.blockchain.core.price.pricesModule
+import com.blockchain.koin.modules.coroutinesModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -60,6 +61,7 @@ object KoinStarter {
                     apiModule,
                     blockchainApiModule,
                     applicationModule,
+                    coroutinesModule,
                     dashboardModule,
                     campaignModule,
                     bitpayModule,

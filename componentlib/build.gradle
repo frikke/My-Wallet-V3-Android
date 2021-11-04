@@ -50,7 +50,6 @@ dependencies {
     implementation Libraries.constraintLayout
 
     implementation Libraries.lifecycleViewModel
-    implementation Libraries.lifecycleExtensions
 
     implementation Libraries.composeUi
     implementation Libraries.composeMaterial
