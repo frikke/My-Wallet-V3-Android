@@ -17,6 +17,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.text.DecimalFormatSymbols
@@ -100,6 +101,7 @@ class FiatCryptoInputView(
             }
 
             disposables += conversionModel.exchangeAmount
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onNext = {
@@ -157,6 +159,8 @@ class FiatCryptoInputView(
 
                 maxLimit?.let { amount ->
                     disposables += conversionModel.convert(amount, newValue)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribeBy(
                             onSuccess = { updateFilters(inputSymbol, it) }
                         )
