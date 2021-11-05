@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/new_login_header_parent"
@@ -12,25 +12,25 @@
         android:layout_height="wrap_content"
         android:background="@drawable/ic_info_banner_background"
         android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/new_login_sheet_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
             android:layout_gravity="center"
+            android:layout_marginTop="@dimen/tiny_margin"
             app:srcCompat="@drawable/vector_sheet_indicator_small" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/new_login_header_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/standard_margin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_margin="@dimen/standard_margin"
             app:srcCompat="@drawable/ic_new_device" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -62,65 +62,67 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/new_login_info_list"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/new_login_header_parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/approve_deny_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"/>
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toTopOf="@+id/approve_deny_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_login_header_parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/approve_deny_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/secure_login_ip_notice"
         android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:paddingBottom="@dimen/standard_margin"
-        android:text="@string/auth_new_login_approve_deny_description"/>
+        android:layout_marginTop="@dimen/small_margin"
+        android:paddingBottom="@dimen/small_margin"
+        android:text="@string/auth_new_login_approve_deny_description"
+        app:layout_constraintBottom_toTopOf="@+id/secure_login_ip_notice"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/secure_login_ip_notice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/deny_button"
         android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:paddingBottom="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/small_margin"
+        android:paddingBottom="@dimen/small_margin"
         android:text="@string/auth_new_login_ip_notice"
         android:textColor="@color/red_800"
         android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/deny_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/deny_button"
+        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/approve_button"
         android:layout_marginTop="@dimen/tiny_margin"
         android:layout_marginBottom="@dimen/small_margin"
+        android:text="@string/auth_new_login_deny_cta"
         android:textColor="@color/red_400"
-        style="@style/CtaButton.White"
-        android:text="@string/auth_new_login_deny_cta"/>
+        app:layout_constraintBottom_toTopOf="@+id/approve_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/approve_button"
+        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="1"
         android:layout_marginTop="@dimen/tiny_margin"
         android:layout_marginBottom="@dimen/small_margin"
-        style="@style/CtaButton.Blue"
-        android:text="@string/auth_new_login_approve_cta"/>
+        android:text="@string/auth_new_login_approve_cta"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
