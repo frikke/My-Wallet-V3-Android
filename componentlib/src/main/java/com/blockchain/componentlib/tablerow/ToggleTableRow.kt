@@ -13,21 +13,21 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun ToggleTableRow(
     onCheckedChange: (isChecked: Boolean) -> Unit,
-    title: String,
-    body: String? = null,
-    isChecked: Boolean = false
+    primaryText: String,
+    secondaryText: String? = null,
+    isChecked: Boolean = false,
 ) {
     TableRow(
         content = {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = title,
+                    text = primaryText,
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title
                 )
-                if (body != null) {
+                if (secondaryText != null) {
                     Text(
-                        text = body,
+                        text = secondaryText,
                         style = AppTheme.typography.paragraph1,
                         color = AppTheme.colors.body
                     )
@@ -55,7 +55,7 @@ fun ToggleTableRow_SingleLine_NotChecked() {
         Surface {
             ToggleTableRow(
                 onCheckedChange = {},
-                title = "Enable this ?"
+                primaryText = "Enable this ?"
             )
         }
     }
@@ -68,8 +68,8 @@ fun ToggleTableRow_NotChecked() {
         Surface {
             ToggleTableRow(
                 onCheckedChange = {},
-                title = "Enable this ?",
-                body = "Some additional info"
+                primaryText = "Enable this ?",
+                secondaryText = "Some additional info"
             )
         }
     }
@@ -82,8 +82,8 @@ fun ToggleTableRow_Checked() {
         Surface {
             ToggleTableRow(
                 onCheckedChange = {},
-                title = "Enable this ?",
-                body = "Some additional info",
+                primaryText = "Enable this ?",
+                secondaryText = "Some additional info",
                 isChecked = true
             )
         }
@@ -97,7 +97,7 @@ fun ToggleTableRow_SingleLine_NotChecked_Dark() {
         Surface {
             ToggleTableRow(
                 onCheckedChange = {},
-                title = "Enable this ?"
+                primaryText = "Enable this ?"
             )
         }
     }
@@ -110,8 +110,8 @@ fun ToggleTableRow_NotChecked_Dark() {
         Surface {
             ToggleTableRow(
                 onCheckedChange = {},
-                title = "Enable this ?",
-                body = "Some additional info"
+                primaryText = "Enable this ?",
+                secondaryText = "Some additional info"
             )
         }
     }
@@ -124,8 +124,8 @@ fun ToggleTableRow_Checked_Dark() {
         Surface {
             ToggleTableRow(
                 onCheckedChange = {},
-                title = "Enable this ?",
-                body = "Some additional info",
+                primaryText = "Enable this ?",
+                secondaryText = "Some additional info",
                 isChecked = true
             )
         }

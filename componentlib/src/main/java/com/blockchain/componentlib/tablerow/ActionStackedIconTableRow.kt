@@ -19,7 +19,7 @@ fun ActionStackedIconTableRow(
     onClick: () -> Unit,
     iconTopUrl: String,
     iconBottomUrl: String,
-    secondaryText: String? = null
+    secondaryText: String? = null,
 ) {
     TableRow(
         contentStart = {

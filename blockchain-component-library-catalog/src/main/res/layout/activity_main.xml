@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Base"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/colors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Colors"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/typography"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Typography"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/spacing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Spacing"
+            android:textAllCaps="false" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Primatives"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tags"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/default_table_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Default Table Rows"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/action_table_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Action Table Rows"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/balance_table_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Balance Table Rows"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dividers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dividers"
+            android:textAllCaps="false" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Compositions"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Showkase"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/showkase_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Launch showkase"
+            android:textAllCaps="false" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</ScrollView>

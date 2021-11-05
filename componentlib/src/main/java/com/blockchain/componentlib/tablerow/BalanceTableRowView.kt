@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.buildAnnotatedString
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class BalanceTableRowView @JvmOverloads constructor(
     context: Context,
@@ -26,14 +28,18 @@ class BalanceTableRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        BalanceTableRow(
-            titleStart = titleStart,
-            titleEnd = titleEnd,
-            bodyStart = bodyStart,
-            bodyEnd = bodyEnd,
-            startIconUrl = startIconUrl,
-            tags = tags.orEmpty(),
-            onClick = onClick
-        )
+        AppTheme {
+            AppSurface {
+                BalanceTableRow(
+                    titleStart = titleStart,
+                    titleEnd = titleEnd,
+                    bodyStart = bodyStart,
+                    bodyEnd = bodyEnd,
+                    startIconUrl = startIconUrl,
+                    tags = tags.orEmpty(),
+                    onClick = onClick,
+                )
+            }
+        }
     }
 }

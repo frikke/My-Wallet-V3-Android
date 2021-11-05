@@ -18,7 +18,7 @@ fun DefaultStackedIconTableRow(
     secondaryText: String,
     iconTopUrl: String,
     iconBottomUrl: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     TableRow(
         content = {
@@ -60,7 +60,7 @@ fun DefaultStackedIconTableRow_Basic() {
                 secondaryText = "Secondary text",
                 iconTopUrl = "",
                 iconBottomUrl = "",
-                onClick = {}
+                onClick = {},
             )
         }
     }

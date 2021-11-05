@@ -17,7 +17,7 @@ fun TagsRow(
     Row(
         modifier = modifier.horizontalScroll(rememberScrollState())
     ) {
-        tags.forEach { tag ->
+        tags.forEachIndexed { index, tag ->
             when (tag.type) {
                 TagType.Default -> DefaultTag(text = tag.value)
                 TagType.InfoAlt -> InfoAltTag(text = tag.value)
@@ -25,7 +25,9 @@ fun TagsRow(
                 TagType.Warning -> WarningTag(text = tag.value)
                 TagType.Error -> ErrorTag(text = tag.value)
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            if (index != tags.lastIndex) {
+                Spacer(modifier = Modifier.width(8.dp))
+            }
         }
     }
 }

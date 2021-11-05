@@ -20,7 +20,7 @@ fun BalanceStackedIconTableRow(
     bodyEnd: AnnotatedString? = null,
     onClick: () -> Unit,
     iconTopUrl: String,
-    iconBottomUrl: String
+    iconBottomUrl: String,
 ) {
     TableRow(
         content = {

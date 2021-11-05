@@ -13,10 +13,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Walletandroidprivate">
         <activity
+            android:name=".abstract_compose_view.DividerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.BalanceTableRowActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ActionTableRowActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.DefaultTableRowActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.TagsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SpacingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.TypographyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ColorsActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Walletandroidprivate.NoActionBar">
+            android:theme="@style/Theme.Walletandroidprivate">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.tablerow
+package com.blockchain.componentlib.tag
 
 import android.content.Context
 import android.util.AttributeSet
@@ -10,29 +10,19 @@ import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
-class ActionStackedIconTableRowView @JvmOverloads constructor(
+class TagsRowView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var primaryText by mutableStateOf("")
-    var secondaryText by mutableStateOf(null as? String?)
-    var onClick by mutableStateOf({})
-    var iconTopUrl by mutableStateOf("")
-    var iconBottomUrl by mutableStateOf("")
+    var tags by mutableStateOf<List<TagViewState>>(emptyList())
 
     @Composable
     override fun Content() {
         AppTheme {
             AppSurface {
-                ActionStackedIconTableRow(
-                    primaryText = primaryText,
-                    secondaryText = secondaryText,
-                    onClick = onClick,
-                    iconTopUrl = iconTopUrl,
-                    iconBottomUrl = iconBottomUrl,
-                )
+                TagsRow(tags)
             }
         }
     }

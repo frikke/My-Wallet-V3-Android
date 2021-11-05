@@ -7,6 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class ToggleTableRowView @JvmOverloads constructor(
     context: Context,
@@ -14,19 +16,25 @@ class ToggleTableRowView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var title by mutableStateOf("")
+    var primaryText by mutableStateOf("")
+    var secondaryText by mutableStateOf("")
     var isChecked by mutableStateOf(false)
     var onCheckedChange by mutableStateOf({ isChecked: Boolean -> })
 
     @Composable
     override fun Content() {
-        ToggleTableRow(
-            title = title,
-            isChecked = isChecked,
-            onCheckedChange = { newCheckedState ->
-                isChecked = newCheckedState
-                onCheckedChange(newCheckedState)
+        AppTheme {
+            AppSurface {
+                ToggleTableRow(
+                    primaryText = primaryText,
+                    secondaryText = secondaryText,
+                    isChecked = isChecked,
+                    onCheckedChange = { newCheckedState ->
+                        isChecked = newCheckedState
+                        onCheckedChange(newCheckedState)
+                    }
+                )
             }
-        )
+        }
     }
 }

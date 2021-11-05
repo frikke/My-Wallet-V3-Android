@@ -87,7 +87,14 @@ data class AppTypography(
         fontFeatureSettings = "ss01, zero",
         letterSpacing = 0.1.sp,
         lineHeight = 18.sp
-    )
+    ),
+    val micro: TextStyle = TextStyle(
+        fontFamily = interSemiBold,
+        fontSize = 10.sp,
+        fontFeatureSettings = "ss01, zero",
+        letterSpacing = 0.1.sp,
+        lineHeight = 15.sp
+    ),
 )
 
 internal val LocalTypography = staticCompositionLocalOf { AppTypography() }

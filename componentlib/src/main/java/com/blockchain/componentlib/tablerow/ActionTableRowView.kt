@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class ActionTableRowView @JvmOverloads constructor(
     context: Context,
@@ -24,13 +26,17 @@ class ActionTableRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        ActionTableRow(
-            primaryText = primaryText,
-            secondaryText = secondaryText,
-            paragraphText = paragraphText,
-            onClick = onClick,
-            tags = tags,
-            startIconUrl = startIconUrl
-        )
+        AppTheme {
+            AppSurface {
+                ActionTableRow(
+                    primaryText = primaryText,
+                    secondaryText = secondaryText,
+                    paragraphText = paragraphText,
+                    onClick = onClick,
+                    tags = tags,
+                    startIconUrl = startIconUrl,
+                )
+            }
+        }
     }
 }

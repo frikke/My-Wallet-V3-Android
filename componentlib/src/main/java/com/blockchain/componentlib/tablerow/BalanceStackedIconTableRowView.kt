@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.buildAnnotatedString
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class BalanceStackedIconTableRowView @JvmOverloads constructor(
     context: Context,
@@ -27,14 +29,18 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        BalanceStackedIconTableRow(
-            titleStart = titleStart,
-            titleEnd = titleEnd,
-            bodyStart = bodyStart,
-            bodyEnd = bodyEnd,
-            onClick = onClick,
-            iconTopUrl = iconTopUrl,
-            iconBottomUrl = iconBottomUrl
-        )
+        AppTheme {
+            AppSurface {
+                BalanceStackedIconTableRow(
+                    titleStart = titleStart,
+                    titleEnd = titleEnd,
+                    bodyStart = bodyStart,
+                    bodyEnd = bodyEnd,
+                    onClick = onClick,
+                    iconTopUrl = iconTopUrl,
+                    iconBottomUrl = iconBottomUrl,
+                )
+            }
+        }
     }
 }

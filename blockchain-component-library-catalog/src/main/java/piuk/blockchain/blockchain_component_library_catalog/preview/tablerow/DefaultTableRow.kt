@@ -133,8 +133,8 @@ fun ToggleTableRowPreview() {
             var isChecked by remember { mutableStateOf(false) }
             ToggleTableRow(
                 onCheckedChange = { isChecked = it },
-                title = "Enable this ?",
-                body = "Some additional info",
+                primaryText = "Enable this ?",
+                secondaryText = "Some additional info",
                 isChecked = isChecked
             )
         }
