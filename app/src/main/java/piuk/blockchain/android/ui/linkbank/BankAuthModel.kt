@@ -152,6 +152,9 @@ class BankAuthModel(
                 BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankAlreadyLinked)
             )
             LinkedBankErrorState.UNKNOWN -> process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
+            LinkedBankErrorState.NOT_INFO_FOUND -> process(
+                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInfoNotFound)
+            )
             LinkedBankErrorState.ACCOUNT_TYPE_UNSUPPORTED -> process(
                 BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankAccountUnsupported)
             )
@@ -167,8 +170,14 @@ class BankAuthModel(
             LinkedBankErrorState.FAILURE -> process(
                 BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankFailure)
             )
+            LinkedBankErrorState.INTERNAL_FAILURE -> process(
+                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInternalFailure)
+            )
             LinkedBankErrorState.INVALID -> process(
                 BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInvalid)
+            )
+            LinkedBankErrorState.FRAUD -> process(
+                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankFraud)
             )
             LinkedBankErrorState.NONE -> {
                 // check the state is not a linking final state

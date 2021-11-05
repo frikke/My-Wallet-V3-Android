@@ -841,7 +841,7 @@ class BankAuthModelTest {
     }
 
     @Test
-    fun pollLinkStatus_blocked_unsupported_account() {
+    fun pollLinkStatus_not_info_account() {
         setupModelWithBankPartner()
 
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
@@ -852,7 +852,7 @@ class BankAuthModelTest {
             accountName = "name", bankName = "bankName",
             accountNumber = "123",
             state = LinkedBankState.BLOCKED,
-            errorStatus = LinkedBankErrorState.ACCOUNT_TYPE_UNSUPPORTED,
+            errorStatus = LinkedBankErrorState.NOT_INFO_FOUND,
             accountType = "",
             authorisationUrl = "url",
             sortCode = "123",
@@ -879,7 +879,97 @@ class BankAuthModelTest {
         test.assertValueAt(
             2,
             defaultState.copy(
-                errorState = ErrorState.LinkedBankAccountUnsupported,
+                errorState = ErrorState.LinkedBankInfoNotFound,
+                bankLinkingProcessState = BankLinkingProcessState.NONE
+            )
+        )
+    }
+
+    @Test
+    fun pollLinkStatus_fraud_account() {
+        setupModelWithBankPartner()
+
+        val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
+        val expectedBank = LinkedBank(
+            id = linkingBankId,
+            currency = "GBP",
+            partner = BankPartner.YAPILY,
+            accountName = "name", bankName = "bankName",
+            accountNumber = "123",
+            state = LinkedBankState.BLOCKED,
+            errorStatus = LinkedBankErrorState.FRAUD,
+            accountType = "",
+            authorisationUrl = "url",
+            sortCode = "123",
+            accountIban = "123",
+            bic = "123",
+            entity = "entity",
+            iconUrl = "iconUrl",
+            callbackPath = ""
+        )
+
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
+        )
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+        )
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                errorState = ErrorState.LinkedBankFraud,
+                bankLinkingProcessState = BankLinkingProcessState.NONE
+            )
+        )
+    }
+
+    @Test
+    fun pollLinkStatus_internal_failure_account() {
+        setupModelWithBankPartner()
+
+        val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
+        val expectedBank = LinkedBank(
+            id = linkingBankId,
+            currency = "GBP",
+            partner = BankPartner.YAPILY,
+            accountName = "name", bankName = "bankName",
+            accountNumber = "123",
+            state = LinkedBankState.BLOCKED,
+            errorStatus = LinkedBankErrorState.INTERNAL_FAILURE,
+            accountType = "",
+            authorisationUrl = "url",
+            sortCode = "123",
+            accountIban = "123",
+            bic = "123",
+            entity = "entity",
+            iconUrl = "iconUrl",
+            callbackPath = ""
+        )
+
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
+        )
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+        )
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                errorState = ErrorState.LinkedBankInternalFailure,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
         )

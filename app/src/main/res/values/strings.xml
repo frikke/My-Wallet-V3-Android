@@ -2066,21 +2066,33 @@
 
     <!-- Bank Linking Errors -->
     <string name="bank_linking_generic_error_title">Oops! Something went wrong</string>
-    <string name="bank_linking_is_this_your_bank">Is this your bank?</string>
     <string name="bank_linking_generic_error_subtitle">Please try linking your bank again. If this keeps happening please contact support.</string>
+    <string name="bank_linking_mismatched_title">Is this your bank account?</string>
+    <string name="bank_linking_mismatched_subtitle">We noticed the <b>names don’t match</b>. The bank you link must have a matching legal first &amp;  last name as your Blockchain.com Account.\n<annotation link="learn_more">Learn more →</annotation></string>
     <string name="bank_linking_timeout_error_title">Oops! It’s taking too long</string>
     <string name="bank_linking_timeout_error_subtitle">Linking your bank is taking longer than expected, please close this screen and check the status in Settings.</string>
-    <string name="bank_linking_already_linked_error_subtitle">We noticed <annotation font="bold">the names don’t match.</annotation> The bank you link must have a matching legal first &amp; last name as your Blockchain.com Account. <annotation link="yodlee_names_dont_match_learn_more">Learn more →</annotation></string>
-    <string name="bank_linking_checking_error_title">Please link a Checking Account.</string>
-    <string name="bank_linking_checking_error_subtitle">Your bank may charge you extra fees if you buy crypto without a checking account.</string>
-    <string name="bank_linking_success_title">Bank Linked!</string>
-    <string name="bank_linking_success_subtitle">Your %1$s account is now linked to your Blockchain.com Wallet.</string>
-    <string name="bank_linking_try_different_bank">Try a Different Bank</string>
-    <string name="bank_linking_try_different_account">Try a Different Account</string>
+    <string name="bank_linking_already_linked_error_title">This account is already linked.</string>
+    <string name="bank_linking_already_linked_error_subtitle">We noticed this account is already linked to your Blockchain account.</string>
+    <string name="bank_linking_account_ob_error_title">Please link a Current Account.</string>
+    <string name="bank_linking_account_ob_error_subtitle">Your bank may charge you extra fees if you buy crypto without a current account.</string>
+    <string name="bank_linking_account_ach_error_title">Please link a Checking Account.</string>
+    <string name="bank_linking_account_ach_error_subtitle">Your bank may charge you extra fees if you buy crypto without a checking account.</string>
+    <string name="bank_linking_invalid_error_subtitle">Your bank may charge you extra fees if you buy crypto without a %s account.</string>
     <string name="bank_linking_expired_title">Expired Account Access</string>
-    <string name="bank_linking_expired_subtitle">Please try linking your bank again. If this keeps happening, please contact support.</string>
+    <string name="bank_linking_try_again">Try again</string>
+    <string name="bank_linking_try_another_method">Try another method</string>
+    <string name="bank_linking_try_different_account">Try a Different Bank</string>
+    <string name="bank_linking_failed_ob_title">There was a problem linking your current account. Please try again.</string>
+    <string name="bank_linking_failed_ach_title">There was a problem linking your checking account. Please try again.</string>
+    <string name="bank_linking_failed_subtitle">Please try again or select a different payment method.</string>
+    <string name="bank_linking_success_title">Bank Linked!</string>
+    <string name="bank_linking_success_subtitle">Your %s account is now linked to your Blockchain.com Wallet.</string>
+    <string name="bank_linking_try_different_bank">Try a Different Bank</string>
+    <string name="bank_linking_expired_ach_title">We were unable to link your checking account. Please try again.</string>
+    <string name="bank_linking_expired_ob_title">We were unable to link your current account. Please try again.</string>
+    <string name="bank_linking_expired_subtitle">Please try connecting that bank account again or link any Visa or Mastercard</string>
     <string name="bank_linking_rejected_title">Connection Rejected</string>
-    <string name="bank_linking_rejected_subtitle">Please try linking your bank again and approve the connection. If this keeps happening, please contact support.</string>
+    <string name="bank_linking_rejected_subtitle">We believe you have declined linking your account. If this isn’t correct, please\n<annotation link="contact_support">contact support</annotation></string>
     <string name="bank_linking_invalid_title">Invalid bank</string>
     <string name="bank_linking_invalid_subtitle">You’ve tried to link an account which is not valid. Please check again or contact support.</string>
     <string name="bank_linking_failure_title">Failed Connection Request</string>

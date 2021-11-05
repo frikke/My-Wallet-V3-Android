@@ -279,10 +279,8 @@ class SimpleBuyInteractor(
     }
 
     fun linkNewBank(fiatCurrency: String): Single<SimpleBuyIntent.BankLinkProcessStarted> {
-        return custodialWalletManager.linkToABank(fiatCurrency).map {
-            SimpleBuyIntent.BankLinkProcessStarted(
-                it
-            )
+        return custodialWalletManager.linkToABank(fiatCurrency).map { linkBankTransfer ->
+            SimpleBuyIntent.BankLinkProcessStarted(linkBankTransfer)
         }.trackProgress(appUtil.activityIndicator)
     }
 

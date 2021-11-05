@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/link_bank_guideline"
-        app:srcCompat="@drawable/ic_blockchain_blue_circle" />
+        app:srcCompat="@drawable/ic_bank_details_big" />
 
     <ProgressBar
         android:id="@+id/link_bank_progress"
@@ -37,6 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintCircle="@+id/link_bank_icon"
         app:layout_constraintCircleAngle="45"
         app:layout_constraintCircleRadius="44dp"
@@ -93,41 +94,24 @@
         app:layout_constraintGuide_percent="0.8" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/link_bank_btn"
+        android:id="@+id/main_cta"
         style="@style/CtaButton.Blue"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/very_small_margin"
-        android:text="@string/common_continue"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/link_bank_cancel"
-        app:layout_constraintTop_toBottomOf="@id/link_bank_buttons_guide"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:visibility="gone" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/link_bank_retry"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/common_retry"
         android:visibility="gone"
-        android:layout_marginBottom="@dimen/medium_margin"
+        android:layout_marginBottom="@dimen/tiny_margin"
         app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintBottom_toTopOf="@id/link_bank_cancel"
-        app:layout_constraintTop_toBottomOf="@id/link_bank_buttons_guide"
+        app:layout_constraintBottom_toTopOf="@id/secondary_cta"
         tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/link_bank_cancel"
+        android:id="@+id/secondary_cta"
         style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/yodlee_linking_cancel"
         android:visibility="gone"
-        app:layout_constraintVertical_bias="1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/link_bank_btn"
-        app:layout_constraintVertical_chainStyle="packed"
         tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1393,12 +1393,15 @@ private fun String.toLinkingBankPartner(supportedBankPartners: List<BankPartner>
 private fun String.toLinkedBankErrorState(): LinkedBankErrorState =
     when (this) {
         LinkedBankTransferResponse.ERROR_ALREADY_LINKED -> LinkedBankErrorState.ACCOUNT_ALREADY_LINKED
-        LinkedBankTransferResponse.ERROR_UNSUPPORTED_ACCOUNT -> LinkedBankErrorState.ACCOUNT_TYPE_UNSUPPORTED
+        LinkedBankTransferResponse.ERROR_ACCOUNT_INFO_NOT_FOUND -> LinkedBankErrorState.NOT_INFO_FOUND
+        LinkedBankTransferResponse.ERROR_ACCOUNT_NOT_SUPPORTED -> LinkedBankErrorState.ACCOUNT_TYPE_UNSUPPORTED
         LinkedBankTransferResponse.ERROR_NAMES_MISMATCHED -> LinkedBankErrorState.NAMES_MISMATCHED
         LinkedBankTransferResponse.ERROR_ACCOUNT_EXPIRED -> LinkedBankErrorState.EXPIRED
         LinkedBankTransferResponse.ERROR_ACCOUNT_REJECTED -> LinkedBankErrorState.REJECTED
         LinkedBankTransferResponse.ERROR_ACCOUNT_FAILURE -> LinkedBankErrorState.FAILURE
-        LinkedBankTransferResponse.BANK_TRANSFER_ACCOUNT_INVALID -> LinkedBankErrorState.INVALID
+        LinkedBankTransferResponse.ERROR_ACCOUNT_INVALID -> LinkedBankErrorState.INVALID
+        LinkedBankTransferResponse.ERROR_ACCOUNT_FAILED_INTERNAL -> LinkedBankErrorState.INTERNAL_FAILURE
+        LinkedBankTransferResponse.ERROR_ACCOUNT_REJECTED_FRAUD -> LinkedBankErrorState.FRAUD
         else -> LinkedBankErrorState.UNKNOWN
     }
 
