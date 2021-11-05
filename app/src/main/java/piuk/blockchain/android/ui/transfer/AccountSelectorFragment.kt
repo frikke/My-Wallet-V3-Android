@@ -61,7 +61,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     fun initialiseAccountSelectorWithHeader(
         statusDecorator: StatusDecorator,
         onAccountSelected: (BlockchainAccount) -> Unit,
-        onExtraAccountInfoClicked: ((AccountLocks) -> Unit)? = null,
+        onExtraAccountInfoClicked: (AccountLocks) -> Unit = {},
         @StringRes title: Int,
         @StringRes label: Int,
         @DrawableRes icon: Int
@@ -70,7 +70,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
 
         with(binding.accountSelectorAccountList) {
             this.onAccountSelected = onAccountSelected
-            this.onLockItemSelected = onExtraAccountInfoClicked!!
+            this.onLockItemSelected = onExtraAccountInfoClicked
             this.activityIndicator = this@AccountSelectorFragment.activityIndicator
             initialise(
                 source = accounts(),

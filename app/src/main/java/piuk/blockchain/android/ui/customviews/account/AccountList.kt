@@ -79,9 +79,7 @@ class AccountList @JvmOverloads constructor(
 
     fun initialise(
         source: Single<List<BlockchainAccount>>,
-        status: StatusDecorator = {
-            DefaultCellDecorator()
-        },
+        status: StatusDecorator = { DefaultCellDecorator() },
         accountsLocks: Single<List<AccountLocks>> = Single.just(emptyList()),
         introView: IntroHeaderView? = null,
         shouldShowSelectionStatus: Boolean = false,
@@ -236,6 +234,7 @@ private class AccountsDelegateAdapter(
                     assetAction
                 )
             )
+
             addAdapterDelegate(
                 AccountLocksDelegate(
                     onLockItemSelected
