@@ -19,18 +19,6 @@ class SemanticColors(
     warning: Color,
     error: Color,
 
-    // The following are not defined in the design system yet
-    tagDefaultBackground: Color,
-    tagDefaultText: Color,
-    tagInfoAltBackground: Color,
-    tagInfoAltText: Color,
-    tagSuccessBackground: Color,
-    tagSuccessText: Color,
-    tagWarningBackground: Color,
-    tagWarningText: Color,
-    tagErrorBackground: Color,
-    tagErrorText: Color,
-
     isLight: Boolean
 ) {
 
@@ -59,27 +47,6 @@ class SemanticColors(
     var error by mutableStateOf(error)
         private set
 
-    var tagDefaultBackground by mutableStateOf(tagDefaultBackground)
-        private set
-    var tagDefaultText by mutableStateOf(tagDefaultText)
-        private set
-    var tagInfoAltBackground by mutableStateOf(tagInfoAltBackground)
-        private set
-    var tagInfoAltText by mutableStateOf(tagInfoAltText)
-        private set
-    var tagSuccessBackground by mutableStateOf(tagSuccessBackground)
-        private set
-    var tagSuccessText by mutableStateOf(tagSuccessText)
-        private set
-    var tagWarningBackground by mutableStateOf(tagWarningBackground)
-        private set
-    var tagWarningText by mutableStateOf(tagWarningText)
-        private set
-    var tagErrorBackground by mutableStateOf(tagErrorBackground)
-        private set
-    var tagErrorText by mutableStateOf(tagErrorText)
-        private set
-
     var isLight by mutableStateOf(isLight)
         private set
 
@@ -97,17 +64,6 @@ class SemanticColors(
         warning: Color = this.warning,
         error: Color = this.error,
 
-        tagDefaultBackground: Color = this.tagDefaultBackground,
-        tagDefaultText: Color = this.tagDefaultText,
-        tagInfoAltBackground: Color = this.tagInfoAltBackground,
-        tagInfoAltText: Color = this.tagInfoAltText,
-        tagSuccessBackground: Color = this.tagSuccessBackground,
-        tagSuccessText: Color = this.tagSuccessText,
-        tagWarningBackground: Color = this.tagWarningBackground,
-        tagWarningText: Color = this.tagWarningText,
-        tagErrorBackground: Color = this.tagErrorBackground,
-        tagErrorText: Color = this.tagErrorText,
-
         isLight: Boolean = this.isLight
     ) = SemanticColors(
         title = title,
@@ -122,17 +78,6 @@ class SemanticColors(
         success = success,
         warning = warning,
         error = error,
-
-        tagDefaultBackground = tagDefaultBackground,
-        tagDefaultText = tagDefaultText,
-        tagInfoAltBackground = tagInfoAltBackground,
-        tagInfoAltText = tagInfoAltText,
-        tagSuccessBackground = tagSuccessBackground,
-        tagSuccessText = tagSuccessText,
-        tagWarningBackground = tagWarningBackground,
-        tagWarningText = tagWarningText,
-        tagErrorBackground = tagErrorBackground,
-        tagErrorText = tagErrorText,
 
         isLight = isLight
     )
@@ -150,17 +95,6 @@ class SemanticColors(
         success = colors.success
         warning = colors.warning
         error = colors.error
-
-        tagDefaultBackground = colors.tagDefaultBackground
-        tagDefaultText = colors.tagDefaultText
-        tagInfoAltBackground = colors.tagInfoAltBackground
-        tagInfoAltText = colors.tagInfoAltText
-        tagSuccessBackground = colors.tagSuccessBackground
-        tagSuccessText = colors.tagSuccessText
-        tagWarningBackground = colors.tagWarningBackground
-        tagWarningText = colors.tagWarningText
-        tagErrorBackground = colors.tagErrorBackground
-        tagErrorText = colors.tagErrorText
 
         isLight = colors.isLight
     }
