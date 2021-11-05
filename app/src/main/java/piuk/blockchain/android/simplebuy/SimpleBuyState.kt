@@ -2,16 +2,13 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
-import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.LinkBankTransfer
@@ -38,7 +35,6 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
  */
 data class SimpleBuyState constructor(
     val id: String? = null,
-    val supportedPairsAndLimits: List<BuySellPair>? = null,
     val fiatCurrency: String = "USD",
     override val amount: FiatValue = FiatValue.zero(fiatCurrency),
     val selectedCryptoAsset: AssetInfo? = null,
@@ -72,7 +68,7 @@ data class SimpleBuyState constructor(
     @Transient val shouldShowUnlockHigherFunds: Boolean = false,
     @Transient val linkBankTransfer: LinkBankTransfer? = null,
     @Transient val paymentPending: Boolean = false,
-    @Transient val transferLimits: TransferLimits? = null,
+    @Transient val transferLimits: TxLimits = TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency)),
     // we use this flag to avoid navigating back and forth, reset after navigating
     @Transient val confirmationActionRequested: Boolean = false,
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null
@@ -102,39 +98,21 @@ data class SimpleBuyState constructor(
     }
 
     @delegate:Transient
-    private val maxLimit: Money by unsafeLazy {
-        val maxPaymentMethodLimit = selectedPaymentMethodDetails.maxLimit()
-        val maxUserLimit = transferLimits?.maxLimit
-
-        if (maxPaymentMethodLimit != null && maxUserLimit != null)
-            Money.min(maxPaymentMethodLimit, maxUserLimit)
-        else
-            maxPaymentMethodLimit ?: maxUserLimit ?: FiatValue.zero(fiatCurrency)
+    val selectedPaymentMethodLimits: TxLimits by unsafeLazy {
+        selectedPaymentMethodDetails?.let {
+            TxLimits.fromAmounts(min = it.limits.min, max = it.limits.max)
+        } ?: TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency))
     }
 
     override val limits: TxLimits
-        get() = TxLimits(
-            min = TxLimit.Limited(minLimit),
-            max = TxLimit.Limited(maxLimit)
-        )
-
-    @delegate:Transient
-    private val minLimit: Money by unsafeLazy {
-        val minPaymentMethodLimit = selectedPaymentMethodDetails.minLimit()
-        val minUserLimit = transferLimits?.minLimit
-
-        if (minPaymentMethodLimit != null && minUserLimit != null)
-            Money.max(minPaymentMethodLimit, minUserLimit)
-        else
-            minPaymentMethodLimit ?: minUserLimit ?: FiatValue.zero(fiatCurrency)
-    }
+        get() = selectedPaymentMethodLimits.combineWith(transferLimits)
 
     fun maxCryptoAmount(exchangeRates: ExchangeRatesDataManager): Money? =
         selectedCryptoAsset?.let {
             exchangeRates.getLastFiatToCryptoRate(
                 sourceFiat = fiatCurrency,
                 targetCrypto = selectedCryptoAsset
-            ).convert(maxLimit)
+            ).convert(limits.maxAmount)
         }
 
     fun minCryptoAmount(exchangeRates: ExchangeRatesDataManager): Money? =
@@ -142,7 +120,7 @@ data class SimpleBuyState constructor(
             exchangeRates.getLastFiatToCryptoRate(
                 sourceFiat = fiatCurrency,
                 targetCrypto = selectedCryptoAsset
-            ).convert(minLimit)
+            ).convert(limits.minAmount)
         }
 
     fun isSelectedPaymentMethodRecurringBuyEligible(): Boolean =
@@ -159,16 +137,6 @@ data class SimpleBuyState constructor(
                 eligibleAndNextPaymentRecurringBuy.firstOrNull { it.frequency == recurringBuyFrequency } ?: return false
             eligible.eligibleMethods.contains(paymentMethodType)
         } ?: false
-
-    private fun PaymentMethod?.maxLimit(): Money? = this?.limits?.max
-    private fun PaymentMethod?.minLimit(): Money? = this?.limits?.min
-
-    @delegate:Transient
-    val isAmountValid: Boolean by unsafeLazy {
-        order.amount?.let {
-            it <= maxLimit && it >= minLimit
-        } ?: false
-    }
 
     fun shouldLaunchExternalFlow(): Boolean =
         authorisePaymentUrl != null && linkedBank != null && id != null
@@ -211,7 +179,6 @@ enum class FlowScreen {
 
 sealed class ErrorState : Serializable {
     object GenericError : ErrorState()
-    object NoAvailableCurrenciesToTrade : ErrorState()
     object BankLinkingUpdateFailed : ErrorState()
     object BankLinkingFailed : ErrorState()
     object BankLinkingTimeout : ErrorState()

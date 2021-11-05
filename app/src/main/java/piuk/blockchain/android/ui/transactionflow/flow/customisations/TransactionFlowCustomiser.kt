@@ -638,6 +638,8 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.UNKNOWN_ERROR -> resources.getString(R.string.send_error_tx_option_invalid)
             TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED ->
                 resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.displayTicker)
+            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
+            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> null
         }
     }
 
@@ -686,6 +688,8 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.UNKNOWN_ERROR -> resources.getString(R.string.send_error_tx_option_invalid)
             TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED ->
                 resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.displayTicker)
+            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
+            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> ""
         }
     }
 
@@ -1035,21 +1039,18 @@ fun Money.toEnteredCurrency(
     input: CurrencyType,
     exchangeRate: ExchangeRate,
     roundingMode: RoundingMode
-): String {
-    if (input.isSameType(this)) {
-        return toStringWithSymbol()
+): String =
+    when {
+        input.isSameType(this) -> toStringWithSymbol()
+        input.isFiat() && this is CryptoValue -> {
+            val cryptoToFiatRate = exchangeRate as ExchangeRate.CryptoToFiat
+            FiatValue.fromMajor(
+                cryptoToFiatRate.to,
+                cryptoToFiatRate.convert(this, round = false).toBigDecimal().setScale(
+                    Currency.getInstance(exchangeRate.to).defaultFractionDigits, roundingMode
+                )
+            ).toStringWithSymbol()
+        }
+        input.isCrypto() && this is FiatValue -> exchangeRate.inverse().convert(this).toStringWithSymbol()
+        else -> throw IllegalStateException("Not valid currency")
     }
-    if (input.isFiat() && this is CryptoValue) {
-        val cryptoToFiatRate = exchangeRate as ExchangeRate.CryptoToFiat
-        return FiatValue.fromMajor(
-            cryptoToFiatRate.to,
-            cryptoToFiatRate.convert(this, round = false).toBigDecimal().setScale(
-                Currency.getInstance(exchangeRate.to).defaultFractionDigits, roundingMode
-            )
-        ).toStringWithSymbol()
-    }
-    if (input.isCrypto() && this is FiatValue) {
-        return exchangeRate.inverse().convert(this).toStringWithSymbol()
-    }
-    throw IllegalStateException("Not valid currency")
-}

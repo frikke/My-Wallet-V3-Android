@@ -3,11 +3,13 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.BuySellOrder
-import com.blockchain.nabu.datamanagers.BuySellPairs
 import com.blockchain.nabu.datamanagers.CardToBeActivated
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
@@ -18,7 +20,6 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
-import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
@@ -36,10 +37,12 @@ import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.BankLinkingPrefs
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.TimeUnit
@@ -57,6 +60,7 @@ import piuk.blockchain.android.util.trackProgress
 class SimpleBuyInteractor(
     private val tierService: TierService,
     private val custodialWalletManager: CustodialWalletManager,
+    private val limitsDataManager: LimitsDataManager,
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val appUtil: AppUtil,
     private val analytics: Analytics,
@@ -68,19 +72,40 @@ class SimpleBuyInteractor(
 ) {
 
     // ignore limits when user is in tier 0
-    fun fetchBuyLimitsAndSupportedCryptoCurrencies(
-        targetCurrency: String
-    ): Single<Pair<BuySellPairs, TransferLimits?>> =
-        custodialWalletManager.getSupportedBuySellCryptoCurrencies(targetCurrency).zipWith(
-            tierService.tiers()
-        ).flatMap { (pairs, tier) ->
+    fun fetchBuyLimits(
+        fiat: String,
+        asset: AssetInfo,
+        paymentMethodType: PaymentMethodType
+    ): Maybe<TxLimits> =
+        tierService.tiers().flatMapMaybe { tier ->
             if (tier.isInInitialState()) {
-                Single.just(pairs to null)
-            } else
-                custodialWalletManager.getProductTransferLimits(targetCurrency, product = Product.BUY).map {
-                    pairs to it
-                }
+                Maybe.empty()
+            } else fetchLimits(
+                sourceCurrency = fiat, targetCurrency = asset.networkTicker, paymentMethodType = paymentMethodType
+            ).toMaybe()
         }.trackProgress(appUtil.activityIndicator)
+
+    private fun fetchLimits(
+        targetCurrency: String,
+        sourceCurrency: String,
+        paymentMethodType: PaymentMethodType
+    ): Single<TxLimits> {
+        return limitsDataManager.getLimits(
+            outputCurrency = sourceCurrency,
+            sourceCurrency = sourceCurrency,
+            targetCurrency = targetCurrency,
+            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = if (paymentMethodType == PaymentMethodType.FUNDS) {
+                AssetCategory.CUSTODIAL
+            } else {
+                AssetCategory.NON_CUSTODIAL
+            },
+            legacyLimits = custodialWalletManager.getProductTransferLimits(
+                currency = sourceCurrency,
+                product = Product.BUY
+            ).map { it as LegacyLimits }
+        )
+    }
 
     fun fetchSupportedFiatCurrencies(): Single<SimpleBuyIntent.SupportedCurrenciesUpdated> =
         custodialWalletManager.getSupportedFiatCurrencies()
@@ -298,33 +323,23 @@ class SimpleBuyInteractor(
                 SimpleBuyIntent.ExchangePriceWithDeltaUpdated(exchangePriceWithDelta = exchangePriceWithDelta)
             }
 
-    fun eligiblePaymentMethods(fiatCurrency: String, preselectedId: String?):
-        Single<SimpleBuyIntent.PaymentMethodsUpdated> =
-        tierService.tiers().zipWith(
-            custodialWalletManager.isSimplifiedDueDiligenceEligible().onErrorReturn { false }
-                .doOnSuccess {
-                    if (it) {
-                        analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE)
+    fun eligiblePaymentMethods(fiatCurrency: String):
+        Single<List<PaymentMethod>> =
+        tierService.tiers()
+            .zipWith(
+                custodialWalletManager.isSimplifiedDueDiligenceEligible().onErrorReturn { false }
+                    .doOnSuccess {
+                        if (it) {
+                            analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE)
+                        }
                     }
-                }
-        )
+            )
             .flatMap { (tier, sddEligible) ->
                 custodialWalletManager.fetchSuggestedPaymentMethod(
                     fiatCurrency = fiatCurrency,
                     fetchSddLimits = sddEligible && tier.isInInitialState(),
                     onlyEligible = tier.isInitialisedFor(KycTierLevel.GOLD)
-                ).map { paymentMethods ->
-                    SimpleBuyIntent.PaymentMethodsUpdated(
-                        availablePaymentMethods = paymentMethods,
-                        canLinkBank = paymentMethods.filterIsInstance<PaymentMethod.UndefinedBankTransfer>()
-                            .firstOrNull()?.isEligible ?: false,
-                        canAddCard = paymentMethods.filterIsInstance<PaymentMethod.UndefinedCard>()
-                            .firstOrNull()?.isEligible ?: false,
-                        canLinkFunds = paymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>()
-                            .firstOrNull()?.isEligible ?: false,
-                        preselectedId = preselectedId
-                    )
-                }
+                )
             }
 
     // attributes are null in case of bank

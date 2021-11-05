@@ -109,7 +109,6 @@ class SimpleBuyCryptoFragment :
 
     override fun onResume() {
         super.onResume()
-        model.process(SimpleBuyIntent.FetchBuyLimits(currencyPrefs.selectedFiatCurrency, asset))
         model.process(SimpleBuyIntent.UpdateExchangeRate(currencyPrefs.selectedFiatCurrency, asset))
     }
 
@@ -120,6 +119,7 @@ class SimpleBuyCryptoFragment :
         activity.setupToolbar(getString(R.string.tx_title_buy, asset.displayTicker))
 
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
+        model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, currencyPrefs.selectedFiatCurrency))
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
                 currencyPrefs.selectedFiatCurrency,
@@ -343,7 +343,7 @@ class SimpleBuyCryptoFragment :
 
     private fun handleNewPaymentMethodAdding(state: SimpleBuyState) {
         require(state.newPaymentMethodToBeAdded is UndefinedPaymentMethod)
-        addPaymentMethod(state.newPaymentMethodToBeAdded.paymentMethodType, state.fiatCurrency)
+        addPaymentMethod(state.newPaymentMethodToBeAdded.type, state.fiatCurrency)
         model.process(SimpleBuyIntent.AddNewPaymentMethodHandled)
         model.process(SimpleBuyIntent.SelectedPaymentMethodUpdate(state.newPaymentMethodToBeAdded))
     }
@@ -402,7 +402,7 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun canContinue(state: SimpleBuyState) =
-        state.isAmountValid && state.selectedPaymentMethod != null && !state.isLoading
+        state.errorState == TransactionErrorState.NONE && state.selectedPaymentMethod != null && !state.isLoading
 
     private fun renderDefinedPaymentMethod(state: SimpleBuyState, selectedPaymentMethod: PaymentMethod) {
         renderRecurringBuy(state)
@@ -684,6 +684,12 @@ class SimpleBuyCryptoFragment :
             )
             TransactionErrorState.OVER_SILVER_TIER_LIMIT,
             TransactionErrorState.OVER_GOLD_TIER_LIMIT -> resources.getString(
+                R.string.over_your_limit
+            )
+            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> resources.getString(
+                R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol()
+            )
+            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> resources.getString(
                 R.string.maximum_with_value, state.limits.maxAmount.toStringWithSymbol()
             )
             else -> resources.getString(R.string.empty)

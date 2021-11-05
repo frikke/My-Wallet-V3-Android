@@ -4,12 +4,8 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
-import com.blockchain.nabu.datamanagers.BuySellLimits
 import com.blockchain.nabu.datamanagers.BuySellOrder
-import com.blockchain.nabu.datamanagers.BuySellPair
-import com.blockchain.nabu.datamanagers.BuySellPairs
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
@@ -97,64 +93,6 @@ class SimpleBuyModelTest {
         },
         currencyPrefs = mock()
     )
-
-    @Ignore("Fails on CI, works locally. Re-enable ASAP")
-    @Test
-    fun `interactor fetched limits and pairs should be applied to state`() {
-        whenever(interactor.fetchBuyLimitsAndSupportedCryptoCurrencies("USD"))
-            .thenReturn(
-                Single.just(
-                    BuySellPairs(
-                        listOf(
-                            BuySellPair(
-                                cryptoCurrency = CryptoCurrency.BTC,
-                                fiatCurrency = "USD",
-                                buyLimits = BuySellLimits(100, 5024558),
-                                sellLimits = BuySellLimits(100, 5024558)
-                            ),
-                            BuySellPair(
-                                cryptoCurrency = CryptoCurrency.BTC,
-                                fiatCurrency = "EUR",
-                                buyLimits = BuySellLimits(1006, 10000),
-                                sellLimits = BuySellLimits(100, 5024558)
-                            ),
-                            BuySellPair(
-                                cryptoCurrency = CryptoCurrency.ETHER,
-                                fiatCurrency = "EUR",
-                                buyLimits = BuySellLimits(1005, 10000),
-                                sellLimits = BuySellLimits(100, 5024558)
-                            ),
-                            BuySellPair(
-                                cryptoCurrency = CryptoCurrency.BCH,
-                                fiatCurrency = "EUR",
-                                buyLimits = BuySellLimits(1001, 10000),
-                                sellLimits = BuySellLimits(100, 5024558)
-                            )
-                        )
-                    ) to TransferLimits("USD")
-                )
-            )
-
-        val expectedState = defaultState.copy(
-            supportedPairsAndLimits = listOf(
-                BuySellPair(
-                    cryptoCurrency = CryptoCurrency.BTC,
-                    fiatCurrency = "USD",
-                    BuySellLimits(min = 100, max = 5024558),
-                    sellLimits = BuySellLimits(100, 5024558)
-                )
-            ),
-            fiatCurrency = "USD",
-            transferLimits = TransferLimits("USD")
-        )
-
-        model.process(SimpleBuyIntent.FetchBuyLimits("USD", CryptoCurrency.BTC))
-        model.state
-            .test()
-            .awaitCount(2)
-            .assertValueAt(0) { it == defaultState }
-            .assertValueAt(1) { it == expectedState }
-    }
 
     @Test
     fun `cancel order should make the order to cancel if interactor doesnt return an error`() {
@@ -325,68 +263,11 @@ class SimpleBuyModelTest {
     }
 
     @Test
-    fun `predefined should be filtered properly based on the buy limits`() {
-        whenever(interactor.fetchBuyLimitsAndSupportedCryptoCurrencies("USD"))
-            .thenReturn(
-                Single.just(
-                    BuySellPairs(
-                        listOf(
-                            BuySellPair(
-                                cryptoCurrency = CryptoCurrency.BTC,
-                                fiatCurrency = "USD",
-                                buyLimits = BuySellLimits(100, 3000),
-                                sellLimits = BuySellLimits(100, 5024558)
-                            ),
-                            BuySellPair(
-                                cryptoCurrency = CryptoCurrency.BTC,
-                                fiatCurrency = "EUR",
-                                buyLimits = BuySellLimits(1006, 10000),
-                                sellLimits = BuySellLimits(100, 5024558)
-                            ),
-                            BuySellPair(
-                                cryptoCurrency = CryptoCurrency.ETHER,
-                                fiatCurrency = "EUR",
-                                buyLimits = BuySellLimits(1005, 10000),
-                                sellLimits = BuySellLimits(100, 5024558)
-                            ),
-                            BuySellPair(
-                                cryptoCurrency = CryptoCurrency.BCH,
-                                fiatCurrency = "EUR",
-                                buyLimits = BuySellLimits(1001, 10000),
-                                sellLimits = BuySellLimits(100, 5024558)
-                            )
-                        )
-                    ) to TransferLimits("USD")
-                )
-            )
-
-        val expectedState = defaultState.copy(
-            supportedPairsAndLimits = listOf(
-                BuySellPair(
-                    cryptoCurrency = CryptoCurrency.BTC,
-                    fiatCurrency = "USD",
-                    buyLimits = BuySellLimits(100, 3000),
-                    sellLimits = BuySellLimits(100, 5024558)
-                )
-            ),
-            selectedCryptoAsset = CryptoCurrency.BTC,
-            transferLimits = TransferLimits("USD")
-        )
-
-        model.process(SimpleBuyIntent.FetchBuyLimits("USD", CryptoCurrency.BTC))
-        model.state
-            .test()
-            .awaitCount(2)
-            .assertValueAt(0) { it == defaultState }
-            .assertValueAt(1) { it == expectedState }
-    }
-
-    @Test
     fun `WHEN eligiblePaymentMethods and getRecurringBuyEligibility success THEN observe state`() {
-        val paymentMethodsUpdated: SimpleBuyIntent.PaymentMethodsUpdated = mock()
+
         val eligibleAndNextPaymentDate: EligibleAndNextPaymentRecurringBuy = mock()
-        whenever(interactor.eligiblePaymentMethods("USD", "123-321"))
-            .thenReturn(Single.just(paymentMethodsUpdated))
+        whenever(interactor.eligiblePaymentMethods("USD"))
+            .thenReturn(Single.just(emptyList()))
 
         val eligibleNextPaymentMethodType: EligibleAndNextPaymentRecurringBuy = mock()
         whenever(getEligibilityAndNextPaymentDateUseCase(Unit))
@@ -417,7 +298,7 @@ class SimpleBuyModelTest {
 
     @Test
     fun `WHEN eligiblePaymentMethods fails THEN observe state`() {
-        whenever(interactor.eligiblePaymentMethods("USD", "123-321"))
+        whenever(interactor.eligiblePaymentMethods("USD"))
             .thenReturn(Single.error(Throwable()))
 
         verifyNoMoreInteractions(interactor)
@@ -445,7 +326,7 @@ class SimpleBuyModelTest {
 
     @Test
     fun `WHEN eligiblePaymentMethods success and getRecurringBuyEligibility fails THEN observe state`() {
-        whenever(interactor.eligiblePaymentMethods("USD", "123-321"))
+        whenever(interactor.eligiblePaymentMethods("USD"))
             .thenReturn(Single.just(mock()))
 
         whenever(getEligibilityAndNextPaymentDateUseCase(Unit))

@@ -8,7 +8,7 @@ import info.blockchain.balance.Money
 
 interface TransactionFlowStateInfo {
     val errorState: TransactionErrorState
-    val limits: TxLimits?
+    val limits: TxLimits
     val action: AssetAction
     val amount: Money
     val fiatRate: ExchangeRate?

@@ -195,14 +195,15 @@ class TradingToOnChainTxEngine(
     private fun aboveTierLimit(): Completable {
         return userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).onErrorReturnItem(false)
             .flatMapCompletable { gold ->
-                if (gold)
+                if (gold) {
                     Completable.error(
                         TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT)
                     )
-                else
+                } else {
                     Completable.error(
                         TxValidationFailure(ValidationState.OVER_SILVER_TIER_LIMIT)
                     )
+                }
             }
     }
 

@@ -2,6 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Feature
@@ -68,20 +69,47 @@ class SimpleBuyModel(
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
             is SimpleBuyIntent.FetchBuyLimits ->
-                interactor.fetchBuyLimitsAndSupportedCryptoCurrencies(intent.fiatCurrency)
-                    .subscribeBy(
-                        onSuccess = { (pairs, transferLimits) ->
-                            process(
-                                SimpleBuyIntent.UpdatedBuyLimitsAndSupportedCryptoCurrencies(
-                                    pairs,
-                                    intent.asset,
-                                    transferLimits
-                                )
+                interactor.fetchBuyLimits(
+                    fiat = intent.fiatCurrency,
+                    asset = intent.asset,
+                    paymentMethodType = intent.paymentMethodType
+                ).subscribeBy(
+                    onSuccess = { limits ->
+                        process(
+                            SimpleBuyIntent.UpdatedBuyLimits(
+                                intent.asset,
+                                limits
                             )
-                            process(SimpleBuyIntent.NewCryptoCurrencySelected(intent.asset))
-                        },
-                        onError = { process(SimpleBuyIntent.ErrorIntent()) }
-                    )
+                        )
+                    },
+                    onError = { process(SimpleBuyIntent.ErrorIntent()) }
+                )
+            is SimpleBuyIntent.UpdatedBuyLimits -> validateAmount(
+                balance = previousState.availableBalance,
+                amount = previousState.amount,
+                buyLimits = intent.limits,
+                paymentMethodLimits = previousState.selectedPaymentMethodLimits
+            ).subscribeBy(
+                onSuccess = {
+                    process(SimpleBuyIntent.UpdateErrorState(it))
+                },
+                onError = {
+                    process(SimpleBuyIntent.ErrorIntent())
+                }
+            )
+            is SimpleBuyIntent.ValidateAmount -> validateAmount(
+                balance = previousState.availableBalance,
+                amount = previousState.amount,
+                buyLimits = previousState.transferLimits,
+                paymentMethodLimits = previousState.selectedPaymentMethodLimits
+            ).subscribeBy(
+                onSuccess = {
+                    process(SimpleBuyIntent.UpdateErrorState(it))
+                },
+                onError = {
+                    process(SimpleBuyIntent.ErrorIntent())
+                }
+            )
             is SimpleBuyIntent.UpdateExchangeRate -> interactor.updateExchangeRate(intent.fiatCurrency, intent.asset)
                 .subscribeBy(
                     onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },
@@ -158,21 +186,16 @@ class SimpleBuyModel(
                     }
                 )
             }
-            is SimpleBuyIntent.NewCryptoCurrencySelected -> interactor.exchangeRate(intent.asset)
-                .subscribeBy(
-                    onSuccess = { process(it) },
-                    onError = { }
-                )
+
             is SimpleBuyIntent.FetchWithdrawLockTime -> {
                 require(previousState.selectedPaymentMethod != null)
                 interactor.fetchWithdrawLockTime(
                     previousState.selectedPaymentMethod.paymentMethodType,
                     previousState.fiatCurrency
+                ).subscribeBy(
+                    onSuccess = { process(it) },
+                    onError = { }
                 )
-                    .subscribeBy(
-                        onSuccess = { process(it) },
-                        onError = { }
-                    )
             }
             is SimpleBuyIntent.BuyButtonClicked -> interactor.checkTierLevel()
                 .subscribeBy(
@@ -181,26 +204,59 @@ class SimpleBuyModel(
                 )
 
             is SimpleBuyIntent.FetchPaymentDetails ->
-                processGetPaymentMethod(intent.fiatCurrency, intent.selectedPaymentMethodId)
-
+                processGetPaymentMethod(
+                    fiatCurrency = intent.fiatCurrency,
+                    preselectedId = intent.selectedPaymentMethodId,
+                    previousSelectedId = previousState.selectedPaymentMethod?.id
+                )
             is SimpleBuyIntent.FetchSuggestedPaymentMethod ->
-                processGetPaymentMethod(intent.fiatCurrency, intent.selectedPaymentMethodId)
+                processGetPaymentMethod(
+                    fiatCurrency = intent.fiatCurrency,
+                    preselectedId = intent.selectedPaymentMethodId,
+                    previousSelectedId = previousState.id
+                )
 
             is SimpleBuyIntent.PaymentMethodChangeRequested -> {
                 validateAmountAndUpdatePaymentMethod(intent.paymentMethod, previousState)
             }
+            is SimpleBuyIntent.PaymentMethodsUpdated -> {
+                val asset = previousState.selectedCryptoAsset
+                check(asset != null)
+                intent.selectedPaymentMethod?.paymentMethodType?.let {
+                    interactor.fetchBuyLimits(
+                        fiat = previousState.fiatCurrency,
+                        asset = asset,
+                        paymentMethodType = it
+                    ).subscribeBy(
+                        onError = {
+                            process(SimpleBuyIntent.ErrorIntent())
+                        },
+                        onSuccess = { limits ->
+                            process(
+                                SimpleBuyIntent.UpdatedBuyLimits(
+                                    asset,
+                                    limits
+                                )
+                            )
+                        }
+                    )
+                }
+            }
             is SimpleBuyIntent.MakePayment ->
                 interactor.fetchOrder(intent.orderId)
-                    .subscribeBy({
-                        process(SimpleBuyIntent.ErrorIntent())
-                    }, {
-                        process(SimpleBuyIntent.OrderPriceUpdated(it.price))
-                        if (it.attributes != null) {
-                            handleOrderAttrs(it)
-                        } else {
-                            pollForOrderStatus()
+                    .subscribeBy(
+                        onError = {
+                            process(SimpleBuyIntent.ErrorIntent())
+                        },
+                        onSuccess = {
+                            process(SimpleBuyIntent.OrderPriceUpdated(it.price))
+                            if (it.attributes != null) {
+                                handleOrderAttrs(it)
+                            } else {
+                                pollForOrderStatus()
+                            }
                         }
-                    })
+                    )
             is SimpleBuyIntent.GetAuthorisationUrl ->
                 interactor.pollForAuthorisationUrl(intent.orderId)
                     .subscribeBy(
@@ -224,11 +280,18 @@ class SimpleBuyModel(
                         }
                     )
             is SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible -> interactor.eligiblePaymentMethods(
-                intent.fiatCurrency, null
+                intent.fiatCurrency
             ).subscribeBy(
                 onSuccess = {
-                    process(it)
-                    it.availablePaymentMethods.firstOrNull { paymentMethod -> paymentMethod.isEligible }
+                    process(
+                        updateSelectedAndAvailablePaymentMethodMethodsIntent(
+                            previousSelectedId = previousState.selectedPaymentMethod?.id,
+                            availablePaymentMethods = it,
+                            preselectedId = null
+                        )
+                    )
+
+                    it.firstOrNull { paymentMethod -> paymentMethod.isEligible }
                         ?.let { paymentMethod ->
                             process(SimpleBuyIntent.AddNewPaymentMethodRequested(paymentMethod))
                         }
@@ -295,8 +358,8 @@ class SimpleBuyModel(
             is SimpleBuyIntent.AmountUpdated -> validateAmount(
                 balance = previousState.availableBalance,
                 amount = intent.amount,
-                minLimit = previousState.limits.minAmount,
-                maxLimit = previousState.limits.maxAmount
+                buyLimits = previousState.transferLimits,
+                paymentMethodLimits = previousState.selectedPaymentMethodLimits
             ).subscribeBy(
                 onSuccess = {
                     process(SimpleBuyIntent.UpdateErrorState(it))
@@ -313,20 +376,21 @@ class SimpleBuyModel(
         state: SimpleBuyState
     ): Disposable {
         val balance = paymentMethod.availableBalance
-        val minLimit = Money.max(
-            paymentMethod.limits.min,
-            state.transferLimits?.minLimit ?: paymentMethod.limits.min
-        )
-        val maxLimit = Money.min(
-            paymentMethod.limits.max,
-            state.transferLimits?.maxLimit ?: paymentMethod.limits.max
-        )
-        return validateAmount(
-            amount = state.amount,
-            balance = balance,
-            minLimit = minLimit,
-            maxLimit = maxLimit
-        ).subscribeBy(
+        require(state.selectedCryptoAsset != null)
+        return interactor.fetchBuyLimits(
+            fiat = state.fiatCurrency,
+            asset = state.selectedCryptoAsset,
+            paymentMethodType = paymentMethod.type
+        ).doOnSuccess {
+            process(SimpleBuyIntent.TxLimitsUpdated(it))
+        }.flatMapSingle { limits ->
+            validateAmount(
+                amount = state.amount,
+                balance = balance,
+                buyLimits = limits,
+                paymentMethodLimits = TxLimits.fromAmounts(paymentMethod.limits.min, paymentMethod.limits.max)
+            )
+        }.subscribeBy(
             onSuccess = {
                 if (paymentMethod.isEligible && paymentMethod is UndefinedPaymentMethod) {
                     process(SimpleBuyIntent.AddNewPaymentMethodRequested(paymentMethod))
@@ -344,15 +408,15 @@ class SimpleBuyModel(
     private fun validateAmount(
         amount: Money,
         balance: Money?,
-        minLimit: Money,
-        maxLimit: Money
+        buyLimits: TxLimits,
+        paymentMethodLimits: TxLimits
     ): Single<TransactionErrorState> =
         Single.defer {
             when {
                 amount.isZero -> Single.just(TransactionErrorState.NONE)
                 balance != null && balance < amount -> Single.just(TransactionErrorState.INSUFFICIENT_FUNDS)
-                amount < minLimit -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
-                amount > maxLimit -> {
+                buyLimits.isMinViolatedByAmount(amount) -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
+                buyLimits.isMaxViolatedByAmount(amount) -> {
                     userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).onErrorReturnItem(false).map { gold ->
                         if (gold)
                             TransactionErrorState.OVER_GOLD_TIER_LIMIT
@@ -360,6 +424,13 @@ class SimpleBuyModel(
                             TransactionErrorState.OVER_SILVER_TIER_LIMIT
                     }
                 }
+                paymentMethodLimits.isMaxViolatedByAmount(amount) -> Single.just(
+                    TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT
+                )
+
+                paymentMethodLimits.isMinViolatedByAmount(amount) -> Single.just(
+                    TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT
+                )
                 else -> Single.just(TransactionErrorState.NONE)
             }
         }
@@ -387,23 +458,87 @@ class SimpleBuyModel(
         }.exhaustive
     }
 
-    private fun processGetPaymentMethod(fiatCurrency: String, selectedPaymentMethodId: String?) =
+    private fun processGetPaymentMethod(fiatCurrency: String, preselectedId: String?, previousSelectedId: String?) =
         interactor.eligiblePaymentMethods(
-            fiatCurrency,
-            selectedPaymentMethodId
-        ).flatMap { intent ->
+            fiatCurrency
+        ).flatMap { paymentMethods ->
             getEligibilityAndNextPaymentDateUseCase(Unit)
-                .map { intent to it }
-                .onErrorReturn { intent to emptyList() }
+                .map { paymentMethods to it }
+                .onErrorReturn { paymentMethods to emptyList() }
         }.subscribeBy(
-            onSuccess = { (intent, eligibilityNextPaymentList) ->
+            onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                 process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
-                process(intent)
+
+                process(
+                    updateSelectedAndAvailablePaymentMethodMethodsIntent(
+                        preselectedId = preselectedId,
+                        previousSelectedId = previousSelectedId,
+                        availablePaymentMethods
+                    )
+                )
             },
             onError = {
                 process(SimpleBuyIntent.ErrorIntent())
             }
         )
+
+    private fun updateSelectedAndAvailablePaymentMethodMethodsIntent(
+        preselectedId: String?,
+        previousSelectedId: String?,
+        availablePaymentMethods: List<PaymentMethod>
+    ): SimpleBuyIntent.PaymentMethodsUpdated {
+        val paymentOptions = PaymentOptions(
+            availablePaymentMethods = availablePaymentMethods,
+            canAddCard = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedCard>()
+                .firstOrNull()?.isEligible ?: false,
+            canLinkFunds = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>()
+                .firstOrNull()?.isEligible ?: false,
+            canLinkBank = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankTransfer>()
+                .firstOrNull()?.isEligible ?: false
+        )
+
+        val selectedPaymentMethodId = selectedMethodId(
+            preselectedId = preselectedId, previousSelectedId = previousSelectedId,
+            availablePaymentMethods = availablePaymentMethods
+        )
+        val selectedPaymentMethod = availablePaymentMethods.firstOrNull {
+            it.id == selectedPaymentMethodId
+        }
+
+        return SimpleBuyIntent.PaymentMethodsUpdated(
+            paymentOptions = paymentOptions,
+            selectedPaymentMethod = selectedPaymentMethod?.let {
+                SelectedPaymentMethod(
+                    selectedPaymentMethod.id,
+                    (selectedPaymentMethod as? PaymentMethod.Card)?.partner,
+                    selectedPaymentMethod.detailedLabel(),
+                    selectedPaymentMethod.type,
+                    selectedPaymentMethod.isEligible
+                )
+            }
+        )
+    }
+
+    // If no preselected Id and no payment method already set, we want the first eligible,
+    // if none present, check if available is only 1 and preselect it. Otherwise, don't preselect anything
+    private fun selectedMethodId(
+        preselectedId: String?,
+        previousSelectedId: String?,
+        availablePaymentMethods: List<PaymentMethod>
+    ): String? =
+        when {
+            preselectedId != null -> availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id
+            previousSelectedId != null -> availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id
+            else -> {
+                // we skip undefined funds cause this payment method should trigger a bottom sheet
+                // and it should always be actioned before
+                val paymentMethodsThatCanBePreselected =
+                    availablePaymentMethods.filter { it !is PaymentMethod.UndefinedBankAccount }
+                paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible && it.canUsedForPaying() }?.id
+                    ?: paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible }?.id
+                    ?: paymentMethodsThatCanBePreselected.firstOrNull()?.id
+            }
+        }
 
     private fun handleOrderAttrs(order: BuySellOrder) {
         order.attributes?.everypay?.let {

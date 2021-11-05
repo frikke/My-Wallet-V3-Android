@@ -57,6 +57,8 @@ enum class TransactionErrorState {
     INSUFFICIENT_FUNDS,
     INVALID_AMOUNT,
     BELOW_MIN_LIMIT,
+    BELOW_MIN_PAYMENT_METHOD_LIMIT,
+    ABOVE_MAX_PAYMENT_METHOD_LIMIT,
     PENDING_ORDERS_LIMIT_REACHED,
     OVER_SILVER_TIER_LIMIT,
     OVER_GOLD_TIER_LIMIT,
@@ -117,8 +119,8 @@ data class TransactionState(
         get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
-    override val limits: TxLimits?
-        get() = pendingTx?.limits
+    override val limits: TxLimits
+        get() = pendingTx?.limits ?: throw IllegalStateException("Limits are not define")
 
     override val amount: Money
         get() = pendingTx?.amount ?: sendingAccount.getZeroAmountForAccount()

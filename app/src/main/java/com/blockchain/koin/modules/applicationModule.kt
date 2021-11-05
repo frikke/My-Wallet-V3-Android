@@ -436,6 +436,7 @@ val applicationModule = module {
                 withdrawLocksRepository = get(),
                 tierService = get(),
                 custodialWalletManager = get(),
+                limitsDataManager = get(),
                 appUtil = get(),
                 coincore = get(),
                 eligibilityProvider = get(),

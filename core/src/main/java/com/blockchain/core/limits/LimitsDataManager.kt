@@ -229,6 +229,17 @@ data class TxLimits(
         it.amount < amount
     } ?: false
 
+    fun combineWith(other: TxLimits): TxLimits =
+        this.copy(
+            min = TxLimit.Limited(Money.max(other.minAmount, minAmount)),
+            max = when {
+                max is TxLimit.Unlimited && other.max is TxLimit.Unlimited -> TxLimit.Unlimited
+                other.max is TxLimit.Unlimited -> max
+                max is TxLimit.Limited -> other.max
+                else -> TxLimit.Limited(Money.min(other.maxAmount, maxAmount))
+            }
+        )
+
     companion object {
         fun fromAmounts(min: Money, max: Money) =
             TxLimits(

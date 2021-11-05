@@ -56,9 +56,9 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         input: CurrencyType
     ): TransactionFlowBottomSheetInfo? {
         val fiatRate = state.fiatRate ?: return null
-        val min = state.limits?.minAmount?.toEnteredCurrency(
+        val min = state.limits.minAmount.toEnteredCurrency(
             input, fiatRate, RoundingMode.CEILING
-        ) ?: return null
+        )
         return when (state.action) {
             AssetAction.Withdraw -> {
                 return TransactionFlowBottomSheetInfo(

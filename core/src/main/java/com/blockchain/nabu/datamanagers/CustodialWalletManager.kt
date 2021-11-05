@@ -537,6 +537,7 @@ sealed class TransactionError : Throwable() {
 
 sealed class PaymentMethod(
     val id: String,
+    val type: PaymentMethodType,
     open val limits: PaymentLimits,
     val order: Int,
     open val isEligible: Boolean
@@ -548,21 +549,18 @@ sealed class PaymentMethod(
     data class UndefinedCard(
         override val limits: PaymentLimits,
         override val isEligible: Boolean
-    ) :
-        PaymentMethod(
-            UNDEFINED_CARD_PAYMENT_ID, limits, UNDEFINED_CARD_PAYMENT_METHOD_ORDER, isEligible
-        ),
-        UndefinedPaymentMethod {
-        override val paymentMethodType: PaymentMethodType
-            get() = PaymentMethodType.PAYMENT_CARD
-    }
+    ) : PaymentMethod(
+        UNDEFINED_CARD_PAYMENT_ID, PaymentMethodType.PAYMENT_CARD, limits, UNDEFINED_CARD_PAYMENT_METHOD_ORDER,
+        isEligible
+    ),
+        UndefinedPaymentMethod
 
     data class Funds(
         val balance: FiatValue,
         val fiatCurrency: String,
         override val limits: PaymentLimits,
         override val isEligible: Boolean
-    ) : PaymentMethod(FUNDS_PAYMENT_ID, limits, FUNDS_PAYMENT_METHOD_ORDER, isEligible)
+    ) : PaymentMethod(FUNDS_PAYMENT_ID, PaymentMethodType.FUNDS, limits, FUNDS_PAYMENT_METHOD_ORDER, isEligible)
 
     data class UndefinedBankAccount(
         val fiatCurrency: String,
@@ -570,12 +568,9 @@ sealed class PaymentMethod(
         override val isEligible: Boolean
     ) :
         PaymentMethod(
-            UNDEFINED_BANK_ACCOUNT_ID, limits, UNDEFINED_BANK_ACCOUNT_METHOD_ORDER, isEligible
+            UNDEFINED_BANK_ACCOUNT_ID, PaymentMethodType.FUNDS, limits, UNDEFINED_BANK_ACCOUNT_METHOD_ORDER, isEligible
         ),
         UndefinedPaymentMethod {
-        override val paymentMethodType: PaymentMethodType
-            get() = PaymentMethodType.FUNDS
-
         val showAvailability: Boolean
             get() = currenciesRequiringAvailabilityLabel.contains(fiatCurrency)
 
@@ -589,12 +584,10 @@ sealed class PaymentMethod(
         override val isEligible: Boolean
     ) :
         PaymentMethod(
-            UNDEFINED_BANK_TRANSFER_PAYMENT_ID, limits, UNDEFINED_BANK_TRANSFER_METHOD_ORDER, isEligible
+            UNDEFINED_BANK_TRANSFER_PAYMENT_ID, PaymentMethodType.BANK_TRANSFER, limits,
+            UNDEFINED_BANK_TRANSFER_METHOD_ORDER, isEligible
         ),
-        UndefinedPaymentMethod {
-        override val paymentMethodType: PaymentMethodType
-            get() = PaymentMethodType.BANK_TRANSFER
-    }
+        UndefinedPaymentMethod
 
     data class Bank(
         val bankId: String,
@@ -604,7 +597,9 @@ sealed class PaymentMethod(
         val accountType: String,
         override val isEligible: Boolean,
         val iconUrl: String
-    ) : PaymentMethod(bankId, limits, BANK_PAYMENT_METHOD_ORDER, isEligible), Serializable, RecurringBuyPaymentDetails {
+    ) : PaymentMethod(bankId, PaymentMethodType.BANK_TRANSFER, limits, BANK_PAYMENT_METHOD_ORDER, isEligible),
+        Serializable,
+        RecurringBuyPaymentDetails {
 
         override fun detailedLabel() =
             "$bankName $accountEnding"
@@ -634,7 +629,9 @@ sealed class PaymentMethod(
         val cardType: CardType,
         val status: CardStatus,
         override val isEligible: Boolean
-    ) : PaymentMethod(cardId, limits, CARD_PAYMENT_METHOD_ORDER, isEligible), Serializable, RecurringBuyPaymentDetails {
+    ) : PaymentMethod(cardId, PaymentMethodType.PAYMENT_CARD, limits, CARD_PAYMENT_METHOD_ORDER, isEligible),
+        Serializable,
+        RecurringBuyPaymentDetails {
 
         override fun detailedLabel() =
             "${uiLabel()} ${dottedEndDigits()}"
@@ -691,9 +688,7 @@ sealed class PaymentMethod(
     }
 }
 
-interface UndefinedPaymentMethod {
-    val paymentMethodType: PaymentMethodType
-}
+interface UndefinedPaymentMethod
 
 data class PaymentLimits(override val min: FiatValue, override val max: FiatValue) : Serializable, LegacyLimits {
     constructor(min: Long, max: Long, currency: String) : this(

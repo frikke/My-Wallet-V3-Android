@@ -525,7 +525,9 @@ private fun TransactionErrorState.isAmountRelated(): Boolean =
         TransactionErrorState.BELOW_MIN_LIMIT,
         TransactionErrorState.OVER_SILVER_TIER_LIMIT,
         TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-        TransactionErrorState.NOT_ENOUGH_GAS -> true
+        TransactionErrorState.NOT_ENOUGH_GAS,
+        TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
+        TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> true
     }
 
 private fun TransactionState.isAmountValid(): Boolean {
