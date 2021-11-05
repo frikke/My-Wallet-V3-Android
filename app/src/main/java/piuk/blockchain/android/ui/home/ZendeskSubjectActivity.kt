@@ -29,6 +29,10 @@ class ZendeskSubjectActivity : AppCompatActivity() {
         intent.getSerializableExtra(USER_INFO) as BasicProfileInfo
     }
 
+    private val subject: String by lazy {
+        intent.getStringExtra(SUBJECT).orEmpty()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -43,24 +47,31 @@ class ZendeskSubjectActivity : AppCompatActivity() {
 
         setChatVisitorInfo()
 
-        with(binding) {
-            zendeskOptions.setOnCheckedChangeListener { _, _ ->
-                zendeskContinue.isEnabled = true
-            }
-
-            zendeskContinue.setOnClickListener {
-                val checkedButton = findViewById<RadioButton>(zendeskOptions.checkedRadioButtonId)
-
-                Chat.INSTANCE.providers()?.profileProvider()?.apply {
-                    setVisitorNote(checkedButton.text.toString())
-                    appendVisitorNote(checkedButton.text.toString())
-                    addVisitorTags(listOf(checkedButton.text.toString()), null)
+        if (subject.isEmpty()) {
+            with(binding) {
+                zendeskOptions.setOnCheckedChangeListener { _, _ ->
+                    zendeskContinue.isEnabled = true
                 }
 
-                startChat()
-                finish()
+                zendeskContinue.setOnClickListener {
+                    val checkedButton = findViewById<RadioButton>(zendeskOptions.checkedRadioButtonId)
+                    setupChat(checkedButton.text.toString())
+                }
             }
+        } else {
+            setupChat(subject)
         }
+    }
+
+    private fun setupChat(note: String) {
+        Chat.INSTANCE.providers()?.profileProvider()?.apply {
+            setVisitorNote(note)
+            appendVisitorNote(note)
+            addVisitorTags(listOf(note), null)
+        }
+
+        startChat()
+        finish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -107,11 +118,13 @@ class ZendeskSubjectActivity : AppCompatActivity() {
 
     companion object {
         private const val USER_INFO = "USER_INFO"
+        private const val SUBJECT = "SUBJECT"
         private const val ZENDESK_CHANNEL = "wallet_sb_department"
 
-        fun newInstance(context: Context, userInfo: BasicProfileInfo): Intent =
+        fun newInstance(context: Context, userInfo: BasicProfileInfo, subject: String = ""): Intent =
             Intent(context, ZendeskSubjectActivity::class.java).apply {
                 putExtra(USER_INFO, userInfo)
+                putExtra(SUBJECT, subject)
             }
     }
 }

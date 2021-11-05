@@ -2336,6 +2336,7 @@
 
     <!-- LocksInfo activity details -->
     <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
+    <string name="funds_locked_details_contact_support">See something that doesn’t look right? <annotation link="contact_support">Contact support</annotation></string>
     <string name="funds_locked__details_title_date">HELD UNTIL</string>
     <string name="funds_locked_details_title_amount">AMOUNT</string>
     <string name="funds_locked_details_total">Total</string>

@@ -30,7 +30,7 @@ private class LockItemViewHolder(
 
     fun bind(lock: FundsLock) {
         with(binding) {
-            dateLock.text = "${lock.date.month.name.capitalizeFirstChar()} ${lock.date.dayOfMonth}"
+            dateLock.text = "${lock.date.month.name.capitalizeFirstChar()} ${lock.date.dayOfMonth}, ${lock.date.year}"
             amountLock.text = lock.amount.toStringWithSymbol()
         }
     }
