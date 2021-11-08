@@ -25,6 +25,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -83,7 +84,7 @@ class DashboardActionAdapter(
                 )
             },
             onError = {
-                Timber.e("Error getting ordering - $it")
+                Timber.e("Error fetching active assets - $it")
             }
         )
 
@@ -101,6 +102,8 @@ class DashboardActionAdapter(
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(asset)
+            // If prices are coming in too fast, be sure not to miss any
+            .toFlowable(BackpressureStrategy.BUFFER)
             .subscribeBy(
                 onNext = {
                     model.process(
@@ -109,6 +112,9 @@ class DashboardActionAdapter(
                             prices24HrWithDelta = it
                         )
                     )
+                },
+                onError = { throwable ->
+                    Timber.e(throwable)
                 }
             )
 
@@ -256,6 +262,7 @@ class DashboardActionAdapter(
     fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
         return coincore[crypto].accountGroup(AssetFilter.Custodial)
             .flatMapObservable { it.balance }
+            .toFlowable(BackpressureStrategy.BUFFER)
             .subscribeBy(
                 onNext = {
                     model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, !it.total.isZero))

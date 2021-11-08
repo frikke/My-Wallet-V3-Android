@@ -133,9 +133,18 @@ internal class AssetPriceStore(
 
     @Synchronized
     private fun updatePriceMapCache(tempMap: AssetPricesMap) {
-        pricesCache.value?.let {
-            it.putAll(tempMap)
-            pricesCache.accept(it)
+        pricesCache.value?.let { currentMap ->
+            if (currentMap.isNotEmpty()) {
+                // Update as usual
+                currentMap.putAll(tempMap)
+                pricesCache.accept(currentMap)
+            } else {
+                // Accept the new data as is if the existing one is empty
+                pricesCache.accept(tempMap)
+            }
+        } ?: kotlin.run {
+            // Accept the new data as is if the existing one is null
+            pricesCache.accept(tempMap)
         }
     }
 
@@ -239,9 +248,12 @@ internal class AssetPriceStore(
     @Synchronized
     private fun refreshStalePrices() {
         val stale = getStalePriceBases()
-        pricesCache.value?.filterKeys { k -> k.base !in stale }?.toMutableMap()?.let {
+        pricesCache.value?.filterKeys { k -> k.base !in stale }?.toMutableMap()?.let { filteredMap ->
             requestBuffer.addPendingBatch(stale)
-            pricesCache.accept(it)
+            if (filteredMap.isNotEmpty()) {
+                // Do not replace the existing data with the new one if it's empty
+                pricesCache.accept(filteredMap)
+            }
         }
     }
 

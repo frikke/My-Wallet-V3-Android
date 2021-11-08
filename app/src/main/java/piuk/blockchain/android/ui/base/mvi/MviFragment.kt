@@ -38,7 +38,7 @@ abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
                 if (BuildConfig.DEBUG) {
                     throw it
                 }
-                Timber.e(it)
+                renderError(it)
             },
             onComplete = { Timber.d("***> State on complete!!") }
         )
@@ -68,6 +68,8 @@ abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
     abstract fun initBinding(inflater: LayoutInflater, container: ViewGroup?): E
 
     protected abstract fun render(newState: S)
+
+    protected open fun renderError(t: Throwable) { Timber.e(t) }
 
     protected val activity: BlockchainActivity
         get() = requireActivity() as? BlockchainActivity
