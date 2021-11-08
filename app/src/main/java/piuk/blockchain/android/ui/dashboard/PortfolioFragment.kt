@@ -229,7 +229,7 @@ class PortfolioFragment :
             )
             if (useDynamicAssets) {
                 val hasBalanceOrIsLoading = newState.isLoadingAssets ||
-                    assets.any { it.fiatBalance?.isPositive == true }
+                    assets.any { it.fiatBalance?.isPositive == true || it.isLoading }
                 binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
                 binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
             }
