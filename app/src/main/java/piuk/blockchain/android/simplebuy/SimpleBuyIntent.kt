@@ -140,12 +140,10 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object ValidateAmount : SimpleBuyIntent()
 
     data class UpdatedBuyLimits(
-        private val cryptoAsset: AssetInfo,
         val limits: TxLimits
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(
-                selectedCryptoAsset = cryptoAsset,
                 transferLimits = limits
             )
         }
@@ -172,12 +170,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(selectedCryptoAsset = asset, fiatCurrency = fiatCurrency)
     }
-
-    data class FetchBuyLimits(
-        val asset: AssetInfo,
-        val fiatCurrency: String,
-        val paymentMethodType: PaymentMethodType
-    ) : SimpleBuyIntent()
 
     data class UpdateExchangeRate(val fiatCurrency: String, val asset: AssetInfo) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =

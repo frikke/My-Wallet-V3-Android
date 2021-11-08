@@ -68,22 +68,6 @@ class SimpleBuyModel(
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
-            is SimpleBuyIntent.FetchBuyLimits ->
-                interactor.fetchBuyLimits(
-                    fiat = intent.fiatCurrency,
-                    asset = intent.asset,
-                    paymentMethodType = intent.paymentMethodType
-                ).subscribeBy(
-                    onSuccess = { limits ->
-                        process(
-                            SimpleBuyIntent.UpdatedBuyLimits(
-                                intent.asset,
-                                limits
-                            )
-                        )
-                    },
-                    onError = { process(SimpleBuyIntent.ErrorIntent()) }
-                )
             is SimpleBuyIntent.UpdatedBuyLimits -> validateAmount(
                 balance = previousState.availableBalance,
                 amount = previousState.amount,
@@ -100,7 +84,7 @@ class SimpleBuyModel(
             is SimpleBuyIntent.ValidateAmount -> validateAmount(
                 balance = previousState.availableBalance,
                 amount = previousState.amount,
-                buyLimits = previousState.transferLimits,
+                buyLimits = previousState.buyOrderLimits,
                 paymentMethodLimits = previousState.selectedPaymentMethodLimits
             ).subscribeBy(
                 onSuccess = {
@@ -220,25 +204,12 @@ class SimpleBuyModel(
                 validateAmountAndUpdatePaymentMethod(intent.paymentMethod, previousState)
             }
             is SimpleBuyIntent.PaymentMethodsUpdated -> {
-                val asset = previousState.selectedCryptoAsset
-                check(asset != null)
+                check(previousState.selectedCryptoAsset != null)
                 intent.selectedPaymentMethod?.paymentMethodType?.let {
-                    interactor.fetchBuyLimits(
-                        fiat = previousState.fiatCurrency,
-                        asset = asset,
-                        paymentMethodType = it
-                    ).subscribeBy(
-                        onError = {
-                            process(SimpleBuyIntent.ErrorIntent())
-                        },
-                        onSuccess = { limits ->
-                            process(
-                                SimpleBuyIntent.UpdatedBuyLimits(
-                                    asset,
-                                    limits
-                                )
-                            )
-                        }
+                    onPaymentMethodsUpdated(
+                        previousState.selectedCryptoAsset,
+                        previousState.fiatCurrency,
+                        it
                     )
                 }
             }
@@ -358,7 +329,7 @@ class SimpleBuyModel(
             is SimpleBuyIntent.AmountUpdated -> validateAmount(
                 balance = previousState.availableBalance,
                 amount = intent.amount,
-                buyLimits = previousState.transferLimits,
+                buyLimits = previousState.buyOrderLimits,
                 paymentMethodLimits = previousState.selectedPaymentMethodLimits
             ).subscribeBy(
                 onSuccess = {
@@ -371,6 +342,29 @@ class SimpleBuyModel(
             else -> null
         }
 
+    private fun onPaymentMethodsUpdated(
+        asset: AssetInfo,
+        fiatCurrency: String,
+        selectedPaymentMethodType: PaymentMethodType
+    ): Disposable {
+        return interactor.fetchBuyLimits(
+            fiat = fiatCurrency,
+            asset = asset,
+            paymentMethodType = selectedPaymentMethodType
+        ).subscribeBy(
+            onError = {
+                process(SimpleBuyIntent.ErrorIntent())
+            },
+            onSuccess = { limits ->
+                process(
+                    SimpleBuyIntent.UpdatedBuyLimits(
+                        limits
+                    )
+                )
+            }
+        )
+    }
+
     private fun validateAmountAndUpdatePaymentMethod(
         paymentMethod: PaymentMethod,
         state: SimpleBuyState
@@ -381,23 +375,25 @@ class SimpleBuyModel(
             fiat = state.fiatCurrency,
             asset = state.selectedCryptoAsset,
             paymentMethodType = paymentMethod.type
-        ).doOnSuccess {
-            process(SimpleBuyIntent.TxLimitsUpdated(it))
-        }.flatMapSingle { limits ->
+        ).flatMap { limits ->
             validateAmount(
                 amount = state.amount,
                 balance = balance,
                 buyLimits = limits,
                 paymentMethodLimits = TxLimits.fromAmounts(paymentMethod.limits.min, paymentMethod.limits.max)
-            )
+            ).map { errorState ->
+                errorState to limits
+            }
         }.subscribeBy(
-            onSuccess = {
+            onSuccess = { (errorState, limits) ->
+                process(SimpleBuyIntent.TxLimitsUpdated(limits))
+
                 if (paymentMethod.isEligible && paymentMethod is UndefinedPaymentMethod) {
                     process(SimpleBuyIntent.AddNewPaymentMethodRequested(paymentMethod))
                 } else {
                     process(SimpleBuyIntent.SelectedPaymentMethodUpdate(paymentMethod))
                 }
-                process(SimpleBuyIntent.UpdateErrorState(it))
+                process(SimpleBuyIntent.UpdateErrorState(errorState))
             },
             onError = {
                 process(SimpleBuyIntent.ErrorIntent())
@@ -413,7 +409,6 @@ class SimpleBuyModel(
     ): Single<TransactionErrorState> =
         Single.defer {
             when {
-                amount.isZero -> Single.just(TransactionErrorState.NONE)
                 balance != null && balance < amount -> Single.just(TransactionErrorState.INSUFFICIENT_FUNDS)
                 buyLimits.isMinViolatedByAmount(amount) -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
                 buyLimits.isMaxViolatedByAmount(amount) -> {

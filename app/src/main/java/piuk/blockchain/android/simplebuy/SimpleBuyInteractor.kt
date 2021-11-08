@@ -5,6 +5,7 @@ import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -42,7 +43,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.TimeUnit
@@ -71,18 +71,26 @@ class SimpleBuyInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs
 ) {
 
-    // ignore limits when user is in tier 0
+    // Hack until we have a proper limits api.
+    // ignore limits when user is in tier BRONZE. When user is in tier BRONZE available limit for transfer is 0, so
+    // the user will never be able to continue the flow. That's why we don't restrict him. PaymentMethod limit will
+    // restrict him only.
+
     fun fetchBuyLimits(
         fiat: String,
         asset: AssetInfo,
         paymentMethodType: PaymentMethodType
-    ): Maybe<TxLimits> =
-        tierService.tiers().flatMapMaybe { tier ->
-            if (tier.isInInitialState()) {
-                Maybe.empty()
-            } else fetchLimits(
+    ): Single<TxLimits> =
+        tierService.tiers().flatMap { tier ->
+            fetchLimits(
                 sourceCurrency = fiat, targetCurrency = asset.networkTicker, paymentMethodType = paymentMethodType
-            ).toMaybe()
+            ).map { limits ->
+                if (tier.isInInitialState()) {
+                    limits.copy(
+                        max = TxLimit.Unlimited
+                    )
+                } else limits
+            }
         }.trackProgress(appUtil.activityIndicator)
 
     private fun fetchLimits(

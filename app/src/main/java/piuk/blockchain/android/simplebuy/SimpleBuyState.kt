@@ -4,7 +4,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Partner
@@ -68,7 +67,7 @@ data class SimpleBuyState constructor(
     @Transient val shouldShowUnlockHigherFunds: Boolean = false,
     @Transient val linkBankTransfer: LinkBankTransfer? = null,
     @Transient val paymentPending: Boolean = false,
-    @Transient val transferLimits: TxLimits = TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency)),
+    @Transient private val transferLimits: TxLimits? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
     @Transient val confirmationActionRequested: Boolean = false,
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null
@@ -104,24 +103,13 @@ data class SimpleBuyState constructor(
         } ?: TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency))
     }
 
+    @delegate:Transient
+    val buyOrderLimits: TxLimits by unsafeLazy {
+        transferLimits ?: TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency))
+    }
+
     override val limits: TxLimits
-        get() = selectedPaymentMethodLimits.combineWith(transferLimits)
-
-    fun maxCryptoAmount(exchangeRates: ExchangeRatesDataManager): Money? =
-        selectedCryptoAsset?.let {
-            exchangeRates.getLastFiatToCryptoRate(
-                sourceFiat = fiatCurrency,
-                targetCrypto = selectedCryptoAsset
-            ).convert(limits.maxAmount)
-        }
-
-    fun minCryptoAmount(exchangeRates: ExchangeRatesDataManager): Money? =
-        selectedCryptoAsset?.let {
-            exchangeRates.getLastFiatToCryptoRate(
-                sourceFiat = fiatCurrency,
-                targetCrypto = selectedCryptoAsset
-            ).convert(limits.minAmount)
-        }
+        get() = selectedPaymentMethodLimits.combineWith(buyOrderLimits)
 
     fun isSelectedPaymentMethodRecurringBuyEligible(): Boolean =
         when (selectedPaymentMethodDetails) {

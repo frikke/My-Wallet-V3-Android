@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.core.limits.TxLimit
-import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -73,7 +72,6 @@ class SimpleBuyCryptoFragment :
     PaymentMethodChangeListener {
 
     override val model: SimpleBuyModel by scopedInject()
-    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
@@ -233,7 +231,6 @@ class SimpleBuyCryptoFragment :
 
     override fun render(newState: SimpleBuyState) {
         lastState = newState
-
         if (newState.buyErrorState != null) {
             handleErrorState(newState.buyErrorState)
             return
@@ -277,11 +274,12 @@ class SimpleBuyCryptoFragment :
         }
 
         binding.btnContinue.isEnabled = canContinue(newState)
+
         if (gatedFeatures.isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS)) {
-            updateInputStateUI(newState.errorState)
+            updateInputStateUI(newState)
             showCtaOrError(newState)
         } else {
-            handleError(newState)
+            showLegacyPossibleErrorMessage(newState)
         }
 
         if (newState.confirmationActionRequested &&
@@ -306,20 +304,19 @@ class SimpleBuyCryptoFragment :
         }
     }
 
+    private fun showLegacyPossibleErrorMessage(newState: SimpleBuyState) {
+        val error = legacyErrorMessage(newState)
+        if (newState.errorStateShouldBeIndicated()) {
+            binding.inputAmount.showError(error)
+        } else {
+            clearError()
+        }
+    }
+
     private fun showCtaOrError(newState: SimpleBuyState) {
-        val errorState = newState.errorState
-        val isAmountPositive = newState.amount.isPositive
-        when (errorState) {
-            TransactionErrorState.NONE -> {
-                showCta()
-            }
-            else -> {
-                if (isAmountPositive) {
-                    showError(newState)
-                } else {
-                    showCta()
-                }
-            }
+        when {
+            newState.errorStateShouldBeIndicated() -> showError(newState)
+            else -> showCta()
         }
     }
 
@@ -348,8 +345,10 @@ class SimpleBuyCryptoFragment :
         model.process(SimpleBuyIntent.SelectedPaymentMethodUpdate(state.newPaymentMethodToBeAdded))
     }
 
-    private fun updateInputStateUI(newState: TransactionErrorState) {
-        binding.inputAmount.onAmountValidationUpdated(newState == TransactionErrorState.NONE)
+    private fun updateInputStateUI(newState: SimpleBuyState) {
+        binding.inputAmount.onAmountValidationUpdated(
+            isValid = !newState.errorStateShouldBeIndicated()
+        )
     }
 
     private fun handlePostOrderCreationAction(newState: SimpleBuyState) {
@@ -545,32 +544,27 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun handleError(state: SimpleBuyState) {
-        when (state.errorState) {
+    private fun legacyErrorMessage(state: SimpleBuyState): String {
+        return when (state.errorState) {
+            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> resources.getString(
+                R.string.maximum_buy, state.selectedPaymentMethodLimits.maxAmount.toStringWithSymbol()
+            )
+            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> resources.getString(
+                R.string.minimum_buy, state.selectedPaymentMethodLimits.minAmount.toStringWithSymbol()
+            )
             TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> {
-                binding.inputAmount.showError(
-                    if (binding.inputAmount.configuration.inputCurrency.isFiat())
-                        resources.getString(R.string.maximum_buy, state.limits.maxAmount.toStringWithSymbol())
-                    else
-                        resources.getString(
-                            R.string.maximum_buy,
-                            state.maxCryptoAmount(exchangeRates)?.toStringWithSymbol()
-                        )
-                )
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> resources.getString(
+                R.string.maximum_buy, state.limits.maxAmount.toStringWithSymbol()
+            )
+            TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
+                R.string.not_enough_funds, state.fiatCurrency
+            )
+            TransactionErrorState.BELOW_MIN_LIMIT -> resources.getString(
+                R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol()
+            )
+            else -> {
+                resources.getString(R.string.empty)
             }
-            TransactionErrorState.BELOW_MIN_LIMIT -> {
-                binding.inputAmount.showError(
-                    if (binding.inputAmount.configuration.inputCurrency.isFiat())
-                        resources.getString(R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol())
-                    else
-                        resources.getString(
-                            R.string.minimum_buy,
-                            state.minCryptoAmount(exchangeRates)?.toStringWithSymbol()
-                        )
-                )
-            }
-            else -> clearError()
         }
     }
 
@@ -694,6 +688,9 @@ class SimpleBuyCryptoFragment :
             )
             else -> resources.getString(R.string.empty)
         }
+
+    private fun SimpleBuyState.errorStateShouldBeIndicated() =
+        errorState != TransactionErrorState.NONE && amount.isPositive
 }
 
 fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String {
