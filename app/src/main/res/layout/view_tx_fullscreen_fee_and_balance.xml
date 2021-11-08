@@ -121,7 +121,6 @@
         android:text="@string/send_enter_amount_max_fee"
         app:layout_constraintBottom_toTopOf="@+id/fee_for_full_available_value"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/total_available_label"
         app:layout_constraintTop_toBottomOf="@id/network_fee_value" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -131,7 +130,6 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/total_available_value"
         app:layout_constraintTop_toBottomOf="@+id/fee_for_full_available_label"
         tools:text="Max: 0.10000 BTC" />
 
