@@ -168,7 +168,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             }
             LoginStep.NAVIGATE_FROM_PAYLOAD -> {
                 newState.payload?.let {
-                    startActivity(LoginAuthActivity.newInstance(this, it))
+                    startActivity(LoginAuthActivity.newInstance(this, it, newState.payloadBase64String))
                 }
             }
             LoginStep.UNKNOWN_ERROR -> {

@@ -66,6 +66,10 @@ class LoginAuthActivity :
         intent.getSerializableExtra(POLLING_PAYLOAD) as? LoginAuthInfo.ExtendedAccountInfo
     }
 
+    private val base64EncodedPayload: String by lazy {
+        intent.getStringExtra(BASE_64_ENCODED_PAYLOAD).orEmpty()
+    }
+
     private var willUnifyAccount: Boolean = false
     private var email: String = ""
     private var userId: String = ""
@@ -320,7 +324,7 @@ class LoginAuthActivity :
                         model.process(LoginAuthIntents.ShowAuthComplete)
                     }
                 },
-                BuildConfig.WEB_WALLET_URL, PAYLOAD
+                UNIFICATION_WALLET_URL, base64EncodedPayload
             )
 
             unifiedSignInWebview.visible()
@@ -449,20 +453,25 @@ class LoginAuthActivity :
     }
 
     companion object {
-        fun newInstance(context: Activity, pollingPayload: LoginAuthInfo.ExtendedAccountInfo): Intent =
+        fun newInstance(
+            context: Activity,
+            pollingPayload: LoginAuthInfo.ExtendedAccountInfo,
+            base64EncodedPayload: String
+        ): Intent =
             Intent(context, LoginAuthActivity::class.java).apply {
                 putExtra(POLLING_PAYLOAD, pollingPayload)
+                putExtra(BASE_64_ENCODED_PAYLOAD, base64EncodedPayload)
             }
 
         const val LINK_DELIMITER = "/login/"
         private const val POLLING_PAYLOAD = "POLLING_PAYLOAD"
+        private const val BASE_64_ENCODED_PAYLOAD = "BASE_64_ENCODED_PAYLOAD"
         private const val EMAIL = "email"
         private const val USER_ID = "user_id"
         private const val RECOVERY_TOKEN = "recovery_token"
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
-
-        private const val PAYLOAD = "{ }" // TODO add magic link payload here for internal testing
+        private const val UNIFICATION_WALLET_URL = "${BuildConfig.WEB_WALLET_URL}?product=wallet&platform=android"
     }
 }
