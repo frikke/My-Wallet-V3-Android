@@ -6,15 +6,18 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NeedsApprovalException
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.FundsLocks
@@ -22,6 +25,7 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -119,8 +123,23 @@ data class TransactionState(
         get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
+
+    override val receivingCurrency: String
+        get() = (selectedTarget as? CryptoAccount)?.asset?.networkTicker
+            ?: (selectedTarget as? FiatAccount)?.fiatCurrency ?: throw IllegalStateException(
+            "Missing receiving currency"
+        )
+
     override val limits: TxLimits
         get() = pendingTx?.limits ?: throw IllegalStateException("Limits are not define")
+
+    override val sourceAccountType: AssetCategory
+        get() = when (sendingAccount) {
+            is TradingAccount -> AssetCategory.CUSTODIAL
+            is InterestAccount -> AssetCategory.CUSTODIAL
+            is CryptoNonCustodialAccount -> AssetCategory.NON_CUSTODIAL
+            else -> throw IllegalStateException("$sendingAccount not supported")
+        }
 
     override val amount: Money
         get() = pendingTx?.amount ?: sendingAccount.getZeroAmountForAccount()

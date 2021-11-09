@@ -20,6 +20,8 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.extensions.withoutNullValues
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
@@ -34,9 +36,11 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.security.InvalidParameterException
 
 const val WITHDRAW_LOCKS = "locks"
+private const val PAYMENT_METHOD_LIMITS = "PAYMENT_METHOD_LIMITS"
 
 class FiatDepositTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -61,36 +65,42 @@ class FiatDepositTxEngine(
         check(txTarget is FiatAccount)
         val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
         val zeroFiat = FiatValue.zero(sourceAccountCurrency)
-        return Single.zip(
-            limitsDataManager.getLimits(
-                outputCurrency = sourceAccountCurrency,
-                sourceCurrency = sourceAccountCurrency,
-                targetCurrency = sourceAccountCurrency,
-                sourceAccountType = AssetCategory.NON_CUSTODIAL,
-                targetAccountType = AssetCategory.CUSTODIAL,
-                legacyLimits = walletManager.getBankTransferLimits(sourceAccountCurrency, true).map {
-                    it as LegacyLimits
+        val paymentMethodLimits = walletManager.getBankTransferLimits(sourceAccountCurrency, true)
+        val locks = withdrawLocksRepository.getWithdrawLockTypeForPaymentMethod(
+            paymentMethodType = PaymentMethodType.BANK_TRANSFER,
+            fiatCurrency = sourceAccountCurrency
+        )
+
+        return paymentMethodLimits.zipWith(locks)
+            .flatMap { (paymentMethodLimits, locks) ->
+                limitsDataManager.getLimits(
+                    outputCurrency = sourceAccountCurrency,
+                    sourceCurrency = sourceAccountCurrency,
+                    targetCurrency = sourceAccountCurrency,
+                    sourceAccountType = AssetCategory.NON_CUSTODIAL,
+                    targetAccountType = AssetCategory.CUSTODIAL,
+                    legacyLimits = Single.just(paymentMethodLimits).map {
+                        it as LegacyLimits
+                    }
+                ).map { limits ->
+                    PendingTx(
+                        amount = zeroFiat,
+                        totalBalance = zeroFiat,
+                        availableBalance = zeroFiat,
+                        feeForFullAvailable = zeroFiat,
+                        limits = limits,
+                        feeAmount = zeroFiat,
+                        selectedFiat = userFiat,
+                        feeSelection = FeeSelection(),
+                        engineState = mapOf(
+                            WITHDRAW_LOCKS to locks.takeIf { it.signum() == 1 }?.secondsToDays(),
+                            PAYMENT_METHOD_LIMITS to TxLimits.fromAmounts(
+                                paymentMethodLimits.min, paymentMethodLimits.max
+                            )
+                        ).withoutNullValues()
+                    )
                 }
-            ),
-            withdrawLocksRepository.getWithdrawLockTypeForPaymentMethod(
-                paymentMethodType = PaymentMethodType.BANK_TRANSFER,
-                fiatCurrency = sourceAccountCurrency
-            )
-        ) { limits, locks ->
-            PendingTx(
-                amount = zeroFiat,
-                totalBalance = zeroFiat,
-                availableBalance = zeroFiat,
-                feeForFullAvailable = zeroFiat,
-                limits = limits,
-                feeAmount = zeroFiat,
-                selectedFiat = userFiat,
-                feeSelection = FeeSelection(),
-                engineState = if (locks > 0.toBigInteger()) {
-                    mapOf(WITHDRAW_LOCKS to locks.secondsToDays())
-                } else emptyMap()
-            )
-        }
+            }
     }
 
     override val canTransactFiat: Boolean
@@ -147,6 +157,12 @@ class FiatDepositTxEngine(
                             ValidationState.UNDER_MIN_LIMIT
                         )
                     )
+
+                    pendingTx.maxLimitForPaymentMethodViolated() && !pendingTx.isMaxLimitViolated() ->
+                        Completable.error(
+                            TxValidationFailure(ValidationState.ABOVE_PAYMENT_METHOD_LIMIT)
+                        )
+
                     pendingTx.isMaxLimitViolated() -> {
                         userIsGoldVerified.flatMapCompletable {
                             if (it) {
@@ -205,4 +221,9 @@ class FiatDepositTxEngine(
         val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
         return sourceAccountCurrency == "EUR" || sourceAccountCurrency == "GBP"
     }
+
+    private fun PendingTx.maxLimitForPaymentMethodViolated(): Boolean =
+        engineState[PAYMENT_METHOD_LIMITS]?.let {
+            (it as TxLimits).isMaxViolatedByAmount(amount)
+        } ?: throw IllegalStateException("Missing Limit for Payment method")
 }

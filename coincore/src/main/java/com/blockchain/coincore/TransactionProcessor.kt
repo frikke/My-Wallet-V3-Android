@@ -42,6 +42,7 @@ enum class ValidationState {
     PENDING_ORDERS_LIMIT_REACHED,
     OVER_SILVER_TIER_LIMIT,
     OVER_GOLD_TIER_LIMIT,
+    ABOVE_PAYMENT_METHOD_LIMIT,
     INVOICE_EXPIRED,
     UNKNOWN_ERROR
 }
@@ -457,6 +458,7 @@ class TransactionProcessor(
             ValidationState.UNDER_MIN_LIMIT -> Completable.error(TransactionError.OrderBelowMin)
             ValidationState.PENDING_ORDERS_LIMIT_REACHED ->
                 Completable.error(TransactionError.OrderLimitReached)
+            ValidationState.ABOVE_PAYMENT_METHOD_LIMIT,
             ValidationState.OVER_SILVER_TIER_LIMIT,
             ValidationState.OVER_GOLD_TIER_LIMIT -> Completable.error(TransactionError.OrderAboveMax)
             ValidationState.INVOICE_EXPIRED -> Completable.error(TransactionError.UnexpectedError)

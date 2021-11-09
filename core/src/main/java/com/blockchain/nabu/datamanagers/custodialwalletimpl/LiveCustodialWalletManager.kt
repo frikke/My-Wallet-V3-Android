@@ -37,7 +37,6 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.featureflags.BankLinkingEnabledProvider
 import com.blockchain.nabu.datamanagers.featureflags.Feature
 import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
@@ -94,7 +93,6 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenRespon
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import com.braintreepayments.cardform.utils.CardType
@@ -107,7 +105,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
-import io.reactivex.rxjava3.kotlin.zipWith
 import java.lang.IllegalArgumentException
 import java.math.BigInteger
 import java.util.Calendar
@@ -126,9 +123,6 @@ class LiveCustodialWalletManager(
     private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
-    private val achDepositWithdrawFeatureFlag: FeatureFlag,
-    private val sddFeatureFlag: FeatureFlag,
-    private val bankLinkingEnabledProvider: BankLinkingEnabledProvider,
     private val transactionErrorMapper: TransactionErrorMapper
 ) : CustodialWalletManager {
 
@@ -476,22 +470,21 @@ class LiveCustodialWalletManager(
     override fun linkToABank(fiatCurrency: String): Single<LinkBankTransfer> {
         return authenticator.authenticate {
             nabuService.linkToABank(it, fiatCurrency)
-                .zipWith(bankLinkingEnabledProvider.supportedBankPartners())
-        }.flatMap { (response, supportedPartners) ->
-            response.partner.toLinkingBankPartner(supportedPartners)?.let {
-                val attributes =
-                    response.attributes
-                        ?: return@flatMap Single.error<LinkBankTransfer>(
-                            IllegalStateException("Missing attributes")
-                        )
-                Single.just(
-                    LinkBankTransfer(
-                        response.id,
-                        it,
-                        it.attributes(attributes)
-                    )
+        }.flatMap { response ->
+            val partner = response.partner.toLinkingBankPartner() ?: return@flatMap Single.error<LinkBankTransfer>(
+                IllegalStateException("Partner not Supported")
+            )
+            val attributes =
+                response.attributes ?: return@flatMap Single.error<LinkBankTransfer>(
+                    IllegalStateException("Missing attributes")
                 )
-            }
+            Single.just(
+                LinkBankTransfer(
+                    response.id,
+                    partner,
+                    partner.attributes(attributes)
+                )
+            )
         }
     }
 
@@ -539,10 +532,6 @@ class LiveCustodialWalletManager(
         methods.filter { method -> method.eligible || !onlyEligible }
     }.doOnSuccess {
         updateSupportedCards(it)
-    }.zipWith(bankLinkingEnabledProvider.bankLinkingEnabled(fiatCurrency)).map { (methods, enabled) ->
-        methods.filter {
-            it.type != PaymentMethodResponse.BANK_TRANSFER || enabled
-        }
     }
 
     override fun getBankTransferLimits(fiatCurrency: String, onlyEligible: Boolean): Single<PaymentLimits> =
@@ -734,8 +723,8 @@ class LiveCustodialWalletManager(
                 sessionToken = it,
                 currency = fiatCurrency,
                 eligibleOnly = true
-            ).zipWith(bankLinkingEnabledProvider.bankLinkingEnabled(fiatCurrency))
-                .map { (methodsResponse, bankLinkingEnabled) ->
+            )
+                .map { methodsResponse ->
                     methodsResponse.mapNotNull { method ->
                         when (method.type) {
                             PaymentMethodResponse.PAYMENT_CARD -> EligiblePaymentMethodType(
@@ -743,17 +732,12 @@ class LiveCustodialWalletManager(
                                 method.currency ?: return@mapNotNull null
                             )
                             PaymentMethodResponse.BANK_TRANSFER -> {
-                                if (bankLinkingEnabled) {
-                                    EligiblePaymentMethodType(
-                                        PaymentMethodType.BANK_TRANSFER,
-                                        method.currency ?: return@mapNotNull null
-                                    )
-                                } else {
-                                    return@mapNotNull null
-                                }
+                                EligiblePaymentMethodType(
+                                    PaymentMethodType.BANK_TRANSFER,
+                                    method.currency ?: return@mapNotNull null
+                                )
                             }
-                            PaymentMethodResponse.BANK_ACCOUNT
-                            -> EligiblePaymentMethodType(
+                            PaymentMethodResponse.BANK_ACCOUNT -> EligiblePaymentMethodType(
                                 PaymentMethodType.BANK_ACCOUNT,
                                 method.currency ?: return@mapNotNull null
                             )
@@ -936,11 +920,9 @@ class LiveCustodialWalletManager(
     override fun canTransactWithBankMethods(fiatCurrency: String): Single<Boolean> {
         if (!fiatCurrency.isSupportedCurrency())
             return Single.just(false)
-        return getSupportedCurrenciesForBankTransactions(fiatCurrency).zipWith(
-            achDepositWithdrawFeatureFlag.enabled
-        )
-            .map { (supportedCurrencies, achEnabled) ->
-                val currencies = supportedCurrencies.filter { achEnabled || it != ACH_CURRENCY }
+        return getSupportedCurrenciesForBankTransactions(fiatCurrency)
+            .map { supportedCurrencies ->
+                val currencies = supportedCurrencies.filter { it != ACH_CURRENCY }
                 currencies.contains(fiatCurrency)
             }
     }
@@ -959,8 +941,8 @@ class LiveCustodialWalletManager(
         }
 
     override fun isSimplifiedDueDiligenceEligible(): Single<Boolean> =
-        nabuService.isSDDEligible().zipWith(sddFeatureFlag.enabled).map { (response, featureEnabled) ->
-            featureEnabled && response.eligible && response.tier == SDD_ELIGIBLE_TIER
+        nabuService.isSDDEligible().map { response ->
+            response.eligible && response.tier == SDD_ELIGIBLE_TIER
         }.onErrorReturn { false }
 
     override fun fetchSimplifiedDueDiligenceUserState(): Single<SimplifiedDueDiligenceUserState> =
@@ -1084,7 +1066,7 @@ class LiveCustodialWalletManager(
         )
 
     private fun LinkedBankTransferResponse.toLinkedBank(): LinkedBank? {
-        val bankPartner = partner.toLinkingBankPartner(BankPartner.values().toList()) ?: return null
+        val bankPartner = partner.toLinkingBankPartner() ?: return null
         return LinkedBank(
             id = id,
             currency = currency,
@@ -1353,6 +1335,10 @@ class LiveCustodialWalletManager(
             "GBP", "EUR", "USD"
         )
 
+        private val SUPPORTED_BANK_PARTNERS = listOf(
+            BankPartner.YAPILY, BankPartner.YODLEE
+        )
+
         private const val ACH_CURRENCY = "USD"
 
         private const val SDD_ELIGIBLE_TIER = 3
@@ -1360,6 +1346,18 @@ class LiveCustodialWalletManager(
 
     private fun String.isSupportedCurrency(): Boolean =
         SUPPORTED_FUNDS_FOR_WIRE_TRANSFER.contains(this)
+
+    private fun String.toLinkingBankPartner(): BankPartner? {
+        val partner = when (this) {
+            CreateLinkBankResponse.YODLEE_PARTNER -> BankPartner.YODLEE
+            CreateLinkBankResponse.YAPILY_PARTNER -> BankPartner.YAPILY
+            else -> null
+        }
+
+        return if (SUPPORTED_BANK_PARTNERS.contains(partner)) {
+            partner
+        } else null
+    }
 }
 
 private fun Product.toRequestString(): String =
@@ -1377,18 +1375,6 @@ private fun String.toLinkedBankState(): LinkedBankState =
         LinkedBankTransferResponse.BLOCKED -> LinkedBankState.BLOCKED
         else -> LinkedBankState.UNKNOWN
     }
-
-private fun String.toLinkingBankPartner(supportedBankPartners: List<BankPartner>): BankPartner? {
-    val partner = when (this) {
-        CreateLinkBankResponse.YODLEE_PARTNER -> BankPartner.YODLEE
-        CreateLinkBankResponse.YAPILY_PARTNER -> BankPartner.YAPILY
-        else -> null
-    }
-
-    return if (supportedBankPartners.contains(partner)) {
-        partner
-    } else null
-}
 
 private fun String.toLinkedBankErrorState(): LinkedBankErrorState =
     when (this) {

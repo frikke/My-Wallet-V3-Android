@@ -14,11 +14,13 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
+import java.lang.IllegalStateException
 import java.math.BigInteger
 import java.util.Date
 import piuk.blockchain.android.cards.EverypayAuthOptions
@@ -109,7 +111,7 @@ data class SimpleBuyState constructor(
     }
 
     override val limits: TxLimits
-        get() = selectedPaymentMethodLimits.combineWith(buyOrderLimits)
+        get() = buyOrderLimits.combineWith(selectedPaymentMethodLimits)
 
     fun isSelectedPaymentMethodRecurringBuyEligible(): Boolean =
         when (selectedPaymentMethodDetails) {
@@ -132,8 +134,18 @@ data class SimpleBuyState constructor(
     override val action: AssetAction
         get() = AssetAction.Buy
 
+    override val sourceAccountType: AssetCategory
+        get() = if (selectedPaymentMethod?.paymentMethodType == PaymentMethodType.FUNDS) {
+            AssetCategory.CUSTODIAL
+        } else {
+            AssetCategory.NON_CUSTODIAL
+        }
+
     override val sendingAsset: AssetInfo?
         get() = null
+
+    override val receivingCurrency: String
+        get() = selectedCryptoAsset?.displayTicker ?: throw IllegalStateException("Missing asset")
 
     override val availableBalance: Money?
         get() = selectedPaymentMethodDetails?.availableBalance

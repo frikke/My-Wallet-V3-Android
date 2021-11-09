@@ -15,6 +15,9 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
@@ -25,8 +28,12 @@ import io.reactivex.rxjava3.core.Single
 class FiatWithdrawalTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    private val limitsDataManager: LimitsDataManager
+    private val limitsDataManager: LimitsDataManager,
+    private val userIdentity: UserIdentity
 ) : TxEngine() {
+
+    private val userIsGoldVerified: Single<Boolean>
+        get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))
 
     override fun assertInputsValid() {
         check(sourceAccount is FiatAccount)
@@ -130,6 +137,13 @@ class FiatWithdrawalTxEngine(
                             ValidationState.UNDER_MIN_LIMIT
                         )
                     )
+                    pendingTx.isMaxLimitViolated() -> userIsGoldVerified.flatMapCompletable {
+                        if (it) {
+                            Completable.error(TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT))
+                        } else {
+                            Completable.error(TxValidationFailure(ValidationState.OVER_SILVER_TIER_LIMIT))
+                        }
+                    }
                     pendingTx.availableBalance < pendingTx.amount -> Completable.error(
                         TxValidationFailure(
                             ValidationState.INSUFFICIENT_FUNDS

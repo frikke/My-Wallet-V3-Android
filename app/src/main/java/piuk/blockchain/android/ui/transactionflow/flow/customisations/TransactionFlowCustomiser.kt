@@ -622,6 +622,7 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.BELOW_MIN_LIMIT -> composeBelowLimitErrorMessage(state, input)
 
             TransactionErrorState.OVER_SILVER_TIER_LIMIT -> resources.getString(R.string.swap_enter_amount_silver_limit)
+            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT,
             TransactionErrorState.OVER_GOLD_TIER_LIMIT -> {
                 val exchangeRate = state.fiatRate ?: return ""
                 val amount =
@@ -638,8 +639,7 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.UNKNOWN_ERROR -> resources.getString(R.string.send_error_tx_option_invalid)
             TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED ->
                 resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.displayTicker)
-            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
-            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> null
+            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> null
         }
     }
 
@@ -653,8 +653,8 @@ class TransactionFlowCustomiserImpl(
         return when (state.errorState) {
             TransactionErrorState.NONE -> ""
             TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
-                R.string.send_enter_amount_error_insufficient_funds,
-                state.sendingAccount.uiCurrency()
+                R.string.not_enough_funds,
+                state.amount.currencyCode
             )
             TransactionErrorState.INVALID_AMOUNT -> resources.getString(
                 R.string.send_enter_amount_error_invalid_amount_1,
@@ -678,18 +678,29 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.UNEXPECTED_ERROR -> resources.getString(
                 R.string.send_enter_unexpected_error
             )
-            TransactionErrorState.BELOW_MIN_LIMIT -> composeBelowLimitErrorMessage(state, input)
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT,
-            TransactionErrorState.OVER_GOLD_TIER_LIMIT -> {
-                resources.getString(R.string.over_your_limit)
+            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
+            TransactionErrorState.BELOW_MIN_LIMIT -> {
+                val fiatRate = state.fiatRate ?: return ""
+                val amount =
+                    input?.let {
+                        state.pendingTx?.limits?.minAmount?.toEnteredCurrency(
+                            it, fiatRate, RoundingMode.CEILING
+                        )
+                    } ?: state.pendingTx?.limits?.minAmount?.toStringWithSymbol()
+                resources.getString(
+                    R.string.minimum_with_value, amount
+                )
             }
+            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT,
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT,
+            TransactionErrorState.OVER_GOLD_TIER_LIMIT -> input?.let {
+                aboveMaxErrorMessage(state, it)
+            } ?: ""
             TransactionErrorState.TRANSACTION_IN_FLIGHT -> resources.getString(R.string.send_error_tx_in_flight)
             TransactionErrorState.TX_OPTION_INVALID -> resources.getString(R.string.send_error_tx_option_invalid)
             TransactionErrorState.UNKNOWN_ERROR -> resources.getString(R.string.send_error_tx_option_invalid)
             TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED ->
                 resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.displayTicker)
-            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
-            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> ""
         }
     }
 
@@ -778,6 +789,23 @@ class TransactionFlowCustomiserImpl(
                 frame.addView(it)
             }
         }
+
+    private fun aboveMaxErrorMessage(state: TransactionState, input: CurrencyType): String {
+
+        if (state.limits.suggestedUpgrade != null) {
+            return resources.getString(R.string.over_your_limit)
+        } else {
+            val fiatRate = state.fiatRate ?: return ""
+            val amount = input.let {
+                state.pendingTx?.limits?.maxAmount?.toEnteredCurrency(
+                    it, fiatRate, RoundingMode.FLOOR
+                )
+            } ?: state.pendingTx?.limits?.maxAmount?.toStringWithSymbol()
+            return resources.getString(
+                R.string.minimum_with_value, amount
+            )
+        }
+    }
 
     private fun composeBelowLimitErrorMessage(state: TransactionState, input: CurrencyType?): String {
         val exchangeRate = state.fiatRate ?: return ""

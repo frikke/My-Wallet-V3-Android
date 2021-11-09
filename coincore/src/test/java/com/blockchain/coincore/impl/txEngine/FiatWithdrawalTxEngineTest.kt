@@ -13,6 +13,7 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
 import com.nhaarman.mockitokotlin2.any
@@ -30,6 +31,7 @@ import org.junit.Test
 class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
+    private val userIdentity: UserIdentity = mock()
     private val limitsDataManager: LimitsDataManager = mock {
         on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
             Single.just(
@@ -48,7 +50,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Before
     fun setup() {
         initMocks()
-        subject = FiatWithdrawalTxEngine(walletManager, limitsDataManager)
+        subject = FiatWithdrawalTxEngine(walletManager, limitsDataManager, userIdentity)
     }
 
     @Test

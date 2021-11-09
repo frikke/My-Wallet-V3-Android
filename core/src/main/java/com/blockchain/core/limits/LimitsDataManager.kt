@@ -229,13 +229,14 @@ data class TxLimits(
         it.amount < amount
     } ?: false
 
+    // TODO we need to combine the suggested upgrades also but this requires some refactoring and can wait for now
     fun combineWith(other: TxLimits): TxLimits =
         this.copy(
             min = TxLimit.Limited(Money.max(other.minAmount, minAmount)),
             max = when {
                 max is TxLimit.Unlimited && other.max is TxLimit.Unlimited -> TxLimit.Unlimited
                 other.max is TxLimit.Unlimited -> max
-                max is TxLimit.Limited -> other.max
+                max is TxLimit.Unlimited -> other.max
                 else -> TxLimit.Limited(Money.min(other.maxAmount, maxAmount))
             }
         )
@@ -273,5 +274,5 @@ data class SuggestedUpgrade(
 )
 
 sealed class UpgradeType {
-    class Kyc(val proposedTier: Tier) : UpgradeType()
+    data class Kyc(val proposedTier: Tier) : UpgradeType()
 }

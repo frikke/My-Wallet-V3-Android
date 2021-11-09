@@ -552,6 +552,7 @@ private fun ValidationState.mapToTransactionError() =
         ValidationState.MEMO_INVALID -> TransactionErrorState.TX_OPTION_INVALID
         ValidationState.OVER_SILVER_TIER_LIMIT -> TransactionErrorState.OVER_SILVER_TIER_LIMIT
         ValidationState.OVER_GOLD_TIER_LIMIT -> TransactionErrorState.OVER_GOLD_TIER_LIMIT
+        ValidationState.ABOVE_PAYMENT_METHOD_LIMIT -> TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT
         ValidationState.INVOICE_EXPIRED, // We shouldn't see this here
         ValidationState.UNKNOWN_ERROR -> TransactionErrorState.UNKNOWN_ERROR
     }

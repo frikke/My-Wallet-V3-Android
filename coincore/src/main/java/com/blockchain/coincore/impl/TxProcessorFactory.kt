@@ -142,7 +142,8 @@ class TxProcessorFactory(
                         txTarget = target,
                         engine = FiatWithdrawalTxEngine(
                             walletManager = walletManager,
-                            limitsDataManager = limitsDataManager
+                            limitsDataManager = limitsDataManager,
+                            userIdentity = userIdentity
                         )
                     )
                 )

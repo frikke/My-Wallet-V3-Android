@@ -20,7 +20,7 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/description"
-        style="@style/Text.Semibold.14"
+        style="@style/Text.Standard.14"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"

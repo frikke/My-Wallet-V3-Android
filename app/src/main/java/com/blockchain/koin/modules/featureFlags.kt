@@ -1,9 +1,6 @@
 package com.blockchain.koin.modules
 
-import com.blockchain.koin.achDepositWithdrawFeatureFlag
 import com.blockchain.koin.dynamicAssetsFeatureFlag
-import com.blockchain.koin.obFeatureFlag
-import com.blockchain.koin.sddFeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.unifiedSignInFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
@@ -14,18 +11,6 @@ import org.koin.dsl.module
 import piuk.blockchain.android.featureflags.DynamicAssetsIntegratedFeatureFlag
 
 val featureFlagsModule = module {
-
-    factory(obFeatureFlag) {
-        get<RemoteConfig>().featureFlag("ob_enabled")
-    }
-
-    factory(achDepositWithdrawFeatureFlag) {
-        get<RemoteConfig>().featureFlag("ach_deposit_withdrawal_enabled")
-    }
-
-    factory(sddFeatureFlag) {
-        get<RemoteConfig>().featureFlag("sdd_enabled")
-    }
 
     factory(ssoSignInPolling) {
         get<RemoteConfig>().featureFlag("android_ff_sso_polling")

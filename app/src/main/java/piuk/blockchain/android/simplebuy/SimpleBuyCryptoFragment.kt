@@ -57,6 +57,9 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoBottomSheet
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoHost
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
@@ -69,6 +72,7 @@ class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
     RecurringBuySelectionBottomSheet.Host,
     SimpleBuyScreen,
+    TransactionFlowInfoHost,
     PaymentMethodChangeListener {
 
     override val model: SimpleBuyModel by scopedInject()
@@ -76,6 +80,7 @@ class SimpleBuyCryptoFragment :
     private val assetCatalogue: AssetCatalogue by inject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private val gatedFeatures: InternalFeatureFlagApi by inject()
+    private var infoActionCallback: () -> Unit = {}
 
     private var lastState: SimpleBuyState? = null
     private val compositeDisposable = CompositeDisposable()
@@ -329,8 +334,21 @@ class SimpleBuyCryptoFragment :
             errorContainer.setOnClickListener {
                 TransactionFlowInfoBottomSheet.newInstance(info)
                     .show(childFragmentManager, "BOTTOM_DIALOG")
+                infoActionCallback = handlePossibleInfoAction(info)
             }
         } ?: errorContainer.setOnClickListener {}
+    }
+
+    private fun handlePossibleInfoAction(info: TransactionFlowBottomSheetInfo): () -> Unit {
+        val type = info.action?.actionType ?: return {}
+        return when (type) {
+            InfoActionType.KYC_UPGRADE -> {
+                { startKyc() }
+            }
+            InfoActionType.BUY -> {
+                {}
+            }
+        }
     }
 
     private fun showCta() {
@@ -576,6 +594,10 @@ class SimpleBuyCryptoFragment :
     override fun onIntervalSelected(interval: RecurringBuyFrequency) {
         model.process(SimpleBuyIntent.RecurringBuyIntervalUpdated(interval))
         binding.recurringBuyCta.text = interval.toHumanReadableRecurringBuy(requireContext())
+    }
+
+    override fun onActionInfoTriggered() {
+        infoActionCallback()
     }
 
     override fun onSheetClosed() {

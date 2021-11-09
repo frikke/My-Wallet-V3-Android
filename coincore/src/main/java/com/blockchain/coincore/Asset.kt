@@ -46,13 +46,11 @@ enum class AssetAction(
     // There may be still be merit in defining these separately for crypto and fiat, as we
     // do with the flavours of SEND
     // Send TO interest account. Really a send?
-    @Deprecated("Use DEPOSIT")
+    // We should have a Generic WITHDRAW and DEPOSIT to include those
     InterestDeposit(ActionOrigin.FROM_SOURCE),
     // Interest TO any crypto of same asset. Really a send?
-    @Deprecated("Use DEPOSIT")
     InterestWithdraw(ActionOrigin.FROM_SOURCE),
     // External fiat to custodial fiat
-    @Deprecated("Use DEPOSIT")
     FiatDeposit(ActionOrigin.FROM_SOURCE)
 }
 

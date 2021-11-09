@@ -339,7 +339,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
         val amount = FiatValue.fromMinor(TGT_ASSET, 1000000L)
         val minLimit = FiatValue.fromMinor(TGT_ASSET, 2000L)
-        val maxLimit = FiatValue.fromMinor(TGT_ASSET, 10000L)
+        val maxPaymentMethodLimit = FiatValue.fromMinor(TGT_ASSET, 100000L)
+        val maxDepositLimit = FiatValue.fromMinor(TGT_ASSET, 10000L)
 
         val zeroFiat = FiatValue.zero(TGT_ASSET)
         val pendingTx = PendingTx(
@@ -349,8 +350,11 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             feeForFullAvailable = zeroFiat,
             feeAmount = zeroFiat,
             selectedFiat = TGT_ASSET,
+            engineState = mapOf(
+                "PAYMENT_METHOD_LIMITS" to TxLimits.fromAmounts(minLimit, maxPaymentMethodLimit)
+            ),
             feeSelection = FeeSelection(),
-            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxDepositLimit)
         )
 
         subject.doValidateAmount(
