@@ -85,6 +85,90 @@
             android:text="Primary Button"
             android:textAllCaps="false" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/alert_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Alert Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/exchange_buy_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Exchange Buy Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/exchange_sell_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Exchange Sell Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/exchange_split_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Exchange Split Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minimal_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Minimal Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/secondary_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Secondary Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/small_minimal_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Small Minimal Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/small_primary_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Small Primary Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/small_secondary_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Small Secondary Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/split_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Split Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/double_primary_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Double Primary Button"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/double_minimal_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Double Minimal Button"
+            android:textAllCaps="false" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

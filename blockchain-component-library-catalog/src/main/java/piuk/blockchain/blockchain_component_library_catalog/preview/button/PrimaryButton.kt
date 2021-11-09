@@ -7,7 +7,7 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
-@Preview(name = "Enabled", group = "Primary button")
+@Preview(name = "Default", group = "Primary button")
 @Composable
 fun PrimaryButtonPreview() {
     AppTheme {

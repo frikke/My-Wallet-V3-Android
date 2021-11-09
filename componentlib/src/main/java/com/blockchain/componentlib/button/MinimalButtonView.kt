@@ -2,30 +2,26 @@ package com.blockchain.componentlib.button
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.AbstractComposeView
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class MinimalButtonView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
-
-    var onClick = mutableStateOf({})
-    var text = mutableStateOf("")
-    var buttonState = mutableStateOf(ButtonState.Enabled)
-    var isMaxWidth = mutableStateOf(false)
+) : BaseButtonView(context, attrs, defStyleAttr) {
 
     @Composable
     override fun Content() {
-        MinimalButton(
-            onClick = onClick.value,
-            text = text.value,
-            state = buttonState.value,
-            modifier = if (isMaxWidth.value) Modifier.fillMaxWidth() else Modifier
-        )
+        AppTheme {
+            AppSurface {
+                MinimalButton(
+                    onClick = onClick,
+                    text = text,
+                    state = buttonState,
+                )
+            }
+        }
     }
 }

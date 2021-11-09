@@ -19,7 +19,9 @@ class HorizontalDividerView @JvmOverloads constructor(
     override fun Content() {
         AppTheme {
             AppSurface {
-                HorizontalDivider(Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }

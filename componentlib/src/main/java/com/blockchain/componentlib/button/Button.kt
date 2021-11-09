@@ -3,16 +3,14 @@ package com.blockchain.componentlib.button
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -21,9 +19,12 @@ fun Button(
     text: String,
     onClick: () -> Unit,
     state: ButtonState,
+    buttonContent: @Composable RowScope.(state: ButtonState, text: String, textColor: Color, textAlpha: Float) -> Unit,
     modifier: Modifier = Modifier,
+    shape: Shape = AppTheme.shapes.small,
     defaultTextColor: Color = Color.Unspecified,
-    defaultBackgroundColor: Color = Color.Unspecified,
+    defaultBackgroundLightColor: Color = Color.Unspecified,
+    defaultBackgroundDarkColor: Color = Color.Unspecified,
     disabledTextLightAlpha: Float = 0.7f,
     disabledTextDarkAlpha: Float = 0.4f,
     disabledBackgroundLightColor: Color = Color.Unspecified,
@@ -39,7 +40,7 @@ fun Button(
         if (isPressed && state == ButtonState.Enabled) {
             pressedBackgroundColor
         } else {
-            defaultBackgroundColor
+            if (isDarkTheme) defaultBackgroundDarkColor else defaultBackgroundLightColor
         }
 
     val textAlpha = when (state) {
@@ -50,27 +51,17 @@ fun Button(
 
     androidx.compose.material.Button(
         onClick = { onClick.takeIf { state == ButtonState.Enabled }?.invoke() },
-        modifier = modifier.height(48.dp),
+        modifier = modifier.requiredHeightIn(min = 48.dp),
         enabled = state != ButtonState.Disabled,
         interactionSource = interactionSource,
-        shape = AppTheme.shapes.small,
+        shape = shape,
         colors = ButtonDefaults.buttonColors(
             backgroundColor = backgroundColor,
             contentColor = Color.Unspecified,
             disabledBackgroundColor = if (isDarkTheme) disabledBackgroundDarkColor else disabledBackgroundLightColor,
             disabledContentColor = Color.Unspecified,
         ),
-        content = {
-            Box {
-                if (state == ButtonState.Loading) {
-                    ButtonLoadingIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                Text(
-                    text = text,
-                    color = defaultTextColor,
-                    modifier = Modifier.alpha(textAlpha)
-                )
-            }
-        }
+        elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+        content = { buttonContent(state = state, textColor = defaultTextColor, text = text, textAlpha = textAlpha) }
     )
 }

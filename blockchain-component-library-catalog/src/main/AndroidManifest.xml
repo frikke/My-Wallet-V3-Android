@@ -13,6 +13,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Walletandroidprivate">
         <activity
+            android:name=".abstract_compose_view.DoublePrimaryButtonsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.DoubleMinimalButtonsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SplitButtonsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SmallSecondaryButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SmallPrimaryButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SmallMinimalButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SecondaryButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.MinimalButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ExchangeSplitButtonsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ExchangeSellButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ExchangeBuyButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.AlertButtonActivity"
+            android:exported="false" />
+        <activity
             android:name=".abstract_compose_view.PrimaryButtonActivity"
             android:exported="false" />
         <activity

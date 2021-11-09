@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.button
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
@@ -18,7 +19,8 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun ButtonLoadingIndicator(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @DrawableRes loadingIconResId: Int
 ) {
     val rotation by rememberInfiniteTransition()
         .animateFloat(
@@ -32,7 +34,7 @@ fun ButtonLoadingIndicator(
             )
         )
     Image(
-        painter = painterResource(R.drawable.ic_loading),
+        painter = painterResource(loadingIconResId),
         contentDescription = null,
         modifier = modifier.rotate(rotation)
     )
@@ -43,7 +45,33 @@ fun ButtonLoadingIndicator(
 fun ButtonLoadingIndicatorPreview() {
     AppTheme {
         Surface {
-            ButtonLoadingIndicator()
+            ButtonLoadingIndicator(
+                loadingIconResId = R.drawable.ic_loading
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ButtonLoadingIndicatorMinimalLightPreview() {
+    AppTheme {
+        Surface {
+            ButtonLoadingIndicator(
+                loadingIconResId = R.drawable.ic_loading_minimal_light
+            )
+        }
+    }
+}
+
+@Preview()
+@Composable
+fun ButtonLoadingIndicatorMinimalDarkPreview() {
+    AppTheme {
+        Surface {
+            ButtonLoadingIndicator(
+                loadingIconResId = R.drawable.ic_loading_minimal_dark
+            )
         }
     }
 }

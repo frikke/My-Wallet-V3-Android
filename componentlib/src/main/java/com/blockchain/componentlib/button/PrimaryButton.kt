@@ -24,17 +24,26 @@ fun PrimaryButton(
         onClick = onClick,
         state = state,
         defaultTextColor = Color.White,
-        defaultBackgroundColor = Blue600,
+        defaultBackgroundLightColor = Blue600,
+        defaultBackgroundDarkColor = Blue600,
         disabledTextLightAlpha = 0.7f,
         disabledTextDarkAlpha = 0.4f,
         disabledBackgroundLightColor = Blue400,
         disabledBackgroundDarkColor = Grey900,
         pressedBackgroundColor = Blue700,
         modifier = modifier,
+        buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float ->
+            FixedSizeButtonContent(
+                state = state,
+                text = text,
+                textColor = textColor,
+                textAlpha = textAlpha
+            )
+        },
     )
 }
 
-@Preview
+@Preview(name = "Default", group = "Primary button")
 @Composable
 private fun PrimaryButtonPreview() {
     AppTheme {
@@ -48,7 +57,7 @@ private fun PrimaryButtonPreview() {
     }
 }
 
-@Preview
+@Preview(name = "Disabled", group = "Primary button")
 @Composable
 private fun PrimaryButtonDisabledPreview() {
     AppTheme {
@@ -62,7 +71,7 @@ private fun PrimaryButtonDisabledPreview() {
     }
 }
 
-@Preview
+@Preview(name = "Loading", group = "Primary button")
 @Composable
 private fun PrimaryButtonLoadingPreview() {
     AppTheme {
