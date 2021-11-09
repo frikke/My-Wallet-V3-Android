@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Walletandroidprivate">
         <activity
+            android:name=".abstract_compose_view.PrimaryButtonActivity"
+            android:exported="false" />
+        <activity
             android:name=".abstract_compose_view.DividerActivity"
             android:exported="false" />
         <activity

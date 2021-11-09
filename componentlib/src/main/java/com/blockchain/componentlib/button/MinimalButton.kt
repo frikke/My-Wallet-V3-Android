@@ -22,35 +22,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
 
-enum class MinimalButtonState { Enabled, Disabled, Loading }
-
 @Composable
 fun MinimalButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    state: MinimalButtonState = MinimalButtonState.Enabled
+    state: ButtonState = ButtonState.Enabled
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
 
     val buttonTextAlpha = when (state) {
-        MinimalButtonState.Disabled -> 0.4f
-        MinimalButtonState.Loading -> 0f
+        ButtonState.Disabled -> 0.4f
+        ButtonState.Loading -> 0f
         else -> 1f
     }
 
     val buttonBorderColor = when {
-        isPressed && state == MinimalButtonState.Enabled -> AppTheme.colors.primary
+        isPressed && state == ButtonState.Enabled -> AppTheme.colors.primary
         else -> AppTheme.colors.medium
     }
 
-    val spinnerAlpha = if (state == MinimalButtonState.Loading) 1f else 0f
+    val spinnerAlpha = if (state == ButtonState.Loading) 1f else 0f
 
     OutlinedButton(
         onClick = onClick,
-        enabled = state != MinimalButtonState.Disabled,
+        enabled = state != ButtonState.Disabled,
         modifier = modifier.height(48.dp),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = if (isPressed) Color.White else Color.Transparent,
@@ -99,7 +97,7 @@ fun MinimalButton_Loading() {
             MinimalButton(
                 onClick = { },
                 text = "Button",
-                state = MinimalButtonState.Loading
+                state = ButtonState.Loading,
             )
         }
     }
@@ -113,7 +111,7 @@ fun MinimalButton_Disabled() {
             MinimalButton(
                 onClick = { },
                 text = "Button",
-                state = MinimalButtonState.Disabled
+                state = ButtonState.Disabled,
             )
         }
     }
@@ -127,7 +125,7 @@ fun MinimalButton_FullWidth() {
             MinimalButton(
                 onClick = { },
                 text = "Max width",
-                state = MinimalButtonState.Disabled,
+                state = ButtonState.Disabled,
                 modifier = Modifier.fillMaxWidth()
             )
         }

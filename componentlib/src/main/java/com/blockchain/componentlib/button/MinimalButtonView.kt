@@ -16,7 +16,7 @@ class MinimalButtonView @JvmOverloads constructor(
 
     var onClick = mutableStateOf({})
     var text = mutableStateOf("")
-    var buttonState = mutableStateOf(MinimalButtonState.Enabled)
+    var buttonState = mutableStateOf(ButtonState.Enabled)
     var isMaxWidth = mutableStateOf(false)
 
     @Composable

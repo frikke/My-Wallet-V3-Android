@@ -3,6 +3,7 @@ package com.blockchain.componentlib.theme
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+internal val Blue700 = Color(0XFF1656B9)
 internal val Blue600 = Color(0XFF0C6CF2)
 internal val Blue400 = Color(0XFF619FF7)
 internal val Blue000 = Color(0XFFECF5FE)
