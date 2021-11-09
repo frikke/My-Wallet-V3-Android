@@ -5,6 +5,7 @@ import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
@@ -41,6 +42,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
     private val interestBalances: InterestBalanceDataManager = mock()
 
     private lateinit var subject: InterestWithdrawOnChainTxEngine
+    val txResult: TxResult = mock()
 
     @Before
     fun setUp() {
@@ -242,6 +244,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
         val money = CryptoValue.fromMajor(ASSET, 10.toBigDecimal())
         val mockPendingTx =
             PendingTx(
+                txResult,
                 money,
                 money,
                 money,

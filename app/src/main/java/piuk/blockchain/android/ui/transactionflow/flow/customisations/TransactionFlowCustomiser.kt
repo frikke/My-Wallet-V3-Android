@@ -12,6 +12,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.price.ExchangeRate
@@ -454,20 +455,37 @@ class TransactionFlowCustomiserImpl(
 
     override fun transactionCompleteTitle(state: TransactionState): String {
         val amount = state.pendingTx?.amount?.toStringWithSymbol() ?: ""
-
         return when (state.action) {
-            AssetAction.Send -> resources.getString(
-                R.string.send_progress_complete_title, amount
-            )
-            AssetAction.Swap -> resources.getString(R.string.swap_progress_complete_title)
-            AssetAction.Sell ->
-                resources.getString(
-                    R.string.sell_progress_complete_title, state.pendingTx?.amount?.toStringWithSymbol()
-                )
-            AssetAction.InterestDeposit -> resources.getString(
-                R.string.send_confirmation_success_title,
-                amount
-            )
+            AssetAction.Send -> {
+                if (state.sendingAccount is NonCustodialAccount) {
+                    resources.getString(R.string.send_progress_awaiting_complete_title)
+                } else {
+                    resources.getString(R.string.send_progress_complete_title, amount)
+                }
+            }
+            AssetAction.Swap -> {
+                if (state.sendingAccount is NonCustodialAccount) {
+                    resources.getString(R.string.swap_progress_awaiting_complete_title)
+                } else {
+                    resources.getString(R.string.swap_progress_complete_title)
+                }
+            }
+            AssetAction.Sell -> {
+                if (state.sendingAccount is NonCustodialAccount) {
+                    resources.getString(R.string.sell_progress_awaiting_complete_title)
+                } else {
+                    resources.getString(
+                        R.string.sell_progress_complete_title, amount
+                    )
+                }
+            }
+            AssetAction.InterestDeposit -> {
+                if (state.sendingAccount is NonCustodialAccount) {
+                    resources.getString(R.string.transfer_confirmation_awaiting_success_title)
+                } else {
+                    resources.getString(R.string.send_confirmation_success_title)
+                }
+            }
             AssetAction.FiatDeposit -> resources.getString(
                 R.string.deposit_confirmation_success_title,
                 amount
@@ -480,21 +498,64 @@ class TransactionFlowCustomiserImpl(
 
     override fun transactionCompleteMessage(state: TransactionState): String {
         return when (state.action) {
-            AssetAction.Send -> resources.getString(
-                R.string.send_progress_complete_subtitle, state.sendingAsset.displayTicker
-            )
-            AssetAction.InterestDeposit -> resources.getString(
-                R.string.send_confirmation_success_message,
-                state.sendingAsset.displayTicker
-            )
-            AssetAction.Sell -> resources.getString(
-                R.string.sell_confirmation_success_message,
-                (state.selectedTarget as? FiatAccount)?.fiatCurrency
-            )
-            AssetAction.Swap -> resources.getString(
-                R.string.swap_confirmation_success_message,
-                (state.selectedTarget as CryptoAccount).asset.displayTicker
-            )
+            AssetAction.Send -> {
+                if (state.sendingAccount is NonCustodialAccount) {
+                    resources.getString(
+                        R.string.send_progress_awaiting_subtitle, state.sendingAsset.name
+                    )
+                } else {
+                    resources.getString(
+                        R.string.send_progress_complete_subtitle, state.sendingAsset.displayTicker
+                    )
+                }
+            }
+            AssetAction.InterestDeposit -> {
+                if (state.sendingAccount is NonCustodialAccount) {
+                    resources.getString(
+                        R.string.transfer_confirmation_awaiting_success_message, state.sendingAsset.name
+                    )
+                } else {
+                    resources.getString(
+                        R.string.send_confirmation_success_message,
+                        state.sendingAsset.displayTicker
+                    )
+                }
+            }
+            AssetAction.Sell -> {
+                if (state.sendingAccount is NonCustodialAccount) {
+                    resources.getString(
+                        R.string.sell_confirmation_awaiting_success_message, state.sendingAsset.name
+                    )
+                } else {
+                    resources.getString(
+                        R.string.sell_confirmation_success_message,
+                        (state.selectedTarget as? FiatAccount)?.fiatCurrency
+                    )
+                }
+            }
+            AssetAction.Swap -> {
+                when {
+                    state.sendingAccount is NonCustodialAccount &&
+                        state.selectedTarget is CryptoNonCustodialAccount -> {
+                        resources.getString(
+                            R.string.swap_confirmation_awaiting_nc_receiving_success_message,
+                            state.sendingAsset.name,
+                            state.selectedTarget.asset.name
+                        )
+                    }
+                    state.sendingAccount is NonCustodialAccount -> {
+                        resources.getString(
+                            R.string.swap_confirmation_awaiting_nc_sending_success_message, state.sendingAsset.name
+                        )
+                    }
+                    else -> {
+                        resources.getString(
+                            R.string.swap_confirmation_success_message,
+                            (state.selectedTarget as CryptoAccount).asset.displayTicker
+                        )
+                    }
+                }
+            }
             AssetAction.FiatDeposit -> resources.getString(
                 R.string.deposit_confirmation_success_message,
                 state.pendingTx?.amount?.toStringWithSymbol() ?: "",

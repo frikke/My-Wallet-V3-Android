@@ -108,6 +108,7 @@
     <string name="invalid_email">Invalid email address</string>
     <string name="invalid_mobile">Invalid mobile phone number</string>
     <string name="invalid_password">Invalid password</string>
+    <string name="try_again">Try again later</string>
     <string name="invalid_password_too_short">Please enter more than 3 characters</string>
     <string name="country_not_selected">Please select your Country of Residence</string>
     <string name="state_not_selected">Please select your State</string>
@@ -1702,7 +1703,10 @@
     <string name="sell_confirmation_progress_title">Selling %1$s</string>
     <string name="sell_confirmation_progress_message">We’re completing your sell now.</string>
     <string name="swap_confirmation_progress_message">We’re completing your swap now.</string>
+    <string name="sell_confirmation_awaiting_success_message">Your sell is being verified now by the %s. You can check the progress of this transaction in the Activity section.</string>
     <string name="sell_confirmation_success_message">Your cash is now available in your %1$s Wallet.</string>
+    <string name="swap_confirmation_awaiting_nc_sending_success_message">Your swap is being verified now by the %s network. You can check the progress of this transaction in the Activity section.</string>
+    <string name="swap_confirmation_awaiting_nc_receiving_success_message">Your swap is being verified now by the %1$s &amp; the %2$s networks. You can check the progress of this transaction in the Activity section.</string>
     <string name="swap_confirmation_success_message">Your %1$s is now available in your Wallet.</string>
     <string name="send_confirmation_deposit_cta_button">Transfer Now</string>
     <string name="send_confirmation_rewards_tos_pp">I have read and agree to the <annotation link="interest_tos">Terms of Service</annotation> &amp; <annotation link="interest_pp">Privacy Policy</annotation>.</string>
@@ -1711,6 +1715,8 @@
     <string name="send_confirmation_progress_title">Transferring %1$s</string>
     <string name="send_confirmation_progress_message">We’re transferring your %1$s now.</string>
     <string name="send_confirmation_success_title">%1$s Transferred</string>
+    <string name="transfer_confirmation_awaiting_success_title">Transfer In Progress</string>
+    <string name="transfer_confirmation_awaiting_success_message">Your transfer is being verified now by the %s network. You can check the progress of this transaction in the Activity section.</string>
     <string name="send_confirmation_success_message">Your %1$s has been transferred successfully.</string>
     <string name="send_state_no_funds">No funds</string>
     <string name="send_state_not_supported">Send not supported on this account</string>
@@ -1721,14 +1727,19 @@
     <string name="swap_progress_title">Swapping %1$s for %2$s</string>
     <string name="send_progress_sending_subtitle">We’re sending your transaction now.</string>
     <string name="send_progress_complete_title">%1$s Sent</string>
+    <string name="sell_progress_awaiting_complete_title">Sell In Progress</string>
+    <string name="send_progress_awaiting_complete_title">Send In Progress</string>
     <string name="sell_progress_complete_title">%1$s Sold</string>
+    <string name="swap_progress_awaiting_complete_title">Swap In Progress</string>
     <string name="swap_progress_complete_title">Swap Complete</string>
     <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Not enough %1$s in your wallet to transfer with current network fees.</string>
     <string name="send_progress_complete_subtitle">Your %1$s has been successfully sent.</string>
+    <string name="send_progress_awaiting_subtitle">Your send is being verified now by the %s network. You can check the progress of this transaction in the Activity section.</string>
     <string name="send_progress_error_title">Oops! Something Went Wrong. Please try again.</string>
     <string name="send_progress_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Support Team for help.</string>
     <string name="send_enter_asset_address_hint">%1s Address</string>
     <string name="send_warn_internal_send_only">Internal Send Only</string>
+    <string name="send_view_transaction">View Transaction</string>
     <string name="send_scan_qr_code">Scan QR Code</string>
     <string name="send_error_not_valid_asset_address">Not a valid %1s address</string>
     <string name="send_error_address_is_eth_contract">Address is not a user address</string>

@@ -73,6 +73,7 @@ data class FeeSelection(
 )
 
 data class PendingTx(
+    val txResult: TxResult? = null,
     val amount: Money,
     val totalBalance: Money,
     val availableBalance: Money,
@@ -443,7 +444,9 @@ class TransactionProcessor(
         when (this) {
             ValidationState.CAN_EXECUTE -> {
                 engine.doExecute(pendingTx, secondPassword).flatMapCompletable { result ->
-                    engine.doPostExecute(pendingTx, result)
+                    val updatedPendingTransaction = pendingTx.copy(txResult = result)
+                    updatePendingTx(updatedPendingTransaction)
+                    engine.doPostExecute(updatedPendingTransaction, result)
                 }
             }
             ValidationState.UNINITIALISED -> Completable.error(TransactionError.UnexpectedError)

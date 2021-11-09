@@ -1,14 +1,19 @@
 package piuk.blockchain.android.ui.transactionflow.flow
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.coincore.TxResult
+import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxFlowInProgressBinding
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
@@ -23,16 +28,33 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     private val customiser: TransactionProgressCustomisations by inject()
     private val MAX_STACKTRACE_CHARS = 400
 
+    private val assetResources: AssetResources by inject()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.txProgressView.onCtaClick {
-            activity.finish()
+        binding.txProgressView.onCtaClick { activity.finish() }
+    }
+
+    private fun onViewTransactionClicked(asset: AssetInfo, onChainTxId: String) {
+        val explorerUri = assetResources.makeBlockExplorerUrl(asset, onChainTxId)
+        if (explorerUri.isNotEmpty()) {
+            Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(explorerUri)
+                startActivity(this)
+            }
         }
     }
 
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! TransactionProgressFragment")
         require(newState.currentStep == TransactionStep.IN_PROGRESS)
+
+        val onChainTxId = (newState.pendingTx?.txResult as? TxResult.HashedTxResult)?.txId
+        onChainTxId?.let {
+            binding.txProgressView.configureSecondaryButton(getString(R.string.send_view_transaction)) {
+                onViewTransactionClicked(newState.sendingAsset, onChainTxId)
+            }
+        }
 
         customiser.transactionProgressStandardIcon(newState)?.let {
             binding.txProgressView.setAssetIcon(it)
