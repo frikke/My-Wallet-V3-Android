@@ -153,6 +153,9 @@ internal class StaticAssetLoader(
         )
     }
 
+    override val activeAssets: List<CryptoAsset>
+        get() = assetMap.values.toList()
+
     override val loadedAssets: List<CryptoAsset>
         get() = assetMap.values.toList()
 }

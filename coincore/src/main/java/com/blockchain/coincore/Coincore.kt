@@ -224,7 +224,8 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.loadedAssets.toList()
+    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets.toList()
+
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
 
     fun supportedFiatAssets(): List<String> = assetCatalogue.supportedFiatAssets

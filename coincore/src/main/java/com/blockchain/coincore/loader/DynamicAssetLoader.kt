@@ -54,6 +54,7 @@ internal class DynamicAssetLoader(
     private val formatUtils: FormatUtilities
 ) : AssetLoader {
 
+    private val activeAssetMap = mutableMapOf<AssetInfo, CryptoAsset>()
     private val assetMap = mutableMapOf<AssetInfo, CryptoAsset>()
 
     override operator fun get(asset: AssetInfo): CryptoAsset =
@@ -75,6 +76,7 @@ internal class DynamicAssetLoader(
             .flatMap { supportedAssets ->
                 // We need to make sure than any l1 assets - notably ETH - is initialised before
                 // create any l2s. So that things like balance calls will work
+                activeAssetMap.putAll(nonCustodialAssets.associateBy { it.asset })
                 initNonCustodialAssets(nonCustodialAssets)
                     // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
                     // and the non-custodial accounts won't show up.
@@ -102,16 +104,19 @@ internal class DynamicAssetLoader(
         dynamicAssets: Set<AssetInfo>
     ): Single<List<CryptoAsset>> {
         val erc20assets = dynamicAssets.filter { it.isErc20() }
-        val custodialAssets = dynamicAssets.filter { it.isCustodial && !erc20assets.contains(it) }
 
-        // Those two sets should NOT overlap
-        check(erc20assets.intersect(custodialAssets).isEmpty())
-
-        return Single.zip(
-            loadErc20Assets(erc20assets),
-            loadCustodialOnlyAssets(custodialAssets)
-        ) { erc20List, custodialList ->
-            erc20List + custodialList
+        return loadErc20Assets(erc20assets).flatMap { loadedErc20 ->
+            // Loading Custodial ERC20s even without a balance is necessary so they show up for swap
+            val custodialAssets = dynamicAssets.filter { dynamicAsset ->
+                dynamicAsset.isCustodial &&
+                    loadedErc20.find { erc20 -> erc20.asset == dynamicAsset } == null
+            }
+            // Those two sets should NOT overlap
+            check(loadedErc20.intersect(custodialAssets).isEmpty())
+            activeAssetMap.putAll(loadedErc20.associateBy { it.asset })
+            loadCustodialOnlyAssets(custodialAssets).map { custodialList ->
+                loadedErc20 + custodialList
+            }
         }
     }
 
@@ -124,10 +129,12 @@ internal class DynamicAssetLoader(
         ) { activeTrading, activeInterest ->
             activeInterest + activeTrading
         }.map { activeAssets ->
-            custodialAssets.filter { activeAssets.contains(it) }
-        }.map { activeSupportedAssets ->
-            activeSupportedAssets.map { asset ->
-                loadCustodialOnlyAsset(asset)
+            custodialAssets.map { asset ->
+                val loadedAsset = loadCustodialOnlyAsset(asset)
+                if (activeAssets.contains(asset)) {
+                    activeAssetMap[asset] = loadedAsset
+                }
+                loadedAsset
             }
         }
 
@@ -190,6 +197,9 @@ internal class DynamicAssetLoader(
             formatUtils = formatUtils
         )
     }
+
+    override val activeAssets: List<CryptoAsset>
+        get() = activeAssetMap.values.toList()
 
     override val loadedAssets: List<CryptoAsset>
         get() = assetMap.values.toList()
