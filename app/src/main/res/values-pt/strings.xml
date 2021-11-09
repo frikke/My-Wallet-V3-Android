@@ -2254,4 +2254,21 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="withdrawal_summary_withdraw">Disponível para retirada</string>
     <string name="withdrawal_summary_send">Limites de envio</string>
     <string name="withdrawals_lock_title">Disponível para retirada</string>
+
+    <string name="funds_locked_warning_title">Em espera</string>
+    <string name="funds_locked_summary_cta">Eu entendo</string>
+    <string name="funds_locked_summary_available_withdraw">Disponível para Levantamento</string>
+    <string name="funds_locked_summary_on_hold">%s em espera</string>
+    <string name="funds_locked_summary_text">Os fundos recém-adicionados estão sujeitos a um período de retenção. Pode transferir entre as suas contas Negociação, Recompensas e Exchange entretanto. <annotation link="learn_more"> Saiba mais → </annotation></string>
+    <string name="funds_locked_details_text">Os fundos recém-adicionados estão sujeitos a um período de retenção. Pode transferir entre as suas contas Negociação, Recompensas e Exchange entretanto.</string>
+    <string name="funds_locked_details_title_amount">QUANTIA</string>
+    <string name="funds_locked_details_toolbar">Em espera</string>
+    <string name="funds_locked_details_title">%s em espera</string>
+    <string name="funds_locked_warning_days">%s dias</string>
+    <string name="login_polling_timeout">A sessão de verificação do dispositivo expirou</string>
+    <string name="login_polling_denied">Sessão de verificação de dispositivo negada noutro dispositivo</string>
+    <string name="login_approval_dialog_title">Solicitação de autenticação</string>
+    <string name="login_approval_dialog_message">Reparámos que houve uma tentativa de autenticação de um novo dispositivo. Se foi você, aprove o dispositivo abaixo.</string>
+    <string name="login_approved_toast">Login aprovado! Volte ao seu outro dispositivo para continuar a autenticar-se</string>
+    <string name="login_denied_toast">Login negado! Se não foi você que tentou autenticar-se, entre em contacto com o suporte</string>
 </resources>

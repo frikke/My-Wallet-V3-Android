@@ -2121,4 +2121,22 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="withdrawal_summary_withdraw">Disponible para retirar</string>
     <string name="withdrawal_summary_send">Límites de envío</string>
     <string name="withdrawals_lock_title">Disponible para retirar</string>
+
+    <string name="funds_locked_warning_title">En espera</string>
+    <string name="funds_locked_summary_cta">Entiendo</string>
+    <string name="funds_locked_summary_available_withdraw">Disponible para retirar</string>
+    <string name="funds_locked_summary_on_hold">%s en espera</string>
+    <string name="funds_locked_summary_details">Ver detalles</string>
+    <string name="funds_locked_summary_text">Los fondos recién agregados están sujetos a un período de retención. Mientras tanto, puede realizar transferencias entre sus cuentas de Trading, Rewards y Exchange. <annotation link="learn_more"> Más información → </annotation></string>
+    <string name="funds_locked_details_text">Los fondos recién agregados están sujetos a un período de retención. Mientras tanto, puede realizar transferencias entre sus cuentas de Trading, Rewards y Exchange.</string>
+    <string name="funds_locked__details_title_date">MANTENIDO HASTA</string>
+    <string name="funds_locked_details_toolbar">En espera</string>
+    <string name="funds_locked_details_title">%s en espera</string>
+    <string name="funds_locked_warning_days">%s días</string>
+    <string name="login_polling_timeout">La sesión de verificación del dispositivo ha expirado</string>
+    <string name="login_polling_denied">Sesión de verificación de dispositivo denegada en otro dispositivo</string>
+    <string name="login_approval_dialog_title">Solicitud de inicio de sesión</string>
+    <string name="login_approval_dialog_message">Hemos registrado un intento de inicio de sesión desde un nuevo dispositivo. Si ha sido usted, apruebe el dispositivo a continuación.</string>
+    <string name="login_approved_toast">Inicio de sesión aprobado. Regrese a su otro dispositivo para continuar iniciando sesión.</string>
+    <string name="login_denied_toast">Inicio de sesión denegado. Si no estaba intentando iniciar sesión, póngase en contacto con el servicio de asistencia.</string>
 </resources>

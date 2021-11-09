@@ -2216,4 +2216,20 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="withdrawal_summary_withdraw">Доступно для вывода</string>
     <string name="withdrawal_summary_send">Лимиты отправки</string>
     <string name="withdrawals_lock_title">Доступно для вывода</string>
+    <string name="funds_locked_summary_cta">Я понимаю</string>
+    <string name="funds_locked_summary_available_withdraw">Доступно для вывода</string>
+    <string name="funds_locked_summary_on_hold">%s на удержании</string>
+    <string name="funds_locked_summary_details">Просмотреть подробности</string>
+    <string name="funds_locked_summary_text">Для вновь добавленных средств действует период удержания. Во время удержания вы можете переводить средства между своими торговыми счетами, счетами вознаграждений и Exchange. <annotation link="learn_more">Подробнее →</annotation></string>
+    <string name="funds_locked_details_text">Для вновь добавленных средств действует период удержания. Во время удержания вы можете переводить средства между своими торговыми счетами, счетами вознаграждений и Exchange.</string>
+    <string name="funds_locked__details_title_date">УДЕРЖИВАЕТСЯ ДО</string>
+    <string name="funds_locked_details_title_amount">СУММА</string>
+    <string name="funds_locked_details_title">%s на удержании</string>
+    <string name="funds_locked_warning_days">%s дня (-ей)</string>
+    <string name="login_polling_timeout">Срок сеанса проверки устройства истек</string>
+    <string name="login_polling_denied">Сеанс проверки устройства отклонен на другом устройстве</string>
+    <string name="login_approval_dialog_title">Запрос на вход</string>
+    <string name="login_approval_dialog_message">Мы заметили попытку входа с нового устройства. Если это были вы, одобрите устройство ниже.</string>
+    <string name="login_approved_toast">Вход одобрен! Вернитесь к другому устройству, чтобы продолжить вход</string>
+    <string name="login_denied_toast">Вход отклонен! Если пытались войти не вы, пожалуйста, обратитесь в службу поддержки</string>
 </resources>

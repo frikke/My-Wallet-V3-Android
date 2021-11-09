@@ -2284,4 +2284,21 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="withdrawal_summary_send">Limitleri Gönder</string>
     <string name="withdrawals_lock_title">Çekilebilir</string>
 
+    <string name="funds_locked_warning_title">Beklemede</string>
+    <string name="funds_locked_summary_cta">Anladım</string>
+    <string name="funds_locked_summary_available_withdraw">Çekilebilir</string>
+    <string name="funds_locked_summary_on_hold">%s Beklemede</string>
+    <string name="funds_locked_summary_text">Yeni eklenen fonlar bir bekletme süresine tabidir. Bu esnada Al-Sat, Ödül ve Exchange hesaplarınız arasında transfer yapabilirsiniz. <annotation link="learn_more">Daha fazla bilgi →</annotation></string>
+    <string name="funds_locked_details_text">Yeni eklenen paralar bir bekletme süresine tabidir. Bu esnada Al-Sat, Ödül ve Exchange hesaplarınız arasında transfer yapabilirsiniz.</string>
+    <string name="funds_locked__details_title_date">ŞU TARİHE KADAR BEKLEMEDE:</string>
+    <string name="funds_locked_details_toolbar">Beklemede</string>
+    <string name="funds_locked_details_title">%s Beklemede</string>
+    <string name="funds_locked_warning_days">%s gün</string>
+    <string name="login_polling_timeout">Cihaz doğrulama oturumunun süresi doldu</string>
+    <string name="login_polling_denied">Cihaz doğrulama oturumu başka bir cihazda reddedildi</string>
+    <string name="login_approval_dialog_title">Giriş Talebi</string>
+    <string name="login_approval_dialog_message">Yeni bir cihazdan giriş denemesi yapıldığını fark ettik. Giriş yapmayı deneyen sizseniz aşağıdaki cihazı onaylayın.</string>
+    <string name="login_approved_toast">Giriş Onaylandı! Giriş yapmaya devam etmek için diğer cihazınıza dönün</string>
+    <string name="login_denied_toast">Giriş Reddedildi! Giriş yapmaya çalışan siz değilseniz lütfen destek ekibiyle iletişime geçin</string>
+
 </resources>

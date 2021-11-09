@@ -2184,4 +2184,23 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="withdrawal_summary_withdraw">Disponible pour retrait</string>
     <string name="withdrawal_summary_send">Limites d\'envoi</string>
     <string name="withdrawals_lock_title">Disponible pour retrait</string>
+
+    <string name="funds_locked_warning_title">En attente</string>
+    <string name="funds_locked_summary_cta">Je comprends</string>
+    <string name="funds_locked_summary_available_withdraw">Disponible pour retrait</string>
+    <string name="funds_locked_summary_on_hold">%s en attente</string>
+    <string name="funds_locked_summary_details">Afficher les détails</string>
+    <string name="funds_locked_summary_text">Les fonds nouvellement ajoutés sont soumis à une période de détention. Dans l\'intervalle, vous pouvez effectuer des transferts entre vos comptes Trading, Récompenses et Exchange. <annotation link="learn_more"> En savoir plus → </annotation></string>
+    <string name="funds_locked_details_text">Les fonds nouvellement ajoutés sont sujets à une période de détention. Dans l\'intervalle, vous pouvez effectuer des transferts entre vos comptes Trading, Récompenses et Exchange.</string>
+    <string name="funds_locked__details_title_date">DÉTENUS JUSQU\'AU</string>
+    <string name="funds_locked_details_title_amount">MONTANT</string>
+    <string name="funds_locked_details_toolbar">En attente</string>
+    <string name="funds_locked_details_title">%s en attente</string>
+    <string name="funds_locked_warning_days">%s jours</string>
+    <string name="login_polling_timeout">La session de vérification de l\'appareil a expiré</string>
+    <string name="login_polling_denied">Session de vérification de l\'appareil refusée sur un autre appareil</string>
+    <string name="login_approval_dialog_title">Demande de connexion</string>
+    <string name="login_approval_dialog_message">Nous avons remarqué une tentative de connexion à partir d\'un nouvel appareil. Si c\'était vous, approuvez l\'appareil ci-dessous.</string>
+    <string name="login_approved_toast">Connexion approuvée ! Revenez à votre autre appareil pour continuer à vous connecter</string>
+    <string name="login_denied_toast">Connexion refusée ! Si ce n\'est pas vous qui essayez de vous connecter, veuillez contacter le service d\'assistance</string>
 </resources>
