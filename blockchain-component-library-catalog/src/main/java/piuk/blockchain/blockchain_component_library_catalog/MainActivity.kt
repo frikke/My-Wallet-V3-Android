@@ -7,6 +7,7 @@ import com.airbnb.android.showkase.models.Showkase
 import com.google.android.material.button.MaterialButton
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ActionTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BalanceTableRowActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BottomNavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ColorsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DefaultTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DividerActivity
@@ -43,6 +44,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.dividers).setOnClickListener {
             startActivity(Intent(this@MainActivity, DividerActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.bottom_navigation).setOnClickListener {
+            startActivity(Intent(this@MainActivity, BottomNavigationActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.primary_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, PrimaryButtonActivity::class.java))

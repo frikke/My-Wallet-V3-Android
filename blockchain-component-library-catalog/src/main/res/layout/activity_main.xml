@@ -88,6 +88,19 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Navigation"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bottom Navigation"
+            android:textAllCaps="false" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Compositions"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
