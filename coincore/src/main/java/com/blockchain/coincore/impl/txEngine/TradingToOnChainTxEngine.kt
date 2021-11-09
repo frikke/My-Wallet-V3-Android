@@ -81,14 +81,13 @@ class TradingToOnChainTxEngine(
                 }
             ),
             { balance, cryptoFee, limits ->
+                val fees = CryptoValue.fromMinor(sourceAsset, cryptoFee.fee)
                 PendingTx(
                     amount = CryptoValue.zero(sourceAsset),
                     totalBalance = balance.total,
-                    availableBalance = balance.actionable.minus(
-                        CryptoValue.fromMinor(sourceAsset, cryptoFee.fee)
-                    ),
-                    feeForFullAvailable = CryptoValue.fromMinor(sourceAsset, cryptoFee.fee),
-                    feeAmount = CryptoValue.fromMinor(sourceAsset, cryptoFee.fee),
+                    availableBalance = Money.max(balance.actionable - fees, CryptoValue.zero(sourceAsset)),
+                    feeForFullAvailable = fees,
+                    feeAmount = fees,
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat,
                     limits = limits
@@ -105,10 +104,11 @@ class TradingToOnChainTxEngine(
             sourceAccount.balance.firstOrError(),
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY)
         ) { balance, cryptoFeeAndMin ->
+            val fees = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee)
             pendingTx.copy(
                 amount = amount,
                 totalBalance = balance.total,
-                availableBalance = balance.actionable.minus(CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee))
+                availableBalance = Money.max(balance.actionable - fees, CryptoValue.zero(sourceAsset))
             )
         }
     }

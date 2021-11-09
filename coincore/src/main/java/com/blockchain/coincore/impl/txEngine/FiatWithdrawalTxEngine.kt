@@ -63,7 +63,7 @@ class FiatWithdrawalTxEngine(
                 PendingTx(
                     amount = zeroFiat,
                     limits = limits,
-                    availableBalance = balance.actionable - withdrawalFee.fee,
+                    availableBalance = Money.max(balance.actionable - withdrawalFee.fee, zeroFiat),
                     feeForFullAvailable = zeroFiat,
                     totalBalance = balance.total,
                     feeAmount = withdrawalFee.fee,
