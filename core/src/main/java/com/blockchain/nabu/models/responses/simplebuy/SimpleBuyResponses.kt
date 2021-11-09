@@ -41,6 +41,8 @@ data class BankAgentResponse(
     val name: String?,
     val recipient: String?,
     val routingNumber: String?,
+    val recipientAddress: String?,
+    val accountType: String?,
     val swiftCode: String?
 )
 
@@ -91,6 +93,7 @@ data class BuySellOrderResponse(
     val updatedAt: String,
     val side: String,
     val depositPaymentId: String?,
+    val processingErrorType: String?,
     val recurringBuyId: String?,
     val failureReason: String?
 ) {
@@ -113,6 +116,7 @@ data class BuySellOrderResponse(
         const val FAILED_INTERNAL_ERROR = "FAILED_INTERNAL_ERROR"
         const val FAILED_BENEFICIARY_BLOCKED = "FAILED_BENEFICIARY_BLOCKED"
         const val FAILED_BAD_FILL = "FAILED_BAD_FILL"
+        const val ISSUER_PROCESSING_ERROR = "ISSUER"
     }
 }
 

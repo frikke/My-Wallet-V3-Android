@@ -53,16 +53,12 @@ abstract class SellTxEngineBase(
             if (pendingTx.amount <= balance) {
                 if (pendingTx.limits != null) {
                     when {
-                        pendingTx.limits.isMinViolatedByAmount(
-                            pendingTx.amount + feeInSourceCurrency(pendingTx)
-                        ) -> Completable.error(
+                        pendingTx.isMinLimitViolated() -> Completable.error(
                             TxValidationFailure(
                                 ValidationState.UNDER_MIN_LIMIT
                             )
                         )
-                        pendingTx.limits.isMaxViolatedByAmount(
-                            pendingTx.amount - feeInSourceCurrency(pendingTx)
-                        ) -> validationFailureForTier()
+                        pendingTx.isMaxLimitViolated() -> validationFailureForTier()
                         else -> Completable.complete()
                     }
                 } else {

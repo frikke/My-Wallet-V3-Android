@@ -1410,8 +1410,11 @@
     <string name="recipient_name">Recipient</string>
     <string name="sort_code">Sort Code</string>
     <string name="bank_name">Bank Name</string>
+    <string name="account_type">Account Type</string>
     <string name="routing_number">Routing Number</string>
     <string name="bank_country">Bank Country</string>
+    <string name="bank_address">Bank Address</string>
+    <string name="recipient_address">Recipient Address</string>
     <string name="iban">IBAN</string>
     <string name="estonia">Estonia</string>
     <string name="lets_setup_wallet">Let’s get your wallet set up. You can quickly buy crypto now or do this later.</string>
@@ -1574,8 +1577,9 @@
     <string name="bank_transfer_only">Bank Transfer Only</string>
     <string name="bank_transfer_only_subtitle">Only send funds from a bank account in your name. If not, your deposit could be delayed or rejected.</string>
     <string name="processing_time">Processing Time</string>
-    <string name="processing_time_subtitle_eur">Funds will be credited to your EUR wallet as soon as we receive them. SEPA transfers usually take around 1 business day to reach us.</string>
-    <string name="processing_time_subtitle_gbp">Funds will be credited to your GBP wallet as soon as we receive them. In the UK Faster Payments Network, this can take a couple of hours.</string>
+    <string name="processing_time_subtitle_eur">Funds will be credited to your EUR Account as soon as we receive them. SEPA transfers usually take around 1 business day to reach us.</string>
+    <string name="processing_time_subtitle_gbp">Funds will be credited to your GBP Account as soon as we receive them. In the UK Faster Payments Network, this can take a couple of hours.</string>
+    <string name="processing_time_subtitle_usd">Funds will be credited to your USD Account as soon as we receive them. Funds are generally available within one business day.</string>
     <string name="unable_to_load_bank_details">We were unable to load our bank deposit details.</string>
     <string name="most_popular">Most Popular</string>
 
@@ -2394,5 +2398,6 @@
     <!-- LocksInfo deposit checkout -->
     <string name="funds_locked_warning">For security purposes, buy orders with a Bank Account are subject to a %s holding period. You can Swap or Sell during this time. We will notify you once the funds are available to be withdrawn.</string>
     <string name="funds_locked_warning_days">%s days</string>
+    <string name="reference_id_required">Reference ID (Required)</string>
 
 </resources>

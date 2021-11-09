@@ -75,39 +75,67 @@ class USDPaymentAccountMapper(private val stringUtils: StringUtils) : PaymentAcc
     override fun map(bankAccountResponse: BankAccountResponse): BankAccount? {
         if (bankAccountResponse.currency != "USD") return null
         return BankAccount(
-            listOf(
-
+            listOfNotNull(
+                bankAccountResponse.address?.let { address ->
+                    BankDetail(
+                        stringUtils.getString(R.string.reference_id_required),
+                        address,
+                        true
+                    )
+                },
                 BankDetail(
                     stringUtils.getString(R.string.account_number),
                     bankAccountResponse.agent.account ?: "LHVBEE22",
                     true
                 ),
+                bankAccountResponse.agent.name?.let { name ->
+                    BankDetail(
+                        stringUtils.getString(R.string.bank_name),
+                        name,
+                        true
+                    )
+                },
+                bankAccountResponse.agent.accountType?.let { accountType ->
+                    BankDetail(
+                        stringUtils.getString(R.string.account_type),
+                        accountType
+                    )
+                },
+                bankAccountResponse.agent.routingNumber?.let {
+                    BankDetail(
+                        stringUtils.getString(R.string.routing_number),
+                        it, true
+                    )
+                },
 
-                BankDetail(
-                    stringUtils.getString(R.string.bank_name),
-                    bankAccountResponse.agent.name ?: return null,
-                    true
-                ),
+                bankAccountResponse.agent.swiftCode?.let {
+                    BankDetail(
+                        stringUtils.getString(R.string.bank_code_swift_bic),
+                        it, true
+                    )
+                },
 
                 BankDetail(
                     stringUtils.getString(R.string.bank_country),
                     bankAccountResponse.agent.country ?: stringUtils.getString(R.string.estonia)
                 ),
 
-                BankDetail(
-                    stringUtils.getString(R.string.bank_code_swift_bic),
-                    bankAccountResponse.agent.swiftCode ?: return null, true
-                ),
-
+                bankAccountResponse.agent.address?.let { address ->
+                    BankDetail(
+                        stringUtils.getString(R.string.bank_address),
+                        address
+                    )
+                },
+                bankAccountResponse.agent.recipientAddress?.let { address ->
+                    BankDetail(
+                        stringUtils.getString(R.string.recipient_address),
+                        address
+                    )
+                },
                 BankDetail(
                     stringUtils.getString(R.string.recipient_name),
                     bankAccountResponse.agent.recipient ?: ""
                 ),
-
-                BankDetail(
-                    stringUtils.getString(R.string.routing_number),
-                    bankAccountResponse.agent.routingNumber ?: "", true
-                )
             )
         )
     }

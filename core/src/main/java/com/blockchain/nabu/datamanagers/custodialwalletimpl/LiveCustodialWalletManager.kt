@@ -28,6 +28,7 @@ import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PartnerCredentials
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.nabu.datamanagers.ProcessingErrorType
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
@@ -77,6 +78,7 @@ import com.blockchain.nabu.models.responses.simplebuy.AddNewCardBodyRequest
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
+import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse.Companion.ISSUER_PROCESSING_ERROR
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
@@ -419,6 +421,9 @@ class LiveCustodialWalletManager(
             order.outputCurrency == asset.networkTicker ||
                 order.inputCurrency == asset.networkTicker
         }.map { order -> order.toBuySellOrder(assetCatalogue) }
+            .filterNot {
+                it.processingErrorType == ProcessingErrorType.ISSUER
+            }
 
     override fun getBuyOrder(orderId: String): Single<BuySellOrder> =
         authenticator.authenticate {
@@ -1523,8 +1528,14 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         depositPaymentId = depositPaymentId.orEmpty(),
         approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.NONE,
         failureReason = failureReason?.toRecurringBuyError(),
+        processingErrorType = processingErrorType?.processingErrorType(),
         recurringBuyId = recurringBuyId
     )
+}
+
+private fun String?.processingErrorType(): ProcessingErrorType = when (this) {
+    ISSUER_PROCESSING_ERROR -> ProcessingErrorType.ISSUER
+    else -> ProcessingErrorType.UNKNOWN
 }
 
 fun String.toRecurringBuyError() =

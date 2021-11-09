@@ -112,8 +112,11 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
             }
 
             processingTime.updateSubtitle(
-                if (fiatCurrency == "GBP") getString(R.string.processing_time_subtitle_gbp)
-                else getString(R.string.processing_time_subtitle_eur)
+                when (fiatCurrency) {
+                    "GBP" -> getString(R.string.processing_time_subtitle_gbp)
+                    "USD" -> getString(R.string.processing_time_subtitle_usd)
+                    else -> getString(R.string.processing_time_subtitle_eur)
+                }
             )
             title.text = if (isForLink) getString(R.string.add_bank_with_currency, fiatCurrency) else
                 getString(R.string.deposit_currency, fiatCurrency)

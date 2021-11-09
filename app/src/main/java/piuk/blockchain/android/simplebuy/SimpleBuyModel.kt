@@ -197,7 +197,7 @@ class SimpleBuyModel(
                 processGetPaymentMethod(
                     fiatCurrency = intent.fiatCurrency,
                     preselectedId = intent.selectedPaymentMethodId,
-                    previousSelectedId = previousState.id
+                    previousSelectedId = previousState.selectedPaymentMethod?.id
                 )
 
             is SimpleBuyIntent.PaymentMethodChangeRequested -> {
