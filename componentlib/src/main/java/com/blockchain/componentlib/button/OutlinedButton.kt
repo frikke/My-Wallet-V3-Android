@@ -1,14 +1,20 @@
 package com.blockchain.componentlib.button
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedButton
+import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -25,6 +31,8 @@ import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.componentlib.theme.NoRippleProvider
+import kotlinx.coroutines.delay
 
 @Composable
 fun OutlinedButton(
@@ -50,25 +58,16 @@ fun OutlinedButton(
     disabledBorderDarkColor: Color = Grey700,
     defaultBorderLightColor: Color = Grey100,
     defaultBorderDarkColor: Color = Dark300,
+    pressedBackgroundTimeShown: Long = 250L,
     shape: Shape = AppTheme.shapes.small,
     state: ButtonState = ButtonState.Enabled,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
 ) {
-
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed = interactionSource.collectIsPressedAsState().value
-
-    val backgroundColor =
-        if (isPressed && state == ButtonState.Enabled) {
-            if (isDarkTheme) pressedButtonDarkColor else pressedButtonLightColor
-        } else {
-            Color.Unspecified
-        }
-
-    val textAlpha = when (state) {
-        ButtonState.Enabled -> 1f
-        ButtonState.Disabled -> if (isDarkTheme) disabledTextDarkAlpha else disabledTextLightAlpha
-        ButtonState.Loading -> 0f
+    var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
+    var borderColor by remember {
+        mutableStateOf(
+            if (isDarkTheme) defaultBorderDarkColor else defaultBorderLightColor
+        )
     }
 
     val textColor = when (state) {
@@ -79,49 +78,78 @@ fun OutlinedButton(
         ButtonState.Loading -> Color.Unspecified
     }
 
-    val borderColor = when (state) {
-        ButtonState.Enabled -> {
-            if (isPressed) {
-                if (isDarkTheme) pressedBorderDarkColor else pressedBorderLightColor
-            } else {
-                if (isDarkTheme) defaultBorderDarkColor else defaultBorderLightColor
-            }
-        }
-        ButtonState.Disabled -> {
-            if (isDarkTheme) disabledBorderDarkColor else disabledBorderLightColor
-        }
-        ButtonState.Loading -> {
-            if (isDarkTheme) defaultBorderDarkColor else defaultBorderLightColor
-        }
+    val textAlpha = when (state) {
+        ButtonState.Enabled -> 1f
+        ButtonState.Disabled -> if (isDarkTheme) disabledTextDarkAlpha else disabledTextLightAlpha
+        ButtonState.Loading -> 0f
     }
 
-    OutlinedButton(
-        onClick = { onClick.takeIf { state == ButtonState.Enabled }?.invoke() },
-        modifier = modifier.requiredHeightIn(min = 48.dp),
-        enabled = state != ButtonState.Disabled,
-        interactionSource = interactionSource,
-        shape = shape,
-        colors = ButtonDefaults.outlinedButtonColors(
-            backgroundColor = backgroundColor,
-            contentColor = Color.Unspecified,
-            disabledContentColor = Color.Unspecified,
-        ),
-        border = BorderStroke(1.dp, borderColor),
-        elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-        content = {
-            buttonContent(
-                state = state,
-                textColor = textColor,
-                text = text,
-                textAlpha = textAlpha,
-                loadingIconResId = if (isDarkTheme) {
-                    R.drawable.ic_loading_minimal_dark
-                } else {
-                    R.drawable.ic_loading_minimal_light
+    val interactionSource = remember { MutableInteractionSource() }
+    LaunchedEffect(interactionSource, state, isDarkTheme) {
+
+        fun cancel() {
+            backgroundColor = Color.Unspecified
+            borderColor = when (state) {
+                ButtonState.Disabled -> {
+                    if (isDarkTheme) disabledBorderDarkColor else disabledBorderLightColor
                 }
-            )
+                else -> {
+                    if (isDarkTheme) defaultBorderDarkColor else defaultBorderLightColor
+                }
+            }
         }
-    )
+
+        interactionSource.interactions.collectPressInteractions(
+            onPressed = {
+                if (state == ButtonState.Enabled) {
+                    backgroundColor = if (isDarkTheme) pressedButtonDarkColor else pressedButtonLightColor
+                    borderColor = if (isDarkTheme) pressedBorderDarkColor else pressedBorderLightColor
+                }
+            },
+            onRelease = {
+                delay(pressedBackgroundTimeShown)
+                cancel()
+            },
+            onCancel = {
+                cancel()
+            },
+        )
+    }
+
+    CompositionLocalProvider(
+        LocalRippleTheme provides NoRippleProvider
+    ) {
+        OutlinedButton(
+            onClick = { onClick.takeIf { state == ButtonState.Enabled }?.invoke() },
+            modifier = modifier.requiredHeightIn(min = 48.dp),
+            enabled = state != ButtonState.Disabled,
+            interactionSource = interactionSource,
+            shape = shape,
+            colors = ButtonDefaults.outlinedButtonColors(
+                backgroundColor = animateColorAsState(targetValue = backgroundColor).value,
+                contentColor = Color.Unspecified,
+                disabledContentColor = Color.Unspecified,
+            ),
+            border = BorderStroke(
+                width = 1.dp,
+                color = animateColorAsState(targetValue = borderColor).value
+            ),
+            elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+            content = {
+                buttonContent(
+                    state = state,
+                    textColor = textColor,
+                    text = text,
+                    textAlpha = textAlpha,
+                    loadingIconResId = if (isDarkTheme) {
+                        R.drawable.ic_loading_minimal_dark
+                    } else {
+                        R.drawable.ic_loading_minimal_light
+                    }
+                )
+            }
+        )
+    }
 }
 
 @Preview
