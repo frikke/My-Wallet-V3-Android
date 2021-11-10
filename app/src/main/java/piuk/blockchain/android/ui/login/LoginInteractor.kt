@@ -16,6 +16,7 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
+import timber.log.Timber
 
 class LoginInteractor(
     private val authDataManager: AuthDataManager,
@@ -103,12 +104,18 @@ class LoginInteractor(
         }
     }
 
-    fun pollForAuth(sessionId: String): Single<PollResult<ResponseBody>> {
+    fun pollForAuth(sessionId: String, json: Json): Single<PollResult<ResponseBody>> {
         authPollService = PollService(
             authDataManager.getDeeplinkPayload(sessionId)
         ) {
             val responseBodyString = it.peekResponseBody()
-            responseBodyString != EMPTY_BODY
+            try {
+                val pollingInfo = json.decodeFromString<LoginAuthInfo.ContinuePollingForInfo>(responseBodyString)
+                pollingInfo.responseType != LoginAuthInfo.ContinuePollingForInfo.CONTINUE_POLLING
+            } catch (t: Throwable) {
+                Timber.e("Poll for wallet info - failed to parse, stop polling: $t")
+                false
+            }
         }
 
         return authPollService.start(POLLING_INTERVAL, POLLING_RETRIES)

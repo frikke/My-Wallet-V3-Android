@@ -5,6 +5,8 @@ import android.net.Uri
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.network.PollResult
 import com.blockchain.remoteconfig.FeatureFlag
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
@@ -259,7 +261,7 @@ class LoginModelTest {
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(sessionId)).thenReturn(
+        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
             Single.just(PollResult.Cancel(mock())) // cancel here is a return with no effect on the model
         )
 
@@ -297,7 +299,7 @@ class LoginModelTest {
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(sessionId)).thenReturn(
+        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
             Single.just(PollResult.TimeOut(mock())) // cancel here is a return with no effect on the model
         )
 
@@ -340,7 +342,7 @@ class LoginModelTest {
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(sessionId)).thenReturn(
+        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
             Single.just(PollResult.FinalResult(fullPayload.toResponseBody()))
         )
 
@@ -406,7 +408,7 @@ class LoginModelTest {
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(sessionId)).thenReturn(
+        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
             Single.just(PollResult.FinalResult(deniedPayload.toResponseBody()))
         )
 
@@ -449,7 +451,7 @@ class LoginModelTest {
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(sessionId)).thenReturn(
+        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
             Single.just(PollResult.FinalResult(deniedPayloadFalse.toResponseBody()))
         )
 
@@ -492,7 +494,7 @@ class LoginModelTest {
             Completable.complete()
         )
 
-        whenever(interactor.pollForAuth(sessionId)).thenReturn(
+        whenever(interactor.pollForAuth(eq(sessionId), any())).thenReturn(
             Single.just(PollResult.FinalResult(unknownPayload.toResponseBody()))
         )
 
@@ -574,7 +576,8 @@ class LoginModelTest {
             "}"
 
         private const val deniedPayload = "{\n" +
-            "\t\"request_denied\": true\n" +
+            "\"request_denied\": true\n" +
+            "\"response_type\": \"REQUEST_DENIED\"\n" +
             "}"
 
         private const val deniedPayloadFalse = "{\n" +

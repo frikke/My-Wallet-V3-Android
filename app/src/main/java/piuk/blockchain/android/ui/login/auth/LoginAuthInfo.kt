@@ -7,8 +7,20 @@ sealed class LoginAuthInfo : java.io.Serializable {
     @Serializable
     data class PollingDeniedAccountInfo(
         @SerialName("request_denied")
-        val denied: Boolean
+        val denied: Boolean,
+        @SerialName("response_type")
+        val responseType: String
     )
+
+    @Serializable
+    data class ContinuePollingForInfo(
+        @SerialName("response_type")
+        val responseType: String
+    ) {
+        companion object {
+            const val CONTINUE_POLLING = "CONTINUE_POLLING"
+        }
+    }
 
     @Serializable
     data class SimpleAccountInfo(

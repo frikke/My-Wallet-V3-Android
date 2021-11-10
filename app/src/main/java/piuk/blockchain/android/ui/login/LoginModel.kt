@@ -114,8 +114,11 @@ class LoginModel(
             process(LoginIntents.RevertToLauncher(isLoginApproved = isLoginApproved))
         }
 
-    private fun handlePayloadPollingResponse(previousState: LoginState) =
-        interactor.pollForAuth(previousState.sessionId)
+    private fun handlePayloadPollingResponse(previousState: LoginState): Disposable {
+        val jsonBuilder = Json {
+            ignoreUnknownKeys = true
+        }
+        return interactor.pollForAuth(previousState.sessionId, jsonBuilder)
             .subscribeBy(
                 onSuccess = {
                     when (it) {
@@ -125,18 +128,16 @@ class LoginModel(
                         is PollResult.TimeOut -> {
                             process(LoginIntents.AuthPollingTimeout)
                         }
-                        is PollResult.FinalResult -> decodePayloadAndProceed(it.value)
+                        is PollResult.FinalResult -> decodePayloadAndProceed(it.value, jsonBuilder)
                     }
                 },
                 onError = {
                     process(LoginIntents.AuthPollingError)
                 }
             )
+    }
 
-    private fun decodePayloadAndProceed(body: ResponseBody) {
-        val jsonBuilder = Json {
-            ignoreUnknownKeys = true
-        }
+    private fun decodePayloadAndProceed(body: ResponseBody, jsonBuilder: Json) {
         val bodyString = body.string()
 
         // first we try to decode the body as the full payload
