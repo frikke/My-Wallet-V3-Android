@@ -17,4 +17,5 @@ enum class GatedFeature(
     SEAMLESS_LIMITS("New transaction flow errors and Limits API", true),
     ENABLE_DYNAMIC_ASSETS("Enable dynamic assets and split dashboard", true),
     AUTOCOMPLETE_ADDRESS("Enable autocomplete address kyc flow"),
+    WALLET_REDESIGN("Enable wallet redesign", true)
 }

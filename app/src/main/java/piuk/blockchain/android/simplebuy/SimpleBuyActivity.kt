@@ -19,7 +19,7 @@ import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.setupToolbar
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -43,6 +43,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     private val simpleBuyFlowNavigator: SimpleBuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
+    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
 
     private val startedFromDashboard: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_NAVIGATION_KEY, false)
@@ -130,10 +131,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun exitSimpleBuyFlow() {
         if (!startedFromDashboard) {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(intent)
+            mainScreenLauncher.startMainActivity(this, compositeDisposable)
         } else {
             finish()
         }

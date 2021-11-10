@@ -14,6 +14,7 @@ import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
+import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
@@ -95,6 +96,7 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.home.MainPresenter
+import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVeriffModel
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerifyInteractor
@@ -743,6 +745,13 @@ val applicationModule = module {
         scoped {
             PlacesClientProvider(
                 context = get()
+            )
+        }
+
+        factory {
+            MainScreenLauncher(
+                walletRedesignFeatureFlag = get(walletRedesignFeatureFlag),
+                crashLogger = get()
             )
         }
     }

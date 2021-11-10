@@ -73,7 +73,6 @@ class NotificationsUtil(
 
     companion object {
         private const val NOTIFICATION_CHANNEL_ID = "group_01"
-        const val INTENT_FROM_NOTIFICATION = "notification_pending_intent"
     }
 }
 

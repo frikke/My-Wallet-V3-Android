@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.launcher.loader
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
@@ -10,6 +9,7 @@ import androidx.appcompat.widget.Toolbar
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
@@ -17,7 +17,7 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
@@ -40,6 +40,8 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     }
 
     private var state: LoaderState? = null
+    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,19 +128,23 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
+
     private fun onRequestPin() {
         startSingleActivity(PinEntryActivity::class.java)
     }
 
     private fun onStartMainActivity(mainData: String?, launchBuySellIntro: Boolean) {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            mainData?.let {
-                data = Uri.parse(it)
-            }
-            putExtra(MainActivity.START_BUY_SELL_INTRO_KEY, launchBuySellIntro)
-        }
-        startActivity(intent)
+        mainScreenLauncher.startMainActivity(
+            context = this,
+            intentData = mainData,
+            shouldLaunchBuySellIntro = launchBuySellIntro,
+            shouldBeNewTask = true,
+            compositeDisposable = compositeDisposable
+        )
     }
 
     private fun launchEmailVerification() {

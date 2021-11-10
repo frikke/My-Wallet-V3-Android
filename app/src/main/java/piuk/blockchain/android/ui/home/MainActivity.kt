@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -26,7 +27,6 @@ import com.blockchain.koin.dynamicAssetsFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
@@ -202,8 +202,8 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        if (intent.hasExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION) &&
-            intent.getBooleanExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION, false)
+        if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
+            intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
         }
@@ -981,9 +981,10 @@ class MainActivity :
     }
 
     companion object {
-        const val START_BUY_SELL_INTRO_KEY = "START_BUY_SELL_INTRO_KEY"
-        const val SHOW_SWAP = "SHOW_SWAP"
-        const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
+        private const val START_BUY_SELL_INTRO_KEY = "START_BUY_SELL_INTRO_KEY"
+        private const val SHOW_SWAP = "SHOW_SWAP"
+        private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
+        private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
         const val ACCOUNT_EDIT = 2008
         const val SETTINGS_EDIT = 2009
         const val KYC_STARTED = 2011
@@ -993,13 +994,65 @@ class MainActivity :
         const val BANK_DEEP_LINK_DEPOSIT = 2015
         const val BANK_DEEP_LINK_WITHDRAW = 2021
 
-        fun start(context: Context, bundle: Bundle) {
+        fun newInstance(context: Context, shouldShowSwap: Boolean, shouldBeNewTask: Boolean): Intent =
             Intent(context, MainActivity::class.java).apply {
-                putExtras(bundle)
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                putExtra(SHOW_SWAP, shouldShowSwap)
+                if (shouldBeNewTask) {
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
 
                 context.startActivity(this)
             }
+
+        fun newInstance(
+            context: Context,
+            launchAuthFlow: Boolean,
+            pubKeyHash: String,
+            message: String,
+            originIp: String?,
+            originLocation: String?,
+            originBrowser: String?,
+            forcePin: Boolean,
+            shouldBeNewTask: Boolean
+        ): Intent = Intent(context, MainActivity::class.java).apply {
+            putExtra(LAUNCH_AUTH_FLOW, launchAuthFlow)
+            putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
+            putExtra(AuthNewLoginSheet.MESSAGE, message)
+            putExtra(AuthNewLoginSheet.ORIGIN_IP, originIp)
+            putExtra(AuthNewLoginSheet.ORIGIN_LOCATION, originLocation)
+            putExtra(AuthNewLoginSheet.ORIGIN_BROWSER, originBrowser)
+            putExtra(AuthNewLoginSheet.FORCE_PIN, forcePin)
+
+            if (shouldBeNewTask) {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+
+        fun newInstance(context: Context, intentFromNotification: Boolean): Intent =
+            Intent(context, MainActivity::class.java).apply {
+                putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
+            }
+
+        fun newInstanceAsNewTask(context: Context): Intent =
+            Intent(context, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+        fun newInstance(
+            context: Context,
+            intentData: String?,
+            shouldLaunchBuySellIntro: Boolean,
+            shouldBeNewTask: Boolean
+        ): Intent = Intent(context, MainActivity::class.java).apply {
+            if (intentData != null) {
+                data = Uri.parse(intentData)
+            }
+
+            if (shouldBeNewTask) {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+            putExtra(START_BUY_SELL_INTRO_KEY, shouldLaunchBuySellIntro)
         }
     }
 }

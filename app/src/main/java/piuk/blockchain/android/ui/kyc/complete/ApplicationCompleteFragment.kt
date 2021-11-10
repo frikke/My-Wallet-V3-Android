@@ -20,7 +20,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycCompleteBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
@@ -40,6 +40,7 @@ class ApplicationCompleteFragment : Fragment() {
     private val compositeDisposable = CompositeDisposable()
     private val analytics: Analytics by inject()
     private val tierService: TierService by scopedInject()
+    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -100,11 +101,12 @@ class ApplicationCompleteFragment : Fragment() {
     }
 
     private fun launchSwap() {
-        val b = Bundle().apply {
-            putBoolean(MainActivity.SHOW_SWAP, true)
-        }
-
-        MainActivity.start(requireContext(), b)
+        mainScreenLauncher.startMainActivity(
+            requireContext(),
+            shouldShowSwap = true,
+            shouldBeNewTask = true,
+            compositeDisposable = compositeDisposable
+        )
         activity?.finish()
     }
 

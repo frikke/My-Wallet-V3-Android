@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:auto="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_qr_main"
+        android:icon="@drawable/ic_qr_scan"
+        android:title="@string/scan_qr"
+        auto:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_account_main"
+        android:icon="@drawable/ic_bank_user"
+        android:title="@string/scan_qr"
+        auto:showAsAction="always" />
+</menu>

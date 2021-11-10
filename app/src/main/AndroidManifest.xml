@@ -99,6 +99,11 @@
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name=".ui.home.v2.RedesignMainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.MainActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
