@@ -51,6 +51,8 @@ fun Button(
         mutableStateOf(if (isDarkTheme) defaultBackgroundDarkColor else defaultBackgroundLightColor)
     }
 
+    val disabledBackgroundColor = if (isDarkTheme) disabledBackgroundDarkColor else disabledBackgroundLightColor
+
     val textAlpha = when (state) {
         ButtonState.Enabled -> 1f
         ButtonState.Disabled -> if (isDarkTheme) disabledTextDarkAlpha else disabledTextLightAlpha
@@ -95,7 +97,7 @@ fun Button(
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = animateColorAsState(targetValue = backgroundColor).value,
                 contentColor = Color.Unspecified,
-                disabledBackgroundColor = if (isDarkTheme) disabledBackgroundDarkColor else disabledBackgroundLightColor,
+                disabledBackgroundColor = animateColorAsState(targetValue = disabledBackgroundColor).value,
                 disabledContentColor = Color.Unspecified,
             ),
             elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),

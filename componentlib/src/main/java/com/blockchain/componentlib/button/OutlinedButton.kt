@@ -3,7 +3,6 @@ package com.blockchain.componentlib.button
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.material.ButtonDefaults
@@ -88,7 +87,7 @@ fun OutlinedButton(
     val interactionSource = remember { MutableInteractionSource() }
     LaunchedEffect(interactionSource, state, isDarkTheme) {
 
-        fun cancel(){
+        fun cancel() {
             backgroundColor = Color.Unspecified
             borderColor = when (state) {
                 ButtonState.Disabled -> {
@@ -162,11 +161,11 @@ private fun OutlineButtonPreview() {
                 text = "Click me",
                 onClick = { },
                 buttonContent = {
-                        state: ButtonState,
-                        text: String,
-                        textColor: Color,
-                        textAlpha: Float,
-                        loadingIconResId: Int,
+                    state: ButtonState,
+                    text: String,
+                    textColor: Color,
+                    textAlpha: Float,
+                    loadingIconResId: Int,
                     ->
 
                     ResizableButtonContent(
