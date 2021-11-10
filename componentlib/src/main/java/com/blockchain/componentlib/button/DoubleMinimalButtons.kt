@@ -1,10 +1,11 @@
 package com.blockchain.componentlib.button
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -14,8 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -25,11 +32,16 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.divider.VerticalDivider
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Blue400
+import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Dark300
+import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.componentlib.theme.NoRippleProvider
+import kotlinx.coroutines.delay
 
 @Composable
 fun DoubleMinimalButtons(
@@ -38,36 +50,34 @@ fun DoubleMinimalButtons(
     endButtonText: String,
     onEndButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
+    pressedBackgroundTimeShown: Long = 250L,
     startButtonState: ButtonState = ButtonState.Enabled,
     endButtonState: ButtonState = ButtonState.Enabled,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
 ) {
 
     val startButtonInteractionSource = remember { MutableInteractionSource() }
-    val isStartButtonPressed = startButtonInteractionSource.collectIsPressedAsState().value
-    val startButtonBackgroundColor = when (startButtonState) {
-        ButtonState.Enabled -> if (isStartButtonPressed) {
-            AppTheme.colors.light
-        } else {
-            if (isDarkTheme) Color.Transparent else Color.White
-        }
-        ButtonState.Disabled, ButtonState.Loading -> {
-            if (isDarkTheme) Color.Transparent else Color.White
-        }
+    var startButtonBackgroundColor by remember(isDarkTheme) {
+        mutableStateOf(if (isDarkTheme) Color.Transparent else Color.White)
     }
 
     val endButtonInteractionSource = remember { MutableInteractionSource() }
-    val isEndButtonPressed = endButtonInteractionSource.collectIsPressedAsState().value
-    val endButtonBackgroundColor = when (endButtonState) {
-        ButtonState.Enabled -> if (isEndButtonPressed) {
-            AppTheme.colors.light
-        } else {
-            if (isDarkTheme) Color.Transparent else Color.White
-        }
-        ButtonState.Disabled, ButtonState.Loading -> {
-            if (isDarkTheme) Color.Transparent else Color.White
-        }
+    var endButtonBackgroundColor by remember {
+        mutableStateOf(if (isDarkTheme) Color.Transparent else Color.White)
     }
+
+    var borderColor by remember {
+        mutableStateOf(
+            when (startButtonState) {
+                ButtonState.Enabled -> if (isDarkTheme) Dark300 else Grey100
+                ButtonState.Disabled -> if (isDarkTheme) Grey700 else Grey000
+                ButtonState.Loading -> if (isDarkTheme) Dark300 else Grey100
+            }
+        )
+    }
+
+    //    var dividerAlpha = if (isStartButtonPressed.not() && isEndButtonPressed.not()) 1f else 0f
+    var dividerAlpha by remember { mutableStateOf(1f) }
 
     val startTextAlpha = when (startButtonState) {
         ButtonState.Enabled -> 1f
@@ -79,7 +89,6 @@ fun DoubleMinimalButtons(
         ButtonState.Disabled -> if (isDarkTheme) 1f else 0.7f
         ButtonState.Loading -> 0f
     }
-
     val startTextColor = if (startButtonState == ButtonState.Disabled && isDarkTheme) {
         Grey600
     } else {
@@ -90,101 +99,156 @@ fun DoubleMinimalButtons(
     } else {
         AppTheme.colors.primary
     }
-
     val loadingIcon = if (isDarkTheme) {
         R.drawable.ic_loading_minimal_dark
     } else {
         R.drawable.ic_loading_minimal_light
     }
 
-    var borderColor = when (startButtonState) {
-        ButtonState.Enabled -> if (isStartButtonPressed || isEndButtonPressed) {
-            AppTheme.colors.primary
-        } else {
-            if (isDarkTheme) Dark300 else Grey100
+    LaunchedEffect(startButtonInteractionSource, startButtonState, isDarkTheme) {
+
+        fun cancel() {
+            startButtonBackgroundColor = if (isDarkTheme) Color.Transparent else Color.White
+            borderColor = when (startButtonState) {
+                ButtonState.Enabled -> if (isDarkTheme) Dark300 else Grey100
+                ButtonState.Disabled -> if (isDarkTheme) Grey700 else Grey000
+                ButtonState.Loading -> if (isDarkTheme) Dark300 else Grey100
+            }
+            dividerAlpha = 1f
         }
-        ButtonState.Disabled -> if (isDarkTheme) Grey700 else Grey000
-        ButtonState.Loading -> if (isDarkTheme) Dark300 else Grey100
+
+        startButtonInteractionSource.interactions.collectPressInteractions(
+            onPressed = {
+                if (startButtonState == ButtonState.Enabled) {
+                    startButtonBackgroundColor = if (isDarkTheme) Dark800 else Grey000
+                    borderColor = if (isDarkTheme) Blue400 else Blue600
+                    dividerAlpha = 0f
+                }
+            },
+            onRelease = {
+                delay(pressedBackgroundTimeShown)
+                cancel()
+            },
+            onCancel = {
+                cancel()
+            },
+        )
     }
 
-    Row(
-        modifier = modifier
-            .requiredHeightIn(min = 48.dp)
-            .height(IntrinsicSize.Max)
-            .border(
-                border = BorderStroke(1.dp, borderColor),
-                shape = AppTheme.shapes.small
-            )
+    LaunchedEffect(endButtonInteractionSource, endButtonState, isDarkTheme) {
+
+        fun cancel() {
+            endButtonBackgroundColor = if (isDarkTheme) Color.Transparent else Color.White
+            borderColor = when (endButtonState) {
+                ButtonState.Enabled -> if (isDarkTheme) Dark300 else Grey100
+                ButtonState.Disabled -> if (isDarkTheme) Grey700 else Grey000
+                ButtonState.Loading -> if (isDarkTheme) Dark300 else Grey100
+            }
+            dividerAlpha = 1f
+        }
+
+        endButtonInteractionSource.interactions.collectPressInteractions(
+            onPressed = {
+                if (endButtonState == ButtonState.Enabled) {
+                    endButtonBackgroundColor = if (isDarkTheme) Dark800 else Grey000
+                    borderColor = if (isDarkTheme) Blue400 else Blue600
+                    dividerAlpha = 0f
+                }
+            },
+            onRelease = {
+                delay(pressedBackgroundTimeShown)
+                cancel()
+            },
+            onCancel = {
+                cancel()
+            },
+        )
+    }
+
+    CompositionLocalProvider(
+        LocalRippleTheme provides NoRippleProvider
     ) {
-        androidx.compose.material.Button(
-            onClick = { onStartButtonClick.takeIf { startButtonState == ButtonState.Enabled }?.invoke() },
+        Row(
             modifier = modifier
-                .fillMaxHeight()
-                .weight(1f),
-            enabled = startButtonState != ButtonState.Disabled,
-            interactionSource = startButtonInteractionSource,
-            shape = AppTheme.shapes.small.copy(
-                topEnd = CornerSize(0.dp),
-                bottomEnd = CornerSize(0.dp)
-            ),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = startButtonBackgroundColor,
-                contentColor = Color.Unspecified,
-                disabledBackgroundColor = startButtonBackgroundColor,
-                disabledContentColor = Color.Unspecified,
-            ),
-            elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-            content = {
-                FixedSizeButtonContent(
-                    state = startButtonState,
-                    text = startButtonText,
-                    textColor = startTextColor,
-                    textAlpha = startTextAlpha,
-                    loadingIconResId = loadingIcon,
+                .requiredHeightIn(min = 48.dp)
+                .height(IntrinsicSize.Max)
+                .border(
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = animateColorAsState(targetValue = borderColor).value
+                    ),
+                    shape = AppTheme.shapes.small
                 )
-            }
-        )
+        ) {
+            androidx.compose.material.Button(
+                onClick = { onStartButtonClick.takeIf { startButtonState == ButtonState.Enabled }?.invoke() },
+                modifier = modifier
+                    .fillMaxHeight()
+                    .weight(1f),
+                enabled = startButtonState != ButtonState.Disabled,
+                interactionSource = startButtonInteractionSource,
+                shape = AppTheme.shapes.small.copy(
+                    topEnd = CornerSize(0.dp),
+                    bottomEnd = CornerSize(0.dp)
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = animateColorAsState(targetValue = startButtonBackgroundColor).value,
+                    contentColor = Color.Unspecified,
+                    disabledBackgroundColor = animateColorAsState(targetValue = startButtonBackgroundColor).value,
+                    disabledContentColor = Color.Unspecified,
+                ),
+                elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+                content = {
+                    FixedSizeButtonContent(
+                        state = startButtonState,
+                        text = startButtonText,
+                        textColor = startTextColor,
+                        textAlpha = startTextAlpha,
+                        loadingIconResId = loadingIcon,
+                    )
+                }
+            )
 
-        val dividerAlpha = if (isStartButtonPressed.not() && isEndButtonPressed.not()) 1f else 0f
-        val dividerBackgroundColor = if (isDarkTheme) Color.Transparent else Color.White
-        val dividerColor = if (isDarkTheme) Dark300 else Grey100
-        VerticalDivider(
-            dividerColor = dividerColor,
-            modifier = Modifier
-                .background(dividerBackgroundColor)
-                .fillMaxHeight()
-                .padding(vertical = 8.dp)
-                .alpha(dividerAlpha)
-        )
+            val dividerBackgroundColor = if (isDarkTheme) Color.Transparent else Color.White
+            val dividerColor = if (isDarkTheme) Dark300 else Grey100
+            VerticalDivider(
+                dividerColor = dividerColor,
+                modifier = Modifier
+                    .background(animateColorAsState(targetValue = dividerBackgroundColor).value)
+                    .fillMaxHeight()
+                    .padding(vertical = 8.dp)
+                    .alpha(animateFloatAsState(targetValue = dividerAlpha).value)
+            )
 
-        androidx.compose.material.Button(
-            onClick = { onEndButtonClick.takeIf { endButtonState == ButtonState.Enabled }?.invoke() },
-            modifier = modifier
-                .fillMaxHeight()
-                .weight(1f),
-            enabled = endButtonState != ButtonState.Disabled,
-            interactionSource = endButtonInteractionSource,
-            shape = AppTheme.shapes.small.copy(
-                topStart = CornerSize(0.dp),
-                bottomStart = CornerSize(0.dp)
-            ),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = endButtonBackgroundColor,
-                contentColor = Color.Unspecified,
-                disabledBackgroundColor = endButtonBackgroundColor,
-                disabledContentColor = Color.Unspecified,
-            ),
-            elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-            content = {
-                FixedSizeButtonContent(
-                    state = endButtonState,
-                    text = endButtonText,
-                    textColor = endTextColor,
-                    textAlpha = endTextAlpha,
-                    loadingIconResId = loadingIcon,
-                )
-            }
-        )
+            androidx.compose.material.Button(
+                onClick = { onEndButtonClick.takeIf { endButtonState == ButtonState.Enabled }?.invoke() },
+                modifier = modifier
+                    .fillMaxHeight()
+                    .weight(1f),
+                enabled = endButtonState != ButtonState.Disabled,
+                interactionSource = endButtonInteractionSource,
+                shape = AppTheme.shapes.small.copy(
+                    topStart = CornerSize(0.dp),
+                    bottomStart = CornerSize(0.dp)
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = animateColorAsState(targetValue = endButtonBackgroundColor).value,
+                    contentColor = Color.Unspecified,
+                    disabledBackgroundColor = animateColorAsState(targetValue = endButtonBackgroundColor).value,
+                    disabledContentColor = Color.Unspecified,
+                ),
+                elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+                content = {
+                    FixedSizeButtonContent(
+                        state = endButtonState,
+                        text = endButtonText,
+                        textColor = endTextColor,
+                        textAlpha = endTextAlpha,
+                        loadingIconResId = loadingIcon,
+                    )
+                }
+            )
+        }
     }
 }
 
