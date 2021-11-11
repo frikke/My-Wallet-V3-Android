@@ -18,13 +18,14 @@ class BottomNavigationBarView @JvmOverloads constructor(
         listOf(
             NavigationItem.Home,
             NavigationItem.Prices,
-            NavigationItem.Rewards,
+            NavigationItem.BuyAndSell,
             NavigationItem.Activity
         )
     )
     var onNavigationItemClick by mutableStateOf({ _: NavigationItem -> })
     var onMiddleButtonClick by mutableStateOf({})
     var selectedNavigationItem by mutableStateOf(null as? NavigationItem?)
+    var bottomNavigationState by mutableStateOf(BottomNavigationState.Add)
 
     @Composable
     override fun Content() {
@@ -32,7 +33,8 @@ class BottomNavigationBarView @JvmOverloads constructor(
             navigationItems,
             onNavigationItemClick,
             onMiddleButtonClick,
-            selectedNavigationItem
+            selectedNavigationItem,
+            bottomNavigationState
         )
     }
 }

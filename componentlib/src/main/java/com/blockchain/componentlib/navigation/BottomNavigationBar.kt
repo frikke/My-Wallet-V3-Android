@@ -17,9 +17,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -28,27 +26,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Dark400
 import com.blockchain.componentlib.theme.Dark900
-import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.Grey600
 
 @Composable
 fun BottomNavigationBar(
     navigationItems: List<NavigationItem> = listOf(
         NavigationItem.Home,
         NavigationItem.Prices,
-        NavigationItem.Rewards,
+        NavigationItem.BuyAndSell,
         NavigationItem.Activity
     ),
     onNavigationItemClick: (NavigationItem) -> Unit = {},
     onMiddleButtonClick: () -> Unit = {},
-    selectedNavigationItem: NavigationItem? = null
+    selectedNavigationItem: NavigationItem? = null,
+    bottomNavigationState: BottomNavigationState = BottomNavigationState.Add
 ) {
-    var currentState by remember { mutableStateOf(BottomNavigationState.Add) }
     val rotation by animateFloatAsState(
-        targetValue = when (currentState) {
+        targetValue = when (bottomNavigationState) {
             BottomNavigationState.Add -> 0f
             BottomNavigationState.Cancel -> 135f
         },
@@ -56,7 +56,7 @@ fun BottomNavigationBar(
     )
 
     val backgroundColor: Color = if (!isSystemInDarkTheme()) {
-        Grey000
+        Color.White
     } else {
         Dark900
     }
@@ -65,6 +65,12 @@ fun BottomNavigationBar(
     val selectedContentColor: Color = AppTheme.colors.primary
 
     val middleIndex = navigationItems.size / 2
+
+    val textColor = if (!isSystemInDarkTheme()) {
+        Dark400
+    } else {
+        Grey600
+    }
 
     BottomNavigation(
         backgroundColor = backgroundColor
@@ -76,14 +82,10 @@ fun BottomNavigationBar(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        currentState = when (currentState) {
-                            BottomNavigationState.Add -> BottomNavigationState.Cancel
-                            BottomNavigationState.Cancel -> BottomNavigationState.Add
-                        }
                         onMiddleButtonClick.invoke()
                     }
                 ) {
-                    Crossfade(targetState = currentState) { state ->
+                    Crossfade(targetState = bottomNavigationState) { state ->
                         when (state) {
                             BottomNavigationState.Add -> Image(
                                 painter = painterResource(R.drawable.ic_bottom_nav_add),
@@ -107,10 +109,15 @@ fun BottomNavigationBar(
                     )
                 }
             }
-
             BottomNavigationItem(
                 icon = { Icon(painterResource(id = item.icon), contentDescription = stringResource(item.title)) },
-                label = { Text(text = stringResource(item.title)) },
+                label = {
+                    Text(
+                        text = stringResource(item.title),
+                        fontSize = 10.sp,
+                        color = textColor
+                    )
+                },
                 selectedContentColor = selectedContentColor,
                 unselectedContentColor = unselectedContentColor,
                 alwaysShowLabel = true,
@@ -138,6 +145,6 @@ fun BottomNavigationBarPreview() {
 sealed class NavigationItem(var route: String, var icon: Int, var title: Int) {
     object Home : NavigationItem("home", R.drawable.ic_bottom_nav_home, R.string.bottom_nav_home)
     object Prices : NavigationItem("prices", R.drawable.ic_bottom_nav_prices, R.string.bottom_nav_prices)
-    object Rewards : NavigationItem("rewards", R.drawable.ic_bottom_nav_rewards, R.string.bottom_nav_rewards)
+    object BuyAndSell : NavigationItem("buy_and_sell", R.drawable.ic_bottom_nav_buy, R.string.bottom_nav_buy_and_sell)
     object Activity : NavigationItem("activity", R.drawable.ic_bottom_nav_activity, R.string.bottom_nav_activity)
 }

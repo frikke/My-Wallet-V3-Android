@@ -2,6 +2,6 @@
 <resources>
     <string name="bottom_nav_home">Home</string>
     <string name="bottom_nav_prices">Prices</string>
-    <string name="bottom_nav_rewards">Rewards</string>
+    <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
     <string name="bottom_nav_activity">Activity</string>
 </resources>
