@@ -26,6 +26,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SplitButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TagsActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TextInputActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TypographyActivity
 
 class MainActivity : ComponentActivity() {
@@ -98,6 +99,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.double_minimal_buttons).setOnClickListener {
             startActivity(Intent(this@MainActivity, DoubleMinimalButtonsActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.text_input).setOnClickListener {
+            startActivity(Intent(this@MainActivity, TextInputActivity::class.java))
         }
 
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {
