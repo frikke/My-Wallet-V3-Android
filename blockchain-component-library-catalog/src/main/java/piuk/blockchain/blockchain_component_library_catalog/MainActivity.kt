@@ -10,6 +10,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BalanceTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BottomNavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ColorsActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ControlsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DefaultTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DividerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DoubleMinimalButtonsActivity
@@ -99,6 +100,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.double_minimal_buttons).setOnClickListener {
             startActivity(Intent(this@MainActivity, DoubleMinimalButtonsActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.controls).setOnClickListener {
+            startActivity(Intent(this@MainActivity, ControlsActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.text_input).setOnClickListener {
             startActivity(Intent(this@MainActivity, TextInputActivity::class.java))
