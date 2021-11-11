@@ -119,6 +119,7 @@
         android:layout_marginBottom="@dimen/tiny_margin"
         app:layout_constraintBottom_toTopOf="@id/button_cancel"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_goneMarginBottom="@dimen/standard_margin"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="Buy"
         tools:visibility="visible" />
@@ -130,10 +131,11 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
         android:text="@string/common_cancel"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
 
     <ProgressBar
         android:id="@+id/progress"

@@ -370,8 +370,7 @@ class SimpleBuyCheckoutFragment :
 
             buttonAction.isEnabled = !state.isLoading
             buttonCancel.visibleIf {
-                isOrderAwaitingFunds && state.selectedPaymentMethod?.isBank() == true && isForPendingPayment ||
-                    !isForPendingPayment
+                isOrderAwaitingFunds && state.selectedPaymentMethod?.isBank() == true
             }
             buttonCancel.setOnClickListenerDebounced {
                 analytics.logEvent(SimpleBuyAnalytics.CHECKOUT_SUMMARY_PRESS_CANCEL)

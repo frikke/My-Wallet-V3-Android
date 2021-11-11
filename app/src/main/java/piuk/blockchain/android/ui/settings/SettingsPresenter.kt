@@ -217,15 +217,12 @@ class SettingsPresenter(
 
             setEmailNotificationPref(false)
             setPushNotificationPref(arePushNotificationEnabled())
-            if (settings.isNotificationsOn && settings.notificationsType.isNotEmpty()) {
-                for (type in settings.notificationsType) {
-                    if (type in setOf(Settings.NOTIFICATION_TYPE_EMAIL, Settings.NOTIFICATION_TYPE_ALL)) {
-                        setEmailNotificationPref(true)
-                        break
-                    }
-                }
-            }
 
+            val emailNotificationsEnabled = settings.notificationsType.any {
+                it == Settings.NOTIFICATION_TYPE_EMAIL ||
+                    it == Settings.NOTIFICATION_TYPE_ALL
+            }
+            setEmailNotificationPref(emailNotificationsEnabled)
             setFingerprintVisibility(isFingerprintHardwareAvailable)
             updateFingerprintPreferenceStatus()
             setTwoFaPreference(settings.authType != Settings.AUTH_TYPE_OFF)

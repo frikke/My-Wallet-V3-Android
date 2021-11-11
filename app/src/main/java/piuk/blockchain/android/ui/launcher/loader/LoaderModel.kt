@@ -23,7 +23,7 @@ import timber.log.Timber
 class LoaderModel(
     initialState: LoaderState,
     environmentConfig: EnvironmentConfig,
-    private val mainScheduler: Scheduler,
+    mainScheduler: Scheduler,
     private val crashLogger: CrashLogger,
     private val appUtil: AppUtil,
     private val userIdentity: UserIdentity,
@@ -38,6 +38,12 @@ class LoaderModel(
         return when (intent) {
             is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(intent.isPinValidated, intent.isAfterWalletCreation)
             is LoaderIntents.OnEmailVerificationFinished -> onEmailVerificationFinished()
+            is LoaderIntents.UpdateLoadingStep -> {
+                (intent.loadingStep as? LoadingStep.Error)?.let { error ->
+                    handleError(error.throwable)
+                }
+                null
+            }
             is LoaderIntents.DecryptAndSetupMetadata -> decryptAndSetupMetadata(intent.secondPassword)
             else -> null
         }
@@ -50,13 +56,10 @@ class LoaderModel(
         return when {
             // App has been PIN validated
             hasLoginInfo && isPinValidated -> {
+                interactor.loaderIntents.subscribe {
+                    process(it)
+                }
                 interactor.initSettings(isAfterWalletCreation)
-                    .doOnError {
-                        handleError(it)
-                    }
-                    .subscribe {
-                        process(it)
-                    }
             }
             else -> {
                 process(LoaderIntents.StartLauncherActivity)
@@ -88,14 +91,14 @@ class LoaderModel(
                 process(LoaderIntents.HideSecondPasswordDialog)
             } else {
                 showToast(ToastType.UNEXPECTED_ERROR)
-                process(LoaderIntents.UpdateLoaderStep(LoaderStep.RequestPin))
+                process(LoaderIntents.UpdateLoadingStep(LoadingStep.RequestPin))
             }
         } else if (throwable is MetadataInitException) {
             process(LoaderIntents.ShowMetadataNodeFailure)
             process(LoaderIntents.HideMetadataNodeFailure)
         } else {
             showToast(ToastType.UNEXPECTED_ERROR)
-            process(LoaderIntents.UpdateLoaderStep(LoaderStep.RequestPin))
+            process(LoaderIntents.UpdateLoadingStep(LoadingStep.RequestPin))
         }
     }
 

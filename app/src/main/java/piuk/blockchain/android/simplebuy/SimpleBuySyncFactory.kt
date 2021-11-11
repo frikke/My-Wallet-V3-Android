@@ -49,6 +49,10 @@ class SimpleBuySyncFactory(
             Timber.d("SB Sync: state == $this")
         }
 
+    fun clear() {
+        serializer.clear()
+    }
+
     // If we have a local state in awaiting funds, check the server and clear it if the backend has transitioned
     // to any completed state (pending, cancelled, finished, failed)
     fun lightweightSync(): Completable =

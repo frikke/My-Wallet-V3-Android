@@ -13,10 +13,8 @@ import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
 import info.blockchain.balance.AssetInfo
-import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
 import info.blockchain.wallet.crypto.AESUtil
 import java.util.Currency
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -143,8 +141,7 @@ class PrefsUtil(
 
     override val defaultFiatCurrency: String
         get() = try {
-            val localeFiat = Currency.getInstance(Locale.getDefault()).currencyCode
-            if (UNIT_FIAT.contains(localeFiat)) localeFiat else DEFAULT_FIAT_CURRENCY
+            "TWD"
         } catch (e: Exception) {
             DEFAULT_FIAT_CURRENCY
         }

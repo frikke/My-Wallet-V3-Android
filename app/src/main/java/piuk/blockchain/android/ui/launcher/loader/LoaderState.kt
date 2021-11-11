@@ -2,11 +2,12 @@ package piuk.blockchain.android.ui.launcher.loader
 
 import piuk.blockchain.android.ui.base.mvi.MviState
 
-sealed class LoaderStep {
-    data class Main(val data: String?, val launchBuySellIntro: Boolean) : LoaderStep()
-    object Launcher : LoaderStep()
-    object EmailVerification : LoaderStep()
-    object RequestPin : LoaderStep()
+sealed class LoadingStep {
+    data class Main(val data: String?, val launchBuySellIntro: Boolean) : LoadingStep()
+    class Error(val throwable: Throwable) : LoadingStep()
+    object Launcher : LoadingStep()
+    object EmailVerification : LoadingStep()
+    object RequestPin : LoadingStep()
 }
 
 enum class ProgressStep {
@@ -19,7 +20,7 @@ enum class ToastType {
 
 data class LoaderState(
     val nextProgressStep: ProgressStep? = null,
-    val nextLoaderStep: LoaderStep? = null,
+    val nextLoadingStep: LoadingStep? = null,
     val toastType: ToastType? = null,
     val shouldShowSecondPasswordDialog: Boolean = false,
     val shouldShowMetadataNodeFailure: Boolean = false

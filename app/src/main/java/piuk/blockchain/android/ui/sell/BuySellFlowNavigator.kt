@@ -1,44 +1,44 @@
 package piuk.blockchain.android.ui.sell
 
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
-import io.reactivex.rxjava3.kotlin.zipWith
-import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyState
+import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class BuySellFlowNavigator(
-    private val simpleBuyModel: SimpleBuyModel,
+    private val simpleBuySyncFactory: SimpleBuySyncFactory,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialWalletManager: CustodialWalletManager,
-    private val eligibilityProvider: SimpleBuyEligibilityProvider,
-    private val tierService: TierService
+    private val userIdentity: UserIdentity
 ) {
     fun navigateTo(selectedAsset: AssetInfo? = null): Single<BuySellIntroAction> =
-        simpleBuyModel.state.firstOrError().flatMap { state ->
+        simpleBuySyncFactory.lightweightSync().thenSingle {
+            simpleBuySyncFactory.currentState()?.let {
+                Single.just(it)
+            } ?: Single.just(SimpleBuyState())
+        }.flatMap { state ->
             val cancel = if (state.orderState == OrderState.PENDING_CONFIRMATION)
                 custodialWalletManager.deleteBuyOrder(
                     state.id
                         ?: throw IllegalStateException("Pending order should always have an id")
                 ).onErrorComplete()
             else Completable.complete()
-            val isGoldButNotEligible = tierService.tiers()
-                .zipWith(
-                    eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true)
-                ) { tier, eligible ->
-                    tier.isApprovedFor(KycTierLevel.GOLD) && !eligible
-                }
-
+            val isGoldButNotEligible = Single.zip(
+                userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)),
+                userIdentity.isEligibleFor(Feature.SimpleBuy)
+            ) { gold, eligible ->
+                gold && !eligible
+            }
             cancel.thenSingle {
-                Singles.zip(
+                Single.zip(
                     custodialWalletManager.isCurrencySupportedForSimpleBuy(currencyPrefs.selectedFiatCurrency),
                     custodialWalletManager.getSupportedFiatCurrencies(),
                     isGoldButNotEligible

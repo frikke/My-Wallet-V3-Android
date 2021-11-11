@@ -248,15 +248,15 @@ val applicationModule = module {
         }
 
         factory(gbp) {
-            GBPPaymentAccountMapper(stringUtils = get())
+            GBPPaymentAccountMapper(resources = get())
         }.bind(PaymentAccountMapper::class)
 
         factory(eur) {
-            EURPaymentAccountMapper(stringUtils = get())
+            EURPaymentAccountMapper(resources = get())
         }.bind(PaymentAccountMapper::class)
 
         factory(usd) {
-            USDPaymentAccountMapper(stringUtils = get())
+            USDPaymentAccountMapper(resources = get())
         }.bind(PaymentAccountMapper::class)
 
         scoped {
@@ -555,11 +555,10 @@ val applicationModule = module {
 
         factory {
             BuySellFlowNavigator(
-                simpleBuyModel = get(),
                 custodialWalletManager = get(),
                 currencyPrefs = get(),
-                tierService = get(),
-                eligibilityProvider = get()
+                userIdentity = get(),
+                simpleBuySyncFactory = get()
             )
         }
 

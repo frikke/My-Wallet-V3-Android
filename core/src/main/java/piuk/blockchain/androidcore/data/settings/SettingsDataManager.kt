@@ -137,7 +137,7 @@ class SettingsDataManager(
                 .applySchedulers()
         } else {
             settingsService.enableNotifications(true)
-                .flatMap { fetchSettings() }
+                .flatMap { updateNotifications(notificationType) }
                 .applySchedulers()
         }
     }

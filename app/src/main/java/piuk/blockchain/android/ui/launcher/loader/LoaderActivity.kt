@@ -57,13 +57,13 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     }
 
     override fun render(newState: LoaderState) {
-        when (val loaderStep = newState.nextLoaderStep) {
-            is LoaderStep.Main -> {
+        when (val loaderStep = newState.nextLoadingStep) {
+            is LoadingStep.Main -> {
                 onStartMainActivity(loaderStep.data, loaderStep.launchBuySellIntro)
             }
-            is LoaderStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
-            is LoaderStep.EmailVerification -> launchEmailVerification()
-            is LoaderStep.RequestPin -> onRequestPin()
+            is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
+            is LoadingStep.EmailVerification -> launchEmailVerification()
+            is LoadingStep.RequestPin -> onRequestPin()
             null -> {
             }
         }

@@ -375,6 +375,19 @@ class MainPresenter internal constructor(
         }
     }
 
+    fun cancelPendingConfirmationBuy() {
+        val currentOrder = simpleBuySync.currentState() ?: return
+        val pendingOrderId = currentOrder.takeIf { it.orderState == OrderState.PENDING_CONFIRMATION }?.id ?: return
+        compositeDisposable += custodialWalletManager.deleteBuyOrder(pendingOrderId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(onComplete = {
+                simpleBuySync.clear()
+            }, onError = {
+                Timber.e("Failed to cancel buy order $pendingOrderId")
+            })
+    }
+
     private fun resetLocalBankAuthState() =
         bankLinkingPrefs.setBankLinkingState(
             BankAuthDeepLinkState(bankAuthFlow = BankAuthFlowState.NONE, bankPaymentData = null, bankLinkingInfo = null)

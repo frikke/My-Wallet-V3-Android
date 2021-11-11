@@ -537,7 +537,7 @@
         the link to verify your email address.
     </string>
     <string name="email_notifications">Email Notifications</string>
-    <string name="email_notifications_summary">Get notified when you receive bitcoin.</string>
+    <string name="email_notifications_summary">Get notified when you receive crypto.</string>
     <string name="current_password">Current Password</string>
     <string name="new_password">New Password</string>
     <string name="sms_verified">Mobile number verified</string>

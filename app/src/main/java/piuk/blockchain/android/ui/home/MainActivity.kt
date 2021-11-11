@@ -294,6 +294,8 @@ class MainActivity :
             resetUi()
         }
 
+        presenter.cancelPendingConfirmationBuy()
+
         handlingResult = false
     }
 

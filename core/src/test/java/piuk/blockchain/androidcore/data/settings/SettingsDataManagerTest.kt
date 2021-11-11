@@ -250,13 +250,16 @@ class SettingsDataManagerTest : RxTest() {
         val mockSettings = mock(Settings::class.java)
         whenever(settingsService.enableNotifications(true))
             .thenReturn(Observable.just(mockResponse))
+        whenever(settingsService.updateNotifications(SettingsManager.NOTIFICATION_TYPE_EMAIL))
+            .thenReturn(Observable.just(mockResponse))
         whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
         // Act
         val testObserver = subject.enableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).enableNotifications(true)
-        verifyNoMoreInteractions(settingsService)
         verify(settingsDataStore).fetchSettings()
+        verify(settingsService).updateNotifications(SettingsManager.NOTIFICATION_TYPE_EMAIL)
+        verifyNoMoreInteractions(settingsService)
         verifyNoMoreInteractions(settingsDataStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()

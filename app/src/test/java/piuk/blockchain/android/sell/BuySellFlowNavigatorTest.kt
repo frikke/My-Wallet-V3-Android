@@ -1,54 +1,55 @@
 package piuk.blockchain.android.sell
 
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyState
+import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.sell.BuySellIntroAction
 
 class BuySellFlowNavigatorTest {
-    private val simpleBuyModel: SimpleBuyModel = mock()
+    private val simpleBuySyncFactory: SimpleBuySyncFactory = mock {
+        on { lightweightSync() }.thenReturn(Completable.complete())
+    }
     private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val tierService: TierService = mock()
-    private val eligibilityProvider: SimpleBuyEligibilityProvider = mock()
+    private val userIdentity: UserIdentity = mock {
+        on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
+        on { isEligibleFor(Feature.SimpleBuy) }.thenReturn(Single.just(true))
+    }
     private lateinit var subject: BuySellFlowNavigator
 
     @Before
     fun setUp() {
         subject = BuySellFlowNavigator(
-            simpleBuyModel, currencyPrefs, custodialWalletManager, eligibilityProvider, tierService
+            simpleBuySyncFactory, currencyPrefs, custodialWalletManager, userIdentity
         )
-        whenever(tierService.tiers()).thenReturn(Single.just(KycTiers.default()))
-        whenever(eligibilityProvider.isEligibleForSimpleBuy(any(), any())).thenReturn(Single.just(true))
+
+        whenever(simpleBuySyncFactory.currentState()).thenReturn(
+            SimpleBuyState()
+        )
     }
 
     @Test
     fun `when buy state is pending and currency is right, hasPendingBuy should be true`() {
-        whenever(simpleBuyModel.state).thenReturn(
-            Observable.just(
-                SimpleBuyState(
-                    orderState = OrderState.PENDING_EXECUTION,
-                    fiatCurrency = "GBP"
-                )
+        whenever(simpleBuySyncFactory.currentState()).thenReturn(
+            SimpleBuyState(
+                orderState = OrderState.PENDING_EXECUTION,
+                fiatCurrency = "GBP"
             )
         )
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn("GBP")
-        whenever(eligibilityProvider.defCurrency).thenReturn("GBP")
 
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "GBP")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("GBP"))
@@ -61,11 +62,8 @@ class BuySellFlowNavigatorTest {
 
     @Test
     fun `whenΒuyStateIsNotPendingAndCurrencyIsNotSupportedThenSelectCurrencyShouldBeLaunchedWithAllSupportedCrncies`() {
-        whenever(simpleBuyModel.state).thenReturn(
-            Observable.just(SimpleBuyState())
-        )
+
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
-        whenever(eligibilityProvider.defCurrency).thenReturn("USD")
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "GBP")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
             .thenReturn(Single.just(false))
@@ -77,12 +75,11 @@ class BuySellFlowNavigatorTest {
 
     @Test
     fun `whenBuyStateIsNotPendingCurrencyIsSupportedAndSellIsEnableNormalBuySellUiIsDisplayed`() {
-        whenever(simpleBuyModel.state).thenReturn(Observable.just(SimpleBuyState()))
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "USD")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
             .thenReturn(Single.just(true))
-        whenever(eligibilityProvider.defCurrency).thenReturn("USD")
+
         val test = subject.navigateTo().test()
 
         test.assertValue(BuySellIntroAction.DisplayBuySellIntro(false, false))
@@ -90,15 +87,13 @@ class BuySellFlowNavigatorTest {
 
     @Test
     fun `whenBuyStateIsPendingConfirmationOrderIsCancelledAndBuySellUiIsDisplayed`() {
-        whenever(simpleBuyModel.state).thenReturn(
-            Observable.just(
-                SimpleBuyState(
-                    id = "ORDERID",
-                    orderState = OrderState.PENDING_CONFIRMATION
-                )
+        whenever(simpleBuySyncFactory.currentState()).thenReturn(
+            SimpleBuyState(
+                id = "ORDERID",
+                orderState = OrderState.PENDING_CONFIRMATION
             )
         )
-        whenever(eligibilityProvider.defCurrency).thenReturn("USD")
+
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "USD")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))

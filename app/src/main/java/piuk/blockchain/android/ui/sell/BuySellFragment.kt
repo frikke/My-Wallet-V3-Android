@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
@@ -204,7 +204,6 @@ class BuySellFragment :
                     )
                 }
             }
-
             pagerAdapter.showPendingBuy = hasPendingBuy
             pager.visible()
             notEligibleIcon.gone()
@@ -272,7 +271,7 @@ class BuySellFragment :
 internal class ViewPagerAdapter(
     private val titlesList: List<String>,
     fragmentManager: FragmentManager
-) : FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getCount(): Int = titlesList.size
 
@@ -280,8 +279,13 @@ internal class ViewPagerAdapter(
         titlesList[position]
 
     var showPendingBuy: Boolean by Delegates.observable(false) { _, oldV, newV ->
-        if (newV != oldV)
+        if (newV != oldV) {
             notifyDataSetChanged()
+        }
+    }
+
+    override fun getItemPosition(`object`: Any): Int {
+        return POSITION_NONE
     }
 
     override fun getItem(position: Int): Fragment = when (position) {
