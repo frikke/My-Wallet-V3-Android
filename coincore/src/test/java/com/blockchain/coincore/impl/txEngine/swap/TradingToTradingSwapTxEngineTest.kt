@@ -27,10 +27,12 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -560,6 +562,14 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
 
     private fun verifyLimitsFetched() {
         verify(walletManager).getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.INTERNAL)
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(SRC_ASSET.networkTicker),
+            sourceCurrency = eq(SRC_ASSET.networkTicker),
+            targetCurrency = eq(TGT_ASSET.networkTicker),
+            sourceAccountType = eq(AssetCategory.CUSTODIAL),
+            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     private fun verifyQuotesEngineStarted() {

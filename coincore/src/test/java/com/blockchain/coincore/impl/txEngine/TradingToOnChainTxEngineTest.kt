@@ -22,10 +22,12 @@ import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
 import com.blockchain.testutils.lumens
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -182,6 +184,15 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             .assertComplete()
 
         verify(sourceAccount, atLeastOnce()).asset
+        verify(walletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY)
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(ASSET.networkTicker),
+            sourceCurrency = eq(ASSET.networkTicker),
+            targetCurrency = eq(ASSET.networkTicker),
+            sourceAccountType = eq(AssetCategory.CUSTODIAL),
+            targetAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     @Test

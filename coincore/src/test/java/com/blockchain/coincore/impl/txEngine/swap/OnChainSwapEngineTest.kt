@@ -37,6 +37,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -610,6 +611,14 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
 
     private fun verifyLimitsFetched() {
         verify(walletManager).getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.ON_CHAIN)
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(SRC_ASSET.networkTicker),
+            sourceCurrency = eq(SRC_ASSET.networkTicker),
+            targetCurrency = eq(TGT_ASSET.networkTicker),
+            sourceAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            targetAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     private fun verifyOnChainEngineStarted(srcAccount: CryptoAccount) {

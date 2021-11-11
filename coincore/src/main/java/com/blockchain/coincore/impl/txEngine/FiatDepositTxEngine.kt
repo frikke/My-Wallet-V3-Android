@@ -76,7 +76,7 @@ class FiatDepositTxEngine(
                 limitsDataManager.getLimits(
                     outputCurrency = sourceAccountCurrency,
                     sourceCurrency = sourceAccountCurrency,
-                    targetCurrency = sourceAccountCurrency,
+                    targetCurrency = (txTarget as FiatAccount).fiatCurrency,
                     sourceAccountType = AssetCategory.NON_CUSTODIAL,
                     targetAccountType = AssetCategory.CUSTODIAL,
                     legacyLimits = Single.just(paymentMethodLimits).map {

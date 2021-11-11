@@ -21,10 +21,12 @@ import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
@@ -123,7 +125,6 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
     @Test
     fun `PendingTx is correctly initialised`() {
-
         whenever(walletManager.getBankTransferLimits(TEST_USER_FIAT, true))
             .thenReturn(Single.just(limits))
 
@@ -162,11 +163,22 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
                     it.confirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = limits.min, max = limits.max) &&
                     it.validationState == ValidationState.UNINITIALISED &&
-                    it.engineState.containsKey(WITHDRAW_LOCKS)
+                    it.engineState.containsKey(WITHDRAW_LOCKS) &&
+                    it.engineState.containsKey("PAYMENT_METHOD_LIMITS")
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
             .assertComplete()
+
+        verify(walletManager).getBankTransferLimits(TEST_USER_FIAT, true)
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(TEST_USER_FIAT),
+            sourceCurrency = eq(TEST_USER_FIAT),
+            targetCurrency = eq(TGT_ASSET),
+            sourceAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     @Test

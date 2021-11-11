@@ -38,6 +38,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -574,6 +575,14 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
             currency = TEST_API_FIAT,
             product = Product.SELL,
             orderDirection = TransferDirection.FROM_USERKEY
+        )
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(SRC_ASSET.networkTicker),
+            sourceCurrency = eq(SRC_ASSET.networkTicker),
+            targetCurrency = eq(TEST_API_FIAT),
+            sourceAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            legacyLimits = any()
         )
     }
 

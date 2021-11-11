@@ -54,7 +54,7 @@ class FiatWithdrawalTxEngine(
             limitsDataManager.getLimits(
                 outputCurrency = zeroFiat.currencyCode,
                 sourceCurrency = zeroFiat.currencyCode,
-                targetCurrency = zeroFiat.currencyCode,
+                targetCurrency = (txTarget as LinkedBankAccount).fiatCurrency,
                 sourceAccountType = AssetCategory.CUSTODIAL,
                 targetAccountType = AssetCategory.NON_CUSTODIAL,
                 legacyLimits = withdrawFeeAndMinLimit.map { it as LegacyLimits }

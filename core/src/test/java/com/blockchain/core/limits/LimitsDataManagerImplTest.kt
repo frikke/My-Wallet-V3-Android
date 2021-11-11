@@ -1,0 +1,355 @@
+package com.blockchain.core.limits
+
+import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.services.TxLimitsService
+import com.blockchain.api.txlimits.data.CurrentLimits
+import com.blockchain.api.txlimits.data.GetSeamlessLimitsResponse
+import com.blockchain.api.txlimits.data.Limit
+import com.blockchain.api.txlimits.data.LimitRange
+import com.blockchain.api.txlimits.data.PeriodicLimit
+import com.blockchain.api.txlimits.data.SuggestedUpgrade
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.FakeAuthenticator
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import java.math.RoundingMode
+import org.junit.Rule
+import org.junit.Test
+
+class LimitsDataManagerImplTest {
+
+    @get:Rule
+    val initSchedulers = rxInit {
+        mainTrampoline()
+        computationTrampoline()
+        ioTrampoline()
+    }
+
+    private val internalFeatureFlagApi: InternalFeatureFlagApi = mock {
+        on { isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS) }.thenReturn(true)
+    }
+    private val limitsService: TxLimitsService = mock()
+    private val cryptoToFiatRate: ExchangeRate = mock()
+    private val exchangeRatesDataManager: ExchangeRatesDataManager = mock {
+        on { cryptoToFiatRate(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY) }.thenReturn(
+            Observable.just(cryptoToFiatRate)
+        )
+    }
+    private val assetCatalogue: AssetCatalogue = mock()
+    private val authenticator: Authenticator = FakeAuthenticator(FakeNabuSessionTokenFactory.any)
+
+    private val subject = LimitsDataManagerImpl(
+        internalFeatureFlagApi = internalFeatureFlagApi,
+        limitsService = limitsService,
+        exchangeRatesDataManager = exchangeRatesDataManager,
+        assetCatalogue = assetCatalogue,
+        authenticator = authenticator
+    )
+
+    @Test
+    fun `given crypto output currency should call legacy api and convert it's limits to output currency`() {
+        whenever(limitsService.getSeamlessLimits(any(), any(), any(), any(), any(), any()))
+            .thenReturn(Single.just(NO_SEAMLESS_LIMITS))
+        whenever(assetCatalogue.fromNetworkTicker(OUTPUT_CRYPTO_CURRENCY.networkTicker))
+            .thenReturn(OUTPUT_CRYPTO_CURRENCY)
+
+        val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L)
+        val convertedMinLimit = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, 2000.0.toBigDecimal())
+        val legacyMaxLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 4123L)
+        val convertedMaxLimit = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, 8000.0.toBigDecimal())
+
+        val fiatToCryptoRateCeiling: ExchangeRate = mock {
+            on { convert(legacyMinLimit) }.thenReturn(convertedMinLimit)
+        }
+        val fiatToCryptoRateFloor: ExchangeRate = mock {
+            on { convert(legacyMaxLimit) }.thenReturn(convertedMaxLimit)
+        }
+        whenever(cryptoToFiatRate.inverse(RoundingMode.CEILING, OUTPUT_CRYPTO_CURRENCY.precisionDp))
+            .thenReturn(fiatToCryptoRateCeiling)
+        whenever(cryptoToFiatRate.inverse(RoundingMode.FLOOR, OUTPUT_CRYPTO_CURRENCY.precisionDp))
+            .thenReturn(fiatToCryptoRateFloor)
+
+        val legacyLimits = object : LegacyLimits {
+            override val min: Money = legacyMinLimit
+            override val max: Money = legacyMaxLimit
+        }
+        val legacyLimitsSingle: Single<LegacyLimits> = Single.just(legacyLimits)
+
+        // swap btc nc -> eth nc
+        subject.getLimits(
+            outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
+            sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
+            targetCurrency = "ETH",
+            sourceAccountType = AssetCategory.NON_CUSTODIAL,
+            targetAccountType = AssetCategory.CUSTODIAL,
+            legacyLimits = legacyLimitsSingle
+        ).test()
+            .assertComplete()
+            .assertValue { limits ->
+                limits.min.amount == convertedMinLimit &&
+                    limits.max is TxLimit.Limited &&
+                    limits.max.amount == convertedMaxLimit
+            }
+
+        legacyLimitsSingle.test().assertComplete()
+        verify(assetCatalogue).fromNetworkTicker(OUTPUT_CRYPTO_CURRENCY.networkTicker)
+        verify(exchangeRatesDataManager).cryptoToFiatRate(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
+        verify(cryptoToFiatRate).inverse(RoundingMode.CEILING, OUTPUT_CRYPTO_CURRENCY.precisionDp)
+        verify(cryptoToFiatRate).inverse(RoundingMode.FLOOR, OUTPUT_CRYPTO_CURRENCY.precisionDp)
+    }
+
+    @Test
+    fun `given fiat output currency should not convert legacy api limits`() {
+        whenever(limitsService.getSeamlessLimits(any(), any(), any(), any(), any(), any()))
+            .thenReturn(Single.just(NO_SEAMLESS_LIMITS))
+        whenever(assetCatalogue.fromNetworkTicker(OUTPUT_FIAT_CURRENCY)).thenReturn(null)
+
+        val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L)
+        val legacyMaxLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 4123L)
+        val legacyLimits = object : LegacyLimits {
+            override val min: Money = legacyMinLimit
+            override val max: Money = legacyMaxLimit
+        }
+        val legacyLimitsSingle: Single<LegacyLimits> = Single.just(legacyLimits)
+
+        subject.getLimits(
+            outputCurrency = OUTPUT_FIAT_CURRENCY,
+            sourceCurrency = OUTPUT_FIAT_CURRENCY,
+            targetCurrency = "ETH",
+            sourceAccountType = AssetCategory.NON_CUSTODIAL,
+            targetAccountType = AssetCategory.CUSTODIAL,
+            legacyLimits = legacyLimitsSingle
+        ).test()
+            .assertComplete()
+            .assertValue { limits ->
+                limits.min.amount == legacyMinLimit &&
+                    limits.max.amount == legacyMaxLimit
+            }
+
+        legacyLimitsSingle.test().assertComplete()
+        verifyNoMoreInteractions(exchangeRatesDataManager)
+    }
+
+    @Test
+    fun `when feature flag is off it shouldn't fetch seamless limits`() {
+        whenever(internalFeatureFlagApi.isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS)).thenReturn(false)
+
+        val legacyLimits = object : LegacyLimits {
+            override val min: Money = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L)
+            override val max: Money? = null
+        }
+        val legacyLimitsSingle: Single<LegacyLimits> = Single.just(legacyLimits)
+
+        subject.getLimits(
+            outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
+            sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
+            targetCurrency = "ETH",
+            sourceAccountType = AssetCategory.NON_CUSTODIAL,
+            targetAccountType = AssetCategory.CUSTODIAL,
+            legacyLimits = legacyLimitsSingle
+        ).test().assertComplete()
+
+        legacyLimitsSingle.test().assertComplete()
+        verifyNoMoreInteractions(limitsService)
+    }
+
+    @Test
+    fun `should fetch seamless limits and correctly construct TxLimits`() {
+        val seamlessLimitsResponse = createFakeSeamlessLimits(OUTPUT_CRYPTO_CURRENCY.networkTicker)
+        val seamlessMaxLimit = CryptoValue.fromMinor(
+            OUTPUT_CRYPTO_CURRENCY,
+            AVAILABLE_LIMIT.toBigInteger()
+        )
+        whenever(limitsService.getSeamlessLimits(any(), any(), any(), any(), any(), any()))
+            .thenReturn(Single.just(seamlessLimitsResponse))
+        whenever(assetCatalogue.fromNetworkTicker(OUTPUT_CRYPTO_CURRENCY.networkTicker))
+            .thenReturn(OUTPUT_CRYPTO_CURRENCY)
+
+        val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L)
+        val convertedMinLimit = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, 2000.0.toBigDecimal())
+        val legacyMaxLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 4123L)
+        val convertedMaxLimit = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, 8000.0.toBigDecimal())
+
+        val fiatToCryptoRateCeiling: ExchangeRate = mock {
+            on { convert(legacyMinLimit) }.thenReturn(convertedMinLimit)
+        }
+        val fiatToCryptoRateFloor: ExchangeRate = mock {
+            on { convert(legacyMaxLimit) }.thenReturn(convertedMaxLimit)
+        }
+        whenever(cryptoToFiatRate.inverse(RoundingMode.CEILING, OUTPUT_CRYPTO_CURRENCY.precisionDp))
+            .thenReturn(fiatToCryptoRateCeiling)
+        whenever(cryptoToFiatRate.inverse(RoundingMode.FLOOR, OUTPUT_CRYPTO_CURRENCY.precisionDp))
+            .thenReturn(fiatToCryptoRateFloor)
+
+        val legacyLimits = object : LegacyLimits {
+            override val min: Money = legacyMinLimit
+            override val max: Money = legacyMaxLimit
+        }
+        val legacyLimitsSingle: Single<LegacyLimits> = Single.just(legacyLimits)
+
+        subject.getLimits(
+            outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
+            sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
+            targetCurrency = "ETH",
+            sourceAccountType = AssetCategory.NON_CUSTODIAL,
+            targetAccountType = AssetCategory.CUSTODIAL,
+            legacyLimits = legacyLimitsSingle
+        ).test()
+            .assertComplete()
+            .assertValue { limits ->
+                limits.min.amount == convertedMinLimit &&
+                    limits.max is TxLimit.Limited &&
+                    limits.max.amount == Money.min(convertedMaxLimit, seamlessMaxLimit) &&
+                    limits.periodicLimits.containsAll(
+                        listOf(
+                            TxPeriodicLimit(
+                                amount = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, DAILY_LIMIT.toBigInteger()),
+                                period = TxLimitPeriod.DAILY,
+                                effective = true
+                            ),
+                            TxPeriodicLimit(
+                                amount = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, MONTHLY_LIMIT.toBigInteger()),
+                                period = TxLimitPeriod.MONTHLY,
+                                effective = false
+                            ),
+                            TxPeriodicLimit(
+                                amount = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, YEARLY_LIMIT.toBigInteger()),
+                                period = TxLimitPeriod.YEARLY,
+                                effective = false
+                            )
+                        )
+                    ) &&
+                    limits.suggestedUpgrade!!.type == UpgradeType.Kyc(Tier.GOLD) &&
+                    limits.suggestedUpgrade!!.upgradedLimits.containsAll(
+                        listOf(
+                            TxPeriodicLimit(
+                                amount = CryptoValue.fromMinor(
+                                    OUTPUT_CRYPTO_CURRENCY, SUGGESTED_DAILY_LIMIT.toBigInteger()
+                                ),
+                                period = TxLimitPeriod.DAILY,
+                                effective = false
+                            ),
+                            TxPeriodicLimit(
+                                amount = CryptoValue.fromMinor(
+                                    OUTPUT_CRYPTO_CURRENCY, SUGGESTED_YEARLY_LIMIT.toBigInteger()
+                                ),
+                                period = TxLimitPeriod.YEARLY,
+                                effective = false
+                            )
+                        )
+                    )
+            }
+
+        legacyLimitsSingle.test().assertComplete()
+        verify(limitsService).getSeamlessLimits(
+            authHeader = FakeNabuSessionTokenFactory.any.authHeader,
+            outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
+            sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
+            targetCurrency = "ETH",
+            sourceAccountType = AssetCategory.NON_CUSTODIAL.name,
+            targetAccountType = AssetCategory.CUSTODIAL.name
+        )
+        verify(assetCatalogue, atLeastOnce()).fromNetworkTicker(OUTPUT_CRYPTO_CURRENCY.networkTicker)
+        verify(exchangeRatesDataManager).cryptoToFiatRate(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
+        verify(cryptoToFiatRate).inverse(RoundingMode.CEILING, OUTPUT_CRYPTO_CURRENCY.precisionDp)
+        verify(cryptoToFiatRate).inverse(RoundingMode.FLOOR, OUTPUT_CRYPTO_CURRENCY.precisionDp)
+    }
+
+    @Test
+    fun `when legacy max limit and seamless current limits are present, max limit should be the lower of them`() {
+        val seamlessLimitsResponse = createFakeSeamlessLimits(OUTPUT_FIAT_CURRENCY)
+        val seamlessMaxLimit =
+            FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, AVAILABLE_LIMIT.toLong())
+        whenever(limitsService.getSeamlessLimits(any(), any(), any(), any(), any(), any()))
+            .thenReturn(Single.just(seamlessLimitsResponse))
+        whenever(assetCatalogue.fromNetworkTicker(OUTPUT_FIAT_CURRENCY)).thenReturn(null)
+
+        val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L)
+        val legacyMaxLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 4123L)
+        val legacyLimits = object : LegacyLimits {
+            override val min: Money = legacyMinLimit
+            override val max: Money = legacyMaxLimit
+        }
+        val legacyLimitsSingle: Single<LegacyLimits> = Single.just(legacyLimits)
+
+        subject.getLimits(
+            outputCurrency = OUTPUT_FIAT_CURRENCY,
+            sourceCurrency = OUTPUT_FIAT_CURRENCY,
+            targetCurrency = "ETH",
+            sourceAccountType = AssetCategory.NON_CUSTODIAL,
+            targetAccountType = AssetCategory.CUSTODIAL,
+            legacyLimits = legacyLimitsSingle
+        ).test()
+            .assertComplete()
+            .assertValue { limits ->
+                limits.min.amount == legacyMinLimit &&
+                    limits.max.amount == seamlessMaxLimit
+            }
+
+        legacyLimitsSingle.test().assertComplete()
+        verify(limitsService).getSeamlessLimits(
+            FakeNabuSessionTokenFactory.any.authHeader,
+            OUTPUT_FIAT_CURRENCY,
+            OUTPUT_FIAT_CURRENCY,
+            "ETH",
+            AssetCategory.NON_CUSTODIAL.name,
+            AssetCategory.CUSTODIAL.name
+        )
+    }
+
+    companion object {
+        private val OUTPUT_CRYPTO_CURRENCY = CryptoCurrency.BTC
+        private const val OUTPUT_FIAT_CURRENCY = "USD"
+
+        private val NO_SEAMLESS_LIMITS = GetSeamlessLimitsResponse("NOOP", null, null)
+
+        private const val AVAILABLE_LIMIT = "850"
+        private const val DAILY_LIMIT = "1000"
+        private const val MONTHLY_LIMIT = "5000"
+        private const val YEARLY_LIMIT = "10000"
+        private const val SUGGESTED_DAILY_LIMIT = "200000"
+        private const val SUGGESTED_YEARLY_LIMIT = "1000000"
+        private fun createFakeSeamlessLimits(currency: String) = GetSeamlessLimitsResponse(
+            currency = currency,
+            current = CurrentLimits(
+                available = Limit(currency, AVAILABLE_LIMIT),
+                daily = PeriodicLimit(Limit(currency, DAILY_LIMIT), true),
+                monthly = PeriodicLimit(Limit(currency, MONTHLY_LIMIT)),
+                yearly = PeriodicLimit(Limit(currency, YEARLY_LIMIT))
+            ),
+            suggestedUpgrade = SuggestedUpgrade(
+                available = Limit(currency, "200000"),
+                daily = LimitRange(
+                    limit = Limit(currency, SUGGESTED_DAILY_LIMIT),
+                    available = Limit(currency, "199850"),
+                    used = Limit(currency, "150")
+                ),
+                yearly = LimitRange(
+                    limit = Limit(currency, SUGGESTED_YEARLY_LIMIT),
+                    available = Limit(currency, "999850"),
+                    used = Limit(currency, "150")
+                ),
+                requiredTier = 2,
+                requirements = emptyList()
+            )
+        )
+    }
+}

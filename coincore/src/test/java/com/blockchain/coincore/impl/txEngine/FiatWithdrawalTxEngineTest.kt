@@ -17,10 +17,12 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -148,6 +150,16 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
             .assertComplete()
+
+        verify(txTarget).getWithdrawalFeeAndMinLimit()
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(TEST_API_FIAT),
+            sourceCurrency = eq(TEST_API_FIAT),
+            targetCurrency = eq(TEST_API_FIAT),
+            sourceAccountType = eq(AssetCategory.CUSTODIAL),
+            targetAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     @Test
