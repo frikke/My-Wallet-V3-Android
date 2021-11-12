@@ -11,7 +11,7 @@ import piuk.blockchain.android.sunriver.CampaignLinkState
 import piuk.blockchain.android.sunriver.SunriverDeepLinkHelper
 import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 
-internal class DeepLinkProcessor(
+class DeepLinkProcessor(
     private val linkHandler: PendingLink,
     private val emailVerifiedLinkHelper: EmailVerificationDeepLinkHelper,
     private val kycDeepLinkHelper: KycDeepLinkHelper,

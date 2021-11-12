@@ -18,7 +18,19 @@ val mainModule = module {
         }
 
         factory {
-            RedesignInteractor()
+            RedesignInteractor(
+                deepLinkProcessor = get(),
+                exchangeLinking = get(),
+                exchangePrefs = get(),
+                assetCatalogue = get(),
+                xlmDataManager = get(),
+                sunriverCampaignRegistration = get(),
+                kycStatusHelper = get(),
+                bankLinkingPrefs = get(),
+                custodialWalletManager = get(),
+                simpleBuySync = get(),
+                userIdentity = get()
+            )
         }
     }
 }

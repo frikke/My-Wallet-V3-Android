@@ -6,11 +6,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
@@ -32,7 +34,10 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.android.ui.swap.SwapFragment
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.upsell.UpsellHost
+import timber.log.Timber
 
 class RedesignMainActivity :
     MviActivity<RedesignModel, RedesignIntent, RedesignState, ActivityRedesignMainBinding>(),
@@ -65,37 +70,25 @@ class RedesignMainActivity :
         }
 
         if (savedInstanceState == null) {
-            // TODO model.process(checkPendingLinks)
-            // presenter.checkForPendingLinks(intent)
+            model.process(RedesignIntent.CheckForPendingLinks(intent))
         }
 
-        // Set up toolbar_constraint
         with(toolbar) {
-            // TODO kill this
-            title = "Redesign Activity"
+            title = ""
             setSupportActionBar(this)
         }
 
-        // Styling
-        //        binding.bottomNavigation.apply {
-        //            setOnNavigationItemSelectedListener(tabSelectedListener)
-        //            if (savedInstanceState == null) {
-        //                val currentItem = if (intent.getBooleanExtra(RedesignMainActivity.START_BUY_SELL_INTRO_KEY, false)) {
-        //                    R.id.nav_buy_and_sell
-        //                } else R.id.nav_home
-        //                selectedItemId = currentItem
-        //            }
-        //        }
+        supportActionBar?.let {
+            it.setDisplayHomeAsUpEnabled(false)
+            it.setHomeButtonEnabled(false)
+        }
 
-        if (intent.hasExtra(RedesignMainActivity.SHOW_SWAP) && intent.getBooleanExtra(
-                SHOW_SWAP, false
-            )
+        if (intent.hasExtra(SHOW_SWAP) &&
+            intent.getBooleanExtra(SHOW_SWAP, false)
         ) {
-            // TODO
-            // startSwapFlow()
-        } else if (intent.hasExtra(LAUNCH_AUTH_FLOW) && intent.getBooleanExtra(
-                LAUNCH_AUTH_FLOW, false
-            )
+            startSwapFlow()
+        } else if (intent.hasExtra(LAUNCH_AUTH_FLOW) &&
+            intent.getBooleanExtra(LAUNCH_AUTH_FLOW, false)
         ) {
             intent.extras?.let {
                 showBottomSheet(
@@ -111,15 +104,7 @@ class RedesignMainActivity :
             }
         }
 
-        // TODO model.process(checkForUserWalletLinkErrors)
-        //        compositeDisposable += userIdentity.checkForUserWalletLinkErrors()
-        //            .observeOn(AndroidSchedulers.mainThread())
-        //            .subscribeBy(
-        //                onComplete = {
-        //                    // Nothing to do here
-        //                },
-        //                onError = { throwable -> presenter.checkForAccountWalletLinkErrors(throwable) }
-        //            )
+        model.process(RedesignIntent.PerformInitialChecks)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -144,7 +129,78 @@ class RedesignMainActivity :
     }
 
     override fun render(newState: RedesignState) {
-        // TODO not yet implemented
+        when (val view = newState.viewToLaunch) {
+            is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
+            is ViewToLaunch.LaunchAssetAction -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchBuySell -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchExchange -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchInterestDashboard -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchKyc -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchOpenBankingApprovalDepositComplete -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchOpenBankingApprovalError -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchOpenBankingApprovalTimeout -> {
+                // TODO
+            }
+            ViewToLaunch.LaunchOpenBankingBuyApprovalError -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchOpenBankingDepositError -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchOpenBankingLinking -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchPaymentForCancelledOrder -> {
+                // TODO
+            }
+            ViewToLaunch.LaunchReceive -> {
+                // TODO
+            }
+            ViewToLaunch.LaunchSend -> {
+                // TODO
+            }
+            ViewToLaunch.LaunchSetupBiometricLogin -> {
+                // TODO
+            }
+            is ViewToLaunch.LaunchSimpleBuy -> {
+                // TODO
+            }
+            ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval -> {
+                // TODO
+            }
+            ViewToLaunch.LaunchSwap -> {
+                // TODO
+            }
+            ViewToLaunch.LaunchTwoFaSetup -> {
+                // TODO
+            }
+            ViewToLaunch.LaunchVerifyEmail -> {
+                // TODO
+            }
+            ViewToLaunch.ShowOpenBankingError -> {
+                // TODO
+            }
+            ViewToLaunch.None -> {
+                // do nothing
+            }
+        }
     }
 
     override fun exitSimpleBuyFlow() {
@@ -160,7 +216,7 @@ class RedesignMainActivity :
     }
 
     override fun onSheetClosed() {
-        // TODO not yet implemented
+        Timber.d("On closed")
     }
 
     override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) {
@@ -173,6 +229,28 @@ class RedesignMainActivity :
 
     override fun launchSwap(sourceAccount: CryptoAccount?, targetAccount: CryptoAccount?) {
         // TODO not yet implemented
+    }
+
+    private fun startSwapFlow(
+        sourceAccount: CryptoAccount? = null,
+        destinationAccount: CryptoAccount? = null,
+        reload: Boolean = true
+    ) {
+        if (sourceAccount == null && destinationAccount == null) {
+            // TODO setCurrentTabItem(R.id.nav_swap)
+            toolbar.title = getString(R.string.common_swap)
+            val swapFragment = SwapFragment.newInstance()
+            // TODO showFragment(swapFragment, reload)
+        } else if (sourceAccount != null) {
+            startActivity(
+                TransactionFlowActivity.newInstance(
+                    context = this,
+                    sourceAccount = sourceAccount,
+                    target = destinationAccount ?: NullCryptoAccount(),
+                    action = AssetAction.Swap
+                )
+            )
+        }
     }
 
     override fun launchKyc(campaignType: CampaignType) {
@@ -249,6 +327,14 @@ class RedesignMainActivity :
 
     override fun resumeSimpleBuyKyc() {
         // TODO not yet implemented
+    }
+
+    private fun displayDialog(title: Int, message: Int) {
+        AlertDialog.Builder(this, R.style.AlertDialogStyle)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     companion object {
