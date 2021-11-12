@@ -7,6 +7,7 @@ import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -47,7 +48,13 @@ class LoaderInteractor(
             prerequisites.initSettings(
                 wallet.guid,
                 wallet.sharedKey
-            )
+            ).doOnSuccess {
+                // this is temporary. There will be some designs so we can set the user currency
+                // from java locale but cannot be done until we have designs for buy and
+                // currency selection. So for now, we set settings def that is USD.
+                if (prefs.isNewlyCreated)
+                    setCurrencyUnits(it)
+            }.ignoreElement()
         }
 
     private val warmCaches: Completable
@@ -68,7 +75,7 @@ class LoaderInteractor(
         }.then {
             saveInitialCountry()
         }.then {
-            updateUserFiat()
+            updateUserFiatIfNotSet()
         }.then {
             notificationTokenUpdate
         }.then {
@@ -100,7 +107,7 @@ class LoaderInteractor(
         analytics.logEvent(LoginAnalyticsEvent)
     }
 
-    private fun updateUserFiat(): Completable {
+    private fun updateUserFiatIfNotSet(): Completable {
         return if (noCurrencySet())
             settingsDataManager.setDefaultUserFiat().ignoreElement()
         else {
@@ -121,6 +128,10 @@ class LoaderInteractor(
                 prefs.clearGeolocationPreferences()
             }.onErrorComplete()
         } else Completable.complete()
+    }
+
+    private fun setCurrencyUnits(settings: Settings) {
+        prefs.selectedFiatCurrency = settings.currency
     }
 
     private fun noCurrencySet() =

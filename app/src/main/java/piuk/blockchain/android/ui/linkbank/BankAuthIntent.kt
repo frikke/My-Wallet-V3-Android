@@ -21,6 +21,7 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
             oldState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING_SUCCESS,
                 linkedBank = linkedBank,
+                errorState = null,
                 selectedPaymentMethod = SelectedPaymentMethod(
                     id = linkedBank.id,
                     paymentMethodType = PaymentMethodType.BANK_TRANSFER,
@@ -143,7 +144,7 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
 
     class ErrorIntent(private val error: ErrorState = ErrorState.GenericError) : BankAuthIntent() {
         override fun reduce(oldState: BankAuthState): BankAuthState =
-            oldState.copy(errorState = error)
+            oldState.copy(errorState = error, bankLinkingProcessState = BankLinkingProcessState.NONE)
 
         override fun isValidFor(oldState: BankAuthState): Boolean = true
     }

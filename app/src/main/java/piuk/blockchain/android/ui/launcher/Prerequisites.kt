@@ -4,9 +4,11 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.CrashLogger
 import com.blockchain.operations.AppStartUpFlushable
+import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.models.MetadataEvent
@@ -64,11 +66,11 @@ class Prerequisites(
     private fun Completable.logAndCompleteOnError(tag: String): Completable =
         this.logOnError(tag).onErrorComplete()
 
-    fun initSettings(guid: String, sharedKey: String): Completable =
+    fun initSettings(guid: String, sharedKey: String): Single<Settings> =
         settingsDataManager.initSettings(
             guid,
             sharedKey
-        ).ignoreElements()
+        ).firstOrError()
 
     fun decryptAndSetupMetadata(secondPassword: String) = metadataManager.decryptAndSetupMetadata(
         secondPassword
