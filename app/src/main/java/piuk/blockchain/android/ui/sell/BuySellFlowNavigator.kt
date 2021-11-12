@@ -19,34 +19,33 @@ class BuySellFlowNavigator(
     private val custodialWalletManager: CustodialWalletManager,
     private val userIdentity: UserIdentity
 ) {
-    fun navigateTo(selectedAsset: AssetInfo? = null): Single<BuySellIntroAction> =
-        simpleBuySyncFactory.lightweightSync().thenSingle {
-            simpleBuySyncFactory.currentState()?.let {
-                Single.just(it)
-            } ?: Single.just(SimpleBuyState())
-        }.flatMap { state ->
-            val cancel = if (state.orderState == OrderState.PENDING_CONFIRMATION)
-                custodialWalletManager.deleteBuyOrder(
-                    state.id
-                        ?: throw IllegalStateException("Pending order should always have an id")
-                ).onErrorComplete()
-            else Completable.complete()
-            val isGoldButNotEligible = Single.zip(
-                userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)),
-                userIdentity.isEligibleFor(Feature.SimpleBuy)
-            ) { gold, eligible ->
-                gold && !eligible
-            }
-            cancel.thenSingle {
-                Single.zip(
-                    custodialWalletManager.isCurrencySupportedForSimpleBuy(currencyPrefs.selectedFiatCurrency),
-                    custodialWalletManager.getSupportedFiatCurrencies(),
-                    isGoldButNotEligible
-                ) { currencySupported, supportedFiats, isGoldButNotEligible ->
-                    decideNavigationStep(currencySupported, selectedAsset, isGoldButNotEligible, state, supportedFiats)
-                }
+    fun navigateTo(selectedAsset: AssetInfo? = null): Single<BuySellIntroAction> {
+        val state = simpleBuySyncFactory.currentState() ?: SimpleBuyState()
+
+        val cancel: Completable = if (state.orderState == OrderState.PENDING_CONFIRMATION)
+            custodialWalletManager.deleteBuyOrder(
+                state.id
+                    ?: throw IllegalStateException("Pending order should always have an id")
+            ).onErrorComplete()
+        else Completable.complete()
+        val isGoldButNotEligible = Single.zip(
+            userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)),
+            userIdentity.isEligibleFor(Feature.SimpleBuy)
+        ) { gold, eligible ->
+            gold && !eligible
+        }
+        return cancel.thenSingle {
+            Single.zip(
+                custodialWalletManager.isCurrencySupportedForSimpleBuy(currencyPrefs.selectedFiatCurrency),
+                custodialWalletManager.getSupportedFiatCurrencies(),
+                isGoldButNotEligible
+            ) { currencySupported, supportedFiats, isGoldButNotEligible ->
+                decideNavigationStep(
+                    currencySupported, selectedAsset, isGoldButNotEligible, state, supportedFiats
+                )
             }
         }
+    }
 
     private fun decideNavigationStep(
         currencySupported: Boolean,

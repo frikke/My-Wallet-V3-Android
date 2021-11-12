@@ -19,9 +19,8 @@ import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.sell.BuySellIntroAction
 
 class BuySellFlowNavigatorTest {
-    private val simpleBuySyncFactory: SimpleBuySyncFactory = mock {
-        on { lightweightSync() }.thenReturn(Completable.complete())
-    }
+
+    private val simpleBuySyncFactory: SimpleBuySyncFactory = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val userIdentity: UserIdentity = mock {
