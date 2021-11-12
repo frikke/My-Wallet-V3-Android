@@ -5,14 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.text.Editable
+import android.text.InputType
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
+import com.google.android.material.textfield.TextInputEditText
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityManualPairingBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
@@ -22,6 +26,7 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
+import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.ViewUtils
 
 class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresenter>(), ManualPairingView {
@@ -64,6 +69,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.manual_pairing)
 
         with(binding) {
+            binding.walletId.disableInputForDemoAccount()
             commandNext.setOnClickListener { presenter.onContinueClicked(guid, password) }
             binding.walletId.setText(prefilledGuid)
             walletPass.setOnEditorActionListener { _, i, _ ->
@@ -156,5 +162,14 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
             intent.putExtra(PREFILLED_GUID, guid)
             return intent
         }
+    }
+
+    private fun TextInputEditText.disableInputForDemoAccount() {
+        addTextChangedListener(object : AfterTextChangedWatcher() {
+            override fun afterTextChanged(text: Editable) {
+                if (text.toString() == BuildConfig.PLAY_STORE_DEMO_WALLET_ID)
+                    inputType = InputType.TYPE_NULL
+            }
+        })
     }
 }

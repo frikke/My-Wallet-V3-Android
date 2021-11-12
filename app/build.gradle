@@ -63,8 +63,8 @@ android {
         buildConfigString "SHAPE_SHIFT_API_KEY", buildProperties.secrets['shapeShiftApiKey']
 
         manifestPlaceholders = [
-            APP_NAME: "@string/app_name",
-            FABRIC_API_KEY: buildProperties.secrets['fabricApiKey'].string
+                APP_NAME      : "@string/app_name",
+                FABRIC_API_KEY: buildProperties.secrets['fabricApiKey'].string
         ]
 
         resConfigs 'en',
@@ -130,6 +130,9 @@ android {
             buildConfigBoolean "INTERNAL", false
             buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
 
+            buildConfigString "PLAY_STORE_DEMO_EMAIL", buildProperties.secrets['playstoreProdDemoEmail']
+            buildConfigString "PLAY_STORE_DEMO_WALLET_ID", buildProperties.secrets['playstoreProdDemoWalletId']
+
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
@@ -139,7 +142,7 @@ android {
         envInternalProd {
             dimension "environment"
             manifestPlaceholders = [
-                    APP_NAME: "@string/alpha_app_name",
+                    APP_NAME           : "@string/alpha_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['prodGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
@@ -167,6 +170,8 @@ android {
             buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
             buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
             buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
+            buildConfigString "PLAY_STORE_DEMO_EMAIL", buildProperties.secrets['playstoreProdDemoEmail']
+            buildConfigString "PLAY_STORE_DEMO_WALLET_ID", buildProperties.secrets['playstoreProdDemoWalletId']
             applicationId "com.blockchain.wallet.internal"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -175,11 +180,11 @@ android {
                 versionNameSuffix = ".${ciVersionCode}_alpha"
             }
         }
-        
+
         envStaging {
             dimension "environment"
             manifestPlaceholders = [
-                    APP_NAME: "@string/staging_app_name",
+                    APP_NAME           : "@string/staging_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['stagingGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['stagingDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['stagingDynamicLink2'].string,
@@ -207,6 +212,8 @@ android {
             buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
             buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
             buildConfigString "WEB_WALLET_URL", buildProperties.secrets['stagingLoginPortal']
+            buildConfigString "PLAY_STORE_DEMO_EMAIL", buildProperties.secrets['playstoreStagingDemoEmail']
+            buildConfigString "PLAY_STORE_DEMO_WALLET_ID", buildProperties.secrets['playstoreStagingDemoWalletId']
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"

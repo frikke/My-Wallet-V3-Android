@@ -13,6 +13,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import info.blockchain.wallet.api.Environment
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginNewBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
@@ -117,11 +118,18 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private fun onContinueButtonClicked() {
         binding.loginEmailText.text?.let { emailInputText ->
             if (emailInputText.isNotBlank()) {
-                ViewUtils.hideKeyboard(this@LoginActivity)
-                verifyReCaptcha(emailInputText.toString())
+                if (isDemoAccount(emailInputText.toString().trim())) {
+                    val intent = ManualPairingActivity.newInstance(this, BuildConfig.PLAY_STORE_DEMO_WALLET_ID)
+                    startActivity(intent)
+                } else {
+                    ViewUtils.hideKeyboard(this@LoginActivity)
+                    verifyReCaptcha(emailInputText.toString())
+                }
             }
         }
     }
+
+    private fun isDemoAccount(email: String): Boolean = email == BuildConfig.PLAY_STORE_DEMO_EMAIL
 
     override fun onPause() {
         model.process(LoginIntents.CancelPolling)
