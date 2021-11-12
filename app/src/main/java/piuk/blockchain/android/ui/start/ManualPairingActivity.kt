@@ -167,7 +167,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     private fun TextInputEditText.disableInputForDemoAccount() {
         addTextChangedListener(object : AfterTextChangedWatcher() {
             override fun afterTextChanged(text: Editable) {
-                if (text.toString() == BuildConfig.PLAY_STORE_DEMO_WALLET_ID)
+                if (text.toString().isNotEmpty() && text.toString() == BuildConfig.PLAY_STORE_DEMO_WALLET_ID)
                     inputType = InputType.TYPE_NULL
             }
         })

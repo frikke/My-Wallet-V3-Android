@@ -9,7 +9,6 @@ import com.blockchain.common_view.BuildConfig
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import timber.log.Timber
 
@@ -89,10 +88,7 @@ class UnifiedSignInWebView @JvmOverloads constructor(
 
         when (webResponse) {
             is WebViewMessaging.Handshake -> {
-                val base64Body = WebViewMessaging.PayloadBody(
-                    payload = payload
-                )
-                sendMessage(jsonBuilder.encodeToString(base64Body))
+                sendMessage(payload)
             }
             is WebViewMessaging.MergeResponse -> {
             }
@@ -108,13 +104,17 @@ class UnifiedSignInWebView @JvmOverloads constructor(
     fun initWebView(listener: UnifiedSignInEventListener, url: String, payload: String) {
         this.listener = listener
         this.payload = payload
-        loadUrl(url)
+        this.post {
+            loadUrl(url)
+        }
     }
 
-    private fun WebView.sendMessage(json: String) {
-        evaluateJavascript(WEB_SEND_MESSAGE_CALL.replace(REPLACEABLE_CONTENT, json)) { responseMessage ->
-            // TODO only print for now
-            Timber.e("Call back from sending web message: $responseMessage")
+    private fun WebView.sendMessage(base64String: String) {
+        post {
+            evaluateJavascript(WEB_SEND_MESSAGE_CALL.replace(REPLACEABLE_CONTENT, base64String)) { responseMessage ->
+                // TODO only print for now
+                Timber.e("Call back from sending web message: $responseMessage")
+            }
         }
     }
 
@@ -130,12 +130,6 @@ internal sealed class WebViewMessaging {
     data class Handshake(
         @SerialName("status")
         val status: String
-    ) : WebViewMessaging()
-
-    @Serializable
-    data class PayloadBody(
-        @SerialName("payload")
-        val payload: String
     ) : WebViewMessaging()
 
     @Serializable
