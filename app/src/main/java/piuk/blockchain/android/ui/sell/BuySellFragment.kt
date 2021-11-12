@@ -228,7 +228,7 @@ class BuySellFragment :
         private const val SB_ACTIVITY = 321
 
         fun newInstance(
-            asset: AssetInfo?,
+            asset: AssetInfo? = null,
             viewType: BuySellViewType = BuySellViewType.TYPE_BUY
         ) = BuySellFragment().apply {
             arguments = Bundle().apply {

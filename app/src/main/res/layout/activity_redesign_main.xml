@@ -31,7 +31,7 @@
         app:layout_constraintTop_toBottomOf="@id/appbar_layout" />
 
     <!--The bottom navigation panel -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <com.blockchain.componentlib.navigation.BottomNavigationBarView
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

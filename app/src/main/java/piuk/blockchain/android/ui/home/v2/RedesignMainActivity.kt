@@ -13,6 +13,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
@@ -25,11 +26,15 @@ import piuk.blockchain.android.databinding.ActivityRedesignMainBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
+import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviActivity
+import piuk.blockchain.android.ui.dashboard.PortfolioFragment
+import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
+import piuk.blockchain.android.ui.home.v2.FragmentTransitions.Companion.showFragment
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
@@ -62,6 +67,7 @@ class RedesignMainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        setupNavigation()
 
         if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
@@ -105,6 +111,38 @@ class RedesignMainActivity :
         }
 
         model.process(RedesignIntent.PerformInitialChecks)
+    }
+
+    private fun setupNavigation() {
+        binding.bottomNavigation.apply {
+            onNavigationItemClick = {
+                selectedNavigationItem = it
+                showFragment(
+                    fragmentManager = supportFragmentManager,
+                    fragment = when (it) {
+                        NavigationItem.Home -> {
+                            PortfolioFragment.newInstance(true)
+                        }
+                        NavigationItem.Prices -> {
+                            PricesFragment.newInstance()
+                        }
+                        NavigationItem.BuyAndSell -> {
+                            BuySellFragment.newInstance()
+                        }
+                        NavigationItem.Activity -> {
+                            ActivitiesFragment.newInstance()
+                        }
+                        else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
+                    },
+                    loadingView = binding.progress
+                )
+            }
+            onMiddleButtonClick = {
+                showBottomSheet(
+                    RedesignActionsBottomSheet.newInstance()
+                )
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -216,6 +254,8 @@ class RedesignMainActivity :
     }
 
     override fun onSheetClosed() {
+        // un rotate
+        // binding.bottomNavigation.onMiddleButtonClick.
         Timber.d("On closed")
     }
 
@@ -290,7 +330,15 @@ class RedesignMainActivity :
     }
 
     override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
-        // TODO not yet implemented
+        showFragment(
+            fragmentManager = supportFragmentManager,
+            fragment = BuySellFragment.newInstance(
+                viewType = viewType,
+                asset = asset
+            ),
+            loadingView = binding.progress
+        )
+        binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
     }
 
     override fun launchSimpleBuy(asset: AssetInfo) {

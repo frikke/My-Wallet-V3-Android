@@ -338,7 +338,7 @@ class ActivitiesFragment :
     companion object {
         private const val PARAM_ACCOUNT = "PARAM_ACCOUNT"
 
-        fun newInstance(account: BlockchainAccount?): ActivitiesFragment {
+        fun newInstance(account: BlockchainAccount? = null): ActivitiesFragment {
             return ActivitiesFragment().apply {
                 arguments = Bundle().apply {
                     account?.let { putAccount(PARAM_ACCOUNT, it) }

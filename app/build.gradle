@@ -405,6 +405,9 @@ dependencies {
     implementation Libraries.zendeskChat
     implementation Libraries.zendeskMessaging
 
+    // Compose
+    implementation Libraries.composeUi
+
     // UI/Instrumentation Tests
     androidTestImplementation(Libraries.espresso) {
         exclude group: 'javax.inject', module: 'support-annotations'
