@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.home.v2
 
 import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
@@ -10,6 +11,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 data class RedesignState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None
@@ -25,7 +27,7 @@ sealed class ViewToLaunch {
     object LaunchReceive : ViewToLaunch()
     object LaunchSend : ViewToLaunch()
     class LaunchBuySell(val type: BuySellFragment.BuySellViewType, val asset: AssetInfo?) : ViewToLaunch()
-    class LaunchAssetAction(val action: AssetAction) : ViewToLaunch()
+    class LaunchAssetAction(val action: AssetAction, val account: BlockchainAccount?) : ViewToLaunch()
     class LaunchSimpleBuy(val asset: AssetInfo) : ViewToLaunch()
     class LaunchKyc(val campaignType: CampaignType) : ViewToLaunch()
     class LaunchExchange(val linkId: String? = null) : ViewToLaunch()
@@ -43,4 +45,5 @@ sealed class ViewToLaunch {
     object LaunchSimpleBuyFromDeepLinkApproval : ViewToLaunch()
     class LaunchPaymentForCancelledOrder(val state: SimpleBuyState) : ViewToLaunch()
     class CheckForAccountWalletLinkErrors(val throwable: Throwable) : ViewToLaunch()
+    class LaunchUpsellAssetAction(val upsell: KycUpgradePromptManager.Type) : ViewToLaunch()
 }

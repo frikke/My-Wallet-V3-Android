@@ -32,6 +32,7 @@ import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
@@ -77,6 +78,31 @@ class RedesignModel(
                         onError = { Timber.e(it) }
                     )
             }
+            is RedesignIntent.ValidateAccountAction ->
+                interactor.checkIfShouldUpsell(intent.action, intent.account)
+                    .subscribeBy(
+                        onSuccess = { upsell ->
+                            if (upsell != KycUpgradePromptManager.Type.NONE) {
+                                process(
+                                    RedesignIntent.UpdateViewToLaunch(
+                                        ViewToLaunch.LaunchUpsellAssetAction(upsell)
+                                    )
+                                )
+                            } else {
+                                process(
+                                    RedesignIntent.UpdateViewToLaunch(
+                                        ViewToLaunch.LaunchAssetAction(intent.action, intent.account)
+                                    )
+                                )
+                            }
+                        },
+                        onError = {
+                            Timber.e("Upsell manager failure")
+                        }
+                    )
+            is RedesignIntent.UnpairWallet -> interactor.unpairWallet()
+                .onErrorComplete()
+                .subscribe()
             else -> null
         }
 
@@ -120,7 +146,7 @@ class RedesignModel(
                 )
             )
             is BlockchainLinkState.Activities -> process(
-                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchAssetAction(AssetAction.ViewActivity))
+                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchAssetAction(AssetAction.ViewActivity, null))
             )
             is BlockchainLinkState.Buy -> process(
                 RedesignIntent.UpdateViewToLaunch(

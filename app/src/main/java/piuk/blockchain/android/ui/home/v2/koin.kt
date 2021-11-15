@@ -29,7 +29,10 @@ val mainModule = module {
                 bankLinkingPrefs = get(),
                 custodialWalletManager = get(),
                 simpleBuySync = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                upsellManager = get(),
+                database = get(),
+                credentialsWiper = get()
             )
         }
     }

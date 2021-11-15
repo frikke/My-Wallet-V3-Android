@@ -2,6 +2,9 @@ package piuk.blockchain.android.ui.home.v2
 
 import android.content.Intent
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.core.Database
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.BankTransferStatus
@@ -23,14 +26,16 @@ import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
+import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import thepit.PitLinking
 
-class RedesignInteractor(
+class RedesignInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
     private val exchangeLinking: PitLinking,
     private val exchangePrefs: ThePitLinkingPrefs,
@@ -41,7 +46,10 @@ class RedesignInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val simpleBuySync: SimpleBuySyncFactory,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val upsellManager: KycUpgradePromptManager,
+    private val database: Database,
+    private val credentialsWiper: CredentialsWiper
 ) {
 
     fun checkForDeepLinks(intent: Intent): Single<LinkState> =
@@ -104,4 +112,13 @@ class RedesignInteractor(
     fun getSimpleBuySyncLocalState(): SimpleBuyState? = simpleBuySync.currentState()
 
     fun performSimpleBuySync(): Completable = simpleBuySync.performSync()
+
+    fun checkIfShouldUpsell(action: AssetAction, account: BlockchainAccount): Single<KycUpgradePromptManager.Type> =
+        upsellManager.queryUpsell(action, account)
+
+    fun unpairWallet(): Completable =
+        Completable.fromAction {
+            credentialsWiper.wipe()
+            database.historicRateQueries.clear()
+        }
 }

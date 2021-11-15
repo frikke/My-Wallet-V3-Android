@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.home.v2
 
 import android.content.Intent
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class RedesignIntent : MviIntent<RedesignState> {
@@ -17,5 +19,13 @@ sealed class RedesignIntent : MviIntent<RedesignState> {
             oldState.copy(
                 viewToLaunch = nextState
             )
+    }
+
+    class ValidateAccountAction(val action: AssetAction, val account: BlockchainAccount) : RedesignIntent() {
+        override fun reduce(oldState: RedesignState): RedesignState = oldState
+    }
+
+    object UnpairWallet : RedesignIntent() {
+        override fun reduce(oldState: RedesignState): RedesignState = oldState
     }
 }

@@ -2,10 +2,12 @@ package piuk.blockchain.android.ui.home.v2
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -14,34 +16,57 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.componentlib.navigation.NavigationItem
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.notifications.analytics.SendAnalytics
+import com.blockchain.notifications.analytics.activityShown
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityRedesignMainBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
+import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
+import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviActivity
+import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
+import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.home.v2.FragmentTransitions.Companion.showFragment
+import piuk.blockchain.android.ui.interest.InterestDashboardActivity
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
+import piuk.blockchain.android.ui.linkbank.BankAuthActivity
+import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
+import piuk.blockchain.android.ui.linkbank.FiatTransactionState
+import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
+import piuk.blockchain.android.ui.onboarding.OnboardingActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.swap.SwapFragment
+import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
+import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
+import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.ui.transfer.TransferFragment
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.ui.upsell.UpsellHost
+import piuk.blockchain.android.util.AndroidUtils
 import timber.log.Timber
 
 class RedesignMainActivity :
@@ -169,88 +194,156 @@ class RedesignMainActivity :
     override fun render(newState: RedesignState) {
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
-            is ViewToLaunch.LaunchAssetAction -> {
-                // TODO
-            }
-            is ViewToLaunch.LaunchBuySell -> {
-                // TODO
-            }
+            is ViewToLaunch.LaunchAssetAction -> launchAssetAction(view.action, view.account)
+            is ViewToLaunch.LaunchBuySell -> launchBuySell(view.type, view.asset)
             is ViewToLaunch.LaunchExchange -> {
-                // TODO
+                view.linkId?.let {
+                    launchThePitLinking(it)
+                } ?: kotlin.run { launchThePit() }
             }
-            is ViewToLaunch.LaunchInterestDashboard -> {
-                // TODO
-            }
-            is ViewToLaunch.LaunchKyc -> {
-                // TODO
-            }
+            is ViewToLaunch.LaunchInterestDashboard -> launchInterestDashboard(view.origin)
+            is ViewToLaunch.LaunchKyc -> KycNavHostActivity.startForResult(
+                this, view.campaignType, MainActivity.KYC_STARTED
+            )
+            is ViewToLaunch.LaunchUpsellAssetAction -> replaceBottomSheet(
+                KycUpgradePromptManager.getUpsellSheet(view.upsell)
+            )
             is ViewToLaunch.LaunchOpenBankingApprovalDepositComplete -> {
-                // TODO
+                val currencyCode = view.amount.currencyCode
+                val amountWithSymbol = view.amount.toStringWithSymbol()
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        currencyCode,
+                        getString(R.string.deposit_confirmation_success_title, amountWithSymbol),
+                        getString(
+                            R.string.yapily_fiat_deposit_success_subtitle, amountWithSymbol,
+                            currencyCode,
+                            view.estimatedDepositCompletionTime
+                        ),
+                        FiatTransactionState.SUCCESS
+                    )
+                )
             }
             is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress -> {
-                // TODO
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        view.value.currencyCode,
+                        getString(R.string.deposit_confirmation_pending_title),
+                        getString(
+                            R.string.deposit_confirmation_pending_subtitle
+                        ),
+                        FiatTransactionState.PENDING
+                    )
+                )
             }
             is ViewToLaunch.LaunchOpenBankingApprovalError -> {
-                // TODO
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        view.currencyCode,
+                        getString(R.string.deposit_confirmation_error_title),
+                        getString(
+                            R.string.deposit_confirmation_error_subtitle
+                        ),
+                        FiatTransactionState.ERROR
+                    )
+                )
             }
             is ViewToLaunch.LaunchOpenBankingApprovalTimeout -> {
-                // TODO
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        view.currencyCode,
+                        getString(R.string.deposit_confirmation_pending_title),
+                        getString(
+                            R.string.deposit_confirmation_pending_subtitle
+                        ),
+                        FiatTransactionState.ERROR
+                    )
+                )
             }
             ViewToLaunch.LaunchOpenBankingBuyApprovalError -> {
-                // TODO
+                ToastCustom.makeText(
+                    this, getString(R.string.simple_buy_confirmation_error), Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
+                )
             }
             is ViewToLaunch.LaunchOpenBankingDepositError -> {
-                // TODO
             }
             is ViewToLaunch.LaunchOpenBankingLinking -> {
-                // TODO
+                launchOpenBankingLinking(view.bankLinkingInfo)
             }
             is ViewToLaunch.LaunchPaymentForCancelledOrder -> {
-                // TODO
+                val currencyCode = view.state.fiatCurrency
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        currencyCode, getString(R.string.yapily_payment_to_fiat_wallet_title, currencyCode),
+                        getString(
+                            R.string.yapily_payment_to_fiat_wallet_subtitle,
+                            view.state.selectedCryptoAsset?.displayTicker ?: getString(
+                                R.string.yapily_payment_to_fiat_wallet_default
+                            ),
+                            currencyCode
+                        ),
+                        FiatTransactionState.SUCCESS
+                    )
+                )
             }
             ViewToLaunch.LaunchReceive -> {
-                // TODO
+                launchReceive()
             }
             ViewToLaunch.LaunchSend -> {
-                // TODO
+                launchSend()
             }
             ViewToLaunch.LaunchSetupBiometricLogin -> {
-                // TODO
+                launchSetupFingerprintLogin()
             }
-            is ViewToLaunch.LaunchSimpleBuy -> {
-                // TODO
-            }
-            ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval -> {
-                // TODO
-            }
-            ViewToLaunch.LaunchSwap -> {
-                // TODO
-            }
-            ViewToLaunch.LaunchTwoFaSetup -> {
-                // TODO
-            }
-            ViewToLaunch.LaunchVerifyEmail -> {
-                // TODO
-            }
-            ViewToLaunch.ShowOpenBankingError -> {
-                // TODO
-            }
+            is ViewToLaunch.LaunchSimpleBuy -> launchSimpleBuy(view.asset)
+            ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval -> launchSimpleBuyFromDeepLinkApproval()
+            ViewToLaunch.LaunchSwap -> launchSwap()
+            ViewToLaunch.LaunchTwoFaSetup -> launchSetup2Fa()
+            ViewToLaunch.LaunchVerifyEmail -> launchVerifyEmail()
+            ViewToLaunch.ShowOpenBankingError ->
+                ToastCustom.makeText(
+                    this, getString(R.string.open_banking_deeplink_error), Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
+                )
             ViewToLaunch.None -> {
                 // do nothing
             }
         }
     }
 
+    private fun launchAssetAction(
+        action: AssetAction,
+        account: BlockchainAccount?
+    ) = when (action) {
+        AssetAction.Receive -> replaceBottomSheet(ReceiveDetailSheet.newInstance(account as CryptoAccount))
+        AssetAction.Swap -> launchSwap(sourceAccount = account as CryptoAccount)
+        AssetAction.ViewActivity -> startActivitiesFragment(account)
+        else -> {
+        }
+    }
+
+    private fun startActivitiesFragment(account: BlockchainAccount? = null, reload: Boolean = true) {
+        // TODO merge with lucia's branch
+        // setCurrentTabItem(R.id.nav_activity)
+        val fragment = ActivitiesFragment.newInstance(account)
+        // showFragment(fragment, reload)
+        toolbar.title = ""
+        analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
+    }
+
     override fun exitSimpleBuyFlow() {
-        // TODO not yet implemented
+        launchBuySell()
     }
 
     override fun logout() {
-        // TODO not yet implemented
+        analytics.logEvent(AnalyticsEvents.Logout)
+        model.process(RedesignIntent.UnpairWallet)
+        if (AndroidUtils.is25orHigher()) {
+            getSystemService(ShortcutManager::class.java).removeAllDynamicShortcuts()
+        }
     }
 
     override fun startUpsellKyc() {
-        // TODO not yet implemented
+        launchKyc(CampaignType.None)
     }
 
     override fun onSheetClosed() {
@@ -260,15 +353,17 @@ class RedesignMainActivity :
     }
 
     override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) {
-        // TODO not yet implemented
+        clearBottomSheet()
+        showBottomSheet(bottomSheet)
     }
 
     override fun launchDashboard() {
-        // TODO not yet implemented
+        // TODO - merge with lucia's branch
+        // setCurrentTabItem(R.id.nav_home)
     }
 
     override fun launchSwap(sourceAccount: CryptoAccount?, targetAccount: CryptoAccount?) {
-        // TODO not yet implemented
+        startSwapFlow(sourceAccount, targetAccount)
     }
 
     private fun startSwapFlow(
@@ -276,6 +371,7 @@ class RedesignMainActivity :
         destinationAccount: CryptoAccount? = null,
         reload: Boolean = true
     ) {
+        // TODO merge with lucia's branch
         if (sourceAccount == null && destinationAccount == null) {
             // TODO setCurrentTabItem(R.id.nav_swap)
             toolbar.title = getString(R.string.common_swap)
@@ -294,39 +390,49 @@ class RedesignMainActivity :
     }
 
     override fun launchKyc(campaignType: CampaignType) {
-        // TODO not yet implemented
+        KycNavHostActivity.startForResult(this, campaignType, MainActivity.KYC_STARTED)
     }
 
     override fun launchThePitLinking(linkId: String) {
-        // TODO not yet implemented
+        PitPermissionsActivity.start(this, linkId)
     }
 
     override fun launchThePit() {
-        // TODO not yet implemented
+        PitLaunchBottomDialog.launch(this)
     }
 
     override fun launchBackupFunds(fragment: Fragment?, requestCode: Int) {
-        // TODO not yet implemented
+        fragment?.let {
+            BackupWalletActivity.startForResult(it, requestCode)
+        } ?: BackupWalletActivity.start(this)
     }
 
     override fun launchSetup2Fa() {
-        // TODO not yet implemented
+        SettingsActivity.startFor2Fa(this)
     }
 
     override fun launchVerifyEmail() {
-        // TODO not yet implemented
+        Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_APP_EMAIL)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
+        }
     }
 
     override fun launchSetupFingerprintLogin() {
-        // TODO not yet implemented
+        OnboardingActivity.launchForFingerprints(this)
     }
 
     override fun launchReceive() {
-        // TODO not yet implemented
+        // TODO merge with lucia's branch
+        // TODO this should launch in a new activity?
+        // startTransferFragment(TransferFragment.TransferViewType.TYPE_RECEIVE)
     }
 
     override fun launchSend() {
-        // TODO not yet implemented
+        // TODO merge with lucia's branch
+        // TODO this should launch in a new activity?
+        // startTransferFragment(TransferFragment.TransferViewType.TYPE_SEND)
     }
 
     override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
@@ -342,39 +448,92 @@ class RedesignMainActivity :
     }
 
     override fun launchSimpleBuy(asset: AssetInfo) {
-        // TODO not yet implemented
+        startActivity(
+            SimpleBuyActivity.newInstance(
+                context = this,
+                launchFromNavigationBar = true,
+                asset = asset
+            )
+        )
     }
 
     override fun launchInterestDashboard(origin: LaunchOrigin) {
-        // TODO not yet implemented
+        startActivityForResult(
+            InterestDashboardActivity.newInstance(this), MainActivity.INTEREST_DASHBOARD
+        )
+        analytics.logEvent(InterestAnalytics.InterestClicked(origin = LaunchOrigin.DASHBOARD_PROMO))
     }
 
     override fun launchFiatDeposit(currency: String) {
-        // TODO not yet implemented
+        runOnUiThread {
+            launchDashboardFlow(AssetAction.FiatDeposit, currency)
+        }
     }
 
+    private fun launchDashboardFlow(action: AssetAction, currency: String?) {
+        // TODO merge with lucia's branch
+        currency?.let {
+            launchDashboard()
+            val fragment = createDashboardFragment(action, it)
+            // TODO
+            // showFragment(fragment)
+        }
+    }
+
+    private fun createDashboardFragment(
+        action: AssetAction? = null,
+        currency: String? = null
+    ): Fragment =
+        PortfolioFragment.newInstance(true, action, currency)
+
     override fun launchTransfer() {
-        // TODO not yet implemented
+        startTransferFragment()
+    }
+
+    private fun startTransferFragment(
+        viewToShow: TransferFragment.TransferViewType = TransferFragment.TransferViewType.TYPE_SEND,
+        reload: Boolean = true
+    ) {
+        // TODO merge with lucia's branch
+        // setCurrentTabItem(R.id.nav_transfer)
+        toolbar.title = getString(R.string.transfer)
+
+        val transferFragment = TransferFragment.newInstance(true, viewToShow)
+        // showFragment(transferFragment, reload)
     }
 
     override fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo) {
-        // TODO not yet implemented
+        startActivityForResult(
+            BankAuthActivity.newInstance(bankLinkingInfo.linkingId, bankLinkingInfo.bankAuthSource, this),
+            when (bankLinkingInfo.bankAuthSource) {
+                BankAuthSource.SIMPLE_BUY -> MainActivity.BANK_DEEP_LINK_SIMPLE_BUY
+                BankAuthSource.SETTINGS -> MainActivity.BANK_DEEP_LINK_SETTINGS
+                BankAuthSource.DEPOSIT -> MainActivity.BANK_DEEP_LINK_DEPOSIT
+                BankAuthSource.WITHDRAW -> MainActivity.BANK_DEEP_LINK_WITHDRAW
+            }.exhaustive
+        )
     }
 
     override fun launchSimpleBuyFromDeepLinkApproval() {
-        // TODO not yet implemented
+        startActivity(SimpleBuyActivity.newInstance(this, launchFromApprovalDeepLink = true))
     }
 
     override fun launchPendingVerificationScreen(campaignType: CampaignType) {
-        // TODO not yet implemented
+        KycStatusActivity.start(this, campaignType)
     }
 
     override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) {
-        // TODO not yet implemented
+        // TODO model.process()
+        // presenter.validateAccountAction(action, account)
     }
 
     override fun resumeSimpleBuyKyc() {
-        // TODO not yet implemented
+        startActivity(
+            SimpleBuyActivity.newInstance(
+                context = this,
+                launchKycResume = true
+            )
+        )
     }
 
     private fun displayDialog(title: Int, message: Int) {
