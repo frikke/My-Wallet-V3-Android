@@ -225,20 +225,37 @@ class PortfolioFragment :
             }
 
             // Add assets, sorted by fiat balance then alphabetically
-            val assets = newState.activeAssets.values.sortedWith(
+            val cryptoAssets = newState.activeAssets.values.sortedWith(
                 compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
                     .thenBy { it.currency.name }
             )
+            val fiatAssets = newState.fiatAssets.fiatAccounts
+
             if (useDynamicAssets) {
-                val hasBalanceOrIsLoading = newState.isLoadingAssets ||
-                    assets.any { it.fiatBalance?.isPositive == true || it.isLoading }
-                binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
-                binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
-                val showBuyBottomButton = assets.any { it.fiatBalance?.isPositive == true } && newState.canBuy
+                val dashboardLoading = newState.isLoadingAssets
+                val atLeastOneAssetIsLoading = cryptoAssets.any { it.isLoading }
+                val isLoading = dashboardLoading || atLeastOneAssetIsLoading
+
+                val atLeastOneCryptoAssetHasBalancePositive =
+                    cryptoAssets.any { it.accountBalance?.total?.isPositive == true }
+
+                val atLeastOneFiatAssetHasBalancePositive =
+                    fiatAssets.any { it.value.availableBalance?.isPositive == true }
+
+                val showPortfolio =
+                    isLoading || atLeastOneCryptoAssetHasBalancePositive ||
+                        atLeastOneFiatAssetHasBalancePositive
+
+                binding.portfolioLayoutGroup.visibleIf {
+                    showPortfolio
+                }
+                binding.emptyPortfolioGroup.visibleIf { !showPortfolio }
+
+                val showBuyBottomButton = (showPortfolio && !isLoading) && newState.canBuy
                 configureListAndBuyButton(showBuyBottomButton)
             }
             clear()
-            addAll(newMap.values + assets)
+            addAll(newMap.values + cryptoAssets)
         }
         theAdapter.notifyDataSetChanged()
     }
@@ -814,10 +831,10 @@ class PortfolioFragment :
     }
 
     override fun onBecameVisible() {
-    /*
-    TODO: We need to update the balances also (Refresh Intent) but we need to find a way so we do that silently
-     and without making every rendered cell to be in a loading state again.
-    */
+        /*
+        TODO: We need to update the balances also (Refresh Intent) but we need to find a way so we do that silently
+         and without making every rendered cell to be in a loading state again.
+        */
         model.process(DashboardIntent.GetUserCanBuy)
         model.process(DashboardIntent.LoadFundsLocked)
     }
