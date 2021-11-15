@@ -33,6 +33,7 @@
         android:theme="@style/AppTheme"
         tools:replace="android:label, android:allowBackup">
         <activity android:name=".ui.launcher.LauncherActivity"
+            android:theme="@style/AppTheme.Splash"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.app.shortcuts"
@@ -136,6 +137,7 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.start.LandingActivity"
+            android:theme="@style/AppTheme.Splash"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustPan" />
         <activity

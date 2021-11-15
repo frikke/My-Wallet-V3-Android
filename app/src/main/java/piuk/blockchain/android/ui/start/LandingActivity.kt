@@ -9,15 +9,10 @@ import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import org.koin.android.ext.android.inject
-import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
-import piuk.blockchain.android.databinding.ActivityLandingBinding
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
@@ -26,7 +21,6 @@ import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.util.visible
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
@@ -34,14 +28,9 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     override val presenter: LandingPresenter by scopedInject()
     override val view: LandingView = this
 
-    private val internalFlags: InternalFeatureFlagApi by inject()
     private val compositeDisposable = CompositeDisposable()
 
-    private val binding: ActivityLandingBinding by lazy {
-        ActivityLandingBinding.inflate(layoutInflater)
-    }
-
-    private val onboardingBinding: ActivityLandingOnboardingBinding by lazy {
+    private val binding: ActivityLandingOnboardingBinding by lazy {
         ActivityLandingOnboardingBinding.inflate(layoutInflater)
     }
 
@@ -49,75 +38,57 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         setTheme(R.style.AppTheme_MainActivity)
         super.onCreate(savedInstanceState)
 
-        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
-            setContentView(onboardingBinding.root)
+        setContentView(binding.root)
 
-            with(onboardingBinding) {
+        with(binding) {
+            if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
+                showConnectivityWarning()
+            } else {
+                presenter.checkForRooted()
+            }
 
-                btnCreate.setOnClickListener { launchCreateWalletActivity() }
+            btnCreate.setOnClickListener { launchCreateWalletActivity() }
 
-                val onboardingList: List<CarouselViewType> = listOf(
-                    CarouselViewType.ValueProp(
-                        com.blockchain.componentlib.R.drawable.carousel_brokerage,
-                        this@LandingActivity.getString(R.string.landing_value_prop_one)
-                    ),
-                    CarouselViewType.ValueProp(
-                        com.blockchain.componentlib.R.drawable.carousel_rewards,
-                        this@LandingActivity.getString(R.string.landing_value_prop_two_1)
-                    ),
-                    CarouselViewType.ValueProp(
-                        com.blockchain.componentlib.R.drawable.carousel_security,
-                        this@LandingActivity.getString(R.string.landing_value_prop_three)
-                    ),
-                    CarouselViewType.PriceList(
-                        this@LandingActivity.getString(R.string.landing_value_prop_four),
-                        this@LandingActivity.getString(R.string.landing_live_prices)
-                    )
+            val onboardingList: List<CarouselViewType> = listOf(
+                CarouselViewType.ValueProp(
+                    com.blockchain.componentlib.R.drawable.carousel_brokerage,
+                    this@LandingActivity.getString(R.string.landing_value_prop_one)
+                ),
+                CarouselViewType.ValueProp(
+                    com.blockchain.componentlib.R.drawable.carousel_rewards,
+                    this@LandingActivity.getString(R.string.landing_value_prop_two_1)
+                ),
+                CarouselViewType.ValueProp(
+                    com.blockchain.componentlib.R.drawable.carousel_security,
+                    this@LandingActivity.getString(R.string.landing_value_prop_three)
+                ),
+                CarouselViewType.PriceList(
+                    this@LandingActivity.getString(R.string.landing_value_prop_four),
+                    this@LandingActivity.getString(R.string.landing_live_prices)
                 )
+            )
 
-                carousel.apply {
-                    submitList(onboardingList)
-                    setCarouselIndicator(carouselIndicators)
-                    setOnPricesRequest {
-                        presenter.getPrices(it)
-                    }
-
-                    setOnPricesAlphaChangeListener {
-                        this@with.background.alpha = it
-                    }
+            carousel.apply {
+                submitList(onboardingList)
+                setCarouselIndicator(carouselIndicators)
+                setOnPricesRequest {
+                    presenter.getPrices(it)
                 }
 
-                presenter.loadAssets()
-            }
-        } else {
-            setContentView(binding.root)
-
-            with(binding) {
-                btnCreate.setOnClickListener { launchCreateWalletActivity() }
-
-                if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
-                    showConnectivityWarning()
-                } else {
-                    presenter.checkForRooted()
+                setOnPricesAlphaChangeListener {
+                    this@with.background.alpha = it
                 }
-
-                textVersion.text =
-                    "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) ${BuildConfig.COMMIT_HASH}"
-
-                textVersion.copyHashOnLongClick(this@LandingActivity)
             }
+
+            presenter.loadAssets()
         }
     }
 
     override fun onStart() {
         super.onStart()
-        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
-            setupSSOControls(
-                onboardingBinding.btnLoginRestore.rightButton, onboardingBinding.btnLoginRestore.leftButton
-            )
-        } else {
-            setupSSOControls(binding.btnLogin, binding.btnRecover)
-        }
+        setupSSOControls(
+            binding.btnLoginRestore.rightButton, binding.btnLoginRestore.leftButton
+        )
     }
 
     override fun onStop() {
@@ -175,11 +146,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         )
 
     override fun showApiOutageMessage() {
-        val warningLayout = if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
-            onboardingBinding.layoutWarning
-        } else {
-            binding.layoutWarning
-        }
+        val warningLayout = binding.layoutWarning
         warningLayout.root.visible()
         val learnMoreMap = mapOf<String, Uri>("learn_more" to Uri.parse(WALLET_STATUS_URL))
         warningLayout.warningMessage.apply {
@@ -193,7 +160,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     override fun showToast(message: String, toastType: String) = toast(message, toastType)
 
     override fun onLoadPrices(prices: List<PriceView.Price>) {
-        onboardingBinding.carousel.onLoadPrices(prices)
+        binding.carousel.onLoadPrices(prices)
     }
 
     companion object {
