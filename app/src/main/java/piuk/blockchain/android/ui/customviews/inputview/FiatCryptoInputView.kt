@@ -55,7 +55,9 @@ class FiatCryptoInputView(
         get() = inputToggleSubject
 
     val amount: Observable<Money>
-        get() = amountSubject.distinctUntilChanged()
+        get() = amountSubject.distinctUntilChanged().doOnSubscribe {
+            convertAmount()
+        }
 
     private val exchangeRates: ExchangeRatesDataManager by inject()
 

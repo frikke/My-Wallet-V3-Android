@@ -25,6 +25,7 @@ import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
 import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.ui.password.SecondPasswordHandler
+import com.blockchain.usecases.UseCase
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
@@ -61,6 +62,7 @@ import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.domain.usecases.UserIsAllowedToBuyUseCase
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
@@ -439,7 +441,6 @@ val applicationModule = module {
                 tierService = get(),
                 custodialWalletManager = get(),
                 limitsDataManager = get(),
-                appUtil = get(),
                 coincore = get(),
                 eligibilityProvider = get(),
                 bankLinkingPrefs = get(),
@@ -461,6 +462,7 @@ val applicationModule = module {
                 cardActivators = listOf(
                     EverypayCardActivator(get(), get())
                 ),
+                _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
                 crashLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
@@ -493,6 +495,13 @@ val applicationModule = module {
                 coincore = get()
             )
         }
+
+        factory {
+            UserIsAllowedToBuyUseCase(
+                simpleBuySyncFactory = get(),
+                userIdentity = get()
+            )
+        }.bind(UseCase::class)
 
         factory {
             TradeDataManagerImpl(

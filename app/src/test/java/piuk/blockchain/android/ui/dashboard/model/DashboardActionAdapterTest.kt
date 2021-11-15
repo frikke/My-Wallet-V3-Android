@@ -53,6 +53,7 @@ class DashboardActionAdapterTest {
             featureFlag = mock(),
             currencyPrefs = mock(),
             userIdentity = mock(),
+            userIsAllowedToBuyUseCase = mock(),
             exchangeRates = mock()
         )
     }

@@ -28,8 +28,8 @@ internal class FiatCryptoConversionModel(
     private val outputRate: BehaviorSubject<ExchangeRate> = BehaviorSubject.create()
 
     val exchangeAmount: Observable<ConvertedAmounts> = Observable.combineLatest(
-        internalRate,
-        outputRate,
+        internalRate.filter { it != ExchangeRate.InvalidRate },
+        outputRate.filter { it != ExchangeRate.InvalidRate },
         inputValue
     ) { internalRate, outputRate, inputValue ->
         calculate(internalRate, outputRate, inputValue)

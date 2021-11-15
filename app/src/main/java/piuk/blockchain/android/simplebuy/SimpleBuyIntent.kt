@@ -74,7 +74,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class FetchPaymentDetails(val fiatCurrency: String, val selectedPaymentMethodId: String) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState.copy(isLoading = true)
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
     }
 
     class PaymentMethodsUpdated(

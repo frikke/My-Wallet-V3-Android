@@ -84,6 +84,7 @@ class SimpleBuyModelTest {
         ratingPrefs = ratingPrefs,
         environmentConfig = environmentConfig,
         crashLogger = mock(),
+        _activityIndicator = mock(),
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),
         getEligibilityAndNextPaymentDateUseCase = mock(),

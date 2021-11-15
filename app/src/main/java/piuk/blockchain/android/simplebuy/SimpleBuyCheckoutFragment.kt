@@ -109,7 +109,6 @@ class SimpleBuyCheckoutFragment :
         }
 
         newState.selectedCryptoAsset?.let { renderPrivateKeyLabel(it) }
-        binding.progress.visibleIf { newState.isLoading }
         val payment = newState.selectedPaymentMethod
         val note = when {
             payment?.isCard() == true -> showWithdrawalPeriod(newState)

@@ -72,6 +72,18 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
+    object GetUserCanBuy : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            return oldState
+        }
+    }
+
+    class UserCanBuyUpdated(private val canBuy: Boolean) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            return oldState.copy(canBuy = canBuy)
+        }
+    }
+
     class AssetListUpdate(
         private val assetList: List<AssetInfo>
     ) : DashboardIntent() {

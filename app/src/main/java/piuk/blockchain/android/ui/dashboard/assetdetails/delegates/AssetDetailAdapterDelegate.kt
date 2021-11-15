@@ -26,7 +26,7 @@ class AssetDetailAdapterDelegate(
                 )
             )
             addAdapterDelegate(RecurringBuyItemDelegate(onRecurringBuyClicked))
-            addAdapterDelegate(RecurringBuyInfoItemDelegate(onCardClicked))
+            // addAdapterDelegate(RecurringBuyInfoItemDelegate(onCardClicked))
         }
     }
 }

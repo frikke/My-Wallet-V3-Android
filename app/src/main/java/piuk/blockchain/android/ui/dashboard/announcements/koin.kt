@@ -8,7 +8,6 @@ import org.koin.dsl.module
 import piuk.blockchain.android.ui.dashboard.announcements.rule.AaveYfiDotAvailableAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BackupPhraseAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BitpayAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.BuyBitcoinAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CeloEurAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
@@ -138,13 +137,6 @@ val dashboardAnnouncementsModule = module {
                 dismissRecorder = get(),
                 announcementQueries = get(),
                 simpleBuyPrefs = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            BuyBitcoinAnnouncement(
-                dismissRecorder = get(),
-                announcementQueries = get()
             )
         }.bind(AnnouncementRule::class)
 

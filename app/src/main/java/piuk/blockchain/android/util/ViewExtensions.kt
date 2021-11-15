@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.RecyclerView
 import timber.log.Timber
 
 fun CheckBox.setThrottledCheckedChange(interval: Long = 500L, action: (Boolean) -> Unit) {
@@ -161,6 +163,37 @@ private class DebouncingOnClickListener(private val onClickListener: (View?) -> 
 
     companion object {
         private const val DEBOUNCE_TIMEOUT = 500L
+    }
+}
+
+fun RecyclerView.configureWithPinnedButton(pinnedButton: Button, isButtonVisible: Boolean) {
+
+    pinnedButton.visibleIf { isButtonVisible }
+    when {
+        isButtonVisible && this.paddingBottom == 0 -> {
+            pinnedButton.afterMeasured { button ->
+                val bottomMargin =
+                    (pinnedButton.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
+                with(this) {
+                    setPadding(
+                        paddingLeft,
+                        paddingTop,
+                        paddingRight,
+                        button.height + bottomMargin
+                    )
+                }
+            }
+        }
+        !isButtonVisible && this.paddingBottom != 0 -> {
+            with(this) {
+                setPadding(
+                    paddingLeft,
+                    paddingTop,
+                    paddingRight,
+                    0
+                )
+            }
+        }
     }
 }
 

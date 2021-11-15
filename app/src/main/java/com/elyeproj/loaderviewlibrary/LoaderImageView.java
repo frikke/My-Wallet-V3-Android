@@ -30,10 +30,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
-
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.content.ContextCompat;
 import piuk.blockchain.android.R;
 
 public class LoaderImageView extends AppCompatImageView implements LoaderView {
@@ -97,25 +96,29 @@ public class LoaderImageView extends AppCompatImageView implements LoaderView {
     @Override
     public void setImageBitmap(Bitmap bm) {
         super.setImageBitmap(bm);
-        loaderController.stopLoading();
+        if (loaderController != null)
+            loaderController.stopLoading();
     }
 
     @Override
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
-        loaderController.stopLoading();
+        if (loaderController != null)
+            loaderController.stopLoading();
     }
 
     @Override
     public void setImageIcon(Icon icon) {
         super.setImageIcon(icon);
-        loaderController.stopLoading();
+        if (loaderController != null)
+            loaderController.stopLoading();
     }
 
     @Override
     public void setImageResource(int resId) {
         super.setImageResource(resId);
-        loaderController.stopLoading();
+        if (loaderController != null)
+            loaderController.stopLoading();
     }
 
     @Override

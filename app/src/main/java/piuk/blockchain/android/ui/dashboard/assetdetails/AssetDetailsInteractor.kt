@@ -16,6 +16,7 @@ import com.blockchain.nabu.models.data.FundsAccount
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.usecases.UseCase
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
@@ -53,6 +54,7 @@ data class AssetDisplayInfo(
 class AssetDetailsInteractor(
     private val dashboardPrefs: DashboardPrefs,
     private val coincore: Coincore,
+    private val userIsAllowedToBuyUseCase: UseCase<Unit, Single<Boolean>>,
     private val custodialWalletManager: CustodialWalletManager
 ) {
 
@@ -188,4 +190,7 @@ class AssetDetailsInteractor(
 
     fun loadRecurringBuysForAsset(assetTicker: AssetInfo) =
         custodialWalletManager.getRecurringBuysForAsset(assetTicker)
+
+    fun userCanBuy(): Single<Boolean> =
+        userIsAllowedToBuyUseCase.invoke(Unit)
 }

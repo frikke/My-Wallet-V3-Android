@@ -23,6 +23,8 @@
     <dimen name="size_small">12dp</dimen>
     <dimen name="size_tiny">8dp</dimen>
 
+    <dimen name="small_elevation">2dp</dimen>
+
     <dimen name="asset_icon_size">32dp</dimen>
     <dimen name="asset_icon_size_large">72dp</dimen>
 

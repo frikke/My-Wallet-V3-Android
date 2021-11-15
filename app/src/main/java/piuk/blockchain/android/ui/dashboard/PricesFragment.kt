@@ -76,6 +76,7 @@ internal class PricesFragment :
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
     DialogFlow.FlowHost,
+    DashboardScreen,
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
     BankLinkingHost {
@@ -230,7 +231,6 @@ internal class PricesFragment :
     override fun onResume() {
         super.onResume()
         if (isHidden) return
-
         initOrUpdateAssets()
     }
 
@@ -539,5 +539,8 @@ internal class PricesFragment :
 
     companion object {
         fun newInstance() = PricesFragment()
+    }
+
+    override fun onBecameVisible() {
     }
 }

@@ -44,6 +44,16 @@ class LoadAsset(
         )
 }
 
+object CheckIfUserCanBuy : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState
+}
+
+class UserCanBuyUpdated(private val userCanBuy: Boolean) : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState.copy(userCanBuy = userCanBuy)
+}
+
 class UpdateTimeSpan(
     val updatedTimeSpan: HistoricalTimeSpan
 ) : AssetDetailsIntent() {

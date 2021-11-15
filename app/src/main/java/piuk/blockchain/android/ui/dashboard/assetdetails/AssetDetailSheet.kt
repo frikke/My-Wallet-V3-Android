@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -38,10 +39,12 @@ import java.text.SimpleDateFormat
 import java.util.Currency
 import java.util.Date
 import java.util.Locale
+import kotlin.properties.Delegates
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetDashboardAssetDetailsBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
+import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -50,6 +53,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAd
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
+import piuk.blockchain.android.util.configureWithPinnedButton
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.loadInterMedium
@@ -89,8 +93,6 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
     }
 
-    private var state = AssetDetailsState()
-
     override val model: AssetDetailsModel by scopedInject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetDashboardAssetDetailsBinding =
@@ -109,6 +111,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
 
         renderRecurringBuys(newState.recurringBuys, newState.assetDisplayMap ?: emptyMap())
+        configureBuyButton(newState.assetDisplayMap ?: emptyMap(), newState.userCanBuy)
 
         configureTimespanSelectionUI(binding, newState.timeSpan)
 
@@ -118,23 +121,46 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             chartToDataState()
         }
 
-        binding.chart.apply {
-            if (newState.chartData != state.chartData) {
-                updateChart(this, newState.chartData)
-            }
-        }
+        chartData = newState.chartData
 
-        state.prices24HrWithDelta?.let {
+        newState.prices24HrWithDelta?.let {
             val price = it.currentRate.price().toStringWithSymbol()
             binding.currentPrice.text = price
             updatePriceChange(it, binding.priceChange, newState.chartData)
         }
+    }
 
-        state = newState
+    private var chartData: HistoricalRateList by Delegates.observable(emptyList()) { _, oldList, newList ->
+        if (newList != oldList) {
+            updateChart(newList)
+        }
+    }
+
+    private fun configureBuyButton(assetDisplayMap: Map<AssetFilter, AssetDisplayInfo>, canBuy: Boolean) {
+        with(binding) {
+            assetList.configureWithPinnedButton(
+                buyCryptoBottomButton,
+                assetDisplayMap.containsKey(
+                    AssetFilter.Custodial
+                )
+            )
+            buyCryptoBottomButton.text = resources.getString(R.string.tx_title_buy, token.asset.displayTicker)
+            buyCryptoBottomButton.setOnClickListener {
+                startActivity(
+                    SimpleBuyActivity.newInstance(
+                        activity as Context,
+                        asset,
+                        launchFromNavigationBar = true,
+                        launchKycResume = false
+                    )
+                )
+            }
+        }
     }
 
     override fun initControls(binding: DialogSheetDashboardAssetDetailsBinding) {
         model.process(LoadAsset(token))
+        model.process(CheckIfUserCanBuy)
 
         with(binding) {
             configureChart(
@@ -197,6 +223,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     private fun renderRecurringBuys(recurringBuys: Map<String, RecurringBuy>, assetDisplayMap: AssetDisplayMap) {
+
         if (recurringBuys.keys.isNotEmpty()) {
             val recurringBuysItems = recurringBuys.values.map {
                 AssetDetailsItem.RecurringBuyInfo(
@@ -204,10 +231,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 )
             }
             listItems.addAll(recurringBuysItems)
-        } else if (assetDisplayMap.containsKey(AssetFilter.Custodial)) {
-            listItems.add(AssetDetailsItem.RecurringBuyBanner)
         }
-
         updateList()
     }
 
@@ -264,15 +288,13 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             analytics.logEvent(CustodialBalanceClicked(account.asset))
         }
 
-        state.assetDisplayMap?.get(assetFilter)?.let {
-            model.process(
-                ShowAssetActionsIntent(account)
-            )
-        }
+        model.process(
+            ShowAssetActionsIntent(account)
+        )
     }
 
-    private fun updateChart(chart: LineChart, data: HistoricalRateList) {
-        chart.apply {
+    private fun updateChart(data: HistoricalRateList) {
+        binding.chart.apply {
             visible()
             clear()
             if (data.isEmpty()) {

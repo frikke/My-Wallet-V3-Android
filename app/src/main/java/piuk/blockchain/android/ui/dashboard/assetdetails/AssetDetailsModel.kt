@@ -40,6 +40,7 @@ data class AssetDetailsState(
     val navigateToInterestDashboard: Boolean = false,
     val selectedRecurringBuy: RecurringBuy? = null,
     val paymentId: String? = null,
+    val userCanBuy: Boolean = false,
     val stepsBackStack: Stack<AssetDetailsStep> = Stack(),
     val prices24HrWithDelta: Prices24HrWithDelta? = null
 ) : MviState
@@ -87,6 +88,15 @@ class AssetDetailsModel(
                 )
             is ShowAssetActionsIntent -> accountActions(intent.account)
             is UpdateTimeSpan -> previousState.asset?.let { updateChartData(it, intent.updatedTimeSpan) }
+            is CheckIfUserCanBuy -> interactor.userCanBuy().subscribeBy(
+                onSuccess = {
+                    process(UserCanBuyUpdated(it))
+                },
+                onError = {
+                    // lets not block the user if check fails.
+                    process(UserCanBuyUpdated(true))
+                }
+            )
             is LoadAsset -> {
                 updateChartData(intent.asset, previousState.timeSpan)
                 load24hPriceDelta(intent.asset)
@@ -127,6 +137,7 @@ class AssetDetailsModel(
             is UpdateRecurringBuyError,
             is UpdatePaymentDetails,
             is UpdatePriceDeltaDetails,
+            is UserCanBuyUpdated,
             is UpdatePriceDeltaFailed -> null
         }
     }

@@ -54,15 +54,12 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
-import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.trackProgress
 
 class SimpleBuyInteractor(
     private val tierService: TierService,
     private val custodialWalletManager: CustodialWalletManager,
     private val limitsDataManager: LimitsDataManager,
     private val withdrawLocksRepository: WithdrawLocksRepository,
-    private val appUtil: AppUtil,
     private val analytics: Analytics,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
@@ -91,7 +88,7 @@ class SimpleBuyInteractor(
                     )
                 } else limits
             }
-        }.trackProgress(appUtil.activityIndicator)
+        }
 
     private fun fetchLimits(
         targetCurrency: String,
@@ -118,7 +115,6 @@ class SimpleBuyInteractor(
     fun fetchSupportedFiatCurrencies(): Single<SimpleBuyIntent.SupportedCurrenciesUpdated> =
         custodialWalletManager.getSupportedFiatCurrencies()
             .map { SimpleBuyIntent.SupportedCurrenciesUpdated(it) }
-            .trackProgress(appUtil.activityIndicator)
 
     fun cancelOrder(orderId: String): Completable {
         bankLinkingPrefs.setBankLinkingState(BankAuthDeepLinkState().toPreferencesValue())
@@ -314,7 +310,7 @@ class SimpleBuyInteractor(
     fun linkNewBank(fiatCurrency: String): Single<SimpleBuyIntent.BankLinkProcessStarted> {
         return custodialWalletManager.linkToABank(fiatCurrency).map { linkBankTransfer ->
             SimpleBuyIntent.BankLinkProcessStarted(linkBankTransfer)
-        }.trackProgress(appUtil.activityIndicator)
+        }
     }
 
     private fun KycTiers.isRejectedForAny(): Boolean =

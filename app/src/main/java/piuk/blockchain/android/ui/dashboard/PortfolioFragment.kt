@@ -77,6 +77,7 @@ import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
+import piuk.blockchain.android.util.configureWithPinnedButton
 import piuk.blockchain.android.util.launchUrlInBrowser
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.events.ActionEvent
@@ -99,6 +100,7 @@ class PortfolioFragment :
     DialogFlow.FlowHost,
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
+    DashboardScreen,
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
@@ -232,11 +234,19 @@ class PortfolioFragment :
                     assets.any { it.fiatBalance?.isPositive == true || it.isLoading }
                 binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
                 binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
+                val showBuyBottomButton = assets.any { it.fiatBalance?.isPositive == true } && newState.canBuy
+                configureListAndBuyButton(showBuyBottomButton)
             }
             clear()
             addAll(newMap.values + assets)
         }
         theAdapter.notifyDataSetChanged()
+    }
+
+    private fun configureListAndBuyButton(showBuyBottomButton: Boolean) {
+        with(binding) {
+            recyclerView.configureWithPinnedButton(buyCryptoBottomButton, showBuyBottomButton)
+        }
     }
 
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
@@ -387,6 +397,10 @@ class PortfolioFragment :
 
     private fun setupCtaButtons() {
         with(binding) {
+            val startBuyClickListener: (View) -> Unit = { navigator().launchBuySell() }
+            buyCryptoButton.setOnClickListener(startBuyClickListener)
+            buyCryptoBottomButton.setOnClickListener(startBuyClickListener)
+
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
             receiveDepositButton.apply {
                 leftButton.setOnClickListener { navigator().launchReceive() }
@@ -409,7 +423,11 @@ class PortfolioFragment :
 
     private fun setupSwipeRefresh() {
         with(binding) {
-            swipe.setOnRefreshListener { model.process(DashboardIntent.RefreshAllBalancesIntent) }
+            swipe.setOnRefreshListener {
+                model.process(DashboardIntent.RefreshAllBalancesIntent)
+                model.process(DashboardIntent.GetUserCanBuy)
+                model.process(DashboardIntent.LoadFundsLocked)
+            }
 
             // Configure the refreshing colors
             swipe.setColorSchemeResources(
@@ -421,6 +439,8 @@ class PortfolioFragment :
         }
     }
 
+    // For the split dashboard, this onResume is called only once. When the fragment is created.
+    // To fix that we need to use a different PagerAdapter (FragmentStateAdapter) with the corresponding behavior
     override fun onResume() {
         super.onResume()
         if (isHidden) return
@@ -436,12 +456,12 @@ class PortfolioFragment :
                     }
                 }
         }
-
         announcements.checkLatest(announcementHost, compositeDisposable)
-
+        model.process(DashboardIntent.GetUserCanBuy)
         initOrUpdateAssets()
     }
 
+    // This method doesn't get called when we use the split portfolio/prices dashboard.
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) {
@@ -791,6 +811,15 @@ class PortfolioFragment :
         private const val IDX_FUNDS_BALANCE = 3
 
         const val BACKUP_FUNDS_REQUEST_CODE = 8265
+    }
+
+    override fun onBecameVisible() {
+    /*
+    TODO: We need to update the balances also (Refresh Intent) but we need to find a way so we do that silently
+     and without making every rendered cell to be in a loading state again.
+    */
+        model.process(DashboardIntent.GetUserCanBuy)
+        model.process(DashboardIntent.LoadFundsLocked)
     }
 }
 

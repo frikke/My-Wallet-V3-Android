@@ -46,6 +46,7 @@ import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfigurat
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
+import piuk.blockchain.android.ui.dashboard.showLoading
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -141,16 +142,6 @@ class SimpleBuyCryptoFragment :
 
         binding.btnContinue.setOnClickListener { startBuy() }
 
-        binding.paymentMethodDetailsRoot.setOnClickListener {
-            showPaymentMethodsBottomSheet(
-                if (lastState?.paymentOptions?.availablePaymentMethods?.any { it.canUsedForPaying() } == true) {
-                    PaymentMethodsChooserState.AVAILABLE_TO_PAY
-                } else {
-                    PaymentMethodsChooserState.AVAILABLE_TO_ADD
-                }
-            )
-        }
-
         compositeDisposable += binding.inputAmount.onImeAction.subscribe {
             if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT)
                 startBuy()
@@ -158,55 +149,58 @@ class SimpleBuyCryptoFragment :
     }
 
     override fun showAvailableToAddPaymentMethods() =
-        showPaymentMethodsBottomSheet(PaymentMethodsChooserState.AVAILABLE_TO_ADD)
+        showPaymentMethodsBottomSheet(
+            paymentOptions = lastState?.paymentOptions ?: PaymentOptions(),
+            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD
+        )
 
-    private fun showPaymentMethodsBottomSheet(state: PaymentMethodsChooserState) {
-        lastState?.paymentOptions?.let {
-            showBottomSheet(
-                PaymentMethodChooserBottomSheet.newInstance(
-                    when (state) {
-                        PaymentMethodsChooserState.AVAILABLE_TO_PAY -> it.availablePaymentMethods.filter { method ->
-                            method.canUsedForPaying()
-                        }
-                        PaymentMethodsChooserState.AVAILABLE_TO_ADD -> it.availablePaymentMethods.filter { method ->
-                            method.canBeAdded()
-                        }
-                    }
-                )
+    private fun showPaymentMethodsBottomSheet(paymentOptions: PaymentOptions, state: PaymentMethodsChooserState) {
+        showBottomSheet(
+            PaymentMethodChooserBottomSheet.newInstance(
+                when (state) {
+                    PaymentMethodsChooserState.AVAILABLE_TO_PAY ->
+                        paymentOptions.availablePaymentMethods
+                            .filter { method ->
+                                method.canUsedForPaying()
+                            }
+                    PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
+                        paymentOptions.availablePaymentMethods
+                            .filter { method ->
+                                method.canBeAdded()
+                            }
+                }
             )
-        }
+        )
     }
 
     private fun startBuy() {
-        lastState?.let { state ->
-            if (canContinue(state)) {
-                model.process(SimpleBuyIntent.BuyButtonClicked)
-                model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
-                analytics.logEvent(
-                    buyConfirmClicked(
-                        state.amount.toBigInteger().toString(),
-                        state.fiatCurrency,
-                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
-                    )
+        lastState?.takeIf { canContinue(it) }?.let { state ->
+            model.process(SimpleBuyIntent.BuyButtonClicked)
+            model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
+            analytics.logEvent(
+                buyConfirmClicked(
+                    state.amount.toBigInteger().toString(),
+                    state.fiatCurrency,
+                    state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
                 )
+            )
 
-                val paymentMethodDetails = state.selectedPaymentMethodDetails
-                check(paymentMethodDetails != null)
+            val paymentMethodDetails = state.selectedPaymentMethodDetails
+            check(paymentMethodDetails != null)
 
-                analytics.logEvent(
-                    BuyAmountEntered(
-                        frequency = state.recurringBuyFrequency.name,
-                        inputAmount = state.amount,
-                        maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
-                            paymentMethodDetails.limits.max
-                            state.amount
-                        } else null,
-                        outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
-                        paymentMethod = state.selectedPaymentMethod?.paymentMethodType
-                            ?: return
-                    )
+            analytics.logEvent(
+                BuyAmountEntered(
+                    frequency = state.recurringBuyFrequency.name,
+                    inputAmount = state.amount,
+                    maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
+                        paymentMethodDetails.limits.max
+                        state.amount
+                    } else null,
+                    outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
+                    paymentMethod = state.selectedPaymentMethod?.paymentMethodType
+                        ?: return
                 )
-            }
+            )
         }
     }
 
@@ -270,7 +264,7 @@ class SimpleBuyCryptoFragment :
         }
 
         if (newState.paymentOptions.availablePaymentMethods.isEmpty()) {
-            hidePaymentMethod()
+            paymentMethodLoading()
             disableRecurringBuyCta(false)
         } else {
             newState.selectedPaymentMethodDetails?.let { paymentMethod ->
@@ -436,9 +430,19 @@ class SimpleBuyCryptoFragment :
         with(binding) {
             paymentMethod.visible()
             paymentMethodSeparator.visible()
-            paymentMethodDetailsRoot.visible()
             paymentMethodTitle.visible()
             paymentMethodLimit.visible()
+            paymentMethodDetailsRoot.visible()
+            paymentMethodDetailsRoot.setOnClickListener {
+                showPaymentMethodsBottomSheet(
+                    state = if (state.paymentOptions.availablePaymentMethods.any { it.canUsedForPaying() }) {
+                        PaymentMethodsChooserState.AVAILABLE_TO_PAY
+                    } else {
+                        PaymentMethodsChooserState.AVAILABLE_TO_ADD
+                    },
+                    paymentOptions = state.paymentOptions
+                )
+            }
         }
     }
 
@@ -544,11 +548,13 @@ class SimpleBuyCryptoFragment :
         binding.inputAmount.hideLabels()
     }
 
-    private fun hidePaymentMethod() {
+    private fun paymentMethodLoading() {
         with(binding) {
-            paymentMethod.gone()
-            paymentMethodSeparator.gone()
-            paymentMethodDetailsRoot.gone()
+            paymentMethodTitle.showLoading()
+            paymentMethodBankInfo.showLoading()
+            paymentMethodLimit.showLoading()
+            paymentMethodIcon.resetLoader()
+            binding.paymentMethodDetailsRoot.setOnClickListener { }
         }
     }
 

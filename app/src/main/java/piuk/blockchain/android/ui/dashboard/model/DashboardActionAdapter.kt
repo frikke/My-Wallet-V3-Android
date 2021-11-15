@@ -20,6 +20,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.usecases.UseCase
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -56,6 +57,7 @@ class DashboardActionAdapter(
     private val custodialWalletManager: CustodialWalletManager,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
+    private val userIsAllowedToBuyUseCase: UseCase<Unit, Single<Boolean>>,
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
@@ -564,6 +566,12 @@ class DashboardActionAdapter(
                 Timber.e(it)
             }
         )
+
+    fun userCanBuy(model: DashboardModel): Disposable {
+        return userIsAllowedToBuyUseCase(Unit).subscribeBy {
+            model.process(DashboardIntent.UserCanBuyUpdated(it))
+        }
+    }
 
     companion object {
         private val FLATLINE_CHART = listOf(

@@ -51,6 +51,7 @@ class DashboardModel(
                 process(DashboardIntent.RefreshPrices(intent.asset))
                 null
             }
+            is DashboardIntent.GetUserCanBuy -> interactor.userCanBuy(this)
             is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
             is DashboardIntent.AssetPriceUpdate -> interactor.refreshPriceHistory(this, intent.asset)
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
@@ -76,6 +77,7 @@ class DashboardModel(
             is DashboardIntent.ResetDashboardNavigation,
             is DashboardIntent.ShowLinkablePaymentMethodsSheet,
             is DashboardIntent.LongCallStarted,
+            is DashboardIntent.UserCanBuyUpdated,
             is DashboardIntent.LongCallEnded,
             is DashboardIntent.FilterAssets,
             is DashboardIntent.UpdateLaunchDetailsFlow,

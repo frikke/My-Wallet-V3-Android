@@ -41,8 +41,11 @@ import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateU
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
+import piuk.blockchain.android.util.ActivityIndicator
+import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuyModel(
     private val prefs: SimpleBuyPrefs,
@@ -53,6 +56,7 @@ class SimpleBuyModel(
     private val serializer: SimpleBuyPrefsSerializer,
     private val cardActivators: List<CardActivator>,
     private val interactor: SimpleBuyInteractor,
+    private val _activityIndicator: Lazy<ActivityIndicator?>,
     private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase,
     private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase,
     environmentConfig: EnvironmentConfig,
@@ -65,6 +69,10 @@ class SimpleBuyModel(
     environmentConfig = environmentConfig,
     crashLogger = crashLogger
 ) {
+
+    private val activityIndicator: ActivityIndicator? by unsafeLazy {
+        _activityIndicator.value
+    }
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
@@ -150,6 +158,7 @@ class SimpleBuyModel(
             )
 
             is SimpleBuyIntent.LinkBankTransferRequested -> interactor.linkNewBank(previousState.fiatCurrency)
+                .trackProgress(activityIndicator)
                 .subscribeBy(
                     onSuccess = { process(it) },
                     onError = { process(SimpleBuyIntent.ErrorIntent(ErrorState.LinkedBankNotSupported)) }
@@ -252,7 +261,7 @@ class SimpleBuyModel(
                     )
             is SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible -> interactor.eligiblePaymentMethods(
                 intent.fiatCurrency
-            ).subscribeBy(
+            ).trackProgress(activityIndicator).subscribeBy(
                 onSuccess = {
                     process(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
@@ -351,18 +360,20 @@ class SimpleBuyModel(
             fiat = fiatCurrency,
             asset = asset,
             paymentMethodType = selectedPaymentMethodType
-        ).subscribeBy(
-            onError = {
-                process(SimpleBuyIntent.ErrorIntent())
-            },
-            onSuccess = { limits ->
-                process(
-                    SimpleBuyIntent.UpdatedBuyLimits(
-                        limits
-                    )
-                )
-            }
         )
+            .trackProgress(activityIndicator)
+            .subscribeBy(
+                onError = {
+                    process(SimpleBuyIntent.ErrorIntent())
+                },
+                onSuccess = { limits ->
+                    process(
+                        SimpleBuyIntent.UpdatedBuyLimits(
+                            limits
+                        )
+                    )
+                }
+            )
     }
 
     private fun validateAmountAndUpdatePaymentMethod(
@@ -375,7 +386,7 @@ class SimpleBuyModel(
             fiat = state.fiatCurrency,
             asset = state.selectedCryptoAsset,
             paymentMethodType = paymentMethod.type
-        ).flatMap { limits ->
+        ).trackProgress(activityIndicator).flatMap { limits ->
             validateAmount(
                 amount = state.amount,
                 balance = balance,
@@ -460,22 +471,23 @@ class SimpleBuyModel(
             getEligibilityAndNextPaymentDateUseCase(Unit)
                 .map { paymentMethods to it }
                 .onErrorReturn { paymentMethods to emptyList() }
-        }.subscribeBy(
-            onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
-                process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
+        }
+            .subscribeBy(
+                onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
+                    process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
 
-                process(
-                    updateSelectedAndAvailablePaymentMethodMethodsIntent(
-                        preselectedId = preselectedId,
-                        previousSelectedId = previousSelectedId,
-                        availablePaymentMethods
+                    process(
+                        updateSelectedAndAvailablePaymentMethodMethodsIntent(
+                            preselectedId = preselectedId,
+                            previousSelectedId = previousSelectedId,
+                            availablePaymentMethods
+                        )
                     )
-                )
-            },
-            onError = {
-                process(SimpleBuyIntent.ErrorIntent())
-            }
-        )
+                },
+                onError = {
+                    process(SimpleBuyIntent.ErrorIntent())
+                }
+            )
 
     private fun updateSelectedAndAvailablePaymentMethodMethodsIntent(
         preselectedId: String?,
