@@ -2,10 +2,10 @@ package piuk.blockchain.android.ui.activity.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.blockchain.api.adapters.fold
 import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.outcome.fold
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

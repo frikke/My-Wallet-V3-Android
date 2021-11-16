@@ -1,5 +1,6 @@
 package com.blockchain.api.adapters
 
+import com.blockchain.outcome.Outcome
 import java.lang.reflect.Type
 import retrofit2.Call
 import retrofit2.CallAdapter

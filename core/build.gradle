@@ -62,6 +62,7 @@ dependencies {
     implementation project(':veriff')
     implementation project(':blockchainApi')
 
+    api project(':payments')
     api project(':balance')
 
     // Networking

@@ -12,7 +12,9 @@ import com.blockchain.core.Database
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -24,6 +26,9 @@ import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
 import com.blockchain.operations.AppStartUpFlushable
+import com.blockchain.payments.core.CardProcessor
+import com.blockchain.payments.stripe.StripeCardProcessor
+import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.usecases.UseCase
 import com.blockchain.wallet.DefaultLabels
@@ -446,7 +451,9 @@ val applicationModule = module {
                 bankLinkingPrefs = get(),
                 analytics = get(),
                 exchangeRatesDataManager = get(),
-                bankPartnerCallbackProvider = get()
+                bankPartnerCallbackProvider = get(),
+                stripeAndCheckoutPaymentsFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
+                cardProcessors = getCardProcessors().associateBy { it.partner }
             )
         }
 
@@ -835,4 +842,22 @@ val applicationModule = module {
             prefs = get()
         )
     }
+
+    single {
+        StripeFactory(
+            context = get(),
+            stripeAccountId = null,
+            enableLogging = true
+        )
+    }
+
+    factory {
+        StripeCardProcessor(
+            stripeFactory = get()
+        )
+    }.bind(CardProcessor::class)
+}
+
+fun getCardProcessors(): List<CardProcessor> {
+    return payloadScope.getAll()
 }

@@ -1,9 +1,9 @@
 package com.blockchain.api.payments
 
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.api.adapters.Outcome
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.WithdrawalLocksResponse
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Header

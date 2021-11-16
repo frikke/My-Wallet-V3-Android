@@ -1,8 +1,8 @@
 package piuk.blockchain.android.cards
 
 import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
+import com.blockchain.payments.core.Partner
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.gson.Gson
@@ -38,6 +38,7 @@ class CardModel(
     override fun performAction(previousState: CardState, intent: CardIntent): Disposable? =
         when (intent) {
             is CardIntent.AddNewCard -> interactor.addNewCard(
+                intent.cardData,
                 previousState.fiatCurrency,
                 previousState.billingAddress
                     ?: throw IllegalStateException("No billing address was provided")

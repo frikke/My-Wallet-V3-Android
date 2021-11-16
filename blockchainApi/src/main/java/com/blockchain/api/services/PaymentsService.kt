@@ -1,14 +1,14 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.api.adapters.Outcome
-import com.blockchain.api.adapters.map
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_ACCOUNT
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_TRANSFER
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.PAYMENT_CARD
 import com.blockchain.api.payments.data.WithdrawalLocksResponse
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import io.reactivex.rxjava3.core.Single
 
 class PaymentsService internal constructor(

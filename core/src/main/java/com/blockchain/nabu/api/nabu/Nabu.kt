@@ -11,6 +11,7 @@ import com.blockchain.nabu.models.responses.banktransfer.OpenBankingTokenBody
 import com.blockchain.nabu.models.responses.banktransfer.UpdateProviderAccountBody
 import com.blockchain.nabu.models.responses.cards.BeneficiariesResponse
 import com.blockchain.nabu.models.responses.cards.CardResponse
+import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.interest.InterestActivityResponse
 import com.blockchain.nabu.models.responses.interest.InterestAddressResponse
@@ -397,6 +398,11 @@ internal interface Nabu {
         @Query("tier") tier: Int?,
         @Query("eligibleOnly") eligibleOnly: Boolean
     ): Single<List<PaymentMethodResponse>>
+
+    @GET(NABU_CARD_ACQUIRERS)
+    fun getCardAcquirers(
+        @Header("authorization") authorization: String
+    ): Single<List<PaymentCardAcquirerResponse>>
 
     @GET(NABU_BENEFICIARIES)
     fun getLinkedBeneficiaries(

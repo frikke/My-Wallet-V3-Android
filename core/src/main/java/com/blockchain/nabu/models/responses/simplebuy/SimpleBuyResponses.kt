@@ -3,8 +3,8 @@ package com.blockchain.nabu.models.responses.simplebuy
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.models.responses.nabu.Address
+import com.blockchain.payments.core.Partner
 import java.util.Date
 
 data class SimpleBuyPairsResp(val pairs: List<SimpleBuyPairResp>)
@@ -126,7 +126,11 @@ data class TransferRequest(
     val amount: String
 )
 
-data class AddNewCardBodyRequest(private val currency: String, private val address: Address)
+data class AddNewCardBodyRequest(
+    private val currency: String,
+    private val address: Address,
+    private val paymentMethodTokens: Map<String, String>
+)
 
 data class AddNewCardResponse(
     val id: String,

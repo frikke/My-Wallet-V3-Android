@@ -1,5 +1,6 @@
 package com.blockchain.api.adapters
 
+import com.blockchain.outcome.Outcome
 import java.io.IOException
 import java.lang.reflect.Type
 import okhttp3.Request

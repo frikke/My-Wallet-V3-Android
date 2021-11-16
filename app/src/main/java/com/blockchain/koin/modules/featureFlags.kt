@@ -3,6 +3,7 @@ package com.blockchain.koin.modules
 import com.blockchain.koin.buyCryptoDashboardButton
 import com.blockchain.koin.dynamicAssetsFeatureFlag
 import com.blockchain.koin.ssoSignInPolling
+import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.unifiedSignInFeatureFlag
 import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
@@ -11,6 +12,7 @@ import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.featureflags.DynamicAssetsIntegratedFeatureFlag
+import piuk.blockchain.android.featureflags.StripeAndCheckoutIntegratedFeatureFlag
 import piuk.blockchain.android.featureflags.WalletRedesignIntegratedFeatureFlag
 
 val featureFlagsModule = module {
@@ -38,6 +40,13 @@ val featureFlagsModule = module {
         WalletRedesignIntegratedFeatureFlag(
             gatedFeatures = get(),
             remoteFlag = get<RemoteConfig>().featureFlag("android_ff_wallet_redesign")
+        )
+    }.bind(FeatureFlag::class)
+
+    single(stripeAndCheckoutPaymentsFeatureFlag) {
+        StripeAndCheckoutIntegratedFeatureFlag(
+            gatedFeatures = get(),
+            remoteFlag = get<RemoteConfig>().featureFlag("android_ff_checkout_stripe_payments")
         )
     }.bind(FeatureFlag::class)
 }

@@ -1,9 +1,9 @@
 package piuk.blockchain.android.cards.partners
 
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.models.responses.simplebuy.EveryPayAttrs
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
+import com.blockchain.payments.core.Partner
 import io.reactivex.rxjava3.core.Single
 import java.text.SimpleDateFormat
 import java.util.Date

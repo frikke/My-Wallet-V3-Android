@@ -24,6 +24,7 @@ import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
+import com.blockchain.payments.core.Partner
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -176,12 +177,19 @@ interface CustodialWalletManager {
         fiatCurrency: String
     ): Single<List<EligiblePaymentMethodType>>
 
+    // Returns a map of PaymentCardAcquirers where the keys are the PaymentCardAcquirer.cardAcquirerAccountCode
+    fun getCardAcquirers(): Single<Map<String, PaymentCardAcquirer>>
+
     fun getBankTransferLimits(
         fiatCurrency: String,
         onlyEligible: Boolean
     ): Single<PaymentLimits>
 
-    fun addNewCard(fiatCurrency: String, billingAddress: BillingAddress): Single<CardToBeActivated>
+    fun addNewCard(
+        fiatCurrency: String,
+        billingAddress: BillingAddress,
+        paymentMethodTokens: Map<String, String>
+    ): Single<CardToBeActivated>
 
     fun activateCard(cardId: String, attributes: SimpleBuyConfirmationAttributes): Single<PartnerCredentials>
 
@@ -513,6 +521,24 @@ data class BankAccount(val details: List<BankDetail>)
 
 data class BankDetail(val title: String, val value: String, val isCopyable: Boolean = false)
 
+data class PaymentCardAcquirer(
+    val cardAcquirerName: String,
+    val cardAcquirerAccountCode: String,
+    val apiKey: String
+) {
+    val partner: Partner by lazy {
+        cardAcquirerName.uppercase().toSupportedPartner()
+    }
+}
+
+internal fun String.toSupportedPartner(): Partner =
+    when (this) {
+        "EVERYPAY" -> Partner.EVERYPAY
+        "STRIPE" -> Partner.STRIPE
+        "CHECKOUT" -> Partner.CHECKOUT_COM
+        else -> Partner.UNKNOWN
+    }
+
 sealed class TransactionError : Throwable() {
     object OrderLimitReached : TransactionError()
     object OrderNotCancelable : TransactionError()
@@ -633,7 +659,8 @@ sealed class PaymentMethod(
         val expireDate: Date,
         val cardType: CardType,
         val status: CardStatus,
-        override val isEligible: Boolean
+        override val isEligible: Boolean,
+        val acquirers: List<PaymentCardAcquirer>
     ) : PaymentMethod(cardId, PaymentMethodType.PAYMENT_CARD, limits, CARD_PAYMENT_METHOD_ORDER, isEligible),
         Serializable,
         RecurringBuyPaymentDetails {
@@ -728,11 +755,6 @@ data class EveryPayCredentials(
     val mobileToken: String,
     val paymentLink: String
 )
-
-enum class Partner {
-    EVERYPAY,
-    UNKNOWN
-}
 
 data class TransferQuote(
     val id: String = "",

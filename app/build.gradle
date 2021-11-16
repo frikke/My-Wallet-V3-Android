@@ -313,6 +313,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:network')
     implementation project(':common-view')
+    implementation project(':payments')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
@@ -387,6 +388,7 @@ dependencies {
     implementation Libraries.rxBinding
     implementation Libraries.rxBindingCompat
     implementation Libraries.rxBindingCore
+    implementation Libraries.rxjava3Coroutines
 
     //Animations
     implementation Libraries.lottie
@@ -405,8 +407,16 @@ dependencies {
     implementation Libraries.zendeskChat
     implementation Libraries.zendeskMessaging
 
+    // Checkout.com
+//    implementation Libraries.checkoutCom
+
     // Compose
     implementation Libraries.composeUi
+
+    // Stripe
+    implementation(Libraries.stripe) {
+        exclude group: 'com.github.stephenc.jcip', module: 'jcip-annotations'
+    }
 
     // UI/Instrumentation Tests
     androidTestImplementation(Libraries.espresso) {

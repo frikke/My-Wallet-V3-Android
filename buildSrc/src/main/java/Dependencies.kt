@@ -119,6 +119,8 @@ object Versions {
     const val lottieVersion = "3.5.0"
     const val zendeskChatVersion = "3.3.0"
     const val zendeskMessagingVersion = "5.2.0"
+    const val checkoutComVersion = "3.0.1"
+    const val stripeVersion = "18.2.0"
 
     // Logging
     const val timber = "4.7.1"
@@ -281,6 +283,8 @@ object Libraries {
     const val lottie = "com.airbnb.android:lottie:${Versions.lottieVersion}"
     const val zendeskChat = "com.zendesk:chat:${Versions.zendeskChatVersion}"
     const val zendeskMessaging = "com.zendesk:messaging:${Versions.zendeskMessagingVersion}"
+    const val checkoutCom = "com.github.checkout:frames-android:${Versions.checkoutComVersion}"
+    const val stripe = "com.stripe:stripe-android:${Versions.stripeVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

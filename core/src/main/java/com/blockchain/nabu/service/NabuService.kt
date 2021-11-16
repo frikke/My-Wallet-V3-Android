@@ -558,6 +558,10 @@ class NabuService internal constructor(
         eligibleOnly = eligibleOnly
     ).wrapErrorMessage()
 
+    fun cardAcquirers(
+        sessionToken: NabuSessionTokenResponse
+    ) = nabu.getCardAcquirers(sessionToken.authHeader).wrapErrorMessage()
+
     fun getBeneficiaries(sessionToken: NabuSessionTokenResponse) =
         nabu.getLinkedBeneficiaries(sessionToken.authHeader).wrapErrorMessage()
 

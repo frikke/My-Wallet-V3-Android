@@ -24,8 +24,8 @@ import com.blockchain.nabu.datamanagers.EveryPayCredentials
 import com.blockchain.nabu.datamanagers.FiatTransaction
 import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PartnerCredentials
+import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.ProcessingErrorType
@@ -45,6 +45,7 @@ import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.nabu.datamanagers.toSupportedPartner
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.BankTransferDetails
 import com.blockchain.nabu.models.data.BankTransferStatus
@@ -68,6 +69,7 @@ import com.blockchain.nabu.models.responses.banktransfer.ProviderAccountAttrs
 import com.blockchain.nabu.models.responses.banktransfer.UpdateProviderAccountBody
 import com.blockchain.nabu.models.responses.banktransfer.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.CardResponse
+import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
 import com.blockchain.nabu.models.responses.interest.InterestRateResponse
@@ -516,7 +518,7 @@ class LiveCustodialWalletManager(
     private val updateSupportedCards: (List<PaymentMethodResponse>) -> Unit = { paymentMethods ->
         val cardTypes =
             paymentMethods
-                .filter { it.eligible && it.type.toPaymentMethodType() == PaymentMethodType.PAYMENT_CARD }
+                .filter(PaymentMethodResponse::isEligibleCard)
                 .filter { it.subTypes.isNullOrEmpty().not() }
                 .mapNotNull { it.subTypes }
                 .flatten().distinct()
@@ -572,8 +574,9 @@ class LiveCustodialWalletManager(
                     fiatCurrency = fiatCurrency,
                     onlyEligible = onlyEligible,
                     shouldFetchSddLimits = fetchSdddLimits
-                )
-            ) { custodialFiatBalance, cardsResponse, linkedBanks, paymentMethods ->
+                ),
+                nabuService.cardAcquirers(sessionToken = authToken)
+            ) { custodialFiatBalance, cardsResponse, linkedBanks, paymentMethods, cardAcquirers ->
                 val availablePaymentMethods = mutableListOf<PaymentMethod>()
 
                 paymentMethods.forEach { paymentMethod ->
@@ -583,7 +586,12 @@ class LiveCustodialWalletManager(
                         cardsResponse.takeIf { cards -> cards.isNotEmpty() }?.filter { it.state.isActive() }
                             ?.forEach { cardResponse: CardResponse ->
                                 availablePaymentMethods.add(
-                                    cardResponse.toCardPaymentMethod(cardLimits)
+                                    cardResponse.toCardPaymentMethod(
+                                        cardLimits = cardLimits,
+                                        cardAcquirers = cardAcquirers.map(
+                                            PaymentCardAcquirerResponse::toPaymentCardAcquirer
+                                        )
+                                    )
                                 )
                             }
                     } else if (
@@ -708,14 +716,16 @@ class LiveCustodialWalletManager(
 
     override fun addNewCard(
         fiatCurrency: String,
-        billingAddress: BillingAddress
+        billingAddress: BillingAddress,
+        paymentMethodTokens: Map<String, String>
     ): Single<CardToBeActivated> =
         authenticator.authenticate {
             nabuService.addNewCard(
                 sessionToken = it,
                 addNewCardBodyRequest = AddNewCardBodyRequest(
                     fiatCurrency,
-                    AddAddressRequest.fromBillingAddress(billingAddress)
+                    AddAddressRequest.fromBillingAddress(billingAddress),
+                    paymentMethodTokens
                 )
             )
         }.map {
@@ -752,6 +762,20 @@ class LiveCustodialWalletManager(
                 }
         }
 
+    override fun getCardAcquirers(): Single<Map<String, PaymentCardAcquirer>> =
+        authenticator.authenticate { nabuSessionToken ->
+            nabuService.cardAcquirers(nabuSessionToken).map { paymentCardAcquirers ->
+                // We might have the same acquirer with multiple account codes, for example:
+                // cardAcquirerName="stripe", cardAcquirerAccountCodes=listof("stripe_us", "stripe_uk").
+                // We have to try generating a payment token for each account code. For simplicity
+                // the PaymentCardAcquirerResponse objects are transformed to multiple PaymentCardAcquirer object based
+                // on account codes
+                paymentCardAcquirers.map(PaymentCardAcquirerResponse::toPaymentCardAcquirers)
+                    .flatten()
+                    .associateBy { it.cardAcquirerAccountCode }
+            }
+        }
+
     override fun activateCard(
         cardId: String,
         attributes: SimpleBuyConfirmationAttributes
@@ -775,7 +799,11 @@ class LiveCustodialWalletManager(
             nabuService.getCardDetails(it, cardId)
         }.map { cardsResponse ->
             cardsResponse.toCardPaymentMethod(
-                PaymentLimits(FiatValue.zero(cardsResponse.currency), FiatValue.zero(cardsResponse.currency))
+                cardLimits = PaymentLimits(
+                    FiatValue.zero(cardsResponse.currency),
+                    FiatValue.zero(cardsResponse.currency)
+                ),
+                cardAcquirers = emptyList()
             )
         }
 
@@ -787,7 +815,8 @@ class LiveCustodialWalletManager(
         }.map { cardsResponse ->
             cardsResponse.filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }.map {
                 it.toCardPaymentMethod(
-                    PaymentLimits(FiatValue.zero(it.currency), FiatValue.zero(it.currency))
+                    cardLimits = PaymentLimits(FiatValue.zero(it.currency), FiatValue.zero(it.currency)),
+                    cardAcquirers = emptyList()
                 )
             }
         }
@@ -1178,7 +1207,7 @@ class LiveCustodialWalletManager(
             )
         }
 
-    private fun CardResponse.toCardPaymentMethod(cardLimits: PaymentLimits) =
+    private fun CardResponse.toCardPaymentMethod(cardLimits: PaymentLimits, cardAcquirers: List<PaymentCardAcquirer>) =
         PaymentMethod.Card(
             cardId = id,
             limits = cardLimits,
@@ -1196,7 +1225,8 @@ class LiveCustodialWalletManager(
             } ?: Date(),
             cardType = card?.type ?: CardType.UNKNOWN,
             status = state.toCardStatus(),
-            isEligible = true
+            isEligible = true,
+            acquirers = cardAcquirers
         )
 
     private fun Bank.toBankPaymentMethod(bankLimits: PaymentLimits) =
@@ -1441,12 +1471,6 @@ private fun String.toTransactionType(): TransactionType? =
         else -> null
     }
 
-private fun String.toSupportedPartner(): Partner =
-    when (this) {
-        "EVERYPAY" -> Partner.EVERYPAY
-        else -> Partner.UNKNOWN
-    }
-
 enum class PaymentMethodType {
     BANK_TRANSFER,
     BANK_ACCOUNT,
@@ -1587,6 +1611,25 @@ private fun InterestActivityItemResponse.toInterestActivityItem(cryptoCurrency: 
         type = InterestActivityItem.toTransactionType(type),
         extraAttributes = extraAttributes
     )
+
+private fun PaymentCardAcquirerResponse.toPaymentCardAcquirer() =
+    PaymentCardAcquirer(
+        cardAcquirerName = cardAcquirerName,
+        cardAcquirerAccountCode = cardAcquirerAccountCodes.first(),
+        apiKey = apiKey
+    )
+
+private fun PaymentCardAcquirerResponse.toPaymentCardAcquirers() =
+    cardAcquirerAccountCodes.map { accountCode ->
+        PaymentCardAcquirer(
+            cardAcquirerName = cardAcquirerName,
+            cardAcquirerAccountCode = accountCode,
+            apiKey = apiKey
+        )
+    }
+
+private fun PaymentMethodResponse.isEligibleCard() =
+    eligible && type.toPaymentMethodType() == PaymentMethodType.PAYMENT_CARD
 
 interface PaymentAccountMapper {
     fun map(bankAccountResponse: BankAccountResponse): BankAccount?

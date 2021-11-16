@@ -1,14 +1,14 @@
 package com.blockchain.core.payments
 
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.api.adapters.Outcome
-import com.blockchain.api.adapters.mapLeft
 import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.payments.model.FundsLock
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.payments.model.PaymentMethodDetailsError
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.mapLeft
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single

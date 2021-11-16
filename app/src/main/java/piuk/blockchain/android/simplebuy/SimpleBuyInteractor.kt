@@ -17,6 +17,7 @@ import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
@@ -37,6 +38,11 @@ import com.blockchain.nabu.service.TierService
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.outcome.fold
+import com.blockchain.payments.core.CardDetails
+import com.blockchain.payments.core.CardProcessor
+import com.blockchain.payments.core.Partner
+import com.blockchain.payments.core.PaymentToken
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
@@ -46,7 +52,10 @@ import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.cards.CardIntent
+import piuk.blockchain.android.featureflags.StripeAndCheckoutIntegratedFeatureFlag
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -54,6 +63,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import timber.log.Timber
 
 class SimpleBuyInteractor(
     private val tierService: TierService,
@@ -65,7 +75,9 @@ class SimpleBuyInteractor(
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val coincore: Coincore,
-    private val bankLinkingPrefs: BankLinkingPrefs
+    private val bankLinkingPrefs: BankLinkingPrefs,
+    private val stripeAndCheckoutPaymentsFeatureFlag: StripeAndCheckoutIntegratedFeatureFlag,
+    private val cardProcessors: Map<Partner, CardProcessor>
 ) {
 
     // Hack until we have a proper limits api.
@@ -398,8 +410,56 @@ class SimpleBuyInteractor(
 
     fun fetchOrder(orderId: String) = custodialWalletManager.getBuyOrder(orderId)
 
-    fun addNewCard(fiatCurrency: String, billingAddress: BillingAddress): Single<CardToBeActivated> =
-        custodialWalletManager.addNewCard(fiatCurrency, billingAddress)
+    fun addNewCard(
+        cardData: CardData,
+        fiatCurrency: String,
+        billingAddress: BillingAddress
+    ): Single<CardToBeActivated> =
+        stripeAndCheckoutPaymentsFeatureFlag.enabled.flatMap { enabled ->
+            if (enabled) {
+                addCardWithPaymentTokens(cardData, fiatCurrency, billingAddress)
+            } else {
+                custodialWalletManager.addNewCard(fiatCurrency, billingAddress, emptyMap())
+            }
+        }
+
+    private fun addCardWithPaymentTokens(
+        cardData: CardData,
+        fiatCurrency: String,
+        billingAddress: BillingAddress
+    ) = custodialWalletManager.getCardAcquirers().flatMap { cardAcquirers ->
+        rxSingle {
+            // The backend is expecting a map of account codes and payment tokens.
+            // Given that custodialWalletManager.getCardAcquirers() returns a map of account codes and
+            // PaymentCardAcquirers, we need to map the PaymentCardAcquirers into payment tokens (string).
+            cardAcquirers.mapValues { (_, acquirer) ->
+                getPaymentToken(acquirer, cardData)
+            }
+        }.flatMap { paymentMethodTokens ->
+            if (paymentMethodTokens.filterValues { token -> token.isNotEmpty() }.isEmpty()) {
+                // If the feature is enabled and we couldn't get any payment tokens, show an error.
+                // Otherwise pass it to the backend if we got at least 1 token. TODO: better error handling
+                Single.error(Throwable(NO_PAYMENT_TOKENS_ERROR))
+            } else {
+                custodialWalletManager.addNewCard(fiatCurrency, billingAddress, paymentMethodTokens)
+            }
+        }
+    }
+
+    private suspend fun getPaymentToken(
+        acquirer: PaymentCardAcquirer,
+        cardData: CardData
+    ) = cardProcessors[acquirer.partner]?.createPaymentMethod(
+        cardData.toCardDetails(),
+        acquirer.apiKey
+    )?.fold(
+        onSuccess = { token -> token },
+        onFailure = { cardProcessingFailure ->
+            Timber.e(cardProcessingFailure.throwable)
+            EMPTY_PAYMENT_TOKEN
+        }
+    )
+        ?: EMPTY_PAYMENT_TOKEN
 
     fun updateApprovalStatus() {
         val currentState = bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()
@@ -417,10 +477,21 @@ class SimpleBuyInteractor(
         return exchangeRatesDataManager.cryptoToFiatRate(asset, fiat).firstOrError()
     }
 
+    private fun CardData.toCardDetails() =
+        CardDetails(
+            number = number,
+            expMonth = month,
+            expYear = year,
+            cvc = cvv,
+            fullName = fullName
+        )
+
     companion object {
         private const val INTERVAL: Long = 5
         private const val RETRIES_SHORT = 6
         private const val RETRIES_DEFAULT = 12
         private const val RETRIES_LONG = 20
+        private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
+        private const val NO_PAYMENT_TOKENS_ERROR = "Couldn't get any payment token"
     }
 }

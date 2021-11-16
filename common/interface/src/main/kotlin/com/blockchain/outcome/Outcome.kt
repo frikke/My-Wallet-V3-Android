@@ -1,4 +1,4 @@
-package com.blockchain.api.adapters
+package com.blockchain.outcome
 
 sealed class Outcome<E, R> {
     data class Success<E, R>(

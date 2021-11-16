@@ -139,7 +139,7 @@ class USDPaymentAccountMapper(private val resources: Resources) : PaymentAccount
                     resources.getString(R.string.recipient_name),
                     bankAccountResponse.agent.recipient ?: "",
                     true
-                ),
+                )
             )
         )
     }
