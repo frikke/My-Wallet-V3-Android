@@ -28,6 +28,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SplitButtonsActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TabLayoutActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TagsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TextInputActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TypographyActivity
@@ -114,6 +115,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.pager).setOnClickListener {
             startActivity(Intent(this@MainActivity, PagerActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.tabs).setOnClickListener {
+            startActivity(Intent(this@MainActivity, TabLayoutActivity::class.java))
         }
 
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {
