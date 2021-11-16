@@ -1,15 +1,19 @@
 package piuk.blockchain.android.ui.home.v2
 
 import android.content.Intent
+import android.net.Uri
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.core.Database
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.models.data.BankTransferDetails
 import com.blockchain.nabu.models.data.BankTransferStatus
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
+import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.ThePitLinkingPrefs
@@ -18,14 +22,18 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.LinkState
+import piuk.blockchain.android.scan.QrScanResultProcessor
+import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
+import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
@@ -34,6 +42,7 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import thepit.PitLinking
+import timber.log.Timber
 
 class RedesignInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -49,11 +58,20 @@ class RedesignInteractor internal constructor(
     private val userIdentity: UserIdentity,
     private val upsellManager: KycUpgradePromptManager,
     private val database: Database,
-    private val credentialsWiper: CredentialsWiper
+    private val credentialsWiper: CredentialsWiper,
+    private val qrScanResultProcessor: QrScanResultProcessor,
+    private val secureChannelManager: SecureChannelManager
 ) {
 
     fun checkForDeepLinks(intent: Intent): Single<LinkState> =
         deepLinkProcessor.getLink(intent)
+
+    fun checkForDeepLinks(scanResult: ScanResult.HttpUri): Single<LinkState> =
+        Single.fromCallable {
+            Uri.parse(scanResult.uri).getQueryParameter("link") ?: throw IllegalStateException()
+        }.flatMap {
+            deepLinkProcessor.getLink(it)
+        }
 
     fun checkForUserWalletErrors(): Completable =
         userIdentity.checkForUserWalletLinkErrors()
@@ -95,7 +113,7 @@ class RedesignInteractor internal constructor(
             resetLocalBankAuthState()
         }
 
-    fun pollForBankTransferCharge(paymentData: BankPaymentApproval) =
+    fun pollForBankTransferCharge(paymentData: BankPaymentApproval): Single<PollResult<BankTransferDetails>> =
         PollService(
             custodialWalletManager.getBankTransferCharge(paymentData.paymentId)
         ) { transferDetails ->
@@ -121,4 +139,24 @@ class RedesignInteractor internal constructor(
             credentialsWiper.wipe()
             database.historicRateQueries.clear()
         }
+
+    fun cancelPendingConfirmationBuy(): Completable {
+        val currentOrder = simpleBuySync.currentState() ?: return Completable.complete()
+        val pendingOrderId = currentOrder.takeIf { it.orderState == OrderState.PENDING_CONFIRMATION }?.id
+            ?: return Completable.complete()
+
+        return custodialWalletManager.deleteBuyOrder(pendingOrderId)
+            .doOnComplete {
+                simpleBuySync.clear()
+            }
+            .doOnError {
+                Timber.e("Failed to cancel buy order $pendingOrderId")
+            }
+    }
+
+    fun processQrScanResult(decodedData: String): Single<ScanResult> =
+        qrScanResultProcessor.processScan(decodedData)
+
+    fun sendSecureChannelHandshake(handshake: String) =
+        secureChannelManager.sendHandshake(handshake)
 }

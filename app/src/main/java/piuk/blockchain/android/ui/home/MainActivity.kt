@@ -381,7 +381,7 @@ class MainActivity :
 
     private fun launchDashboardFlow(action: AssetAction, currency: String?) {
         currency?.let {
-            launchDashboard()
+            setCurrentTabItem(R.id.nav_home)
             val fragment = createDashboardFragment(action, it)
             showFragment(fragment)
         }
@@ -845,11 +845,6 @@ class MainActivity :
 
     override fun startUpsellKyc() {
         launchKyc(CampaignType.None)
-    }
-
-    // region HomeNavigator Interface
-    override fun launchDashboard() {
-        setCurrentTabItem(R.id.nav_home)
     }
 
     override fun launchSwap(

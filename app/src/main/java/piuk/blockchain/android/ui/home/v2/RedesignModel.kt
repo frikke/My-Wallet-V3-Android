@@ -26,6 +26,8 @@ import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
+import piuk.blockchain.android.scan.QrScanError
+import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.sunriver.CampaignLinkState
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -58,11 +60,13 @@ class RedesignModel(
                             // Nothing to do here
                         },
                         onError = { throwable ->
-                            process(
-                                RedesignIntent.UpdateViewToLaunch(
-                                    ViewToLaunch.CheckForAccountWalletLinkErrors(throwable)
+                            if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
+                                process(
+                                    RedesignIntent.UpdateViewToLaunch(
+                                        ViewToLaunch.CheckForAccountWalletLinkErrors(throwable.getWalletIdHint())
+                                    )
                                 )
-                            )
+                            }
                         }
                     )
             }
@@ -103,8 +107,46 @@ class RedesignModel(
             is RedesignIntent.UnpairWallet -> interactor.unpairWallet()
                 .onErrorComplete()
                 .subscribe()
+            is RedesignIntent.CancelPendingConfirmationBuy -> interactor.cancelPendingConfirmationBuy().subscribe()
+            is RedesignIntent.ProcessScanResult -> interactor.processQrScanResult(intent.decodedData)
+                .subscribeBy(
+                    onSuccess = {
+                        when (it) {
+                            is ScanResult.HttpUri -> handlePossibleDeepLinkFromScan(it)
+                            is ScanResult.TxTarget -> {
+                                process(
+                                    RedesignIntent.UpdateViewToLaunch(
+                                        ViewToLaunch.LaunchTransactionFlowWithTargets(it.targets)
+                                    )
+                                )
+                            }
+                            is ScanResult.ImportedWallet -> {
+                                // TODO: as part of Auth
+                            }
+                            is ScanResult.SecuredChannelLogin -> interactor.sendSecureChannelHandshake(it.handshake)
+                        }
+                    },
+                    onError = {
+                        when (it) {
+                            is QrScanError -> process(
+                                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.ShowTargetScanError(it))
+                            )
+                            else -> {
+                                Timber.d("Scan failed")
+                            }
+                        }
+                    }
+                )
             else -> null
         }
+
+    private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) =
+        // FIXME undisposed call
+        interactor.checkForDeepLinks(scanResult)
+            .subscribeBy(
+                onSuccess = { dispatchDeepLink(it) },
+                onError = { Timber.e(it) }
+            )
 
     private fun dispatchDeepLink(linkState: LinkState) {
         when (linkState) {
@@ -352,7 +394,7 @@ class RedesignModel(
                     deepLinkState.bankPaymentData?.let { data ->
                         process(
                             RedesignIntent.UpdateViewToLaunch(
-                                ViewToLaunch.LaunchOpenBankingApprovalError(data.orderValue.currencyCode)
+                                ViewToLaunch.LaunchOpenBankingError(data.orderValue.currencyCode)
                             )
                         )
                     } ?: process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
@@ -405,7 +447,7 @@ class RedesignModel(
                     interactor.resetLocalBankAuthState()
                     process(
                         RedesignIntent.UpdateViewToLaunch(
-                            ViewToLaunch.LaunchOpenBankingDepositError(paymentData.orderValue.currencyCode)
+                            ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)
                         )
                     )
                 }
@@ -437,7 +479,7 @@ class RedesignModel(
             BankTransferStatus.UNKNOWN -> {
                 process(
                     RedesignIntent.UpdateViewToLaunch(
-                        ViewToLaunch.LaunchOpenBankingDepositError(paymentData.orderValue.currencyCode)
+                        ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)
                     )
                 )
             }
@@ -474,4 +516,7 @@ class RedesignModel(
             process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchPaymentForCancelledOrder(state)))
         }
     }
+
+    private fun NabuApiException.getWalletIdHint(): String =
+        getErrorDescription().split(NabuApiException.USER_WALLET_LINK_ERROR_PREFIX).last()
 }

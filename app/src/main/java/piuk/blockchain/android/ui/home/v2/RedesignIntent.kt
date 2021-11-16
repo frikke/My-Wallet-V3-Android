@@ -28,4 +28,12 @@ sealed class RedesignIntent : MviIntent<RedesignState> {
     object UnpairWallet : RedesignIntent() {
         override fun reduce(oldState: RedesignState): RedesignState = oldState
     }
+
+    object CancelPendingConfirmationBuy : RedesignIntent() {
+        override fun reduce(oldState: RedesignState): RedesignState = oldState
+    }
+
+    class ProcessScanResult(val decodedData: String) : RedesignIntent() {
+        override fun reduce(oldState: RedesignState): RedesignState = oldState
+    }
 }

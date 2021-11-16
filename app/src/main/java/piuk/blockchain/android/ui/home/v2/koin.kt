@@ -32,7 +32,9 @@ val mainModule = module {
                 userIdentity = get(),
                 upsellManager = get(),
                 database = get(),
-                credentialsWiper = get()
+                credentialsWiper = get(),
+                qrScanResultProcessor = get(),
+                secureChannelManager = get()
             )
         }
     }

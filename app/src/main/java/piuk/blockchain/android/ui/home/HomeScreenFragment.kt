@@ -21,8 +21,6 @@ interface HomeScreenFragment {
 }
 
 interface HomeNavigator {
-    fun launchDashboard()
-
     fun launchSwap(
         sourceAccount: CryptoAccount? = null,
         targetAccount: CryptoAccount? = null

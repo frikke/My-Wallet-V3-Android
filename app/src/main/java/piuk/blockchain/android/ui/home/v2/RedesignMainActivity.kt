@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.componentlib.navigation.BottomNavigationState
 import com.blockchain.componentlib.navigation.NavigationItem
@@ -26,10 +27,17 @@ import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.activityShown
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.net.URLDecoder
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityRedesignMainBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
+import piuk.blockchain.android.scan.QrScanError
+import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
@@ -41,6 +49,7 @@ import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
@@ -56,6 +65,7 @@ import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
+import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
@@ -66,6 +76,7 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.ui.upsell.UpsellHost
 import piuk.blockchain.android.util.AndroidUtils
+import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
@@ -91,10 +102,19 @@ class RedesignMainActivity :
         ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
     }
 
+    private var activityResultAction: () -> Unit = {}
+    private var handlingResult = false
+
+    @Deprecated("Use MVI loop instead")
+    private val compositeDisposable = CompositeDisposable()
+
+    @Deprecated("Use MVI loop instead")
+    private val qrProcessor: QrScanResultProcessor by scopedInject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        launchDashboard()
+        launchPortfolio()
         setupNavigation()
 
         if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
@@ -140,28 +160,43 @@ class RedesignMainActivity :
         model.process(RedesignIntent.PerformInitialChecks)
     }
 
+    override fun onResume() {
+        super.onResume()
+        activityResultAction().also {
+            activityResultAction = {}
+        }
+
+        model.process(RedesignIntent.CancelPendingConfirmationBuy)
+
+        handlingResult = false
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
+
     private fun setupNavigation() {
         binding.bottomNavigation.apply {
             onNavigationItemClick = {
                 selectedNavigationItem = it
-                supportFragmentManager.showFragment(
-                    fragment = when (it) {
-                        NavigationItem.Home -> {
-                            PortfolioFragment.newInstance(true)
-                        }
-                        NavigationItem.Prices -> {
-                            PricesFragment.newInstance()
-                        }
-                        NavigationItem.BuyAndSell -> {
-                            BuySellFragment.newInstance()
-                        }
-                        NavigationItem.Activity -> {
-                            ActivitiesFragment.newInstance()
-                        }
-                        else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
-                    },
-                    loadingView = binding.progress
-                )
+                when (it) {
+                    NavigationItem.Home -> {
+                        launchPortfolio()
+                    }
+                    NavigationItem.Prices -> {
+                        supportFragmentManager.showFragment(
+                            PricesFragment.newInstance(), loadingView = binding.progress
+                        )
+                    }
+                    NavigationItem.BuyAndSell -> {
+                        launchBuySell()
+                    }
+                    NavigationItem.Activity -> {
+                        startActivitiesFragment()
+                    }
+                    else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
+                }
             }
             onMiddleButtonClick = {
                 showBottomSheet(
@@ -171,6 +206,7 @@ class RedesignMainActivity :
         }
     }
 
+    // TODO in these methods in MainActivity, we show a dialog, check whether it should be blocking or not
     override fun showLoading() {
         binding.progress.visible()
         binding.progress.playAnimation()
@@ -180,6 +216,126 @@ class RedesignMainActivity :
         binding.progress.gone()
         binding.progress.pauseAnimation()
     }
+
+    // TODO this is deprecated, should be replaced with ActivityResult.contract
+    // some consideration needs to be paid to QR scanning and how it deals with the results
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        handlingResult = true
+        // We create a lambda so we handle the result after the view is attached to the presenter (onResume)
+        activityResultAction = {
+            when (requestCode) {
+                QrScanActivity.SCAN_URI_RESULT -> {
+                    data.getRawScanData()?.let {
+                        val decodedData = URLDecoder.decode(it, "UTF-8")
+                        if (resultCode == RESULT_OK) {
+                            model.process(RedesignIntent.ProcessScanResult(decodedData))
+                        }
+                    }
+                }
+                SETTINGS_EDIT,
+                ACCOUNT_EDIT,
+                KYC_STARTED -> {
+                    // Reset state in case of changing currency etc
+                    launchPortfolio()
+
+                    // Pass this result to balance fragment
+                    for (fragment in supportFragmentManager.fragments) {
+                        fragment.onActivityResult(requestCode, resultCode, data)
+                    }
+                }
+                INTEREST_DASHBOARD -> {
+                    if (resultCode == RESULT_FIRST_USER) {
+                        data?.let { intent ->
+                            val account = intent.extras?.getAccount(InterestDashboardActivity.ACTIVITY_ACCOUNT)
+                            startActivitiesFragment(account)
+                        }
+                    }
+                }
+                BANK_DEEP_LINK_SIMPLE_BUY -> {
+                    if (resultCode == RESULT_OK) {
+                        startActivity(
+                            SimpleBuyActivity.newInstance(
+                                context = this,
+                                preselectedPaymentMethodId = data?.getStringExtra(BankAuthActivity.LINKED_BANK_ID_KEY)
+                            )
+                        )
+                    }
+                }
+                BANK_DEEP_LINK_SETTINGS -> {
+                    if (resultCode == RESULT_OK) {
+                        startActivity(Intent(this, SettingsActivity::class.java))
+                    }
+                }
+                BANK_DEEP_LINK_DEPOSIT -> {
+                    if (resultCode == RESULT_OK) {
+                        launchPortfolio(
+                            AssetAction.FiatDeposit,
+                            data?.getStringExtra(
+                                BankAuthActivity.LINKED_BANK_CURRENCY
+                            )
+                        )
+                    }
+                }
+                BANK_DEEP_LINK_WITHDRAW -> {
+                    if (resultCode == RESULT_OK) {
+                        launchPortfolio(
+                            AssetAction.Withdraw,
+                            data?.getStringExtra(
+                                BankAuthActivity.LINKED_BANK_CURRENCY
+                            )
+                        )
+                    }
+                }
+                else -> super.onActivityResult(requestCode, resultCode, data)
+            }
+        }
+    }
+
+    private fun startTxFlowWithTargets(targets: Collection<CryptoTarget>) {
+        if (targets.size > 1) {
+            disambiguateSendScan(targets)
+        } else {
+            val targetAddress = targets.first()
+            // FIXME selecting a source account shows UI, refactor so this can be called from the interactor
+            compositeDisposable += qrProcessor.selectSourceAccount(this, targetAddress)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                    onSuccess = { sourceAccount ->
+                        startActivity(
+                            TransactionFlowActivity.newInstance(
+                                context = this,
+                                sourceAccount = sourceAccount,
+                                target = targetAddress,
+                                action = AssetAction.Send
+                            )
+                        )
+                    },
+                    onComplete = {
+                        Timber.d("No source accounts available for scan target")
+                        showNoAccountFromScanToast(targetAddress.asset)
+                    },
+                    onError = {
+                        Timber.e("Unable to select source account for scan")
+                        showNoAccountFromScanToast(targetAddress.asset)
+                    }
+                )
+        }
+    }
+
+    private fun disambiguateSendScan(targets: Collection<CryptoTarget>) {
+        compositeDisposable += qrProcessor.disambiguateScan(this, targets)
+            .subscribeBy(
+                onSuccess = {
+                    startTxFlowWithTargets(listOf(it))
+                },
+                onError = {
+                    Timber.e("Failed to disambiguate scan: $it")
+                }
+            )
+    }
+
+    private fun showNoAccountFromScanToast(asset: AssetInfo) =
+        toast(getString(R.string.scan_no_available_account, asset.displayTicker))
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_redesign_main_activity, menu)
@@ -247,18 +403,6 @@ class RedesignMainActivity :
                     )
                 )
             }
-            is ViewToLaunch.LaunchOpenBankingApprovalError -> {
-                replaceBottomSheet(
-                    FiatTransactionBottomSheet.newInstance(
-                        view.currencyCode,
-                        getString(R.string.deposit_confirmation_error_title),
-                        getString(
-                            R.string.deposit_confirmation_error_subtitle
-                        ),
-                        FiatTransactionState.ERROR
-                    )
-                )
-            }
             is ViewToLaunch.LaunchOpenBankingApprovalTimeout -> {
                 replaceBottomSheet(
                     FiatTransactionBottomSheet.newInstance(
@@ -271,12 +415,22 @@ class RedesignMainActivity :
                     )
                 )
             }
-            ViewToLaunch.LaunchOpenBankingBuyApprovalError -> {
+            is ViewToLaunch.LaunchOpenBankingBuyApprovalError -> {
                 ToastCustom.makeText(
                     this, getString(R.string.simple_buy_confirmation_error), Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
                 )
             }
-            is ViewToLaunch.LaunchOpenBankingDepositError -> {
+            is ViewToLaunch.LaunchOpenBankingError -> {
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        view.currencyCode,
+                        getString(R.string.deposit_confirmation_error_title),
+                        getString(
+                            R.string.deposit_confirmation_error_subtitle
+                        ),
+                        FiatTransactionState.ERROR
+                    )
+                )
             }
             is ViewToLaunch.LaunchOpenBankingLinking -> {
                 launchOpenBankingLinking(view.bankLinkingInfo)
@@ -297,28 +451,44 @@ class RedesignMainActivity :
                     )
                 )
             }
-            ViewToLaunch.LaunchReceive -> {
-                launchReceive()
-            }
-            ViewToLaunch.LaunchSend -> {
-                launchSend()
-            }
-            ViewToLaunch.LaunchSetupBiometricLogin -> {
-                launchSetupFingerprintLogin()
-            }
+            is ViewToLaunch.LaunchReceive -> launchReceive()
+            is ViewToLaunch.LaunchSend -> launchSend()
+            is ViewToLaunch.LaunchSetupBiometricLogin -> launchSetupFingerprintLogin()
             is ViewToLaunch.LaunchSimpleBuy -> launchSimpleBuy(view.asset)
-            ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval -> launchSimpleBuyFromDeepLinkApproval()
-            ViewToLaunch.LaunchSwap -> launchSwap()
-            ViewToLaunch.LaunchTwoFaSetup -> launchSetup2Fa()
-            ViewToLaunch.LaunchVerifyEmail -> launchVerifyEmail()
-            ViewToLaunch.ShowOpenBankingError ->
+            is ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval -> launchSimpleBuyFromDeepLinkApproval()
+            is ViewToLaunch.LaunchSwap -> launchSwap()
+            is ViewToLaunch.LaunchTwoFaSetup -> launchSetup2Fa()
+            is ViewToLaunch.LaunchVerifyEmail -> launchVerifyEmail()
+            is ViewToLaunch.ShowOpenBankingError ->
                 ToastCustom.makeText(
-                    this, getString(R.string.open_banking_deeplink_error), Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
+                    context = this,
+                    msg = getString(R.string.open_banking_deeplink_error),
+                    duration = Toast.LENGTH_LONG,
+                    type = ToastCustom.TYPE_ERROR
                 )
-            ViewToLaunch.None -> {
+            is ViewToLaunch.CheckForAccountWalletLinkErrors -> showBottomSheet(
+                AccountWalletLinkAlertSheet.newInstance(view.walletIdHint)
+            )
+            is ViewToLaunch.LaunchTransactionFlowWithTargets -> startTxFlowWithTargets(view.targets)
+            is ViewToLaunch.ShowTargetScanError -> showTargetScanError(view.error)
+            is ViewToLaunch.None -> {
                 // do nothing
             }
-        }
+        }.exhaustive
+    }
+
+    private fun showTargetScanError(error: QrScanError) {
+        ToastCustom.makeText(
+            this,
+            getString(
+                when (error.errorCode) {
+                    QrScanError.ErrorCode.ScanFailed -> R.string.error_scan_failed_general
+                    QrScanError.ErrorCode.BitPayScanFailed -> R.string.error_scan_failed_bitpay
+                }
+            ),
+            ToastCustom.LENGTH_LONG,
+            ToastCustom.TYPE_ERROR
+        )
     }
 
     private fun launchAssetAction(
@@ -329,6 +499,7 @@ class RedesignMainActivity :
         AssetAction.Swap -> launchSwap(sourceAccount = account as CryptoAccount)
         AssetAction.ViewActivity -> startActivitiesFragment(account)
         else -> {
+            // do nothing
         }
     }
 
@@ -367,10 +538,10 @@ class RedesignMainActivity :
         showBottomSheet(bottomSheet)
     }
 
-    override fun launchDashboard() {
+    private fun launchPortfolio(action: AssetAction? = null, fiatCurrency: String? = null) {
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
-            fragment = PortfolioFragment.newInstance(true),
+            fragment = PortfolioFragment.newInstance(true, action, fiatCurrency),
             loadingView = binding.progress
         )
     }
@@ -458,24 +629,21 @@ class RedesignMainActivity :
     }
 
     override fun launchFiatDeposit(currency: String) {
-        supportFragmentManager.showFragment(
-            fragment = PortfolioFragment.newInstance(true, AssetAction.FiatDeposit, currency),
-            loadingView = binding.progress
-        )
+        launchPortfolio(AssetAction.FiatDeposit, currency)
     }
 
     override fun launchTransfer() {
-        // delete
+        // do nothing, transfer fragment is not used in the new designs
     }
 
     override fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo) {
         startActivityForResult(
             BankAuthActivity.newInstance(bankLinkingInfo.linkingId, bankLinkingInfo.bankAuthSource, this),
             when (bankLinkingInfo.bankAuthSource) {
-                BankAuthSource.SIMPLE_BUY -> MainActivity.BANK_DEEP_LINK_SIMPLE_BUY
-                BankAuthSource.SETTINGS -> MainActivity.BANK_DEEP_LINK_SETTINGS
-                BankAuthSource.DEPOSIT -> MainActivity.BANK_DEEP_LINK_DEPOSIT
-                BankAuthSource.WITHDRAW -> MainActivity.BANK_DEEP_LINK_WITHDRAW
+                BankAuthSource.SIMPLE_BUY -> BANK_DEEP_LINK_SIMPLE_BUY
+                BankAuthSource.SETTINGS -> BANK_DEEP_LINK_SETTINGS
+                BankAuthSource.DEPOSIT -> BANK_DEEP_LINK_DEPOSIT
+                BankAuthSource.WITHDRAW -> BANK_DEEP_LINK_WITHDRAW
             }.exhaustive
         )
     }
@@ -489,8 +657,7 @@ class RedesignMainActivity :
     }
 
     override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) {
-        // TODO model.process()
-        // presenter.validateAccountAction(action, account)
+        model.process(RedesignIntent.ValidateAccountAction(action, account))
     }
 
     override fun resumeSimpleBuyKyc() {
