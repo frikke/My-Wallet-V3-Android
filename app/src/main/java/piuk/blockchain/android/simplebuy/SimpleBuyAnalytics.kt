@@ -9,6 +9,7 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import java.io.Serializable
+import piuk.blockchain.android.ui.sell.BuySellFragment
 
 enum class SimpleBuyAnalytics(override val event: String, override val params: Map<String, String> = emptyMap()) :
     AnalyticsEvent {
@@ -192,7 +193,7 @@ class BuyAmountEntered(
     ).withoutNullValues()
 }
 
-class BuySellViewedEvent(private val type: BuySellType? = null) : AnalyticsEvent {
+class BuySellViewedEvent(private val type: BuySellFragment.BuySellViewType? = null) : AnalyticsEvent {
     override val event: String
         get() = AnalyticsNames.BUY_SELL_VIEWED.eventName
     override val params: Map<String, Serializable>
@@ -201,7 +202,10 @@ class BuySellViewedEvent(private val type: BuySellType? = null) : AnalyticsEvent
         ).withoutNullValues()
 }
 
-class BuySellClicked(override val origin: LaunchOrigin, val type: BuySellType? = null) : AnalyticsEvent {
+class BuySellClicked(
+    override val origin: LaunchOrigin,
+    val type: BuySellFragment.BuySellViewType? = null
+) : AnalyticsEvent {
     override val event: String
         get() = AnalyticsNames.BUY_SELL_CLICKED.eventName
     override val params: Map<String, Serializable>
@@ -215,8 +219,4 @@ class BuyPaymentMethodSelected(type: String) : AnalyticsEvent {
     override val params: Map<String, Serializable> = mapOf(
         "payment_type" to type
     )
-}
-
-enum class BuySellType {
-    BUY, SELL
 }

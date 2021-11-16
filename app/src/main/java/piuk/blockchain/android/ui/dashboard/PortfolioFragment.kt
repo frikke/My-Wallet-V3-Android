@@ -34,7 +34,6 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
-import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
@@ -610,7 +609,8 @@ class PortfolioFragment :
         override fun startBuy() {
             analytics.logEvent(
                 BuySellClicked(
-                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellType.BUY
+                    origin = LaunchOrigin.DASHBOARD_PROMO,
+                    type = BuySellFragment.BuySellViewType.TYPE_BUY
                 )
             )
             navigator().launchBuySell()
@@ -619,7 +619,7 @@ class PortfolioFragment :
         override fun startSell() {
             analytics.logEvent(
                 BuySellClicked(
-                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellType.SELL
+                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellFragment.BuySellViewType.TYPE_SELL
                 )
             )
             navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)

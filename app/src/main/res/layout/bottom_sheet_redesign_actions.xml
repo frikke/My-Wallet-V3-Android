@@ -5,40 +5,78 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.blockchain.componentlib.button.PrimaryButtonView
-        android:id="@+id/swap"
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/swap_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/send" />
+        app:layout_constraintBottom_toTopOf="@+id/divider_1" />
 
-    <com.blockchain.componentlib.button.PrimaryButtonView
-        android:id="@+id/send"
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/divider_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/receive" />
+        app:layout_constraintBottom_toTopOf="@id/send_btn" />
 
-    <com.blockchain.componentlib.button.PrimaryButtonView
-        android:id="@+id/receive"
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/send_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/deposit" />
+        app:layout_constraintBottom_toTopOf="@id/divider_2" />
 
-    <com.blockchain.componentlib.button.PrimaryButtonView
-        android:id="@+id/deposit"
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/divider_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/withdraw" />
+        app:layout_constraintBottom_toTopOf="@id/receive_btn" />
 
-    <com.blockchain.componentlib.button.PrimaryButtonView
-        android:id="@+id/withdraw"
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/receive_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/divider_3" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/divider_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/rewards_btn" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/rewards_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/divider_4" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/divider_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/add_cash_btn" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/add_cash_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/divider_5" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/divider_5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/cash_out_btn" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/cash_out_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/standard_margin"
         app:layout_constraintBottom_toTopOf="@id/split_buttons" />
 
     <com.blockchain.componentlib.button.SplitButtonView
         android:id="@+id/split_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/standard_margin"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

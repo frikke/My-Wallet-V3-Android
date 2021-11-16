@@ -28,6 +28,7 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
+import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -83,7 +84,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
                     currentState.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE).toPreferencesValue()
                 )
             }
-            analytics.logEvent(BuySellViewedEvent(BuySellType.BUY))
+            analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_BUY))
             subscribeForNavigation()
         }
     }

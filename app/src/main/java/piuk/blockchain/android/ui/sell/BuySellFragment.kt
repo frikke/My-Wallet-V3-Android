@@ -249,7 +249,7 @@ class BuySellFragment :
 
     override fun onSellFinished() = subscribeForNavigation(showLoader = false)
 
-    override fun onSellInfoClicked() = navigator().launchTransfer()
+    override fun onSellInfoClicked() = navigator().launchBuySell(BuySellViewType.TYPE_SELL)
 
     override fun onSellListEmptyCta() {
         binding.pager.setCurrentItem(BuySellViewType.TYPE_BUY.ordinal, true)

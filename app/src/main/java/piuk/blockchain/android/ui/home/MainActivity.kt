@@ -533,7 +533,6 @@ class MainActivity :
 
     @SuppressLint("CheckResult")
     override fun startTransactionFlowWithTarget(targets: Collection<CryptoTarget>) {
-        val currentFragment = this.currentFragment ?: return
         if (targets.size > 1) {
             disambiguateSendScan(targets)
         } else {

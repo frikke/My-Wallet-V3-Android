@@ -35,6 +35,7 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
+import piuk.blockchain.android.ui.home.v2.RedesignMainActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -228,7 +229,7 @@ class ActivitiesFragment :
     }
 
     private fun renderLoader(newState: ActivitiesState) {
-        val blockchainActivity = activity as? BlockchainActivity ?: return
+        val blockchainActivity = (activity as? BlockchainActivity) ?: (activity as? RedesignMainActivity) ?: return
 
         if (newState.isLoading) {
             binding.swipe.isRefreshing = newState.isRefreshRequested

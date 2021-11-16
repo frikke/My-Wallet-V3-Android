@@ -34,7 +34,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
-import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
@@ -279,7 +278,7 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun statusDecorator(account: BlockchainAccount): CellDecorator = SellCellDecorator(account)
 
     private fun startSellFlow(it: CryptoAccount) {
-        analytics.logEvent(BuySellViewedEvent(BuySellType.SELL))
+        analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_SELL))
 
         startForResult.launch(
             TransactionFlowActivity.newInstance(

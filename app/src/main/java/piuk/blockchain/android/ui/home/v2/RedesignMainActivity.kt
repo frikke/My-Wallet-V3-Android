@@ -15,6 +15,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.componentlib.navigation.BottomNavigationState
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -38,12 +39,12 @@ import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviActivity
+import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.home.v2.FragmentTransitions.Companion.showFragment
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
@@ -57,16 +58,16 @@ import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.SettingsActivity
-import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.transfer.TransferFragment
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.ui.upsell.UpsellHost
 import piuk.blockchain.android.util.AndroidUtils
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class RedesignMainActivity :
@@ -76,6 +77,7 @@ class RedesignMainActivity :
     UpsellHost,
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
+    RedesignActionsBottomSheet.Host,
     SmallSimpleBuyNavigator {
 
     override val alwaysDisableScreenshots: Boolean
@@ -92,6 +94,7 @@ class RedesignMainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        launchDashboard()
         setupNavigation()
 
         if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
@@ -117,7 +120,7 @@ class RedesignMainActivity :
         if (intent.hasExtra(SHOW_SWAP) &&
             intent.getBooleanExtra(SHOW_SWAP, false)
         ) {
-            startSwapFlow()
+            launchSwap()
         } else if (intent.hasExtra(LAUNCH_AUTH_FLOW) &&
             intent.getBooleanExtra(LAUNCH_AUTH_FLOW, false)
         ) {
@@ -134,7 +137,6 @@ class RedesignMainActivity :
                 )
             }
         }
-
         model.process(RedesignIntent.PerformInitialChecks)
     }
 
@@ -142,8 +144,7 @@ class RedesignMainActivity :
         binding.bottomNavigation.apply {
             onNavigationItemClick = {
                 selectedNavigationItem = it
-                showFragment(
-                    fragmentManager = supportFragmentManager,
+                supportFragmentManager.showFragment(
                     fragment = when (it) {
                         NavigationItem.Home -> {
                             PortfolioFragment.newInstance(true)
@@ -168,6 +169,16 @@ class RedesignMainActivity :
                 )
             }
         }
+    }
+
+    override fun showLoading() {
+        binding.progress.visible()
+        binding.progress.playAnimation()
+    }
+
+    override fun hideLoading() {
+        binding.progress.gone()
+        binding.progress.pauseAnimation()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -322,11 +333,11 @@ class RedesignMainActivity :
     }
 
     private fun startActivitiesFragment(account: BlockchainAccount? = null, reload: Boolean = true) {
-        // TODO merge with lucia's branch
-        // setCurrentTabItem(R.id.nav_activity)
-        val fragment = ActivitiesFragment.newInstance(account)
-        // showFragment(fragment, reload)
-        toolbar.title = ""
+        supportFragmentManager.showFragment(
+            fragment = ActivitiesFragment.newInstance(account),
+            loadingView = binding.progress
+        )
+        binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
 
@@ -347,8 +358,7 @@ class RedesignMainActivity :
     }
 
     override fun onSheetClosed() {
-        // un rotate
-        // binding.bottomNavigation.onMiddleButtonClick.
+        binding.bottomNavigation.bottomNavigationState = BottomNavigationState.Add
         Timber.d("On closed")
     }
 
@@ -358,31 +368,23 @@ class RedesignMainActivity :
     }
 
     override fun launchDashboard() {
-        // TODO - merge with lucia's branch
-        // setCurrentTabItem(R.id.nav_home)
+        binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
+        supportFragmentManager.showFragment(
+            fragment = PortfolioFragment.newInstance(true),
+            loadingView = binding.progress
+        )
     }
 
     override fun launchSwap(sourceAccount: CryptoAccount?, targetAccount: CryptoAccount?) {
-        startSwapFlow(sourceAccount, targetAccount)
-    }
-
-    private fun startSwapFlow(
-        sourceAccount: CryptoAccount? = null,
-        destinationAccount: CryptoAccount? = null,
-        reload: Boolean = true
-    ) {
-        // TODO merge with lucia's branch
-        if (sourceAccount == null && destinationAccount == null) {
-            // TODO setCurrentTabItem(R.id.nav_swap)
+        if (sourceAccount == null && targetAccount == null) {
             toolbar.title = getString(R.string.common_swap)
-            val swapFragment = SwapFragment.newInstance()
-            // TODO showFragment(swapFragment, reload)
+            ActionActivity.start(this, AssetAction.Swap)
         } else if (sourceAccount != null) {
             startActivity(
                 TransactionFlowActivity.newInstance(
                     context = this,
                     sourceAccount = sourceAccount,
-                    target = destinationAccount ?: NullCryptoAccount(),
+                    target = targetAccount ?: NullCryptoAccount(),
                     action = AssetAction.Swap
                 )
             )
@@ -423,21 +425,12 @@ class RedesignMainActivity :
         OnboardingActivity.launchForFingerprints(this)
     }
 
-    override fun launchReceive() {
-        // TODO merge with lucia's branch
-        // TODO this should launch in a new activity?
-        // startTransferFragment(TransferFragment.TransferViewType.TYPE_RECEIVE)
-    }
+    override fun launchReceive() = ActionActivity.start(this, AssetAction.Receive)
 
-    override fun launchSend() {
-        // TODO merge with lucia's branch
-        // TODO this should launch in a new activity?
-        // startTransferFragment(TransferFragment.TransferViewType.TYPE_SEND)
-    }
+    override fun launchSend() = ActionActivity.start(this, AssetAction.Send)
 
     override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
-        showFragment(
-            fragmentManager = supportFragmentManager,
+        supportFragmentManager.showFragment(
             fragment = BuySellFragment.newInstance(
                 viewType = viewType,
                 asset = asset
@@ -465,41 +458,14 @@ class RedesignMainActivity :
     }
 
     override fun launchFiatDeposit(currency: String) {
-        runOnUiThread {
-            launchDashboardFlow(AssetAction.FiatDeposit, currency)
-        }
+        supportFragmentManager.showFragment(
+            fragment = PortfolioFragment.newInstance(true, AssetAction.FiatDeposit, currency),
+            loadingView = binding.progress
+        )
     }
-
-    private fun launchDashboardFlow(action: AssetAction, currency: String?) {
-        // TODO merge with lucia's branch
-        currency?.let {
-            launchDashboard()
-            val fragment = createDashboardFragment(action, it)
-            // TODO
-            // showFragment(fragment)
-        }
-    }
-
-    private fun createDashboardFragment(
-        action: AssetAction? = null,
-        currency: String? = null
-    ): Fragment =
-        PortfolioFragment.newInstance(true, action, currency)
 
     override fun launchTransfer() {
-        startTransferFragment()
-    }
-
-    private fun startTransferFragment(
-        viewToShow: TransferFragment.TransferViewType = TransferFragment.TransferViewType.TYPE_SEND,
-        reload: Boolean = true
-    ) {
-        // TODO merge with lucia's branch
-        // setCurrentTabItem(R.id.nav_transfer)
-        toolbar.title = getString(R.string.transfer)
-
-        val transferFragment = TransferFragment.newInstance(true, viewToShow)
-        // showFragment(transferFragment, reload)
+        // delete
     }
 
     override fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo) {

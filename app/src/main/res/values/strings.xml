@@ -13,7 +13,10 @@
     <string name="common_spaced_strings" translatable="false">%1$s&#160;%2$s</string>
     <string name="common_send">Send</string>
     <string name="common_receive">Receive</string>
+    <string name="common_rewards">Rewards</string>
     <string name="common_swap">Swap</string>
+    <string name="common_add_cash">Add Cash</string>
+    <string name="common_cash_out">Cash Out</string>
     <string name="common_withdraw">Withdraw</string>
     <string name="common_activity">Activity</string>
     <string name="common_summary">Summary</string>
@@ -2399,5 +2402,13 @@
     <string name="funds_locked_warning">For security purposes, buy orders with a Bank Account are subject to a %s holding period. You can Swap or Sell during this time. We will notify you once the funds are available to be withdrawn.</string>
     <string name="funds_locked_warning_days">%s days</string>
     <string name="reference_id_required">Reference ID (Required)</string>
+
+    <!-- Actions bottom sheet -->
+    <string name="action_sheet_swap_description">Exchange for Another Crypto</string>
+    <string name="action_sheet_send_description">Send to Any Wallet</string>
+    <string name="action_sheet_receive_description"><![CDATA[Copy Your Addresses & QR Codes]]></string>
+    <string name="action_sheet_rewards_description">Earn Rewards on Your Crypto</string>
+    <string name="action_sheet_deposit_description">Add Cash from Your Bank</string>
+    <string name="action_sheet_withdrawdescription">Cash Out to Your Bank</string>
 
 </resources>

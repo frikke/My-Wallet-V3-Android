@@ -1,8 +1,11 @@
 package piuk.blockchain.android.ui.home.v2
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -12,67 +15,90 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): BottomSheetRedesignActionsBinding =
         BottomSheetRedesignActionsBinding.inflate(inflater, container, false)
 
+    interface Host : SlidingModalBottomDialog.Host {
+        fun launchSwap(sourceAccount: CryptoAccount?, targetAccount: CryptoAccount?)
+        fun launchBuySell(
+            viewType: BuySellFragment.BuySellViewType,
+            asset: AssetInfo?
+        )
+        fun launchInterestDashboard(origin: LaunchOrigin)
+        fun launchReceive()
+        fun launchSend()
+    }
+
+    override val host: Host by lazy {
+        super.host as? Host ?: throw IllegalStateException(
+            "Host fragment is not a RedesignActionsBottomSheet.Host"
+        )
+    }
+
     override fun initControls(binding: BottomSheetRedesignActionsBinding) {
         with(binding) {
             splitButtons.apply {
-                startButtonText = "Buy"
+                startButtonText = getString(R.string.common_buy)
                 onStartButtonClick = {
                     dismiss()
-                    // TODO move to Host
-                    (activity as RedesignMainActivity).launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+                    host.launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, null)
                 }
-                endButtonText = "Sell"
+                endButtonText = getString(R.string.common_sell)
                 onEndButtonClick = {
                     dismiss()
-                    // TODO move to Host
-                    (activity as RedesignMainActivity).launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+                    host.launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL, null)
                 }
             }
-            swap.apply {
-                // TODO move to strings once we have design
-                text = "Swap"
+            swapBtn.apply {
+                primaryText = getString(R.string.common_swap)
+                secondaryText = context.getString(R.string.action_sheet_swap_description)
                 onClick = {
-//                    showFragment(
-//                        childFragmentManager,
-//                        SwapFragment.newInstance()
-//                    )
+                    dismiss()
+                    host.launchSwap(null, null)
                 }
             }
-            send.apply {
-                text = "Send"
+            sendBtn.apply {
+                primaryText = getString(R.string.common_send)
+                secondaryText = context.getString(R.string.action_sheet_send_description)
                 onClick = {
-//                    showFragment(
-//                        childFragmentManager,
-//                        TransferSendFragment.newInstance()
-//                    )
+                    dismiss()
+                    host.launchSend()
                 }
             }
-            receive.apply {
-                text = "Receive"
+            receiveBtn.apply {
+                primaryText = getString(R.string.common_receive)
+                context.getString(R.string.action_sheet_rewards_description)
+                secondaryText = context.getString(R.string.action_sheet_receive_description)
                 onClick = {
-//                    showFragment(
-//                        childFragmentManager,
-//                        ReceiveFragment.newInstance()
-//                    )
+                    dismiss()
+                    host.launchReceive()
                 }
             }
-            deposit.apply {
-                text = "Deposit"
+            rewardsBtn.apply {
+                primaryText = getString(R.string.common_rewards)
+                secondaryText = context.getString(R.string.action_sheet_rewards_description)
                 onClick = {
+                    dismiss()
+                    host.launchInterestDashboard(LaunchOrigin.NAVIGATION)
                 }
             }
-            withdraw.apply {
-                text = "Withdraw"
+            addCashBtn.apply {
+                primaryText = getString(R.string.common_deposit)
+                secondaryText = context.getString(R.string.action_sheet_deposit_description)
                 onClick = {
+                    dismiss()
+                    // TODO
+                }
+            }
+            cashOutBtn.apply {
+                primaryText = getString(R.string.common_withdraw)
+                secondaryText = context.getString(R.string.action_sheet_deposit_description)
+                onClick = {
+                    dismiss()
+                    // TODO
                 }
             }
         }
     }
 
     companion object {
-        fun newInstance() = RedesignActionsBottomSheet().apply {
-            arguments = Bundle().apply {
-            }
-        }
+        fun newInstance() = RedesignActionsBottomSheet()
     }
 }
