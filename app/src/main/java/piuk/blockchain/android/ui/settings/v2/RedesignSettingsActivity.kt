@@ -1,17 +1,22 @@
-package piuk.blockchain.android.ui.settings
+package piuk.blockchain.android.ui.settings.v2
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ActivitySettingsBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 
-class SettingsActivity : BlockchainActivity() {
+class RedesignSettingsActivity : BlockchainActivity() {
+
+    private val binding: ActivitySettingsBinding by lazy {
+        ActivitySettingsBinding.inflate(layoutInflater)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        setContentView(binding.root)
         setupToolbar()
     }
 
@@ -24,15 +29,7 @@ class SettingsActivity : BlockchainActivity() {
     }
 
     companion object {
-
-        fun startFor2Fa(context: Context) {
-            val starter = Intent(context, SettingsActivity::class.java)
-            starter.putExtras(
-                Bundle().apply {
-                    this.putBoolean(SettingsFragment.EXTRA_SHOW_TWO_FA_DIALOG, true)
-                }
-            )
-            context.startActivity(starter)
-        }
+        fun newInstance(context: Context): Intent =
+            Intent(context, RedesignSettingsActivity::class.java)
     }
 }

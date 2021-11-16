@@ -40,7 +40,6 @@ import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
-import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
@@ -68,6 +67,7 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.SettingsActivity
+import piuk.blockchain.android.ui.settings.v2.RedesignSettingsActivity
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
@@ -352,8 +352,7 @@ class RedesignMainActivity :
                 true
             }
             R.id.action_account_main -> {
-                // TODO remove this - stopgap to access flags on this activity
-                startActivity(Intent(this, FeatureFlagsHandlingActivity::class.java))
+                startActivity(RedesignSettingsActivity.newInstance(this))
                 true
             }
             else -> super.onOptionsItemSelected(item)

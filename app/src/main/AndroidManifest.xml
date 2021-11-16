@@ -225,8 +225,9 @@
             android:name=".ui.locks.LocksDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
-            android:name=".ui.home.v2.ActionActivity"
-            android:exported="true" />
+            android:name=".ui.home.v2.ActionActivity" />
+        <activity
+            android:name=".ui.settings.v2.RedesignSettingsActivity" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/ic_launcher" />
