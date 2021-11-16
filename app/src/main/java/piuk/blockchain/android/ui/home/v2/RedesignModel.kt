@@ -11,13 +11,14 @@ import com.blockchain.nabu.models.data.BankTransferStatus
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.utils.capitalizeFirstChar
 import com.google.gson.JsonSyntaxException
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -51,6 +52,10 @@ class RedesignModel(
     crashLogger
 ) {
 
+    private val compositeDisposable = CompositeDisposable()
+
+    fun clearDisposables() = compositeDisposable.clear()
+
     override fun performAction(previousState: RedesignState, intent: RedesignIntent): Disposable? =
         when (intent) {
             is RedesignIntent.PerformInitialChecks -> {
@@ -75,7 +80,6 @@ class RedesignModel(
                     .subscribeBy(
                         onSuccess = { linkState ->
                             if ((intent.appIntent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
-                                // FIXME some of the underlying methods make network calls and aren't added to be disposed
                                 dispatchDeepLink(linkState)
                             }
                         },
@@ -107,7 +111,8 @@ class RedesignModel(
             is RedesignIntent.UnpairWallet -> interactor.unpairWallet()
                 .onErrorComplete()
                 .subscribe()
-            is RedesignIntent.CancelPendingConfirmationBuy -> interactor.cancelPendingConfirmationBuy().subscribe()
+            is RedesignIntent.CancelAnyPendingConfirmationBuy -> interactor.cancelAnyPendingConfirmationBuy()
+                .subscribe()
             is RedesignIntent.ProcessScanResult -> interactor.processQrScanResult(intent.decodedData)
                 .subscribeBy(
                     onSuccess = {
@@ -140,13 +145,13 @@ class RedesignModel(
             else -> null
         }
 
-    private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) =
-        // FIXME undisposed call
-        interactor.checkForDeepLinks(scanResult)
+    private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {
+        compositeDisposable += interactor.checkForDeepLinks(scanResult)
             .subscribeBy(
                 onSuccess = { dispatchDeepLink(it) },
                 onError = { Timber.e(it) }
             )
+    }
 
     private fun dispatchDeepLink(linkState: LinkState) {
         when (linkState) {
@@ -222,8 +227,7 @@ class RedesignModel(
 
     private fun handleEmailVerifiedForExchangeLinking(linkState: LinkState.EmailVerifiedDeepLink) {
         if (linkState.link === EmailVerifiedLinkState.FromPitLinking) {
-            // FIXME undisposed call
-            interactor.getExchangeLinkingState()
+            compositeDisposable += interactor.getExchangeLinkingState()
                 .subscribeBy(
                     onSuccess = { isLinked ->
                         if (isLinked) {
@@ -285,12 +289,10 @@ class RedesignModel(
     }
 
     private fun registerForCampaign(campaignData: CampaignData) {
-        // FIXME undisposed calls
-        // TODO we have the go-ahead from design & product to kill XLM airdrop, this can go in a later pass
-        interactor.registerForCampaign(campaignData)
+        // keep the call to prompt users to KYC if they somehow come into the app wanting to register
+        compositeDisposable += interactor.registerForCampaign(campaignData)
             .subscribeBy(
                 onSuccess = { status ->
-                    // no need to set the value of SunriverCardType.JoinWaitList (MainPresenter L:475), as this is never read
                     if (status != KycState.Verified) {
                         RedesignIntent.UpdateViewToLaunch(
                             ViewToLaunch.LaunchKyc(
@@ -301,29 +303,15 @@ class RedesignModel(
                 },
                 onError = { throwable ->
                     Timber.e(throwable)
-                    if (throwable is NabuApiException) {
-                        val errorMessageStringId =
-                            when (val errorCode = throwable.getErrorCode()) {
-                                NabuErrorCodes.InvalidCampaignUser ->
-                                    R.string.sunriver_invalid_campaign_user
-                                NabuErrorCodes.CampaignUserAlreadyRegistered ->
-                                    R.string.sunriver_user_already_registered
-                                NabuErrorCodes.CampaignExpired ->
-                                    R.string.sunriver_campaign_expired
-                                else -> {
-                                    Timber.e("Unknown server error $errorCode ${errorCode.code}")
-                                    R.string.sunriver_generic_error
-                                }
-                            }
-                        process(
-                            RedesignIntent.UpdateViewToLaunch(
-                                ViewToLaunch.DisplayAlertDialog(
-                                    R.string.sunriver_invalid_url_title,
-                                    errorMessageStringId
-                                )
+
+                    process(
+                        RedesignIntent.UpdateViewToLaunch(
+                            ViewToLaunch.DisplayAlertDialog(
+                                R.string.sunriver_invalid_url_title,
+                                R.string.sunriver_campaign_expired
                             )
                         )
-                    }
+                    )
                 }
             )
     }
@@ -343,8 +331,7 @@ class RedesignModel(
             return
         }
 
-        // FIXME undisposed subscription
-        interactor.updateOpenBankingConsent(consentToken)
+        compositeDisposable += interactor.updateOpenBankingConsent(consentToken)
             .subscribeBy(
                 onComplete = {
                     try {
@@ -376,8 +363,7 @@ class RedesignModel(
             return
         }
 
-        // FIXME undisposed subscription
-        interactor.updateOpenBankingConsent(consentToken)
+        compositeDisposable += interactor.updateOpenBankingConsent(consentToken)
             .subscribeBy(
                 onComplete = {
                     if (deepLinkState.bankAuthFlow == BankAuthFlowState.BANK_APPROVAL_PENDING) {
@@ -406,8 +392,7 @@ class RedesignModel(
         paymentData: BankPaymentApproval,
         deepLinkState: BankAuthDeepLinkState
     ) {
-        // FIXME undisposed subscription
-        interactor.pollForBankTransferCharge(paymentData)
+        compositeDisposable += interactor.pollForBankTransferCharge(paymentData)
             .doOnSubscribe {
                 process(
                     RedesignIntent.UpdateViewToLaunch(
@@ -490,10 +475,8 @@ class RedesignModel(
         interactor.getSimpleBuySyncLocalState()?.let {
             handleOrderState(it)
         } ?: kotlin.run {
-            // FIXME undisposed call
-
             // try to sync with server once, otherwise fail
-            interactor.performSimpleBuySync()
+            compositeDisposable += interactor.performSimpleBuySync()
                 .subscribeBy(
                     onComplete = {
                         interactor.getSimpleBuySyncLocalState()?.let {

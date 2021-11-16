@@ -140,7 +140,7 @@ class RedesignInteractor internal constructor(
             database.historicRateQueries.clear()
         }
 
-    fun cancelPendingConfirmationBuy(): Completable {
+    fun cancelAnyPendingConfirmationBuy(): Completable {
         val currentOrder = simpleBuySync.currentState() ?: return Completable.complete()
         val pendingOrderId = currentOrder.takeIf { it.orderState == OrderState.PENDING_CONFIRMATION }?.id
             ?: return Completable.complete()

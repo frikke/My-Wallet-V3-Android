@@ -29,7 +29,7 @@ sealed class RedesignIntent : MviIntent<RedesignState> {
         override fun reduce(oldState: RedesignState): RedesignState = oldState
     }
 
-    object CancelPendingConfirmationBuy : RedesignIntent() {
+    object CancelAnyPendingConfirmationBuy : RedesignIntent() {
         override fun reduce(oldState: RedesignState): RedesignState = oldState
     }
 

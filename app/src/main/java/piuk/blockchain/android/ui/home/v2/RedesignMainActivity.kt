@@ -166,13 +166,15 @@ class RedesignMainActivity :
             activityResultAction = {}
         }
 
-        model.process(RedesignIntent.CancelPendingConfirmationBuy)
+        model.process(RedesignIntent.CancelAnyPendingConfirmationBuy)
 
         handlingResult = false
     }
 
     override fun onDestroy() {
         compositeDisposable.clear()
+        // stopgap to be able to clear separate calls on Rx on the model
+        model.clearDisposables()
         super.onDestroy()
     }
 
