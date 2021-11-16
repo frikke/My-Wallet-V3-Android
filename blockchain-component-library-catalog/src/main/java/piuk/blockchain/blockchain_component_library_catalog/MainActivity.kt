@@ -20,6 +20,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExchangeSplitButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.MinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.NavigationActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PagerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallMinimalButtonActivity
@@ -110,6 +111,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.text_input).setOnClickListener {
             startActivity(Intent(this@MainActivity, TextInputActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.pager).setOnClickListener {
+            startActivity(Intent(this@MainActivity, PagerActivity::class.java))
         }
 
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {
