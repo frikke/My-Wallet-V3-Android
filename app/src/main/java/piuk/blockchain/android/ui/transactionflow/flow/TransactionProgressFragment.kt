@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
@@ -49,11 +51,8 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         Timber.d("!TRANSACTION!> Rendering! TransactionProgressFragment")
         require(newState.currentStep == TransactionStep.IN_PROGRESS)
 
-        val onChainTxId = (newState.pendingTx?.txResult as? TxResult.HashedTxResult)?.txId
-        onChainTxId?.let {
-            binding.txProgressView.configureSecondaryButton(getString(R.string.send_view_transaction)) {
-                onViewTransactionClicked(newState.sendingAsset, onChainTxId)
-            }
+        if (newState.executionStatus == TxExecutionStatus.Completed) {
+            showViewTransactionButton(newState.pendingTx, newState.sendingAsset, newState.action)
         }
 
         customiser.transactionProgressStandardIcon(newState)?.let {
@@ -62,6 +61,24 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
         handleStatusUpdates(newState)
     }
+
+    private fun showViewTransactionButton(
+        pendingTx: PendingTx?,
+        sendingAsset: AssetInfo,
+        action: AssetAction
+    ) {
+        if (action.viewTransaction()) {
+            val onChainTxId = (pendingTx?.txResult as? TxResult.HashedTxResult)?.txId
+            onChainTxId?.let {
+                binding.txProgressView.configureSecondaryButton(getString(R.string.send_view_transaction)) {
+                    onViewTransactionClicked(sendingAsset, onChainTxId)
+                }
+            }
+        }
+    }
+
+    private fun AssetAction.viewTransaction(): Boolean =
+        (this == AssetAction.Send || this == AssetAction.Swap || this == AssetAction.Sell)
 
     private fun handleStatusUpdates(
         newState: TransactionState
