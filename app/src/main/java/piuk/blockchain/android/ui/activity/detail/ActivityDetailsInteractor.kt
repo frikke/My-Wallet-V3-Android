@@ -510,8 +510,8 @@ class ActivityDetailsInteractor(
     ) = listOfNotNull(
         TransactionId(item.txId),
         HistoricValue(fiatValue, item.transactionType),
-        addSingleOrMultipleFromAddresses(transactionInOutDetails),
         addSingleOrMultipleToAddresses(transactionInOutDetails),
+        addSingleOrMultipleFromAddresses(transactionInOutDetails),
         checkIfShouldAddMemo(item),
         Action()
     )
