@@ -216,6 +216,7 @@ data class TransactionResponse(
     val type: String,
     val state: String,
     val beneficiaryId: String? = null,
+    val error: String? = null,
     val extraAttributes: TransactionAttributesResponse,
     val txHash: String?
 ) {
@@ -233,6 +234,9 @@ data class TransactionResponse(
 
         const val DEPOSIT = "DEPOSIT"
         const val CHARGE = "CHARGE"
+        const val CARD_PAYMENT_FAILED = "CARD_PAYMENT_FAILED"
+        const val CARD_PAYMENT_ABANDONED = "CARD_PAYMENT_ABANDONED"
+        const val CARD_PAYMENT_EXPIRED = "CARD_PAYMENT_EXPIRED"
         const val WITHDRAWAL = "WITHDRAWAL"
     }
 }
