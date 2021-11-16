@@ -61,11 +61,12 @@ class DashboardActionAdapter(
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val featureFlag: FeatureFlag
+    private val dynamicAssetsFlag: FeatureFlag,
+    private val dashboardBuyButtonFlag: FeatureFlag
 ) {
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         Singles.zip(
-            featureFlag.enabled.map { enabled ->
+            dynamicAssetsFlag.enabled.map { enabled ->
                 if (enabled) {
                     coincore.activeCryptoAssets().map { it.asset }
                 } else {
@@ -568,9 +569,11 @@ class DashboardActionAdapter(
         )
 
     fun userCanBuy(model: DashboardModel): Disposable {
-        return userIsAllowedToBuyUseCase(Unit).subscribeBy {
-            model.process(DashboardIntent.UserCanBuyUpdated(it))
-        }
+        return userIsAllowedToBuyUseCase(Unit)
+            .zipWith(dashboardBuyButtonFlag.enabled)
+            .subscribeBy { (flagEnabled, canBuy) ->
+                model.process(DashboardIntent.UserCanBuyUpdated(flagEnabled, canBuy))
+            }
     }
 
     companion object {

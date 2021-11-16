@@ -1,5 +1,6 @@
 package com.blockchain.koin.modules
 
+import com.blockchain.koin.buyCryptoDashboardButton
 import com.blockchain.koin.dynamicAssetsFeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.unifiedSignInFeatureFlag
@@ -20,6 +21,10 @@ val featureFlagsModule = module {
 
     factory(unifiedSignInFeatureFlag) {
         get<RemoteConfig>().featureFlag("android_sso_unified_sign_in")
+    }
+
+    factory(buyCryptoDashboardButton) {
+        get<RemoteConfig>().featureFlag("ff_dashboard_buy_crypto_btn")
     }
 
     single(dynamicAssetsFeatureFlag) {

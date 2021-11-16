@@ -78,9 +78,14 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    class UserCanBuyUpdated(private val canBuy: Boolean) : DashboardIntent() {
+    class UserCanBuyUpdated(
+        private val shouldShowBuyButton: Boolean,
+        private val canBuy: Boolean
+    ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(canBuy = canBuy)
+            return oldState.copy(
+                shouldShowBuyButton = canBuy && shouldShowBuyButton,
+            )
         }
     }
 

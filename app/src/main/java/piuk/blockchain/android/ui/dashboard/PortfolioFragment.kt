@@ -87,12 +87,7 @@ import timber.log.Timber
 class EmptyDashboardItem : DashboardItem
 
 class PortfolioFragment :
-    HomeScreenMviFragment<
-        DashboardModel,
-        DashboardIntent,
-        DashboardState,
-        FragmentPortfolioBinding
-        >(),
+    HomeScreenMviFragment<DashboardModel, DashboardIntent, DashboardState, FragmentPortfolioBinding>(),
     ForceBackupForSendSheet.Host,
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
@@ -250,7 +245,7 @@ class PortfolioFragment :
                 }
                 binding.emptyPortfolioGroup.visibleIf { !showPortfolio }
 
-                val showBuyBottomButton = (showPortfolio && !isLoading) && newState.canBuy
+                val showBuyBottomButton = (showPortfolio && !isLoading) && newState.shouldShowBuyButton
                 configureListAndBuyButton(showBuyBottomButton)
             }
             clear()

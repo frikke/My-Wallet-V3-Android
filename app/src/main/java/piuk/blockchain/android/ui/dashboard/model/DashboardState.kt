@@ -172,7 +172,7 @@ data class DashboardState(
     val hasLongCallInProgress: Boolean = false,
     val isLoadingAssets: Boolean = true,
     val locks: Locks = Locks(),
-    val canBuy: Boolean = false
+    val shouldShowBuyButton: Boolean = false
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 
