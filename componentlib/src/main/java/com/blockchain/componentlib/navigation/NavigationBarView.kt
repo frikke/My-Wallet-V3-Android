@@ -14,16 +14,14 @@ class NavigationBarView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var onBackButtonClick by mutableStateOf({})
+    var onBackButtonClick by mutableStateOf(null as? (() -> Unit)?)
     var title by mutableStateOf("")
-    var isBackButtonVisible by mutableStateOf(false)
     var navigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
 
     @Composable
     override fun Content() {
         NavigationBar(
             title = title,
-            isBackButtonVisible = isBackButtonVisible,
             onBackButtonClick = onBackButtonClick,
             navigationBarButtons = navigationBarButtons
         )

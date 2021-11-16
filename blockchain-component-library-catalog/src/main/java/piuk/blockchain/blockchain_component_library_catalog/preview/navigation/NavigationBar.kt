@@ -15,7 +15,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun NavigationBarPreview() {
     AppTheme {
         AppSurface {
-            NavigationBar("Activity", false, {}, listOf())
+            NavigationBar("Activity")
         }
     }
 }
@@ -26,7 +26,7 @@ fun NavigationBarPreview_TitleBack() {
     val context = LocalContext.current
     AppTheme {
         AppSurface {
-            NavigationBar("Activity", true, {
+            NavigationBar("Activity", {
                 Toast.makeText(context, "Back Button Clicked", Toast.LENGTH_SHORT).show()
             }, listOf(
                 NavigationBarButton.Icon(
@@ -50,7 +50,7 @@ fun NavigationBarPreview3() {
     val context = LocalContext.current
     AppTheme {
         AppSurface {
-            NavigationBar("Test", true, {
+            NavigationBar("Test", {
                 Toast.makeText(context, "Back Button Clicked", Toast.LENGTH_SHORT).show()
             }, listOf(
                 NavigationBarButton.Text(

@@ -15,15 +15,11 @@ class NavigationActivity : AppCompatActivity() {
 
         findViewById<NavigationBarView>(R.id.default_navigation).apply {
             title = "Activity"
-            isBackButtonVisible = true
-            onBackButtonClick = {
-                Toast.makeText(this@NavigationActivity, "Back button clicked", Toast.LENGTH_SHORT).show()
-            }
+            onBackButtonClick = null
         }
 
         findViewById<NavigationBarView>(R.id.text_navigation).apply {
             title = "Activity"
-            isBackButtonVisible = true
             onBackButtonClick = {
                 Toast.makeText(this@NavigationActivity, "Back button clicked", Toast.LENGTH_SHORT).show()
             }
@@ -36,7 +32,6 @@ class NavigationActivity : AppCompatActivity() {
 
         findViewById<NavigationBarView>(R.id.icon_navigation).apply {
             title = "Activity"
-            isBackButtonVisible = true
             onBackButtonClick = {
                 Toast.makeText(this@NavigationActivity, "Back button clicked", Toast.LENGTH_SHORT).show()
             }

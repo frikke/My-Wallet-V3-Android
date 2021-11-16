@@ -35,9 +35,8 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 @Composable
 fun NavigationBar(
     title: String,
-    isBackButtonVisible: Boolean,
-    onBackButtonClick: () -> Unit,
-    navigationBarButtons: List<NavigationBarButton>
+    onBackButtonClick: (() -> Unit)? = null,
+    navigationBarButtons: List<NavigationBarButton> = listOf()
 ) {
     Box(
         modifier = Modifier
@@ -50,7 +49,7 @@ fun NavigationBar(
                 .align(Alignment.CenterStart)
                 .padding(start = 24.dp)
         ) {
-            if (isBackButtonVisible) {
+            if (onBackButtonClick != null) {
                 Box(
                     modifier = Modifier
                         .clickable {
@@ -115,7 +114,7 @@ fun NavigationBar(
 @Composable
 fun NavigationBarPreview() {
     AppTheme {
-        NavigationBar("Test", true, {}, listOf())
+        NavigationBar("Test")
     }
 }
 
@@ -124,7 +123,8 @@ fun NavigationBarPreview() {
 fun NavigationBarPreview2() {
     AppTheme {
         NavigationBar(
-            "Test", false, {},
+            "Test",
+            {},
             listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_bottom_nav_buy
@@ -142,7 +142,7 @@ fun NavigationBarPreview2() {
 fun NavigationBarPreview3() {
     AppTheme {
         NavigationBar(
-            "Test", false, {},
+            "Test", {},
             listOf(
                 NavigationBarButton.Text(
                     text = "Cancel"
