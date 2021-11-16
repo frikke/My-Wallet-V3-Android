@@ -48,10 +48,10 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     data class ErrorNotice(val status: ValidationState, val money: Money? = null) :
         TxConfirmationValue(TxConfirmation.ERROR_NOTICE)
 
-    data class Description(val text: String = "") : TxConfirmationValue(TxConfirmation.DESCRIPTION)
+    data class Description(val text: String = "") : TxConfirmationValue(TxConfirmation.DESCRIPTION), UserEditable
 
     data class Memo(val text: String?, val isRequired: Boolean = false, val id: Long?, val editable: Boolean = true) :
-        TxConfirmationValue(TxConfirmation.MEMO)
+        TxConfirmationValue(TxConfirmation.MEMO), UserEditable
 
     data class NetworkFee(
         val feeAmount: Money,
@@ -79,5 +79,7 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
         override val confirmation: TxConfirmation,
         val data: T? = null,
         val value: Boolean = false
-    ) : TxConfirmationValue(confirmation)
+    ) : TxConfirmationValue(confirmation), UserEditable
 }
+
+interface UserEditable

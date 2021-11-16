@@ -66,7 +66,6 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         // We _should_ always have a pending Tx when we get here
         newState.pendingTx?.let {
             listAdapter.items = newState.pendingTx.confirmations.toList()
-            listAdapter.notifyDataSetChanged()
         }
 
         with(binding) {

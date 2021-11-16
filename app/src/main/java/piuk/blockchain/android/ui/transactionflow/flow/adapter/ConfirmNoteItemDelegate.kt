@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
+import android.text.Editable
 import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmationValue
@@ -13,6 +13,7 @@ import piuk.blockchain.android.ui.activity.detail.adapter.MAX_NOTE_LENGTH
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
+import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class ConfirmNoteItemDelegate<in T>(
     private val model: TransactionModel
@@ -25,7 +26,8 @@ class ConfirmNoteItemDelegate<in T>(
         NoteItemViewHolder(
             ItemSendConfirmNoteBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            )
+            ),
+            model
         )
 
     override fun onBindViewHolder(
@@ -33,34 +35,30 @@ class ConfirmNoteItemDelegate<in T>(
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as NoteItemViewHolder).bind(
-        items[position] as TxConfirmationValue.Description,
-        model
+        items[position] as TxConfirmationValue.Description
     )
 }
 
-private class NoteItemViewHolder(private val binding: ItemSendConfirmNoteBinding) :
+private class NoteItemViewHolder(private val binding: ItemSendConfirmNoteBinding, private val model: TransactionModel) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(
-        item: TxConfirmationValue.Description,
-        model: TransactionModel
-    ) {
-
+    init {
         binding.confirmDetailsNoteInput.apply {
             inputType = INPUT_FIELD_FLAGS
             filters = arrayOf(InputFilter.LengthFilter(MAX_NOTE_LENGTH))
-
-            setOnEditorActionListener { v, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
+            addTextChangedListener(object : AfterTextChangedWatcher() {
+                override fun afterTextChanged(s: Editable) {
                     model.process(
-                        TransactionIntent.ModifyTxOption(TxConfirmationValue.Description(text = v.text.toString()))
+                        TransactionIntent.ModifyTxOption(TxConfirmationValue.Description(text = s.toString()))
                     )
-                    clearFocus()
                 }
-                false
-            }
-
-            setText(item.text, TextView.BufferType.EDITABLE)
+            })
         }
+    }
+
+    fun bind(
+        item: TxConfirmationValue.Description
+    ) {
+        binding.confirmDetailsNoteInput.setText(item.text, TextView.BufferType.EDITABLE)
     }
 }

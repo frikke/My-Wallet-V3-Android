@@ -1,5 +1,6 @@
 package com.blockchain.coincore.xlm
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
@@ -10,6 +11,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.fees.FeeType
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.XlmDataManager
@@ -24,6 +26,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
@@ -298,8 +301,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
-        verify(sourceAccount).accountBalance
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount).balance
         verify(xlmFeesFetcher).operationFee(FeeType.Regular)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -486,8 +488,17 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<XlmCryptoWalletAccount> {
             on { asset }.thenReturn(ASSET)
-            on { accountBalance }.thenReturn(Single.just(totalBalance))
-            on { actionableBalance }.thenReturn(Single.just(availableBalance))
+            on { balance }.thenReturn(
+                Observable.just(
+                    AccountBalance(
+                        total = totalBalance,
+                        actionable = availableBalance,
+                        pending = CryptoValue.zero(ASSET),
+                        exchangeRate = ExchangeRate.InvalidRate,
+
+                    )
+                )
+            )
         }
 
     private fun verifyFeeLevels(

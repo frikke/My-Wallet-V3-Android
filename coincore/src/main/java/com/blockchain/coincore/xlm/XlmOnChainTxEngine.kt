@@ -103,15 +103,16 @@ class XlmOnChainTxEngine(
         require(amount is CryptoValue)
         require(amount.currency == CryptoCurrency.XLM)
 
-        return Singles.zip(
-            sourceAccount.accountBalance.map { it as CryptoValue },
-            sourceAccount.actionableBalance.map { it as CryptoValue },
+        return Single.zip(
+            sourceAccount.balance.firstOrError(),
             absoluteFee()
-        ) { total, available, fees ->
+        ) { balance, fees ->
             pendingTx.copy(
                 amount = amount,
-                totalBalance = total,
-                availableBalance = Money.max(available - fees, CryptoValue.zero(CryptoCurrency.XLM)) as CryptoValue,
+                totalBalance = balance.total,
+                availableBalance = Money.max(
+                    balance.actionable - fees, CryptoValue.zero(CryptoCurrency.XLM)
+                ) as CryptoValue,
                 feeForFullAvailable = fees,
                 feeAmount = fees,
                 feeSelection = pendingTx.feeSelection.copy(
