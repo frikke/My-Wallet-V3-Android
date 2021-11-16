@@ -169,6 +169,13 @@
             android:text="Double Minimal Button"
             android:textAllCaps="false" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Controls"
+            android:textAllCaps="false" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -190,17 +197,17 @@
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/controls"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Controls"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Pager"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tab layout"
             android:textAllCaps="false" />
 
         <androidx.appcompat.widget.AppCompatTextView
