@@ -226,6 +226,20 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="System"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dialogue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dialogues"
+            android:textAllCaps="false" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Showkase"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 

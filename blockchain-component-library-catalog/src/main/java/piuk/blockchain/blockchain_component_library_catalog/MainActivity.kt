@@ -12,6 +12,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ColorsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ControlsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DefaultTableRowActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DialogueActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DividerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DoubleMinimalButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DoublePrimaryButtonsActivity
@@ -115,6 +116,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.pager).setOnClickListener {
             startActivity(Intent(this@MainActivity, PagerActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.dialogue).setOnClickListener {
+            startActivity(Intent(this@MainActivity, DialogueActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.tabs).setOnClickListener {
             startActivity(Intent(this@MainActivity, TabLayoutActivity::class.java))
