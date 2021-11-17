@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.addresses
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -262,5 +263,8 @@ class AccountActivity :
 
     companion object {
         private const val TX_FLOW_REQUEST = 567
+
+        fun newIntent(context: Context): Intent =
+            Intent(context, AccountActivity::class.java)
     }
 }

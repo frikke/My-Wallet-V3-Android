@@ -29,6 +29,10 @@ sealed class RedesignIntent : MviIntent<RedesignState> {
         override fun reduce(oldState: RedesignState): RedesignState = oldState
     }
 
+    object LaunchExchange : RedesignIntent() {
+        override fun reduce(oldState: RedesignState): RedesignState = oldState
+    }
+
     object CancelAnyPendingConfirmationBuy : RedesignIntent() {
         override fun reduce(oldState: RedesignState): RedesignState = oldState
     }

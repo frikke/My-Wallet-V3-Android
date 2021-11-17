@@ -142,6 +142,7 @@ class RedesignModel(
                         }
                     }
                 )
+            is RedesignIntent.LaunchExchange -> handleExchangeLaunchingFromLinkingState()
             else -> null
         }
 
@@ -227,25 +228,28 @@ class RedesignModel(
 
     private fun handleEmailVerifiedForExchangeLinking(linkState: LinkState.EmailVerifiedDeepLink) {
         if (linkState.link === EmailVerifiedLinkState.FromPitLinking) {
-            compositeDisposable += interactor.getExchangeLinkingState()
-                .subscribeBy(
-                    onSuccess = { isLinked ->
-                        if (isLinked) {
-                            process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange()))
-                        } else {
-                            process(
-                                RedesignIntent.UpdateViewToLaunch(
-                                    ViewToLaunch.LaunchExchange(interactor.getExchangeToWalletLinkId())
-                                )
-                            )
-                        }
-                    },
-                    onError = {
-                        Timber.e(it)
-                    }
-                )
+            compositeDisposable += handleExchangeLaunchingFromLinkingState()
         }
     }
+
+    private fun handleExchangeLaunchingFromLinkingState() =
+        interactor.getExchangeLinkingState()
+            .subscribeBy(
+                onSuccess = { isLinked ->
+                    if (isLinked) {
+                        process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange()))
+                    } else {
+                        process(
+                            RedesignIntent.UpdateViewToLaunch(
+                                ViewToLaunch.LaunchExchange(interactor.getExchangeToWalletLinkId())
+                            )
+                        )
+                    }
+                },
+                onError = {
+                    Timber.e(it)
+                }
+            )
 
     private fun handleSunriverDeepLink(linkState: LinkState.SunriverDeepLink) {
         when (linkState.link) {

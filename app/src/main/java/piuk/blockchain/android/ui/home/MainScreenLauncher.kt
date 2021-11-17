@@ -24,7 +24,7 @@ class MainScreenLauncher(
         compositeDisposable.checkEnabledFlag(
             onEnabled = {
                 context.startActivity(
-                    MainActivity.newInstanceAsNewTask(context)
+                    RedesignMainActivity.newIntentAsNewTask(context)
                 )
             },
             onDisabled = {
@@ -49,7 +49,7 @@ class MainScreenLauncher(
         compositeDisposable.checkEnabledFlag(
             onEnabled = {
                 context.startActivity(
-                    MainActivity.newInstance(context, shouldShowSwap, shouldBeNewTask)
+                    RedesignMainActivity.newIntent(context, shouldShowSwap, shouldBeNewTask)
                 )
             },
             onDisabled = {
@@ -75,7 +75,7 @@ class MainScreenLauncher(
         compositeDisposable.checkEnabledFlag(
             onEnabled = {
                 context.startActivity(
-                    RedesignMainActivity.newInstance(
+                    RedesignMainActivity.newIntent(
                         context = context,
                         intentData = intentData,
                         shouldLaunchBuySellIntro = shouldLaunchBuySellIntro,
@@ -121,7 +121,7 @@ class MainScreenLauncher(
         .observeOn(AndroidSchedulers.mainThread())
         .map { enabled ->
             if (enabled) {
-                MainActivity.newInstance(
+                RedesignMainActivity.newIntent(
                     context = context,
                     launchAuthFlow = launchAuthFlow,
                     pubKeyHash = pubKeyHash,
@@ -169,7 +169,7 @@ class MainScreenLauncher(
         .observeOn(AndroidSchedulers.mainThread())
         .map { enabled ->
             if (enabled) {
-                MainActivity.newInstance(context, intentFromNotification)
+                RedesignMainActivity.newIntent(context, intentFromNotification)
             } else {
                 MainActivity.newInstance(context, intentFromNotification)
             }

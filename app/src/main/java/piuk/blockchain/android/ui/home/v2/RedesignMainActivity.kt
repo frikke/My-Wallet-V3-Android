@@ -6,6 +6,7 @@ import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.blockchain.coincore.AssetAction
@@ -38,6 +39,8 @@ import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
+import piuk.blockchain.android.ui.addresses.AccountActivity
+import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
@@ -104,6 +107,17 @@ class RedesignMainActivity :
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
+    private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            (
+                it.data?.getSerializableExtra(RedesignSettingsActivity.SETTINGS_RESULT_DATA)
+                    as? RedesignSettingsActivity.Companion.SettingsAction
+                )?.let { action ->
+                startSettingsAction(action)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -167,6 +181,20 @@ class RedesignMainActivity :
         super.onDestroy()
     }
 
+    private fun startSettingsAction(action: RedesignSettingsActivity.Companion.SettingsAction) {
+        when (action) {
+            RedesignSettingsActivity.Companion.SettingsAction.Addresses ->
+                startActivityForResult(AccountActivity.newIntent(this), ACCOUNT_EDIT)
+            RedesignSettingsActivity.Companion.SettingsAction.Exchange ->
+                model.process(RedesignIntent.LaunchExchange)
+            RedesignSettingsActivity.Companion.SettingsAction.Airdrops ->
+                AirdropCentreActivity.start(this)
+            RedesignSettingsActivity.Companion.SettingsAction.WebLogin ->
+                QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
+            RedesignSettingsActivity.Companion.SettingsAction.Logout -> showLogoutDialog()
+        }
+    }
+
     private fun setupToolbar() {
         binding.mainToolbar.apply {
             navigationBarButtons = listOf(
@@ -174,7 +202,7 @@ class RedesignMainActivity :
                     launchQrScan()
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
-                    launchSettings()
+                    settingsResultContract.launch(RedesignSettingsActivity.newIntent(this@RedesignMainActivity))
                 }
             )
         }
@@ -187,10 +215,6 @@ class RedesignMainActivity :
     private fun launchQrScan() {
         QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
         analytics.logEvent(SendAnalytics.QRButtonClicked)
-    }
-
-    private fun launchSettings() {
-        startActivity(RedesignSettingsActivity.newIntent(this))
     }
 
     private fun setupNavigation() {
@@ -230,6 +254,17 @@ class RedesignMainActivity :
     override fun hideLoading() {
         binding.progress.gone()
         binding.progress.pauseAnimation()
+    }
+
+    private fun showLogoutDialog() {
+        AlertDialog.Builder(this, R.style.AlertDialogStyle)
+            .setTitle(R.string.logout_wallet)
+            .setMessage(R.string.ask_you_sure_logout)
+            .setPositiveButton(R.string.btn_logout) { _, _ ->
+                logout()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     // TODO this is deprecated, should be replaced with ActivityResult.contract
@@ -696,7 +731,7 @@ class RedesignMainActivity :
         const val BANK_DEEP_LINK_DEPOSIT = 2015
         const val BANK_DEEP_LINK_WITHDRAW = 2021
 
-        fun newInstance(context: Context, shouldShowSwap: Boolean, shouldBeNewTask: Boolean): Intent =
+        fun newIntent(context: Context, shouldShowSwap: Boolean, shouldBeNewTask: Boolean): Intent =
             Intent(context, RedesignMainActivity::class.java).apply {
                 putExtra(SHOW_SWAP, shouldShowSwap)
                 if (shouldBeNewTask) {
@@ -706,7 +741,7 @@ class RedesignMainActivity :
                 context.startActivity(this)
             }
 
-        fun newInstance(
+        fun newIntent(
             context: Context,
             launchAuthFlow: Boolean,
             pubKeyHash: String,
@@ -730,17 +765,17 @@ class RedesignMainActivity :
             }
         }
 
-        fun newInstance(context: Context, intentFromNotification: Boolean): Intent =
+        fun newIntent(context: Context, intentFromNotification: Boolean): Intent =
             Intent(context, RedesignMainActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
             }
 
-        fun newInstanceAsNewTask(context: Context): Intent =
+        fun newIntentAsNewTask(context: Context): Intent =
             Intent(context, RedesignMainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
-        fun newInstance(
+        fun newIntent(
             context: Context,
             intentData: String?,
             shouldLaunchBuySellIntro: Boolean,

@@ -64,7 +64,6 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
             }
             receiveBtn.apply {
                 primaryText = getString(R.string.common_receive)
-                context.getString(R.string.action_sheet_rewards_description)
                 secondaryText = context.getString(R.string.action_sheet_receive_description)
                 onClick = {
                     dismiss()

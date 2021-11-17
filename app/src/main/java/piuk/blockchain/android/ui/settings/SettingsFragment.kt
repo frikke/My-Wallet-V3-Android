@@ -1239,6 +1239,8 @@ class SettingsFragment :
         private const val ADD_CARD_KEY = "ADD_CARD_KEY"
         private const val LINK_BANK_KEY = "ADD_BANK_KEY"
         private const val REQUEST_CODE_BIOMETRIC_ENROLLMENT = 666
+
+        fun newInstance(): SettingsFragment = SettingsFragment()
     }
 
     override fun onCardRemoved(cardId: String) {

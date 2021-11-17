@@ -57,7 +57,12 @@ fun NavigationBar(
                             onBackButtonClick.invoke()
                         }
                         .align(CenterVertically)
-                        .padding(8.dp)
+                        .padding(
+                            start = 0.dp,
+                            top = 8.dp,
+                            end = 8.dp,
+                            bottom = 8.dp
+                        )
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_nav_bar_back),
@@ -87,7 +92,7 @@ fun NavigationBar(
                             it.onClick.invoke()
                         }
                         .align(CenterVertically)
-                        .padding(8.dp)
+                        .padding(start = 8.dp, top = 8.dp, end = 0.dp, bottom = 8.dp)
                 ) {
                     when (it) {
                         is NavigationBarButton.Icon -> {

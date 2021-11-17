@@ -23,6 +23,7 @@ class DefaultTableRowView @JvmOverloads constructor(
     var paragraphText by mutableStateOf(null as? String?)
     var onClick by mutableStateOf({})
     var tags by mutableStateOf(null as? List<TagViewState>?)
+    var showEndIcon by mutableStateOf(true)
     var endIconResId by mutableStateOf(R.drawable.ic_chevron_end)
 
     @Composable
@@ -36,6 +37,7 @@ class DefaultTableRowView @JvmOverloads constructor(
                     onClick = onClick,
                     tags = tags,
                     endIconResId = endIconResId,
+                    showEndIcon = showEndIcon
                 )
             }
         }

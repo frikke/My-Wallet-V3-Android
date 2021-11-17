@@ -26,6 +26,7 @@ fun DefaultTableRow(
     paragraphText: String? = null,
     tags: List<TagViewState>? = null,
     @DrawableRes endIconResId: Int = R.drawable.ic_chevron_end,
+    showEndIcon: Boolean = true
 ) {
     TableRow(
         content = {
@@ -49,14 +50,16 @@ fun DefaultTableRow(
             }
         },
         contentEnd = {
-            Image(
-                painter = painterResource(id = endIconResId),
-                contentDescription = null,
-                modifier = Modifier.requiredSizeIn(
-                    maxWidth = 24.dp,
-                    maxHeight = 24.dp,
-                ),
-            )
+            if (showEndIcon) {
+                Image(
+                    painter = painterResource(id = endIconResId),
+                    contentDescription = null,
+                    modifier = Modifier.requiredSizeIn(
+                        maxWidth = 24.dp,
+                        maxHeight = 24.dp,
+                    ),
+                )
+            }
         },
         onContentClicked = onClick,
         contentBottom = {
@@ -119,6 +122,34 @@ fun DefaultTableRow_Basic_Dark() {
             DefaultTableRow(
                 primaryText = "Navigate over here",
                 onClick = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_Basic_Chevron() {
+    AppTheme(darkTheme = true) {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                onClick = {},
+                showEndIcon = true
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_Basic_No_Chevron() {
+    AppTheme(darkTheme = true) {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                onClick = {},
+                showEndIcon = false
             )
         }
     }
