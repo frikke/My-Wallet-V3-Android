@@ -956,8 +956,7 @@ class LiveCustodialWalletManager(
             return Single.just(false)
         return getSupportedCurrenciesForBankTransactions(fiatCurrency)
             .map { supportedCurrencies ->
-                val currencies = supportedCurrencies.filter { it != ACH_CURRENCY }
-                currencies.contains(fiatCurrency)
+                supportedCurrencies.contains(fiatCurrency)
             }
     }
 
