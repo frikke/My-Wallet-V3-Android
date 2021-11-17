@@ -483,7 +483,7 @@ class TransactionFlowCustomiserImpl(
                 if (state.sendingAccount is NonCustodialAccount) {
                     resources.getString(R.string.transfer_confirmation_awaiting_success_title)
                 } else {
-                    resources.getString(R.string.send_confirmation_success_title)
+                    resources.getString(R.string.send_confirmation_success_title, amount)
                 }
             }
             AssetAction.FiatDeposit -> resources.getString(
