@@ -38,6 +38,7 @@ fun NavigationBar(
     onBackButtonClick: (() -> Unit)? = null,
     navigationBarButtons: List<NavigationBarButton> = listOf()
 ) {
+
     Box(
         modifier = Modifier
             .fillMaxWidth(1f)

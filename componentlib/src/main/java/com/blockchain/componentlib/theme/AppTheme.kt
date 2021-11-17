@@ -7,9 +7,14 @@ import androidx.compose.material.Shapes
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 object AppTheme {
 
@@ -51,6 +56,14 @@ fun AppTheme(
     val colors = if (darkTheme) getDarkColors() else getLightColors()
     val rememberedColors = remember { colors.copy() }.apply { updateColorsFrom(colors) }
 
+    val navigationBackground = if (darkTheme) {
+        Color.Black
+    } else {
+        Color.White
+    }
+
+    SystemColors(statusColor = colors.background, navigationColor = navigationBackground, isDarkTheme = darkTheme)
+
     MaterialTheme(colors = debugColors(darkTheme)) {
         CompositionLocalProvider(
             LocalColors provides rememberedColors,
@@ -61,6 +74,27 @@ fun AppTheme(
             // LocalImageLoader provides imageLoader,
             content = content
         )
+    }
+}
+
+@Composable
+fun SystemColors(statusColor: Color, navigationColor: Color, isDarkTheme: Boolean) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val systemUiController = rememberSystemUiController()
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                systemUiController.setStatusBarColor(statusColor, !isDarkTheme)
+                systemUiController.setNavigationBarColor(navigationColor, !isDarkTheme)
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 }
 

@@ -7,6 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class BottomNavigationBarView @JvmOverloads constructor(
     context: Context,
@@ -29,12 +31,16 @@ class BottomNavigationBarView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        BottomNavigationBar(
-            navigationItems,
-            onNavigationItemClick,
-            onMiddleButtonClick,
-            selectedNavigationItem,
-            bottomNavigationState
-        )
+        AppTheme {
+            AppSurface {
+                BottomNavigationBar(
+                    navigationItems,
+                    onNavigationItemClick,
+                    onMiddleButtonClick,
+                    selectedNavigationItem,
+                    bottomNavigationState
+                )
+            }
+        }
     }
 }
