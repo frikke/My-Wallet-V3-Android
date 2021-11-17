@@ -176,6 +176,13 @@
             android:text="Controls"
             android:textAllCaps="false" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/section_headers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Section Headers"
+            android:textAllCaps="false" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -24,6 +24,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PagerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SecondaryButtonActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SectionHeadersActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallMinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallPrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
@@ -122,6 +123,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.tabs).setOnClickListener {
             startActivity(Intent(this@MainActivity, TabLayoutActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.section_headers).setOnClickListener {
+            startActivity(Intent(this@MainActivity, SectionHeadersActivity::class.java))
         }
 
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {
