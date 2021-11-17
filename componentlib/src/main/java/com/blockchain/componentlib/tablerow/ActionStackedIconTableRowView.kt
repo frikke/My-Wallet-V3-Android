@@ -22,7 +22,7 @@ class ActionStackedIconTableRowView @JvmOverloads constructor(
     var secondaryText by mutableStateOf(null as? String?)
     var onClick by mutableStateOf({})
     var topImageResource: ImageResource by mutableStateOf(ImageResource.None)
-    var bottomImageResource: ImageResource  by mutableStateOf(ImageResource.None)
+    var bottomImageResource: ImageResource by mutableStateOf(ImageResource.None)
     var endImageResource by mutableStateOf(
         ImageResource.Local(
             id = R.drawable.ic_chevron_end,

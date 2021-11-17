@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.image
 
 import androidx.annotation.DrawableRes
-import coil.request.ImageRequest
 
 sealed class ImageResource(
     val contentDescription: String? = null
@@ -17,5 +16,5 @@ sealed class ImageResource(
         contentDescription: String?,
     ) : ImageResource(contentDescription)
 
-    object None: ImageResource(null)
+    object None : ImageResource(null)
 }
