@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.buildAnnotatedString
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -18,8 +19,8 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var iconTopUrl by mutableStateOf("")
-    var iconBottomUrl by mutableStateOf("")
+    var topImageResource: ImageResource by mutableStateOf(ImageResource.None)
+    var bottomImageResource: ImageResource by mutableStateOf(ImageResource.None)
     var titleStart by mutableStateOf(buildAnnotatedString { })
     var titleEnd by mutableStateOf(buildAnnotatedString { })
     var bodyStart by mutableStateOf(buildAnnotatedString { })
@@ -37,8 +38,8 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
                     bodyStart = bodyStart,
                     bodyEnd = bodyEnd,
                     onClick = onClick,
-                    iconTopUrl = iconTopUrl,
-                    iconBottomUrl = iconBottomUrl,
+                    topImageResource = topImageResource,
+                    bottomImageResource = bottomImageResource,
                 )
             }
         }

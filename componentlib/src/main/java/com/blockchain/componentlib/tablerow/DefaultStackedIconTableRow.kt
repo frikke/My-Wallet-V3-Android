@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.icon.StackedIcons
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -16,8 +17,8 @@ import com.blockchain.componentlib.theme.AppTheme
 fun DefaultStackedIconTableRow(
     primaryText: String,
     secondaryText: String,
-    iconTopUrl: String,
-    iconBottomUrl: String,
+    topImageResource: ImageResource,
+    bottomImageResource: ImageResource,
     onClick: () -> Unit,
 ) {
     TableRow(
@@ -41,8 +42,8 @@ fun DefaultStackedIconTableRow(
         },
         contentEnd = {
             StackedIcons(
-                iconTopUrl = iconTopUrl,
-                iconBottomUrl = iconBottomUrl,
+                topImageResource = topImageResource,
+                bottomImageResource = bottomImageResource,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
         },
@@ -58,8 +59,8 @@ fun DefaultStackedIconTableRow_Basic() {
             DefaultStackedIconTableRow(
                 primaryText = "Primary text",
                 secondaryText = "Secondary text",
-                iconTopUrl = "",
-                iconBottomUrl = "",
+                topImageResource = ImageResource.Remote("", null),
+                bottomImageResource = ImageResource.Remote("", null),
                 onClick = {},
             )
         }

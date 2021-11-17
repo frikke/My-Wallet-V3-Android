@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.text.buildAnnotatedString
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tablerow.BalanceStackedIconTableRowView
 import com.blockchain.componentlib.tablerow.BalanceTableRowView
 import com.blockchain.componentlib.tag.TagType
@@ -20,7 +21,10 @@ class BalanceTableRowActivity : AppCompatActivity() {
             titleEnd = buildAnnotatedString { append("\$44,403.13") }
             bodyStart = buildAnnotatedString { append("BTC") }
             bodyEnd = buildAnnotatedString { append("↓ 12.32%") }
-            startIconUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg"
+            startImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                contentDescription = null,
+            )
             onClick = {
                 Toast.makeText(this@BalanceTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
                     .show()
@@ -32,7 +36,10 @@ class BalanceTableRowActivity : AppCompatActivity() {
             titleEnd = buildAnnotatedString { append("\$44,403.13") }
             bodyStart = buildAnnotatedString { append("BTC") }
             bodyEnd = buildAnnotatedString { append("↓ 12.32%") }
-            startIconUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg"
+            startImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                contentDescription = null,
+            )
             tags = listOf(TagViewState("Confirmed", TagType.Success))
             onClick = {
                 Toast.makeText(this@BalanceTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
@@ -45,8 +52,14 @@ class BalanceTableRowActivity : AppCompatActivity() {
             titleEnd = buildAnnotatedString { append("\$44,403.13") }
             bodyStart = buildAnnotatedString { append("BTC") }
             bodyEnd = buildAnnotatedString { append("↓ 12.32%") }
-            iconTopUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg"
-            iconBottomUrl = "https://www.blockchain.com/static/img/prices/prices-eth.svg"
+            topImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                contentDescription = null,
+            )
+            bottomImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
+                contentDescription = null,
+            )
             onClick = {
                 Toast.makeText(this@BalanceTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
                     .show()

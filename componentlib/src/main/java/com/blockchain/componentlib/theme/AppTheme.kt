@@ -11,9 +11,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import coil.ImageLoader
+import coil.compose.LocalImageLoader
+import coil.decode.SvgDecoder
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 object AppTheme {
@@ -48,10 +52,10 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
 
-//    val imageLoader = ImageLoader.Builder(LocalContext.current)
-//        .componentRegistry { add(SvgDecoder(LocalContext.current)) }
-//        .crossfade(true)
-//        .build()
+    val imageLoader = ImageLoader.Builder(LocalContext.current)
+        .componentRegistry { add(SvgDecoder(LocalContext.current)) }
+        .crossfade(true)
+        .build()
 
     val colors = if (darkTheme) getDarkColors() else getLightColors()
     val rememberedColors = remember { colors.copy() }.apply { updateColorsFrom(colors) }
@@ -71,7 +75,7 @@ fun AppTheme(
             LocalTypography provides typography,
             LocalShapes provides shapes,
             LocalRippleTheme provides AppThemeRippleProvider,
-            // LocalImageLoader provides imageLoader,
+            LocalImageLoader provides imageLoader,
             content = content
         )
     }

@@ -5,6 +5,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tablerow.BalanceStackedIconTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tag.TagType
@@ -32,7 +33,10 @@ fun BalanceTableRowPreview() {
                         append("↓ 12.32%")
                     }
                 },
-                startIconUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                startImageResource = ImageResource.Remote(
+                    url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                    contentDescription = null,
+                ),
                 tags = listOf(),
                 onClick = {},
             )
@@ -60,7 +64,10 @@ fun BalanceTagTableRowPreview() {
                         append("↓ 12.32%")
                     }
                 },
-                startIconUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                startImageResource = ImageResource.Remote(
+                    url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                    contentDescription = null,
+                ),
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
@@ -113,8 +120,14 @@ fun BalanceStackedIconTableRowPreview() {
                         append("↓ 12.32%")
                     }
                 },
-                iconTopUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
-                iconBottomUrl = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
+                topImageResource = ImageResource.Remote(
+                    url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                    contentDescription = null,
+                ),
+                bottomImageResource = ImageResource.Remote(
+                    url = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
+                    contentDescription = null,
+                ),
                 onClick = {},
             )
         }

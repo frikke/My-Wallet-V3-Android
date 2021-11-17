@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.buildAnnotatedString
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -18,7 +19,7 @@ class BalanceTableRowView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var startIconUrl by mutableStateOf("")
+    var startImageResource: ImageResource by mutableStateOf(ImageResource.None)
     var titleStart by mutableStateOf(buildAnnotatedString { })
     var titleEnd by mutableStateOf(buildAnnotatedString { })
     var bodyStart by mutableStateOf(buildAnnotatedString { })
@@ -35,7 +36,7 @@ class BalanceTableRowView @JvmOverloads constructor(
                     titleEnd = titleEnd,
                     bodyStart = bodyStart,
                     bodyEnd = bodyEnd,
-                    startIconUrl = startIconUrl,
+                    startImageResource = startImageResource,
                     tags = tags.orEmpty(),
                     onClick = onClick,
                 )

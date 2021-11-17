@@ -9,29 +9,8 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:orientation="vertical">
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Default Action Table Row"
-            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
-
-        <com.blockchain.componentlib.tablerow.ActionTableRowView
-            android:id="@+id/default_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tag Table Row"
-            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
-
-        <com.blockchain.componentlib.tablerow.ActionTableRowView
-            android:id="@+id/tag_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
@@ -41,17 +20,6 @@
 
         <com.blockchain.componentlib.tablerow.ActionStackedIconTableRowView
             android:id="@+id/stacked_icon_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Large Table Row"
-            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
-
-        <com.blockchain.componentlib.tablerow.ActionTableRowView
-            android:id="@+id/large_table_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

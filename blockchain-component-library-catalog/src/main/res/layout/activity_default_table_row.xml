@@ -9,6 +9,7 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:orientation="vertical">
 
         <com.google.android.material.textview.MaterialTextView
@@ -19,6 +20,17 @@
 
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
             android:id="@+id/default_table_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Default Table Row with Image"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.tablerow.DefaultTableRowView
+            android:id="@+id/default_image_table_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
