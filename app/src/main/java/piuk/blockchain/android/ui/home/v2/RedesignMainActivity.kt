@@ -5,11 +5,8 @@ import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -17,6 +14,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.componentlib.navigation.BottomNavigationState
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -35,7 +33,6 @@ import java.net.URLDecoder
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityRedesignMainBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -98,10 +95,6 @@ class RedesignMainActivity :
 
     override fun initBinding(): ActivityRedesignMainBinding = ActivityRedesignMainBinding.inflate(layoutInflater)
 
-    private val toolbar: Toolbar by lazy {
-        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
-    }
-
     private var activityResultAction: () -> Unit = {}
     private var handlingResult = false
 
@@ -115,6 +108,7 @@ class RedesignMainActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         launchPortfolio()
+        setupToolbar()
         setupNavigation()
 
         if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
@@ -125,11 +119,6 @@ class RedesignMainActivity :
 
         if (savedInstanceState == null) {
             model.process(RedesignIntent.CheckForPendingLinks(intent))
-        }
-
-        with(toolbar) {
-            title = ""
-            setSupportActionBar(this)
         }
 
         supportActionBar?.let {
@@ -178,6 +167,32 @@ class RedesignMainActivity :
         super.onDestroy()
     }
 
+    private fun setupToolbar() {
+        binding.mainToolbar.apply {
+            navigationBarButtons = listOf(
+                NavigationBarButton.Icon(R.drawable.ic_qr_scan) {
+                    launchQrScan()
+                },
+                NavigationBarButton.Icon(R.drawable.ic_bank_user) {
+                    launchSettings()
+                }
+            )
+        }
+    }
+
+    private fun updateToolbarTitle(title: String) {
+        binding.mainToolbar.title = title
+    }
+
+    private fun launchQrScan() {
+        QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
+        analytics.logEvent(SendAnalytics.QRButtonClicked)
+    }
+
+    private fun launchSettings() {
+        startActivity(RedesignSettingsActivity.newIntent(this))
+    }
+
     private fun setupNavigation() {
         binding.bottomNavigation.apply {
             onNavigationItemClick = {
@@ -187,9 +202,7 @@ class RedesignMainActivity :
                         launchPortfolio()
                     }
                     NavigationItem.Prices -> {
-                        supportFragmentManager.showFragment(
-                            PricesFragment.newInstance(), loadingView = binding.progress
-                        )
+                        launchPrices()
                     }
                     NavigationItem.BuyAndSell -> {
                         launchBuySell()
@@ -339,26 +352,6 @@ class RedesignMainActivity :
     private fun showNoAccountFromScanToast(asset: AssetInfo) =
         toast(getString(R.string.scan_no_available_account, asset.displayTicker))
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_redesign_main_activity, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_qr_main -> {
-                QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
-                analytics.logEvent(SendAnalytics.QRButtonClicked)
-                true
-            }
-            R.id.action_account_main -> {
-                startActivity(RedesignSettingsActivity.newInstance(this))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     override fun render(newState: RedesignState) {
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
@@ -505,11 +498,14 @@ class RedesignMainActivity :
     }
 
     private fun startActivitiesFragment(account: BlockchainAccount? = null, reload: Boolean = true) {
+        updateToolbarTitle(title = getString(R.string.main_toolbar_activity))
+        binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
+
         supportFragmentManager.showFragment(
             fragment = ActivitiesFragment.newInstance(account),
             loadingView = binding.progress
         )
-        binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
+
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
 
@@ -540,6 +536,7 @@ class RedesignMainActivity :
     }
 
     private fun launchPortfolio(action: AssetAction? = null, fiatCurrency: String? = null) {
+        updateToolbarTitle(title = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
             fragment = PortfolioFragment.newInstance(true, action, fiatCurrency),
@@ -549,7 +546,6 @@ class RedesignMainActivity :
 
     override fun launchSwap(sourceAccount: CryptoAccount?, targetAccount: CryptoAccount?) {
         if (sourceAccount == null && targetAccount == null) {
-            toolbar.title = getString(R.string.common_swap)
             ActionActivity.start(this, AssetAction.Swap)
         } else if (sourceAccount != null) {
             startActivity(
@@ -602,6 +598,8 @@ class RedesignMainActivity :
     override fun launchSend() = ActionActivity.start(this, AssetAction.Send)
 
     override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
+        updateToolbarTitle(title = getString(R.string.main_toolbar_buy_sell))
+        binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
         supportFragmentManager.showFragment(
             fragment = BuySellFragment.newInstance(
                 viewType = viewType,
@@ -609,7 +607,13 @@ class RedesignMainActivity :
             ),
             loadingView = binding.progress
         )
-        binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
+    }
+
+    private fun launchPrices() {
+        updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
+        supportFragmentManager.showFragment(
+            PricesFragment.newInstance(), loadingView = binding.progress
+        )
     }
 
     override fun launchSimpleBuy(asset: AssetInfo) {

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.blockchain.coincore.AssetAction
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.showFragment
@@ -30,19 +31,32 @@ class ActionActivity : BlockchainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        setupToolbar()
         supportFragmentManager.showFragment(
             fragment = loadFragment(),
             loadingView = binding.progress
         )
     }
 
+    private fun setupToolbar() {
+        binding.toolbar.apply {
+            onBackButtonClick = { super.onBackPressed() }
+        }
+    }
+
+    private fun updateToolbarTitle(title: String) {
+        binding.toolbar.title = title
+    }
+
     private fun loadFragment(): Fragment {
         showLoading()
         return when (action) {
             AssetAction.Send -> {
+                updateToolbarTitle(getString(R.string.toolbar_send))
                 TransferSendFragment.newInstance()
             }
             AssetAction.Swap -> {
+                updateToolbarTitle(getString(R.string.toolbar_swap))
                 SwapFragment.newInstance()
             }
             // TODO
@@ -60,6 +74,7 @@ class ActionActivity : BlockchainActivity() {
             //                //                )
             //            }
             AssetAction.Receive -> {
+                updateToolbarTitle(getString(R.string.toolbar_receive))
                 ReceiveFragment.newInstance()
             }
             else -> {
@@ -79,7 +94,7 @@ class ActionActivity : BlockchainActivity() {
     }
 
     companion object {
-        const val ACTION = "action"
+        private const val ACTION = "action"
         fun start(context: Context, action: AssetAction) {
             Intent(context, ActionActivity::class.java).apply {
                 putExtra(ACTION, action)

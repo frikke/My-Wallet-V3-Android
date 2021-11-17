@@ -7,19 +7,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar_layout"
+    <com.blockchain.componentlib.navigation.NavigationBarView
+        android:id="@+id/main_toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <include
-            layout="@layout/toolbar_general"
-            android:fitsSystemWindows="true" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content"/>
 
     <!-- The main content view where fragments are loaded -->
     <FrameLayout
@@ -28,7 +20,7 @@
         android:layout_height="0dp"
         android:background="@color/white"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@id/appbar_layout" />
+        app:layout_constraintTop_toBottomOf="@id/main_toolbar" />
 
     <!--The bottom navigation panel -->
     <com.blockchain.componentlib.navigation.BottomNavigationBarView

@@ -2409,6 +2409,16 @@
     <string name="action_sheet_receive_description"><![CDATA[Copy Your Addresses & QR Codes]]></string>
     <string name="action_sheet_rewards_description">Earn Rewards on Your Crypto</string>
     <string name="action_sheet_deposit_description">Add Cash from Your Bank</string>
-    <string name="action_sheet_withdrawdescription">Cash Out to Your Bank</string>
+    <string name="action_sheet_withdraw_description">Cash Out to Your Bank</string>
+
+    <!-- Toolbar titles -->
+    <string name="main_toolbar_home">Home</string>
+    <string name="main_toolbar_prices">Prices</string>
+    <string name="main_toolbar_buy_sell">Buy &amp; Sell</string>
+    <string name="main_toolbar_activity">Activity</string>
+    <string name="toolbar_swap">Swap</string>
+    <string name="toolbar_send">Send</string>
+    <string name="toolbar_receive">Receive</string>
+    <string name="toolbar_settings">Settings</string>
 
 </resources>
