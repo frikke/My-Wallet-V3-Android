@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.icon.StackedIcons
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -19,8 +20,8 @@ fun BalanceStackedIconTableRow(
     bodyStart: AnnotatedString,
     bodyEnd: AnnotatedString? = null,
     onClick: () -> Unit,
-    iconTopUrl: String,
-    iconBottomUrl: String,
+    topImageResource: ImageResource,
+    bottomImageResource: ImageResource,
 ) {
     TableRow(
         content = {
@@ -45,8 +46,8 @@ fun BalanceStackedIconTableRow(
         },
         contentStart = {
             StackedIcons(
-                iconTopUrl = iconTopUrl,
-                iconBottomUrl = iconBottomUrl,
+                topImageResource = topImageResource,
+                bottomImageResource = bottomImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .padding(end = 16.dp)

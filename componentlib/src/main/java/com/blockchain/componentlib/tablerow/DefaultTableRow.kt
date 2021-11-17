@@ -1,17 +1,18 @@
 package com.blockchain.componentlib.tablerow
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.image.Image
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.TagsRow
@@ -25,10 +26,22 @@ fun DefaultTableRow(
     secondaryText: String? = null,
     paragraphText: String? = null,
     tags: List<TagViewState>? = null,
-    @DrawableRes endIconResId: Int = R.drawable.ic_chevron_end,
-    showEndIcon: Boolean = true
+    startImageResource: ImageResource = ImageResource.None,
+    endImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_chevron_end,
+        contentDescription = null
+    ),
 ) {
     TableRow(
+        contentStart = {
+            Image(
+                imageResource = startImageResource,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 16.dp)
+                    .size(24.dp)
+            )
+        },
         content = {
             Column(
                 modifier = Modifier
@@ -50,16 +63,13 @@ fun DefaultTableRow(
             }
         },
         contentEnd = {
-            if (showEndIcon) {
-                Image(
-                    painter = painterResource(id = endIconResId),
-                    contentDescription = null,
-                    modifier = Modifier.requiredSizeIn(
-                        maxWidth = 24.dp,
-                        maxHeight = 24.dp,
-                    ),
-                )
-            }
+            Image(
+                imageResource = endImageResource,
+                modifier = Modifier.requiredSizeIn(
+                    maxWidth = 24.dp,
+                    maxHeight = 24.dp,
+                ),
+            )
         },
         onContentClicked = onClick,
         contentBottom = {
@@ -129,27 +139,13 @@ fun DefaultTableRow_Basic_Dark() {
 
 @Preview
 @Composable
-fun DefaultTableRow_Basic_Chevron() {
-    AppTheme(darkTheme = true) {
-        AppSurface {
-            DefaultTableRow(
-                primaryText = "Navigate over here",
-                onClick = {},
-                showEndIcon = true
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
 fun DefaultTableRow_Basic_No_Chevron() {
     AppTheme(darkTheme = true) {
         AppSurface {
             DefaultTableRow(
                 primaryText = "Navigate over here",
                 onClick = {},
-                showEndIcon = false
+                endImageResource = ImageResource.None
             )
         }
     }

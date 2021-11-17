@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -23,8 +24,13 @@ class DefaultTableRowView @JvmOverloads constructor(
     var paragraphText by mutableStateOf(null as? String?)
     var onClick by mutableStateOf({})
     var tags by mutableStateOf(null as? List<TagViewState>?)
-    var showEndIcon by mutableStateOf(true)
-    var endIconResId by mutableStateOf(R.drawable.ic_chevron_end)
+    var startImageResource: ImageResource by mutableStateOf(ImageResource.None)
+    var endImageResource by mutableStateOf(
+        ImageResource.Local(
+            id = R.drawable.ic_chevron_end,
+            contentDescription = null,
+        )
+    )
 
     @Composable
     override fun Content() {
@@ -36,8 +42,8 @@ class DefaultTableRowView @JvmOverloads constructor(
                     paragraphText = paragraphText,
                     onClick = onClick,
                     tags = tags,
-                    endIconResId = endIconResId,
-                    showEndIcon = showEndIcon
+                    startImageResource = startImageResource,
+                    endImageResource = endImageResource,
                 )
             }
         }

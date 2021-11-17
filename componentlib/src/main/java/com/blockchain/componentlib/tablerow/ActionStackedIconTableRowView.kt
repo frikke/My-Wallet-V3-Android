@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -20,9 +21,14 @@ class ActionStackedIconTableRowView @JvmOverloads constructor(
     var primaryText by mutableStateOf("")
     var secondaryText by mutableStateOf(null as? String?)
     var onClick by mutableStateOf({})
-    var iconTopUrl by mutableStateOf("")
-    var iconBottomUrl by mutableStateOf("")
-    var endIconResId by mutableStateOf(R.drawable.ic_chevron_end)
+    var topImageResource: ImageResource by mutableStateOf(ImageResource.None)
+    var bottomImageResource: ImageResource by mutableStateOf(ImageResource.None)
+    var endImageResource by mutableStateOf(
+        ImageResource.Local(
+            id = R.drawable.ic_chevron_end,
+            contentDescription = null,
+        )
+    )
 
     @Composable
     override fun Content() {
@@ -32,9 +38,9 @@ class ActionStackedIconTableRowView @JvmOverloads constructor(
                     primaryText = primaryText,
                     secondaryText = secondaryText,
                     onClick = onClick,
-                    iconTopUrl = iconTopUrl,
-                    iconBottomUrl = iconBottomUrl,
-                    endIconResId = endIconResId,
+                    topImageResource = topImageResource,
+                    bottomImageResource = bottomImageResource,
+                    endImageResource = endImageResource,
                 )
             }
         }

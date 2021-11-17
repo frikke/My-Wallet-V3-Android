@@ -3,6 +3,7 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tablerow.DefaultStackedIconTableRowView
 import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tablerow.ToggleTableRowView
@@ -24,6 +25,19 @@ class DefaultTableRowActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<DefaultTableRowView>(R.id.default_image_table_row).apply {
+            primaryText = "Trading"
+            secondaryText = "Buy & Sell"
+            onClick = {
+                Toast.makeText(this@DefaultTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            startImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                contentDescription = null,
+            )
+        }
+
         findViewById<DefaultTableRowView>(R.id.tag_table_row).apply {
             primaryText = "Email Address"
             secondaryText = "satoshi@blockchain.com"
@@ -37,8 +51,14 @@ class DefaultTableRowActivity : AppCompatActivity() {
         findViewById<DefaultStackedIconTableRowView>(R.id.stacked_icon_table_row).apply {
             primaryText = "Primary text"
             secondaryText = "Secondary text"
-            iconTopUrl = "https://www.blockchain.com/static/img/prices/prices-btc.svg"
-            iconBottomUrl = "https://www.blockchain.com/static/img/prices/prices-eth.svg"
+            topImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                contentDescription = null,
+            )
+            bottomImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
+                contentDescription = null,
+            )
             onClick = {
                 Toast.makeText(this@DefaultTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
                     .show()

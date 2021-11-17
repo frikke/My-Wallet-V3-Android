@@ -1,7 +1,5 @@
 package com.blockchain.componentlib.tablerow
 
-import android.graphics.drawable.ColorDrawable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,10 +8,10 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import com.blockchain.componentlib.image.Image
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.TagsRow
 import com.blockchain.componentlib.theme.AppTheme
@@ -24,7 +22,7 @@ fun BalanceTableRow(
     titleEnd: AnnotatedString? = null,
     bodyStart: AnnotatedString,
     bodyEnd: AnnotatedString? = null,
-    startIconUrl: String,
+    startImageResource: ImageResource,
     tags: List<TagViewState>,
     onClick: () -> Unit
 ) {
@@ -51,18 +49,12 @@ fun BalanceTableRow(
         },
         contentStart = {
             Image(
-                painter = rememberImagePainter(
-                    data = startIconUrl,
-                    builder = {
-                        crossfade(true)
-                        placeholder(ColorDrawable(AppTheme.colors.light.toArgb()))
-                    }
-                ),
-                contentDescription = null,
+                imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .padding(end = 16.dp)
-                    .size(24.dp)
+                    .size(24.dp),
+                coilImageBuilderScope = null
             )
         },
         contentBottom = {
