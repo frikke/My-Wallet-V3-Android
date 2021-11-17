@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.widget.Toast
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivitySettingsBinding
+import piuk.blockchain.android.databinding.ActivityRedesignSettingsBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 
 class RedesignSettingsActivity : BlockchainActivity() {
 
-    private val binding: ActivitySettingsBinding by lazy {
-        ActivitySettingsBinding.inflate(layoutInflater)
+    private val binding: ActivityRedesignSettingsBinding by lazy {
+        ActivityRedesignSettingsBinding.inflate(layoutInflater)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
