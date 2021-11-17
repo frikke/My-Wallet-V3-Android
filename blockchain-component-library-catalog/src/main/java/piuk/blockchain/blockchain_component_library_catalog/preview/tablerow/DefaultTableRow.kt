@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.tablerow.DefaultStackedIconTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRow
+import com.blockchain.componentlib.tablerow.ToggleTableRowType
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
@@ -136,6 +137,23 @@ fun ToggleTableRowPreview() {
                 primaryText = "Enable this ?",
                 secondaryText = "Some additional info",
                 isChecked = isChecked
+            )
+        }
+    }
+}
+
+@Preview(name = "Success Toggle", group = "Table Row")
+@Composable
+fun SuccessToggleTableRowPreview() {
+    AppTheme {
+        AppSurface {
+            var isChecked by remember { mutableStateOf(false) }
+            ToggleTableRow(
+                onCheckedChange = { isChecked = it },
+                primaryText = "Enable this ?",
+                secondaryText = "Some additional info",
+                isChecked = isChecked,
+                toggleTableRowType = ToggleTableRowType.Success
             )
         }
     }

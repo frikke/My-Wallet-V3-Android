@@ -2,12 +2,12 @@ package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Surface
-import androidx.compose.material.Switch
-import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.control.PrimarySwitch
+import com.blockchain.componentlib.control.SuccessSwitch
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -16,6 +16,8 @@ fun ToggleTableRow(
     primaryText: String,
     secondaryText: String? = null,
     isChecked: Boolean = false,
+    enabled: Boolean = true,
+    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
 ) {
     TableRow(
         content = {
@@ -35,22 +37,31 @@ fun ToggleTableRow(
             }
         },
         contentEnd = {
-            Switch(
-                checked = isChecked,
-                onCheckedChange = { onCheckedChange(it) },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = AppTheme.colors.primary,
-                    uncheckedThumbColor = AppTheme.colors.dark,
-                    uncheckedTrackColor = AppTheme.colors.dark
-                )
-            )
+            when (toggleTableRowType) {
+                ToggleTableRowType.Primary -> {
+                    PrimarySwitch(
+                        isChecked = isChecked,
+                        onCheckChanged = onCheckedChange,
+                        enabled = enabled,
+                    )
+                }
+                ToggleTableRowType.Success -> {
+                    SuccessSwitch(
+                        isChecked = isChecked,
+                        onCheckChanged = onCheckedChange,
+                        enabled = enabled,
+                    )
+                }
+            }
         }
     )
 }
 
+enum class ToggleTableRowType { Primary, Success }
+
 @Preview
 @Composable
-fun ToggleTableRow_SingleLine_NotChecked() {
+private fun ToggleTableRow_SingleLine_NotChecked() {
     AppTheme {
         Surface {
             ToggleTableRow(
@@ -63,7 +74,7 @@ fun ToggleTableRow_SingleLine_NotChecked() {
 
 @Preview
 @Composable
-fun ToggleTableRow_NotChecked() {
+private fun ToggleTableRow_NotChecked() {
     AppTheme {
         Surface {
             ToggleTableRow(
@@ -77,7 +88,7 @@ fun ToggleTableRow_NotChecked() {
 
 @Preview
 @Composable
-fun ToggleTableRow_Checked() {
+private fun ToggleTableRow_Checked() {
     AppTheme {
         Surface {
             ToggleTableRow(
@@ -92,7 +103,7 @@ fun ToggleTableRow_Checked() {
 
 @Preview
 @Composable
-fun ToggleTableRow_SingleLine_NotChecked_Dark() {
+private fun ToggleTableRow_SingleLine_NotChecked_Dark() {
     AppTheme(darkTheme = true) {
         Surface {
             ToggleTableRow(
@@ -105,7 +116,7 @@ fun ToggleTableRow_SingleLine_NotChecked_Dark() {
 
 @Preview
 @Composable
-fun ToggleTableRow_NotChecked_Dark() {
+private fun ToggleTableRow_NotChecked_Dark() {
     AppTheme(darkTheme = true) {
         Surface {
             ToggleTableRow(
@@ -119,7 +130,7 @@ fun ToggleTableRow_NotChecked_Dark() {
 
 @Preview
 @Composable
-fun ToggleTableRow_Checked_Dark() {
+private fun ToggleTableRow_Checked_Dark() {
     AppTheme(darkTheme = true) {
         Surface {
             ToggleTableRow(

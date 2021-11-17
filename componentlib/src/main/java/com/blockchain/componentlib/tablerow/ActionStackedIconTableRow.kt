@@ -1,8 +1,10 @@
 package com.blockchain.componentlib.tablerow
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +22,7 @@ fun ActionStackedIconTableRow(
     iconTopUrl: String,
     iconBottomUrl: String,
     secondaryText: String? = null,
+    @DrawableRes endIconResId: Int = R.drawable.ic_chevron_end,
 ) {
     TableRow(
         contentStart = {
@@ -53,8 +56,12 @@ fun ActionStackedIconTableRow(
         },
         contentEnd = {
             Image(
-                painter = painterResource(id = R.drawable.ic_chevron_end),
-                contentDescription = null
+                painter = painterResource(id = endIconResId),
+                contentDescription = null,
+                modifier = Modifier.requiredSizeIn(
+                    maxWidth = 24.dp,
+                    maxHeight = 24.dp,
+                ),
             )
         },
         onContentClicked = onClick

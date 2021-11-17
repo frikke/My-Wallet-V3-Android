@@ -1,8 +1,10 @@
 package com.blockchain.componentlib.tablerow
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,7 +24,8 @@ fun DefaultTableRow(
     onClick: () -> Unit,
     secondaryText: String? = null,
     paragraphText: String? = null,
-    tags: List<TagViewState>? = null
+    tags: List<TagViewState>? = null,
+    @DrawableRes endIconResId: Int = R.drawable.ic_chevron_end,
 ) {
     TableRow(
         content = {
@@ -47,8 +50,12 @@ fun DefaultTableRow(
         },
         contentEnd = {
             Image(
-                painter = painterResource(id = R.drawable.ic_chevron_end),
-                contentDescription = null
+                painter = painterResource(id = endIconResId),
+                contentDescription = null,
+                modifier = Modifier.requiredSizeIn(
+                    maxWidth = 24.dp,
+                    maxHeight = 24.dp,
+                ),
             )
         },
         onContentClicked = onClick,

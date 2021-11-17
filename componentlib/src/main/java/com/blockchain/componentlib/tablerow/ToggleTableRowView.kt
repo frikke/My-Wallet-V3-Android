@@ -20,6 +20,8 @@ class ToggleTableRowView @JvmOverloads constructor(
     var secondaryText by mutableStateOf("")
     var isChecked by mutableStateOf(false)
     var onCheckedChange by mutableStateOf({ isChecked: Boolean -> })
+    var toggleEnabled by mutableStateOf(true)
+    var toggleType by mutableStateOf(ToggleTableRowType.Primary)
 
     @Composable
     override fun Content() {
@@ -32,7 +34,9 @@ class ToggleTableRowView @JvmOverloads constructor(
                     onCheckedChange = { newCheckedState ->
                         isChecked = newCheckedState
                         onCheckedChange(newCheckedState)
-                    }
+                    },
+                    enabled = toggleEnabled,
+                    toggleTableRowType = toggleType,
                 )
             }
         }

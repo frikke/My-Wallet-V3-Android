@@ -32,6 +32,7 @@ fun TabLayoutLarge(
         selectedTabIndex = selectedItemIndex,
         backgroundColor = Color.Transparent,
         contentColor = AppTheme.colors.primary,
+        divider = {},
         modifier = modifier,
     ) {
         items.forEachIndexed { index, itemName ->

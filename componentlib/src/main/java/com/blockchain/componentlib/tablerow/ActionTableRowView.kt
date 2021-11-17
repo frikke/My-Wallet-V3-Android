@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -23,6 +24,7 @@ class ActionTableRowView @JvmOverloads constructor(
     var onClick by mutableStateOf({})
     var tags by mutableStateOf(null as? List<TagViewState>?)
     var startIconUrl by mutableStateOf("")
+    var endIconResId by mutableStateOf(R.drawable.ic_chevron_end)
 
     @Composable
     override fun Content() {
@@ -35,6 +37,7 @@ class ActionTableRowView @JvmOverloads constructor(
                     onClick = onClick,
                     tags = tags,
                     startIconUrl = startIconUrl,
+                    endIconResId = endIconResId,
                 )
             }
         }
