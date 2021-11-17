@@ -59,7 +59,7 @@ class KycNavHostPresenterTest {
             sunriverCampaign = sunriverCampaign,
             reentryDecision = reentryDecision,
             kycNavigator = ReentryDecisionKycNavigator(
-                nabuToken, nabuDataManager, reentryDecision, analytics, internalFlags
+                nabuToken, nabuDataManager, reentryDecision, analytics
             ),
             tierUpdater = tierUpdater,
             analytics = mock()
@@ -337,7 +337,7 @@ class KycNavHostPresenterTest {
         // Assert
         verify(view).displayLoading(true)
         verify(view).navigate(
-            KycNavXmlDirections.actionStartAddressEntry(nabuUser.toProfileModel())
+            KycNavXmlDirections.actionStartAutocompleteAddressEntry(nabuUser.toProfileModel())
         )
         verify(view).displayLoading(false)
     }

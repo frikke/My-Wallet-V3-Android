@@ -41,8 +41,7 @@ val kycUiModule = module {
                 token = get(),
                 dataManager = get(),
                 reentryDecision = get(),
-                analytics = get(),
-                internalFlags = get()
+                analytics = get()
             )
         }.bind(KycNavigator::class)
 

@@ -8,8 +8,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -52,7 +50,6 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
 
     private val presenter: KycProfilePresenter by scopedInject()
     private val analytics: Analytics by inject()
-    private val internalFlags: InternalFeatureFlagApi by inject()
 
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
@@ -149,19 +146,11 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
     }
 
     override fun continueSignUp(profileModel: ProfileModel) {
-        if (internalFlags.isFeatureEnabled(GatedFeature.AUTOCOMPLETE_ADDRESS)) {
-            navigate(
-                KycProfileFragmentDirections.actionKycProfileFragmentToKycAutocompleteAddressFragment(
-                    profileModel
-                )
+        navigate(
+            KycProfileFragmentDirections.actionKycProfileFragmentToKycAutocompleteAddressFragment(
+                profileModel
             )
-        } else {
-            navigate(
-                KycProfileFragmentDirections.actionKycProfileFragmentToKycHomeAddressFragment(
-                    profileModel
-                )
-            )
-        }
+        )
     }
 
     override fun showErrorToast(message: String) {
