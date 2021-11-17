@@ -574,9 +574,8 @@ class LiveCustodialWalletManager(
                     fiatCurrency = fiatCurrency,
                     onlyEligible = onlyEligible,
                     shouldFetchSddLimits = fetchSdddLimits
-                ),
-                nabuService.cardAcquirers(sessionToken = authToken)
-            ) { custodialFiatBalance, cardsResponse, linkedBanks, paymentMethods, cardAcquirers ->
+                )
+            ) { custodialFiatBalance, cardsResponse, linkedBanks, paymentMethods ->
                 val availablePaymentMethods = mutableListOf<PaymentMethod>()
 
                 paymentMethods.forEach { paymentMethod ->
@@ -587,10 +586,7 @@ class LiveCustodialWalletManager(
                             ?.forEach { cardResponse: CardResponse ->
                                 availablePaymentMethods.add(
                                     cardResponse.toCardPaymentMethod(
-                                        cardLimits = cardLimits,
-                                        cardAcquirers = cardAcquirers.map(
-                                            PaymentCardAcquirerResponse::toPaymentCardAcquirer
-                                        )
+                                        cardLimits = cardLimits
                                     )
                                 )
                             }
@@ -802,8 +798,7 @@ class LiveCustodialWalletManager(
                 cardLimits = PaymentLimits(
                     FiatValue.zero(cardsResponse.currency),
                     FiatValue.zero(cardsResponse.currency)
-                ),
-                cardAcquirers = emptyList()
+                )
             )
         }
 
@@ -815,8 +810,7 @@ class LiveCustodialWalletManager(
         }.map { cardsResponse ->
             cardsResponse.filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }.map {
                 it.toCardPaymentMethod(
-                    cardLimits = PaymentLimits(FiatValue.zero(it.currency), FiatValue.zero(it.currency)),
-                    cardAcquirers = emptyList()
+                    cardLimits = PaymentLimits(FiatValue.zero(it.currency), FiatValue.zero(it.currency))
                 )
             }
         }
@@ -1206,7 +1200,7 @@ class LiveCustodialWalletManager(
             )
         }
 
-    private fun CardResponse.toCardPaymentMethod(cardLimits: PaymentLimits, cardAcquirers: List<PaymentCardAcquirer>) =
+    private fun CardResponse.toCardPaymentMethod(cardLimits: PaymentLimits) =
         PaymentMethod.Card(
             cardId = id,
             limits = cardLimits,
@@ -1225,7 +1219,6 @@ class LiveCustodialWalletManager(
             cardType = card?.type ?: CardType.UNKNOWN,
             status = state.toCardStatus(),
             isEligible = true,
-            acquirers = cardAcquirers
         )
 
     private fun Bank.toBankPaymentMethod(bankLimits: PaymentLimits) =
@@ -1609,13 +1602,6 @@ private fun InterestActivityItemResponse.toInterestActivityItem(cryptoCurrency: 
         state = InterestActivityItem.toInterestState(state),
         type = InterestActivityItem.toTransactionType(type),
         extraAttributes = extraAttributes
-    )
-
-private fun PaymentCardAcquirerResponse.toPaymentCardAcquirer() =
-    PaymentCardAcquirer(
-        cardAcquirerName = cardAcquirerName,
-        cardAcquirerAccountCode = cardAcquirerAccountCodes.first(),
-        apiKey = apiKey
     )
 
 private fun PaymentCardAcquirerResponse.toPaymentCardAcquirers() =

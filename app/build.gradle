@@ -403,6 +403,8 @@ dependencies {
     // Logging
     implementation Libraries.timber
 
+    implementation Libraries.checkoutCom
+
     // Zendesk
     implementation Libraries.zendeskChat
     implementation Libraries.zendeskMessaging

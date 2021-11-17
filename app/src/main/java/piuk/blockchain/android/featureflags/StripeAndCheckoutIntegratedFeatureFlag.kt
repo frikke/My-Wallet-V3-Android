@@ -12,8 +12,9 @@ class StripeAndCheckoutIntegratedFeatureFlag(
 ) : FeatureFlag {
     override val enabled: Single<Boolean> by unsafeLazy {
         remoteFlag.enabled
+            .cache()
             .map { remoteEnable ->
                 remoteEnable && gatedFeatures.isFeatureEnabled(GatedFeature.STRIPE_CHECKOUT_PAYMENTS)
-            }.cache()
+            }
     }
 }

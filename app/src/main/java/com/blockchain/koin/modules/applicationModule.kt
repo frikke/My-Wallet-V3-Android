@@ -26,6 +26,8 @@ import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
 import com.blockchain.operations.AppStartUpFlushable
+import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
+import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
@@ -36,6 +38,7 @@ import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
+import info.blockchain.wallet.api.Environment
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
@@ -139,6 +142,7 @@ import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 import thepit.PitLinking
@@ -854,6 +858,20 @@ val applicationModule = module {
     factory {
         StripeCardProcessor(
             stripeFactory = get()
+        )
+    }.bind(CardProcessor::class)
+
+    single {
+        val env: EnvironmentConfig = get()
+        CheckoutFactory(
+            context = get(),
+            isProd = env.environment == Environment.PRODUCTION
+        )
+    }
+
+    factory {
+        CheckoutCardProcessor(
+            checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
 }

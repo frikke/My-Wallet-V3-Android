@@ -659,8 +659,7 @@ sealed class PaymentMethod(
         val expireDate: Date,
         val cardType: CardType,
         val status: CardStatus,
-        override val isEligible: Boolean,
-        val acquirers: List<PaymentCardAcquirer>
+        override val isEligible: Boolean
     ) : PaymentMethod(cardId, PaymentMethodType.PAYMENT_CARD, limits, CARD_PAYMENT_METHOD_ORDER, isEligible),
         Serializable,
         RecurringBuyPaymentDetails {
