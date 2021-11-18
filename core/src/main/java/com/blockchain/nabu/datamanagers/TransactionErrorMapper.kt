@@ -20,7 +20,7 @@ class TransactionErrorMapper {
                         NabuErrorCodes.TradingTemporarilyDisabled -> TransactionError.TradingTemporarilyDisabled
                         NabuErrorCodes.InsufficientBalance -> TransactionError.InsufficientBalance
                         NabuErrorCodes.IneligibleForSwap -> TransactionError.IneligibleForSwap
-                        else -> TransactionError.OrderLimitReached
+                        else -> TransactionError.UnexpectedError
                     }
                 }
                 NabuErrorStatusCodes.BadRequest -> {
