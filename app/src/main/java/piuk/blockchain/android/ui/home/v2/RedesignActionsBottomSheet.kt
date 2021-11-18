@@ -2,12 +2,15 @@ package piuk.blockchain.android.ui.home.v2
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.ToastCustom.TYPE_GENERAL
 import piuk.blockchain.android.ui.sell.BuySellFragment
 
 class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignActionsBinding>() {
@@ -83,7 +86,8 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                 secondaryText = context.getString(R.string.action_sheet_deposit_description)
                 onClick = {
                     dismiss()
-                    // TODO
+                    // TODO add Fiat account chooser
+                    ToastCustom.makeText(requireContext(), "Coming soon", Toast.LENGTH_SHORT, TYPE_GENERAL)
                 }
             }
             cashOutBtn.apply {
@@ -91,7 +95,8 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                 secondaryText = context.getString(R.string.action_sheet_deposit_description)
                 onClick = {
                     dismiss()
-                    // TODO
+                    // TODO add Fiat account chooser
+                    ToastCustom.makeText(requireContext(), "Coming soon", Toast.LENGTH_SHORT, TYPE_GENERAL)
                 }
             }
         }

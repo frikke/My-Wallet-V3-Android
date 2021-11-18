@@ -11,15 +11,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.ViewPager
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import kotlin.properties.Delegates
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -39,11 +43,7 @@ import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
-class BuySellFragment :
-    HomeScreenFragment,
-    Fragment(),
-    SellIntroFragment.SellIntroHost,
-    SlidingModalBottomDialog.Host {
+class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIntroHost, SlidingModalBottomDialog.Host {
 
     private var _binding: FragmentBuySellBinding? = null
     private val binding: FragmentBuySellBinding
@@ -54,6 +54,7 @@ class BuySellFragment :
     private val analytics: Analytics by inject()
     private val simpleBuySync: SimpleBuySyncFactory by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
+    private val redesignFeatureFlag: FeatureFlag by inject(walletRedesignFeatureFlag)
 
     private val buySellFlowNavigator: BuySellFlowNavigator
         get() = payloadScope.get()
@@ -89,28 +90,30 @@ class BuySellFragment :
     private fun subscribeForNavigation(showLoader: Boolean = true) {
         val activityIndicator = if (showLoader) appUtil.activityIndicator else null
 
-        compositeDisposable += simpleBuySync.performSync()
-            .onErrorComplete()
-            .toSingleDefault(false)
-            .flatMap {
-                buySellFlowNavigator.navigateTo(selectedAsset)
-            }
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe {
-                binding.buySellEmpty.gone()
-            }
-            .trackProgress(activityIndicator)
-            .subscribeBy(
-                onSuccess = {
-                    renderBuySellFragments(it)
-                },
-                onError = {
-                    renderErrorState()
+        compositeDisposable +=
+            simpleBuySync.performSync()
+                .onErrorComplete()
+                .toSingleDefault(false)
+                .flatMap {
+                    buySellFlowNavigator.navigateTo(selectedAsset)
+                        .zipWith(redesignFeatureFlag.enabled)
                 }
-            )
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    binding.buySellEmpty.gone()
+                }
+                .trackProgress(activityIndicator)
+                .subscribeBy(
+                    onSuccess = { (introAction, enabled) ->
+                        renderBuySellFragments(introAction, enabled)
+                    },
+                    onError = {
+                        renderErrorState()
+                    }
+                )
     }
 
-    private fun renderBuySellFragments(action: BuySellIntroAction?) {
+    private fun renderBuySellFragments(action: BuySellIntroAction?, redesignEnabled: Boolean) {
         with(binding) {
             buySellEmpty.gone()
             pager.visible()
@@ -119,13 +122,13 @@ class BuySellFragment :
                     goToCurrencySelection(action.supportedCurrencies)
                 is BuySellIntroAction.DisplayBuySellIntro -> {
                     if (!action.isGoldButNotEligible) {
-                        renderBuySellUi(action.hasPendingBuy)
+                        renderBuySellUi(action.hasPendingBuy, redesignEnabled)
                     } else {
                         renderNotEligibleUi()
                     }
                 }
                 is BuySellIntroAction.StartBuyWithSelectedAsset -> {
-                    renderBuySellUi(action.hasPendingBuy)
+                    renderBuySellUi(action.hasPendingBuy, redesignEnabled)
                     if (!action.hasPendingBuy && !hasReturnedFromBuyActivity) {
                         hasReturnedFromBuyActivity = false
                         startActivityForResult(
@@ -189,9 +192,33 @@ class BuySellFragment :
         )
     }
 
-    private fun renderBuySellUi(hasPendingBuy: Boolean) {
+    private fun renderBuySellUi(hasPendingBuy: Boolean, redesignEnabled: Boolean) {
         with(binding) {
-            tabLayout.setupWithViewPager(pager)
+            if (redesignEnabled) {
+                redesignTabLayout.apply {
+                    visible()
+                    items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
+                    onItemSelected = {
+                        pager.setCurrentItem(it, true)
+                    }
+                }
+                pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+                    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                        redesignTabLayout.selectedItemIndex = position
+                    }
+
+                    override fun onPageSelected(position: Int) {
+                        redesignTabLayout.selectedItemIndex = position
+                    }
+
+                    override fun onPageScrollStateChanged(state: Int) {
+                        // do nothing
+                    }
+                })
+            } else {
+                tabLayout.setupWithViewPager(pager)
+                tabLayout.visible()
+            }
 
             if (pager.adapter == null) {
                 pager.adapter = pagerAdapter
