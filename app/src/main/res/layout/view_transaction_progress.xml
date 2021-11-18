@@ -70,7 +70,7 @@
         android:layout_marginTop="@dimen/small_margin"
         android:layout_marginEnd="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/standard_margin"
-        app:layout_constraintBottom_toTopOf="@id/tx_ok_btn"
+        app:layout_constraintBottom_toTopOf="@id/secondary_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tx_title"
@@ -81,12 +81,15 @@
         android:id="@+id/tx_note_locks"
         style="@style/Text.Light.Centered.14"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="top|center_horizontal"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/small_margin"
         android:layout_marginEnd="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
-        app:layout_constraintBottom_toTopOf="@id/tx_ok_btn"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeMinTextSize="8sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@+id/secondary_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tx_subtitle"
@@ -94,13 +97,14 @@
         tools:text="Oops! Something Went Wrong." />
 
     <androidx.appcompat.widget.AppCompatButton
-        style="@style/CtaButton.White"
         android:id="@+id/secondary_btn"
-        android:visibility="gone"
+        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/small_margin"
-        app:layout_constraintBottom_toTopOf="@+id/tx_ok_btn" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/tx_ok_btn"
+        tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/tx_ok_btn"
