@@ -26,7 +26,7 @@ internal class InterestBalanceCallCache(
                         assetInfo to entry.toInterestBalance(assetInfo)
                     }
                 }.toMap()
-            }.onErrorReturn { emptyMap() }
+            }
     }
 
     private val cache = TimedCacheRequest(
@@ -35,7 +35,9 @@ internal class InterestBalanceCallCache(
     )
 
     fun getBalances(): Single<AssetInterestBalanceMap> =
-        cache.getCachedSingle()
+        cache.getCachedSingle().onErrorReturn {
+            emptyMap()
+        }
 
     fun invalidate() {
         cache.invalidate()
