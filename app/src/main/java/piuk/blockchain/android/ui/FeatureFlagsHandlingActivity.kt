@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -139,5 +140,9 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     override fun onPause() {
         compositeDisposable.clear()
         super.onPause()
+    }
+
+    companion object {
+        fun newIntent(context: Context) = Intent(context, FeatureFlagsHandlingActivity::class.java)
     }
 }

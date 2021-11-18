@@ -13,14 +13,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/settings_addresses"
@@ -46,25 +45,25 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/settings_airdrops" />
 
-            <androidx.core.widget.NestedScrollView
+            <FrameLayout
+                android:id="@+id/content_frame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@id/settings_logout"
-                app:layout_constraintTop_toBottomOf="@id/settings_web_login">
-
-                <FrameLayout
-                    android:id="@+id/content_frame"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </androidx.core.widget.NestedScrollView>
+                app:layout_constraintTop_toBottomOf="@id/settings_web_login" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/settings_logout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/settings_debug" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/settings_debug"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

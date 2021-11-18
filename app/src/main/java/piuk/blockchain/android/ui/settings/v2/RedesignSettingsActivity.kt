@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.v2
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
@@ -14,13 +15,17 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRedesignSettingsBinding
+import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.settings.SettingsFragment
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
+import piuk.blockchain.android.util.visibleIf
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class RedesignSettingsActivity : BlockchainActivity() {
 
@@ -30,6 +35,7 @@ class RedesignSettingsActivity : BlockchainActivity() {
 
     private val compositeDisposable = CompositeDisposable()
     private val userIdentity: UserIdentity by scopedInject()
+    private val environmentConfig: EnvironmentConfig by inject()
 
     override val alwaysDisableScreenshots: Boolean = true
 
@@ -51,6 +57,7 @@ class RedesignSettingsActivity : BlockchainActivity() {
                 onClick = {
                     setResultIntent(SettingsAction.Addresses)
                 }
+                startImageResource = ImageResource.Local(R.drawable.ic_nav_wallet, null)
             }
 
             settingsExchange.apply {
@@ -58,6 +65,7 @@ class RedesignSettingsActivity : BlockchainActivity() {
                 onClick = {
                     setResultIntent(SettingsAction.Exchange)
                 }
+                startImageResource = ImageResource.Local(R.drawable.ic_nav_the_exchange, null)
             }
 
             settingsAirdrops.apply {
@@ -65,6 +73,7 @@ class RedesignSettingsActivity : BlockchainActivity() {
                 onClick = {
                     setResultIntent(SettingsAction.Airdrops)
                 }
+                startImageResource = ImageResource.Local(R.drawable.ic_nav_airdrops, null)
             }
 
             settingsWebLogin.apply {
@@ -72,6 +81,7 @@ class RedesignSettingsActivity : BlockchainActivity() {
                 onClick = {
                     setResultIntent(SettingsAction.WebLogin)
                 }
+                startImageResource = ImageResource.Local(R.drawable.ic_nav_web_login, null)
             }
 
             settingsLogout.apply {
@@ -79,6 +89,16 @@ class RedesignSettingsActivity : BlockchainActivity() {
                 onClick = {
                     setResultIntent(SettingsAction.Logout)
                 }
+                startImageResource = ImageResource.Local(R.drawable.ic_nav_logout, null)
+            }
+
+            settingsDebug.apply {
+                visibleIf { environmentConfig.isRunningInDebugMode() }
+                primaryText = getString(R.string.item_debug_menu)
+                onClick = {
+                    startActivity(FeatureFlagsHandlingActivity.newIntent(this@RedesignSettingsActivity))
+                }
+                startImageResource = ImageResource.Local(R.drawable.ic_nav_debug_swap, null)
             }
         }
     }
