@@ -2406,7 +2406,7 @@
     <!-- Actions bottom sheet -->
     <string name="action_sheet_swap_description">Exchange for Another Crypto</string>
     <string name="action_sheet_send_description">Send to Any Wallet</string>
-    <string name="action_sheet_receive_description"><![CDATA[Copy Your Addresses & QR Codes]]></string>
+    <string name="action_sheet_receive_description">Copy Your Addresses &amp; QR Codes></string>
     <string name="action_sheet_rewards_description">Earn Rewards on Your Crypto</string>
     <string name="action_sheet_deposit_description">Add Cash from Your Bank</string>
     <string name="action_sheet_withdraw_description">Cash Out to Your Bank</string>

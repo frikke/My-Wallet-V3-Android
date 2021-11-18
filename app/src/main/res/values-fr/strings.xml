@@ -2203,4 +2203,57 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="login_approval_dialog_message">Nous avons remarqué une tentative de connexion à partir d\'un nouvel appareil. Si c\'était vous, approuvez l\'appareil ci-dessous.</string>
     <string name="login_approved_toast">Connexion approuvée ! Revenez à votre autre appareil pour continuer à vous connecter</string>
     <string name="login_denied_toast">Connexion refusée ! Si ce n\'est pas vous qui essayez de vous connecter, veuillez contacter le service d\'assistance</string>
+
+
+    <string name="funds_locked_details_contact_support">Vous voyez quelque chose qui ne va pas ? <annotation link="contact_support">Contacter l\'assistance</annotation></string>
+    <string name="bank_linking_mismatched_title">Est-ce votre compte bancaire ?</string>
+    <string name="bank_linking_mismatched_subtitle">Nous avons remarqué que les <b>noms ne correspondent pas</b>. La banque que vous liez doit avoir un prénom et un nom légaux correspondants à ceux enregistrés sur votre compte Blockchain.com.
+ <annotation link="learn_more">En savoir plus →</annotation></string>
+    <string name="bank_linking_already_linked_error_title">Ce compte est déjà lié.</string>
+    <string name="bank_linking_account_ob_error_title">Veuillez lier un compte courant.</string>
+    <string name="bank_linking_account_ob_error_subtitle">Votre banque peut vous facturer des frais supplémentaires si vous achetez de la crypto sans compte courant.</string>
+    <string name="bank_linking_invalid_error_subtitle">Votre banque peut vous facturer des frais supplémentaires si vous achetez de la crypto sans compte %s</string>
+    <string name="bank_linking_try_another_method">Essayez une autre méthode</string>
+    <string name="bank_linking_failed_ob_title">Un problème est survenu lors de la liaison de votre compte courant. Veuillez réessayer.</string>
+    <string name="bank_linking_failed_ach_title">Un problème est survenu lors de la liaison de votre compte courant. Veuillez réessayer.</string>
+    <string name="bank_linking_failed_subtitle">Veuillez réessayer ou sélectionner un autre mode de paiement.</string>
+    <string name="bank_linking_expired_ach_title">Nous n\'avons pas pu lier votre compte courant. Veuillez réessayer.</string>
+    <string name="bank_linking_expired_ob_title">Nous n\'avons pas pu lier votre compte courant. Veuillez réessayer.</string>
+    <string name="send_enter_amount_max_limit_from_custodial_info">Les envois à partir de comptes commerciaux ne peuvent pas dépasser %1$s %2$s. Il vous reste %3$s.</string>
+    <string name="withdrawal_max_limit_info">Les retraits sur les comptes en espèces ne peuvent pas dépasser %1$s %2$s. Il vous reste %3$s.</string>
+    <string name="max_swap_amount_description">Le montant maximal de %1$s que vous pouvez échanger contre %2$s est de %3$s.</string>
+    <string name="max_sell_amount_description">Le montant maximal de %1$s que vous pouvez vendre pour %2$s est de %3$s.</string>
+    <string name="swap_enter_amount_max_limit_from_custodial_info">Les échanges à partir de comptes commerciaux ne peut pas dépasser %1$s %2$s. Il vous reste %3$s.</string>
+    <string name="swap_enter_amount_max_limit_from_noncustodial_info">Les échanges à partir de portefeuilles de clés privées ne peuvent pas dépasser %1$s %2$s. Il vous reste %3$s.</string>
+    <string name="sell_enter_amount_max_limit_from_custodial_info">Les ventes à partir de comptes commerciaux ne peuvent pas dépasser %1$s %2$s. Il vous reste %3$s.</string>
+    <string name="sell_enter_amount_max_limit_from_noncustodial_info">Les ventes à partir de portefeuilles de clés privées ne peuvent pas dépasser %1$s %2$s. Il vous reste %3$s .</string>
+    <string name="buy_enter_amount_max_limit_info">Vous ne pouvez acheter que %1$s %2$s. Il vous reste %3$s.</string>
+    <string name="buy_enter_amount_max_limit_suggested_tier_upgrade_info">Vous ne pouvez acheter que %1$s %2$s. Il vous reste %3$s. Passez à Gold pour en acheter plus.</string>
+    <string name="buy_enter_amount_max_limit_without_upgrade_info">Vous ne pouvez acheter que %1$s %2$s. Il vous reste %3$s</string>
+    <string name="deposit_enter_amount_max_limit_suggested_tier_upgrade_info">TODO(aromano)</string>
+    <string name="buy_above_payment_method_error_message">Vous pouvez acheter jusqu\'à %1$s par transaction. Passez à Gold et achetez des montants plus importants avec votre banque ou votre carte.</string>
+    <string name="buy_above_payment_method_error_message_without_upgrade">Vous pouvez acheter jusqu\'à %1$s par transaction. Pour acheter %2$s divisez votre achat en plusieurs transactions.</string>
+    <string name="deposit_above_payment_method_error_message">Vous pouvez déposer jusqu\'à %1$s par transaction. Passez à Gold et déposez des montants plus importants.</string>
+    <string name="deposit_above_payment_method_error_message_without_upgrade">Vous pouvez déposer jusqu\'à %1$s par transaction. Pour déposer %2$s, divisez votre dépôt en plusieurs transactions.</string>
+    <string name="send_enter_amount_max_limit_info_action_title">Obtenez des envois illimités</string>
+    <string name="swap_enter_amount_max_limit_info_action_title">Échangez plus de crypto</string>
+    <string name="tx_tier_suggested_upgrade_info_action_description">Mettre à niveau votre Wallet</string>
+    <string name="tx_tier_suggested_upgrade_info_action_cta_button">VALIDER</string>
+    <string name="tx_periodic_limit_daily">un jour</string>
+    <string name="tx_periodic_limit_monthly">un mois</string>
+    <string name="tx_periodic_limit_yearly">un an</string>
+    <string name="try_again">Réessayez plus tard</string>
+    <string name="sell_confirmation_awaiting_success_message">Votre vente est en cours de vérification par le %s. Vous pouvez vérifier la progression de cette transaction dans la section Activité.</string>
+    <string name="swap_confirmation_awaiting_nc_sending_success_message">Votre échange est en cours de vérification par le réseau %s. Vous pouvez vérifier la progression de cette transaction dans la section Activité.</string>
+    <string name="swap_confirmation_awaiting_nc_receiving_success_message">Votre échange est en cours de vérification par les réseaux %1$s et %2$s. Vous pouvez vérifier la progression de cette transaction dans la section Activité.</string>
+    <string name="transfer_confirmation_awaiting_success_title">Transfert en cours</string>
+    <string name="transfer_confirmation_awaiting_success_message">Votre transfert est en cours de vérification par le réseau %s. Vous pouvez vérifier la progression de cette transaction dans la section Activité.</string>
+    <string name="send_progress_awaiting_complete_title">Envoi en cours</string>
+    <string name="swap_progress_awaiting_complete_title">Échange en cours</string>
+    <string name="send_progress_awaiting_subtitle">Votre envoi est en cours de vérification par le réseau %s. Vous pouvez vérifier la progression de cette transaction dans la section Activité.</string>
+    <string name="common_cash_out">Encaisser</string>
+    <string name="action_sheet_swap_description">Échanger contre une autre Crypto</string>
+    <string name="action_sheet_send_description">Envoyer vers n\'importe quel Portefeuille</string>
+    <string name="action_sheet_receive_description">Copiez vos adresses et codes QR></string>
+
 </resources>

@@ -2301,4 +2301,55 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="login_approved_toast">Giriş Onaylandı! Giriş yapmaya devam etmek için diğer cihazınıza dönün</string>
     <string name="login_denied_toast">Giriş Reddedildi! Giriş yapmaya çalışan siz değilseniz lütfen destek ekibiyle iletişime geçin</string>
 
+    <string name="funds_locked_details_contact_support">Sorun varmış gibi görünen bir şey mi fark ettiniz? <annotation link="contact_support">Destek ekibiyle iletişime geçin</annotation></string>
+    <string name="bank_linking_mismatched_title">Bu sizin banka hesabınız mı?</string>
+    <string name="bank_linking_mismatched_subtitle"><b>Adların eşleşmediğini</b> fark ettik. Bağladığınız banka ile Blockchain.com Hesabınızda aynı yasal ad ve soyadı kullanılmalıdır.
+ <annotation link="learn_more">Daha fazla bilgi →</annotation></string>
+    <string name="bank_linking_already_linked_error_title">Bu hesap zaten bağlı.</string>
+    <string name="bank_linking_account_ob_error_title">Lütfen bir Cari Hesap bağlayın.</string>
+    <string name="bank_linking_account_ob_error_subtitle">Cari hesabınız olmadan kripto para satın alırsanız bankanız sizden ek ücret talep edebilir.</string>
+    <string name="bank_linking_invalid_error_subtitle">%s hesabınız olmadan kripto para satın alırsanız bankanız sizden ek ücret talep edebilir.</string>
+    <string name="bank_linking_try_another_method">Başka bir yöntem deneyin</string>
+    <string name="bank_linking_failed_ob_title">Cari hesabınız bağlanırken bir sorun oluştu. Lütfen tekrar deneyin.</string>
+    <string name="bank_linking_failed_ach_title">Vadesiz hesabınız bağlanırken bir sorun oluştu. Lütfen tekrar deneyin.</string>
+    <string name="bank_linking_failed_subtitle">Lütfen tekrar deneyin veya farklı bir ödeme yöntemi seçin.</string>
+    <string name="bank_linking_expired_ach_title">Vadesiz hesabınızı bağlayamadık. Lütfen tekrar deneyin.</string>
+    <string name="bank_linking_expired_ob_title">Cari hesabınızı bağlayamadık. Lütfen tekrar deneyin.</string>
+    <string name="send_enter_amount_max_limit_from_custodial_info">Trade Hesaplarından %1$s %2$s üzeri gönderim yapılamaz. %3$s hakkınız kaldı.</string>
+    <string name="withdrawal_max_limit_info">Nakit Hesaplarından %1$s %2$s üzeri para çekilemez. %3$s hakkınız kaldı.</string>
+    <string name="max_swap_amount_description">%2$s karşılığında swap yapabileceğiniz maksimum %1$s tutarı şudur: %3$s</string>
+    <string name="max_sell_amount_description">%2$s karşılığında satabileceğiniz maksimum %1$s tutarı şudur: %3$s</string>
+    <string name="swap_enter_amount_max_limit_from_custodial_info">Trade Hesaplarından %1$s %2$s üzeri swap yapılamaz. %3$s hakkınız kaldı.</string>
+    <string name="swap_enter_amount_max_limit_from_noncustodial_info">Özel Anahtarlı Cüzdanlardan %1$s %2$s üzeri swap yapılamaz. %3$s hakkınız kaldı.</string>
+    <string name="sell_enter_amount_max_limit_from_custodial_info">Trade Hesaplarından %1$s %2$s üzeri satış yapılamaz. %3$s hakkınız kaldı.</string>
+    <string name="sell_enter_amount_max_limit_from_noncustodial_info">Özel Anahtarlı Cüzdanlardan %1$s %2$s üzeri satış yapılamaz. %3$s hakkınız kaldı.</string>
+    <string name="buy_enter_amount_max_limit_info">Sadece %1$s %2$s satın alabilirsiniz. %3$s hakkınız kaldı.</string>
+    <string name="buy_enter_amount_max_limit_suggested_tier_upgrade_info">Sadece %1$s %2$s satın alabilirsiniz. %3$s hakkınız kaldı. Daha fazla satın almak için hesabınızı Gold üyeliğe yükseltin.</string>
+    <string name="buy_enter_amount_max_limit_without_upgrade_info">Sadece %1$s %2$s satın alabilirsiniz. %3$s hakkınız kaldı</string>
+    <string name="deposit_enter_amount_max_limit_suggested_tier_upgrade_info">TODO(aromano)</string>
+    <string name="buy_above_payment_method_error_message">İşlem başına en fazla %1$s satın alabilirsiniz. Hesabınızı Gold üyeliğe yükseltip bankanız veya kartınız üzerinden daha büyük tutarlar satın alabilirsiniz.</string>
+    <string name="buy_above_payment_method_error_message_without_upgrade">İşlem başına en fazla %1$s satın alabilirsiniz. %2$s satın almak için, satın alacağınız tutarı birden çok işleme bölün.</string>
+    <string name="deposit_above_payment_method_error_message">İşlem başına en fazla %1$s yatırabilirsiniz. Hesabınızı Gold üyeliğe yükseltip daha büyük tutarlar yatırabilirsiniz.</string>
+    <string name="deposit_above_payment_method_error_message_without_upgrade">İşlem başına en fazla %1$s yatırabilirsiniz. %2$s yatırmak için, yatıracağınız parayı birden çok işleme bölün.</string>
+    <string name="send_enter_amount_max_limit_info_action_title">Sınırsız Gönderme İmkanı Elde Edin</string>
+    <string name="swap_enter_amount_max_limit_info_action_title">Daha Fazla Kripto Para Swap Edin</string>
+    <string name="tx_tier_suggested_upgrade_info_action_description">Cüzdanınızı Yükseltin</string>
+    <string name="tx_tier_suggested_upgrade_info_action_cta_button">GİT</string>
+    <string name="tx_periodic_limit_daily">bir gün</string>
+    <string name="tx_periodic_limit_monthly">bir ay</string>
+    <string name="tx_periodic_limit_yearly">bir yıl</string>
+    <string name="try_again">Daha sonra tekrar deneyin</string>
+    <string name="sell_confirmation_awaiting_success_message">Satış işleminiz şu an %s tarafından doğrulanıyor. Bu işlemin ilerleme durumunu Hareketler bölümünden kontrol edebilirsiniz.</string>
+    <string name="swap_confirmation_awaiting_nc_sending_success_message">Swap işleminiz şu an %s ağı tarafından doğrulanıyor. Bu işlemin ilerleme durumunu Hareketler bölümünden kontrol edebilirsiniz.</string>
+    <string name="swap_confirmation_awaiting_nc_receiving_success_message">Swap işleminiz şu an %1$s ve %2$s ağları tarafından doğrulanıyor. Bu işlemin ilerleme durumunu Hareketler bölümünden kontrol edebilirsiniz.</string>
+    <string name="transfer_confirmation_awaiting_success_title">Transfer İşlemi Sürüyor</string>
+    <string name="transfer_confirmation_awaiting_success_message">Transfer işleminiz şu an %s ağı tarafından doğrulanıyor. Bu işlemin ilerleme durumunu Hareketler bölümünden kontrol edebilirsiniz.</string>
+    <string name="send_progress_awaiting_complete_title">Gönderme İşlemi Sürüyor</string>
+    <string name="swap_progress_awaiting_complete_title">Swap İşlemi Sürüyor</string>
+    <string name="send_progress_awaiting_subtitle">Gönderme işleminiz şu an %s ağı tarafından doğrulanıyor. Bu işlemin ilerleme durumunu Hareketler bölümünden kontrol edebilirsiniz.</string>
+    <string name="common_cash_out">Nakde Çevir</string>
+    <string name="action_sheet_swap_description">Başka Bir Kripto Parayla Takas Edin</string>
+    <string name="action_sheet_send_description">Herhangi Bir Cüzdana Gönderin</string>
+    <string name="action_sheet_receive_description">Adreslerinizi ve QR Kodlarınızı Kopyalayın></string>
+
 </resources>
