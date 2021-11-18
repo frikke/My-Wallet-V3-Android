@@ -68,10 +68,11 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
 
     fun showTxSuccess(
         title: String,
-        subtitle: String
+        subtitle: String,
+        icon: Int = R.drawable.ic_check_circle
     ) {
         with(binding) {
-            txStateIndicator.setImageResource(R.drawable.ic_check_circle)
+            txStateIndicator.setImageResource(icon)
             txStateIndicator.visible()
         }
         showEndStateUi()

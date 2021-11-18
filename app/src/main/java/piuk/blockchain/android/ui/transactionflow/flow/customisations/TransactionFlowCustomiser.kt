@@ -496,6 +496,33 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
+    override fun transactionCompleteIcon(state: TransactionState): Int {
+        return when (state.action) {
+            AssetAction.Send, AssetAction.InterestDeposit, AssetAction.Sell -> {
+                if (state.sendingAccount is NonCustodialAccount) {
+                    R.drawable.ic_pending_clock
+                } else {
+                    R.drawable.ic_check_circle
+                }
+            }
+            AssetAction.Swap -> {
+                when {
+                    state.sendingAccount is NonCustodialAccount &&
+                        state.selectedTarget is CryptoNonCustodialAccount -> {
+                        R.drawable.ic_pending_clock
+                    }
+                    state.sendingAccount is NonCustodialAccount -> R.drawable.ic_pending_clock
+                    else -> R.drawable.ic_check_circle
+                }
+            }
+            AssetAction.FiatDeposit,
+            AssetAction.Withdraw,
+            AssetAction.InterestWithdraw -> R.drawable.ic_check_circle
+
+            else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
+        }
+    }
+
     override fun transactionCompleteMessage(state: TransactionState): String {
         return when (state.action) {
             AssetAction.Send -> {

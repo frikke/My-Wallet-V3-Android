@@ -1,15 +1,9 @@
 package piuk.blockchain.android.ui.transactionflow.flow
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TxResult
-import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxFlowInProgressBinding
@@ -37,23 +31,9 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         binding.txProgressView.onCtaClick { activity.finish() }
     }
 
-    private fun onViewTransactionClicked(asset: AssetInfo, onChainTxId: String) {
-        val explorerUri = assetResources.makeBlockExplorerUrl(asset, onChainTxId)
-        if (explorerUri.isNotEmpty()) {
-            Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse(explorerUri)
-                startActivity(this)
-            }
-        }
-    }
-
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! TransactionProgressFragment")
         require(newState.currentStep == TransactionStep.IN_PROGRESS)
-
-        if (newState.executionStatus == TxExecutionStatus.Completed) {
-            showViewTransactionButton(newState.pendingTx, newState.sendingAsset, newState.action)
-        }
 
         customiser.transactionProgressStandardIcon(newState)?.let {
             binding.txProgressView.setAssetIcon(it)
@@ -61,24 +41,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
         handleStatusUpdates(newState)
     }
-
-    private fun showViewTransactionButton(
-        pendingTx: PendingTx?,
-        sendingAsset: AssetInfo,
-        action: AssetAction
-    ) {
-        if (action.viewTransaction()) {
-            val onChainTxId = (pendingTx?.txResult as? TxResult.HashedTxResult)?.txId
-            onChainTxId?.let {
-                binding.txProgressView.configureSecondaryButton(getString(R.string.send_view_transaction)) {
-                    onViewTransactionClicked(sendingAsset, onChainTxId)
-                }
-            }
-        }
-    }
-
-    private fun AssetAction.viewTransaction(): Boolean =
-        (this == AssetAction.Send || this == AssetAction.Swap || this == AssetAction.Sell)
 
     private fun handleStatusUpdates(
         newState: TransactionState
@@ -92,7 +54,8 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 analyticsHooks.onTransactionSuccess(newState)
                 binding.txProgressView.showTxSuccess(
                     customiser.transactionCompleteTitle(newState),
-                    customiser.transactionCompleteMessage(newState)
+                    customiser.transactionCompleteMessage(newState),
+                    customiser.transactionCompleteIcon(newState)
                 )
             }
             is TxExecutionStatus.ApprovalRequired -> {
