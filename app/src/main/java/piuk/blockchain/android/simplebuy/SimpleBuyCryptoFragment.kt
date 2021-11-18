@@ -113,6 +113,7 @@ class SimpleBuyCryptoFragment :
 
     override fun onResume() {
         super.onResume()
+        model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
         model.process(SimpleBuyIntent.UpdateExchangeRate(currencyPrefs.selectedFiatCurrency, asset))
     }
 
@@ -122,7 +123,6 @@ class SimpleBuyCryptoFragment :
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         activity.setupToolbar(getString(R.string.tx_title_buy, asset.displayTicker))
 
-        model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, currencyPrefs.selectedFiatCurrency))
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
