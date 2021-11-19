@@ -37,3 +37,30 @@ fun BottomNavigationBarPreview() {
         }
     }
 }
+
+@Preview(name = "BottomNavigationBar w/ Pulse", group = "Navigation")
+@Composable
+fun BottomNavigationBarPulsePreview() {
+
+    var selectedNavigationItem by remember { mutableStateOf(null as? NavigationItem?) }
+    var bottomNavigationState by remember { mutableStateOf(BottomNavigationState.Add) }
+
+    AppTheme {
+        AppSurface {
+            BottomNavigationBar(
+                selectedNavigationItem = selectedNavigationItem,
+                onNavigationItemClick = {
+                    selectedNavigationItem = it
+                },
+                onMiddleButtonClick = {
+                    bottomNavigationState = when (bottomNavigationState) {
+                        BottomNavigationState.Add -> BottomNavigationState.Cancel
+                        BottomNavigationState.Cancel -> BottomNavigationState.Add
+                    }
+                },
+                bottomNavigationState = bottomNavigationState,
+                isPulseAnimationEnabled = true
+            )
+        }
+    }
+}

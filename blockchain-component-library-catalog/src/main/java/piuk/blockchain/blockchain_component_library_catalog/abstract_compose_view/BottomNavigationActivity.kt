@@ -37,6 +37,12 @@ class BottomNavigationActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<MaterialButton>(R.id.bottom_nav_enable_pulse).apply {
+            setOnClickListener {
+                bottomNavigationBar.isPulseAnimationEnabled = !bottomNavigationBar.isPulseAnimationEnabled
+            }
+        }
+
 
     }
 }

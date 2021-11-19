@@ -10,13 +10,11 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Divider
@@ -58,7 +56,8 @@ fun BottomNavigationBar(
     onNavigationItemClick: (NavigationItem) -> Unit = {},
     onMiddleButtonClick: () -> Unit = {},
     selectedNavigationItem: NavigationItem? = null,
-    bottomNavigationState: BottomNavigationState = BottomNavigationState.Add
+    bottomNavigationState: BottomNavigationState = BottomNavigationState.Add,
+    isPulseAnimationEnabled: Boolean = false
 ) {
     val rotation by animateFloatAsState(
         targetValue = when (bottomNavigationState) {
@@ -96,72 +95,82 @@ fun BottomNavigationBar(
     ) {
         Column {
             Divider(thickness = 1.dp, color = dividerColor, modifier = Modifier.fillMaxWidth())
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                navigationItems.forEachIndexed { index, item ->
-                    if (index == middleIndex) {
-                        Box(
-                            modifier = Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) {
-                                onMiddleButtonClick.invoke()
-                            }
-                        ) {
-                            Crossfade(targetState = bottomNavigationState) { state ->
-                                when (state) {
-                                    BottomNavigationState.Add -> Image(
-                                        painter = painterResource(R.drawable.ic_bottom_nav_add),
-                                        contentDescription = null
-                                    )
-                                    BottomNavigationState.Cancel -> Image(
-                                        painter = painterResource(R.drawable.ic_bottom_nav_cancel),
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                            Image(
+            Box {
+                if (isPulseAnimationEnabled) {
+                    PulseLoading(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .wrapContentSize(unbounded = true)
+                    )
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    navigationItems.forEachIndexed { index, item ->
+                        if (index == middleIndex) {
+                            Box(
                                 modifier = Modifier
-                                    .height(56.dp)
-                                    .width(56.dp)
-                                    .padding(AppTheme.dimensions.paddingMedium)
-                                    .rotate(rotation),
-                                painter = painterResource(R.drawable.ic_bottom_nav_plus),
-                                contentDescription = null,
-                                colorFilter = ColorFilter.tint(backgroundColor)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                        onClick = onMiddleButtonClick
+                                    )
+                                    .weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Crossfade(targetState = bottomNavigationState) { state ->
+                                    when (state) {
+                                        BottomNavigationState.Add -> Image(
+                                            painter = painterResource(R.drawable.ic_bottom_nav_add),
+                                            contentDescription = null
+                                        )
+                                        BottomNavigationState.Cancel -> Image(
+                                            painter = painterResource(R.drawable.ic_bottom_nav_cancel),
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                                Image(
+                                    modifier = Modifier
+                                        .size(22.dp)
+                                        .align(Alignment.Center)
+                                        .rotate(rotation),
+                                    painter = painterResource(R.drawable.ic_bottom_nav_plus),
+                                    contentDescription = null,
+                                    colorFilter = ColorFilter.tint(backgroundColor)
+                                )
+                            }
+                        }
+
+                        val selected = item == selectedNavigationItem
+                        BottomNavigationItemWithIndicator(selected = selected, modifier = Modifier.weight(1f)) {
+                            BottomNavigationItem(
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = item.icon),
+                                        contentDescription = stringResource(item.title)
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        text = stringResource(item.title),
+                                        fontSize = 10.sp,
+                                        color = if (selected) {
+                                            AppTheme.colors.primary
+                                        } else {
+                                            textColor
+                                        }
+                                    )
+                                },
+                                selectedContentColor = selectedContentColor,
+                                unselectedContentColor = unselectedContentColor,
+                                alwaysShowLabel = true,
+                                selected = selected,
+                                onClick = {
+                                    onNavigationItemClick(item)
+                                }
                             )
                         }
-                    }
-
-                    val selected = item == selectedNavigationItem
-                    BottomNavigationItemWithIndicator(selected = selected) {
-                        BottomNavigationItem(
-                            icon = {
-                                Icon(
-                                    painter = painterResource(id = item.icon),
-                                    contentDescription = stringResource(item.title)
-                                )
-                            },
-                            label = {
-                                Text(
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    text = stringResource(item.title),
-                                    fontSize = 10.sp,
-                                    color = if (selected) {
-                                        AppTheme.colors.primary
-                                    } else {
-                                        textColor
-                                    }
-                                )
-                            },
-                            selectedContentColor = selectedContentColor,
-                            unselectedContentColor = unselectedContentColor,
-                            alwaysShowLabel = true,
-                            selected = selected,
-                            onClick = {
-                                onNavigationItemClick(item)
-                            }
-                        )
                     }
                 }
             }
@@ -172,15 +181,16 @@ fun BottomNavigationBar(
 @Composable
 fun BottomNavigationItemWithIndicator(
     selected: Boolean,
+    modifier: Modifier = Modifier,
     BottomNavigationItem: @Composable () -> Unit
 ) {
-    Column(modifier = Modifier.width(IntrinsicSize.Max), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         if (selected) {
             Divider(
                 modifier = Modifier
                     .clipToBounds()
                     .absoluteOffset(y = (-2).dp)
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth(0.6f)
                     .clip(AppTheme.shapes.small),
                 thickness = 4.dp,
                 color = AppTheme.colors.primary

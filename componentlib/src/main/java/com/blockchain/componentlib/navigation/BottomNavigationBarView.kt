@@ -28,6 +28,7 @@ class BottomNavigationBarView @JvmOverloads constructor(
     var onMiddleButtonClick by mutableStateOf({})
     var selectedNavigationItem by mutableStateOf(null as? NavigationItem?)
     var bottomNavigationState by mutableStateOf(BottomNavigationState.Add)
+    var isPulseAnimationEnabled by mutableStateOf(false)
 
     @Composable
     override fun Content() {
@@ -38,7 +39,8 @@ class BottomNavigationBarView @JvmOverloads constructor(
                     onNavigationItemClick,
                     onMiddleButtonClick,
                     selectedNavigationItem,
-                    bottomNavigationState
+                    bottomNavigationState,
+                    isPulseAnimationEnabled
                 )
             }
         }
