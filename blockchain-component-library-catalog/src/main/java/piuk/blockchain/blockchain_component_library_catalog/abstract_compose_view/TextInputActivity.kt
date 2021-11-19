@@ -3,6 +3,7 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.controls.TextInputView
+import com.blockchain.componentlib.image.ImageResource
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class TextInputActivity : AppCompatActivity() {
@@ -24,7 +25,7 @@ class TextInputActivity : AppCompatActivity() {
             errorText = "This is an error message"
             labelText = "Label"
             placeholderText = "Type Error to show error state"
-            trailingIcon = R.drawable.ic_alert
+            trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
         }
 
         findViewById<TextInputView>(R.id.error_text_input).apply {
@@ -37,7 +38,7 @@ class TextInputActivity : AppCompatActivity() {
             errorText = "This is an error message"
             labelText = "Label"
             placeholderText = "Placeholder"
-            trailingIcon = R.drawable.ic_alert
+            trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
         }
 
         findViewById<TextInputView>(R.id.disabled_text_input).apply {
@@ -49,7 +50,7 @@ class TextInputActivity : AppCompatActivity() {
             isInputEnabled = false
             labelText = "Label"
             assistiveText = "This is disabled assistive text"
-            trailingIcon = R.drawable.ic_alert
+            trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
         }
     }
 }

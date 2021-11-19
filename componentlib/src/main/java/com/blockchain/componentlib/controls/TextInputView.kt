@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
-import androidx.core.content.res.ResourcesCompat
+import com.blockchain.componentlib.image.ImageResource
 
 class TextInputView @JvmOverloads constructor(
     context: Context,
@@ -23,8 +23,8 @@ class TextInputView @JvmOverloads constructor(
     var errorText by mutableStateOf("")
     var labelText by mutableStateOf("")
     var placeholderText by mutableStateOf("")
-    var trailingIcon by mutableStateOf(ResourcesCompat.ID_NULL)
-    var leadingIcon by mutableStateOf(ResourcesCompat.ID_NULL)
+    var trailingIconResource: ImageResource by mutableStateOf(ImageResource.None)
+    var leadingIconResource: ImageResource by mutableStateOf(ImageResource.None)
 
     @Composable
     override fun Content() {
@@ -37,8 +37,8 @@ class TextInputView @JvmOverloads constructor(
             label = labelText,
             errorMessage = errorText,
             isError = isError,
-            trailingIcon = trailingIcon,
-            leadingIcon = leadingIcon
+            trailingIcon = trailingIconResource,
+            leadingIcon = leadingIconResource
         )
     }
 }

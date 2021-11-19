@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.controls
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -15,12 +14,12 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.res.ResourcesCompat
+import com.blockchain.componentlib.image.Image
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
@@ -42,8 +41,8 @@ fun TextInput(
     label: String? = null,
     placeholder: String? = null,
     assistiveText: String? = null,
-    leadingIcon: Int = ResourcesCompat.ID_NULL,
-    trailingIcon: Int = ResourcesCompat.ID_NULL,
+    leadingIcon: ImageResource = ImageResource.None,
+    trailingIcon: ImageResource = ImageResource.None,
     isError: Boolean = false,
     errorMessage: String? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -114,20 +113,14 @@ fun TextInput(
             placeholder = if (placeholder != null) {
                 { Text(placeholder) }
             } else null,
-            leadingIcon = if (leadingIcon != ResourcesCompat.ID_NULL) {
+            leadingIcon = if (leadingIcon != ImageResource.None) {
                 {
-                    Image(
-                        painter = painterResource(leadingIcon),
-                        contentDescription = null,
-                    )
+                    Image(imageResource = leadingIcon)
                 }
             } else null,
-            trailingIcon = if (trailingIcon != ResourcesCompat.ID_NULL) {
+            trailingIcon = if (trailingIcon != ImageResource.None) {
                 {
-                    Image(
-                        painter = painterResource(trailingIcon),
-                        contentDescription = null,
-                    )
+                    Image(imageResource = leadingIcon)
                 }
             } else null,
             enabled = enabled,
