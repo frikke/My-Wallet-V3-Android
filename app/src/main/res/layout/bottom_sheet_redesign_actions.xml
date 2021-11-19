@@ -5,11 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/action_sheet_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tiny_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/vector_sheet_indicator_small" />
+
     <com.blockchain.componentlib.tablerow.DefaultTableRowView
         android:id="@+id/swap_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/divider_1" />
+        app:layout_constraintBottom_toTopOf="@+id/divider_1"
+        app:layout_constraintTop_toBottomOf="@id/action_sheet_indicator" />
 
     <com.blockchain.componentlib.divider.HorizontalDividerView
         android:id="@+id/divider_1"
