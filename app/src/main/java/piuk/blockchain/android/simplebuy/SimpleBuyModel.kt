@@ -403,8 +403,8 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.AddNewPaymentMethodRequested(paymentMethod))
                 } else {
                     process(SimpleBuyIntent.SelectedPaymentMethodUpdate(paymentMethod))
+                    process(SimpleBuyIntent.UpdateErrorState(errorState))
                 }
-                process(SimpleBuyIntent.UpdateErrorState(errorState))
             },
             onError = {
                 process(SimpleBuyIntent.ErrorIntent())

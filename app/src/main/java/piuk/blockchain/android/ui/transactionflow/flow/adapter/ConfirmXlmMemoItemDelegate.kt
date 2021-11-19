@@ -115,7 +115,7 @@ private class XlmMemoItemViewHolder(
         addTextChangedListener(object : AfterTextChangedWatcher() {
             override fun afterTextChanged(s: Editable?) {
                 val selectedOptionIsText = binding.confirmDetailsMemoSpinner.selectedItemPosition == TEXT_INDEX
-                val id = if (selectedOptionIsText) null else s.toString().toLong()
+                val id = if (selectedOptionIsText) null else s.toString().toLongOrNull()
                 val text = if (!selectedOptionIsText) null else s.toString()
                 model.process(
                     TransactionIntent.ModifyTxOption(
