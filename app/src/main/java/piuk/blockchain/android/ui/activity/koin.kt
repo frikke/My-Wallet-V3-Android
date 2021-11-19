@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.activity
 
 import com.blockchain.koin.ioDispatcher
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.walletRedesignFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.activity.detail.ActivityDetailState
@@ -31,7 +32,8 @@ val activitiesModule = module {
                 activityRepository = get(),
                 custodialWalletManager = get(),
                 simpleBuyPrefs = get(),
-                analytics = get()
+                analytics = get(),
+                redesignEnabledFeatureFlag = get(walletRedesignFeatureFlag)
             )
         }
 

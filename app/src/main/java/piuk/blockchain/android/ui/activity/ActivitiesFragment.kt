@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.annotations.CommonCode
 import com.blockchain.coincore.ActivitySummaryItem
@@ -190,6 +191,15 @@ class ActivitiesFragment :
                 }
             } ?: accountIndicator.gone()
 
+            // TODO kill this - temporary update to the current design to support Redesign Phase I
+            if (newState.redesignEnabled) {
+                accountSelectBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+                accountName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                fiatBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.grey_800))
+                showAccounts.setColorFilter(ContextCompat.getColor(requireContext(), R.color.grey_400))
+                accountSelectFilter.gone()
+            }
+
             accountName.text = account.label
             fiatBalance.text = ""
             selectedFiatCurrency = currencyPrefs.selectedFiatCurrency
@@ -208,6 +218,8 @@ class ActivitiesFragment :
                         Timber.e("Unable to get balance for ${account.label}")
                     }
                 )
+
+            accountSelectBtn.visible()
         }
     }
 
