@@ -195,12 +195,14 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
     private fun renderBuySellUi(hasPendingBuy: Boolean, redesignEnabled: Boolean) {
         with(binding) {
             if (redesignEnabled) {
+                redesignDivider.visible()
                 redesignTabLayout.apply {
                     visible()
                     items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
                     onItemSelected = {
                         pager.setCurrentItem(it, true)
                     }
+                    showBottomShadow = true
                 }
                 pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {

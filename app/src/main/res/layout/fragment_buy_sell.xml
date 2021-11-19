@@ -5,13 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/redesign_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.blockchain.componentlib.control.TabLayoutLargeView
         android:id="@+id/redesign_tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/pager"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/redesign_divider" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/pager"

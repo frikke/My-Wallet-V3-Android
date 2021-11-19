@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Surface
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -27,22 +28,35 @@ fun TabLayoutLarge(
     onItemSelected: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
     selectedItemIndex: Int = 0,
+    hasBottomShadow: Boolean = false
 ) {
-    TabRow(
-        selectedTabIndex = selectedItemIndex,
-        backgroundColor = Color.Transparent,
-        contentColor = AppTheme.colors.primary,
-        divider = {},
-        modifier = modifier,
+    val padding = if (hasBottomShadow) {
+        2.dp
+    } else {
+        0.dp
+    }
+
+    Surface(
+        color = AppTheme.colors.background,
+        elevation = padding,
+        modifier = Modifier.padding(bottom = padding)
     ) {
-        items.forEachIndexed { index, itemName ->
-            TabLayoutItem(
-                itemName = itemName,
-                isSelected = selectedItemIndex == index,
-                modifier = Modifier
-                    .clickable { onItemSelected(index) }
-                    .padding(vertical = 14.dp)
-            )
+        TabRow(
+            selectedTabIndex = selectedItemIndex,
+            backgroundColor = Color.Transparent,
+            contentColor = AppTheme.colors.primary,
+            divider = {},
+            modifier = modifier
+        ) {
+            items.forEachIndexed { index, itemName ->
+                TabLayoutItem(
+                    itemName = itemName,
+                    isSelected = selectedItemIndex == index,
+                    modifier = Modifier
+                        .clickable { onItemSelected(index) }
+                        .padding(vertical = 14.dp)
+                )
+            }
         }
     }
 }
@@ -68,7 +82,7 @@ private fun TabLayoutItem(
 
 @Preview
 @Composable
-private fun TabLayoutLargePreview() {
+private fun TabLayoutLargePreview_Default() {
     var selectedItem by remember { mutableStateOf(0) }
     AppTheme {
         AppSurface {
@@ -76,7 +90,25 @@ private fun TabLayoutLargePreview() {
                 items = listOf("First", "Second", "Third"),
                 onItemSelected = { index -> selectedItem = index },
                 modifier = Modifier.fillMaxWidth(),
-                selectedItemIndex = selectedItem
+                selectedItemIndex = selectedItem,
+                hasBottomShadow = false
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun TabLayoutLargePreview_withShadow() {
+    var selectedItem by remember { mutableStateOf(0) }
+    AppTheme {
+        AppSurface {
+            TabLayoutLarge(
+                items = listOf("First", "Second", "Third"),
+                onItemSelected = { index -> selectedItem = index },
+                modifier = Modifier.fillMaxWidth(),
+                selectedItemIndex = selectedItem,
+                hasBottomShadow = true
             )
         }
     }
