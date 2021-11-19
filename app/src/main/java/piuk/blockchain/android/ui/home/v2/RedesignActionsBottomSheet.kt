@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.home.v2
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
@@ -53,6 +54,12 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                     dismiss()
                     host.launchSwap(null, null)
                 }
+                startImageResource = ImageResource.LocalWithBackground(
+                    id = R.drawable.ic_tx_swap,
+                    filterColorId = R.color.blue_600,
+                    tintColorId = R.color.blue_400,
+                    contentDescription = null
+                )
             }
             sendBtn.apply {
                 primaryText = getString(R.string.common_send)
@@ -61,6 +68,12 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                     dismiss()
                     host.launchSend()
                 }
+                startImageResource = ImageResource.LocalWithBackground(
+                    id = R.drawable.ic_tx_sent,
+                    filterColorId = R.color.blue_600,
+                    tintColorId = R.color.blue_400,
+                    contentDescription = null
+                )
             }
             receiveBtn.apply {
                 primaryText = getString(R.string.common_receive)
@@ -69,6 +82,12 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                     dismiss()
                     host.launchReceive()
                 }
+                startImageResource = ImageResource.LocalWithBackground(
+                    id = R.drawable.ic_tx_receive,
+                    filterColorId = R.color.blue_600,
+                    tintColorId = R.color.blue_400,
+                    contentDescription = null
+                )
             }
             rewardsBtn.apply {
                 primaryText = getString(R.string.common_rewards)
@@ -77,6 +96,12 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                     dismiss()
                     host.launchInterestDashboard(LaunchOrigin.NAVIGATION)
                 }
+                startImageResource = ImageResource.LocalWithBackground(
+                    id = R.drawable.ic_tx_interest,
+                    filterColorId = R.color.blue_600,
+                    tintColorId = R.color.blue_400,
+                    contentDescription = null
+                )
             }
             /* TODO disabling for now as stretch goal for Redesing Phase I
             addCashBtn.apply {

@@ -53,7 +53,8 @@ fun Image(
             val filterColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.filterColorId))
             val tintColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.tintColorId))
             Box(
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(32.dp)
             ) {
                 Box(
                     modifier = Modifier

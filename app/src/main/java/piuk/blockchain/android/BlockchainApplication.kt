@@ -88,6 +88,9 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
         super.onCreate()
 
+        // TODO disable dark mode for now, re-enable once we're further into the redesign
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
         // Init Timber
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

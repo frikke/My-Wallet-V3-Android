@@ -38,7 +38,6 @@ fun DefaultTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = 16.dp)
                     .size(24.dp)
             )
         },
@@ -46,7 +45,7 @@ fun DefaultTableRow(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp)
+                    .padding(start = 16.dp, end = 8.dp)
             ) {
                 Text(
                     text = primaryText,
@@ -228,7 +227,7 @@ fun DefaultTableRow_Tag_Dark() {
 @Preview
 @Composable
 fun DefaultTableRow_Long_Tag() {
-    AppTheme() {
+    AppTheme {
         AppSurface {
             DefaultTableRow(
                 primaryText = "Navigate over here",
@@ -281,6 +280,42 @@ fun DefaultTableRow_Long_Tag_Dark() {
                         value = "Warning",
                         type = TagType.Warning
                     )
+                )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_Local_ImageStart() {
+    AppTheme {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                onClick = {},
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.carousel_rewards,
+                    contentDescription = null
+                )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_Local_With_BackgroundImageStart() {
+    AppTheme {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                onClick = {},
+                startImageResource = ImageResource.LocalWithBackground(
+                    id = R.drawable.ic_blockchain,
+                    filterColorId = R.color.paletteBasePrimary,
+                    tintColorId = R.color.paletteBasePrimaryMuted,
+                    contentDescription = null
                 )
             )
         }
