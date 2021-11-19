@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical"
+        tools:context=".abstract_compose_view.PrimaryButtonActivity">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="Default Card Alert"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.alert.abstract.CardAlertView
+            android:id="@+id/default_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.alert.abstract.CardAlertView
+            android:id="@+id/default_card_bordered"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="Success Card Alert"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.alert.abstract.CardAlertView
+            android:id="@+id/success_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.alert.abstract.CardAlertView
+            android:id="@+id/success_card_bordered"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="Warning Card Alert"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.alert.abstract.CardAlertView
+            android:id="@+id/warning_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.alert.abstract.CardAlertView
+            android:id="@+id/warning_card_bordered"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="Error Card Alert"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.alert.abstract.CardAlertView
+            android:id="@+id/error_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.alert.abstract.CardAlertView
+            android:id="@+id/error_card_bordered"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</ScrollView>
+
