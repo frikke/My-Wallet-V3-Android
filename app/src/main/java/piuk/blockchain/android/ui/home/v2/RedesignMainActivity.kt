@@ -24,6 +24,7 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.activityShown
+import com.blockchain.preferences.DashboardPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -98,6 +99,7 @@ class RedesignMainActivity :
 
     override fun initBinding(): ActivityRedesignMainBinding = ActivityRedesignMainBinding.inflate(layoutInflater)
 
+    private val dashboardPrefs: DashboardPrefs by scopedInject()
     private var activityResultAction: () -> Unit = {}
     private var handlingResult = false
 
@@ -219,6 +221,9 @@ class RedesignMainActivity :
 
     private fun setupNavigation() {
         binding.bottomNavigation.apply {
+            if (!dashboardPrefs.hasTappedFabButton) {
+                isPulseAnimationEnabled = true
+            }
             onNavigationItemClick = {
                 selectedNavigationItem = it
                 when (it) {
@@ -238,6 +243,8 @@ class RedesignMainActivity :
                 }
             }
             onMiddleButtonClick = {
+                dashboardPrefs.hasTappedFabButton = true
+                isPulseAnimationEnabled = false
                 showBottomSheet(
                     RedesignActionsBottomSheet.newInstance()
                 )

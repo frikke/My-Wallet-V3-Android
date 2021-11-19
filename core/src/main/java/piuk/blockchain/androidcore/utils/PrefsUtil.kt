@@ -107,6 +107,10 @@ class PrefsUtil(
             setValue(KEY_DASHBOARD_ORDER, Json.encodeToString(value))
         }
 
+    override var hasTappedFabButton: Boolean
+        get() = getValue(KEY_TAPPED_FAB, false)
+        set(seen) = setValue(KEY_TAPPED_FAB, seen)
+
     override var qaRandomiseDeviceId: Boolean
         get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
         set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
@@ -233,11 +237,6 @@ class PrefsUtil(
     override var preRatingActionCompletedTimes: Int
         get() = getValue(PRE_RATING_ACTION_COMPLETED_TIMES, 0)
         set(value) = setValue(PRE_RATING_ACTION_COMPLETED_TIMES, value)
-
-    // From Onboarding
-    override var swapIntroCompleted: Boolean
-        get() = getValue(KEY_SWAP_INTRO_COMPLETED, false)
-        set(v) = setValue(KEY_SWAP_INTRO_COMPLETED, v)
 
     // Wallet Status
     override var lastBackupTime: Long
@@ -627,10 +626,10 @@ class PrefsUtil(
         private const val KEY_BANK_LINKING = "KEY_BANK_LINKING"
         private const val KEY_ONE_TIME_TOKEN_PATH = "KEY_ONE_TIME_TOKEN_PATH"
 
-        private const val KEY_SWAP_INTRO_COMPLETED = "key_swap_intro_completed"
         private const val KEY_CUSTODIAL_INTRO_SEEN = "key_custodial_balance_intro_seen"
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
+        private const val KEY_TAPPED_FAB = "key_tapped_fab"
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"
