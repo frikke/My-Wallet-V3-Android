@@ -279,7 +279,7 @@ internal interface Nabu {
     @GET(NABU_SIMPLE_BUY_ELIGIBILITY)
     fun isEligibleForSimpleBuy(
         @Header("authorization") authorization: String,
-        @Query("fiatCurrency") fiatCurrency: String,
+        @Query("fiatCurrency") fiatCurrency: String?,
         @Query("methods") methods: String = "BANK_ACCOUNT,PAYMENT_CARD"
     ): Single<SimpleBuyEligibility>
 

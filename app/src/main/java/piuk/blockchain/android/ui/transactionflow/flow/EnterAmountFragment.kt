@@ -336,7 +336,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
     private fun startBuyForCurrency(asset: AssetInfo) {
         startActivity(
-            SimpleBuyActivity.newInstance(
+            SimpleBuyActivity.newIntent(
                 context = requireActivity(),
                 launchFromNavigationBar = true,
                 asset = asset

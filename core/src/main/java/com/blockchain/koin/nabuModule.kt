@@ -111,7 +111,8 @@ val nabuModule = module {
                 interestRepository = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                pairsCache = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -132,8 +133,7 @@ val nabuModule = module {
         factory {
             NabuCachedEligibilityProvider(
                 nabuService = get(),
-                authenticator = get(),
-                currencyPrefs = get()
+                authenticator = get()
             )
         }.bind(SimpleBuyEligibilityProvider::class)
 

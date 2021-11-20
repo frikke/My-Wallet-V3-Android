@@ -4,6 +4,7 @@ import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.BuildConfig
 import com.blockchain.core.Database
+import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -138,6 +139,10 @@ val coreModule = module {
                 assetCatalogue = get(),
                 authHeaderProvider = get()
             )
+        }
+
+        scoped {
+            BuyPairsCache(nabuService = get())
         }
 
         scoped {

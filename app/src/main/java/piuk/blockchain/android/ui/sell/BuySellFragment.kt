@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.sell
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -31,7 +30,6 @@ import piuk.blockchain.android.databinding.FragmentBuySellBinding
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuyCheckoutFragment
-import piuk.blockchain.android.simplebuy.SimpleBuySelectCurrencyFragment
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.setupToolbar
@@ -118,8 +116,6 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
             buySellEmpty.gone()
             pager.visible()
             when (action) {
-                is BuySellIntroAction.NavigateToCurrencySelection ->
-                    goToCurrencySelection(action.supportedCurrencies)
                 is BuySellIntroAction.DisplayBuySellIntro -> {
                     if (!action.isGoldButNotEligible) {
                         renderBuySellUi(action.hasPendingBuy, redesignEnabled)
@@ -132,7 +128,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                     if (!action.hasPendingBuy && !hasReturnedFromBuyActivity) {
                         hasReturnedFromBuyActivity = false
                         startActivityForResult(
-                            SimpleBuyActivity.newInstance(
+                            SimpleBuyActivity.newIntent(
                                 context = activity as Context,
                                 asset = action.selectedAsset,
                                 launchFromNavigationBar = true
@@ -142,7 +138,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                     }
                 }
                 else -> startActivity(
-                    SimpleBuyActivity.newInstance(
+                    SimpleBuyActivity.newIntent(
                         context = activity as Context,
                         launchFromNavigationBar = true,
                         launchKycResume = false
@@ -241,10 +237,6 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         }
     }
 
-    private fun goToCurrencySelection(supportedCurrencies: List<String>) {
-        SimpleBuySelectCurrencyFragment.newInstance(supportedCurrencies).show(childFragmentManager, "BOTTOM_SHEET")
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         compositeDisposable.clear()
@@ -296,7 +288,6 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
     override fun onBackPressed(): Boolean = false
 }
 
-@SuppressLint("WrongConstant")
 internal class ViewPagerAdapter(
     private val titlesList: List<String>,
     fragmentManager: FragmentManager

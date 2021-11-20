@@ -308,7 +308,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                         )
                     )
                     startActivity(
-                        SimpleBuyActivity.newInstance(requireContext(), asset, true)
+                        SimpleBuyActivity.newIntent(requireContext(), asset, true)
                     )
                     dismiss()
                 }

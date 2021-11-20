@@ -1,0 +1,113 @@
+package piuk.blockchain.android.simplebuy
+
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Single
+
+class BuyFlowNavigator(
+    private val simpleBuySyncFactory: SimpleBuySyncFactory,
+    private val userIdentity: UserIdentity,
+    private val currencyPrefs: CurrencyPrefs,
+    private val custodialWalletManager: CustodialWalletManager
+) {
+
+    val currentState: SimpleBuyState
+        get() = simpleBuySyncFactory.currentState() ?: SimpleBuyState()
+
+    private fun stateCheck(
+        startedFromKycResume: Boolean,
+        startedFromNavigationBar: Boolean,
+        startedFromApprovalDeepLink: Boolean,
+        cryptoCurrency: AssetInfo
+    ): Single<BuyNavigation> {
+        return if (
+            startedFromKycResume ||
+            currentState.currentScreen == FlowScreen.KYC ||
+            currentState.currentScreen == FlowScreen.KYC_VERIFICATION
+        ) {
+
+            Single.zip(
+                userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)),
+                userIdentity.isKycInProgress(),
+                userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))
+            ) { verifiedGold, kycInProgress, rejectedGold ->
+                when {
+                    verifiedGold -> BuyNavigation.FlowScreenWithCurrency(
+                        FlowScreen.ENTER_AMOUNT, cryptoCurrency
+                    )
+                    kycInProgress || rejectedGold -> BuyNavigation.FlowScreenWithCurrency(
+                        FlowScreen.KYC_VERIFICATION, cryptoCurrency
+                    )
+                    else -> BuyNavigation.FlowScreenWithCurrency(FlowScreen.KYC, cryptoCurrency)
+                }
+            }
+        } else {
+            when {
+                startedFromApprovalDeepLink -> {
+                    Single.just(BuyNavigation.OrderInProgressScreen)
+                }
+                currentState.orderState == OrderState.AWAITING_FUNDS -> {
+                    Single.just(BuyNavigation.PendingOrderScreen)
+                }
+                startedFromNavigationBar -> {
+                    Single.just(
+                        BuyNavigation.FlowScreenWithCurrency(FlowScreen.ENTER_AMOUNT, cryptoCurrency)
+                    )
+                }
+                else -> {
+                    Single.just(
+                        BuyNavigation.FlowScreenWithCurrency(currentState.currentScreen, cryptoCurrency)
+                    )
+                }
+            }
+        }
+    }
+
+    fun navigateTo(
+        startedFromKycResume: Boolean,
+        startedFromDashboard: Boolean,
+        startedFromApprovalDeepLink: Boolean,
+        preselectedCrypto: AssetInfo?,
+        failOnUnavailableCurrency: Boolean = false
+    ): Single<BuyNavigation> {
+
+        val cryptoCurrency = preselectedCrypto
+            ?: currentState.selectedCryptoAsset ?: throw IllegalStateException("CryptoCurrency is not available")
+
+        return currencyCheck().flatMap { currencySupported ->
+            if (!currencySupported) {
+                if (!failOnUnavailableCurrency) {
+                    custodialWalletManager.getSupportedFiatCurrencies().map {
+                        BuyNavigation.CurrencySelection(it, currencyPrefs.selectedFiatCurrency)
+                    }
+                } else {
+                    Single.just(BuyNavigation.CurrencyNotAvailable)
+                }
+            } else {
+                stateCheck(
+                    startedFromKycResume,
+                    startedFromDashboard,
+                    startedFromApprovalDeepLink,
+                    cryptoCurrency
+                )
+            }
+        }
+    }
+
+    private fun currencyCheck(): Single<Boolean> {
+        return custodialWalletManager.isCurrencySupportedForSimpleBuy(currencyPrefs.tradingCurrency)
+    }
+}
+
+sealed class BuyNavigation {
+    data class CurrencySelection(val currencies: List<String>, val selectedCurrency: String) : BuyNavigation()
+    data class FlowScreenWithCurrency(val flowScreen: FlowScreen, val cryptoCurrency: AssetInfo) : BuyNavigation()
+    object PendingOrderScreen : BuyNavigation()
+    object CurrencyNotAvailable : BuyNavigation()
+    object OrderInProgressScreen : BuyNavigation()
+}

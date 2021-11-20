@@ -311,7 +311,7 @@ class RedesignMainActivity :
                 BANK_DEEP_LINK_SIMPLE_BUY -> {
                     if (resultCode == RESULT_OK) {
                         startActivity(
-                            SimpleBuyActivity.newInstance(
+                            SimpleBuyActivity.newIntent(
                                 context = this,
                                 preselectedPaymentMethodId = data?.getStringExtra(BankAuthActivity.LINKED_BANK_ID_KEY)
                             )
@@ -660,7 +660,7 @@ class RedesignMainActivity :
 
     override fun launchSimpleBuy(asset: AssetInfo) {
         startActivity(
-            SimpleBuyActivity.newInstance(
+            SimpleBuyActivity.newIntent(
                 context = this,
                 launchFromNavigationBar = true,
                 asset = asset
@@ -696,7 +696,7 @@ class RedesignMainActivity :
     }
 
     override fun launchSimpleBuyFromDeepLinkApproval() {
-        startActivity(SimpleBuyActivity.newInstance(this, launchFromApprovalDeepLink = true))
+        startActivity(SimpleBuyActivity.newIntent(this, launchFromApprovalDeepLink = true))
     }
 
     override fun launchPendingVerificationScreen(campaignType: CampaignType) {
@@ -709,7 +709,7 @@ class RedesignMainActivity :
 
     override fun resumeSimpleBuyKyc() {
         startActivity(
-            SimpleBuyActivity.newInstance(
+            SimpleBuyActivity.newIntent(
                 context = this,
                 launchKycResume = true
             )

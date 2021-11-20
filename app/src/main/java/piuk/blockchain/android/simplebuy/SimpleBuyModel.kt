@@ -48,11 +48,11 @@ import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuyModel(
-    private val prefs: SimpleBuyPrefs,
+    prefs: CurrencyPrefs,
+    private val simpleBuyPrefs: SimpleBuyPrefs,
     private val ratingPrefs: RatingPrefs,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
-    currencyPrefs: CurrencyPrefs,
     private val serializer: SimpleBuyPrefsSerializer,
     private val cardActivators: List<CardActivator>,
     private val interactor: SimpleBuyInteractor,
@@ -64,7 +64,7 @@ class SimpleBuyModel(
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
-    initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(currencyPrefs.selectedFiatCurrency),
+    initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(prefs.tradingCurrency),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
     crashLogger = crashLogger
@@ -581,7 +581,7 @@ class SimpleBuyModel(
                     .map { isFirstTimeBuyer to it }
             }.map { (isFirstTimeBuyer, buySellOrder) ->
                 if (isFirstTimeBuyer && recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
-                    prefs.isFirstTimeBuyer = false
+                    simpleBuyPrefs.isFirstTimeBuyer = false
                     process(SimpleBuyIntent.FinishedFirstBuy)
                 }
                 buySellOrder
@@ -589,7 +589,7 @@ class SimpleBuyModel(
     }
 
     private fun isFirstTimeBuyer(recurringBuyFrequency: RecurringBuyFrequency): Single<Boolean> {
-        return if (prefs.isFirstTimeBuyer && recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
+        return if (simpleBuyPrefs.isFirstTimeBuyer && recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
             isFirstTimeBuyerUseCase(Unit)
                 .onErrorReturn { false }
         } else {
@@ -701,7 +701,7 @@ class SimpleBuyModel(
 
     private fun updatePersistingCountersForCompletedOrders() {
         ratingPrefs.preRatingActionCompletedTimes = ratingPrefs.preRatingActionCompletedTimes + 1
-        prefs.hasCompletedAtLeastOneBuy = true
+        simpleBuyPrefs.hasCompletedAtLeastOneBuy = true
     }
 
     private fun shouldShowAppRating(orderCreatedSuccessFully: Boolean): Boolean =

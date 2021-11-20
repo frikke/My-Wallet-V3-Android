@@ -65,9 +65,7 @@ enum class OrderState {
 }
 
 interface CustodialWalletManager {
-    fun getSupportedBuySellCryptoCurrencies(
-        fiatCurrency: String? = null
-    ): Single<BuySellPairs>
+    fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair.CryptoToFiatCurrencyPair>>
 
     fun getSupportedFiatCurrencies(): Single<List<String>>
 

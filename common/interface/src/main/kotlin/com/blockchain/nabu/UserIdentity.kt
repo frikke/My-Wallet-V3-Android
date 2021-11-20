@@ -10,6 +10,7 @@ interface UserIdentity {
     fun isEligibleFor(feature: Feature): Single<Boolean>
     fun isVerifiedFor(feature: Feature): Single<Boolean>
     fun isKycInProgress(): Single<Boolean>
+    fun isRejectedForTier(feature: Feature.TierLevel): Single<Boolean>
     fun isKycResubmissionRequired(): Single<Boolean>
     fun shouldResubmitAfterRecovery(): Single<Boolean>
     fun getBasicProfileInformation(): Single<BasicProfileInfo>

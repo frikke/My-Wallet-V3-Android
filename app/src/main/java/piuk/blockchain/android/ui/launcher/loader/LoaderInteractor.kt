@@ -12,6 +12,7 @@ import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.BehaviorSubject
@@ -43,18 +44,12 @@ class LoaderInteractor(
     private val metadata
         get() = Completable.defer { prerequisites.initMetadataAndRelatedPrerequisites() }
 
-    private val settings: Completable
-        get() = Completable.defer {
+    private val settings: Single<Settings>
+        get() = Single.defer {
             prerequisites.initSettings(
                 wallet.guid,
                 wallet.sharedKey
-            ).doOnSuccess {
-                // this is temporary. There will be some designs so we can set the user currency
-                // from java locale but cannot be done until we have designs for buy and
-                // currency selection. So for now, we set settings def that is USD.
-                if (prefs.isNewlyCreated)
-                    setCurrencyUnits(it)
-            }.ignoreElement()
+            )
         }
 
     private val warmCaches: Completable
@@ -70,26 +65,42 @@ class LoaderInteractor(
         get() = notificationTokenManager.resendNotificationToken().onErrorComplete()
 
     fun initSettings(isAfterWalletCreation: Boolean): Disposable {
-        return settings.then {
-            metadata
-        }.then {
-            saveInitialCountry()
-        }.then {
-            updateUserFiatIfNotSet()
-        }.then {
-            notificationTokenUpdate
-        }.then {
-            warmCaches.doOnSubscribe { emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.LOADING_PRICES)) }
-        }.doOnSubscribe {
-            emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
-        }.subscribeBy(
-            onComplete = {
-                onInitSettingsSuccess(isAfterWalletCreation && shouldCheckForEmailVerification())
-            }, onError = { throwable ->
-            emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.Error(throwable)))
-        }
-        )
+        return settings
+            .flatMapCompletable {
+                syncFiatCurrency(it)
+            }.then {
+                metadata
+            }.then {
+                saveInitialCountry()
+            }.then {
+                updateUserFiatIfNotSet()
+            }.then {
+                notificationTokenUpdate
+            }.then {
+                warmCaches.doOnSubscribe {
+                    emitter.onNext(
+                        LoaderIntents.UpdateProgressStep(ProgressStep.LOADING_PRICES)
+                    )
+                }
+            }.doOnSubscribe {
+                emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
+            }.subscribeBy(
+                onComplete = {
+                    onInitSettingsSuccess(isAfterWalletCreation && shouldCheckForEmailVerification())
+                }, onError = { throwable ->
+                emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.Error(throwable)))
+            }
+            )
     }
+
+    private fun syncFiatCurrency(settings: Settings): Completable =
+        when {
+            prefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
+            settings.currency != currencyPrefs.selectedFiatCurrency -> Completable.fromAction {
+                currencyPrefs.selectedFiatCurrency = settings.currency
+            }
+            else -> Completable.complete()
+        }
 
     private fun onInitSettingsSuccess(shouldLaunchEmailVerification: Boolean) {
         if (shouldLaunchEmailVerification) {
@@ -128,10 +139,6 @@ class LoaderInteractor(
                 prefs.clearGeolocationPreferences()
             }.onErrorComplete()
         } else Completable.complete()
-    }
-
-    private fun setCurrencyUnits(settings: Settings) {
-        prefs.selectedFiatCurrency = settings.currency
     }
 
     private fun noCurrencySet() =

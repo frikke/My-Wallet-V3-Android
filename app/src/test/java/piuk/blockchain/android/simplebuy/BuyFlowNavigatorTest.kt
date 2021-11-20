@@ -1,66 +1,88 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.tiers
 
-class SimpleBuyFlowNavigatorTest {
+class BuyFlowNavigatorTest {
 
-    private val simpleBuyModel: SimpleBuyModel = mock()
-    private val tierService: TierService = mock()
+    private val userIdentity: UserIdentity = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val assetCatalogue: AssetCatalogue = mock()
-    private val exchangeRates: ExchangeRatesDataManager = mock()
-    private lateinit var subject: SimpleBuyFlowNavigator
+    private val simpleBuySyncFactory: SimpleBuySyncFactory = mock()
+    private lateinit var subject: BuyFlowNavigator
 
     @Before
     fun setUp() {
-        subject = SimpleBuyFlowNavigator(
-            simpleBuyModel, tierService, currencyPrefs, custodialWalletManager, exchangeRates
+        subject = BuyFlowNavigator(
+            simpleBuySyncFactory, userIdentity, currencyPrefs, custodialWalletManager
         )
     }
 
     @Test
     fun `if currency is not  supported  and startedFromDashboard then screen should be currency selector`() {
         mockCurrencyIsSupported(false)
-        whenever(simpleBuyModel.state).thenReturn(Observable.just(SimpleBuyState()))
+        whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("GBP,EUR")))
-
-        val test =
-            subject.navigateTo(
-                startedFromKycResume = false, startedFromDashboard = true, startedFromApprovalDeepLink = false,
-                preselectedCrypto = null
-            )
-                .test()
-        test.assertValueAt(0, BuyNavigation.CurrencySelection(listOf("GBP,EUR")))
-    }
-
-    @Test
-    fun `if currency is  supported and state is clear and startedFromDashboard then screen should be enter amount`() {
-        mockCurrencyIsSupported(true)
-        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
-            .thenReturn(Observable.just(btcExchangeRate))
-        whenever(simpleBuyModel.state).thenReturn(Observable.just(SimpleBuyState()))
+        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("PLN")
+        whenever(currencyPrefs.tradingCurrency).thenReturn("PLN")
+        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("PLN"))
+            .thenReturn(Single.just(false))
 
         val test =
             subject.navigateTo(
                 startedFromKycResume = false,
                 startedFromDashboard = true,
                 startedFromApprovalDeepLink = false,
-                preselectedCrypto = CryptoCurrency.BTC
+                preselectedCrypto = CryptoCurrency.BTC,
+                failOnUnavailableCurrency = false
+            )
+                .test()
+        test.assertValueAt(0, BuyNavigation.CurrencySelection(listOf("GBP,EUR"), "PLN"))
+    }
+
+    @Test
+    fun `if currency is not  supported  and should fail on check then it should faile`() {
+        mockCurrencyIsSupported(false)
+        whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
+        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("GBP,EUR")))
+        whenever(currencyPrefs.tradingCurrency).thenReturn("PLN")
+        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("PLN"))
+            .thenReturn(Single.just(false))
+
+        val test =
+            subject.navigateTo(
+                startedFromKycResume = false,
+                startedFromDashboard = true,
+                startedFromApprovalDeepLink = false,
+                preselectedCrypto = CryptoCurrency.BTC,
+                failOnUnavailableCurrency = true
+            )
+                .test()
+        test.assertValueAt(0, BuyNavigation.CurrencyNotAvailable)
+    }
+
+    @Test
+    fun `if currency is  supported and state is clear and startedFromDashboard then screen should be enter amount`() {
+        mockCurrencyIsSupported(true)
+        whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
+
+        val test =
+            subject.navigateTo(
+                startedFromKycResume = false,
+                startedFromDashboard = true,
+                startedFromApprovalDeepLink = false,
+                preselectedCrypto = CryptoCurrency.BTC,
+                failOnUnavailableCurrency = false
             ).test()
         test.assertValueAt(0, BuyNavigation.FlowScreenWithCurrency(FlowScreen.ENTER_AMOUNT, CryptoCurrency.BTC))
     }
@@ -68,9 +90,8 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if currency is supported and state is clear and startedFromApprovalDeepLink then screen should be payment`() {
         mockCurrencyIsSupported(true)
-        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
-            .thenReturn(Observable.just(btcExchangeRate))
-        whenever(simpleBuyModel.state).thenReturn(Observable.just(SimpleBuyState()))
+
+        whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
 
         val test =
             subject.navigateTo(
@@ -86,15 +107,14 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if  current is screen is KYC and tier 2 approved then screen should be enter amount`() {
         mockCurrencyIsSupported(true)
-        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
-            .thenReturn(Observable.just(btcExchangeRate))
-        whenever(simpleBuyModel.state)
+        whenever(simpleBuySyncFactory.currentState())
             .thenReturn(
-                Observable.just(
-                    SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
-                )
+                SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
             )
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
+
+        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(true))
+        whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(false))
+        whenever(userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
 
         val test =
             subject.navigateTo(
@@ -109,15 +129,14 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if  current is screen is KYC and tier 2 is pending then screen should be kyc verification`() {
         mockCurrencyIsSupported(true)
-        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
-            .thenReturn(Observable.just(btcExchangeRate))
-        whenever(simpleBuyModel.state)
+
+        whenever(simpleBuySyncFactory.currentState())
             .thenReturn(
-                Observable.just(
-                    SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
-                )
+                SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
             )
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Pending)))
+        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
+        whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(true))
+        whenever(userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
 
         val test =
             subject.navigateTo(
@@ -135,15 +154,14 @@ class SimpleBuyFlowNavigatorTest {
     @Test
     fun `if  current is screen is KYC and tier 2 is none then screen should be kyc`() {
         mockCurrencyIsSupported(true)
-        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
-            .thenReturn(Observable.just(btcExchangeRate))
-        whenever(simpleBuyModel.state)
+        whenever(simpleBuySyncFactory.currentState())
             .thenReturn(
-                Observable.just(
-                    SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
-                )
+                SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
             )
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.None)))
+
+        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
+        whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(false))
+        whenever(userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
 
         val test =
             subject.navigateTo(
@@ -163,7 +181,7 @@ class SimpleBuyFlowNavigatorTest {
             custodialWalletManager
                 .isCurrencySupportedForSimpleBuy("GBP")
         ).thenReturn(Single.just(supported))
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn(("GBP"))
+        whenever(currencyPrefs.tradingCurrency).thenReturn(("GBP"))
     }
 
     companion object {

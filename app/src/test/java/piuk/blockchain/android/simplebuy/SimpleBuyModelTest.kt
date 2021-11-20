@@ -11,9 +11,9 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.responses.simplebuy.EverypayPaymentAttrs
 import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
@@ -58,9 +58,8 @@ class SimpleBuyModelTest {
     private val interactor: SimpleBuyInteractor = mock()
     private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase = mock()
 
-    private val prefs: SimpleBuyPrefs = mock {
-        on { simpleBuyState() }.thenReturn(Gson().toJson(defaultState))
-    }
+    private val prefs: CurrencyPrefs = mock()
+    private val simpleBuyPrefs: SimpleBuyPrefs = mock()
 
     private val environmentConfig: EnvironmentConfig = mock {
         on { isRunningInDebugMode() }.thenReturn(false)
@@ -75,6 +74,7 @@ class SimpleBuyModelTest {
 
     private val model = SimpleBuyModel(
         prefs = prefs,
+        simpleBuyPrefs = simpleBuyPrefs,
         initialState = defaultState,
         uiScheduler = Schedulers.io(),
         interactor = interactor,
@@ -91,8 +91,7 @@ class SimpleBuyModelTest {
         bankPartnerCallbackProvider = mock(),
         userIdentity = mock {
             on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
-        },
-        currencyPrefs = mock()
+        }
     )
 
     @Test

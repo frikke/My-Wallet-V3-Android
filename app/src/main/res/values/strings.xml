@@ -2390,7 +2390,7 @@
 
     <!-- LocksInfo activity details -->
     <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
-    <string name="funds_locked_details_contact_support">See something that doesn’t look right? <annotation link="contact_support">Contact support</annotation></string>
+    <string name="funds_locked_details_contact_support">See something that doesn\'t look right? <annotation link="contact_support">Contact support</annotation></string>
     <string name="funds_locked__details_title_date">HELD UNTIL</string>
     <string name="funds_locked_details_title_amount">AMOUNT</string>
     <string name="funds_locked_details_total">Total</string>
@@ -2420,5 +2420,8 @@
     <string name="toolbar_send">Send</string>
     <string name="toolbar_receive">Receive</string>
     <string name="toolbar_settings">Settings</string>
+    <string name="select_a_trading_currency">Select a Trading Currency.</string>
+    <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
+    <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
 
 </resources>

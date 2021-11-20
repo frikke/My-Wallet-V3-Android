@@ -583,7 +583,7 @@ class MainActivity :
 
     private fun launchBuy(linkedBankId: String?) {
         startActivity(
-            SimpleBuyActivity.newInstance(
+            SimpleBuyActivity.newIntent(
                 context = activity,
                 preselectedPaymentMethodId = linkedBankId
             )
@@ -909,7 +909,7 @@ class MainActivity :
 
     override fun resumeSimpleBuyKyc() {
         startActivity(
-            SimpleBuyActivity.newInstance(
+            SimpleBuyActivity.newIntent(
                 context = this,
                 launchKycResume = true
             )
@@ -918,7 +918,7 @@ class MainActivity :
 
     override fun launchSimpleBuy(asset: AssetInfo) {
         startActivity(
-            SimpleBuyActivity.newInstance(
+            SimpleBuyActivity.newIntent(
                 context = this,
                 launchFromNavigationBar = true,
                 asset = asset
@@ -962,7 +962,7 @@ class MainActivity :
     }
 
     override fun launchSimpleBuyFromDeepLinkApproval() {
-        startActivity(SimpleBuyActivity.newInstance(this, launchFromApprovalDeepLink = true))
+        startActivity(SimpleBuyActivity.newIntent(this, launchFromApprovalDeepLink = true))
     }
 
     override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {

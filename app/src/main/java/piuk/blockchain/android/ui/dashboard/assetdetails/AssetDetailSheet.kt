@@ -147,7 +147,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             buyCryptoBottomButton.text = resources.getString(R.string.tx_title_buy, token.asset.displayTicker)
             buyCryptoBottomButton.setOnClickListener {
                 startActivity(
-                    SimpleBuyActivity.newInstance(
+                    SimpleBuyActivity.newIntent(
                         activity as Context,
                         asset,
                         launchFromNavigationBar = true,

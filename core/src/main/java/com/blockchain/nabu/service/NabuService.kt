@@ -363,7 +363,7 @@ class NabuService internal constructor(
 
     internal fun isEligibleForSimpleBuy(
         sessionToken: NabuSessionTokenResponse,
-        fiatCurrency: String
+        fiatCurrency: String? = null
     ): Single<SimpleBuyEligibility> = nabu.isEligibleForSimpleBuy(
         sessionToken.authHeader,
         fiatCurrency

@@ -84,7 +84,6 @@ class CryptoInterestAccount(
             interestBalance.getBalanceForAsset(asset),
             exchangeRates.cryptoToUserFiatRate(asset)
         ) { balance, rate ->
-            setHasTransactions(balance.hasTransactions)
             AccountBalance.from(balance, rate)
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 

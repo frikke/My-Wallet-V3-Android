@@ -5,7 +5,6 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -21,7 +20,6 @@ import piuk.blockchain.android.ui.sell.BuySellIntroAction
 class BuySellFlowNavigatorTest {
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val userIdentity: UserIdentity = mock {
         on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
@@ -32,7 +30,7 @@ class BuySellFlowNavigatorTest {
     @Before
     fun setUp() {
         subject = BuySellFlowNavigator(
-            simpleBuySyncFactory, currencyPrefs, custodialWalletManager, userIdentity
+            simpleBuySyncFactory, custodialWalletManager, userIdentity
         )
 
         whenever(simpleBuySyncFactory.currentState()).thenReturn(
@@ -48,7 +46,6 @@ class BuySellFlowNavigatorTest {
                 fiatCurrency = "GBP"
             )
         )
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("GBP")
 
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "GBP")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("GBP"))
@@ -60,21 +57,7 @@ class BuySellFlowNavigatorTest {
     }
 
     @Test
-    fun `whenΒuyStateIsNotPendingAndCurrencyIsNotSupportedThenSelectCurrencyShouldBeLaunchedWithAllSupportedCrncies`() {
-
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "GBP")))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
-            .thenReturn(Single.just(false))
-
-        val test = subject.navigateTo().test()
-
-        test.assertValue(BuySellIntroAction.NavigateToCurrencySelection(listOf("EUR", "GBP")))
-    }
-
-    @Test
     fun `whenBuyStateIsNotPendingCurrencyIsSupportedAndSellIsEnableNormalBuySellUiIsDisplayed`() {
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "USD")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
             .thenReturn(Single.just(true))
@@ -93,7 +76,6 @@ class BuySellFlowNavigatorTest {
             )
         )
 
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "USD")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
             .thenReturn(Single.just(true))

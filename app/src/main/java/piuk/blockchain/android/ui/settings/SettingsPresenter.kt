@@ -13,7 +13,6 @@ import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.preferences.RatingPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
@@ -539,13 +538,8 @@ class SettingsPresenter(
     fun updateFiatUnit(fiatUnit: String) {
         compositeDisposable += settingsDataManager.updateFiatUnit(fiatUnit)
             .map { settings ->
-                if (prefs.selectedFiatCurrency != fiatUnit) {
-                    analytics.logEvent(AnalyticsEvents.ChangeFiatCurrency)
-                    prefs.selectedFiatCurrency = fiatUnit
-                }
                 prefs.clearBuyState()
                 analytics.logEvent(SettingsAnalytics.CurrencyChanged)
-
                 settings
             }.observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(

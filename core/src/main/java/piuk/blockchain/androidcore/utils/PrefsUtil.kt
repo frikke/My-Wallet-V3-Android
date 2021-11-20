@@ -137,9 +137,12 @@ class PrefsUtil(
             // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
             // So we'll try and catch them when it's written and find the root cause on a future iteration
             // Check the currency is supported and throw a meaningful exception message if it's not
+            // Everytime that local currency changes (either from settings or from a different platform)
+            // we need to align the tradingCurrency accordingly.
             try {
                 Currency.getInstance(fiat)
                 setValue(KEY_SELECTED_FIAT, fiat)
+                tradingCurrency = fiat
             } catch (e: IllegalArgumentException) {
                 crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
             }
@@ -222,6 +225,12 @@ class PrefsUtil(
         get() = getValue(KEY_FIRST_TIME_BUYER, true)
         set(value) {
             setValue(KEY_FIRST_TIME_BUYER, value)
+        }
+
+    override var tradingCurrency: String
+        get() = getValue(KEY_SIMPLE_BUY_CURRENCY, selectedFiatCurrency)
+        set(value) {
+            setValue(KEY_SIMPLE_BUY_CURRENCY, value)
         }
 
     override var hasCompletedAtLeastOneBuy: Boolean
@@ -620,6 +629,7 @@ class PrefsUtil(
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_ADD_CARD_INFO = "key_add_card_info"
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
+        private const val KEY_SIMPLE_BUY_CURRENCY = "key_trading_urrency_currency"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
 
         private const val KEY_SUPPORTED_CARDS_STATE = "key_supported_cards"

@@ -294,8 +294,8 @@ class SellIntroFragment : ViewPagerFragment() {
             custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
         return custodialWalletManager.getSupportedBuySellCryptoCurrencies()
             .zipWith(availableFiats) { supportedPairs, fiats ->
-                supportedPairs.pairs.filter { fiats.contains(it.fiatCurrency) }
-                    .map { it.cryptoCurrency }
+                supportedPairs.filter { fiats.contains(it.destination) }
+                    .map { it.source }
             }
     }
 

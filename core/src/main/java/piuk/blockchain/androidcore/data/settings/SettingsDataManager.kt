@@ -220,10 +220,10 @@ class SettingsDataManager(
     fun setDefaultUserFiat(): Single<String> {
         val userFiat = currencyPrefs.defaultFiatCurrency
         return settingsService.updateFiatUnit(userFiat)
-            .doOnSubscribe { currencyPrefs.selectedFiatCurrency = userFiat }
             .flatMap { fetchSettings() }
             .singleOrError()
             .map { it.currency }
+            .doFinally { currencyPrefs.selectedFiatCurrency = userFiat }
     }
 
     fun triggerEmailAlert(guid: String, sharedKey: String) =

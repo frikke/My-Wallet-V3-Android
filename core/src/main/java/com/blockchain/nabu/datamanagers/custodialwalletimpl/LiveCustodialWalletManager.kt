@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
+import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
@@ -11,7 +12,6 @@ import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.BuySellLimits
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPair
-import com.blockchain.nabu.datamanagers.BuySellPairs
 import com.blockchain.nabu.datamanagers.CardToBeActivated
 import com.blockchain.nabu.datamanagers.CryptoTransaction
 import com.blockchain.nabu.datamanagers.CurrencyPair
@@ -121,6 +121,7 @@ class LiveCustodialWalletManager(
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
     private val simpleBuyPrefs: SimpleBuyPrefs,
+    private val pairsCache: BuyPairsCache,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val kycFeatureEligibility: FeatureEligibility,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
@@ -252,16 +253,14 @@ class LiveCustodialWalletManager(
             } ?: Single.just(BigInteger.ZERO)
         }
 
-    override fun getSupportedBuySellCryptoCurrencies(
-        fiatCurrency: String?
-    ): Single<BuySellPairs> =
-        nabuService.getSupportedCurrencies(fiatCurrency)
-            .map {
-                BuySellPairs(
-                    it.pairs.mapNotNull { pair ->
-                        pair.toBuySellPair()
+    override fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair.CryptoToFiatCurrencyPair>> =
+        pairsCache.pairs()
+            .map { response ->
+                response.pairs.mapNotNull { pair ->
+                    pair.toBuySellPair()?.let {
+                        CurrencyPair.CryptoToFiatCurrencyPair(it.cryptoCurrency, it.fiatCurrency)
                     }
-                )
+                }
             }
 
     private fun SimpleBuyPairResp.toBuySellPair(): BuySellPair? {
@@ -284,9 +283,7 @@ class LiveCustodialWalletManager(
     }
 
     override fun getSupportedFiatCurrencies(): Single<List<String>> =
-        authenticator.authenticate {
-            nabuService.getSupportedCurrencies()
-        }.map {
+        pairsCache.pairs().map {
             it.pairs.map { pair ->
                 pair.pair.split("-")[1]
             }.distinct()
@@ -371,8 +368,10 @@ class LiveCustodialWalletManager(
         }
 
     override fun isCurrencySupportedForSimpleBuy(fiatCurrency: String): Single<Boolean> =
-        nabuService.getSupportedCurrencies(fiatCurrency).map {
-            it.pairs.firstOrNull { it.pair.split("-")[1] == fiatCurrency } != null
+        pairsCache.pairs().map {
+            it.pairs.firstOrNull { buyPair ->
+                buyPair.pair.split("-")[1] == fiatCurrency
+            } != null
         }.onErrorReturn { false }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =

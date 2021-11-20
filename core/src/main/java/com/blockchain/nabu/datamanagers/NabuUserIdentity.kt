@@ -46,6 +46,12 @@ class NabuUserIdentity(
         }.exhaustive
     }
 
+    override fun isRejectedForTier(feature: Feature.TierLevel): Single<Boolean> {
+        return nabuUserDataManager.tiers().map {
+            it.isRejectedFor(feature.tier.toKycTierLevel())
+        }
+    }
+
     override fun isKycInProgress(): Single<Boolean> =
         nabuDataProvider
             .getUser()

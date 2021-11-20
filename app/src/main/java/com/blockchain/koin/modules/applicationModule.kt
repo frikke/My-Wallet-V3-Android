@@ -77,9 +77,9 @@ import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
+import piuk.blockchain.android.simplebuy.BuyFlowNavigator
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.GBPPaymentAccountMapper
-import piuk.blockchain.android.simplebuy.SimpleBuyFlowNavigator
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializer
@@ -466,9 +466,9 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
-                currencyPrefs = get(),
                 ratingPrefs = get(),
                 prefs = get(),
+                simpleBuyPrefs = get(),
                 serializer = get(),
                 cardActivators = listOf(
                     EverypayCardActivator(get(), get())
@@ -564,19 +564,17 @@ val applicationModule = module {
         }
 
         factory {
-            SimpleBuyFlowNavigator(
-                simpleBuyModel = get(),
-                tierService = get(),
+            BuyFlowNavigator(
+                simpleBuySyncFactory = get(),
+                userIdentity = get(),
                 currencyPrefs = get(),
-                custodialWalletManager = get(),
-                exchangeRates = get()
+                custodialWalletManager = get()
             )
         }
 
         factory {
             BuySellFlowNavigator(
                 custodialWalletManager = get(),
-                currencyPrefs = get(),
                 userIdentity = get(),
                 simpleBuySyncFactory = get()
             )

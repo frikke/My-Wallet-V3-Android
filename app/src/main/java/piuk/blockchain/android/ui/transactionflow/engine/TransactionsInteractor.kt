@@ -124,13 +124,7 @@ class TransactionInteractor(
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
             availableFiats
         ) { supportedPairs, fiats ->
-            supportedPairs.pairs.filter { fiats.contains(it.fiatCurrency) }
-                .map {
-                    CurrencyPair.CryptoToFiatCurrencyPair(
-                        it.cryptoCurrency,
-                        it.fiatCurrency
-                    )
-                }
+            supportedPairs.filter { fiats.contains(it.destination) }
         }
 
         return Singles.zip(

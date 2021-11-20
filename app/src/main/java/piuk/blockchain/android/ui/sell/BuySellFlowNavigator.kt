@@ -5,7 +5,6 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -15,7 +14,6 @@ import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class BuySellFlowNavigator(
     private val simpleBuySyncFactory: SimpleBuySyncFactory,
-    private val currencyPrefs: CurrencyPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val userIdentity: UserIdentity
 ) {
@@ -35,25 +33,19 @@ class BuySellFlowNavigator(
             gold && !eligible
         }
         return cancel.thenSingle {
-            Single.zip(
-                custodialWalletManager.isCurrencySupportedForSimpleBuy(currencyPrefs.selectedFiatCurrency),
-                custodialWalletManager.getSupportedFiatCurrencies(),
-                isGoldButNotEligible
-            ) { currencySupported, supportedFiats, isGoldButNotEligible ->
+            isGoldButNotEligible.map { isGoldButNotEligible ->
                 decideNavigationStep(
-                    currencySupported, selectedAsset, isGoldButNotEligible, state, supportedFiats
+                    selectedAsset, isGoldButNotEligible, state
                 )
             }
         }
     }
 
     private fun decideNavigationStep(
-        currencySupported: Boolean,
         selectedAsset: AssetInfo?,
         isGoldButNotEligible: Boolean,
-        state: SimpleBuyState,
-        supportedFiats: List<String>
-    ) = if (currencySupported) {
+        state: SimpleBuyState
+    ) =
         selectedAsset?.let {
             BuySellIntroAction.StartBuyWithSelectedAsset(it, state.hasPendingBuy())
         } ?: kotlin.run {
@@ -62,16 +54,12 @@ class BuySellFlowNavigator(
                 hasPendingBuy = state.hasPendingBuy()
             )
         }
-    } else {
-        BuySellIntroAction.NavigateToCurrencySelection(supportedFiats)
-    }
 }
 
 private fun SimpleBuyState.hasPendingBuy(): Boolean =
     orderState > OrderState.PENDING_CONFIRMATION && orderState < OrderState.FINISHED
 
 sealed class BuySellIntroAction {
-    data class NavigateToCurrencySelection(val supportedCurrencies: List<String>) : BuySellIntroAction()
     data class DisplayBuySellIntro(val isGoldButNotEligible: Boolean, val hasPendingBuy: Boolean) : BuySellIntroAction()
     data class StartBuyWithSelectedAsset(val selectedAsset: AssetInfo, val hasPendingBuy: Boolean) :
         BuySellIntroAction()

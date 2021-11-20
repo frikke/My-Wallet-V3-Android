@@ -79,9 +79,13 @@ class SimpleBuyCryptoFragment :
     override val model: SimpleBuyModel by scopedInject()
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
+    private val currencyPrefs: CurrencyPrefs by inject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private val gatedFeatures: InternalFeatureFlagApi by inject()
     private var infoActionCallback: () -> Unit = {}
+
+    private val fiatCurrency: String
+        get() = currencyPrefs.tradingCurrency
 
     private var lastState: SimpleBuyState? = null
     private val compositeDisposable = CompositeDisposable()
@@ -104,8 +108,6 @@ class SimpleBuyCryptoFragment :
         (activity as? SimpleBuyNavigator)
             ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
 
-    private val currencyPrefs: CurrencyPrefs by inject()
-
     override fun onBackPressed(): Boolean = true
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimpleBuyBuyCryptoBinding =
@@ -113,8 +115,8 @@ class SimpleBuyCryptoFragment :
 
     override fun onResume() {
         super.onResume()
+        model.process(SimpleBuyIntent.UpdateExchangeRate(fiatCurrency, asset))
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
-        model.process(SimpleBuyIntent.UpdateExchangeRate(currencyPrefs.selectedFiatCurrency, asset))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -123,10 +125,11 @@ class SimpleBuyCryptoFragment :
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         activity.setupToolbar(getString(R.string.tx_title_buy, asset.displayTicker))
 
-        model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, currencyPrefs.selectedFiatCurrency))
+        model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
+
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
-                currencyPrefs.selectedFiatCurrency,
+                fiatCurrency,
                 preselectedMethodId
             )
         )
@@ -258,7 +261,7 @@ class SimpleBuyCryptoFragment :
         }
 
         (newState.limits.max as? TxLimit.Limited)?.amount?.takeIf {
-            it.currencyCode == currencyPrefs.selectedFiatCurrency
+            it.currencyCode == fiatCurrency
         }?.let {
             binding.inputAmount.maxLimit = it
         }
@@ -663,7 +666,7 @@ class SimpleBuyCryptoFragment :
             } else if (resultCode == KycNavHostActivity.RESULT_KYC_FOR_SDD_COMPLETE) {
                 model.process(
                     SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible(
-                        currencyPrefs.selectedFiatCurrency
+                        fiatCurrency
                     )
                 )
             }
@@ -673,7 +676,7 @@ class SimpleBuyCryptoFragment :
     private fun updatePaymentMethods(preselectedId: String?) {
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
-                currencyPrefs.selectedFiatCurrency,
+                fiatCurrency,
                 preselectedId
             )
         )

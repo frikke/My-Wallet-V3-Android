@@ -202,6 +202,10 @@
         <item name="android:textSize">20sp</item>
     </style>
 
+    <style name="Text.Semibold.24">
+        <item name="android:textSize">24sp</item>
+    </style>
+
     <style name="Text.Semibold.32">
         <item name="android:textSize">32sp</item>
     </style>

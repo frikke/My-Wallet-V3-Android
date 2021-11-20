@@ -41,7 +41,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override val enableLogoutTimer: Boolean = false
     private val compositeDisposable = CompositeDisposable()
-    private val simpleBuyFlowNavigator: SimpleBuyFlowNavigator by scopedInject()
+    private val buyFlowNavigator: BuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val mainScreenLauncher: MainScreenLauncher by scopedInject()
@@ -89,29 +89,31 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         }
     }
 
-    override fun onSheetClosed() = subscribeForNavigation()
+    override fun onSheetClosed() = subscribeForNavigation(true)
 
-    private fun subscribeForNavigation() {
-        compositeDisposable += simpleBuyFlowNavigator.navigateTo(
+    private fun subscribeForNavigation(failOnUnavailableCurrency: Boolean = false) {
+        compositeDisposable += buyFlowNavigator.navigateTo(
             startedFromKycResume,
             startedFromDashboard,
             startedFromApprovalDeepLink,
-            asset
+            asset,
+            failOnUnavailableCurrency
         )
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
                 when (it) {
-                    is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies)
+                    is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies, it.selectedCurrency)
                     is BuyNavigation.FlowScreenWithCurrency -> startFlow(it)
                     BuyNavigation.PendingOrderScreen -> goToPendingOrderScreen()
                     BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(false, startedFromApprovalDeepLink)
+                    BuyNavigation.CurrencyNotAvailable -> finish()
                 }
             }
     }
 
-    private fun launchCurrencySelector(currencies: List<String>) {
+    private fun launchCurrencySelector(currencies: List<String>, selectedCurrency: String) {
         compositeDisposable.clear()
-        showBottomSheet(SimpleBuySelectCurrencyFragment.newInstance(currencies))
+        showBottomSheet(SimpleBuySelectCurrencyFragment.newInstance(currencies, selectedCurrency))
     }
 
     private fun startFlow(screenWithCurrency: BuyNavigation.FlowScreenWithCurrency) {
@@ -262,7 +264,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         private const val PRESELECTED_PAYMENT_METHOD = "preselected_payment_method_key"
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
 
-        fun newInstance(
+        fun newIntent(
             context: Context,
             asset: AssetInfo? = null,
             launchFromNavigationBar: Boolean = false,
