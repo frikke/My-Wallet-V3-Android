@@ -45,9 +45,9 @@ fun FixedSizeButtonContent(
             if (icon !is ImageResource.None) {
                 Image(
                     imageResource = icon,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(16.dp),
                 )
-                Spacer(Modifier.width(AppTheme.dimensions.paddingMedium))
+                Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
             }
             Text(
                 text = text,
