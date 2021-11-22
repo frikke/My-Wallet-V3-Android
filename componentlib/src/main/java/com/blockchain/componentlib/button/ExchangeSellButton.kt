@@ -36,7 +36,7 @@ fun ExchangeSellButton(
                 state = state,
                 text = text,
                 textColor = textColor,
-                textAlpha = textAlpha
+                contentAlpha = textAlpha
             )
         },
     )

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
@@ -45,6 +46,7 @@ fun OutlinedButton(
         textColor: Color,
         textAlpha: Float,
         loadingIconResId: Int,
+        icon: ImageResource,
     ) -> Unit,
     pressedButtonLightColor: Color = Grey000,
     pressedButtonDarkColor: Color = Dark800,
@@ -62,6 +64,7 @@ fun OutlinedButton(
     shape: Shape = AppTheme.shapes.small,
     state: ButtonState = ButtonState.Enabled,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
+    icon: ImageResource = ImageResource.None,
 ) {
     var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
     var borderColor by remember {
@@ -145,7 +148,8 @@ fun OutlinedButton(
                         R.drawable.ic_loading_minimal_dark
                     } else {
                         R.drawable.ic_loading_minimal_light
-                    }
+                    },
+                    icon = icon,
                 )
             }
         )
@@ -161,13 +165,13 @@ private fun OutlineButtonPreview() {
                 text = "Click me",
                 onClick = { },
                 buttonContent = {
-                    state: ButtonState,
-                    text: String,
-                    textColor: Color,
-                    textAlpha: Float,
-                    loadingIconResId: Int,
+                        state: ButtonState,
+                        text: String,
+                        textColor: Color,
+                        textAlpha: Float,
+                        loadingIconResId: Int,
+                        icon: ImageResource,
                     ->
-
                     ResizableButtonContent(
                         state = state,
                         text = text,

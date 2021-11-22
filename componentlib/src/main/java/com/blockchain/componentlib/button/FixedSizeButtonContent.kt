@@ -1,23 +1,33 @@
 package com.blockchain.componentlib.button
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.image.Image
+import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun FixedSizeButtonContent(
     state: ButtonState,
     text: String,
     textColor: Color,
-    textAlpha: Float,
+    contentAlpha: Float,
     modifier: Modifier = Modifier,
-    @DrawableRes loadingIconResId: Int = R.drawable.ic_loading
+    @DrawableRes loadingIconResId: Int = R.drawable.ic_loading,
+    icon: ImageResource = ImageResource.None
 ) {
     Box(modifier) {
         if (state == ButtonState.Loading) {
@@ -26,10 +36,24 @@ fun FixedSizeButtonContent(
                 loadingIconResId = loadingIconResId
             )
         }
-        Text(
-            text = text,
-            color = textColor,
-            modifier = Modifier.alpha(textAlpha)
-        )
+
+        Row(
+            Modifier.alpha(contentAlpha),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (icon !is ImageResource.None) {
+                Image(
+                    imageResource = icon,
+                    modifier = Modifier.size(24.dp),
+                )
+                Spacer(Modifier.width(AppTheme.dimensions.paddingMedium))
+            }
+            Text(
+                text = text,
+                color = textColor,
+                style = AppTheme.typography.body2
+            )
+        }
     }
 }

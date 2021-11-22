@@ -23,6 +23,8 @@ class DoubleMinimalButtonsView @JvmOverloads constructor(
                     onEndButtonClick = onEndButtonClick,
                     startButtonState = startButtonState,
                     endButtonState = endButtonState,
+                    startButtonIcon = startButtonIcon,
+                    endButtonIcon = endButtonIcon,
                 )
             }
         }

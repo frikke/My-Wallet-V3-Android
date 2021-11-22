@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -14,25 +15,29 @@ fun MinimalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: ButtonState = ButtonState.Enabled,
+    icon: ImageResource = ImageResource.None,
 ) {
     OutlinedButton(
         text = text,
         onClick = onClick,
         modifier = modifier,
         state = state,
+        icon = icon,
         buttonContent = {
-            state: ButtonState,
-            text: String,
-            textColor: Color,
-            textAlpha: Float,
-            loadingIconResId: Int,
+                state: ButtonState,
+                text: String,
+                textColor: Color,
+                textAlpha: Float,
+                loadingIconResId: Int,
+                icon: ImageResource,
             ->
             FixedSizeButtonContent(
                 state = state,
                 text = text,
                 textColor = textColor,
-                textAlpha = textAlpha,
-                loadingIconResId = loadingIconResId
+                contentAlpha = textAlpha,
+                loadingIconResId = loadingIconResId,
+                icon = icon,
             )
         }
     )
