@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
-import android.graphics.drawable.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color

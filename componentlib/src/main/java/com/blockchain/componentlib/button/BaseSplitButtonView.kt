@@ -23,5 +23,4 @@ abstract class BaseSplitButtonView @JvmOverloads constructor(
     var endButtonText by mutableStateOf("")
     var endButtonState by mutableStateOf(ButtonState.Enabled)
     var endButtonIcon: ImageResource by mutableStateOf(ImageResource.None)
-
 }

@@ -165,12 +165,12 @@ private fun OutlineButtonPreview() {
                 text = "Click me",
                 onClick = { },
                 buttonContent = {
-                        state: ButtonState,
-                        text: String,
-                        textColor: Color,
-                        textAlpha: Float,
-                        loadingIconResId: Int,
-                        icon: ImageResource,
+                    state: ButtonState,
+                    text: String,
+                    textColor: Color,
+                    textAlpha: Float,
+                    loadingIconResId: Int,
+                    icon: ImageResource,
                     ->
                     ResizableButtonContent(
                         state = state,

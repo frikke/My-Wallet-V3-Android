@@ -18,5 +18,4 @@ abstract class BaseButtonView @JvmOverloads constructor(
     var text by mutableStateOf("")
     var buttonState by mutableStateOf(ButtonState.Enabled)
     var icon: ImageResource by mutableStateOf(ImageResource.None)
-
 }

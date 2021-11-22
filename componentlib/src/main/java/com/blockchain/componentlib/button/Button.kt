@@ -31,7 +31,13 @@ fun Button(
     text: String,
     onClick: () -> Unit,
     state: ButtonState,
-    buttonContent: @Composable RowScope.(state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource) -> Unit,
+    buttonContent: @Composable RowScope.(
+        state: ButtonState,
+        text: String,
+        textColor: Color,
+        textAlpha: Float,
+        icon: ImageResource
+    ) -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = AppTheme.shapes.small,
     defaultTextColor: Color = Color.Unspecified,

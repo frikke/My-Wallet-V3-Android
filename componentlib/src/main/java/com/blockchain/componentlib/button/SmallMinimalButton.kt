@@ -23,12 +23,12 @@ fun SmallMinimalButton(
         state = state,
         modifier = modifier,
         buttonContent = {
-                state: ButtonState,
-                text: String,
-                textColor: Color,
-                textAlpha: Float,
-                loadingIconResId: Int,
-                _: ImageResource,
+            state: ButtonState,
+            text: String,
+            textColor: Color,
+            textAlpha: Float,
+            loadingIconResId: Int,
+            _: ImageResource,
             ->
             ResizableButtonContent(
                 state = state,
