@@ -50,6 +50,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Slider"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.control.SliderView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </ScrollView>
