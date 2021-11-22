@@ -28,7 +28,7 @@ fun ToastAlert(
 
     Row(
         Modifier
-            .clip(AppTheme.shapes.large)
+            .clip(AppTheme.shapes.extraLarge)
             .background(backgroundColor)
             .padding(horizontal = 24.dp, vertical = 12.dp)
     ) {

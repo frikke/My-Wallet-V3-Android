@@ -23,7 +23,7 @@ fun SmallSecondaryButton(
         text = text,
         onClick = onClick,
         state = state,
-        shape = AppTheme.shapes.large,
+        shape = AppTheme.shapes.extraLarge,
         defaultTextColor = Color.White,
         defaultBackgroundLightColor = Grey800,
         defaultBackgroundDarkColor = Grey800,

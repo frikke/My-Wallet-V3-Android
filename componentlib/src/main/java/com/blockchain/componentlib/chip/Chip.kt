@@ -101,7 +101,7 @@ fun Chip(
 
     Row(
         Modifier
-            .clip(AppTheme.shapes.medium)
+            .clip(AppTheme.shapes.extraLarge)
             .clickable {
                 chipState = when (chipState) {
                     ChipState.Enabled -> ChipState.Selected

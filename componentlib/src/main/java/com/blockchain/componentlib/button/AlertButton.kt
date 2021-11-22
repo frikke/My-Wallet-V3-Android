@@ -34,7 +34,7 @@ fun AlertButton(
         text = text,
         onClick = onClick,
         state = state,
-        shape = AppTheme.shapes.large,
+        shape = AppTheme.shapes.extraLarge,
         defaultTextColor = Color.White,
         defaultBackgroundLightColor = Grey900,
         defaultBackgroundDarkColor = Dark800,

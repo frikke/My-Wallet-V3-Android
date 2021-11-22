@@ -23,7 +23,7 @@ fun SmallPrimaryButton(
         text = text,
         onClick = onClick,
         state = state,
-        shape = AppTheme.shapes.large,
+        shape = AppTheme.shapes.extraLarge,
         defaultTextColor = Color.White,
         defaultBackgroundLightColor = Blue600,
         defaultBackgroundDarkColor = Blue600,

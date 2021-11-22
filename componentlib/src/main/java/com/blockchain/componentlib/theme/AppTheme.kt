@@ -3,7 +3,6 @@ package com.blockchain.componentlib.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Shapes
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -38,7 +37,7 @@ object AppTheme {
         @ReadOnlyComposable
         get() = LocalDimensions.current
 
-    val shapes: Shapes
+    val shapes: AppShapes
         @Composable
         @ReadOnlyComposable
         get() = LocalShapes.current
@@ -49,7 +48,7 @@ fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     typography: AppTypography = AppTheme.typography,
     dimensions: AppDimensions = AppTheme.dimensions,
-    shapes: Shapes = AppTheme.shapes,
+    shapes: AppShapes = AppTheme.shapes,
     content: @Composable () -> Unit
 ) {
 

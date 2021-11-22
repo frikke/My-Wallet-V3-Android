@@ -18,7 +18,7 @@ fun SmallMinimalButton(
     OutlinedButton(
         text = text,
         onClick = onClick,
-        shape = AppTheme.shapes.large,
+        shape = AppTheme.shapes.extraLarge,
         state = state,
         modifier = modifier,
         buttonContent = {
