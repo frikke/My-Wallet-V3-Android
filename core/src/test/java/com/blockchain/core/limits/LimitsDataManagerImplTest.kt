@@ -2,7 +2,12 @@ package com.blockchain.core.limits
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.TxLimitsService
+import com.blockchain.api.txlimits.data.ApiMoneyMinor
 import com.blockchain.api.txlimits.data.CurrentLimits
+import com.blockchain.api.txlimits.data.FeatureLimitResponse
+import com.blockchain.api.txlimits.data.FeatureName
+import com.blockchain.api.txlimits.data.FeaturePeriodicLimit
+import com.blockchain.api.txlimits.data.GetFeatureLimitsResponse
 import com.blockchain.api.txlimits.data.GetSeamlessLimitsResponse
 import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitRange
@@ -313,6 +318,84 @@ class LimitsDataManagerImplTest {
             AssetCategory.NON_CUSTODIAL.name,
             AssetCategory.CUSTODIAL.name
         )
+    }
+
+    @Test
+    fun `get feature limits should fetch the feature limits and map result`() {
+        val response = GetFeatureLimitsResponse(
+            listOf(
+                FeatureLimitResponse(FeatureName.SEND_CRYPTO.name, true, null), // Unspecified
+                FeatureLimitResponse(FeatureName.RECEIVE_CRYPTO.name, false, null), // Disabled
+                FeatureLimitResponse(
+                    FeatureName.SWAP_CRYPTO.name, true, FeaturePeriodicLimit(null, "YEAR")
+                ), // Infinite
+                FeatureLimitResponse(
+                    FeatureName.BUY_AND_SELL.name, true,
+                    FeaturePeriodicLimit(ApiMoneyMinor("USD", "4000"), "DAY")
+                ), // Limited
+                FeatureLimitResponse(
+                    FeatureName.BUY_WITH_CARD.name, true,
+                    FeaturePeriodicLimit(ApiMoneyMinor("USD", "5000"), "MONTH")
+                ), // Limited
+                FeatureLimitResponse(
+                    FeatureName.BUY_AND_DEPOSIT_WITH_BANK.name, true,
+                    FeaturePeriodicLimit(ApiMoneyMinor("USD", "6000"), "YEAR")
+                ), // Limited
+                FeatureLimitResponse(
+                    "UNKNOWN", true,
+                    FeaturePeriodicLimit(ApiMoneyMinor("USD", "6000"), "YEAR")
+                ),
+            )
+        )
+        whenever(limitsService.getFeatureLimits(any())).thenReturn(Single.just(response))
+
+        subject.getFeatureLimits()
+            .test()
+            .assertComplete()
+            .assertValue { limits ->
+                limits.containsAll(
+                    listOf(
+                        FeatureWithLimit(Feature.SEND_FROM_TRADING_TO_PRIVATE, FeatureLimit.Unspecified),
+                        FeatureWithLimit(Feature.RECEIVE_TO_TRADING, FeatureLimit.Disabled),
+                        FeatureWithLimit(Feature.SWAP, FeatureLimit.Infinite),
+                        FeatureWithLimit(
+                            Feature.BUY_SELL,
+                            FeatureLimit.Limited(
+                                TxPeriodicLimit(
+                                    amount = FiatValue.fromMinor("USD", 4000L),
+                                    period = TxLimitPeriod.DAILY,
+                                    effective = true
+                                )
+                            )
+                        ),
+                        FeatureWithLimit(
+                            Feature.CARD_PURCHASES,
+                            FeatureLimit.Limited(
+                                TxPeriodicLimit(
+                                    amount = FiatValue.fromMinor("USD", 5000L),
+                                    period = TxLimitPeriod.MONTHLY,
+                                    effective = true
+                                )
+                            )
+                        ),
+                        FeatureWithLimit(
+                            Feature.FIAT_DEPOSIT,
+                            FeatureLimit.Limited(
+                                TxPeriodicLimit(
+                                    amount = FiatValue.fromMinor("USD", 6000L),
+                                    period = TxLimitPeriod.YEARLY,
+                                    effective = true
+                                )
+                            )
+                        )
+                    ),
+                ) && limits.none {
+                    it.feature == Feature.FIAT_WITHDRAWAL ||
+                        it.feature == Feature.REWARDS
+                }
+            }
+
+        verify(limitsService).getFeatureLimits(FakeNabuSessionTokenFactory.any.authHeader)
     }
 
     companion object {

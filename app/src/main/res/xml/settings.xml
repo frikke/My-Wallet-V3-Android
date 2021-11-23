@@ -30,6 +30,11 @@
             android:key="qr_connect"
             android:title="@string/settings_pair_wallet"
             app:iconSpaceReserved="false" />
+        <piuk.blockchain.android.ui.settings.preferences.CustomPreference
+            android:key="limits"
+            android:title="@string/setting_limits_title"
+            android:summary="@string/setting_limits_description"
+            app:iconSpaceReserved="false" />
     </piuk.blockchain.android.ui.settings.preferences.CustomPreferenceCategory>
 
     <piuk.blockchain.android.ui.settings.preferences.CustomPreferenceCategory

@@ -41,6 +41,8 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricAuthError.BiometricsNoSuitableMethods
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -93,6 +95,7 @@ import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
+import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -143,6 +146,9 @@ class SettingsFragment :
     private val thePit by lazy {
         findPreference<ThePitStatusPreference>("the_pit")
     }
+    private val limitsPref by lazy {
+        findPreference<Preference>("limits")
+    }
     private val qrConnectPref by lazy {
         findPreference<Preference>("qr_connect")
     }
@@ -192,6 +198,7 @@ class SettingsFragment :
     private val rxBus: RxBus by inject()
     private val formatChecker: FormatChecker by inject()
     private val environmentConfig: EnvironmentConfig by inject()
+    private val internalFeatureFlagApi: InternalFeatureFlagApi by inject()
 
     private var progressDialog: MaterialProgressDialog? = null
 
@@ -246,6 +253,11 @@ class SettingsFragment :
 
         thePit.onClick { settingsPresenter.onThePitClicked() }
         thePit?.isVisible = true
+
+        limitsPref.onClick {
+            startActivity(Intent(requireContext(), KycLimitsActivity::class.java))
+        }
+        limitsPref?.isVisible = internalFeatureFlagApi.isFeatureEnabled(GatedFeature.SETTINGS_FEATURE_LIMITS)
 
         qrConnectPref?.isVisible = environmentConfig.isRunningInDebugMode() &&
             environmentConfig.environment != Environment.PRODUCTION

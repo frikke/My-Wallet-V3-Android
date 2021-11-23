@@ -4,3 +4,6 @@ root=true
 # possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
 # it's automatically set to 100 on `ktlint --android ...` (per Android Kotlin Style Guide)
 max_line_length=120
+
+[**/src/test/**.kt]
+disabled_rules=max-line-length

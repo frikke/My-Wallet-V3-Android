@@ -1,7 +1,10 @@
 package com.blockchain.core.limits
 
 import com.blockchain.api.services.TxLimitsService
+import com.blockchain.api.txlimits.data.FeatureLimitResponse
+import com.blockchain.api.txlimits.data.FeatureName
 import com.blockchain.api.txlimits.data.Limit
+import com.blockchain.api.txlimits.data.LimitPeriod
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.GatedFeature
@@ -34,6 +37,8 @@ interface LimitsDataManager {
         targetAccountType: AssetCategory,
         legacyLimits: Single<LegacyLimits>
     ): Single<TxLimits>
+
+    fun getFeatureLimits(): Single<List<FeatureWithLimit>>
 }
 
 class LimitsDataManagerImpl(
@@ -156,6 +161,13 @@ class LimitsDataManagerImpl(
         }
     }
 
+    override fun getFeatureLimits(): Single<List<FeatureWithLimit>> = authenticator.authenticate { token ->
+        limitsService.getFeatureLimits(token.authHeader)
+            .map { response ->
+                response.limits.mapNotNull { it.toFeatureWithLimit() }
+            }
+    }
+
     private fun Single<LegacyLimits>.toOutputCurrency(
         outputAsset: AssetInfo?,
         exchangeRatesDataManager: ExchangeRatesDataManager
@@ -198,6 +210,50 @@ private fun Money.toOutputCryptoCurrency(
     this is FiatValue -> exchangeRate.inverse(roundingMode, outputAsset.precisionDp).convert(this)
     else -> throw IllegalStateException("Conversion cannot be performed.")
 }
+
+private fun FeatureLimitResponse.toFeatureWithLimit(): FeatureWithLimit? {
+    val feature = name.toFeature() ?: return null
+    val featureLimit = when {
+        enabled && limit == null -> FeatureLimit.Unspecified
+        enabled && limit?.value == null -> FeatureLimit.Infinite
+        enabled && limit?.value != null -> {
+            val apiMoney = limit?.value!!
+            val txPeriod = limit?.period?.toLimitPeriod() ?: return null
+            val limit = FiatValue.fromMinor(apiMoney.currency, apiMoney.value.toLong())
+            FeatureLimit.Limited(TxPeriodicLimit(limit, txPeriod, true))
+        }
+        else -> FeatureLimit.Disabled
+    }
+
+    return FeatureWithLimit(feature, featureLimit)
+}
+
+private fun String.toLimitPeriod(): TxLimitPeriod? =
+    LimitPeriod.values().find {
+        it.name.equals(this, ignoreCase = true)
+    }?.let {
+        when (it) {
+            LimitPeriod.DAY -> TxLimitPeriod.DAILY
+            LimitPeriod.MONTH -> TxLimitPeriod.MONTHLY
+            LimitPeriod.YEAR -> TxLimitPeriod.YEARLY
+        }
+    }
+
+private fun String.toFeature(): Feature? =
+    FeatureName.values().find {
+        it.name.equals(this, ignoreCase = true)
+    }?.let {
+        when (it) {
+            FeatureName.SEND_CRYPTO -> Feature.SEND_FROM_TRADING_TO_PRIVATE
+            FeatureName.RECEIVE_CRYPTO -> Feature.RECEIVE_TO_TRADING
+            FeatureName.SWAP_CRYPTO -> Feature.SWAP
+            FeatureName.BUY_AND_SELL -> Feature.BUY_SELL
+            FeatureName.BUY_WITH_CARD -> Feature.CARD_PURCHASES
+            FeatureName.BUY_AND_DEPOSIT_WITH_BANK -> Feature.FIAT_DEPOSIT
+            FeatureName.WITHDRAW_WITH_BANK -> Feature.FIAT_WITHDRAWAL
+            FeatureName.SAVINGS_INTEREST -> Feature.REWARDS
+        }
+    }
 
 sealed class TxLimit(private val _amount: Money?) {
     data class Limited(private val value: Money) : TxLimit(value)
@@ -275,4 +331,27 @@ data class SuggestedUpgrade(
 
 sealed class UpgradeType {
     data class Kyc(val proposedTier: Tier) : UpgradeType()
+}
+
+data class FeatureWithLimit(
+    val feature: Feature,
+    val limit: FeatureLimit
+)
+
+enum class Feature {
+    SEND_FROM_TRADING_TO_PRIVATE,
+    RECEIVE_TO_TRADING,
+    SWAP,
+    BUY_SELL,
+    CARD_PURCHASES,
+    FIAT_DEPOSIT,
+    FIAT_WITHDRAWAL,
+    REWARDS
+}
+
+sealed class FeatureLimit {
+    object Disabled : FeatureLimit()
+    object Unspecified : FeatureLimit()
+    object Infinite : FeatureLimit()
+    data class Limited(val limit: TxPeriodicLimit) : FeatureLimit()
 }

@@ -46,6 +46,23 @@ class NabuUserIdentity(
         }.exhaustive
     }
 
+    override fun getHighestApprovedKycTier(): Single<Tier> = nabuUserDataManager.tiers().map { tiers ->
+        val approvedTier = KycTierLevel.values().reversed().find {
+            tiers.isApprovedFor(it)
+        }
+        approvedTier?.toTier() ?: throw IllegalStateException("No approved tiers")
+    }
+
+    override fun isKycPending(tier: Tier): Single<Boolean> = nabuUserDataManager.tiers().map { tiers ->
+        tiers.isPendingOrUnderReviewFor(tier.toKycTierLevel())
+    }
+
+    override fun isKycRejected(): Single<Boolean> = nabuUserDataManager.tiers().map { tiers ->
+        KycTierLevel.values().any { level ->
+            tiers.isRejectedFor(level)
+        }
+    }
+
     override fun isRejectedForTier(feature: Feature.TierLevel): Single<Boolean> {
         return nabuUserDataManager.tiers().map {
             it.isRejectedFor(feature.tier.toKycTierLevel())
@@ -107,5 +124,12 @@ class NabuUserIdentity(
             Tier.BRONZE -> KycTierLevel.BRONZE
             Tier.SILVER -> KycTierLevel.SILVER
             Tier.GOLD -> KycTierLevel.GOLD
+        }.exhaustive
+
+    private fun KycTierLevel.toTier(): Tier =
+        when (this) {
+            KycTierLevel.BRONZE -> Tier.BRONZE
+            KycTierLevel.SILVER -> Tier.SILVER
+            KycTierLevel.GOLD -> Tier.GOLD
         }.exhaustive
 }

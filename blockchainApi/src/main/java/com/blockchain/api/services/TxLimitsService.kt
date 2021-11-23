@@ -21,4 +21,6 @@ class TxLimitsService(
         sourceAccountType = sourceAccountType,
         targetAccountType = targetAccountType
     )
+
+    fun getFeatureLimits(authHeader: String) = api.getFeatureLimits(authHeader)
 }

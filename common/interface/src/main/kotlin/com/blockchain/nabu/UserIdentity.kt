@@ -9,6 +9,9 @@ import java.io.Serializable
 interface UserIdentity {
     fun isEligibleFor(feature: Feature): Single<Boolean>
     fun isVerifiedFor(feature: Feature): Single<Boolean>
+    fun getHighestApprovedKycTier(): Single<Tier>
+    fun isKycPending(tier: Tier): Single<Boolean>
+    fun isKycRejected(): Single<Boolean>
     fun isKycInProgress(): Single<Boolean>
     fun isRejectedForTier(feature: Feature.TierLevel): Single<Boolean>
     fun isKycResubmissionRequired(): Single<Boolean>

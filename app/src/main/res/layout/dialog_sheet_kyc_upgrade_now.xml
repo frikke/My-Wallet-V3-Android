@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/title"
+        style="@style/Text.Semibold.16"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/standard_margin"
+        android:text="@string/kyc_upgrade_now_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/divider_title"
+        style="@style/Divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/tiny_margin"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/anchor_gold_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/divider_title" />
+
+    <ImageView
+        android:id="@+id/image_tier_gold"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="27dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/anchor_gold_top"
+        app:srcCompat="@drawable/ic_blockchain_logo"
+        app:tint="@color/tier_gold" />
+
+    <TextView
+        android:id="@+id/text_gold_title"
+        style="@style/Text.Semibold.16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:lineSpacingExtra="5sp"
+        android:text="@string/kyc_upgrade_now_gold_title"
+        app:layout_constraintStart_toEndOf="@id/image_tier_gold"
+        app:layout_constraintTop_toTopOf="@id/anchor_gold_top" />
+
+    <TextView
+        android:id="@+id/text_gold_description"
+        style="@style/Text.Standard.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="3sp"
+        android:text="@string/kyc_upgrade_now_gold_description"
+        app:layout_constraintStart_toStartOf="@id/text_gold_title"
+        app:layout_constraintTop_toBottomOf="@id/text_gold_title" />
+
+    <TextView
+        android:id="@+id/text_gold_info"
+        style="@style/Text.Standard.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="39dp"
+        android:lineSpacingExtra="3sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/text_gold_title"
+        app:layout_constraintTop_toBottomOf="@id/text_gold_description"
+        tools:text="Connect your bank or card to your Wallet. Hold cash in your wallet. Earn crypto with Rewards. Includes all Silver limits and features." />
+
+    <TextView
+        android:id="@+id/text_gold_state"
+        style="@style/Text.Semibold.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/small_margin"
+        android:background="@drawable/bkgd_green_100_rounded"
+        android:text="@string/most_popular"
+        android:textColor="@color/green_600"
+        app:layout_constraintStart_toStartOf="@id/text_gold_title"
+        app:layout_constraintTop_toBottomOf="@id/text_gold_info" />
+
+    <ImageView
+        android:id="@+id/image_gold_chevron"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_margin="@dimen/standard_margin"
+        app:srcCompat="@drawable/ic_chevron_right"
+        app:layout_constraintTop_toTopOf="@id/anchor_gold_top"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <View
+        android:id="@+id/divider_gold"
+        style="@style/Divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/standard_margin"
+        app:layout_constraintTop_toBottomOf="@id/text_gold_state" />
+
+    <FrameLayout
+        android:id="@+id/clickable_gold"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintTop_toTopOf="@id/anchor_gold_top"
+        app:layout_constraintBottom_toBottomOf="@id/divider_gold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="gone" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/anchor_silver_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/divider_gold" />
+
+    <ImageView
+        android:id="@+id/image_tier_silver"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="27dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/anchor_silver_top"
+        app:srcCompat="@drawable/ic_blockchain_logo"
+        app:tint="@color/tier_silver" />
+
+    <TextView
+        android:id="@+id/text_silver_title"
+        style="@style/Text.Semibold.16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:lineSpacingExtra="5sp"
+        android:text="@string/kyc_upgrade_now_silver_title"
+        app:layout_constraintStart_toEndOf="@id/image_tier_silver"
+        app:layout_constraintTop_toTopOf="@id/anchor_silver_top" />
+
+    <TextView
+        android:id="@+id/text_silver_description"
+        style="@style/Text.Standard.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="3sp"
+        android:text="@string/kyc_upgrade_now_silver_description"
+        app:layout_constraintStart_toStartOf="@id/text_silver_title"
+        app:layout_constraintTop_toBottomOf="@id/text_silver_title" />
+
+    <TextView
+        android:id="@+id/text_silver_info"
+        style="@style/Text.Standard.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="39dp"
+        android:lineSpacingExtra="3sp"
+        android:text="@string/kyc_upgrade_now_silver_info"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/text_silver_title"
+        app:layout_constraintTop_toBottomOf="@id/text_silver_description" />
+
+    <ImageView
+        android:id="@+id/image_silver_chevron"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_margin="@dimen/standard_margin"
+        app:srcCompat="@drawable/ic_chevron_right"
+        app:layout_constraintTop_toTopOf="@id/anchor_silver_top"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <View
+        android:id="@+id/divider_silver"
+        style="@style/Divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/standard_margin"
+        app:layout_constraintTop_toBottomOf="@id/text_silver_info" />
+
+    <FrameLayout
+        android:id="@+id/clickable_silver"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintTop_toTopOf="@id/anchor_silver_top"
+        app:layout_constraintBottom_toBottomOf="@id/divider_silver"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="gone" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

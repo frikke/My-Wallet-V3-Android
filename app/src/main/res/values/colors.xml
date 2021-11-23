@@ -167,4 +167,9 @@
     <color name="dashboard_chart_indicator_color">@color/blue_600</color>
     <color name="simple_buy_snackbar">@color/grey_900</color>
     <color name="white_with_opacity">#96ffffff</color>
+    <color name="feature_limits_light_grey">#677184</color>
+    <color name="feature_limits_header">#52F0F2F7</color>
+
+    <color name="tier_gold">#F5B73D</color>
+    <color name="tier_silver">#C2C9D6</color>
 </resources>
