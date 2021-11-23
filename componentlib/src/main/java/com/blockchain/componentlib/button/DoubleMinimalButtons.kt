@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.divider.VerticalDivider
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
@@ -53,6 +54,8 @@ fun DoubleMinimalButtons(
     pressedBackgroundTimeShown: Long = 250L,
     startButtonState: ButtonState = ButtonState.Enabled,
     endButtonState: ButtonState = ButtonState.Enabled,
+    startButtonIcon: ImageResource = ImageResource.None,
+    endButtonIcon: ImageResource = ImageResource.None,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
 ) {
 
@@ -203,8 +206,9 @@ fun DoubleMinimalButtons(
                         state = startButtonState,
                         text = startButtonText,
                         textColor = startTextColor,
-                        textAlpha = startTextAlpha,
+                        contentAlpha = startTextAlpha,
                         loadingIconResId = loadingIcon,
+                        icon = startButtonIcon,
                     )
                 }
             )
@@ -243,8 +247,9 @@ fun DoubleMinimalButtons(
                         state = endButtonState,
                         text = endButtonText,
                         textColor = endTextColor,
-                        textAlpha = endTextAlpha,
+                        contentAlpha = endTextAlpha,
                         loadingIconResId = loadingIcon,
+                        icon = endButtonIcon,
                     )
                 }
             )

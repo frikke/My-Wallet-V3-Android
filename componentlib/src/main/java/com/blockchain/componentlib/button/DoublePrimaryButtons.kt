@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.divider.VerticalDivider
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
@@ -47,6 +48,8 @@ fun DoublePrimaryButtons(
     pressedBackgroundTimeShown: Long = 250L,
     startButtonState: ButtonState = ButtonState.Enabled,
     endButtonState: ButtonState = ButtonState.Enabled,
+    startButtonIcon: ImageResource = ImageResource.None,
+    endButtonIcon: ImageResource = ImageResource.None,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
 ) {
 
@@ -168,7 +171,8 @@ fun DoublePrimaryButtons(
                         state = startButtonState,
                         text = startButtonText,
                         textColor = Color.White,
-                        textAlpha = startTextAlpha,
+                        contentAlpha = startTextAlpha,
+                        icon = startButtonIcon,
                     )
                 }
             )
@@ -205,7 +209,8 @@ fun DoublePrimaryButtons(
                         state = endButtonState,
                         text = endButtonText,
                         textColor = Color.White,
-                        textAlpha = endTextAlpha,
+                        contentAlpha = endTextAlpha,
+                        icon = endButtonIcon,
                     )
                 }
             )

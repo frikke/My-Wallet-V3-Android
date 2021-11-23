@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.NoRippleProvider
 import kotlinx.coroutines.delay
@@ -30,7 +31,13 @@ fun Button(
     text: String,
     onClick: () -> Unit,
     state: ButtonState,
-    buttonContent: @Composable RowScope.(state: ButtonState, text: String, textColor: Color, textAlpha: Float) -> Unit,
+    buttonContent: @Composable RowScope.(
+        state: ButtonState,
+        text: String,
+        textColor: Color,
+        textAlpha: Float,
+        icon: ImageResource
+    ) -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = AppTheme.shapes.small,
     defaultTextColor: Color = Color.Unspecified,
@@ -43,6 +50,7 @@ fun Button(
     pressedBackgroundColor: Color = Color.Unspecified,
     pressedBackgroundTimeShown: Long = 250L,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
+    icon: ImageResource = ImageResource.None,
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -101,7 +109,15 @@ fun Button(
                 disabledContentColor = Color.Unspecified,
             ),
             elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-            content = { buttonContent(state = state, textColor = defaultTextColor, text = text, textAlpha = textAlpha) }
+            content = {
+                buttonContent(
+                    state = state,
+                    textColor = defaultTextColor,
+                    text = text,
+                    textAlpha = textAlpha,
+                    icon = icon,
+                )
+            }
         )
     }
 }

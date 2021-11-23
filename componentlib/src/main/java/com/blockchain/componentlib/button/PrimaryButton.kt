@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
@@ -18,6 +19,7 @@ fun PrimaryButton(
     onClick: () -> Unit,
     state: ButtonState,
     modifier: Modifier = Modifier,
+    icon: ImageResource = ImageResource.None,
 ) {
     Button(
         text = text,
@@ -32,12 +34,14 @@ fun PrimaryButton(
         disabledBackgroundDarkColor = Grey900,
         pressedBackgroundColor = Blue700,
         modifier = modifier,
-        buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float ->
+        icon = icon,
+        buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ->
             FixedSizeButtonContent(
                 state = state,
                 text = text,
                 textColor = textColor,
-                textAlpha = textAlpha
+                contentAlpha = textAlpha,
+                icon = icon,
             )
         },
     )

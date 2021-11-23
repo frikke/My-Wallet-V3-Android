@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Red400
@@ -31,12 +32,12 @@ fun ExchangeSellButton(
         disabledBackgroundDarkColor = Red900,
         pressedBackgroundColor = Red700,
         modifier = modifier,
-        buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float ->
+        buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, _: ImageResource ->
             FixedSizeButtonContent(
                 state = state,
                 text = text,
                 textColor = textColor,
-                textAlpha = textAlpha
+                contentAlpha = textAlpha
             )
         },
     )

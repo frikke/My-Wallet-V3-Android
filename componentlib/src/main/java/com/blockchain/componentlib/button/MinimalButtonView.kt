@@ -20,6 +20,7 @@ class MinimalButtonView @JvmOverloads constructor(
                     onClick = onClick,
                     text = text,
                     state = buttonState,
+                    icon = icon,
                 )
             }
         }

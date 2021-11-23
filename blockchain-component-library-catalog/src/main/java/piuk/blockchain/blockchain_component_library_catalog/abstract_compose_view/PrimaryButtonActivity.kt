@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButtonView
+import com.blockchain.componentlib.image.ImageResource
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class PrimaryButtonActivity : AppCompatActivity() {
@@ -52,6 +53,24 @@ class PrimaryButtonActivity : AppCompatActivity() {
             }
             text = "Loading"
             buttonState = ButtonState.Loading
+        }
+
+        findViewById<PrimaryButtonView>(R.id.icon).apply {
+            onClick = {
+                Toast
+                    .makeText(
+                        this@PrimaryButtonActivity,
+                        "This button has an icon",
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
+            }
+            text = "Icon"
+            buttonState = ButtonState.Enabled
+            icon = ImageResource.Local(
+                id = R.drawable.ic_qr_code,
+                contentDescription = null,
+            )
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -19,6 +20,8 @@ fun SplitButtons(
     modifier: Modifier = Modifier,
     primaryButtonState: ButtonState = ButtonState.Enabled,
     secondaryButtonState: ButtonState = ButtonState.Enabled,
+    primaryButtonIcon: ImageResource = ImageResource.None,
+    secondaryButtonIcon: ImageResource = ImageResource.None,
 ) {
     Row(modifier) {
         PrimaryButton(
@@ -26,6 +29,7 @@ fun SplitButtons(
             onClick = primaryButtonOnClick,
             state = primaryButtonState,
             modifier = Modifier.weight(1f),
+            icon = primaryButtonIcon,
         )
         Spacer(modifier = Modifier.width(8.dp))
         SecondaryButton(
@@ -33,6 +37,7 @@ fun SplitButtons(
             onClick = secondaryButtonOnClick,
             state = secondaryButtonState,
             modifier = Modifier.weight(1f),
+            icon = secondaryButtonIcon,
         )
     }
 }
