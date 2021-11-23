@@ -124,6 +124,7 @@ class RedesignMainActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         launchPortfolio()
+
         setupToolbar()
         setupNavigation()
 
@@ -172,7 +173,6 @@ class RedesignMainActivity :
         }
 
         model.process(RedesignIntent.CancelAnyPendingConfirmationBuy)
-
         handlingResult = false
     }
 
@@ -542,12 +542,10 @@ class RedesignMainActivity :
     private fun startActivitiesFragment(account: BlockchainAccount? = null, reload: Boolean = true) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_activity))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
-
         supportFragmentManager.showFragment(
             fragment = ActivitiesFragment.newInstance(account),
             loadingView = binding.progress
         )
-
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
 

@@ -2406,7 +2406,7 @@
     <!-- Actions bottom sheet -->
     <string name="action_sheet_swap_description">Exchange for Another Crypto</string>
     <string name="action_sheet_send_description">Send to Any Wallet</string>
-    <string name="action_sheet_receive_description">Copy Your Addresses &amp; QR Codes></string>
+    <string name="action_sheet_receive_description">Copy Your Addresses &amp; QR Codes</string>
     <string name="action_sheet_rewards_description">Earn Rewards on Your Crypto</string>
     <string name="action_sheet_deposit_description">Add Cash from Your Bank</string>
     <string name="action_sheet_withdraw_description">Cash Out to Your Bank</string>
@@ -2420,8 +2420,8 @@
     <string name="toolbar_send">Send</string>
     <string name="toolbar_receive">Receive</string>
     <string name="toolbar_settings">Settings</string>
+
     <string name="select_a_trading_currency">Select a Trading Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
-
 </resources>

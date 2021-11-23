@@ -22,6 +22,7 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
             viewType: BuySellFragment.BuySellViewType,
             asset: AssetInfo?
         )
+
         fun launchInterestDashboard(origin: LaunchOrigin)
         fun launchReceive()
         fun launchSend()
@@ -109,8 +110,6 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                 secondaryText = context.getString(R.string.action_sheet_deposit_description)
                 onClick = {
                     dismiss()
-                    // TODO add Fiat account chooser
-                    ToastCustom.makeText(requireContext(), "Coming soon", Toast.LENGTH_SHORT, TYPE_GENERAL)
                 }
             }
             cashOutBtn.apply {
@@ -118,10 +117,8 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                 secondaryText = context.getString(R.string.action_sheet_deposit_description)
                 onClick = {
                     dismiss()
-                    // TODO add Fiat account chooser
-                    ToastCustom.makeText(requireContext(), "Coming soon", Toast.LENGTH_SHORT, TYPE_GENERAL)
                 }
-            }*/
+            } */
         }
     }
 

@@ -20,7 +20,9 @@ open class ViewPagerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+
         val blockchainActivity = activity as? BlockchainActivity
+
         isFirstLoad = false
         if (!isFirstLoad) onResumeFragment()
 

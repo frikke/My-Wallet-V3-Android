@@ -75,7 +75,7 @@ class RedesignModel(
                         }
                     )
             }
-            is RedesignIntent.CheckForPendingLinks -> {
+            is RedesignIntent.CheckForPendingLinks ->
                 interactor.checkForDeepLinks(intent.appIntent)
                     .subscribeBy(
                         onSuccess = { linkState ->
@@ -85,7 +85,6 @@ class RedesignModel(
                         },
                         onError = { Timber.e(it) }
                     )
-            }
             is RedesignIntent.ValidateAccountAction ->
                 interactor.checkIfShouldUpsell(intent.action, intent.account)
                     .subscribeBy(
@@ -279,6 +278,7 @@ class RedesignModel(
             is KycLinkState.General -> {
                 val data = linkState.link.campaignData
                 if (data != null) {
+                    // FIXME this feels really wrong, as we direct to Sunriver KYC - what is a General link?!
                     registerForCampaign(data)
                 } else {
                     process(
@@ -298,9 +298,11 @@ class RedesignModel(
             .subscribeBy(
                 onSuccess = { status ->
                     if (status != KycState.Verified) {
-                        RedesignIntent.UpdateViewToLaunch(
-                            ViewToLaunch.LaunchKyc(
-                                CampaignType.Sunriver
+                        process(
+                            RedesignIntent.UpdateViewToLaunch(
+                                ViewToLaunch.LaunchKyc(
+                                    CampaignType.Sunriver
+                                )
                             )
                         )
                     }
@@ -352,8 +354,8 @@ class RedesignModel(
                 },
                 onError = {
                     Timber.e("Error updating consent token on new bank link: $it")
-                    bankLinkingState.bankLinkingInfo?.let {
-                        process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(it)))
+                    bankLinkingState.bankLinkingInfo?.let { linkingInfo ->
+                        process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(linkingInfo)))
                     } ?: process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
                 }
             )

@@ -32,6 +32,7 @@ class ActionActivity : BlockchainActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupToolbar()
+
         supportFragmentManager.showFragment(
             fragment = loadFragment(),
             loadingView = binding.progress
@@ -59,20 +60,6 @@ class ActionActivity : BlockchainActivity() {
                 updateToolbarTitle(getString(R.string.toolbar_swap))
                 SwapFragment.newInstance()
             }
-            // TODO
-            //            AssetAction.FiatDeposit -> {
-            //                //                supportFragmentManager.showFragment(
-            //                //                    fragment = Deposit.newInstance(),
-            //                //                    loadingView = binding.progress
-            //                //                )
-            //            }
-            //
-            //            AssetAction.Withdraw -> {
-            //                //                supportFragmentManager.showFragment(
-            //                //                    fragment = Withdrawfr.newInstance(),
-            //                //                    loadingView = binding.progress
-            //                //                )
-            //            }
             AssetAction.Receive -> {
                 updateToolbarTitle(getString(R.string.toolbar_receive))
                 ReceiveFragment.newInstance()
