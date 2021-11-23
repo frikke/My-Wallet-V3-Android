@@ -37,6 +37,12 @@ sealed class RedesignIntent : MviIntent<RedesignState> {
         override fun reduce(oldState: RedesignState): RedesignState = oldState
     }
 
+    object ResetViewState : RedesignIntent() {
+        override fun reduce(oldState: RedesignState): RedesignState = oldState.copy(
+            viewToLaunch = ViewToLaunch.None
+        )
+    }
+
     class ProcessScanResult(val decodedData: String) : RedesignIntent() {
         override fun reduce(oldState: RedesignState): RedesignState = oldState
     }

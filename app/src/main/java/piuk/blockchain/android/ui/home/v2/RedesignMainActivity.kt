@@ -100,8 +100,6 @@ class RedesignMainActivity :
     override fun initBinding(): ActivityRedesignMainBinding = ActivityRedesignMainBinding.inflate(layoutInflater)
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
-    private var activityResultAction: () -> Unit = {}
-    private var handlingResult = false
 
     @Deprecated("Use MVI loop instead")
     private val compositeDisposable = CompositeDisposable()
@@ -168,12 +166,7 @@ class RedesignMainActivity :
 
     override fun onResume() {
         super.onResume()
-        activityResultAction().also {
-            activityResultAction = {}
-        }
-
         model.process(RedesignIntent.CancelAnyPendingConfirmationBuy)
-        handlingResult = false
     }
 
     override fun onDestroy() {
@@ -194,6 +187,8 @@ class RedesignMainActivity :
             RedesignSettingsActivity.Companion.SettingsAction.WebLogin ->
                 QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
             RedesignSettingsActivity.Companion.SettingsAction.Logout -> showLogoutDialog()
+        }.also {
+            hideLoading()
         }
     }
 
@@ -204,6 +199,7 @@ class RedesignMainActivity :
                     launchQrScan()
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
+                    showLoading()
                     settingsResultContract.launch(RedesignSettingsActivity.newIntent(this@RedesignMainActivity))
                 }
             )
@@ -252,7 +248,6 @@ class RedesignMainActivity :
         }
     }
 
-    // TODO in these methods in MainActivity, we show a dialog, check whether it should be blocking or not
     override fun showLoading() {
         binding.progress.visible()
         binding.progress.playAnimation()
@@ -277,74 +272,70 @@ class RedesignMainActivity :
     // TODO this is deprecated, should be replaced with ActivityResult.contract
     // some consideration needs to be paid to QR scanning and how it deals with the results
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        handlingResult = true
-        // We create a lambda so we handle the result after the view is attached to the presenter (onResume)
-        activityResultAction = {
-            when (requestCode) {
-                QrScanActivity.SCAN_URI_RESULT -> {
-                    data.getRawScanData()?.let {
-                        val decodedData = URLDecoder.decode(it, "UTF-8")
-                        if (resultCode == RESULT_OK) {
-                            model.process(RedesignIntent.ProcessScanResult(decodedData))
-                        }
-                    }
-                }
-                SETTINGS_EDIT,
-                ACCOUNT_EDIT,
-                KYC_STARTED -> {
-                    // Reset state in case of changing currency etc
-                    launchPortfolio()
-
-                    // Pass this result to balance fragment
-                    for (fragment in supportFragmentManager.fragments) {
-                        fragment.onActivityResult(requestCode, resultCode, data)
-                    }
-                }
-                INTEREST_DASHBOARD -> {
-                    if (resultCode == RESULT_FIRST_USER) {
-                        data?.let { intent ->
-                            val account = intent.extras?.getAccount(InterestDashboardActivity.ACTIVITY_ACCOUNT)
-                            startActivitiesFragment(account)
-                        }
-                    }
-                }
-                BANK_DEEP_LINK_SIMPLE_BUY -> {
+        when (requestCode) {
+            QrScanActivity.SCAN_URI_RESULT -> {
+                data.getRawScanData()?.let {
+                    val decodedData = URLDecoder.decode(it, "UTF-8")
                     if (resultCode == RESULT_OK) {
-                        startActivity(
-                            SimpleBuyActivity.newIntent(
-                                context = this,
-                                preselectedPaymentMethodId = data?.getStringExtra(BankAuthActivity.LINKED_BANK_ID_KEY)
-                            )
-                        )
+                        model.process(RedesignIntent.ProcessScanResult(decodedData))
                     }
                 }
-                BANK_DEEP_LINK_SETTINGS -> {
-                    if (resultCode == RESULT_OK) {
-                        startActivity(Intent(this, SettingsActivity::class.java))
-                    }
-                }
-                BANK_DEEP_LINK_DEPOSIT -> {
-                    if (resultCode == RESULT_OK) {
-                        launchPortfolio(
-                            AssetAction.FiatDeposit,
-                            data?.getStringExtra(
-                                BankAuthActivity.LINKED_BANK_CURRENCY
-                            )
-                        )
-                    }
-                }
-                BANK_DEEP_LINK_WITHDRAW -> {
-                    if (resultCode == RESULT_OK) {
-                        launchPortfolio(
-                            AssetAction.Withdraw,
-                            data?.getStringExtra(
-                                BankAuthActivity.LINKED_BANK_CURRENCY
-                            )
-                        )
-                    }
-                }
-                else -> super.onActivityResult(requestCode, resultCode, data)
             }
+            SETTINGS_EDIT,
+            ACCOUNT_EDIT,
+            KYC_STARTED -> {
+                // Reset state in case of changing currency etc
+                launchPortfolio()
+
+                // Pass this result to balance fragment
+                for (fragment in supportFragmentManager.fragments) {
+                    fragment.onActivityResult(requestCode, resultCode, data)
+                }
+            }
+            INTEREST_DASHBOARD -> {
+                if (resultCode == RESULT_FIRST_USER) {
+                    data?.let { intent ->
+                        val account = intent.extras?.getAccount(InterestDashboardActivity.ACTIVITY_ACCOUNT)
+                        startActivitiesFragment(account)
+                    }
+                }
+            }
+            BANK_DEEP_LINK_SIMPLE_BUY -> {
+                if (resultCode == RESULT_OK) {
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            preselectedPaymentMethodId = data?.getStringExtra(BankAuthActivity.LINKED_BANK_ID_KEY)
+                        )
+                    )
+                }
+            }
+            BANK_DEEP_LINK_SETTINGS -> {
+                if (resultCode == RESULT_OK) {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                }
+            }
+            BANK_DEEP_LINK_DEPOSIT -> {
+                if (resultCode == RESULT_OK) {
+                    launchPortfolio(
+                        AssetAction.FiatDeposit,
+                        data?.getStringExtra(
+                            BankAuthActivity.LINKED_BANK_CURRENCY
+                        )
+                    )
+                }
+            }
+            BANK_DEEP_LINK_WITHDRAW -> {
+                if (resultCode == RESULT_OK) {
+                    launchPortfolio(
+                        AssetAction.Withdraw,
+                        data?.getStringExtra(
+                            BankAuthActivity.LINKED_BANK_CURRENCY
+                        )
+                    )
+                }
+            }
+            else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
@@ -511,6 +502,12 @@ class RedesignMainActivity :
                 // do nothing
             }
         }.exhaustive
+
+        // once we've completed a loop of render with a view to launch
+        // ensure we reset the UI state to avoid duplication of screens on navigating back
+        if (newState.viewToLaunch != ViewToLaunch.None) {
+            model.process(RedesignIntent.ResetViewState)
+        }
     }
 
     private fun showTargetScanError(error: QrScanError) {
@@ -618,7 +615,7 @@ class RedesignMainActivity :
     }
 
     override fun launchSetup2Fa() {
-        SettingsActivity.startFor2Fa(this)
+        startActivity(RedesignSettingsActivity.newIntentFor2FA(this))
     }
 
     override fun launchVerifyEmail() {

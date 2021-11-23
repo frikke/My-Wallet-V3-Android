@@ -41,6 +41,7 @@ import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
@@ -197,7 +198,7 @@ class ActivitiesFragment :
                 accountName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 fiatBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.grey_800))
                 showAccounts.setColorFilter(ContextCompat.getColor(requireContext(), R.color.grey_400))
-                accountSelectFilter.gone()
+                accountSelectFilter.invisible()
             }
 
             accountName.text = account.label

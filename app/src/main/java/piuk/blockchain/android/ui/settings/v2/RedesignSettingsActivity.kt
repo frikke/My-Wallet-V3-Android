@@ -21,6 +21,7 @@ import piuk.blockchain.android.databinding.ActivityRedesignSettingsBinding
 import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
+import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.settings.SettingsFragment
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
@@ -164,6 +165,13 @@ class RedesignSettingsActivity : BlockchainActivity() {
     companion object {
         fun newIntent(context: Context): Intent =
             Intent(context, RedesignSettingsActivity::class.java)
+
+        fun newIntentFor2FA(context: Context) =
+            Intent(context, SettingsActivity::class.java).apply {
+                Bundle().apply {
+                    this.putBoolean(SettingsFragment.EXTRA_SHOW_TWO_FA_DIALOG, true)
+                }
+            }
 
         const val SETTINGS_RESULT_DATA = "SETTINGS_RESULT_DATA"
 
