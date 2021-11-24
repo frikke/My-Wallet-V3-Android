@@ -6,6 +6,7 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
@@ -13,12 +14,11 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.payments.core.Partner
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import java.math.BigInteger
-import piuk.blockchain.android.cards.EverypayAuthOptions
+import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 
@@ -53,7 +53,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class Open3dsAuth(private val paymentLink: String, private val exitLink: String) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(everypayAuthOptions = EverypayAuthOptions(paymentLink, exitLink))
+            oldState.copy(everypayAuthOptions = CardAcquirerCredentials.Everypay(paymentLink, exitLink))
     }
 
     class AuthorisePaymentExternalUrl(private val url: String, private val linkedBank: LinkedBank) : SimpleBuyIntent() {

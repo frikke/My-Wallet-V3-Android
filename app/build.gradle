@@ -400,6 +400,11 @@ dependencies {
     // Custom Views
     implementation Libraries.materialDatePicker
 
+    // Stripe
+    implementation(Libraries.stripe) {
+        exclude group: 'com.github.stephenc.jcip', module: 'jcip-annotations'
+    }
+
     // Logging
     implementation Libraries.timber
 

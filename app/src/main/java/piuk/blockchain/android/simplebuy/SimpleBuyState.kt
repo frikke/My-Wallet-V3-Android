@@ -6,6 +6,7 @@ import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
@@ -13,7 +14,6 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.payments.core.Partner
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -23,7 +23,7 @@ import java.io.Serializable
 import java.lang.IllegalStateException
 import java.math.BigInteger
 import java.util.Date
-import piuk.blockchain.android.cards.EverypayAuthOptions
+import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
@@ -63,7 +63,7 @@ data class SimpleBuyState constructor(
     @Transient override val fiatRate: ExchangeRate? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
     @Transient val isLoading: Boolean = false,
-    @Transient val everypayAuthOptions: EverypayAuthOptions? = null,
+    @Transient val everypayAuthOptions: CardAcquirerCredentials.Everypay? = null,
     @Transient val authorisePaymentUrl: String? = null,
     @Transient val linkedBank: LinkedBank? = null,
     @Transient val shouldShowUnlockHigherFunds: Boolean = false,

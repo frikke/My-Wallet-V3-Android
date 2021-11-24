@@ -1,6 +1,7 @@
 package info.blockchain.wallet.api
 
 import com.blockchain.api.ApiException
+import com.blockchain.utils.withBearerPrefix
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -327,7 +328,4 @@ class WalletApi(
     private fun getApiCode(): String {
         return apiCode.apiCode
     }
-
-    private fun String.withBearerPrefix() =
-        "Bearer $this"
 }

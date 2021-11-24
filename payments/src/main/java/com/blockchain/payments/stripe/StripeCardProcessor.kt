@@ -1,10 +1,10 @@
 package com.blockchain.payments.stripe
 
 import com.blockchain.outcome.Outcome
+import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessingFailure
-import com.blockchain.payments.core.Partner
 import com.blockchain.payments.core.PaymentToken
 import com.stripe.android.createPaymentMethod
 import com.stripe.android.exception.APIConnectionException
@@ -18,7 +18,7 @@ class StripeCardProcessor(
     private val stripeFactory: StripeFactory
 ) : CardProcessor {
 
-    override val partner: Partner = Partner.STRIPE
+    override val acquirer: CardAcquirer = CardAcquirer.STRIPE
 
     // Create a payment method and return the payment token for the given card
     override suspend fun createPaymentMethod(

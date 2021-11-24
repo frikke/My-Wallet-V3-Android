@@ -29,8 +29,8 @@ import java.util.Date
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.cards.EverypayAuthOptions
-import piuk.blockchain.android.cards.partners.EverypayCardActivator
+import piuk.blockchain.android.cards.CardAcquirerCredentials
+import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
@@ -56,6 +56,7 @@ class SimpleBuyModelTest {
     )
 
     private val interactor: SimpleBuyInteractor = mock()
+    private val cardActivator: CardActivator = mock()
     private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase = mock()
 
     private val prefs: CurrencyPrefs = mock()
@@ -78,9 +79,7 @@ class SimpleBuyModelTest {
         initialState = defaultState,
         uiScheduler = Schedulers.io(),
         interactor = interactor,
-        cardActivators = listOf(
-            mock()
-        ),
+        cardActivator = cardActivator,
         ratingPrefs = ratingPrefs,
         environmentConfig = environmentConfig,
         crashLogger = mock(),
@@ -185,6 +184,8 @@ class SimpleBuyModelTest {
 
         val paymentLink = "http://example.com"
         val id = "testId"
+        val redirectUrl = "http://redirect.com"
+        whenever(cardActivator.redirectUrl).thenReturn(redirectUrl)
         whenever(interactor.fetchOrder(id))
             .thenReturn(
                 Single.just(
@@ -222,8 +223,9 @@ class SimpleBuyModelTest {
             .assertValueAt(3) {
                 it == defaultState.copy(
                     orderExchangePrice = price,
-                    everypayAuthOptions = EverypayAuthOptions(
-                        paymentLink, EverypayCardActivator.redirectUrl
+                    everypayAuthOptions = CardAcquirerCredentials.Everypay(
+                        paymentLink,
+                        redirectUrl
                     )
                 )
             }

@@ -1,10 +1,10 @@
 package com.blockchain.payments.checkoutcom
 
 import com.blockchain.outcome.Outcome
+import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessingFailure
 import com.blockchain.payments.core.CardProcessor
-import com.blockchain.payments.core.Partner
 import com.checkout.android_sdk.CheckoutAPIClient
 import com.checkout.android_sdk.Request.CardTokenisationRequest
 import com.checkout.android_sdk.Response.CardTokenisationFail
@@ -17,7 +17,7 @@ class CheckoutCardProcessor(
     private val checkoutFactory: CheckoutFactory
 ) : CardProcessor {
 
-    override val partner: Partner = Partner.CHECKOUT_COM
+    override val acquirer: CardAcquirer = CardAcquirer.CHECKOUT
 
     override suspend fun createPaymentMethod(
         cardDetails: CardDetails,

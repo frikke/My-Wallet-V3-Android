@@ -47,7 +47,8 @@ import org.koin.dsl.binds
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.cards.CardModel
-import piuk.blockchain.android.cards.partners.EverypayCardActivator
+import piuk.blockchain.android.cards.partners.CardActivator
+import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.Mapper
@@ -69,6 +70,7 @@ import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.everypay.service.EveryPayCardService
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
@@ -455,7 +457,7 @@ val applicationModule = module {
                 exchangeRatesDataManager = get(),
                 bankPartnerCallbackProvider = get(),
                 stripeAndCheckoutPaymentsFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
-                cardProcessors = getCardProcessors().associateBy { it.partner }
+                cardProcessors = getCardProcessors().associateBy { it.acquirer }
             )
         }
 
@@ -468,9 +470,7 @@ val applicationModule = module {
                 prefs = get(),
                 simpleBuyPrefs = get(),
                 serializer = get(),
-                cardActivators = listOf(
-                    EverypayCardActivator(get(), get())
-                ),
+                cardActivator = get(),
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
                 crashLogger = get(),
@@ -544,9 +544,7 @@ val applicationModule = module {
                 interactor = get(),
                 currencyPrefs = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
-                cardActivators = listOf(
-                    EverypayCardActivator(get(), get())
-                ),
+                cardActivator = get(),
                 gson = get(),
                 prefs = get(),
                 environmentConfig = get(),
@@ -762,6 +760,19 @@ val applicationModule = module {
                 crashLogger = get()
             )
         }
+
+        factory {
+            EveryPayCardService(
+                everyPayService = get()
+            )
+        }
+
+        factory {
+            CardProviderActivator(
+                custodialWalletManager = get(),
+                submitEveryPayCardService = get()
+            )
+        }.bind(CardActivator::class)
     }
 
     factory {

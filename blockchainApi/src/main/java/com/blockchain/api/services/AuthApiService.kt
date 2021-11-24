@@ -2,6 +2,7 @@ package com.blockchain.api.services
 
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.auth.data.SendEmailRequest
+import com.blockchain.utils.withBearerPrefix
 import io.reactivex.rxjava3.core.Completable
 
 class AuthApiService internal constructor(
@@ -25,6 +26,4 @@ class AuthApiService internal constructor(
     companion object {
         private const val PRODUCT_WALLET = "wallet"
     }
-
-    private fun String.withBearerPrefix() = "Bearer $this"
 }

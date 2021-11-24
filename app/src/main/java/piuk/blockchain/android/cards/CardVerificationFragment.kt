@@ -7,17 +7,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
+import com.blockchain.payments.stripe.StripeFactory
+import com.checkout.android_sdk.PaymentForm
+import com.checkout.android_sdk.Utils.Environment
+import com.stripe.android.PaymentAuthConfig
+import com.stripe.android.model.ConfirmPaymentIntentParams
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import timber.log.Timber
 
 class CardVerificationFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentCardVerificationBinding>(),
     AddCardFlowFragment {
 
     override val model: CardModel by scopedInject()
+
+    private val stripeFactory: StripeFactory by inject()
+
+    private val environmentConfig: EnvironmentConfig by inject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentCardVerificationBinding =
         FragmentCardVerificationBinding.inflate(inflater, container, false)
@@ -28,6 +42,7 @@ class CardVerificationFragment :
         binding.okBtn.setOnClickListener {
             navigator.exitWithError()
         }
+        binding.checkoutCardForm.initCheckoutPaymentForm()
     }
 
     override fun render(newState: CardState) {
@@ -46,13 +61,57 @@ class CardVerificationFragment :
             }
         }
 
-        if (newState.authoriseEverypayCard != null) {
-            openWebView(
-                newState.authoriseEverypayCard.paymentLink,
-                newState.authoriseEverypayCard.exitLink
-            )
-            model.process(CardIntent.ResetEveryPayAuth)
+        newState.authoriseCard?.let { cardAcquirerCredentials ->
+            processCardAuthRequest(cardAcquirerCredentials)
+            model.process(CardIntent.ResetCardAuth)
             binding.progress.visibility = View.GONE
+        }
+    }
+
+    private fun processCardAuthRequest(cardAcquirerCredentials: CardAcquirerCredentials) {
+        when (cardAcquirerCredentials) {
+            is CardAcquirerCredentials.Everypay -> {
+                openWebView(
+                    cardAcquirerCredentials.paymentLink,
+                    cardAcquirerCredentials.exitLink
+                )
+            }
+            is CardAcquirerCredentials.Stripe -> {
+                PaymentAuthConfig.init(
+                    // Here we can customise the UI (web view) shown for 3DS
+                    // via PaymentAuthConfig.Stripe3ds2UiCustomization
+                    PaymentAuthConfig.Builder()
+                        .set3ds2Config(
+                            PaymentAuthConfig.Stripe3ds2Config.Builder()
+                                .setTimeout(STRIPE_3DS_TIMEOUT_MINUTES)
+                                .build()
+                        )
+                        .build()
+                )
+                stripeFactory.getOrCreate(cardAcquirerCredentials.apiKey)
+                    .confirmPayment(
+                        fragment = this,
+                        confirmPaymentIntentParams = ConfirmPaymentIntentParams.create(
+                            clientSecret = cardAcquirerCredentials.clientSecret
+                        )
+                    )
+            }
+            is CardAcquirerCredentials.Checkout -> {
+                // For Checkout no 3DS is required if the link is empty. For Stripe they take care of all scenarios.
+                if (cardAcquirerCredentials.paymentLink.isNotEmpty()) {
+                    binding.checkoutCardForm.apply {
+                        visible()
+                        setKey(cardAcquirerCredentials.apiKey)
+                        handle3DS(
+                            cardAcquirerCredentials.paymentLink,
+                            cardAcquirerCredentials.exitLink,
+                            cardAcquirerCredentials.exitLink
+                        )
+                    }
+                } else {
+                    model.process(CardIntent.CheckCardStatus)
+                }
+            }
         }
     }
 
@@ -107,7 +166,29 @@ class CardVerificationFragment :
 
     override fun backPressedHandled(): Boolean = true
 
+    private fun PaymentForm.initCheckoutPaymentForm() {
+        if (environmentConfig.environment == info.blockchain.wallet.api.Environment.PRODUCTION) {
+            setEnvironment(Environment.LIVE)
+        } else {
+            setEnvironment(Environment.SANDBOX)
+        }
+        set3DSListener(
+            object : PaymentForm.On3DSFinished {
+                override fun onSuccess(token: String?) {
+                    binding.checkoutCardForm.gone()
+                    model.process(CardIntent.CheckCardStatus)
+                }
+                override fun onError(errorMessage: String?) {
+                    Timber.e("PaymentForm.On3DSFinished onError: $errorMessage")
+                    binding.checkoutCardForm.gone()
+                    model.process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL)))
+                }
+            }
+        )
+    }
+
     companion object {
         const val EVERYPAY_AUTH_REQUEST_CODE = 324
+        const val STRIPE_3DS_TIMEOUT_MINUTES = 5
     }
 }

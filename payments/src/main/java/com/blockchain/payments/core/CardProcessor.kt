@@ -2,18 +2,29 @@ package com.blockchain.payments.core
 
 import com.blockchain.outcome.Outcome
 
-enum class Partner {
+enum class CardAcquirer {
+    CHECKOUT,
     EVERYPAY,
-    CHECKOUT_COM,
     STRIPE,
-    UNKNOWN
+    UNKNOWN;
+
+    companion object {
+        fun fromString(acquirerName: String): CardAcquirer {
+            return when {
+                acquirerName.contains(CHECKOUT.name, ignoreCase = true) -> CHECKOUT
+                acquirerName.contains(EVERYPAY.name, ignoreCase = true) -> EVERYPAY
+                acquirerName.contains(STRIPE.name, ignoreCase = true) -> STRIPE
+                else -> UNKNOWN
+            }
+        }
+    }
 }
 
 typealias PaymentToken = String
 
 interface CardProcessor {
 
-    val partner: Partner
+    val acquirer: CardAcquirer
 
     suspend fun createPaymentMethod(
         cardDetails: CardDetails,

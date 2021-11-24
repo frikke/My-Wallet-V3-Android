@@ -3,8 +3,8 @@ package com.blockchain.nabu.models.responses.simplebuy
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.models.responses.nabu.Address
-import com.blockchain.payments.core.Partner
 import java.util.Date
 
 data class SimpleBuyPairsResp(val pairs: List<SimpleBuyPairResp>)
@@ -134,7 +134,7 @@ data class TransferRequest(
 data class AddNewCardBodyRequest(
     private val currency: String,
     private val address: Address,
-    private val paymentMethodTokens: Map<String, String>
+    private val paymentMethodTokens: Map<String, String>?
 )
 
 data class AddNewCardResponse(
@@ -150,13 +150,27 @@ class ProductTransferRequestBody(
 )
 
 data class ActivateCardResponse(
-    val everypay: EveryPayCardCredentialsResponse?
+    val everypay: EveryPayCardCredentialsResponse?,
+    val cardProvider: CardProviderResponse?
 )
 
 data class EveryPayCardCredentialsResponse(
     val apiUsername: String,
     val mobileToken: String,
     val paymentLink: String
+)
+
+data class CardProviderResponse(
+    val cardAcquirerName: String, // "STRIPE"
+    val cardAcquirerAccountCode: String,
+    val apiUserID: String, // is the old apiUserName
+    val apiToken: String, // is the old mobile token and will be fill with bearer token most of the time
+    val paymentLink: String, // link should be followed background and if an action is required we should abort
+    val paymentState: String,
+    val paymentReference: String,
+    val orderReference: String,
+    val clientSecret: String, // use when client secret is needed (stripe)
+    val publishableKey: String
 )
 
 data class PaymentAttributes(
@@ -264,7 +278,8 @@ data class AmountResponse(
 
 data class SimpleBuyConfirmationAttributes(
     private val everypay: EveryPayAttrs? = null,
-    private val callback: String? = null
+    private val callback: String? = null,
+    private val redirectURL: String?
 )
 
 data class EveryPayAttrs(private val customerUrl: String)

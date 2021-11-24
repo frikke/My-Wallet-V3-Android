@@ -15,14 +15,14 @@ sealed class CardIntent : MviIntent<CardState> {
         override fun reduce(oldState: CardState): CardState = oldState.copy(cardStatus = cardDetails.status)
     }
 
-    class ActivateEveryPayCard(val card: CardData, val cardId: String) : CardIntent() {
+    class ActivateCard(val card: CardData, val cardId: String) : CardIntent() {
         override fun reduce(oldState: CardState): CardState =
             oldState
     }
 
-    class AuthoriseEverypayCard(private val paymentLink: String, private val exitLink: String) : CardIntent() {
+    class AuthoriseCard(private val credentials: CardAcquirerCredentials) : CardIntent() {
         override fun reduce(oldState: CardState): CardState =
-            oldState.copy(authoriseEverypayCard = EverypayAuthOptions(paymentLink, exitLink))
+            oldState.copy(authoriseCard = credentials)
     }
 
     class UpdateCardId(private val cardId: String) : CardIntent() {
@@ -44,9 +44,9 @@ sealed class CardIntent : MviIntent<CardState> {
             oldState.copy(cardRequestStatus = status)
     }
 
-    object ResetEveryPayAuth : CardIntent() {
+    object ResetCardAuth : CardIntent() {
         override fun reduce(oldState: CardState): CardState =
-            oldState.copy(authoriseEverypayCard = null)
+            oldState.copy(authoriseCard = null)
     }
 
     object ReadyToAddNewCard : CardIntent() {

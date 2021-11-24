@@ -39,9 +39,9 @@ import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.outcome.fold
+import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessor
-import com.blockchain.payments.core.Partner
 import com.blockchain.payments.core.PaymentToken
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCategory
@@ -77,7 +77,7 @@ class SimpleBuyInteractor(
     private val coincore: Coincore,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val stripeAndCheckoutPaymentsFeatureFlag: StripeAndCheckoutIntegratedFeatureFlag,
-    private val cardProcessors: Map<Partner, CardProcessor>
+    private val cardProcessors: Map<CardAcquirer, CardProcessor>
 ) {
 
     // Hack until we have a proper limits api.
@@ -419,7 +419,7 @@ class SimpleBuyInteractor(
             if (enabled) {
                 addCardWithPaymentTokens(cardData, fiatCurrency, billingAddress)
             } else {
-                custodialWalletManager.addNewCard(fiatCurrency, billingAddress, emptyMap())
+                custodialWalletManager.addNewCard(fiatCurrency, billingAddress)
             }
         }
 
@@ -436,12 +436,13 @@ class SimpleBuyInteractor(
                 getPaymentToken(acquirer, cardData)
             }
         }.flatMap { paymentMethodTokens ->
-            if (paymentMethodTokens.filterValues { token -> token.isNotEmpty() }.isEmpty()) {
+            val validTokens = paymentMethodTokens.filterValues { token -> token.isNotEmpty() }
+            if (validTokens.isEmpty()) {
                 // If the feature is enabled and we couldn't get any payment tokens, show an error.
                 // Otherwise pass it to the backend if we got at least 1 token. TODO: better error handling
                 Single.error(Throwable(NO_PAYMENT_TOKENS_ERROR))
             } else {
-                custodialWalletManager.addNewCard(fiatCurrency, billingAddress, paymentMethodTokens)
+                custodialWalletManager.addNewCard(fiatCurrency, billingAddress, validTokens)
             }
         }
     }
@@ -449,7 +450,7 @@ class SimpleBuyInteractor(
     private suspend fun getPaymentToken(
         acquirer: PaymentCardAcquirer,
         cardData: CardData
-    ) = cardProcessors[acquirer.partner]?.createPaymentMethod(
+    ) = cardProcessors[CardAcquirer.fromString(acquirer.cardAcquirerName)]?.createPaymentMethod(
         cardData.toCardDetails(),
         acquirer.apiKey
     )?.fold(

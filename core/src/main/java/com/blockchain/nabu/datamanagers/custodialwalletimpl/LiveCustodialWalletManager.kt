@@ -12,6 +12,7 @@ import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.BuySellLimits
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPair
+import com.blockchain.nabu.datamanagers.CardProvider
 import com.blockchain.nabu.datamanagers.CardToBeActivated
 import com.blockchain.nabu.datamanagers.CryptoTransaction
 import com.blockchain.nabu.datamanagers.CurrencyPair
@@ -81,8 +82,10 @@ import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse.Companion.ISSUER_PROCESSING_ERROR
+import com.blockchain.nabu.models.responses.simplebuy.CardProviderResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
+import com.blockchain.nabu.models.responses.simplebuy.EveryPayCardCredentialsResponse
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
@@ -712,7 +715,7 @@ class LiveCustodialWalletManager(
     override fun addNewCard(
         fiatCurrency: String,
         billingAddress: BillingAddress,
-        paymentMethodTokens: Map<String, String>
+        paymentMethodTokens: Map<String, String>?
     ): Single<CardToBeActivated> =
         authenticator.authenticate {
             nabuService.addNewCard(
@@ -777,16 +780,17 @@ class LiveCustodialWalletManager(
     ): Single<PartnerCredentials> =
         authenticator.authenticate {
             nabuService.activateCard(it, cardId, attributes)
-        }.map {
-            PartnerCredentials(
-                it.everypay?.let { response ->
-                    EveryPayCredentials(
-                        response.apiUsername,
-                        response.mobileToken,
-                        response.paymentLink
-                    )
-                }
-            )
+        }.map { response ->
+            // Either everypay or cardProvider will be provided by ActivateCardResponse, never both
+            when {
+                response.everypay != null -> PartnerCredentials.EverypayPartner(
+                    everyPay = response.everypay.toEverypayCredentials()
+                )
+                response.cardProvider != null -> PartnerCredentials.CardProviderPartner(
+                    cardProvider = response.cardProvider.toCardProvider()
+                )
+                else -> PartnerCredentials.Unknown
+            }
         }
 
     override fun getCardDetails(cardId: String): Single<PaymentMethod.Card> =
@@ -1218,6 +1222,27 @@ class LiveCustodialWalletManager(
             cardType = card?.type ?: CardType.UNKNOWN,
             status = state.toCardStatus(),
             isEligible = true,
+        )
+
+    private fun EveryPayCardCredentialsResponse.toEverypayCredentials() =
+        EveryPayCredentials(
+            apiUsername,
+            mobileToken,
+            paymentLink
+        )
+
+    private fun CardProviderResponse.toCardProvider() =
+        CardProvider(
+            cardAcquirerName,
+            cardAcquirerAccountCode,
+            apiUserID,
+            apiToken,
+            paymentLink,
+            paymentState,
+            paymentReference,
+            orderReference,
+            clientSecret,
+            publishableKey
         )
 
     private fun Bank.toBankPaymentMethod(bankLimits: PaymentLimits) =

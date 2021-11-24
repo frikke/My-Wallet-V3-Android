@@ -24,7 +24,6 @@ import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
-import com.blockchain.payments.core.Partner
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -186,7 +185,7 @@ interface CustodialWalletManager {
     fun addNewCard(
         fiatCurrency: String,
         billingAddress: BillingAddress,
-        paymentMethodTokens: Map<String, String>
+        paymentMethodTokens: Map<String, String>? = null
     ): Single<CardToBeActivated>
 
     fun activateCard(cardId: String, attributes: SimpleBuyConfirmationAttributes): Single<PartnerCredentials>
@@ -523,17 +522,12 @@ data class PaymentCardAcquirer(
     val cardAcquirerName: String,
     val cardAcquirerAccountCode: String,
     val apiKey: String
-) {
-    val partner: Partner by lazy {
-        cardAcquirerName.uppercase().toSupportedPartner()
-    }
-}
+)
 
 internal fun String.toSupportedPartner(): Partner =
     when (this) {
         "EVERYPAY" -> Partner.EVERYPAY
-        "STRIPE" -> Partner.STRIPE
-        "CHECKOUT" -> Partner.CHECKOUT_COM
+        "CARDPROVIDER" -> Partner.CARDPROVIDER
         else -> Partner.UNKNOWN
     }
 
@@ -745,13 +739,36 @@ data class BillingAddress(
 
 data class CardToBeActivated(val partner: Partner, val cardId: String)
 
-data class PartnerCredentials(val everypay: EveryPayCredentials?)
+sealed class PartnerCredentials {
+    object Unknown : PartnerCredentials()
+    data class EverypayPartner(val everyPay: EveryPayCredentials) : PartnerCredentials()
+    data class CardProviderPartner(val cardProvider: CardProvider) : PartnerCredentials()
+}
 
 data class EveryPayCredentials(
     val apiUsername: String,
     val mobileToken: String,
     val paymentLink: String
 )
+
+data class CardProvider(
+    val cardAcquirerName: String,
+    val cardAcquirerAccountCode: String,
+    val apiUserID: String,
+    val apiToken: String,
+    val paymentLink: String,
+    val paymentState: String,
+    val paymentReference: String,
+    val orderReference: String,
+    val clientSecret: String,
+    val publishableKey: String
+)
+
+enum class Partner {
+    EVERYPAY, // The old flow with EveryPay
+    CARDPROVIDER, // The new flow for CardAcquirers, which can be Checkout, Stripe and EveryPay
+    UNKNOWN
+}
 
 data class TransferQuote(
     val id: String = "",

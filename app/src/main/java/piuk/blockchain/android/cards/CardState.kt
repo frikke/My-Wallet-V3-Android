@@ -13,11 +13,22 @@ data class CardState(
     val cardStatus: CardStatus? = null,
     val billingAddress: BillingAddress? = null,
     val addCard: Boolean = false,
-    @Transient val authoriseEverypayCard: EverypayAuthOptions? = null,
+    @Transient val authoriseCard: CardAcquirerCredentials? = null,
     @Transient val cardRequestStatus: CardRequestStatus? = null
 ) : MviState
 
-data class EverypayAuthOptions(val paymentLink: String, val exitLink: String)
+sealed class CardAcquirerCredentials {
+    // This used to be EverypayAuthOptions
+    data class Everypay(val paymentLink: String, val exitLink: String) : CardAcquirerCredentials()
+
+    data class Stripe(val apiKey: String, val clientSecret: String) : CardAcquirerCredentials()
+
+    data class Checkout(
+        val apiKey: String,
+        val paymentLink: String,
+        val exitLink: String
+    ) : CardAcquirerCredentials()
+}
 
 sealed class CardRequestStatus {
     class Error(val type: CardError) : CardRequestStatus()

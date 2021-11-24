@@ -36,7 +36,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.cards.partners.CardActivator
-import piuk.blockchain.android.cards.partners.EverypayCardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -54,7 +53,7 @@ class SimpleBuyModel(
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
     private val serializer: SimpleBuyPrefsSerializer,
-    private val cardActivators: List<CardActivator>,
+    private val cardActivator: CardActivator,
     private val interactor: SimpleBuyInteractor,
     private val _activityIndicator: Lazy<ActivityIndicator?>,
     private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase,
@@ -642,13 +641,13 @@ class SimpleBuyModel(
             orderId = id,
             paymentMethodId = selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
             attributes = if (selectedPaymentMethod.isBank()) {
+                // redirectURL is for card providers only.
                 SimpleBuyConfirmationAttributes(
-                    callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
+                    callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY),
+                    redirectURL = null
                 )
             } else {
-                cardActivators.firstOrNull {
-                    selectedPaymentMethod.partner == it.partner
-                }?.paymentAttributes()
+                cardActivator.paymentAttributes()
             },
             isBankPartner = selectedPaymentMethod.isBank()
         )
@@ -720,7 +719,7 @@ class SimpleBuyModel(
                 process(
                     SimpleBuyIntent.Open3dsAuth(
                         attrs.paymentLink,
-                        EverypayCardActivator.redirectUrl
+                        cardActivator.redirectUrl
                     )
                 )
                 process(SimpleBuyIntent.ResetEveryPayAuth)
