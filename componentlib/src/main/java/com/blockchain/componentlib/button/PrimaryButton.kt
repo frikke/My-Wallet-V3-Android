@@ -19,15 +19,16 @@ fun PrimaryButton(
     onClick: () -> Unit,
     state: ButtonState,
     modifier: Modifier = Modifier,
-    icon: ImageResource = ImageResource.None,
+    defaultBackgroundColor: Color? = null,
+    icon: ImageResource = ImageResource.None
 ) {
     Button(
         text = text,
         onClick = onClick,
         state = state,
         defaultTextColor = Color.White,
-        defaultBackgroundLightColor = Blue600,
-        defaultBackgroundDarkColor = Blue600,
+        defaultBackgroundLightColor = defaultBackgroundColor ?: Blue600,
+        defaultBackgroundDarkColor = defaultBackgroundColor ?: Blue600,
         disabledTextLightAlpha = 0.7f,
         disabledTextDarkAlpha = 0.4f,
         disabledBackgroundLightColor = Blue400,

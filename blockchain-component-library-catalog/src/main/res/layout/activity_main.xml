@@ -256,6 +256,19 @@
             android:text="Dialogues"
             android:textAllCaps="false" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cards"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cards"
+            android:textAllCaps="false" />
+
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"

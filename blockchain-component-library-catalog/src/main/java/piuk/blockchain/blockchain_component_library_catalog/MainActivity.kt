@@ -9,6 +9,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AlertButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BalanceTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BottomNavigationActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.CardActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.CardAlertActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ColorsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ControlsActivity
@@ -130,6 +131,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.card_alert).setOnClickListener {
             startActivity(Intent(this@MainActivity, CardAlertActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.cards).setOnClickListener {
+            startActivity(Intent(this@MainActivity, CardActivity::class.java))
         }
 
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {

@@ -38,7 +38,7 @@ fun CardAlert(
     title: String,
     subtitle: String,
     alertType: AlertType = AlertType.Default,
-    isBordered: Boolean = false,
+    isBordered: Boolean = true,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     onClose: () -> Unit = {}
 ) {
