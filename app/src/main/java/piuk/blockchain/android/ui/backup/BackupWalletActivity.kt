@@ -29,13 +29,17 @@ class BackupWalletActivity : BlockchainActivity() {
         ActivityBackupWalletBinding.inflate(layoutInflater)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         get<Analytics>().logEvent(AnalyticsEvents.Backup)
-
-        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.backup_wallet_title)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.backup_wallet_title),
+            backAction = { onSupportNavigateUp() }
+        )
         if (isBackedUp()) {
             startFragment(
                 BackupWalletCompletedFragment.newInstance(),

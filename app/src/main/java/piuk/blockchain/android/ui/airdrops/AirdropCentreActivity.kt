@@ -36,13 +36,16 @@ class AirdropCentreActivity :
         ActivityAirdropsBinding.inflate(layoutInflater)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.airdrop_activity_title)
-
-        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral.setNavigationOnClickListener { finish() }
-
+        loadToolbar(
+            titleToolbar = getString(R.string.airdrop_activity_title),
+            backAction = { onBackPressed() }
+        )
         binding.airdropList.layoutManager = LinearLayoutManager(this)
     }
 

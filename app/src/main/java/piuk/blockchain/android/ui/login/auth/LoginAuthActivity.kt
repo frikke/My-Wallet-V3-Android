@@ -23,6 +23,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -56,6 +57,9 @@ class LoginAuthActivity :
         get() = true
 
     override val model: LoginAuthModel by scopedInject()
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     private val crashLogger: CrashLogger by inject()
     private val walletPrefs: WalletStatus by inject()
@@ -96,6 +100,10 @@ class LoginAuthActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        loadToolbar(
+            titleToolbar = getString(R.string.login_title),
+            backAction = { clearKeyboardAndFinish() }
+        )
         initControls()
     }
 
@@ -139,7 +147,6 @@ class LoginAuthActivity :
 
     private fun initControls() {
         with(binding) {
-            backButton.setOnClickListener { clearKeyboardAndFinish() }
             passwordText.addTextChangedListener(object : AfterTextChangedWatcher() {
                 override fun afterTextChanged(s: Editable) {
                     passwordTextLayout.clearErrorState()

@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -148,8 +149,12 @@ class MainActivity :
         get() = _refreshAnnouncements
 
     private val toolbar: Toolbar by lazy {
-        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
+        val layout = binding.root.findViewById<LinearLayoutCompat>(R.id.toolbar)
+        layout.findViewById(R.id.toolbar_general)
     }
+
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
 
     private var activityResultAction: () -> Unit = {}
 
@@ -201,6 +206,7 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        toolbar.visible()
 
         if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
@@ -708,7 +714,7 @@ class MainActivity :
         setCurrentTabItem(R.id.nav_activity)
         val fragment = ActivitiesFragment.newInstance(account)
         showFragment(fragment, reload)
-        toolbar.title = ""
+        toolbar.title = getString(R.string.common_activity)
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
 

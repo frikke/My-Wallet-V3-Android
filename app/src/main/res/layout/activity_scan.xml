@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <include layout="@layout/toolbar_general" />
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_general" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:background="@color/primary_navy_medium"

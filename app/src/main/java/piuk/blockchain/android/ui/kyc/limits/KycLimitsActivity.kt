@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.kyc.limits
 
 import android.os.Bundle
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
@@ -35,27 +34,18 @@ class KycLimitsActivity :
         )
     }
 
-    private val toolbar: Toolbar by lazy {
-        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
-    }
-
     override fun initBinding(): ActivityKycLimitsBinding =
         ActivityKycLimitsBinding.inflate(layoutInflater)
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        with(toolbar) {
-            setTitle(R.string.feature_limits_toolbar)
-            setSupportActionBar(this)
-            setNavigationOnClickListener { finish() }
-        }
-
-        supportActionBar?.let {
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setHomeButtonEnabled(true)
-        }
-
+        loadToolbar(
+            titleToolbar = getString(R.string.feature_limits_toolbar),
+            backAction = { finish() }
+        )
         model.process(KycLimitsIntent.FetchLimitsAndTiers)
 
         binding.recyclerviewFeatures.layoutManager = LinearLayoutManager(this)

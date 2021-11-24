@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import com.blockchain.coincore.AssetAction
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
@@ -28,6 +29,9 @@ class ActionActivity : BlockchainActivity() {
         intent.getSerializableExtra(ACTION) as AssetAction
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -40,9 +44,7 @@ class ActionActivity : BlockchainActivity() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.apply {
-            onBackButtonClick = { super.onBackPressed() }
-        }
+        binding.toolbar.onBackButtonClick = { onBackPressed() }
     }
 
     private fun updateToolbarTitle(title: String) {

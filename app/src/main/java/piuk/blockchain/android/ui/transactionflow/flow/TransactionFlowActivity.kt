@@ -55,6 +55,9 @@ class TransactionFlowActivity :
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     private val analyticsHooks: TxFlowAnalytics by inject()
     private val customiser: TransactionFlowCustomisations by inject()
     private val crashLogger: CrashLogger by inject()
@@ -81,15 +84,8 @@ class TransactionFlowActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-
-        supportActionBar?.run {
-            title = ""
-            setDisplayHomeAsUpEnabled(true)
-        }
-
+        loadToolbar { onBackPressed() }
         binding.txProgress.visible()
-
         startModel()
     }
 

@@ -24,10 +24,7 @@ class CardVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().setupToolbar(
-            R.string.card_verification,
-            false
-        )
+        activity.setupToolbar(getString(R.string.card_verification))
         binding.okBtn.setOnClickListener {
             navigator.exitWithError()
         }

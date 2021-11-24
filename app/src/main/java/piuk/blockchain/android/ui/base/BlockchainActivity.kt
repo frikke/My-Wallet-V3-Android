@@ -10,20 +10,25 @@ import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.viewbinding.ViewBinding
+import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BlockchainApplication
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
+import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 /**
@@ -40,8 +45,10 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     protected abstract val alwaysDisableScreenshots: Boolean
 
+    private val redesignFeatureFlag: FeatureFlag by inject(walletRedesignFeatureFlag)
     private val activityIndicator = ActivityIndicator()
     private val compositeDisposable = CompositeDisposable()
+    private val redesignEnabled: Single<Boolean> by lazy { redesignFeatureFlag.enabled.cache() }
 
     private val enableScreenshots: Boolean
         get() = environment.isRunningInDebugMode() ||
@@ -75,6 +82,52 @@ abstract class BlockchainActivity : ToolBarActivity() {
      */
     protected open fun lockScreenOrientation() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
+
+    protected abstract val toolbarBinding: ToolbarGeneralBinding?
+
+    fun loadToolbar(
+        titleToolbar: String? = null,
+        backAction: (() -> Unit)? = null
+    ) {
+        compositeDisposable += redesignEnabled
+            .subscribeBy(
+                onSuccess = { enabled ->
+                    if (enabled) {
+                        setupToolbar(titleToolbar, backAction)
+                    } else {
+                        setupOldToolbar(titleToolbar, backAction)
+                    }
+                },
+                onError = { setupOldToolbar(titleToolbar, backAction) }
+            )
+    }
+
+    private fun setupToolbar(
+        titleToolbar: String? = null,
+        backAction: (() -> Unit)? = null
+    ) {
+        toolbarBinding?.let { toolbar ->
+            toolbar.toolbarRedesign.apply {
+                visible()
+                onBackButtonClick = backAction
+                titleToolbar?.let { title = it }
+            }
+        }
+    }
+
+    private fun setupOldToolbar(
+        titleToolbar: String? = null,
+        backAction: (() -> Unit)? = null
+    ) {
+        toolbarBinding?.let { toolbar ->
+            toolbar.toolbarGeneral.apply {
+                visible()
+                titleToolbar?.let { title = it }
+                backAction?.let { setNavigationOnClickListener { it } }
+            }
+            setSupportActionBar(toolbar.toolbarGeneral)
+        }
     }
 
     @CallSuper

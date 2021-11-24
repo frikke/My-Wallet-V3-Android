@@ -20,7 +20,6 @@ import piuk.blockchain.android.databinding.FragmentActivityBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -70,6 +69,9 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         }
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     private val binding: FragmentActivityBinding by lazy {
         FragmentActivityBinding.inflate(layoutInflater)
     }
@@ -77,8 +79,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-        setupToolbar("")
+        loadToolbar { super.onBackPressed() }
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
                 val currentState = bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()

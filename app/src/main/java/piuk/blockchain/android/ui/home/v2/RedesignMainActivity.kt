@@ -35,6 +35,7 @@ import java.net.URLDecoder
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityRedesignMainBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
@@ -100,6 +101,9 @@ class RedesignMainActivity :
     override val model: RedesignModel by scopedInject()
 
     override fun initBinding(): ActivityRedesignMainBinding = ActivityRedesignMainBinding.inflate(layoutInflater)
+
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
 

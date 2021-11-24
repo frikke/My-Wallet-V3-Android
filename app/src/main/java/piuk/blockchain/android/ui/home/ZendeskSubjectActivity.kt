@@ -5,12 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.RadioButton
-import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityZendeskSubjectBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
+import piuk.blockchain.android.ui.base.BlockchainActivity
 import zendesk.chat.Chat
 import zendesk.chat.ChatConfiguration
 import zendesk.chat.ChatEngine
@@ -19,7 +19,7 @@ import zendesk.chat.PreChatFormFieldStatus
 import zendesk.chat.VisitorInfo
 import zendesk.messaging.MessagingActivity
 
-class ZendeskSubjectActivity : AppCompatActivity() {
+class ZendeskSubjectActivity : BlockchainActivity() {
 
     private val binding: ActivityZendeskSubjectBinding by lazy {
         ActivityZendeskSubjectBinding.inflate(layoutInflater)
@@ -28,6 +28,11 @@ class ZendeskSubjectActivity : AppCompatActivity() {
     private val userInformation by lazy {
         intent.getSerializableExtra(USER_INFO) as BasicProfileInfo
     }
+    override val alwaysDisableScreenshots: Boolean
+        get() = false
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     private val subject: String by lazy {
         intent.getStringExtra(SUBJECT).orEmpty()
@@ -36,13 +41,10 @@ class ZendeskSubjectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setTitle(R.string.contact_support)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-        supportActionBar?.let {
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setHomeButtonEnabled(true)
-        }
-
+        loadToolbar(
+            titleToolbar = getString(R.string.contact_support),
+            backAction = { onBackPressed() }
+        )
         Chat.INSTANCE.init(applicationContext, BuildConfig.ZENDESK_API_KEY)
 
         setChatVisitorInfo()

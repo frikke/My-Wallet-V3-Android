@@ -124,7 +124,7 @@ class BillingAddressFragment :
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
             }
         }
-        activity.setupToolbar(R.string.add_card_address_title)
+        activity.setupToolbar(getString(R.string.add_card_address_title))
     }
 
     private fun setupUserDetails(user: NabuUser) {

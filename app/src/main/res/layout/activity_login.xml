@@ -1,125 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_layout"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:animateLayoutChanges="true"
+    android:background="@color/white"
+    android:clickable="true"
+    android:focusable="true">
 
     <include
+        android:id="@+id/toolbar"
         layout="@layout/toolbar_general" />
 
-    <TextView
-        android:id="@+id/bullet_one"
-        style="@style/Text.Standard.24"
-        android:layout_width="32dp"
-        android:layout_height="37dp"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:gravity="center_horizontal|top"
-        android:text="1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_general" />
-
-    <TextView
-        android:id="@+id/step_one"
-        style="@style/Text.Standard.14"
-        android:layout_width="0dp"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_text_layout"
+        style="@style/LightDataInputAppearance"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="@dimen/standard_margin"
-        android:text="@string/pair_wallet_step_1"
+        android:layout_margin="@dimen/standard_margin"
+        android:hint="@string/login_email_hint"
+        app:layout_constraintBottom_toTopOf="@+id/login_or_label"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/bullet_one"
-        app:layout_constraintTop_toTopOf="@+id/bullet_one" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="bullet_one,step_one" />
-
-    <TextView
-        android:id="@+id/bullet_two"
-        style="@style/Text.Standard.24"
-        android:layout_width="32dp"
-        android:layout_height="37dp"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:gravity="center_horizontal|top"
-        android:text="2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/barrier1" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-    <TextView
-        android:id="@+id/step_two"
-        style="@style/Text.Standard.14"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="@dimen/standard_margin"
-        android:text="@string/pair_wallet_step_2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/bullet_two"
-        app:layout_constraintTop_toTopOf="@+id/bullet_two" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/login_email_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionGo" />
 
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="bullet_two,step_two" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/bullet_three"
-        style="@style/Text.Standard.24"
-        android:layout_width="32dp"
-        android:layout_height="37dp"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:gravity="center_horizontal|top"
-        android:text="3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/barrier2" />
-
-    <TextView
-        android:id="@+id/step_three"
-        style="@style/Text.Standard.14"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="@dimen/standard_margin"
-        android:text="@string/pair_wallet_step_3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/bullet_three"
-        app:layout_constraintTop_toTopOf="@+id/bullet_three" />
-
-    <Button
-        android:id="@+id/btn_scan_qr"
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/continue_button"
         style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/btn_scan_pairing_code"
-        android:text="@string/btn_scan_pairing_code"
-        app:layout_constraintBottom_toTopOf="@+id/btn_manual_pair"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:enabled="false"
+        android:text="@string/common_continue"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/email_text_layout"
+        app:layout_constraintVertical_bias="1" />
 
-    <Button
-        android:id="@+id/btn_manual_pair"
+    <View
+        android:id="@+id/login_or_separator_left"
+        style="@style/HalfSeparatorWithoutMargins"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/scan_pairing_button"
+        app:layout_constraintEnd_toStartOf="@+id/login_or_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/email_text_layout" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/login_or_label"
+        style="@style/Text.Semibold.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/tiny_margin"
+        android:layout_marginEnd="@dimen/tiny_margin"
+        android:text="@string/common_or"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/login_or_separator_left"
+        app:layout_constraintEnd_toStartOf="@+id/login_or_separator_right"
+        app:layout_constraintStart_toEndOf="@+id/login_or_separator_left"
+        app:layout_constraintTop_toTopOf="@+id/login_or_separator_left" />
+
+    <View
+        android:id="@+id/login_or_separator_right"
+        style="@style/HalfSeparatorWithoutMargins"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/scan_pairing_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/login_or_label"
+        app:layout_constraintTop_toBottomOf="@+id/email_text_layout" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/scan_pairing_button"
+        style="@style/CtaButton.White"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:contentDescription="@string/btn_scan_pairing_code"
+        android:drawableStart="@drawable/ic_qr_scan_blue"
+        android:text="@string/btn_scan_pairing_code"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/continue_with_google_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_or_label"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/continue_with_google_button"
         style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
-        android:contentDescription="@string/btn_manual_pairing"
+        android:contentDescription="@string/continue_with_google"
+        android:drawableStart="@drawable/ic_google"
+        android:text="@string/continue_with_google"
+        android:textColor="@color/black"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/manual_pairing_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scan_pairing_button"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/manual_pairing_button"
+        style="@style/CtaButton.White"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:enabled="false"
         android:text="@string/btn_manual_pairing"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/continue_with_google_button"
+        tools:visibility="visible" />
+
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

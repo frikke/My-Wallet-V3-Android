@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.start.LandingActivity
@@ -26,6 +27,9 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             analytics.logEvent(NotificationAppOpened)
         }
     }
+
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
 
     override fun getViewIntentData(): ViewIntentData =
         ViewIntentData(

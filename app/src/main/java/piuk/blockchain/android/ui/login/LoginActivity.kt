@@ -15,7 +15,8 @@ import info.blockchain.wallet.api.Environment
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityLoginNewBinding
+import piuk.blockchain.android.databinding.ActivityLoginBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -33,7 +34,7 @@ import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
-class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginNewBinding>() {
+class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
 
     override val model: LoginModel by scopedInject()
 
@@ -53,8 +54,15 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     private lateinit var state: LoginState
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadToolbar(
+            titleToolbar = getString(R.string.login_title),
+            backAction = { onBackPressed() }
+        )
         recaptchaClient.initReCaptcha()
         checkExistingSessionOrDeeplink(intent)
     }
@@ -72,7 +80,6 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
         analytics.logEvent(LoginAnalytics.LoginViewed)
         with(binding) {
-            backButton.setOnClickListener { finish() }
             loginEmailText.apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
 
@@ -146,7 +153,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         checkExistingSessionOrDeeplink(intent)
     }
 
-    override fun initBinding(): ActivityLoginNewBinding = ActivityLoginNewBinding.inflate(layoutInflater)
+    override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginState) {
         state = newState

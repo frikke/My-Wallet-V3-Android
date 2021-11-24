@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 
 class SettingsActivity : BlockchainActivity() {
@@ -16,6 +17,9 @@ class SettingsActivity : BlockchainActivity() {
     }
 
     override val alwaysDisableScreenshots: Boolean = true
+
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
 
     private fun setupToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_general)

@@ -18,6 +18,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRedesignSettingsBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
@@ -39,6 +40,9 @@ class RedesignSettingsActivity : BlockchainActivity() {
     private val environmentConfig: EnvironmentConfig by inject()
 
     override val alwaysDisableScreenshots: Boolean = true
+
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

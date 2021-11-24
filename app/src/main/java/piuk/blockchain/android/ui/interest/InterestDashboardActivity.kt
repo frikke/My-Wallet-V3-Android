@@ -40,11 +40,16 @@ class InterestDashboardActivity :
 
     private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-        setTitle(R.string.rewards_dashboard_title)
+        loadToolbar(
+            titleToolbar = getString(R.string.rewards_dashboard_title),
+            backAction = { onSupportNavigateUp() }
+        )
         analytics.logEvent(InterestAnalytics.InterestViewed)
 
         supportFragmentManager.beginTransaction()

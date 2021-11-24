@@ -69,21 +69,21 @@ class SimpleBuyCheckoutFragment :
         }
 
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.CHECKOUT))
-        if (!showOnlyOrderData)
-            setUpToolbar()
-
+        if (!showOnlyOrderData) {
+            setupToolbar()
+        }
         model.process(SimpleBuyIntent.FetchQuote)
         model.process(SimpleBuyIntent.FetchWithdrawLockTime)
     }
 
-    private fun setUpToolbar() {
+    private fun setupToolbar() {
         activity.setupToolbar(
-            if (isForPendingPayment) {
-                R.string.order_details
+            titleToolbar = if (isForPendingPayment) {
+                getString(R.string.order_details)
             } else {
-                R.string.checkout
+                getString(R.string.checkout)
             },
-            !isForPendingPayment
+            backAction = { if (!isForPendingPayment) activity.onBackPressed() }
         )
     }
 

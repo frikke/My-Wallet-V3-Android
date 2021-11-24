@@ -102,7 +102,7 @@ class AddNewCardFragment :
             })
             cardNumber.displayCardTypeIcon(false)
         }
-        activity.setupToolbar(R.string.add_card_title)
+        activity.setupToolbar(getString(R.string.add_card_title))
         analytics.logEvent(SimpleBuyAnalytics.ADD_CARD)
 
         setupCardInfo()

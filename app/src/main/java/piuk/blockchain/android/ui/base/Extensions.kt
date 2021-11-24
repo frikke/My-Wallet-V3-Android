@@ -8,24 +8,11 @@ import com.airbnb.lottie.LottieAnimationView
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.gone
 
-fun FragmentActivity.setupToolbar(resource: Int, homeAsUpEnabled: Boolean = true) {
-    (this as? BlockchainActivity)?.let {
-        it.setupToolbar(
-            it.supportActionBar ?: return,
-            resource
-        )
-        it.supportActionBar?.setDisplayHomeAsUpEnabled(homeAsUpEnabled)
-    }
-}
-
-fun FragmentActivity.setupToolbar(resource: String, homeAsUpEnabled: Boolean = true) {
-    (this as? BlockchainActivity)?.let {
-        it.setupToolbar(
-            it.supportActionBar ?: return,
-            resource
-        )
-        it.supportActionBar?.setDisplayHomeAsUpEnabled(homeAsUpEnabled)
-    }
+fun FragmentActivity.setupToolbar(
+    titleToolbar: String? = null,
+    backAction: (() -> Unit)? = null
+) {
+    (this as? BlockchainActivity)?.loadToolbar(titleToolbar, backAction)
 }
 
 fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =

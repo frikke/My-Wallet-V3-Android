@@ -6,25 +6,9 @@
     android:layout_height="match_parent"
     tools:context="piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity">
 
-    <!-- TODO: Use the default Toolbar once moved to :coreui -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_kyc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:contentInsetLeft="72dp"
-        app:contentInsetStart="72dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationContentDescription="@string/abc_action_bar_up_description"
-        app:navigationIcon="?attr/homeAsUpIndicator"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:titleTextAppearance="@style/ToolbarTitleTextAppearance"
-        tools:title="@string/app_name" />
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_general" />
 
     <ProgressBar
         android:id="@+id/progress_bar_loading_user"
@@ -33,7 +17,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_kyc" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <FrameLayout
         android:id="@+id/frame_layout_fragment_wrapper"
@@ -43,7 +27,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_kyc">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host"

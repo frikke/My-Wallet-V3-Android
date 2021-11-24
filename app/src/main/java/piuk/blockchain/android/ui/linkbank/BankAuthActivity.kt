@@ -18,7 +18,6 @@ import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragment
@@ -55,20 +54,22 @@ class BankAuthActivity :
         FragmentActivityBinding.inflate(layoutInflater)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-
+        var title = ""
         if (savedInstanceState == null) {
             when {
                 isFromDeepLink -> {
-                    setupToolbar(R.string.link_a_bank)
+                    title = getString(R.string.link_a_bank)
                     checkBankLinkingState(linkingId)
                 }
                 approvalDetails != null -> {
                     approvalDetails?.let {
-                        setupToolbar(R.string.approve_payment)
+                        title = getString(R.string.approve_payment)
                         launchYapilyApproval(it)
                     } ?: launchBankLinkingWithError(ErrorState.GenericError)
                 }
@@ -78,11 +79,15 @@ class BankAuthActivity :
                     }
 
                 else -> {
-                    setupToolbar(R.string.link_a_bank)
+                    title = getString(R.string.link_a_bank)
                     checkPartnerAndLaunchFlow(linkBankTransfer)
                 }
             }
         }
+        loadToolbar(
+            titleToolbar = title,
+            backAction = { onSupportNavigateUp() }
+        )
     }
 
     private fun checkBankLinkingState(linkingId: String) {

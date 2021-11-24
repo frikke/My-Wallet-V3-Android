@@ -6,13 +6,13 @@ import android.os.CountDownTimer
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -48,15 +48,16 @@ class PasswordRequiredActivity :
         }
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(binding.root)
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar_general)
-        setupToolbar(toolbar, R.string.confirm_password)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.confirm_password),
+            backAction = { onBackPressed() }
+        )
         with(binding) {
             buttonContinue.setOnClickListener { presenter.onContinueClicked(binding.fieldPassword.text.toString()) }
             buttonForget.setOnClickListener { presenter.onForgetWalletClicked() }

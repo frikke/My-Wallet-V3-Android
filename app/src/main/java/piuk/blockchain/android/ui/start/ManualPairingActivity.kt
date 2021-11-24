@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
 import android.text.InputType
-import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
@@ -43,6 +42,9 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     override val presenter: ManualPairingPresenter by scopedInject()
     private val walletPrefs: WalletStatus by inject()
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     private var isTwoFATimerRunning = false
     private val twoFATimer by lazy {
         object : CountDownTimer(TWO_FA_COUNTDOWN, TWO_FA_STEP) {
@@ -65,9 +67,10 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.manual_pairing)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.manual_pairing),
+            backAction = { onBackPressed() }
+        )
         with(binding) {
             binding.walletId.disableInputForDemoAccount()
             commandNext.setOnClickListener { presenter.onContinueClicked(guid, password) }
@@ -79,14 +82,6 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
                 true
             }
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            onBackPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun showToast(@StringRes messageId: Int, @ToastCustom.ToastType toastType: String) {

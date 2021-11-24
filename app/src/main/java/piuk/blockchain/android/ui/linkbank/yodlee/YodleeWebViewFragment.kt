@@ -81,8 +81,7 @@ class YodleeWebViewFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.setupToolbar(R.string.link_a_bank)
-
+        activity?.setupToolbar(getString(R.string.link_a_bank))
         setupWebView()
         binding.yodleeRetry.setOnClickListener {
             loadYodlee()

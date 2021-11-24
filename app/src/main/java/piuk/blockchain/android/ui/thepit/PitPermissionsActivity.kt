@@ -7,7 +7,6 @@ import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.android.ext.android.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPitKycPromoLayoutBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
@@ -35,13 +34,16 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
         PitVerifyEmailActivity.start(this, email, REQUEST_VERIFY_EMAIL)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.the_exchange_title)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.the_exchange_title),
+            backAction = { onBackPressed() }
+        )
         binding.connectNow.setOnClickListener {
             doLinkClickHandler()
         }

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
-import androidx.appcompat.widget.Toolbar
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -16,6 +15,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityOnHoldDetailsBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
@@ -41,19 +41,18 @@ class LocksDetailsActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setUpToolbar()
+        loadToolbar(
+            titleToolbar = getString(R.string.funds_locked_details_toolbar),
+            backAction = { onBackPressed() }
+        )
         setUpRecyclerView()
         setUpTextInfo()
-    }
-
-    private fun setUpToolbar() {
-        val toolbar = findViewById<Toolbar>(R.id.toolbar_general)
-        setupToolbar(toolbar, R.string.funds_locked_details_toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener { this.finish() }
     }
 
     private fun setUpRecyclerView() {

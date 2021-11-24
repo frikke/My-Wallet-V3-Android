@@ -82,11 +82,10 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         super.onViewCreated(view, savedInstanceState)
         activity.setupToolbar(
             if (isForApproval) {
-                R.string.approve_payment
+                getString(R.string.approve_payment)
             } else {
-                R.string.link_a_bank
+                getString(R.string.link_a_bank)
             },
-            false
         )
 
         activity.onBackPressedDispatcher.addCallback(

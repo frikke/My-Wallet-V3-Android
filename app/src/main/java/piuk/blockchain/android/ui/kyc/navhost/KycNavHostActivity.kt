@@ -24,6 +24,7 @@ import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
@@ -71,11 +72,16 @@ class KycNavHostActivity :
         intent.getBooleanExtra(EXTRA_SHOW_TIERS_LIMITS_SPLASH, false)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        val title = R.string.identity_verification
-        setupToolbar(binding.toolbarKyc, title)
+        loadToolbar(
+            titleToolbar = getString(R.string.identity_verification),
+            backAction = { onBackPressed() }
+        )
         if (!showTiersLimitsSplash) {
             analytics.logEvent(
                 KYCAnalyticsEvents.UpgradeKycVeriffClicked(
@@ -90,7 +96,7 @@ class KycNavHostActivity :
     }
 
     override fun setHostTitle(title: Int) {
-        binding.toolbarKyc.title = getString(title)
+        loadToolbar(getString(title))
     }
 
     override fun displayLoading(loading: Boolean) {
@@ -123,7 +129,7 @@ class KycNavHostActivity :
     }
 
     override fun onEmailEntryFragmentShown() {
-        binding.toolbarKyc.title = getString(R.string.kyc_email_title)
+        loadToolbar(getString(R.string.kyc_email_title))
     }
 
     override fun onEmailVerified() {

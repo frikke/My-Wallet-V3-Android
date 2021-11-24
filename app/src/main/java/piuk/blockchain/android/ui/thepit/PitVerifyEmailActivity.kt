@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.thepit
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPitVerifyEmailLayoutBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
@@ -19,14 +19,16 @@ class PitVerifyEmailActivity : BaseMvpActivity<PitVerifyEmailView, PitVerifyEmai
         ActivityPitVerifyEmailLayoutBinding.inflate(layoutInflater)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar_general)
-        setupToolbar(toolbar, R.string.the_exchange_verify_email_title)
-        toolbar.setNavigationOnClickListener { onBackPressed() }
-
+        loadToolbar(
+            titleToolbar = getString(R.string.the_exchange_verify_email_title),
+            backAction = { onBackPressed() }
+        )
         val email = intent.getStringExtra(ARGUMENT_EMAIL) ?: ""
         with(binding) {
             emailAddress.text = email

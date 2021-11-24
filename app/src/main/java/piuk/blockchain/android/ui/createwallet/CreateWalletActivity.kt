@@ -74,23 +74,27 @@ class CreateWalletActivity :
         ViewPasswordStrengthBinding.inflate(layoutInflater, binding.root, false)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        setupCta()
+        loadToolbar(
+            titleToolbar = if (recoveryPhrase.isNotEmpty()) {
+                getString(R.string.recover_funds)
+            } else {
+                getString(R.string.new_account_title_1)
+            },
+            backAction = { onBackPressed() }
+        )
         applyConstraintSet.clone(binding.mainConstraintLayout)
 
         createWalletPresenter.getUserGeolocation()
 
         initializeCountrySpinner()
         initializeStatesSpinner()
-
-        if (recoveryPhrase.isNotEmpty()) {
-            setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.recover_funds)
-            binding.commandNext.setText(R.string.dialog_continue)
-        } else {
-            setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.new_account_title_1)
-            binding.commandNext.setText(R.string.new_account_cta_text)
-        }
 
         with(binding) {
             passwordStrengthBinding.passStrengthBar.max = 100 * 10
@@ -139,6 +143,14 @@ class CreateWalletActivity :
             hideEntropyContainer()
 
             onViewReady()
+        }
+    }
+
+    private fun setupCta() {
+        if (recoveryPhrase.isNotEmpty()) {
+            binding.commandNext.setText(R.string.dialog_continue)
+        } else {
+            binding.commandNext.setText(R.string.new_account_cta_text)
         }
     }
 

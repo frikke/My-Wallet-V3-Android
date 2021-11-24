@@ -31,7 +31,7 @@ class RecurringBuySuccessfulFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.setupToolbar(R.string.recurring_buy_first_time_toolbar, false)
+        activity.setupToolbar(getString(R.string.recurring_buy_first_time_toolbar))
 
         binding.apply {
             icon.setAssetIconColours(

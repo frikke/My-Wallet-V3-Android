@@ -5,12 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
-import androidx.appcompat.widget.Toolbar
 import com.blockchain.annotations.CommonCode
 import com.blockchain.koin.scopedInject
 import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecoverFundsBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
@@ -28,19 +28,21 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
     private val binding: ActivityRecoverFundsBinding by lazy {
         ActivityRecoverFundsBinding.inflate(layoutInflater)
     }
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     private var progressDialog: MaterialProgressDialog? = null
     private val recoveryPhrase: String
         get() = binding.fieldPassphrase.text.toString().toLowerCase(Locale.US).trim()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(binding.root)
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar_general)
-        setupToolbar(toolbar, R.string.recover_funds)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.recover_funds),
+            backAction = { onBackPressed() }
+        )
         with(binding) {
             buttonContinue.setOnClickListener { presenter?.onContinueClicked(recoveryPhrase) }
             fieldPassphrase.setOnEditorActionListener { _, i, _ ->

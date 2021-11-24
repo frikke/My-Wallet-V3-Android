@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
-import androidx.appcompat.widget.Toolbar
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -35,10 +34,6 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
 
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
-    private val toolbar: Toolbar by lazy {
-        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
-    }
-
     private var state: LoaderState? = null
     private val mainScreenLauncher: MainScreenLauncher by scopedInject()
     private val compositeDisposable = CompositeDisposable()
@@ -46,8 +41,6 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(toolbar)
-        toolbar.gone()
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
@@ -55,6 +48,9 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
 
         model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
     }
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
@@ -111,13 +107,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         }
     }
 
-    override fun onEmailEntryFragmentShown() {
-        with(toolbar) {
-            setupToolbar(this, R.string.security_check)
-            navigationIcon = null
-            visible()
-        }
-    }
+    override fun onEmailEntryFragmentShown() = loadToolbar(getString(R.string.security_check))
 
     override fun onEmailVerified() {
         model.process(LoaderIntents.OnEmailVerificationFinished)

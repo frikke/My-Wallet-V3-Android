@@ -57,12 +57,16 @@ class AccountActivity :
         AccountAdapter(this, features)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.drawer_addresses)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.drawer_addresses),
+            backAction = { onBackPressed() }
+        )
         with(binding.currencyHeader) {
             setCurrentlySelectedCurrency(CryptoCurrency.BTC)
             setSelectionListener { presenter.refresh(it) }

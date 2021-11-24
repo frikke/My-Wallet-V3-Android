@@ -84,7 +84,9 @@ class BuySellFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.setupToolbar(R.string.buy_and_sell)
+        activity?.setupToolbar(
+            titleToolbar = getString(R.string.buy_and_sell)
+        )
         analytics.logEvent(BuySellViewedEvent())
     }
 

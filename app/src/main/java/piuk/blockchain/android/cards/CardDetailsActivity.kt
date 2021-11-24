@@ -24,11 +24,13 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
         ActivityCardDetailsBinding.inflate(layoutInflater)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-
+        loadToolbar { onSupportNavigateUp() }
         if (savedInstanceState == null) {
             simpleBuyPrefs.clearCardState()
             supportFragmentManager.beginTransaction()
