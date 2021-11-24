@@ -10,6 +10,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import info.blockchain.balance.Money
@@ -40,7 +41,7 @@ data class AssetDetailsState(
     val navigateToInterestDashboard: Boolean = false,
     val selectedRecurringBuy: RecurringBuy? = null,
     val paymentId: String? = null,
-    val userCanBuy: Boolean = false,
+    val userBuyAccess: FeatureAccess = FeatureAccess.Unknown,
     val stepsBackStack: Stack<AssetDetailsStep> = Stack(),
     val prices24HrWithDelta: Prices24HrWithDelta? = null
 ) : MviState
@@ -88,13 +89,13 @@ class AssetDetailsModel(
                 )
             is ShowAssetActionsIntent -> accountActions(intent.account)
             is UpdateTimeSpan -> previousState.asset?.let { updateChartData(it, intent.updatedTimeSpan) }
-            is CheckIfUserCanBuy -> interactor.userCanBuy().subscribeBy(
+            is CheckUserBuyStatus -> interactor.userCanBuy().subscribeBy(
                 onSuccess = {
-                    process(UserCanBuyUpdated(it))
+                    process(UserBuyAccessUpdated(it))
                 },
                 onError = {
                     // lets not block the user if check fails.
-                    process(UserCanBuyUpdated(true))
+                    process(UserBuyAccessUpdated(FeatureAccess.Granted))
                 }
             )
             is LoadAsset -> {
@@ -137,7 +138,7 @@ class AssetDetailsModel(
             is UpdateRecurringBuyError,
             is UpdatePaymentDetails,
             is UpdatePriceDeltaDetails,
-            is UserCanBuyUpdated,
+            is UserBuyAccessUpdated,
             is UpdatePriceDeltaFailed -> null
         }
     }

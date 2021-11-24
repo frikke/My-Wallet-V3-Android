@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
+import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AssetAction
@@ -17,7 +18,10 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
@@ -33,6 +37,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
+import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyCancelOrderBottomSheet
@@ -94,6 +99,7 @@ class PortfolioFragment :
     DialogFlow.FlowHost,
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
+    BuyPendingOrdersBottomSheet.Host,
     DashboardScreen,
     BankLinkingHost {
 
@@ -245,7 +251,11 @@ class PortfolioFragment :
                 }
                 binding.emptyPortfolioGroup.visibleIf { !showPortfolio }
 
-                val showBuyBottomButton = (showPortfolio && !isLoading) && newState.shouldShowBuyButton
+                val showBuyBottomButton = (showPortfolio && !isLoading) && !newState.buyButtonShouldBeHidden &&
+                    !newState.buyAccess.isBlockedDueToEligibility()
+
+                binding.buyCryptoBottomButton.configure(newState.buyAccess)
+
                 configureListAndBuyButton(showBuyBottomButton)
             }
             clear()
@@ -257,6 +267,22 @@ class PortfolioFragment :
     private fun configureListAndBuyButton(showBuyBottomButton: Boolean) {
         with(binding) {
             recyclerView.configureWithPinnedButton(buyCryptoBottomButton, showBuyBottomButton)
+        }
+    }
+
+    private fun AppCompatButton.configure(buyAccess: FeatureAccess) {
+        when (buyAccess) {
+            is FeatureAccess.Unknown,
+            is FeatureAccess.NotRequested,
+            FeatureAccess.Granted -> {
+                setOnClickListener { navigator().launchBuySell() }
+            }
+            is FeatureAccess.Blocked -> {
+                val reason = buyAccess.reason
+                if (reason is BlockedReason.TooManyInFlightTransactions) {
+                    setOnClickListener { showPendingBuysBottomSheet(reason.maxTransactions) }
+                } else throw IllegalStateException("Button should not be accessible")
+            }
         }
     }
 
@@ -408,10 +434,6 @@ class PortfolioFragment :
 
     private fun setupCtaButtons() {
         with(binding) {
-            val startBuyClickListener: (View) -> Unit = { navigator().launchBuySell() }
-            buyCryptoButton.setOnClickListener(startBuyClickListener)
-            buyCryptoBottomButton.setOnClickListener(startBuyClickListener)
-
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
             receiveDepositButton.apply {
                 leftButton.setOnClickListener { navigator().launchReceive() }
@@ -776,8 +798,27 @@ class PortfolioFragment :
         )
     }
 
-    override fun goToBuy(asset: AssetInfo) {
-        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+    override fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess) {
+        val blockedState = buyAccess as? FeatureAccess.Blocked
+        blockedState?.let {
+            when (val reason = it.reason) {
+                is BlockedReason.TooManyInFlightTransactions -> showPendingBuysBottomSheet(reason.maxTransactions)
+                BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
+            }.exhaustive
+        } ?: run {
+            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+        }
+    }
+
+    private fun showPendingBuysBottomSheet(pendingBuys: Int) {
+        BuyPendingOrdersBottomSheet.newInstance(pendingBuys).show(
+            childFragmentManager,
+            BuyPendingOrdersBottomSheet.TAG
+        )
+    }
+
+    override fun startActivityRequested() {
+        navigator().performAssetActionFor(AssetAction.ViewActivity)
     }
 
     // ForceBackupForSendSheet.Host
@@ -835,9 +876,6 @@ class PortfolioFragment :
     }
 }
 
-/**
- * supportsPredictiveItemAnimations = false to avoid crashes when computing changes.
- */
 internal class SafeLayoutManager(context: Context) : LinearLayoutManager(context) {
     override fun supportsPredictiveItemAnimations() = false
 }

@@ -80,7 +80,7 @@ class KycNavHostActivity :
             analytics.logEvent(
                 KYCAnalyticsEvents.UpgradeKycVeriffClicked(
                     campaignType.toLaunchOrigin(),
-                    Tier.GOLD
+                    Tier.GOLD.ordinal
                 )
             )
         }

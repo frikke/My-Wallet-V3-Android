@@ -20,7 +20,6 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.usecases.UseCase
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -57,7 +56,6 @@ class DashboardActionAdapter(
     private val custodialWalletManager: CustodialWalletManager,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
-    private val userIsAllowedToBuyUseCase: UseCase<Unit, Single<Boolean>>,
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
@@ -569,10 +567,10 @@ class DashboardActionAdapter(
         )
 
     fun userCanBuy(model: DashboardModel): Disposable {
-        return userIsAllowedToBuyUseCase(Unit)
+        return userIdentity.userAccessForFeature(Feature.SimpleBuy)
             .zipWith(dashboardBuyButtonFlag.enabled)
-            .subscribeBy { (flagEnabled, canBuy) ->
-                model.process(DashboardIntent.UserCanBuyUpdated(flagEnabled, canBuy))
+            .subscribeBy { (buyState, flagEnabled) ->
+                model.process(DashboardIntent.UserBuyAccessStateUpdated(!flagEnabled, buyState))
             }
     }
 

@@ -2,11 +2,13 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.caching.TimedCacheRequest
 import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single
 
 interface SimpleBuyEligibilityProvider {
     fun isEligibleForSimpleBuy(forceRefresh: Boolean = false): Single<Boolean>
+    fun simpleBuyTradingEligibility(): Single<SimpleBuyEligibility>
 }
 
 class NabuCachedEligibilityProvider(
@@ -31,5 +33,9 @@ class NabuCachedEligibilityProvider(
 
     override fun isEligibleForSimpleBuy(forceRefresh: Boolean): Single<Boolean> {
         return if (!forceRefresh) cache.getCachedSingle() else refresh()
+    }
+
+    override fun simpleBuyTradingEligibility(): Single<SimpleBuyEligibility> = authenticator.authenticate {
+        nabuService.isEligibleForSimpleBuy(it)
     }
 }

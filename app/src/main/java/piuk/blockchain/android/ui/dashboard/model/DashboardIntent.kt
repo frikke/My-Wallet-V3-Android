@@ -7,6 +7,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -78,13 +79,14 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    class UserCanBuyUpdated(
-        private val shouldShowBuyButton: Boolean,
-        private val canBuy: Boolean
+    class UserBuyAccessStateUpdated(
+        private val buyButtonShouldBeHidden: Boolean,
+        private val buyAccess: FeatureAccess
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(
-                shouldShowBuyButton = canBuy && shouldShowBuyButton,
+                buyButtonShouldBeHidden = buyButtonShouldBeHidden,
+                buyAccess = buyAccess
             )
         }
     }

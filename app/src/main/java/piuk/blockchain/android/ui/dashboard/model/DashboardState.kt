@@ -6,6 +6,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -172,7 +173,8 @@ data class DashboardState(
     val hasLongCallInProgress: Boolean = false,
     val isLoadingAssets: Boolean = true,
     val locks: Locks = Locks(),
-    val shouldShowBuyButton: Boolean = false
+    val buyAccess: FeatureAccess = FeatureAccess.Unknown,
+    val buyButtonShouldBeHidden: Boolean = true
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

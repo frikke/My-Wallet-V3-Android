@@ -2,6 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -15,7 +16,9 @@ import org.junit.Test
 
 class BuyFlowNavigatorTest {
 
-    private val userIdentity: UserIdentity = mock()
+    private val userIdentity: UserIdentity = mock {
+        on { userAccessForFeature(Feature.SimpleBuy) }.thenReturn(Single.just(FeatureAccess.Granted))
+    }
     private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val simpleBuySyncFactory: SimpleBuySyncFactory = mock()
@@ -158,7 +161,6 @@ class BuyFlowNavigatorTest {
             .thenReturn(
                 SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
             )
-
         whenever(userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
         whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(false))
         whenever(userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))

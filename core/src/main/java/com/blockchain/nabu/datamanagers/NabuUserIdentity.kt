@@ -3,12 +3,15 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -103,6 +106,32 @@ class NabuUserIdentity(
             }
         }
 
+    override fun userAccessForFeature(feature: Feature): Single<FeatureAccess> {
+        return when (feature) {
+            Feature.SimpleBuy -> simpleBuyEligibilityProvider.simpleBuyTradingEligibility().zipWith(
+                isVerifiedFor(Feature.TierLevel(Tier.GOLD))
+            ).map { (eligibility, isGold) ->
+                simpleBuyAccessState(eligibility, isGold)
+            }
+            is Feature.Interest,
+            Feature.SimplifiedDueDiligence,
+            is Feature.TierLevel -> TODO("Not Implemented Yet")
+        }
+    }
+
+    private fun simpleBuyAccessState(eligibility: SimpleBuyEligibility, gold: Boolean): FeatureAccess {
+        return when {
+            !eligibility.simpleBuyTradingEligible && gold -> FeatureAccess.Blocked(BlockedReason.NotEligible)
+            !eligibility.simpleBuyTradingEligible -> FeatureAccess.NotRequested
+            eligibility.canCreateOrder() -> FeatureAccess.Granted
+            else -> FeatureAccess.Blocked(
+                BlockedReason.TooManyInFlightTransactions(
+                    eligibility.maxPendingDepositSimpleBuyTrades
+                )
+            )
+        }
+    }
+
     private fun NabuUser.toBasicProfileInfo() =
         BasicProfileInfo(
             firstName = firstName ?: email,
@@ -133,3 +162,6 @@ class NabuUserIdentity(
             KycTierLevel.GOLD -> Tier.GOLD
         }.exhaustive
 }
+
+private fun SimpleBuyEligibility.canCreateOrder(): Boolean =
+    pendingDepositSimpleBuyTrades < maxPendingDepositSimpleBuyTrades

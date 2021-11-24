@@ -21,7 +21,7 @@ sealed class RedesignIntent : MviIntent<RedesignState> {
             )
     }
 
-    class ValidateAccountAction(val action: AssetAction, val account: BlockchainAccount) : RedesignIntent() {
+    class ValidateAccountAction(val action: AssetAction, val account: BlockchainAccount?) : RedesignIntent() {
         override fun reduce(oldState: RedesignState): RedesignState = oldState
     }
 

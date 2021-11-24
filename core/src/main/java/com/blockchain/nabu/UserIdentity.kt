@@ -20,6 +20,7 @@ interface UserIdentity {
     fun checkForUserWalletLinkErrors(): Completable
     fun getUserCountry(): Maybe<String>
     fun getUserState(): Maybe<String>
+    fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
 }
 
 sealed class Feature {
@@ -38,3 +39,18 @@ data class BasicProfileInfo(
     val lastName: String,
     val email: String
 ) : Serializable
+
+sealed class FeatureAccess {
+    object Granted : FeatureAccess()
+    data class Blocked(val reason: BlockedReason) : FeatureAccess()
+    object NotRequested : FeatureAccess()
+    object Unknown : FeatureAccess() // Used mostly for initialisation purposes
+
+    fun isBlockedDueToEligibility(): Boolean =
+        this is Blocked && reason == BlockedReason.NotEligible
+}
+
+sealed class BlockedReason {
+    object NotEligible : BlockedReason()
+    class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
+}

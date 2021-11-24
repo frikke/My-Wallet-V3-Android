@@ -6,9 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -21,16 +27,19 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
+import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
+import piuk.blockchain.android.ui.home.HomeNavigator
+import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 
-class BuyIntroFragment : ViewPagerFragment() {
+class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, HomeScreenFragment {
 
     private var _binding: BuyIntroFragmentBinding? = null
     private val binding: BuyIntroFragmentBinding
@@ -40,6 +49,7 @@ class BuyIntroFragment : ViewPagerFragment() {
     private val compositeDisposable = CompositeDisposable()
     private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
+    private val userIdentity: UserIdentity by scopedInject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -109,17 +119,36 @@ class BuyIntroFragment : ViewPagerFragment() {
 
     private val adapter = BuyCryptoCurrenciesAdapter(
         assetResources = assetResources,
-        onItemClick = {
-            startActivity(
-                SimpleBuyActivity.newIntent(
-                    activity as Context,
-                    it.asset,
-                    launchFromNavigationBar = true,
-                    launchKycResume = false
-                )
-            )
-        }
+        onItemClick = ::onItemClick
     )
+
+    private fun onItemClick(item: BuyCryptoItem) {
+        compositeDisposable += userIdentity.userAccessForFeature(Feature.SimpleBuy).subscribeBy { accessState ->
+            val blockedState = accessState as? FeatureAccess.Blocked
+            blockedState?.let {
+                when (val reason = it.reason) {
+                    is BlockedReason.TooManyInFlightTransactions -> showPendingOrdersBottomSheet(reason.maxTransactions)
+                    BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
+                }.exhaustive
+            } ?: run {
+                startActivity(
+                    SimpleBuyActivity.newIntent(
+                        activity as Context,
+                        item.asset,
+                        launchFromNavigationBar = true,
+                        launchKycResume = false
+                    )
+                )
+            }
+        }
+    }
+
+    private fun showPendingOrdersBottomSheet(maxTransactions: Int) {
+        BuyPendingOrdersBottomSheet.newInstance(maxTransactions).show(
+            childFragmentManager,
+            BuyPendingOrdersBottomSheet.TAG
+        )
+    }
 
     private fun renderBuyIntro(
         assets: List<AssetInfo>,
@@ -162,6 +191,19 @@ class BuyIntroFragment : ViewPagerFragment() {
     companion object {
         fun newInstance() = BuyIntroFragment()
     }
+
+    override fun startActivityRequested() {
+        navigator().performAssetActionFor(AssetAction.ViewActivity)
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
+    }
+
+    override fun navigator(): HomeNavigator =
+        (activity as? HomeNavigator) ?: throw IllegalStateException("Parent must implement HomeNavigator")
+
+    override fun onBackPressed(): Boolean = false
 }
 
 data class PriceHistory(

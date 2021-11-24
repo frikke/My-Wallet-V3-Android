@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,6 +8,7 @@ import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
@@ -18,6 +18,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
@@ -44,7 +45,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetDashboardAssetDetailsBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
-import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -111,7 +111,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
 
         renderRecurringBuys(newState.recurringBuys, newState.assetDisplayMap ?: emptyMap())
-        configureBuyButton(newState.assetDisplayMap ?: emptyMap(), newState.userCanBuy)
+        configureBuyButton(newState.assetDisplayMap ?: emptyMap(), newState.userBuyAccess)
 
         configureTimespanSelectionUI(binding, newState.timeSpan)
 
@@ -136,31 +136,24 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
     }
 
-    private fun configureBuyButton(assetDisplayMap: Map<AssetFilter, AssetDisplayInfo>, canBuy: Boolean) {
+    private fun configureBuyButton(assetDisplayMap: Map<AssetFilter, AssetDisplayInfo>, buyAccess: FeatureAccess) {
         with(binding) {
             assetList.configureWithPinnedButton(
                 buyCryptoBottomButton,
                 assetDisplayMap.containsKey(
                     AssetFilter.Custodial
-                )
+                ) && !buyAccess.isBlockedDueToEligibility()
             )
             buyCryptoBottomButton.text = resources.getString(R.string.tx_title_buy, token.asset.displayTicker)
             buyCryptoBottomButton.setOnClickListener {
-                startActivity(
-                    SimpleBuyActivity.newIntent(
-                        activity as Context,
-                        asset,
-                        launchFromNavigationBar = true,
-                        launchKycResume = false
-                    )
-                )
+                model.process(HandleActionIntent(AssetAction.Buy))
             }
         }
     }
 
     override fun initControls(binding: DialogSheetDashboardAssetDetailsBinding) {
         model.process(LoadAsset(token))
-        model.process(CheckIfUserCanBuy)
+        model.process(CheckUserBuyStatus)
 
         with(binding) {
             configureChart(

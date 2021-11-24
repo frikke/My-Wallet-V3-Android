@@ -32,7 +32,6 @@ import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
-import com.blockchain.usecases.UseCase
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
@@ -70,7 +69,6 @@ import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
-import piuk.blockchain.android.domain.usecases.UserIsAllowedToBuyUseCase
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
@@ -506,13 +504,6 @@ val applicationModule = module {
                 coincore = get()
             )
         }
-
-        factory {
-            UserIsAllowedToBuyUseCase(
-                simpleBuySyncFactory = get(),
-                userIdentity = get()
-            )
-        }.bind(UseCase::class)
 
         factory {
             TradeDataManagerImpl(

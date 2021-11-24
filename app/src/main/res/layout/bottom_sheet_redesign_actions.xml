@@ -58,32 +58,6 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/split_buttons" />
 
-    <!--    TODO disabling for now as stretch goal for Redesign Phase I -->
-    <!--    <com.blockchain.componentlib.divider.HorizontalDividerView-->
-    <!--        android:id="@+id/divider_4"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/add_cash_btn" />-->
-
-    <!--    <com.blockchain.componentlib.tablerow.DefaultTableRowView-->
-    <!--        android:id="@+id/add_cash_btn"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/divider_5" />-->
-
-    <!--    <com.blockchain.componentlib.divider.HorizontalDividerView-->
-    <!--        android:id="@+id/divider_5"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/cash_out_btn" />-->
-
-    <!--    <com.blockchain.componentlib.tablerow.DefaultTableRowView-->
-    <!--        android:id="@+id/cash_out_btn"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginBottom="@dimen/standard_margin"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/split_buttons" />-->
-
     <com.blockchain.componentlib.button.SplitButtonView
         android:id="@+id/split_buttons"
         android:layout_width="match_parent"

@@ -320,7 +320,7 @@ class KycTierSplashFragment :
         navigate(directions)
         analytics.logEvent(
             KYCAnalyticsEvents.UpgradeKycVeriffClicked(
-                LaunchOrigin.SETTINGS, tier = com.blockchain.nabu.Tier.values()[tier]
+                LaunchOrigin.SETTINGS, tierIndex = tier
             )
         )
     }

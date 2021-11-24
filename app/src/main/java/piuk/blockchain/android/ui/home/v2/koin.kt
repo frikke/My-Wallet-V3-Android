@@ -37,5 +37,21 @@ val mainModule = module {
                 secureChannelManager = get()
             )
         }
+
+        factory {
+            ActionsSheetModel(
+                initialState = ActionsSheetState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+
+        factory {
+            ActionsSheetInteractor(
+                userIdentity = get()
+            )
+        }
     }
 }

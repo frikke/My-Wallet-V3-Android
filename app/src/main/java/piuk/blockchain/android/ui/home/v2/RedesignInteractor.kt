@@ -131,7 +131,7 @@ class RedesignInteractor internal constructor(
 
     fun performSimpleBuySync(): Completable = simpleBuySync.performSync()
 
-    fun checkIfShouldUpsell(action: AssetAction, account: BlockchainAccount): Single<KycUpgradePromptManager.Type> =
+    fun checkIfShouldUpsell(action: AssetAction, account: BlockchainAccount?): Single<KycUpgradePromptManager.Type> =
         upsellManager.queryUpsell(action, account)
 
     fun unpairWallet(): Completable =

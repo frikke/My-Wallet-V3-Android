@@ -17,7 +17,12 @@ data class SimpleBuyPairResp(
     val sellMax: Long
 )
 
-data class SimpleBuyEligibility(val simpleBuyTradingEligible: Boolean)
+data class SimpleBuyEligibility(
+    val eligible: Boolean,
+    val simpleBuyTradingEligible: Boolean,
+    val pendingDepositSimpleBuyTrades: Int,
+    val maxPendingDepositSimpleBuyTrades: Int
+)
 
 data class SimpleBuyCurrency(val currency: String)
 

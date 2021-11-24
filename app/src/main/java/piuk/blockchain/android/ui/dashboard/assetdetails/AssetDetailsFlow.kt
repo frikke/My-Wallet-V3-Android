@@ -13,6 +13,7 @@ import com.blockchain.coincore.impl.CryptoAccountCustodialGroup
 import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
@@ -49,7 +50,7 @@ class AssetDetailsFlow(
         fun goToInterestWithdraw(fromAccount: InterestAccount) {}
         fun goToInterestDashboard() {}
         fun goToSummary(account: SingleAccount, asset: AssetInfo) {}
-        fun goToBuy(asset: AssetInfo) {}
+        fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess)
     }
 
     private var currentStep: AssetDetailsStep = AssetDetailsStep.ZERO
@@ -207,7 +208,7 @@ class AssetDetailsFlow(
             }
             AssetAction.Buy -> {
                 newState.asset?.let {
-                    assetFlowHost.goToBuy(it.asset)
+                    assetFlowHost.tryToLaunchBuy(it.asset, newState.userBuyAccess)
                     finishFlow()
                 }
             }

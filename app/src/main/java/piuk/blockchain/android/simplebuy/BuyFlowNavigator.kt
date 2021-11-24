@@ -1,12 +1,13 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 class BuyFlowNavigator(
@@ -51,9 +52,6 @@ class BuyFlowNavigator(
                 startedFromApprovalDeepLink -> {
                     Single.just(BuyNavigation.OrderInProgressScreen)
                 }
-                currentState.orderState == OrderState.AWAITING_FUNDS -> {
-                    Single.just(BuyNavigation.PendingOrderScreen)
-                }
                 startedFromNavigationBar -> {
                     Single.just(
                         BuyNavigation.FlowScreenWithCurrency(FlowScreen.ENTER_AMOUNT, cryptoCurrency)
@@ -89,15 +87,27 @@ class BuyFlowNavigator(
                     Single.just(BuyNavigation.CurrencyNotAvailable)
                 }
             } else {
-                stateCheck(
-                    startedFromKycResume,
-                    startedFromDashboard,
-                    startedFromApprovalDeepLink,
-                    cryptoCurrency
+                checkForEligibilityOrPendingOrders().switchIfEmpty(
+                    stateCheck(
+                        startedFromKycResume,
+                        startedFromDashboard,
+                        startedFromApprovalDeepLink,
+                        cryptoCurrency
+                    )
                 )
             }
         }
     }
+
+    private fun checkForEligibilityOrPendingOrders(): Maybe<BuyNavigation> =
+        userIdentity.userAccessForFeature(Feature.SimpleBuy).flatMapMaybe { access ->
+            when (access) {
+                FeatureAccess.NotRequested,
+                FeatureAccess.Unknown,
+                FeatureAccess.Granted -> Maybe.empty()
+                is FeatureAccess.Blocked -> Maybe.just(BuyNavigation.BlockBuy(access))
+            }
+        }
 
     private fun currencyCheck(): Single<Boolean> {
         return custodialWalletManager.isCurrencySupportedForSimpleBuy(currencyPrefs.tradingCurrency)
@@ -107,7 +117,7 @@ class BuyFlowNavigator(
 sealed class BuyNavigation {
     data class CurrencySelection(val currencies: List<String>, val selectedCurrency: String) : BuyNavigation()
     data class FlowScreenWithCurrency(val flowScreen: FlowScreen, val cryptoCurrency: AssetInfo) : BuyNavigation()
-    object PendingOrderScreen : BuyNavigation()
+    data class BlockBuy(val access: FeatureAccess.Blocked) : BuyNavigation()
     object CurrencyNotAvailable : BuyNavigation()
     object OrderInProgressScreen : BuyNavigation()
 }

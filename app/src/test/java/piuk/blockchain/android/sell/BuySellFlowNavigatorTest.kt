@@ -1,6 +1,8 @@
 package piuk.blockchain.android.sell
 
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -39,11 +41,12 @@ class BuySellFlowNavigatorTest {
     }
 
     @Test
-    fun `when buy state is pending and currency is right, hasPendingBuy should be true`() {
-        whenever(simpleBuySyncFactory.currentState()).thenReturn(
-            SimpleBuyState(
-                orderState = OrderState.PENDING_EXECUTION,
-                fiatCurrency = "GBP"
+    fun `when user is not eligible, corresponding state should be propagated to the UI`() {
+        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(
+                FeatureAccess.Blocked(
+                    BlockedReason.NotEligible
+                )
             )
         )
 
@@ -53,18 +56,23 @@ class BuySellFlowNavigatorTest {
 
         val test = subject.navigateTo().test()
 
-        test.assertValue(BuySellIntroAction.DisplayBuySellIntro(isGoldButNotEligible = false, hasPendingBuy = true))
+        test.assertValue(BuySellIntroAction.UserNotEligible)
     }
 
     @Test
     fun `whenBuyStateIsNotPendingCurrencyIsSupportedAndSellIsEnableNormalBuySellUiIsDisplayed`() {
+        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(
+                FeatureAccess.Granted
+            )
+        )
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "USD")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
             .thenReturn(Single.just(true))
 
         val test = subject.navigateTo().test()
 
-        test.assertValue(BuySellIntroAction.DisplayBuySellIntro(false, false))
+        test.assertValue(BuySellIntroAction.DisplayBuySellIntro)
     }
 
     @Test
@@ -76,6 +84,12 @@ class BuySellFlowNavigatorTest {
             )
         )
 
+        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(
+                FeatureAccess.Granted
+            )
+        )
+
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "USD")))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
             .thenReturn(Single.just(true))
@@ -84,7 +98,7 @@ class BuySellFlowNavigatorTest {
 
         val test = subject.navigateTo().test()
 
-        test.assertValue(BuySellIntroAction.DisplayBuySellIntro(isGoldButNotEligible = false, hasPendingBuy = false))
+        test.assertValue(BuySellIntroAction.DisplayBuySellIntro)
         verify(custodialWalletManager).deleteBuyOrder("ORDERID")
     }
 }

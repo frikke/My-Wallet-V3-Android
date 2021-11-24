@@ -47,7 +47,7 @@ interface HomeNavigator {
     fun launchSimpleBuyFromDeepLinkApproval()
     fun launchPendingVerificationScreen(campaignType: CampaignType)
 
-    fun performAssetActionFor(action: AssetAction, account: BlockchainAccount)
+    fun performAssetActionFor(action: AssetAction, account: BlockchainAccount? = null)
     fun resumeSimpleBuyKyc()
 }
 

@@ -42,7 +42,6 @@ val dashboardModule = module {
                 analytics = get(),
                 crashLogger = get(),
                 linkedBanksFactory = get(),
-                userIsAllowedToBuyUseCase = get(),
                 dynamicAssetsFlag = get(dynamicAssetsFeatureFlag),
                 dashboardBuyButtonFlag = get(buyCryptoDashboardButton)
             )
@@ -63,7 +62,7 @@ val dashboardModule = module {
             AssetDetailsInteractor(
                 dashboardPrefs = get(),
                 coincore = get(),
-                userIsAllowedToBuyUseCase = get(),
+                userIdentity = get(),
                 custodialWalletManager = get()
             )
         }

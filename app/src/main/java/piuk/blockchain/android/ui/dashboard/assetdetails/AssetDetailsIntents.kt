@@ -7,6 +7,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
@@ -44,14 +45,14 @@ class LoadAsset(
         )
 }
 
-object CheckIfUserCanBuy : AssetDetailsIntent() {
+object CheckUserBuyStatus : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState
 }
 
-class UserCanBuyUpdated(private val userCanBuy: Boolean) : AssetDetailsIntent() {
+class UserBuyAccessUpdated(private val userBuyAccess: FeatureAccess) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
-        oldState.copy(userCanBuy = userCanBuy)
+        oldState.copy(userBuyAccess = userBuyAccess)
 }
 
 class UpdateTimeSpan(

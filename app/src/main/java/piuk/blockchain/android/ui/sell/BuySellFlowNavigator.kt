@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.sell
 
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -26,41 +26,39 @@ class BuySellFlowNavigator(
                     ?: throw IllegalStateException("Pending order should always have an id")
             ).onErrorComplete()
         else Completable.complete()
-        val isGoldButNotEligible = Single.zip(
-            userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)),
-            userIdentity.isEligibleFor(Feature.SimpleBuy)
-        ) { gold, eligible ->
-            gold && !eligible
-        }
+
         return cancel.thenSingle {
-            isGoldButNotEligible.map { isGoldButNotEligible ->
-                decideNavigationStep(
-                    selectedAsset, isGoldButNotEligible, state
-                )
-            }
+            decideNavigationStep(
+                selectedAsset
+            )
         }
     }
 
     private fun decideNavigationStep(
-        selectedAsset: AssetInfo?,
-        isGoldButNotEligible: Boolean,
-        state: SimpleBuyState
-    ) =
-        selectedAsset?.let {
-            BuySellIntroAction.StartBuyWithSelectedAsset(it, state.hasPendingBuy())
-        } ?: kotlin.run {
-            BuySellIntroAction.DisplayBuySellIntro(
-                isGoldButNotEligible = isGoldButNotEligible,
-                hasPendingBuy = state.hasPendingBuy()
-            )
+        selectedAsset: AssetInfo?
+    ): Single<BuySellIntroAction> {
+        return selectedAsset?.let {
+            Single.just(BuySellIntroAction.StartBuyWithSelectedAsset(it))
+        } ?: run {
+            userIdentity.userAccessForFeature(Feature.SimpleBuy).map { access ->
+                when (access) {
+                    FeatureAccess.NotRequested,
+                    FeatureAccess.Unknown,
+                    FeatureAccess.Granted -> BuySellIntroAction.DisplayBuySellIntro
+                    is FeatureAccess.Blocked -> {
+                        if (access.isBlockedDueToEligibility())
+                            BuySellIntroAction.UserNotEligible
+                        else BuySellIntroAction.DisplayBuySellIntro
+                    }
+                }
+            }
         }
+    }
 }
 
-private fun SimpleBuyState.hasPendingBuy(): Boolean =
-    orderState > OrderState.PENDING_CONFIRMATION && orderState < OrderState.FINISHED
-
 sealed class BuySellIntroAction {
-    data class DisplayBuySellIntro(val isGoldButNotEligible: Boolean, val hasPendingBuy: Boolean) : BuySellIntroAction()
-    data class StartBuyWithSelectedAsset(val selectedAsset: AssetInfo, val hasPendingBuy: Boolean) :
+    object DisplayBuySellIntro : BuySellIntroAction()
+    object UserNotEligible : BuySellIntroAction()
+    data class StartBuyWithSelectedAsset(val selectedAsset: AssetInfo) :
         BuySellIntroAction()
 }

@@ -77,7 +77,7 @@ class DashboardModel(
             is DashboardIntent.ResetDashboardNavigation,
             is DashboardIntent.ShowLinkablePaymentMethodsSheet,
             is DashboardIntent.LongCallStarted,
-            is DashboardIntent.UserCanBuyUpdated,
+            is DashboardIntent.UserBuyAccessStateUpdated,
             is DashboardIntent.LongCallEnded,
             is DashboardIntent.FilterAssets,
             is DashboardIntent.UpdateLaunchDetailsFlow,

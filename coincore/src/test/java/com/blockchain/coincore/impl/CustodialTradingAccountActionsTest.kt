@@ -6,7 +6,9 @@ import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.nhaarman.mockitokotlin2.mock
@@ -124,7 +126,6 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
                     AssetAction.ViewActivity,
                     AssetAction.InterestDeposit,
                     AssetAction.Receive,
-                    AssetAction.Buy,
                     AssetAction.Send
                 )
             }
@@ -267,7 +268,11 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         interest: Boolean,
         supportedFiat: List<String>
     ) {
-        whenever(identity.isEligibleFor(Feature.SimpleBuy)).thenReturn(Single.just(simpleBuy))
+        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            if (simpleBuy) {
+                Single.just(FeatureAccess.Granted)
+            } else Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible))
+        )
         val interestFeature = Feature.Interest(TEST_ASSET)
         whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
 

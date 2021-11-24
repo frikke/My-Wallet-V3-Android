@@ -3,7 +3,9 @@ package piuk.blockchain.android.simplebuy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -104,10 +106,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
                 when (it) {
                     is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies, it.selectedCurrency)
                     is BuyNavigation.FlowScreenWithCurrency -> startFlow(it)
-                    BuyNavigation.PendingOrderScreen -> goToPendingOrderScreen()
+                    is BuyNavigation.BlockBuy -> blockBuy(it.access)
                     BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(false, startedFromApprovalDeepLink)
                     BuyNavigation.CurrencyNotAvailable -> finish()
-                }
+                }.exhaustive
             }
     }
 
@@ -173,6 +175,17 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             .commitAllowingStateLoss()
     }
 
+    override fun goToPendingOrderScreen() {
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(
+                R.id.content_frame,
+                SimpleBuyCheckoutFragment.newInstance(true),
+                SimpleBuyCheckoutFragment::class.simpleName
+            )
+            .commitAllowingStateLoss()
+    }
+
     override fun goToKycVerificationScreen(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
@@ -185,13 +198,12 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             .commitAllowingStateLoss()
     }
 
-    override fun goToPendingOrderScreen() {
+    private fun blockBuy(accessState: FeatureAccess.Blocked) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyCheckoutFragment.newInstance(true),
-                SimpleBuyCheckoutFragment::class.simpleName
+                SimpleBuyBlockedFragment.newInstance(accessState, resources),
+                SimpleBuyBlockedFragment::class.simpleName
             )
             .commitAllowingStateLoss()
     }

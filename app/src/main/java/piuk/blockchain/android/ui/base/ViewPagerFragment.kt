@@ -6,7 +6,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.ui.home.v2.RedesignMainActivity
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
 
@@ -40,7 +39,7 @@ open class ViewPagerFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        ((activity as? BlockchainActivity) ?: (activity as? RedesignMainActivity))?.hideLoading()
+        (activity as? BlockchainActivity)?.hideLoading()
         disposable.clear()
     }
 

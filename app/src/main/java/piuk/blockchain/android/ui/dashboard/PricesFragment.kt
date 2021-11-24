@@ -17,7 +17,10 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -28,6 +31,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPricesBinding
+import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
@@ -79,6 +83,7 @@ internal class PricesFragment :
     DashboardScreen,
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
+    BuyPendingOrdersBottomSheet.Host,
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
@@ -387,6 +392,10 @@ internal class PricesFragment :
         )
     }
 
+    override fun startActivityRequested() {
+        navigator().performAssetActionFor(AssetAction.ViewActivity)
+    }
+
     // DialogBottomSheet.Host
     override fun onSheetClosed() {
         model.process(DashboardIntent.ClearBottomSheet)
@@ -477,8 +486,24 @@ internal class PricesFragment :
         )
     }
 
-    override fun goToBuy(asset: AssetInfo) {
-        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+    override fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess) {
+        val blockedState = buyAccess as? FeatureAccess.Blocked
+
+        blockedState?.let {
+            when (val reason = it.reason) {
+                is BlockedReason.TooManyInFlightTransactions -> showPendingBuysBottomSheet(reason.maxTransactions)
+                BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
+            }.exhaustive
+        } ?: run {
+            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+        }
+    }
+
+    private fun showPendingBuysBottomSheet(pendingBuys: Int) {
+        BuyPendingOrdersBottomSheet.newInstance(pendingBuys).show(
+            childFragmentManager,
+            BuyPendingOrdersBottomSheet.TAG
+        )
     }
 
     // BankLinkingHost

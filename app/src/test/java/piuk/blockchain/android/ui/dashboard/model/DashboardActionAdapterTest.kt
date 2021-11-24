@@ -54,7 +54,6 @@ class DashboardActionAdapterTest {
             dashboardBuyButtonFlag = mock(),
             currencyPrefs = mock(),
             userIdentity = mock(),
-            userIsAllowedToBuyUseCase = mock(),
             exchangeRates = mock()
         )
     }

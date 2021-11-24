@@ -933,9 +933,7 @@ class MainActivity :
     }
 
     override fun launchUpsellAssetAction(
-        upsell: KycUpgradePromptManager.Type,
-        action: AssetAction,
-        account: BlockchainAccount
+        upsell: KycUpgradePromptManager.Type
     ) = replaceBottomSheet(KycUpgradePromptManager.getUpsellSheet(upsell))
 
     override fun launchAssetAction(
@@ -969,7 +967,7 @@ class MainActivity :
         startBuyAndSellFragment(viewType, asset)
     }
 
-    override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) =
+    override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount?) =
         presenter.validateAccountAction(action, account)
 
     override fun launchPendingVerificationScreen(campaignType: CampaignType) {

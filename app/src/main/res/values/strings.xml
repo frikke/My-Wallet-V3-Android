@@ -2425,6 +2425,12 @@
     <string name="select_a_trading_currency">Select a Trading Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
+
+    <!-- Pending buys -->
+    <string name="pending_buys_description">Right now, we only allow up to %d buys pending at a time.</string>
+    <string name="pending_transaction_limit">Too Many Buys Pending</string>
+    <string name="view_activity">View Activity</string>
+
     <!-- Kyc Limits -->
     <string name="feature_limits_send_crypto">Send Crypto</string>
     <string name="feature_limits_receive_crypto">Receive Crypto</string>

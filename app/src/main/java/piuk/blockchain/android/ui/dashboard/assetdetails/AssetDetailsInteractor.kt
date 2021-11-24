@@ -10,13 +10,15 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.FundsAccount
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.usecases.UseCase
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
@@ -54,7 +56,7 @@ data class AssetDisplayInfo(
 class AssetDetailsInteractor(
     private val dashboardPrefs: DashboardPrefs,
     private val coincore: Coincore,
-    private val userIsAllowedToBuyUseCase: UseCase<Unit, Single<Boolean>>,
+    private val userIdentity: UserIdentity,
     private val custodialWalletManager: CustodialWalletManager
 ) {
 
@@ -191,6 +193,6 @@ class AssetDetailsInteractor(
     fun loadRecurringBuysForAsset(assetTicker: AssetInfo) =
         custodialWalletManager.getRecurringBuysForAsset(assetTicker)
 
-    fun userCanBuy(): Single<Boolean> =
-        userIsAllowedToBuyUseCase.invoke(Unit)
+    fun userCanBuy(): Single<FeatureAccess> =
+        userIdentity.userAccessForFeature(Feature.SimpleBuy)
 }

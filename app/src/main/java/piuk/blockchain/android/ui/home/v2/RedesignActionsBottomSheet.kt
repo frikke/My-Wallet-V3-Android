@@ -4,17 +4,22 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
 
-class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignActionsBinding>() {
+class RedesignActionsBottomSheet :
+    MviBottomSheet<ActionsSheetModel, ActionsSheetIntent, ActionsSheetState, BottomSheetRedesignActionsBinding>() {
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): BottomSheetRedesignActionsBinding =
         BottomSheetRedesignActionsBinding.inflate(inflater, container, false)
+
+    override val model: ActionsSheetModel by scopedInject()
 
     interface Host : SlidingModalBottomDialog.Host {
         fun launchSwap(sourceAccount: CryptoAccount?, targetAccount: CryptoAccount?)
@@ -26,6 +31,7 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
         fun launchInterestDashboard(origin: LaunchOrigin)
         fun launchReceive()
         fun launchSend()
+        fun launchTooManyPendingBuys(maxTransactions: Int)
     }
 
     override val host: Host by lazy {
@@ -39,8 +45,7 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
             splitButtons.apply {
                 startButtonText = getString(R.string.common_buy)
                 onStartButtonClick = {
-                    dismiss()
-                    host.launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, null)
+                    model.process(ActionsSheetIntent.CheckForPendingBuys)
                 }
                 endButtonText = getString(R.string.common_sell)
                 onEndButtonClick = {
@@ -104,21 +109,22 @@ class RedesignActionsBottomSheet : SlidingModalBottomDialog<BottomSheetRedesignA
                     contentDescription = null
                 )
             }
-            /* TODO disabling for now as stretch goal for Redesing Phase I
-            addCashBtn.apply {
-                primaryText = getString(R.string.common_deposit)
-                secondaryText = context.getString(R.string.action_sheet_deposit_description)
-                onClick = {
-                    dismiss()
-                }
+        }
+    }
+
+    override fun render(newState: ActionsSheetState) {
+        when (val flow = newState.flowToLaunch) {
+            is FlowToLaunch.TooManyPendingBuys -> {
+                host.launchTooManyPendingBuys(flow.maxTransactions)
+                dismiss()
             }
-            cashOutBtn.apply {
-                primaryText = getString(R.string.common_withdraw)
-                secondaryText = context.getString(R.string.action_sheet_deposit_description)
-                onClick = {
-                    dismiss()
-                }
-            } */
+            FlowToLaunch.BuyFlow -> {
+                host.launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, null)
+                dismiss()
+            }
+            FlowToLaunch.None -> {
+                // do nothing
+            }
         }
     }
 

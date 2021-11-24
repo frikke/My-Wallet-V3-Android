@@ -29,7 +29,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBuySellBinding
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.simplebuy.SimpleBuyCheckoutFragment
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.setupToolbar
@@ -41,7 +40,11 @@ import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
-class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIntroHost, SlidingModalBottomDialog.Host {
+class BuySellFragment :
+    HomeScreenFragment,
+    Fragment(),
+    SellIntroFragment.SellIntroHost,
+    SlidingModalBottomDialog.Host {
 
     private var _binding: FragmentBuySellBinding? = null
     private val binding: FragmentBuySellBinding
@@ -117,15 +120,12 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
             pager.visible()
             when (action) {
                 is BuySellIntroAction.DisplayBuySellIntro -> {
-                    if (!action.isGoldButNotEligible) {
-                        renderBuySellUi(action.hasPendingBuy, redesignEnabled)
-                    } else {
-                        renderNotEligibleUi()
-                    }
+                    renderBuySellUi(redesignEnabled)
                 }
+                BuySellIntroAction.UserNotEligible -> renderNotEligibleUi()
                 is BuySellIntroAction.StartBuyWithSelectedAsset -> {
-                    renderBuySellUi(action.hasPendingBuy, redesignEnabled)
-                    if (!action.hasPendingBuy && !hasReturnedFromBuyActivity) {
+                    renderBuySellUi(redesignEnabled)
+                    if (!hasReturnedFromBuyActivity) {
                         hasReturnedFromBuyActivity = false
                         startActivityForResult(
                             SimpleBuyActivity.newIntent(
@@ -188,7 +188,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         )
     }
 
-    private fun renderBuySellUi(hasPendingBuy: Boolean, redesignEnabled: Boolean) {
+    private fun renderBuySellUi(redesignEnabled: Boolean) {
         with(binding) {
             if (redesignEnabled) {
                 redesignDivider.visible()
@@ -229,7 +229,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                     )
                 }
             }
-            pagerAdapter.showPendingBuy = hasPendingBuy
+
             pager.visible()
             notEligibleIcon.gone()
             notEligibleTitle.gone()
@@ -309,8 +309,7 @@ internal class ViewPagerAdapter(
     }
 
     override fun getItem(position: Int): Fragment = when (position) {
-        0 -> if (!showPendingBuy) BuyIntroFragment.newInstance() else
-            SimpleBuyCheckoutFragment.newInstance(isForPending = true, showOnlyOrderData = true)
+        0 -> BuyIntroFragment.newInstance()
         else -> SellIntroFragment.newInstance()
     }
 }

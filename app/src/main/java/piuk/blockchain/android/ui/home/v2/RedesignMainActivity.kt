@@ -37,6 +37,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityRedesignMainBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
+import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
@@ -90,7 +91,8 @@ class RedesignMainActivity :
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
     RedesignActionsBottomSheet.Host,
-    SmallSimpleBuyNavigator {
+    SmallSimpleBuyNavigator,
+    BuyPendingOrdersBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -596,6 +598,13 @@ class RedesignMainActivity :
         }
     }
 
+    override fun launchTooManyPendingBuys(maxTransactions: Int) =
+        showBottomSheet(BuyPendingOrdersBottomSheet.newInstance(maxTransactions))
+
+    override fun startActivityRequested() {
+        launchAssetAction(AssetAction.ViewActivity, null)
+    }
+
     override fun launchKyc(campaignType: CampaignType) {
         KycNavHostActivity.startForResult(this, campaignType, MainActivity.KYC_STARTED)
     }
@@ -698,7 +707,7 @@ class RedesignMainActivity :
         KycStatusActivity.start(this, campaignType)
     }
 
-    override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) {
+    override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount?) {
         model.process(RedesignIntent.ValidateAccountAction(action, account))
     }
 

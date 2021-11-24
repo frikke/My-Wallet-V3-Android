@@ -94,7 +94,7 @@ interface MainView : MvpView, HomeNavigator {
     fun handleApprovalDepositTimeout(currencyCode: String)
     fun handleBuyApprovalError()
 
-    fun launchUpsellAssetAction(upsell: KycUpgradePromptManager.Type, action: AssetAction, account: BlockchainAccount)
+    fun launchUpsellAssetAction(upsell: KycUpgradePromptManager.Type)
     fun launchAssetAction(action: AssetAction, account: BlockchainAccount? = null)
     fun showAccountWalletLinkBottomSheet(walletId: String)
 }
@@ -572,13 +572,13 @@ class MainPresenter internal constructor(
             )
     }
 
-    fun validateAccountAction(action: AssetAction, account: BlockchainAccount) {
+    fun validateAccountAction(action: AssetAction, account: BlockchainAccount?) {
         compositeDisposable += upsellManager.queryUpsell(action, account)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { upsell ->
                     if (upsell != KycUpgradePromptManager.Type.NONE) {
-                        view?.launchUpsellAssetAction(upsell, action, account)
+                        view?.launchUpsellAssetAction(upsell)
                     } else {
                         view?.launchAssetAction(action, account)
                     }

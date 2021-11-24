@@ -131,29 +131,28 @@ class CustodialTradingAccount(
     override val actions: Single<AvailableActions>
         get() =
             Single.zip(
-                accountBalance.map { it.isPositive },
-                actionableBalance.map { it.isPositive },
-                identity.isEligibleFor(Feature.SimpleBuy),
+                balance.firstOrError(),
+                identity.userAccessForFeature(Feature.SimpleBuy),
                 identity.isEligibleFor(Feature.Interest(asset)),
                 custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
-            ) { hasFunds, hasActionableBalance, isEligibleForSimpleBuy, isEligibleForInterest, fiatAccounts ->
-                val isActiveFunded = !isArchived && hasFunds
+            ) { balance, buyAccess, isEligibleForInterest, fiatAccounts ->
+                val isActiveFunded = !isArchived && balance.total.isPositive
 
                 val activity = AssetAction.ViewActivity.takeEnabledIf(baseActions) { hasTransactions }
                 val receive = AssetAction.Receive.takeEnabledIf(baseActions)
-                val buy = AssetAction.Buy.takeEnabledIf(baseActions)
+                val buy = AssetAction.Buy.takeEnabledIf(baseActions) { !buyAccess.isBlockedDueToEligibility() }
 
                 val send = AssetAction.Send.takeEnabledIf(baseActions) {
-                    isActiveFunded && hasActionableBalance
+                    isActiveFunded && balance.actionable.isPositive
                 }
                 val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
                     isActiveFunded && isEligibleForInterest
                 }
                 val swap = AssetAction.Swap.takeEnabledIf(baseActions) {
-                    isActiveFunded && isEligibleForSimpleBuy
+                    isActiveFunded && !buyAccess.isBlockedDueToEligibility()
                 }
                 val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
-                    isActiveFunded && isEligibleForSimpleBuy && fiatAccounts.isNotEmpty()
+                    isActiveFunded && !buyAccess.isBlockedDueToEligibility() && fiatAccounts.isNotEmpty()
                 }
 
                 setOfNotNull(
