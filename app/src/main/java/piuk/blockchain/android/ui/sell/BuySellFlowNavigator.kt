@@ -27,7 +27,9 @@ class BuySellFlowNavigator(
             ).onErrorComplete()
         else Completable.complete()
 
-        return cancel.thenSingle {
+        return cancel.doOnComplete {
+            simpleBuySyncFactory.clear()
+        }.thenSingle {
             decideNavigationStep(
                 selectedAsset
             )

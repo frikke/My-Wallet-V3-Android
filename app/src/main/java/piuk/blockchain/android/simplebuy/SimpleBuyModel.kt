@@ -117,7 +117,7 @@ class SimpleBuyModel(
                 previousState.id?.let {
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
-                )
+                ).trackProgress(activityIndicator)
                 .subscribeBy(
                     onComplete = { process(SimpleBuyIntent.OrderCanceled) },
                     onError = { process(SimpleBuyIntent.ErrorIntent()) }

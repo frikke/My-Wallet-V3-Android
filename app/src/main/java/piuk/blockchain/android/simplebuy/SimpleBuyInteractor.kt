@@ -130,7 +130,11 @@ class SimpleBuyInteractor(
 
     fun cancelOrder(orderId: String): Completable {
         bankLinkingPrefs.setBankLinkingState(BankAuthDeepLinkState().toPreferencesValue())
-        return custodialWalletManager.deleteBuyOrder(orderId)
+        return custodialWalletManager.getBuyOrder(orderId).flatMapCompletable {
+            if (it.state <= OrderState.PENDING_CONFIRMATION) {
+                custodialWalletManager.deleteBuyOrder(it.id)
+            } else Completable.complete()
+        }
     }
 
     fun createOrder(

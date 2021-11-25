@@ -131,7 +131,6 @@ class MainPresenter internal constructor(
             view?.kickToLauncherPage()
         } else {
             logEvents()
-            lightSimpleBuySync()
             doPushNotifications()
         }
     }
@@ -167,33 +166,6 @@ class MainPresenter internal constructor(
             // reusing this as API 24 devices don't support launcher shortcuts
             view?.showDebugMenu()
         }
-    }
-
-    private fun lightSimpleBuySync() {
-        compositeDisposable += simpleBuySync.lightweightSync()
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe {
-                view?.showProgressDialog(R.string.please_wait)
-            }
-            .doAfterTerminate {
-                view?.hideProgressDialog()
-
-                val strUri = prefs.getValue(PersistentPrefs.KEY_SCHEME_URL, "")
-                if (strUri.isNotEmpty()) {
-                    prefs.removeValue(PersistentPrefs.KEY_SCHEME_URL)
-                    processScanResult(strUri)
-                }
-                view?.refreshAnnouncements()
-            }
-            .subscribeBy(
-                onComplete = {
-                    checkKycStatus()
-                    setDebugMenuVisibility()
-                },
-                onError = { throwable ->
-                    logException(throwable)
-                }
-            )
     }
 
     private fun handlePossibleDeepLink(url: String) {

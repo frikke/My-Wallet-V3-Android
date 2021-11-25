@@ -53,28 +53,6 @@ class SimpleBuySyncFactory(
         serializer.clear()
     }
 
-    // If we have a local state in awaiting funds, check the server and clear it if the backend has transitioned
-    // to any completed state (pending, cancelled, finished, failed)
-    fun lightweightSync(): Completable =
-        maybeInflateLocalState()
-            .flatMapBy(
-                onSuccess = { localState ->
-                    if (localState.orderState == OrderState.AWAITING_FUNDS) {
-                        updateWithRemote(localState)
-                            .doOnComplete { serializer.clear() }
-                            .doOnSuccess { state -> serializer.update(state) }
-                    } else {
-                        Maybe.empty()
-                    }
-                },
-                onError = { Maybe.empty() }, // Do nothing
-                onComplete = {
-                    serializer.clear()
-                    Maybe.empty()
-                } // No local state. Do nothing
-            )
-            .ignoreElement()
-
     private fun syncStates(): Maybe<SimpleBuyState> {
         return maybeInflateLocalState()
             .flatMap { updateWithRemote(it) }
@@ -173,8 +151,8 @@ class SimpleBuySyncFactory(
                     OrderState.UNINITIALISED,
                     OrderState.INITIALISED,
                     OrderState.PENDING_EXECUTION,
-                    OrderState.PENDING_CONFIRMATION,
-                    OrderState.AWAITING_FUNDS -> Maybe.just(state)
+                    OrderState.PENDING_CONFIRMATION -> Maybe.just(state)
+                    OrderState.AWAITING_FUNDS,
                     OrderState.FINISHED,
                     OrderState.CANCELED,
                     OrderState.FAILED,
