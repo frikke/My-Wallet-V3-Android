@@ -25,7 +25,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 
 sealed class NavigationBarButton(val onClick: () -> Unit) {
-    data class Icon(val drawable: Int, val color: Color? = null, val onIconClick: () -> Unit) :
+    data class Icon(val drawable: Int, val color: Color? = Grey400, val onIconClick: () -> Unit) :
         NavigationBarButton(onIconClick)
 
     data class Text(val text: String, val color: Color? = null, val onTextClick: () -> Unit) :
@@ -99,7 +99,7 @@ fun NavigationBar(
                             Image(
                                 painter = painterResource(id = it.drawable),
                                 contentDescription = null,
-                                colorFilter = ColorFilter.tint(it.color ?: Grey400)
+                                colorFilter = if (it.color != null) ColorFilter.tint(it.color) else null
                             )
                         }
                         is NavigationBarButton.Text -> {
