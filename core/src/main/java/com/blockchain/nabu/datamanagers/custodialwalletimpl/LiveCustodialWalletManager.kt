@@ -12,6 +12,7 @@ import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.BuySellLimits
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPair
+import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardProvider
 import com.blockchain.nabu.datamanagers.CardToBeActivated
 import com.blockchain.nabu.datamanagers.CryptoTransaction
@@ -26,6 +27,7 @@ import com.blockchain.nabu.datamanagers.FiatTransaction
 import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PartnerCredentials
+import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -86,6 +88,7 @@ import com.blockchain.nabu.models.responses.simplebuy.CardProviderResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.EveryPayCardCredentialsResponse
+import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
@@ -100,6 +103,7 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenRespon
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import com.braintreepayments.cardform.utils.CardType
@@ -131,8 +135,13 @@ class LiveCustodialWalletManager(
     private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
-    private val transactionErrorMapper: TransactionErrorMapper
+    private val transactionErrorMapper: TransactionErrorMapper,
+    private val stripeAndCheckoutFeatureFlag: FeatureFlag
 ) : CustodialWalletManager {
+
+    private val cardProvidersEnabled: Single<Boolean> by lazy {
+        stripeAndCheckoutFeatureFlag.enabled.cache()
+    }
 
     override val defaultFiatCurrency: String
         get() = currencyPrefs.defaultFiatCurrency
@@ -513,9 +522,14 @@ class LiveCustodialWalletManager(
         fetchSddLimits: Boolean,
         onlyEligible: Boolean
     ): Single<List<PaymentMethod>> =
-        paymentMethods(
-            fiatCurrency = fiatCurrency, onlyEligible = onlyEligible, fetchSdddLimits = fetchSddLimits
-        )
+        cardProvidersEnabled.flatMap { cardProvidersSupported ->
+            paymentMethods(
+                fiatCurrency = fiatCurrency,
+                onlyEligible = onlyEligible,
+                fetchSdddLimits = fetchSddLimits,
+                cardProvidersSupported = cardProvidersSupported
+            )
+        }
 
     private val updateSupportedCards: (List<PaymentMethodResponse>) -> Unit = { paymentMethods ->
         val cardTypes =
@@ -560,14 +574,19 @@ class LiveCustodialWalletManager(
             }.first()
         }
 
-    private fun paymentMethods(fiatCurrency: String, onlyEligible: Boolean, fetchSdddLimits: Boolean = false) =
+    private fun paymentMethods(
+        fiatCurrency: String,
+        onlyEligible: Boolean,
+        cardProvidersSupported: Boolean,
+        fetchSdddLimits: Boolean = false
+    ) =
         authenticator.authenticate { authToken ->
             Single.zip(
                 tradingBalanceDataManager.getBalanceForFiat(fiatCurrency)
                     .firstOrError()
                     .map { balance -> balance.total as FiatValue }
                     .map { total -> CustodialFiatBalance(fiatCurrency, true, total) },
-                nabuService.getCards(authToken).onErrorReturn { emptyList() },
+                nabuService.getCards(authToken, cardProvidersSupported).onErrorReturn { emptyList() },
                 getBanks().map { banks ->
                     banks.filter { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER }
                 }.onErrorReturn { emptyList() },
@@ -809,7 +828,9 @@ class LiveCustodialWalletManager(
         states: List<CardStatus>
     ): Single<List<PaymentMethod.Card>> =
         authenticator.authenticate {
-            nabuService.getCards(it)
+            cardProvidersEnabled.flatMap { cardProvidersSupported ->
+                nabuService.getCards(it, cardProvidersSupported)
+            }
         }.map { cardsResponse ->
             cardsResponse.filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }.map {
                 it.toCardPaymentMethod(
@@ -1572,13 +1593,36 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
             FiatValue.fromMinor(outputCurrency, outputQuantity.toLongOrDefault(0))
         else
             CryptoValue.fromMinor(cryptoCurrency, cryptoAmount),
-        attributes = attributes,
+        attributes = attributes?.toPaymentAttributes(),
         type = type(),
         depositPaymentId = depositPaymentId.orEmpty(),
         approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.NONE,
         failureReason = failureReason?.toRecurringBuyError(),
         processingErrorType = processingErrorType?.processingErrorType(),
         recurringBuyId = recurringBuyId
+    )
+}
+
+fun PaymentAttributesResponse.toPaymentAttributes(): PaymentAttributes {
+    val cardAttributes = when {
+        cardProviderAttributes != null -> CardAttributes.Provider(
+            cardAcquirerName = cardProviderAttributes.cardAcquirerName,
+            cardAcquirerAccountCode = cardProviderAttributes.cardAcquirerAccountCode,
+            paymentLink = cardProviderAttributes.paymentLink,
+            paymentState = cardProviderAttributes.paymentState,
+            clientSecret = cardProviderAttributes.clientSecret,
+            publishableKey = cardProviderAttributes.publishableKey
+        )
+        everypay != null -> CardAttributes.EveryPay(
+            paymentLink = everypay.paymentLink,
+            paymentState = everypay.paymentState
+        )
+        else -> CardAttributes.Empty
+    }
+    return PaymentAttributes(
+        authorisationUrl = authorisationUrl,
+        status = status,
+        cardAttributes = cardAttributes
     )
 }
 

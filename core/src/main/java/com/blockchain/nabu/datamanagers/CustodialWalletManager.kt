@@ -21,7 +21,6 @@ import com.blockchain.nabu.models.responses.banktransfer.ProviderAccountAttrs
 import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
 import com.blockchain.nabu.models.responses.interest.InterestAttributes
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
-import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.braintreepayments.cardform.utils.CardType
@@ -341,6 +340,40 @@ data class InterestAccountDetails(
     val totalInterest: CryptoValue,
     val lockedBalance: CryptoValue
 )
+
+data class PaymentAttributes(
+    val authorisationUrl: String?,
+    val status: String?,
+    val cardAttributes: CardAttributes = CardAttributes.Empty
+) {
+    val isCardPayment: Boolean by lazy {
+        cardAttributes != CardAttributes.Empty
+    }
+}
+
+sealed class CardAttributes {
+
+    object Empty : CardAttributes()
+
+    // Very similar to CardProvider, used for BUY
+    data class Provider(
+        val cardAcquirerName: String,
+        val cardAcquirerAccountCode: String,
+        val paymentLink: String,
+        val paymentState: String,
+        val clientSecret: String,
+        val publishableKey: String
+    ) : CardAttributes()
+
+    data class EveryPay(
+        val paymentLink: String,
+        val paymentState: String
+    ) : CardAttributes() {
+        companion object {
+            const val WAITING_3DS = "WAITING_FOR_3DS_RESPONSE"
+        }
+    }
+}
 
 data class BuySellOrder(
     val id: String,
@@ -751,6 +784,7 @@ data class EveryPayCredentials(
     val paymentLink: String
 )
 
+// Very similar to CardAttributes.Provider, used for card activation
 data class CardProvider(
     val cardAcquirerName: String,
     val cardAcquirerAccountCode: String,

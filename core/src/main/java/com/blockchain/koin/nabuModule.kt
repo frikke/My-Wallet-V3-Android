@@ -112,7 +112,8 @@ val nabuModule = module {
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
-                pairsCache = get()
+                pairsCache = get(),
+                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag)
             )
         }.bind(CustodialWalletManager::class)
 

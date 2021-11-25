@@ -411,7 +411,8 @@ internal interface Nabu {
 
     @GET(NABU_CARDS)
     fun getCards(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String,
+        @Query("cardProvider") cardProvidersSupported: Boolean
     ): Single<List<CardResponse>>
 
     @Headers("blockchain-origin: simplebuy")

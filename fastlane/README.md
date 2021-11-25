@@ -71,6 +71,11 @@ Tests to run on CI balance
 fastlane android ci_test_common
 ```
 Tests to run on CI common
+### android ci_test_coincore
+```
+fastlane android ci_test_coincore
+```
+Tests to run on CI coincore
 ### android ci_test_blockchainApi
 ```
 fastlane android ci_test_blockchainApi
@@ -81,7 +86,6 @@ Tests to run on CI blockchainApi
 fastlane android ci_test_core
 ```
 Tests to run on CI core
-```
 ### android ci_test_notifications
 ```
 fastlane android ci_test_notifications
@@ -105,6 +109,11 @@ Tests to run on CI testutils-android
 ### android ci_test_wallet
 ```
 fastlane android ci_test_wallet
+```
+Tests to run on CI wallet
+### android ci_test_biometrics
+```
+fastlane android ci_test_biometrics
 ```
 Tests to run on CI wallet
 ### android ci_credentials
@@ -140,6 +149,6 @@ Checks to run on CI
 
 ----
 
-This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
+This README.md is auto-generated and will be re-generated every time [fastlane](https://fastlane.tools) is run.
 More information about fastlane can be found on [fastlane.tools](https://fastlane.tools).
 The documentation of fastlane can be found on [docs.fastlane.tools](https://docs.fastlane.tools).

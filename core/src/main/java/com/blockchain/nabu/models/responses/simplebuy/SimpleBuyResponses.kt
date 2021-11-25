@@ -93,7 +93,7 @@ data class BuySellOrderResponse(
     val insertedAt: String,
     val price: String?,
     val fee: String?,
-    val attributes: PaymentAttributes?,
+    val attributes: PaymentAttributesResponse?,
     val expiresAt: String,
     val updatedAt: String,
     val side: String,
@@ -173,24 +173,26 @@ data class CardProviderResponse(
     val publishableKey: String
 )
 
-data class PaymentAttributes(
-    val everypay: EverypayPaymentAttrs?,
+data class PaymentAttributesResponse(
+    val everypay: EverypayPaymentAttributesResponse?,
     val authorisationUrl: String?,
-    val status: String?
+    val status: String?,
+    val cardProviderAttributes: CardProviderPaymentAttributesResponse?
 )
 
-class PaymentAuthorisationAttrs(
-    val authorisationUrl: String
+data class CardProviderPaymentAttributesResponse(
+    val cardAcquirerName: String,
+    val cardAcquirerAccountCode: String,
+    val paymentLink: String,
+    val paymentState: String,
+    val clientSecret: String,
+    val publishableKey: String
 )
 
-data class EverypayPaymentAttrs(
+data class EverypayPaymentAttributesResponse(
     val paymentLink: String,
     val paymentState: String
-) {
-    companion object {
-        const val WAITING_3DS = "WAITING_FOR_3DS_RESPONSE"
-    }
-}
+)
 
 data class ConfirmOrderRequestBody(
     private val action: String = "confirm",

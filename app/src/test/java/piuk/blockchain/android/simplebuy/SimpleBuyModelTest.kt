@@ -5,12 +5,12 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.nabu.models.responses.simplebuy.EverypayPaymentAttrs
-import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -200,12 +200,12 @@ class SimpleBuyModelTest {
                         price = price,
                         paymentMethodType = PaymentMethodType.PAYMENT_CARD,
                         attributes = PaymentAttributes(
-                            EverypayPaymentAttrs(
+                            authorisationUrl = null,
+                            status = null,
+                            cardAttributes = CardAttributes.EveryPay(
                                 paymentLink = paymentLink,
-                                paymentState = EverypayPaymentAttrs.WAITING_3DS
-                            ),
-                            null,
-                            null
+                                paymentState = CardAttributes.EveryPay.WAITING_3DS
+                            )
                         ),
                         type = OrderType.BUY,
                         depositPaymentId = ""
@@ -223,7 +223,7 @@ class SimpleBuyModelTest {
             .assertValueAt(3) {
                 it == defaultState.copy(
                     orderExchangePrice = price,
-                    everypayAuthOptions = CardAcquirerCredentials.Everypay(
+                    cardAcquirerCredentials = CardAcquirerCredentials.Everypay(
                         paymentLink,
                         redirectUrl
                     )

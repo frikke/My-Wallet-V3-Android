@@ -14,15 +14,22 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.utils.secondsToDays
+import com.checkout.android_sdk.PaymentForm
+import com.checkout.android_sdk.Utils.Environment
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
+import com.stripe.android.PaymentAuthConfig
+import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import java.util.Locale
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
@@ -36,6 +43,10 @@ import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import timber.log.Timber
 
 class SimpleBuyPaymentFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyPaymentBinding>(),
@@ -43,6 +54,8 @@ class SimpleBuyPaymentFragment :
     UnlockHigherLimitsBottomSheet.Host {
 
     override val model: SimpleBuyModel by scopedInject()
+    private val stripeFactory: StripeFactory by inject()
+    private val environmentConfig: EnvironmentConfig by inject()
     private val ratingPrefs: RatingPrefs by scopedInject()
     private var reviewInfo: ReviewInfo? = null
     private var isFirstLoad = false
@@ -76,6 +89,7 @@ class SimpleBuyPaymentFragment :
                     }
                 }
         }
+        binding.checkoutCardForm.initCheckoutPaymentForm()
     }
 
     override fun render(newState: SimpleBuyState) {
@@ -119,11 +133,9 @@ class SimpleBuyPaymentFragment :
             }
         }
 
-        newState.everypayAuthOptions?.let {
-            openWebView(
-                newState.everypayAuthOptions.paymentLink,
-                newState.everypayAuthOptions.exitLink
-            )
+        newState.cardAcquirerCredentials?.let { cardAcquirerCredentials ->
+            processCardAuthRequest(cardAcquirerCredentials)
+            model.process(SimpleBuyIntent.ResetCardPaymentAuth)
         }
 
         if (newState.shouldLaunchExternalFlow()) {
@@ -137,6 +149,51 @@ class SimpleBuyPaymentFragment :
 
         if (newState.showRating) {
             tryToShowInAppRating()
+        }
+    }
+
+    private fun processCardAuthRequest(cardAcquirerCredentials: CardAcquirerCredentials) {
+        when (cardAcquirerCredentials) {
+            is CardAcquirerCredentials.Checkout -> {
+                // For Checkout no 3DS is required if the link is empty. For Stripe they take care of all scenarios.
+                if (cardAcquirerCredentials.paymentLink.isNotEmpty()) {
+                    binding.checkoutCardForm.apply {
+                        visible()
+                        setKey(cardAcquirerCredentials.apiKey)
+                        handle3DS(
+                            cardAcquirerCredentials.paymentLink,
+                            cardAcquirerCredentials.exitLink,
+                            cardAcquirerCredentials.exitLink
+                        )
+                    }
+                } else {
+                    model.process(SimpleBuyIntent.CheckOrderStatus)
+                }
+            }
+            is CardAcquirerCredentials.Everypay -> openWebView(
+                cardAcquirerCredentials.paymentLink,
+                cardAcquirerCredentials.exitLink
+            )
+            is CardAcquirerCredentials.Stripe -> {
+                PaymentAuthConfig.init(
+                    // Here we can customise the UI (web view) shown for 3DS
+                    // via PaymentAuthConfig.Stripe3ds2UiCustomization
+                    PaymentAuthConfig.Builder()
+                        .set3ds2Config(
+                            PaymentAuthConfig.Stripe3ds2Config.Builder()
+                                .setTimeout(CardVerificationFragment.STRIPE_3DS_TIMEOUT_MINUTES)
+                                .build()
+                        )
+                        .build()
+                )
+                stripeFactory.getOrCreate(cardAcquirerCredentials.apiKey)
+                    .confirmPayment(
+                        fragment = this,
+                        confirmPaymentIntentParams = ConfirmPaymentIntentParams.create(
+                            clientSecret = cardAcquirerCredentials.clientSecret
+                        )
+                    )
+            }
         }
     }
 
@@ -369,6 +426,27 @@ class SimpleBuyPaymentFragment :
 
     override fun backPressedHandled(): Boolean {
         return true
+    }
+
+    private fun PaymentForm.initCheckoutPaymentForm() {
+        if (environmentConfig.environment == info.blockchain.wallet.api.Environment.PRODUCTION) {
+            setEnvironment(Environment.LIVE)
+        } else {
+            setEnvironment(Environment.SANDBOX)
+        }
+        set3DSListener(
+            object : PaymentForm.On3DSFinished {
+                override fun onSuccess(token: String?) {
+                    binding.checkoutCardForm.gone()
+                    model.process(SimpleBuyIntent.CheckOrderStatus)
+                }
+                override fun onError(errorMessage: String?) {
+                    Timber.e("PaymentForm.On3DSFinished onError: $errorMessage")
+                    binding.checkoutCardForm.gone()
+                    model.process(SimpleBuyIntent.ErrorIntent())
+                }
+            }
+        )
     }
 
     companion object {

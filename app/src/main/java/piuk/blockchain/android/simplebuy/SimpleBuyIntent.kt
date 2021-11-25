@@ -51,9 +51,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(errorState = errorState)
     }
 
-    class Open3dsAuth(private val paymentLink: String, private val exitLink: String) : SimpleBuyIntent() {
+    class Open3dsAuth(private val cardAcquirerCredentials: CardAcquirerCredentials) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(everypayAuthOptions = CardAcquirerCredentials.Everypay(paymentLink, exitLink))
+            oldState.copy(cardAcquirerCredentials = cardAcquirerCredentials)
     }
 
     class AuthorisePaymentExternalUrl(private val url: String, private val linkedBank: LinkedBank) : SimpleBuyIntent() {
@@ -349,9 +349,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
-    object ResetEveryPayAuth : SimpleBuyIntent() {
+    object ResetCardPaymentAuth : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(everypayAuthOptions = null)
+            oldState.copy(cardAcquirerCredentials = null)
     }
 
     object CancelOrderIfAnyAndCreatePendingOne : SimpleBuyIntent() {

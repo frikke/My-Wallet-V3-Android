@@ -63,7 +63,7 @@ data class SimpleBuyState constructor(
     @Transient override val fiatRate: ExchangeRate? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
     @Transient val isLoading: Boolean = false,
-    @Transient val everypayAuthOptions: CardAcquirerCredentials.Everypay? = null,
+    @Transient val cardAcquirerCredentials: CardAcquirerCredentials? = null,
     @Transient val authorisePaymentUrl: String? = null,
     @Transient val linkedBank: LinkedBank? = null,
     @Transient val shouldShowUnlockHigherFunds: Boolean = false,

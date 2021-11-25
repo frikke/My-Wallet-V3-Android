@@ -585,10 +585,18 @@ class NabuService internal constructor(
         body
     ).wrapErrorMessage()
 
+    /**
+     * cardProvidersSupported is signalling to the backend if they can list
+     * cards created by the new providers for payment. The purpose is to avoid listing
+     * cards which were tokenised with the new providers on other platforms if
+     * the feature flag is off.
+     */
     fun getCards(
-        sessionToken: NabuSessionTokenResponse
+        sessionToken: NabuSessionTokenResponse,
+        cardProvidersSupported: Boolean
     ) = nabu.getCards(
-        authorization = sessionToken.authHeader
+        authorization = sessionToken.authHeader,
+        cardProvidersSupported = cardProvidersSupported
     ).wrapErrorMessage()
 
     /**

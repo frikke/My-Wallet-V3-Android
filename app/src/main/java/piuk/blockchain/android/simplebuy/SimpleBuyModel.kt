@@ -10,6 +10,7 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
@@ -20,9 +21,9 @@ import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.nabu.models.responses.simplebuy.EverypayPaymentAttrs
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.network.PollResult
+import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -35,7 +36,9 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
+import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -547,16 +550,14 @@ class SimpleBuyModel(
         }
 
     private fun handleOrderAttrs(order: BuySellOrder) {
-        order.attributes?.everypay?.let {
-            handleCardPayment(order)
-        } ?: kotlin.run {
-            if (!order.fiat.isOpenBankingCurrency()) {
-                process(SimpleBuyIntent.CheckOrderStatus)
-            } else {
-                order.attributes?.authorisationUrl?.let {
-                    handleBankAuthorisationPayment(order.paymentMethodId, it)
-                } ?: process(SimpleBuyIntent.GetAuthorisationUrl(order.id))
-            }
+        when {
+            order.attributes?.isCardPayment == true -> handleCardPayment(order)
+            !order.fiat.isOpenBankingCurrency() -> process(SimpleBuyIntent.CheckOrderStatus)
+            order.attributes?.authorisationUrl != null -> handleBankAuthorisationPayment(
+                paymentMethodId = order.paymentMethodId,
+                authorisationUrl = order.attributes?.authorisationUrl!!
+            )
+            else -> process(SimpleBuyIntent.GetAuthorisationUrl(order.id))
         }
     }
 
@@ -712,22 +713,66 @@ class SimpleBuyModel(
     }
 
     private fun handleCardPayment(order: BuySellOrder) {
-        order.attributes?.everypay?.let { attrs ->
-            if (attrs.paymentState == EverypayPaymentAttrs.WAITING_3DS &&
-                order.state == OrderState.AWAITING_FUNDS
-            ) {
-                process(
-                    SimpleBuyIntent.Open3dsAuth(
-                        attrs.paymentLink,
-                        cardActivator.redirectUrl
+        order.attributes?.cardAttributes?.let { paymentAttributes ->
+            val intent = when (paymentAttributes) {
+                is CardAttributes.Provider -> {
+                    createIntentForCardProvider(paymentAttributes, order.state)
+                }
+                is CardAttributes.EveryPay -> {
+                    if (paymentAttributes.paymentState == CardAttributes.EveryPay.WAITING_3DS &&
+                        order.state == OrderState.AWAITING_FUNDS
+                    ) {
+                        SimpleBuyIntent.Open3dsAuth(
+                            CardAcquirerCredentials.Everypay(
+                                paymentAttributes.paymentLink,
+                                cardActivator.redirectUrl
+                            )
+                        )
+                    } else {
+                        SimpleBuyIntent.CheckOrderStatus
+                    }
+                }
+                is CardAttributes.Empty -> SimpleBuyIntent.ErrorIntent() // todo handle case of partner not supported
+            }
+            process(intent)
+        }
+    }
+
+    private fun createIntentForCardProvider(
+        paymentAttributes: CardAttributes.Provider,
+        orderState: OrderState
+    ): SimpleBuyIntent {
+        return if (orderState == OrderState.AWAITING_FUNDS) {
+            when (CardAcquirer.fromString(paymentAttributes.cardAcquirerName)) {
+                CardAcquirer.CHECKOUT -> SimpleBuyIntent.Open3dsAuth(
+                    CardAcquirerCredentials.Checkout(
+                        apiKey = paymentAttributes.publishableKey,
+                        paymentLink = paymentAttributes.paymentLink,
+                        exitLink = CardProviderActivator.CHECKOUT_EXIT_LINK
                     )
                 )
-                process(SimpleBuyIntent.ResetEveryPayAuth)
-            } else {
-                process(SimpleBuyIntent.CheckOrderStatus)
+                CardAcquirer.EVERYPAY -> {
+                    if (paymentAttributes.paymentState == CardAttributes.EveryPay.WAITING_3DS) {
+                        SimpleBuyIntent.Open3dsAuth(
+                            CardAcquirerCredentials.Everypay(
+                                paymentLink = paymentAttributes.paymentLink,
+                                exitLink = cardActivator.redirectUrl
+                            )
+                        )
+                    } else {
+                        SimpleBuyIntent.CheckOrderStatus
+                    }
+                }
+                CardAcquirer.STRIPE -> SimpleBuyIntent.Open3dsAuth(
+                    CardAcquirerCredentials.Stripe(
+                        apiKey = paymentAttributes.publishableKey,
+                        clientSecret = paymentAttributes.clientSecret
+                    )
+                )
+                CardAcquirer.UNKNOWN -> SimpleBuyIntent.ErrorIntent()
             }
-        } ?: kotlin.run {
-            process(SimpleBuyIntent.ErrorIntent()) // todo handle case of partner not supported
+        } else {
+            SimpleBuyIntent.CheckOrderStatus
         }
     }
 
