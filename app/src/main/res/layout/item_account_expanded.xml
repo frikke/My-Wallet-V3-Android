@@ -6,15 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
-    <ImageView
+    <piuk.blockchain.android.ui.customviews.account.AssetWithAccountIcon
         android:id="@+id/icon"
-        android:layout_width="@dimen/asset_icon_size"
-        android:layout_height="@dimen/asset_icon_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/standard_margin"
         android:importantForAccessibility="no"
-        tools:srcCompat="@drawable/ic_default_asset_logo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />

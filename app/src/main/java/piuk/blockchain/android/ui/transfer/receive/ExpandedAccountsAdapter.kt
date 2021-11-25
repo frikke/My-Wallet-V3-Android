@@ -9,7 +9,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.databinding.ItemAccountExpandedBinding
-import piuk.blockchain.android.ui.resources.AssetResources
 
 data class ExpandedCryptoItem(
     val account: CryptoAccount,
@@ -17,8 +16,7 @@ data class ExpandedCryptoItem(
 )
 
 class ExpandedAccountsAdapter(
-    private val compositeDisposable: CompositeDisposable,
-    private val assetResources: AssetResources
+    private val compositeDisposable: CompositeDisposable
 ) : RecyclerView.Adapter<ExpandedAccountViewHolder>() {
 
     var items: List<ExpandedCryptoItem> = emptyList()
@@ -41,8 +39,7 @@ class ExpandedAccountsAdapter(
 
     override fun onBindViewHolder(holder: ExpandedAccountViewHolder, position: Int) {
         holder.bind(
-            items[position],
-            assetResources
+            items[position]
         )
     }
 }
@@ -53,12 +50,10 @@ class ExpandedAccountViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
-        expandedItem: ExpandedCryptoItem,
-        assetResources: AssetResources
+        expandedItem: ExpandedCryptoItem
     ) {
         with(binding) {
-            val assetInfo = expandedItem.account.asset
-            assetResources.loadAssetIcon(icon, assetInfo)
+            icon.updateIcon(expandedItem.account)
             walletName.text = expandedItem.account.label
             root.setOnClickListener { expandedItem.onAccountClicked(expandedItem.account) }
             compositeDisposable += expandedItem.account.balance
