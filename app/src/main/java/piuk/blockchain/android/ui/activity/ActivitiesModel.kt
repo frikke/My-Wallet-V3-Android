@@ -35,7 +35,7 @@ enum class CryptoActivityType {
 data class ActivitiesState(
     val account: BlockchainAccount? = null,
     val activityList: ActivitySummaryList = emptyList(),
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val isRefreshRequested: Boolean = false,
     val bottomSheet: ActivitiesSheet? = null,
     val isError: Boolean = false,

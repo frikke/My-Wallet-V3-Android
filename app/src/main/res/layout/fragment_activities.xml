@@ -126,7 +126,7 @@
                 android:orientation="vertical"
                 android:padding="@dimen/standard_margin"
                 android:paddingBottom="@dimen/standard_margin"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/Text.Standard.Centered.20"

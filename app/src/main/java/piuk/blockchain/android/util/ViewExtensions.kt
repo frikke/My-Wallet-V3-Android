@@ -7,25 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.EditText
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 import timber.log.Timber
-
-fun CheckBox.setThrottledCheckedChange(interval: Long = 500L, action: (Boolean) -> Unit) {
-    var lastClickTime = 0L
-
-    this.setOnCheckedChangeListener { view, isChecked ->
-        if (System.currentTimeMillis() - lastClickTime > interval) {
-            view.isChecked = isChecked
-            action.invoke(isChecked)
-            lastClickTime = System.currentTimeMillis()
-        } else {
-            view.isChecked = !isChecked
-        }
-    }
-}
 
 // In window/screen co-ordinates
 val View.windowRect: Rect

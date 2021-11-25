@@ -246,12 +246,12 @@ class PortfolioFragment :
                     isLoading || atLeastOneCryptoAssetHasBalancePositive ||
                         atLeastOneFiatAssetHasBalancePositive
 
-                binding.portfolioLayoutGroup.visibleIf {
-                    showPortfolio
-                }
+                binding.portfolioLayoutGroup.visibleIf { showPortfolio }
                 binding.emptyPortfolioGroup.visibleIf { !showPortfolio }
 
-                val showBuyBottomButton = (showPortfolio && !isLoading) && !newState.buyButtonShouldBeHidden &&
+                val showBuyBottomButton = showPortfolio &&
+                    !isLoading &&
+                    !newState.buyButtonShouldBeHidden &&
                     !newState.buyAccess.isBlockedDueToEligibility()
 
                 binding.buyCryptoBottomButton.configure(newState.buyAccess)
