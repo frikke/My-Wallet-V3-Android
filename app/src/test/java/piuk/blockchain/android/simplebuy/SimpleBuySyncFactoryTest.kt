@@ -65,7 +65,6 @@ class SimpleBuySyncFactoryTest {
             fiatCurrency = "EUR",
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.INITIALISED,
-            expirationDate = Date(),
             kycVerificationState = null,
             currentScreen = FlowScreen.KYC
         )
@@ -400,7 +399,6 @@ class SimpleBuySyncFactoryTest {
             fiatCurrency = "EUR",
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.AWAITING_FUNDS,
-            expirationDate = LAST_ORDER_DATE,
             kycVerificationState = null,
             currentScreen = FlowScreen.KYC
         )
@@ -449,7 +447,6 @@ class SimpleBuySyncFactoryTest {
             fiatCurrency = "EUR",
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.AWAITING_FUNDS,
-            expirationDate = LAST_ORDER_DATE,
             kycVerificationState = null,
             currentScreen = FlowScreen.KYC
         )
@@ -498,7 +495,6 @@ class SimpleBuySyncFactoryTest {
             fiatCurrency = "EUR",
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.PENDING_CONFIRMATION,
-            expirationDate = LAST_ORDER_DATE,
             kycVerificationState = null,
             currentScreen = FlowScreen.KYC
         )
@@ -547,7 +543,6 @@ class SimpleBuySyncFactoryTest {
             fiatCurrency = "EUR",
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.INITIALISED,
-            expirationDate = LAST_ORDER_DATE,
             kycVerificationState = null,
             currentScreen = FlowScreen.KYC
         )

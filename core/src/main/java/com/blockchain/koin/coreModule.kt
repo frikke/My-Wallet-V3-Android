@@ -11,6 +11,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
@@ -122,6 +123,13 @@ val coreModule = module {
                 balanceCallCache = get()
             )
         }.bind(TradingBalanceDataManager::class)
+
+        scoped {
+            BrokerageDataManager(
+                brokerageService = get(),
+                authenticator = get()
+            )
+        }
 
         scoped {
             LimitsDataManagerImpl(

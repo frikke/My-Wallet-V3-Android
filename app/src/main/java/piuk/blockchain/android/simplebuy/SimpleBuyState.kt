@@ -2,9 +2,11 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.core.custodial.models.Availability
+import com.blockchain.core.custodial.models.BrokerageQuote
+import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -22,7 +24,6 @@ import info.blockchain.balance.Money
 import java.io.Serializable
 import java.lang.IllegalStateException
 import java.math.BigInteger
-import java.util.Date
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
@@ -40,15 +41,12 @@ data class SimpleBuyState constructor(
     override val amount: FiatValue = FiatValue.zero(fiatCurrency),
     val selectedCryptoAsset: AssetInfo? = null,
     val orderState: OrderState = OrderState.UNINITIALISED,
-    private val expirationDate: Date? = null,
-    val custodialQuote: CustodialQuote? = null,
     val kycStartedButNotCompleted: Boolean = false,
     val kycVerificationState: KycState? = null,
     val currentScreen: FlowScreen = FlowScreen.ENTER_AMOUNT,
     val selectedPaymentMethod: SelectedPaymentMethod? = null,
-    val orderExchangePrice: FiatValue? = null,
+    val quote: BuyQuote? = null,
     val orderValue: CryptoValue? = null,
-    val fee: FiatValue? = null,
     val supportedFiatCurrencies: List<String> = emptyList(),
     val paymentSucceeded: Boolean = false,
     val showRating: Boolean = false,
@@ -79,9 +77,7 @@ data class SimpleBuyState constructor(
     val order: SimpleBuyOrder by unsafeLazy {
         SimpleBuyOrder(
             orderState,
-            amount,
-            expirationDate,
-            custodialQuote
+            amount
         )
     }
 
@@ -106,8 +102,18 @@ data class SimpleBuyState constructor(
     }
 
     @delegate:Transient
+    val coinHasZeroMargin: Boolean by unsafeLazy {
+        quote?.quoteMargin == 0.toDouble()
+    }
+
+    @delegate:Transient
     val buyOrderLimits: TxLimits by unsafeLazy {
         transferLimits ?: TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency))
+    }
+
+    @delegate:Transient
+    val exchangeRate: Money? by unsafeLazy {
+        quote?.price
     }
 
     override val limits: TxLimits
@@ -206,9 +212,7 @@ sealed class ErrorState : Serializable {
 
 data class SimpleBuyOrder(
     val orderState: OrderState = OrderState.UNINITIALISED,
-    val amount: FiatValue? = null,
-    val expirationDate: Date? = null,
-    val custodialQuote: CustodialQuote? = null
+    val amount: FiatValue? = null
 )
 
 data class PaymentOptions(
@@ -216,6 +220,35 @@ data class PaymentOptions(
     val canAddCard: Boolean = false,
     val canLinkFunds: Boolean = false,
     val canLinkBank: Boolean = false
+)
+
+data class BuyQuote(
+    val id: String,
+    val price: CryptoValue,
+    val availability: Availability,
+    val quoteMargin: Double,
+    val feeDetails: BuyFees
+) {
+    companion object {
+        fun fromBrokerageQuote(brokerageQuote: BrokerageQuote) =
+            BuyQuote(
+                id = brokerageQuote.id,
+                price = brokerageQuote.price as CryptoValue,
+                availability = brokerageQuote.availability,
+                quoteMargin = brokerageQuote.quoteMargin,
+                feeDetails = BuyFees(
+                    fee = brokerageQuote.feeDetails.fee as FiatValue,
+                    feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
+                    promo = brokerageQuote.feeDetails.promo
+                )
+            )
+    }
+}
+
+data class BuyFees(
+    val feeBeforePromo: FiatValue,
+    val fee: FiatValue,
+    val promo: Promo
 )
 
 data class SelectedPaymentMethod(

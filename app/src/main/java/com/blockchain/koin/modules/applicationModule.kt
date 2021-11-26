@@ -457,6 +457,7 @@ val applicationModule = module {
                 exchangeRatesDataManager = get(),
                 bankPartnerCallbackProvider = get(),
                 stripeAndCheckoutPaymentsFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
+                brokerageDataManager = get(),
                 cardProcessors = getCardProcessors().associateBy { it.acquirer }
             )
         }

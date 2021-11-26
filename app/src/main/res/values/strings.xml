@@ -249,7 +249,6 @@
     <string name="confirm_details">Confirm Payment</string>
 
     <string name="fee">Fee</string>
-    <string name="card_fee">Card fee</string>
     <string name="purchase">Purchase</string>
     <string name="exit_confirm">Press back button again to exit</string>
 
@@ -2162,7 +2161,8 @@
     <string name="kyc_upsell_custodial_dlg_cta">Verify Now</string>
 
     <!-- New checkout items -->
-    <string name="checkout_item_price_blurb">Blockchain.com provides the best market price we receive and applies a spread. <annotation link="learn_more">Learn more</annotation></string>
+    <string name="checkout_item_price_blurb">Blockchain.com provides the best market price we receive and applies a spread.</string>
+    <string name="checkout_item_price_blurb_zero_margin">Blockchain.com does not include additional spread in the price for the sale of %1$s.</string>
     <string name="checkout_item_price_fee">Blockchain.com requires a fee when paying with a card. <annotation link="learn_more">Learn more</annotation></string>
     <string name="checkout_item_private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
     <string name="checkout_item_private_key_wallet_explanation_1">%s Private Key wallets are not supported at this time.&#160;</string>
@@ -2190,6 +2190,7 @@
     <string name="checkout_one_erc_20_one_not_fee_note">%1$s is an ERC-20 token. Network fees are set by the %2$s and %3$s networks.</string>
     <string name="checkout_both_erc_20_fee_note">%1$s and %2$s are ERC-20 tokens. Network fees are set by the Ethereum network.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Learn more about fees.</annotation></string>
+    <string name="learn_more_annotated"><annotation link="learn_more_link">Learn more.</annotation></string>
     <string name="checkout_fee_free">When using Trading Accounts, there are no network fees</string>
     <string name="private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
     <string name="checkout_rewards_confirmation_disclaimer">After confirming this withdrawal, you will not continue to earn rewards on the amount withdrawn.\n\nYour %1$s will be available in your \"%2$s\" Account within 2 days.</string>
@@ -2472,4 +2473,6 @@
     <string name="kyc_upgrade_now_silver_description">Unlock Trade Accounts and Swap.</string>
     <string name="kyc_upgrade_now_silver_info">Unlock Swap - our in-app exchange. </string>
     <string name="kyc_upgrade_now_tier_state_under_review">In Manual Review</string>
+    <string name="blockchain_fee">Blockchain.com Fee</string>
+    <string name="new_user_fee_waiver">New User Fee Waiver</string>
 </resources>

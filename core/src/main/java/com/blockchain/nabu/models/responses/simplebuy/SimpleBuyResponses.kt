@@ -71,6 +71,7 @@ data class CurrencyFeeResponse(
 )
 
 data class CustodialWalletOrder(
+    private val quoteId: String,
     private val pair: String,
     private val action: String,
     private val input: OrderInput,

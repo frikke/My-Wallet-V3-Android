@@ -111,6 +111,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
 
         renderRecurringBuys(newState.recurringBuys, newState.assetDisplayMap ?: emptyMap())
+
         configureBuyButton(newState.assetDisplayMap ?: emptyMap(), newState.userBuyAccess)
 
         configureTimespanSelectionUI(binding, newState.timeSpan)
@@ -161,7 +162,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 getFiatSymbol(currencyPrefs.selectedFiatCurrency),
                 numOfDecimalsForChart(asset)
             )
-
+            buyCryptoBottomButton.gone()
             configureTabs(chartPricePeriods)
 
             currentPriceTitle.text =

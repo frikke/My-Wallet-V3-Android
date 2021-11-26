@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
@@ -12,6 +13,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardToBeActivated
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
 import com.blockchain.nabu.datamanagers.OrderInput
@@ -75,6 +77,7 @@ class SimpleBuyInteractor(
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val coincore: Coincore,
+    private val brokerageDataManager: BrokerageDataManager,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val stripeAndCheckoutPaymentsFeatureFlag: StripeAndCheckoutIntegratedFeatureFlag,
     private val cardProcessors: Map<CardAcquirer, CardProcessor>
@@ -145,23 +148,32 @@ class SimpleBuyInteractor(
         isPending: Boolean,
         recurringBuyFrequency: RecurringBuyFrequency?
     ): Single<SimpleBuyIntent.OrderCreated> =
-        custodialWalletManager.createOrder(
-            custodialWalletOrder = CustodialWalletOrder(
-                pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
-                action = "BUY",
-                input = OrderInput(
-                    amount.currencyCode, amount.toBigInteger().toString()
+        brokerageDataManager.quoteForTransaction(
+            pair = CurrencyPair.FiatToCryptoCurrencyPair(amount.currencyCode, cryptoAsset),
+            amount = amount,
+            paymentMethodType = paymentMethod,
+            paymentMethodId = paymentMethodId,
+            product = Product.BUY
+        ).flatMap { quote ->
+            custodialWalletManager.createOrder(
+                custodialWalletOrder = CustodialWalletOrder(
+                    quoteId = quote.id,
+                    pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
+                    action = Product.BUY.name,
+                    input = OrderInput(
+                        amount.currencyCode, amount.toBigInteger().toString()
+                    ),
+                    output = OrderOutput(
+                        cryptoAsset.networkTicker, null
+                    ),
+                    paymentMethodId = paymentMethodId,
+                    paymentType = paymentMethod.name,
+                    period = recurringBuyFrequency?.name
                 ),
-                output = OrderOutput(
-                    cryptoAsset.networkTicker, null
-                ),
-                paymentMethodId = paymentMethodId,
-                paymentType = paymentMethod.name,
-                period = recurringBuyFrequency?.name
-            ),
-            stateAction = if (isPending) "pending" else null
-        ).map {
-            SimpleBuyIntent.OrderCreated(it)
+                stateAction = if (isPending) PENDING else null
+            ).map {
+                SimpleBuyIntent.OrderCreated(buyOrder = it, quote = quote)
+            }
         }
 
     fun createRecurringBuyOrder(
@@ -201,17 +213,6 @@ class SimpleBuyInteractor(
             }.onErrorReturn {
                 SimpleBuyIntent.WithdrawLocksTimeUpdated()
             }
-
-    fun fetchQuote(asset: AssetInfo?, amount: Money?): Single<SimpleBuyIntent.QuoteUpdated> =
-        custodialWalletManager.getQuote(
-            asset = asset ?: throw IllegalStateException("Missing Cryptocurrency "),
-            fiatCurrency = amount?.currencyCode ?: throw IllegalStateException("Missing FiatCurrency "),
-            action = "BUY",
-            currency = amount.currencyCode,
-            amount = amount.toBigInteger().toString()
-        ).map {
-            SimpleBuyIntent.QuoteUpdated(it)
-        }
 
     fun pollForKycState(): Single<SimpleBuyIntent.KycStateUpdated> =
         tierService.tiers()
@@ -498,5 +499,6 @@ class SimpleBuyInteractor(
         private const val RETRIES_LONG = 20
         private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
         private const val NO_PAYMENT_TOKENS_ERROR = "Couldn't get any payment token"
+        private const val PENDING = "pending"
     }
 }

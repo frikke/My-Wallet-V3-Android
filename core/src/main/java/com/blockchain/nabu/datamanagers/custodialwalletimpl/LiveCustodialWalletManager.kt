@@ -19,7 +19,6 @@ import com.blockchain.nabu.datamanagers.CryptoTransaction
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialOrderState
-import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
 import com.blockchain.nabu.datamanagers.EveryPayCredentials
@@ -145,37 +144,6 @@ class LiveCustodialWalletManager(
 
     override val defaultFiatCurrency: String
         get() = currencyPrefs.defaultFiatCurrency
-
-    override fun getQuote(
-        asset: AssetInfo,
-        fiatCurrency: String,
-        action: String,
-        currency: String,
-        amount: String
-    ): Single<CustodialQuote> =
-        authenticator.authenticate {
-            nabuService.getSimpleBuyQuote(
-                sessionToken = it,
-                action = action,
-                currencyPair = "${asset.networkTicker}-$fiatCurrency",
-                currency = currency,
-                amount = amount
-            )
-        }.map { quoteResponse ->
-            val amountCrypto = CryptoValue.fromMajor(
-                asset,
-                (amount.toBigInteger().toFloat().div(quoteResponse.rate)).toBigDecimal()
-            )
-            CustodialQuote(
-                date = quoteResponse.time.toLocalTime(),
-                fee = FiatValue.fromMinor(
-                    fiatCurrency,
-                    quoteResponse.fee.times(amountCrypto.toBigInteger().toLong())
-                ),
-                estimatedAmount = amountCrypto,
-                rate = FiatValue.fromMinor(fiatCurrency, quoteResponse.rate)
-            )
-        }
 
     override fun createOrder(
         custodialWalletOrder: CustodialWalletOrder,
@@ -1553,18 +1521,12 @@ enum class OrderType {
 }
 
 private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue): BuySellOrder {
-    val fiatCurrency = if (type() == OrderType.SELL) outputCurrency else inputCurrency
-    val cryptoCurrency =
-        assetCatalogue.fromNetworkTicker(
-            if (type() == OrderType.SELL) inputCurrency else outputCurrency
-        ) ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
-    val fiatAmount = if (type() == OrderType.SELL) {
-        outputQuantity.toLongOrDefault(0)
-    } else {
-        inputQuantity.toLongOrDefault(0)
-    }
-    val cryptoAmount =
-        if (type() == OrderType.SELL) inputQuantity.toBigInteger() else outputQuantity.toBigInteger()
+    val fiatCurrency = inputCurrency
+    val cryptoCurrency = assetCatalogue.fromNetworkTicker(outputCurrency) ?: throw UnknownFormatConversionException(
+        "Unknown Crypto currency: $inputCurrency"
+    )
+    val fiatAmount = inputQuantity.toLongOrDefault(0)
+    val cryptoAmount = outputQuantity.toBigInteger()
 
     return BuySellOrder(
         id = id,
@@ -1589,10 +1551,7 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         price = price?.let {
             FiatValue.fromMinor(fiatCurrency, it.toLong())
         },
-        orderValue = if (type() == OrderType.SELL)
-            FiatValue.fromMinor(outputCurrency, outputQuantity.toLongOrDefault(0))
-        else
-            CryptoValue.fromMinor(cryptoCurrency, cryptoAmount),
+        orderValue = CryptoValue.fromMinor(cryptoCurrency, cryptoAmount),
         attributes = attributes?.toPaymentAttributes(),
         type = type(),
         depositPaymentId = depositPaymentId.orEmpty(),

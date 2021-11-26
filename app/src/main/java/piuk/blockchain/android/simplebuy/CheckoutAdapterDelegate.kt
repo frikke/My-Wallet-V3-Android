@@ -2,7 +2,10 @@ package piuk.blockchain.android.simplebuy
 
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemCheckoutComplexInfoBinding
@@ -31,7 +34,12 @@ sealed class SimpleBuyCheckoutItem {
     data class ComplexCheckoutItem(val label: String, val title: String, val subtitle: String) :
         SimpleBuyCheckoutItem()
 
-    data class ExpandableCheckoutItem(val label: String, val title: String, val expandableContent: CharSequence) :
+    data class ExpandableCheckoutItem(
+        val label: String,
+        val title: String,
+        val expandableContent: CharSequence,
+        val promoLayout: View? = null
+    ) :
         SimpleBuyCheckoutItem()
 }
 
@@ -153,7 +161,50 @@ private class ExpandableCheckoutItemViewHolder(
             expandableItemLabel.text = item.label
             expandableItemTitle.text = item.title
             expandableItemExpansion.text = item.expandableContent
+            item.promoLayout?.let { view ->
+                addPromoView(view)
+            }
         }
+    }
+
+    private fun addPromoView(
+        view: View
+    ) {
+        view.id = View.generateViewId()
+        binding.root.addView(
+            view, ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(binding.root)
+        constraintSet.connect(
+            view.id,
+            ConstraintSet.START,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.START,
+            view.resources.getDimensionPixelOffset(R.dimen.standard_margin)
+        )
+        constraintSet.connect(
+            view.id,
+            ConstraintSet.END,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.END,
+            view.resources.getDimensionPixelOffset(R.dimen.standard_margin)
+        )
+        constraintSet.connect(
+            view.id,
+            ConstraintSet.TOP,
+            binding.expandableItemTitle.id,
+            ConstraintSet.BOTTOM,
+            view.resources.getDimensionPixelOffset(R.dimen.tiny_margin)
+        )
+        constraintSet.connect(
+            binding.expandableItemExpansion.id,
+            ConstraintSet.TOP,
+            view.id,
+            ConstraintSet.BOTTOM,
+            view.resources.getDimensionPixelOffset(R.dimen.smallest_margin)
+        )
+        constraintSet.applyTo(binding.root)
     }
 
     companion object {

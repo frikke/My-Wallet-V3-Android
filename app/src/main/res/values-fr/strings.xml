@@ -1448,7 +1448,6 @@ SafeConnect partagera ces détails avec votre banque, qui vous demandera ensuite
     <string name="debug_app_shortcut_short">BC Opts</string>
     <string name="landing_log_in">Se connecter</string>
     <string name="landing_version">v%1$s (%2$d) %3$s</string>
-    <string name="card_fee">Frais de carte</string>
     <string name="purchase">Achat</string>
     <string name="receive_share_title">Partager l\'adresse %1$s via :</string>
     <string name="camera_setup_failed">La caméra n\'a pas pu être ouverte. Veuillez vérifier vos autorisations</string>

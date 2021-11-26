@@ -1,6 +1,10 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.custodial.models.Availability
+import com.blockchain.core.custodial.models.BrokerageQuote
+import com.blockchain.core.custodial.models.Promo
+import com.blockchain.core.custodial.models.QuoteFee
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
@@ -137,6 +141,17 @@ class SimpleBuyModelTest {
                         pair = "USD-BTC",
                         type = OrderType.BUY,
                         depositPaymentId = ""
+                    ),
+                    BrokerageQuote(
+                        id = "id",
+                        price = CryptoValue.zero(CryptoCurrency.BTC),
+                        quoteMargin = 4.0,
+                        availability = Availability.INSTANT,
+                        feeDetails = QuoteFee(
+                            fee = CryptoValue.zero(CryptoCurrency.BTC),
+                            feeBeforePromo = CryptoValue.zero(CryptoCurrency.BTC),
+                            promo = Promo.NO_PROMO
+                        )
                     )
                 )
             )
@@ -145,8 +160,7 @@ class SimpleBuyModelTest {
         val expectedState = defaultState.copy(
             orderState = OrderState.AWAITING_FUNDS,
             id = "testId",
-            orderValue = CryptoValue.zero(CryptoCurrency.BTC),
-            expirationDate = date
+            orderValue = CryptoValue.zero(CryptoCurrency.BTC)
         )
 
         model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
@@ -219,17 +233,14 @@ class SimpleBuyModelTest {
             .awaitCount(5)
             .assertValueAt(0) { it == defaultState }
             .assertValueAt(1) { it == defaultState.copy(isLoading = true) }
-            .assertValueAt(2) { it == defaultState.copy(orderExchangePrice = price) }
-            .assertValueAt(3) {
+            .assertValueAt(2) {
                 it == defaultState.copy(
-                    orderExchangePrice = price,
                     cardAcquirerCredentials = CardAcquirerCredentials.Everypay(
                         paymentLink,
                         redirectUrl
                     )
                 )
             }
-            .assertValueAt(4) { it == defaultState.copy(orderExchangePrice = price) }
     }
 
     @Test

@@ -67,14 +67,6 @@ interface CustodialWalletManager {
 
     fun getSupportedFiatCurrencies(): Single<List<String>>
 
-    fun getQuote(
-        asset: AssetInfo,
-        fiatCurrency: String,
-        action: String,
-        currency: String,
-        amount: String
-    ): Single<CustodialQuote>
-
     fun fetchFiatWithdrawFeeAndMinLimit(
         asset: String,
         product: Product,
@@ -533,13 +525,6 @@ data class BuySellLimits(private val min: Long, private val max: Long) {
     fun maxLimit(currency: String): FiatValue = FiatValue.fromMinor(currency, max)
 }
 
-data class CustodialQuote(
-    val date: Date,
-    val fee: FiatValue,
-    val estimatedAmount: CryptoValue,
-    val rate: FiatValue
-)
-
 enum class TransferDirection {
     ON_CHAIN, // from non-custodial to non-custodial
     FROM_USERKEY, // from non-custodial to custodial
@@ -821,23 +806,41 @@ sealed class CurrencyPair(val rawValue: String) {
     data class CryptoToFiatCurrencyPair(val source: AssetInfo, val destination: String) :
         CurrencyPair("${source.networkTicker}-$destination")
 
+    data class FiatToCryptoCurrencyPair(val source: String, val destination: AssetInfo) :
+        CurrencyPair("$source-${destination.networkTicker}")
+
     fun toSourceMoney(value: BigInteger): Money =
         when (this) {
             is CryptoCurrencyPair -> CryptoValue.fromMinor(source, value)
             is CryptoToFiatCurrencyPair -> CryptoValue.fromMinor(source, value)
+            is FiatToCryptoCurrencyPair -> FiatValue.fromMinor(source, value.toLong())
         }
 
     fun toDestinationMoney(value: BigInteger): Money =
         when (this) {
             is CryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
             is CryptoToFiatCurrencyPair -> FiatValue.fromMinor(destination, value.toLong())
+            is FiatToCryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
         }
 
     fun toDestinationMoney(value: BigDecimal): Money =
         when (this) {
             is CryptoCurrencyPair -> CryptoValue.fromMajor(destination, value)
             is CryptoToFiatCurrencyPair -> FiatValue.fromMajor(destination, value)
+            is FiatToCryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
         }
+
+    fun sourceCurrencyCode(): String = when (this) {
+        is CryptoCurrencyPair -> source.networkTicker
+        is CryptoToFiatCurrencyPair -> source.networkTicker
+        is FiatToCryptoCurrencyPair -> source
+    }
+
+    fun destinationCurrencyCode(): String = when (this) {
+        is CryptoCurrencyPair -> destination.networkTicker
+        is CryptoToFiatCurrencyPair -> destination
+        is FiatToCryptoCurrencyPair -> destination.networkTicker
+    }
 
     companion object {
         fun fromRawPair(

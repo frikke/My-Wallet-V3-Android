@@ -180,15 +180,12 @@ fun BuySellOrder.toSimpleBuyState(): SimpleBuyState =
         fiatCurrency = fiat.currencyCode,
         selectedCryptoAsset = crypto.currency,
         orderState = state,
-        fee = fee,
         orderValue = orderValue as? CryptoValue,
-        orderExchangePrice = price,
         selectedPaymentMethod = SelectedPaymentMethod(
             id = paymentMethodId,
             paymentMethodType = paymentMethodType,
             isEligible = true
         ),
-        expirationDate = expires,
         currentScreen = configureCurrentScreen(state)
     )
 

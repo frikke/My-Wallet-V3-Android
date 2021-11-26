@@ -45,7 +45,7 @@ class LauncherPresenter internal constructor(
         ) {
             prefs.setValue(PersistentPrefs.KEY_SCHEME_URL, viewIntentData.data)
         }
-        if (viewIntentData?.action == Intent.ACTION_VIEW && viewIntentData.data != null) {
+        if (viewIntentData?.data != null) {
             deepLinkPersistence.pushDeepLink(viewIntentData.data)
         }
 

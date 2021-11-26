@@ -1525,7 +1525,6 @@ A SafeConnect partilhará estes detalhes com o seu banco, onde lhe será então 
     <string name="debug_app_shortcut_short">Opções BC</string>
     <string name="landing_log_in">Iniciar sessão</string>
     <string name="landing_version">v%1$s (%2$d) %3$s</string>
-    <string name="card_fee">Taxa do cartão</string>
     <string name="purchase">Comprar</string>
     <string name="receive_share_title">Partilhar o endereço de %1$s via:</string>
     <string name="camera_setup_failed">Não foi possível abrir a câmara. Verifique as suas permissões</string>

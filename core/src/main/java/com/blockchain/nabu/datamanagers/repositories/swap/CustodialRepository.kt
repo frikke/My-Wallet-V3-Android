@@ -38,6 +38,9 @@ class CustodialRepository(pairsProvider: TradingPairsProvider, activityProvider:
                     is CurrencyPair.CryptoToFiatCurrencyPair ->
                         it.currencyPair.source == cryptoCurrency &&
                             directions.contains(it.direction)
+                    is CurrencyPair.FiatToCryptoCurrencyPair -> throw IllegalArgumentException(
+                        "No swap allowed from fiat->crypto"
+                    )
                 }
             }
         }

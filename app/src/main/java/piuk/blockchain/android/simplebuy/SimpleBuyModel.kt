@@ -151,14 +151,6 @@ class SimpleBuyModel(
                     onError = { /*never fails. will return SimpleBuyIntent.KycStateUpdated(KycState.FAILED)*/ }
                 )
 
-            is SimpleBuyIntent.FetchQuote -> interactor.fetchQuote(
-                previousState.selectedCryptoAsset,
-                previousState.order.amount
-            ).subscribeBy(
-                onSuccess = { process(it) },
-                onError = { process(SimpleBuyIntent.ErrorIntent()) }
-            )
-
             is SimpleBuyIntent.LinkBankTransferRequested -> interactor.linkNewBank(previousState.fiatCurrency)
                 .trackProgress(activityIndicator)
                 .subscribeBy(
@@ -231,7 +223,6 @@ class SimpleBuyModel(
                             process(SimpleBuyIntent.ErrorIntent())
                         },
                         onSuccess = {
-                            process(SimpleBuyIntent.OrderPriceUpdated(it.price))
                             if (it.attributes != null) {
                                 handleOrderAttrs(it)
                             } else {
@@ -666,7 +657,7 @@ class SimpleBuyModel(
                         updatePersistingCountersForCompletedOrders()
                     }
                     process(
-                        SimpleBuyIntent.OrderCreated(
+                        SimpleBuyIntent.OrderConfirmed(
                             buySellOrder, shouldShowAppRating(orderCreatedSuccessfully)
                         )
                     )

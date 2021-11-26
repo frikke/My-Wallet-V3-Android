@@ -1,10 +1,10 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.BuySellOrder
-import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -39,11 +39,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object ResetLinkBankTransfer : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(linkBankTransfer = null, newPaymentMethodToBeAdded = null)
-    }
-
-    class OrderPriceUpdated(private val price: FiatValue?) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(orderExchangePrice = price, isLoading = false)
     }
 
     class UpdateErrorState(private val errorState: TransactionErrorState) : SimpleBuyIntent() {
@@ -160,12 +155,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
-    data class QuoteUpdated(private val custodialQuote: CustodialQuote) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
-            return oldState.copy(custodialQuote = custodialQuote)
-        }
-    }
-
     data class InitialiseSelectedCryptoAndFiat(val asset: AssetInfo, val fiatCurrency: String) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(selectedCryptoAsset = asset, fiatCurrency = fiatCurrency)
@@ -268,8 +257,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(kycVerificationState = KycState.PENDING)
     }
 
-    object FetchQuote : SimpleBuyIntent()
-
     class KycStateUpdated(val kycState: KycState) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(kycVerificationState = kycState)
@@ -300,18 +287,34 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class OrderCreated(
         private val buyOrder: BuySellOrder,
+        private val quote: BrokerageQuote
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                orderState = buyOrder.state,
+                id = buyOrder.id,
+                quote = BuyQuote.fromBrokerageQuote(quote),
+                orderValue = buyOrder.orderValue as CryptoValue,
+                paymentSucceeded = buyOrder.state == OrderState.FINISHED,
+                isLoading = false,
+                recurringBuyState = if (buyOrder.recurringBuyId.isNullOrBlank()) {
+                    RecurringBuyState.UNINITIALISED
+                } else {
+                    RecurringBuyState.ACTIVE
+                }
+            )
+    }
+
+    class OrderConfirmed(
+        private val buyOrder: BuySellOrder,
         private val showInAppRating: Boolean = false
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 orderState = buyOrder.state,
-                expirationDate = buyOrder.expires,
-                id = buyOrder.id,
-                fee = buyOrder.fee,
-                orderValue = buyOrder.orderValue as CryptoValue,
-                orderExchangePrice = buyOrder.price,
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,
+                orderValue = buyOrder.orderValue as CryptoValue,
                 showRating = showInAppRating,
                 recurringBuyState = if (buyOrder.recurringBuyId.isNullOrBlank()) {
                     RecurringBuyState.UNINITIALISED
@@ -439,6 +442,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 eligibleAndNextPaymentRecurringBuy = eligibilityNextPaymentList
             )
     }
+
     class TxLimitsUpdated(private val limits: TxLimits) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(

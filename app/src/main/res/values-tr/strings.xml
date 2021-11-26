@@ -1548,7 +1548,6 @@ SafeConnect bu ayrıntıları bankanızla paylaşacak ve sizden aşağıdaki öd
     <string name="debug_app_shortcut_short">BC Tercihleri</string>
     <string name="landing_log_in">Oturum aç</string>
     <string name="landing_version">v%1$s (%2$d) %3$s</string>
-    <string name="card_fee">Kart ücreti</string>
     <string name="purchase">Satın al</string>
     <string name="receive_share_title">%1$s adresini şununla paylaşın:</string>
     <string name="camera_setup_failed">Kamera açılamadı. Lütfen izinlerinizi kontrol edin</string>

@@ -1484,7 +1484,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="debug_app_shortcut_short">Опции BC</string>
     <string name="landing_log_in">Войти</string>
     <string name="landing_version">v%1$s (%2$d) %3$s</string>
-    <string name="card_fee">Комиссия за карту</string>
     <string name="purchase">Купить</string>
     <string name="receive_share_title">Поделиться %1$s через:</string>
     <string name="camera_setup_failed">Не удалось открыть камеру. Пожалуйста, проверьте свои разрешения</string>

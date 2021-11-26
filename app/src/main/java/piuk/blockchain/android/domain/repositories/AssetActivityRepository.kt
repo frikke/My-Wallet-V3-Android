@@ -129,6 +129,7 @@ class AssetActivityRepository(
                     val pair = it.currencyPair as CurrencyPair.CryptoToFiatCurrencyPair
                     pair.source == asset && it.txId == txHash
                 }
+                is CurrencyPair.FiatToCryptoCurrencyPair -> throw IllegalArgumentException("Source should be crypto")
             }
         }
 

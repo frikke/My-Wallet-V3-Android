@@ -8,6 +8,7 @@ import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
+import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.interest.InterestApiInterface
@@ -18,6 +19,7 @@ import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
+import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.NabuUserService
@@ -186,6 +188,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(CustodialBalanceApi::class.java)
         CustodialBalanceService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(BrokerageApi::class.java)
+        BrokerageService(
             api = api
         )
     }
