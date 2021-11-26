@@ -1,11 +1,11 @@
 package com.blockchain.componentlib.navigation
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,14 +22,17 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,12 +62,14 @@ fun BottomNavigationBar(
     bottomNavigationState: BottomNavigationState = BottomNavigationState.Add,
     isPulseAnimationEnabled: Boolean = false
 ) {
-    val rotation by animateFloatAsState(
-        targetValue = when (bottomNavigationState) {
-            BottomNavigationState.Add -> 0f
-            BottomNavigationState.Cancel -> 135f
+    var isPressed by remember { mutableStateOf(false) }
+
+    val scaling by animateFloatAsState(
+        targetValue = when (isPressed) {
+            true -> 0.75f
+            false -> 1f
         },
-        animationSpec = tween(durationMillis = 300)
+        animationSpec = tween(durationMillis = 300, easing = LinearEasing)
     )
 
     val backgroundColor: Color = if (!isSystemInDarkTheme()) {
@@ -108,12 +113,21 @@ fun BottomNavigationBar(
                         if (index == middleIndex) {
                             Box(
                                 modifier = Modifier
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null,
-                                        onClick = onMiddleButtonClick
-                                    )
-                                    .weight(1f),
+                                    .weight(1f)
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onPress = {
+                                                isPressed = true
+                                                try {
+                                                    awaitRelease()
+                                                } finally {
+                                                    isPressed = false
+                                                    onMiddleButtonClick()
+                                                }
+                                            }
+                                        )
+                                    }
+                                    .scale(scaling),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Crossfade(targetState = bottomNavigationState) { state ->
@@ -131,8 +145,7 @@ fun BottomNavigationBar(
                                 Image(
                                     modifier = Modifier
                                         .size(22.dp)
-                                        .align(Alignment.Center)
-                                        .rotate(rotation),
+                                        .align(Alignment.Center),
                                     painter = painterResource(R.drawable.ic_bottom_nav_plus),
                                     contentDescription = null,
                                     colorFilter = ColorFilter.tint(backgroundColor)
