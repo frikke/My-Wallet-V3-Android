@@ -38,7 +38,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
                 coin = any(),
                 addressListLegacy = any(),
                 addressListBech32 = any(),
-                context = any(),
+                onlyShow = any(),
                 filter = any(),
                 limit = any(),
                 offset = any()
@@ -78,7 +78,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
                 coin = any(),
                 addressListLegacy = any(),
                 addressListBech32 = any(),
-                context = eq(null),
+                onlyShow = eq(null),
                 filter = any(),
                 limit = any(),
                 offset = any()

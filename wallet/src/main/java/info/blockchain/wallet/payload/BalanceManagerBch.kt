@@ -18,7 +18,7 @@ class BalanceManagerBch(
             NonCustodialBitcoinService.BITCOIN_CASH,
             xpubs.legacyXpubAddresses(),
             emptyList(),
-            NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable
+            NonCustodialBitcoinService.BalanceFilter.Confirmed
         )
     }
 }

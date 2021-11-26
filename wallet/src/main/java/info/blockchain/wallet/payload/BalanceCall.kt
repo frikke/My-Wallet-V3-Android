@@ -38,7 +38,7 @@ class BalanceCall(
             asset.networkTicker.toLowerCase(Locale.ROOT),
             addresses,
             emptyList(),
-            NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable
+            NonCustodialBitcoinService.BalanceFilter.Confirmed
         )
 
     private fun getBalanceOfXpubs(legacyAddresses: List<String>, segwitAddresses: List<String>) =
@@ -46,7 +46,7 @@ class BalanceCall(
             asset.networkTicker.toLowerCase(Locale.ROOT),
             legacyAddresses,
             segwitAddresses,
-            NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable
+            NonCustodialBitcoinService.BalanceFilter.Confirmed
         )
 
     private fun buildBalanceMap(response: Response<BalanceResponseDto>): Map<String, BigInteger> {

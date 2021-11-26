@@ -75,7 +75,7 @@ abstract class MultiAddressFactory(
         xpubs: List<XPubs>,
         limit: Int,
         offset: Int,
-        context: List<String>?
+        onlyShow: List<String>?
     ): Call<MultiAddress>
 
     fun getNextChangeAddressIndex(xpub: String): Int =

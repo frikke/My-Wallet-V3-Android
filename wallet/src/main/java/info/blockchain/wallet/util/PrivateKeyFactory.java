@@ -157,7 +157,7 @@ public class PrivateKeyFactory {
                 NonCustodialBitcoinService.BITCOIN,
                 list,
                 Collections.emptyList(),
-                NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable
+                NonCustodialBitcoinService.BalanceFilter.Confirmed
             ).execute();
 
             if (!exe.isSuccessful()) {

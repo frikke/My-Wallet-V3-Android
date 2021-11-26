@@ -20,7 +20,7 @@ class BalanceManagerBtc(
             NonCustodialBitcoinService.BITCOIN,
             xpubs.legacyXpubAddresses(),
             xpubs.segwitXpubAddresses(),
-            NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable
+            NonCustodialBitcoinService.BalanceFilter.Confirmed
         )
     }
 }

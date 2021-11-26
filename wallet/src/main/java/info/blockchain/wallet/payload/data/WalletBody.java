@@ -490,7 +490,7 @@ public class WalletBody {
             NonCustodialBitcoinService.BITCOIN,
             purpose == Derivation.LEGACY_PURPOSE ? xpubs : Collections.emptyList(),
             purpose == Derivation.SEGWIT_BECH32_PURPOSE ? xpubs : Collections.emptyList(),
-            NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable
+            NonCustodialBitcoinService.BalanceFilter.Confirmed
         ).execute();
 
         if (!exe.isSuccessful()) {

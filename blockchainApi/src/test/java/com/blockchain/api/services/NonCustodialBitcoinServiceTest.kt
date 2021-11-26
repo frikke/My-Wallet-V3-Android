@@ -68,7 +68,7 @@ class NonCustodialBitcoinServiceTest {
                 NonCustodialBitcoinService.BITCOIN,
                 legacyAddresses,
                 bech32Addresses,
-                4,
+                NonCustodialBitcoinService.BalanceFilter.DoNotFilter.filterInt,
                 apiCode
             )
         ).thenReturn(balanceResponse)
@@ -77,13 +77,13 @@ class NonCustodialBitcoinServiceTest {
             NonCustodialBitcoinService.BITCOIN,
             listLegacy,
             listBech32,
-            NonCustodialBitcoinService.BalanceFilter.All
+            NonCustodialBitcoinService.BalanceFilter.DoNotFilter
         )
         verify(api).getBalance(
             NonCustodialBitcoinService.BITCOIN,
             legacyAddresses,
             bech32Addresses,
-            4,
+            NonCustodialBitcoinService.BalanceFilter.DoNotFilter.filterInt,
             apiCode
         )
         val response = result.execute().body()!!
@@ -181,7 +181,7 @@ class NonCustodialBitcoinServiceTest {
                 bech32Addresses,
                 20,
                 0,
-                4,
+                NonCustodialBitcoinService.BalanceFilter.DoNotFilter.filterInt,
                 null,
                 apiCode
             )
@@ -192,7 +192,7 @@ class NonCustodialBitcoinServiceTest {
             list,
             listP2SH,
             null,
-            NonCustodialBitcoinService.BalanceFilter.All,
+            NonCustodialBitcoinService.BalanceFilter.DoNotFilter,
             20,
             0
         )
@@ -203,7 +203,7 @@ class NonCustodialBitcoinServiceTest {
             bech32Addresses,
             20,
             0,
-            4,
+            NonCustodialBitcoinService.BalanceFilter.DoNotFilter.filterInt,
             null,
             apiCode
         )

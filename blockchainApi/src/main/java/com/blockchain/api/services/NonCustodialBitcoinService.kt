@@ -16,9 +16,14 @@ class NonCustodialBitcoinService internal constructor(
     private val apiCode: String
 ) {
     enum class BalanceFilter(val filterInt: Int) {
-        All(4),
-        ConfirmedOnly(5),
-        RemoveUnspendable(6);
+        DoNotFilter(0),
+        Sent(1), // (result + fee < 0)
+        Received(2), // (result + fee > 0)
+        Transfer(3), // (result + fee = 0)
+        // 4 - is an invalid filter code
+        Confirmed(5),
+        // 6 - is a NO-OP code, should be same as 0
+        Unconfirmed(7);
     }
 
     /**
@@ -86,7 +91,7 @@ class NonCustodialBitcoinService internal constructor(
      * @param filter the filter for transactions selection, use null to indicate default
      * @param limit an integer to limit number of transactions to display, use null to indicate default
      * @param offset an integer to set number of transactions to skip when fetch
-     * @param context A context for the results
+     * @param onlyShow A context for the results
      * @return [Call] object which can be executed synchronously or asynchronously to return a
      * response object
      */
@@ -94,7 +99,7 @@ class NonCustodialBitcoinService internal constructor(
         coin: String,
         addressListLegacy: List<String>,
         addressListBech32: List<String>,
-        context: String?,
+        onlyShow: String?,
         filter: BalanceFilter,
         limit: Int,
         offset: Int
@@ -103,14 +108,14 @@ class NonCustodialBitcoinService internal constructor(
         val bech32Addresses = addressListBech32.joinToString("|")
 
         return api.getMultiAddress(
-            coin,
-            legacyAddresses,
-            bech32Addresses,
-            limit,
-            offset,
-            filter.filterInt,
-            context,
-            apiCode
+            coin = coin,
+            activeLegacy = legacyAddresses,
+            activeBech32 = bech32Addresses,
+            limit = limit,
+            offset = offset,
+            filter = filter.filterInt,
+            onlyShow = onlyShow,
+            apiCode = apiCode
         )
     }
 

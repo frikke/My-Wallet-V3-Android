@@ -11,8 +11,17 @@ internal fun Transaction.toTransactionSummary(
     latestBlock: Int
 ): TransactionSummary? {
 
-    val blockHeight: Long = this.blockHeight ?: return null
-    if (blockHeight != 0L && blockHeight < startingBlockHeight) {
+    /*
+     * startingBlockHeight is only ever returned as a non-zero value for BCH - due to a fork
+     * if this value is 0 (for BTC), then we want to let the function complete, so that we can see unconfirmed
+     * transactions in activity
+     */
+
+    val blockHeight: Long? = this.blockHeight
+
+    // check for a null blockHeight and the startingBlockHeight param - so only return here for BCH, this might
+    // still cause BCH transactions in the mempool (unconfirmed) to not show up in Activity
+    if (blockHeight != null && blockHeight < startingBlockHeight) {
         // Filter out txs before blockHeight (mainly for BCH)
         // Block height will be 0 until included in a block
         return null
@@ -124,7 +133,8 @@ internal fun Transaction.toTransactionSummary(
             )
         },
         confirmations =
-        if (latestBlock > 0 && blockHeight > 0) {
+        // if blockHeight is null, the transaction is in the mempool, so show 0 confirmations
+        if (blockHeight != null && latestBlock > 0 && blockHeight > 0) {
             (latestBlock - blockHeight + 1).toInt()
         } else {
             0
