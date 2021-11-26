@@ -75,7 +75,6 @@ fun DefaultCard(
 
                 Text(
                     modifier = Modifier
-                        .background(backgroundColor)
                         .padding(top = 23.dp),
                     text = title,
                     style = AppTheme.typography.title3,
@@ -84,7 +83,6 @@ fun DefaultCard(
 
                 Text(
                     modifier = Modifier
-                        .background(backgroundColor)
                         .padding(top = 8.dp),
                     text = subtitle,
                     style = AppTheme.typography.paragraph1,

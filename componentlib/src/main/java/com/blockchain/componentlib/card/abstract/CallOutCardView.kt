@@ -10,6 +10,8 @@ import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.card.CallOutCard
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class CallOutCardView @JvmOverloads constructor(
     context: Context,
@@ -24,11 +26,15 @@ class CallOutCardView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        CallOutCard(
-            title = title,
-            subtitle = subtitle,
-            iconResource = iconResource,
-            callToActionButton = callToActionButton
-        )
+        AppTheme {
+            AppSurface {
+                CallOutCard(
+                    title = title,
+                    subtitle = subtitle,
+                    iconResource = iconResource,
+                    callToActionButton = callToActionButton
+                )
+            }
+        }
     }
 }

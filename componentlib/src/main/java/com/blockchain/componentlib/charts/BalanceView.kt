@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.card.abstract
+package com.blockchain.componentlib.charts
 
 import android.content.Context
 import android.util.AttributeSet
@@ -7,31 +7,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
-import com.blockchain.componentlib.card.AnnouncementCard
-import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
-class AnnouncementCardView @JvmOverloads constructor(
+class BalanceView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var title by mutableStateOf("")
-    var subtitle by mutableStateOf("")
-    var iconResource: ImageResource by mutableStateOf(ImageResource.None)
-    var onClose by mutableStateOf({})
+    var title by mutableStateOf("Current Balance")
+    var price by mutableStateOf("$0.00")
+    var percentageChangeData by mutableStateOf(PercentageChangeData("$0.00", 0.0, ""))
 
     @Composable
     override fun Content() {
         AppTheme {
             AppSurface {
-                AnnouncementCard(
+                Balance(
                     title = title,
-                    subtitle = subtitle,
-                    iconResource = iconResource,
-                    onClose = onClose
+                    price = price,
+                    percentageChangeData = percentageChangeData
                 )
             }
         }

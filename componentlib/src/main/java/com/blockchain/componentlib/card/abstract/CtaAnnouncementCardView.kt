@@ -12,6 +12,8 @@ import androidx.compose.ui.text.AnnotatedString
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.CtaAnnouncementCard
 import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class CtaAnnouncementCardView @JvmOverloads constructor(
     context: Context,
@@ -32,15 +34,19 @@ class CtaAnnouncementCardView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        CtaAnnouncementCard(
-            header = header,
-            subheader = subheader,
-            title = title,
-            body = body,
-            borderColor = borderColor,
-            iconResource = iconResource,
-            callToActionButton = callToActionButton,
-            onClose = onClose
-        )
+        AppTheme {
+            AppSurface {
+                CtaAnnouncementCard(
+                    header = header,
+                    subheader = subheader,
+                    title = title,
+                    body = body,
+                    borderColor = borderColor,
+                    iconResource = iconResource,
+                    callToActionButton = callToActionButton,
+                    onClose = onClose
+                )
+            }
+        }
     }
 }

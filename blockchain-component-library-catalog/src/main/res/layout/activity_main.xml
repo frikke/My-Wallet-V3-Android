@@ -269,6 +269,19 @@
             android:text="Cards"
             android:textAllCaps="false" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Charts"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/charts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Charts"
+            android:textAllCaps="false" />
+
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"

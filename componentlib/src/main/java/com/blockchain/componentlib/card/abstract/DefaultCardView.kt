@@ -10,6 +10,8 @@ import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.DefaultCard
 import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class DefaultCardView @JvmOverloads constructor(
     context: Context,
@@ -25,12 +27,16 @@ class DefaultCardView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        DefaultCard(
-            title = title,
-            subtitle = subtitle,
-            iconResource = iconResource,
-            callToActionButton = callToActionButton,
-            onClose = onClose
-        )
+        AppTheme {
+            AppSurface {
+                DefaultCard(
+                    title = title,
+                    subtitle = subtitle,
+                    iconResource = iconResource,
+                    callToActionButton = callToActionButton,
+                    onClose = onClose
+                )
+            }
+        }
     }
 }
