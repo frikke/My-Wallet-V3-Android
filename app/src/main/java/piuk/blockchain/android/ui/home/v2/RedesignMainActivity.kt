@@ -77,7 +77,6 @@ import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import piuk.blockchain.android.ui.upsell.UpsellHost
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.gone
@@ -88,7 +87,6 @@ class RedesignMainActivity :
     MviActivity<RedesignModel, RedesignIntent, RedesignState, ActivityRedesignMainBinding>(),
     HomeNavigator,
     SlidingModalBottomDialog.Host,
-    UpsellHost,
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
     RedesignActionsBottomSheet.Host,
@@ -121,6 +119,12 @@ class RedesignMainActivity :
                 )?.let { action ->
                 startSettingsAction(action)
             }
+        }
+    }
+
+    private val kycUpsellContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            launchKyc(CampaignType.None)
         }
     }
 
@@ -564,10 +568,6 @@ class RedesignMainActivity :
         }
     }
 
-    override fun startUpsellKyc() {
-        launchKyc(CampaignType.None)
-    }
-
     override fun onSheetClosed() {
         binding.bottomNavigation.bottomNavigationState = BottomNavigationState.Add
         Timber.d("On closed")
@@ -589,7 +589,7 @@ class RedesignMainActivity :
 
     override fun launchSwap(sourceAccount: CryptoAccount?, targetAccount: CryptoAccount?) {
         if (sourceAccount == null && targetAccount == null) {
-            ActionActivity.start(this, AssetAction.Swap)
+            startActivity(ActionActivity.newIntent(this, AssetAction.Swap))
         } else if (sourceAccount != null) {
             startActivity(
                 TransactionFlowActivity.newInstance(
@@ -643,9 +643,9 @@ class RedesignMainActivity :
         OnboardingActivity.launchForFingerprints(this)
     }
 
-    override fun launchReceive() = ActionActivity.start(this, AssetAction.Receive)
+    override fun launchReceive() = kycUpsellContract.launch(ActionActivity.newIntent(this, AssetAction.Receive))
 
-    override fun launchSend() = ActionActivity.start(this, AssetAction.Send)
+    override fun launchSend() = startActivity(ActionActivity.newIntent(this, AssetAction.Send))
 
     override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_buy_sell))

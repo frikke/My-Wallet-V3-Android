@@ -14,10 +14,11 @@ import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
+import piuk.blockchain.android.ui.upsell.UpsellHost
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 
-class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host {
+class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, UpsellHost {
 
     override val alwaysDisableScreenshots: Boolean
         get() = true
@@ -83,17 +84,20 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host {
         binding.progress.pauseAnimation()
     }
 
+    override fun startUpsellKyc() {
+        setResult(RESULT_OK)
+        finish()
+    }
+
     override fun onSheetClosed() {
         // do nothing
     }
 
     companion object {
         private const val ACTION = "action"
-        fun start(context: Context, action: AssetAction) {
+        fun newIntent(context: Context, action: AssetAction): Intent =
             Intent(context, ActionActivity::class.java).apply {
                 putExtra(ACTION, action)
-                context.startActivity(this)
             }
-        }
     }
 }
