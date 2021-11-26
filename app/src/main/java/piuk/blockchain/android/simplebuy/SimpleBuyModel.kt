@@ -744,7 +744,7 @@ class SimpleBuyModel(
     ): SimpleBuyIntent {
         return if (orderState == OrderState.AWAITING_FUNDS) {
             when (CardAcquirer.fromString(paymentAttributes.cardAcquirerName)) {
-                CardAcquirer.CHECKOUT -> SimpleBuyIntent.Open3dsAuth(
+                CardAcquirer.CHECKOUTDOTCOM -> SimpleBuyIntent.Open3dsAuth(
                     CardAcquirerCredentials.Checkout(
                         apiKey = paymentAttributes.publishableKey,
                         paymentLink = paymentAttributes.paymentLink,

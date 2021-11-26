@@ -17,7 +17,7 @@ class CheckoutCardProcessor(
     private val checkoutFactory: CheckoutFactory
 ) : CardProcessor {
 
-    override val acquirer: CardAcquirer = CardAcquirer.CHECKOUT
+    override val acquirer: CardAcquirer = CardAcquirer.CHECKOUTDOTCOM
 
     override suspend fun createPaymentMethod(
         cardDetails: CardDetails,

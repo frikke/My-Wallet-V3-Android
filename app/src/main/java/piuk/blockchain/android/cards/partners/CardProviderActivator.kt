@@ -41,7 +41,7 @@ class CardProviderActivator(
         cardData: CardData
     ): Single<CompleteCardActivation> =
         when (CardAcquirer.fromString(cardProvider.cardAcquirerName)) {
-            CardAcquirer.CHECKOUT -> Single.just(
+            CardAcquirer.CHECKOUTDOTCOM -> Single.just(
                 CompleteCardActivation.CheckoutCardActivationDetails(
                     apiKey = cardProvider.publishableKey,
                     paymentLink = cardProvider.paymentLink,
