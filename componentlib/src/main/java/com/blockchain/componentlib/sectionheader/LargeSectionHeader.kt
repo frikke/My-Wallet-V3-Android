@@ -1,3 +1,5 @@
+@file:JvmName("LargeSectionHeaderTypeKt")
+
 package com.blockchain.componentlib.sectionheader
 
 import androidx.compose.foundation.clickable
@@ -26,8 +28,8 @@ import com.blockchain.componentlib.theme.Dark400
 import com.blockchain.componentlib.theme.Grey400
 
 @Composable
-fun ExchangeSectionHeader(
-    headerType: ExchangeSectionHeaderType,
+fun LargeSectionHeader(
+    headerType: LargeSectionHeaderType,
     modifier: Modifier = Modifier,
     isDarkMode: Boolean = isSystemInDarkTheme(),
 ) {
@@ -42,7 +44,7 @@ fun ExchangeSectionHeader(
             modifier = Modifier.weight(1f)
         )
         when (headerType) {
-            is ExchangeSectionHeaderType.Filter -> {
+            is LargeSectionHeaderType.Filter -> {
                 var optionSelected by remember(headerType) {
                     mutableStateOf(headerType.optionIndexSelected)
                 }
@@ -67,13 +69,13 @@ fun ExchangeSectionHeader(
                     }
                 }
             }
-            is ExchangeSectionHeaderType.Icon -> {
+            is LargeSectionHeaderType.Icon -> {
                 Image(
                     imageResource = headerType.icon,
                     modifier = Modifier.clickable { headerType.onIconClicked() }
                 )
             }
-            is ExchangeSectionHeaderType.Default -> {
+            is LargeSectionHeaderType.Default -> {
                 /* no-op */
             }
         }
@@ -82,11 +84,11 @@ fun ExchangeSectionHeader(
 
 @Preview
 @Composable
-private fun ExchangeSectionHeaderPreview() {
+private fun LargeSectionHeaderPreview() {
     AppTheme {
         AppSurface {
-            ExchangeSectionHeader(
-                headerType = ExchangeSectionHeaderType.Default(
+            LargeSectionHeader(
+                headerType = LargeSectionHeaderType.Default(
                     title = "Destination Address",
                 ),
                 modifier = Modifier.fillMaxWidth(),
@@ -97,11 +99,11 @@ private fun ExchangeSectionHeaderPreview() {
 
 @Preview
 @Composable
-private fun ExchangeSectionHeaderIconPreview() {
+private fun LargeSectionHeaderIconPreview() {
     AppTheme {
         AppSurface {
-            ExchangeSectionHeader(
-                headerType = ExchangeSectionHeaderType.Icon(
+            LargeSectionHeader(
+                headerType = LargeSectionHeaderType.Icon(
                     title = "Destination Address",
                     icon = ImageResource.Local(
                         id = R.drawable.ic_qr_code,
@@ -117,12 +119,12 @@ private fun ExchangeSectionHeaderIconPreview() {
 
 @Preview
 @Composable
-private fun ExchangeSectionHeaderFilterPreview() {
+private fun LargeSectionHeaderFilterPreview() {
     var selected by remember { mutableStateOf(0) }
     AppTheme {
         AppSurface {
-            ExchangeSectionHeader(
-                headerType = ExchangeSectionHeaderType.Filter(
+            LargeSectionHeader(
+                headerType = LargeSectionHeaderType.Filter(
                     title = "Destination Address",
                     options = listOf("USD", "GBP", "EUR"),
                     onOptionSelected = { selected = it },

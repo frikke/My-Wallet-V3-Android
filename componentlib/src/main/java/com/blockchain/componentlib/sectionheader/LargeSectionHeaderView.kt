@@ -10,19 +10,19 @@ import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
-class ExchangeSectionHeaderView @JvmOverloads constructor(
+class LargeSectionHeaderView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var sectionHeader: ExchangeSectionHeaderType by mutableStateOf(ExchangeSectionHeaderType.Default(""))
+    var sectionHeader: LargeSectionHeaderType by mutableStateOf(LargeSectionHeaderType.Default(""))
 
     @Composable
     override fun Content() {
         AppTheme {
             AppSurface {
-                ExchangeSectionHeader(sectionHeader)
+                LargeSectionHeader(sectionHeader)
             }
         }
     }

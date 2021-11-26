@@ -10,20 +10,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.image.ImageResource
-import com.blockchain.componentlib.sectionheader.ExchangeSectionHeader
-import com.blockchain.componentlib.sectionheader.ExchangeSectionHeaderType
-import com.blockchain.componentlib.sectionheader.WalletBalanceSectionHeader
-import com.blockchain.componentlib.sectionheader.WalletSectionHeader
+import com.blockchain.componentlib.sectionheader.LargeSectionHeader
+import com.blockchain.componentlib.sectionheader.LargeSectionHeaderType
+import com.blockchain.componentlib.sectionheader.BalanceSectionHeader
+import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
-@Preview(name = "Default", group = "Exchange Section Header")
+@Preview(name = "Default", group = "Large Section Header")
 @Composable
-fun ExchangeSectionHeaderPreview() {
+fun LargeSectionHeaderPreview() {
     AppTheme {
         AppSurface {
-            ExchangeSectionHeader(
-                headerType = ExchangeSectionHeaderType.Default(
+            LargeSectionHeader(
+                headerType = LargeSectionHeaderType.Default(
                     title = "Destination Address",
                 ),
                 modifier = Modifier.fillMaxWidth(),
@@ -32,13 +32,13 @@ fun ExchangeSectionHeaderPreview() {
     }
 }
 
-@Preview(name = "Icon", group = "Exchange Section Header")
+@Preview(name = "Icon", group = "Large Section Header")
 @Composable
-fun ExchangeSectionHeaderIconPreview() {
+fun LargeSectionHeaderIconPreview() {
     AppTheme {
         AppSurface {
-            ExchangeSectionHeader(
-                headerType = ExchangeSectionHeaderType.Icon(
+            LargeSectionHeader(
+                headerType = LargeSectionHeaderType.Icon(
                     title = "Destination Address",
                     icon = ImageResource.Local(
                         id = R.drawable.ic_qr_code,
@@ -52,14 +52,14 @@ fun ExchangeSectionHeaderIconPreview() {
     }
 }
 
-@Preview(name = "Filter", group = "Exchange Section Header")
+@Preview(name = "Filter", group = "Large Section Header")
 @Composable
-fun ExchangeSectionHeaderFilterPreview() {
+fun LargeSectionHeaderFilterPreview() {
     var selected by remember { mutableStateOf(0) }
     AppTheme {
         AppSurface {
-            ExchangeSectionHeader(
-                headerType = ExchangeSectionHeaderType.Filter(
+            LargeSectionHeader(
+                headerType = LargeSectionHeaderType.Filter(
                     title = "Destination Address",
                     options = listOf("USD", "GBP", "EUR"),
                     onOptionSelected = { selected = it },
@@ -71,12 +71,12 @@ fun ExchangeSectionHeaderFilterPreview() {
     }
 }
 
-@Preview(name = "Wallet Balance", group = "Wallet Section Header")
+@Preview(name = "Balance", group = "Balance Section Header")
 @Composable
-fun WalletBalanceSectionHeaderPreview() {
+fun BalanceSectionHeaderPreview() {
     AppTheme {
         AppSurface {
-            WalletBalanceSectionHeader(
+            BalanceSectionHeader(
                 primaryText = "\$12,293.21",
                 secondaryText = "0.1393819 BTC",
                 buttonText = "Buy BTC",
@@ -86,12 +86,12 @@ fun WalletBalanceSectionHeaderPreview() {
     }
 }
 
-@Preview(name = "Default", group = "Wallet Section Header")
+@Preview(name = "Small", group = "Small Section Header")
 @Composable
-fun WalletSectionHeaderPreview() {
+fun SmallSectionHeaderPreview() {
     AppTheme {
         AppSurface {
-            WalletSectionHeader("Title", Modifier.fillMaxWidth())
+            SmallSectionHeader("Title", Modifier.fillMaxWidth())
         }
     }
 }

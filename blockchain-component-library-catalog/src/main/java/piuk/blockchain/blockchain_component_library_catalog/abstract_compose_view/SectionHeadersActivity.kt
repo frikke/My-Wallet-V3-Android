@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.image.ImageResource
-import com.blockchain.componentlib.sectionheader.ExchangeSectionHeaderType
-import com.blockchain.componentlib.sectionheader.ExchangeSectionHeaderView
-import com.blockchain.componentlib.sectionheader.WalletBalanceSectionHeaderView
-import com.blockchain.componentlib.sectionheader.WalletSectionHeaderView
+import com.blockchain.componentlib.sectionheader.LargeSectionHeaderType
+import com.blockchain.componentlib.sectionheader.LargeSectionHeaderView
+import com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
+import com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class SectionHeadersActivity : AppCompatActivity() {
@@ -15,11 +15,11 @@ class SectionHeadersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_section_headers)
 
-        findViewById<WalletSectionHeaderView>(R.id.wallet).apply {
+        findViewById<SmallSectionHeaderView>(R.id.small).apply {
             title = "Title"
         }
 
-        findViewById<WalletBalanceSectionHeaderView>(R.id.balance).apply {
+        findViewById<BalanceSectionHeaderView>(R.id.balance).apply {
             primaryText = "\$12,293.21"
             secondaryText = "0.1393819 BTC"
             buttonText = "Buy BTC"
@@ -28,12 +28,12 @@ class SectionHeadersActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<ExchangeSectionHeaderView>(R.id.basic).apply {
-            this.sectionHeader = ExchangeSectionHeaderType.Default("Title")
+        findViewById<LargeSectionHeaderView>(R.id.basic).apply {
+            this.sectionHeader = LargeSectionHeaderType.Default("Title")
         }
 
-        findViewById<ExchangeSectionHeaderView>(R.id.icon).apply {
-            this.sectionHeader = ExchangeSectionHeaderType.Icon(
+        findViewById<LargeSectionHeaderView>(R.id.icon).apply {
+            this.sectionHeader = LargeSectionHeaderType.Icon(
                 title = "Title",
                 icon = ImageResource.Local(
                     id = R.drawable.ic_qr_code,
@@ -45,8 +45,8 @@ class SectionHeadersActivity : AppCompatActivity() {
             )
         }
 
-        findViewById<ExchangeSectionHeaderView>(R.id.filter).apply {
-            this.sectionHeader = ExchangeSectionHeaderType.Filter(
+        findViewById<LargeSectionHeaderView>(R.id.filter).apply {
+            this.sectionHeader = LargeSectionHeaderType.Filter(
                 title = "Destination Address",
                 options = listOf("USD", "GBP", "EUR"),
                 onOptionSelected = {

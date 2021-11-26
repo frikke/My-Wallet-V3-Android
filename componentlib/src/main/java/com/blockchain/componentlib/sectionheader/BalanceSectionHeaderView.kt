@@ -7,22 +7,33 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
-class WalletSectionHeaderView @JvmOverloads constructor(
+class BalanceSectionHeaderView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var title by mutableStateOf("")
+    var primaryText by mutableStateOf("")
+    var secondaryText by mutableStateOf("")
+    var buttonText by mutableStateOf("")
+    var onButtonClick by mutableStateOf({})
+    var buttonState by mutableStateOf(ButtonState.Enabled)
 
     @Composable
     override fun Content() {
         AppTheme {
             AppSurface {
-                WalletSectionHeader(title)
+                BalanceSectionHeader(
+                    primaryText = primaryText,
+                    secondaryText = secondaryText,
+                    buttonText = buttonText,
+                    onButtonClick = onButtonClick,
+                    buttonState = buttonState,
+                )
             }
         }
     }

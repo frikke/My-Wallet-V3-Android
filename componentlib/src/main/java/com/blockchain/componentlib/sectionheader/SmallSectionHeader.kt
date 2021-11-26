@@ -12,7 +12,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun WalletSectionHeader(
+fun SmallSectionHeader(
     text: String,
     modifier: Modifier = Modifier
 ) {
@@ -34,10 +34,10 @@ fun WalletSectionHeader(
 
 @Preview
 @Composable
-private fun WalletSectionHeaderPreview() {
+private fun SmallSectionHeaderPreview() {
     AppTheme {
         AppSurface {
-            WalletSectionHeader("Title", Modifier.fillMaxWidth())
+            SmallSectionHeader("Title", Modifier.fillMaxWidth())
         }
     }
 }

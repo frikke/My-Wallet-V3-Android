@@ -14,10 +14,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="16dp"
-            android:text="Exchange Section Header Default"
+            android:text="LargeSectionHeader Default"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.sectionheader.ExchangeSectionHeaderView
+        <com.blockchain.componentlib.sectionheader.LargeSectionHeaderView
             android:id="@+id/basic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -26,10 +26,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="16dp"
-            android:text="Exchange Section Header Icon"
+            android:text="LargeSectionHeader with Icon"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.sectionheader.ExchangeSectionHeaderView
+        <com.blockchain.componentlib.sectionheader.LargeSectionHeaderView
             android:id="@+id/icon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -38,10 +38,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="16dp"
-            android:text="Exchange Section Header Filter"
+            android:text="LargeSectionHeader with Filters"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.sectionheader.ExchangeSectionHeaderView
+        <com.blockchain.componentlib.sectionheader.LargeSectionHeaderView
             android:id="@+id/filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -50,11 +50,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="16dp"
-            android:text="Wallet Section Header"
+            android:text="SmallSectionHeader"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.sectionheader.WalletSectionHeaderView
-            android:id="@+id/wallet"
+        <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+            android:id="@+id/small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -62,10 +62,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="16dp"
-            android:text="Wallet Balance Section Header"
+            android:text="BalanceSectionHeader"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.sectionheader.WalletBalanceSectionHeaderView
+        <com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
             android:id="@+id/balance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

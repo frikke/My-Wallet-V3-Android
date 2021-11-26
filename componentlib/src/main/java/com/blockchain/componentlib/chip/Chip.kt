@@ -111,7 +111,7 @@ fun Chip(
                 onClick(chipState)
             }
             .animateContentSize()
-            .background(backgroundColor)
+            .background(backgroundColor, AppTheme.shapes.extraLarge)
             .padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
         Image(

@@ -14,7 +14,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun WalletBalanceSectionHeader(
+fun BalanceSectionHeader(
     primaryText: String,
     secondaryText: String,
     buttonText: String,
@@ -50,10 +50,10 @@ fun WalletBalanceSectionHeader(
 
 @Preview
 @Composable
-private fun WalletBalanceSectionHeaderPreview() {
+private fun BalanceSectionHeaderPreview() {
     AppTheme {
         AppSurface {
-            WalletBalanceSectionHeader(
+            BalanceSectionHeader(
                 primaryText = "\$12,293.21",
                 secondaryText = "0.1393819 BTC",
                 buttonText = "Buy BTC",
