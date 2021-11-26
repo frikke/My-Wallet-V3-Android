@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.core.content.res.ResourcesCompat
 import com.blockchain.componentlib.alert.WarningToastAlert
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class WarningToastAlertView @JvmOverloads constructor(
     context: Context,
@@ -21,9 +23,13 @@ class WarningToastAlertView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        WarningToastAlert(
-            text = text,
-            startIconDrawableRes = startIconDrawableRes
-        )
+        AppTheme {
+            AppSurface {
+                WarningToastAlert(
+                    text = text,
+                    startIconDrawableRes = startIconDrawableRes
+                )
+            }
+        }
     }
 }

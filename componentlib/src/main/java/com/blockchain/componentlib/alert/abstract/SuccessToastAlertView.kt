@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.core.content.res.ResourcesCompat
 import com.blockchain.componentlib.alert.SuccessToastAlert
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class SuccessToastAlertView @JvmOverloads constructor(
     context: Context,
@@ -21,9 +23,13 @@ class SuccessToastAlertView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        SuccessToastAlert(
-            text = text,
-            startIconDrawableRes = startIconDrawableRes
-        )
+        AppTheme {
+            AppSurface {
+                SuccessToastAlert(
+                    text = text,
+                    startIconDrawableRes = startIconDrawableRes
+                )
+            }
+        }
     }
 }

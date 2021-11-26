@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class TextInputView @JvmOverloads constructor(
     context: Context,
@@ -28,17 +30,21 @@ class TextInputView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        TextInput(
-            value = value,
-            onValueChange = onValueChange,
-            enabled = isInputEnabled,
-            assistiveText = assistiveText,
-            placeholder = placeholderText,
-            label = labelText,
-            errorMessage = errorText,
-            isError = isError,
-            trailingIcon = trailingIconResource,
-            leadingIcon = leadingIconResource
-        )
+        AppTheme {
+            AppSurface {
+                TextInput(
+                    value = value,
+                    onValueChange = onValueChange,
+                    enabled = isInputEnabled,
+                    assistiveText = assistiveText,
+                    placeholder = placeholderText,
+                    label = labelText,
+                    errorMessage = errorText,
+                    isError = isError,
+                    trailingIcon = trailingIconResource,
+                    leadingIcon = leadingIconResource
+                )
+            }
+        }
     }
 }

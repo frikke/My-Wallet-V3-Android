@@ -7,6 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class ChipView @JvmOverloads constructor(
     context: Context,
@@ -20,10 +22,14 @@ class ChipView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        Chip(
-            text = text,
-            onClick = onClick,
-            initialChipState = initialChipState
-        )
+        AppTheme {
+            AppSurface {
+                Chip(
+                    text = text,
+                    onClick = onClick,
+                    initialChipState = initialChipState
+                )
+            }
+        }
     }
 }

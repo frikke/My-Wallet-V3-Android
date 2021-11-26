@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 class CardAlertView @JvmOverloads constructor(
     context: Context,
@@ -24,12 +26,16 @@ class CardAlertView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        CardAlert(
-            title = title,
-            subtitle = subtitle,
-            alertType = alertType,
-            isBordered = isBordered,
-            onClose = onClose
-        )
+        AppTheme {
+            AppSurface {
+                CardAlert(
+                    title = title,
+                    subtitle = subtitle,
+                    alertType = alertType,
+                    isBordered = isBordered,
+                    onClose = onClose
+                )
+            }
+        }
     }
 }
