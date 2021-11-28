@@ -171,7 +171,7 @@ data class CardProviderResponse(
     val paymentReference: String,
     val orderReference: String,
     val clientSecret: String, // use when client secret is needed (stripe)
-    val publishableKey: String
+    val publishableApiKey: String
 )
 
 data class PaymentAttributesResponse(
@@ -187,7 +187,7 @@ data class CardProviderPaymentAttributesResponse(
     val paymentLink: String,
     val paymentState: String,
     val clientSecret: String,
-    val publishableKey: String
+    val publishableApiKey: String
 )
 
 data class EverypayPaymentAttributesResponse(

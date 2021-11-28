@@ -737,7 +737,7 @@ class SimpleBuyModel(
             when (CardAcquirer.fromString(paymentAttributes.cardAcquirerName)) {
                 CardAcquirer.CHECKOUTDOTCOM -> SimpleBuyIntent.Open3dsAuth(
                     CardAcquirerCredentials.Checkout(
-                        apiKey = paymentAttributes.publishableKey,
+                        apiKey = paymentAttributes.publishableApiKey,
                         paymentLink = paymentAttributes.paymentLink,
                         exitLink = CardProviderActivator.CHECKOUT_EXIT_LINK
                     )
@@ -756,7 +756,7 @@ class SimpleBuyModel(
                 }
                 CardAcquirer.STRIPE -> SimpleBuyIntent.Open3dsAuth(
                     CardAcquirerCredentials.Stripe(
-                        apiKey = paymentAttributes.publishableKey,
+                        apiKey = paymentAttributes.publishableApiKey,
                         clientSecret = paymentAttributes.clientSecret
                     )
                 )

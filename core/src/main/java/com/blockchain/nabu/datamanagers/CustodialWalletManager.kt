@@ -354,7 +354,7 @@ sealed class CardAttributes {
         val paymentLink: String,
         val paymentState: String,
         val clientSecret: String,
-        val publishableKey: String
+        val publishableApiKey: String
     ) : CardAttributes()
 
     data class EveryPay(
@@ -780,7 +780,7 @@ data class CardProvider(
     val paymentReference: String,
     val orderReference: String,
     val clientSecret: String,
-    val publishableKey: String
+    val publishableApiKey: String
 )
 
 enum class Partner {

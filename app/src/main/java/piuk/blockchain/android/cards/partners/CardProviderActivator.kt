@@ -43,14 +43,14 @@ class CardProviderActivator(
         when (CardAcquirer.fromString(cardProvider.cardAcquirerName)) {
             CardAcquirer.CHECKOUTDOTCOM -> Single.just(
                 CompleteCardActivation.CheckoutCardActivationDetails(
-                    apiKey = cardProvider.publishableKey,
+                    apiKey = cardProvider.publishableApiKey,
                     paymentLink = cardProvider.paymentLink,
                     exitLink = CHECKOUT_EXIT_LINK
                 )
             )
             CardAcquirer.STRIPE -> Single.just(
                 CompleteCardActivation.StripeCardActivationDetails(
-                    apiKey = cardProvider.publishableKey,
+                    apiKey = cardProvider.publishableApiKey,
                     clientSecret = cardProvider.clientSecret
                 )
             )
