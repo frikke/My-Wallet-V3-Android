@@ -42,6 +42,8 @@ import piuk.blockchain.android.ui.dashboard.adapter.PricesDelegateAdapter
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
+import piuk.blockchain.android.ui.dashboard.model.AssetPriceState
+import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
@@ -156,25 +158,35 @@ internal class PricesFragment :
     }
 
     private fun updateDisplayList(newState: DashboardState) {
-        val newList = newState.availablePrices.filter { assetInfo ->
+        // Get the active assets sorted by balance
+        val activeAssets = newState.activeAssets.values.sortedWith(
+            compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
+                .thenBy { it.currency.name }
+        ).map { it.toAssetPriceState() }
+        // Get all the available assets
+        val availableAssets = newState.availablePrices.values
+        // Merge active and available, maintaining the order - active assets with biggest balances first
+        val sortedAssets = activeAssets.toSet().plus(availableAssets).filter { assetPriceState ->
             newState.filterBy.isBlank() ||
-                assetInfo.key.name.contains(newState.filterBy, ignoreCase = true) ||
-                assetInfo.key.displayTicker.contains(newState.filterBy, ignoreCase = true)
-        }.values.map {
-            PricesItem(
-                asset = it.assetInfo,
-                priceWithDelta = it.prices
-            )
+                assetPriceState.assetInfo.name.contains(newState.filterBy, ignoreCase = true) ||
+                assetPriceState.assetInfo.displayTicker.contains(newState.filterBy, ignoreCase = true)
         }
 
         binding.searchBoxLayout.apply {
-            updateResults(resultCount = newList.size.toString(), shouldShow = newState.filterBy.isNotEmpty())
+            updateResults(resultCount = availableAssets.size.toString(), shouldShow = newState.filterBy.isNotEmpty())
             updateLayoutState()
         }
 
         with(displayList) {
             clear()
-            addAll(newList.sortedBy { it.assetName })
+            addAll(
+                sortedAssets.toList().map {
+                    PricesItem(
+                        asset = it.assetInfo,
+                        priceWithDelta = it.prices
+                    )
+                }
+            )
         }
         theAdapter.notifyDataSetChanged()
     }
@@ -568,4 +580,10 @@ internal class PricesFragment :
 
     override fun onBecameVisible() {
     }
+
+    private fun CryptoAssetState.toAssetPriceState() =
+        AssetPriceState(
+            assetInfo = currency,
+            prices = prices24HrWithDelta
+        )
 }

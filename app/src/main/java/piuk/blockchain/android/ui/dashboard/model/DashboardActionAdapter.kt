@@ -94,10 +94,17 @@ class DashboardActionAdapter(
             coincore.availableCryptoAssets()
         }.subscribeBy(
             onSuccess = { assets ->
+                // Load the balances for the active assets for sorting based on balance
+                model.process(
+                    DashboardIntent.UpdateAllAssetsAndBalances(
+                        assetList = coincore.activeCryptoAssets().map { it.asset },
+                        fiatAssetList = emptyList()
+                    )
+                )
                 model.process(DashboardIntent.AssetListUpdate(assets))
             },
             onError = {
-                Timber.e("Error getting ordering - $it")
+                Timber.e("Error fetching available assets - $it")
             }
         )
 
