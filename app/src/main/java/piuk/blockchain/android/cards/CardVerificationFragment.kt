@@ -11,6 +11,7 @@ import com.blockchain.payments.stripe.StripeFactory
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.PaymentAuthConfig
+import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -77,6 +78,8 @@ class CardVerificationFragment :
                 )
             }
             is CardAcquirerCredentials.Stripe -> {
+                // TODO: Clean this up along with the one in SimpleBuyPaymentFragment
+                PaymentConfiguration.init(requireContext(), cardAcquirerCredentials.apiKey)
                 PaymentAuthConfig.init(
                     // Here we can customise the UI (web view) shown for 3DS
                     // via PaymentAuthConfig.Stripe3ds2UiCustomization
@@ -95,6 +98,10 @@ class CardVerificationFragment :
                             clientSecret = cardAcquirerCredentials.clientSecret
                         )
                     )
+                // Reset here in order to call CheckCardStatus safely
+                model.process(CardIntent.ResetCardAuth)
+                // Start polling in absence of a callback in the case of Stripe
+                model.process(CardIntent.CheckCardStatus)
             }
             is CardAcquirerCredentials.Checkout -> {
                 // For Checkout no 3DS is required if the link is empty. For Stripe they take care of all scenarios.

@@ -22,6 +22,7 @@ import com.checkout.android_sdk.Utils.Environment
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.stripe.android.PaymentAuthConfig
+import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
@@ -175,6 +176,7 @@ class SimpleBuyPaymentFragment :
                 cardAcquirerCredentials.exitLink
             )
             is CardAcquirerCredentials.Stripe -> {
+                PaymentConfiguration.init(requireContext(), cardAcquirerCredentials.apiKey)
                 PaymentAuthConfig.init(
                     // Here we can customise the UI (web view) shown for 3DS
                     // via PaymentAuthConfig.Stripe3ds2UiCustomization
@@ -193,6 +195,10 @@ class SimpleBuyPaymentFragment :
                             clientSecret = cardAcquirerCredentials.clientSecret
                         )
                     )
+                // Reset here in order to call CheckOrderStatus safely
+                model.process(SimpleBuyIntent.ResetCardPaymentAuth)
+                // Start polling in absence of a callback in the case of Stripe
+                model.process(SimpleBuyIntent.CheckOrderStatus)
             }
         }
     }
