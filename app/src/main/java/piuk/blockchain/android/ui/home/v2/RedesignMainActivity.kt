@@ -146,11 +146,6 @@ class RedesignMainActivity :
             model.process(RedesignIntent.CheckForPendingLinks(intent))
         }
 
-        supportActionBar?.let {
-            it.setDisplayHomeAsUpEnabled(false)
-            it.setHomeButtonEnabled(false)
-        }
-
         if (intent.hasExtra(SHOW_SWAP) &&
             intent.getBooleanExtra(SHOW_SWAP, false)
         ) {

@@ -143,8 +143,8 @@ class TransactionFlowActivity :
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
             showFlowStep(step)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
-                supportActionBar?.title = it
-            } ?: supportActionBar?.hide()
+                loadToolbar(titleToolbar = it, backAction = { onBackPressed() })
+            } ?: loadToolbar("")
 
             currentStep = step
         }

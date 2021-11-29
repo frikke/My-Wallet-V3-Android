@@ -125,7 +125,9 @@ class KycNavHostActivity :
     }
 
     override fun hideBackButton() {
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        loadToolbar(
+            titleToolbar = getString(R.string.identity_verification)
+        )
     }
 
     override fun onEmailEntryFragmentShown() {

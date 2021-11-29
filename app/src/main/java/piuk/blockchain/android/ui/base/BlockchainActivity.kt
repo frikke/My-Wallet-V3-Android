@@ -121,12 +121,12 @@ abstract class BlockchainActivity : ToolBarActivity() {
         backAction: (() -> Unit)? = null
     ) {
         toolbarBinding?.let { toolbar ->
+            setSupportActionBar(toolbar.toolbarGeneral)
             toolbar.toolbarGeneral.apply {
                 visible()
                 titleToolbar?.let { title = it }
-                backAction?.let { setNavigationOnClickListener { it } }
+                backAction?.let { setNavigationOnClickListener { it() } }
             }
-            setSupportActionBar(toolbar.toolbarGeneral)
         }
     }
 
