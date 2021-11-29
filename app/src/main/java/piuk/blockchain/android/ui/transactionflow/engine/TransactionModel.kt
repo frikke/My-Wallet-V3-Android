@@ -306,6 +306,8 @@ class TransactionModel(
             is TransactionIntent.ClearBackStack,
             is TransactionIntent.ApprovalRequired,
             is TransactionIntent.ClearSelectedTarget,
+            TransactionIntent.TransactionApprovalDenied,
+            TransactionIntent.ApprovalTriggered,
             is TransactionIntent.FundsLocksLoaded -> null
         }
     }

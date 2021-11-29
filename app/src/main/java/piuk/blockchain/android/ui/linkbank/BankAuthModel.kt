@@ -98,7 +98,8 @@ class BankAuthModel(
         intent: BankAuthIntent.StartPollingForLinkStatus,
         partner: BankPartner?
     ) = interactor.pollForLinkedBankState(
-        intent.bankId
+        intent.bankId,
+        partner
     ).subscribeBy(
         onSuccess = {
             when (it) {
@@ -106,7 +107,8 @@ class BankAuthModel(
                     interactor.updateOneTimeTokenPath(it.value.callbackPath)
                     updateIntentForLinkedBankState(it, partner)
                 }
-                is PollResult.Cancel -> { }
+                is PollResult.Cancel -> {
+                }
                 is PollResult.TimeOut -> process(
                     BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
                 )

@@ -299,10 +299,14 @@ class SimpleBuyInteractor(
         it.value
     }
 
-    fun pollForLinkedBankState(id: String): Single<PollResult<LinkedBank>> = PollService(
+    fun pollForLinkedBankState(id: String, partner: BankPartner?): Single<PollResult<LinkedBank>> = PollService(
         custodialWalletManager.getLinkedBank(id)
     ) {
-        !it.isLinkingPending()
+        if (partner == BankPartner.YAPILY) {
+            it.authorisationUrl.isNotEmpty() && it.callbackPath.isNotEmpty()
+        } else {
+            !it.isLinkingPending()
+        }
     }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT)
 
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {

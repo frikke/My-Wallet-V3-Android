@@ -20,6 +20,7 @@ import info.blockchain.balance.Money
 import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent.UpdateTransactionComplete.updateBackstack
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
 
@@ -465,6 +466,21 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 nextEnabled = true,
                 executionStatus = TxExecutionStatus.Completed
             ).updateBackstack(oldState)
+    }
+
+    object TransactionApprovalDenied : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                nextEnabled = true,
+                executionStatus = TxExecutionStatus.Error(IllegalStateException("Authorisation required"))
+            )
+    }
+
+    object ApprovalTriggered : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                executionStatus = TxExecutionStatus.InProgress
+            )
     }
 
     // This fn pops the backstack, thus no need to update the backstack here
