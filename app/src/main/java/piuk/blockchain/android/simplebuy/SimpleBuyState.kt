@@ -113,7 +113,16 @@ data class SimpleBuyState constructor(
 
     @delegate:Transient
     val exchangeRate: Money? by unsafeLazy {
-        quote?.price
+        check(selectedCryptoAsset != null)
+        quote?.price?.let { price ->
+            val exchangeRate = ExchangeRate.FiatToCrypto(
+                from = fiatCurrency,
+                to = selectedCryptoAsset,
+                rate = price.toBigDecimal()
+            ).inverse().rate
+            check(exchangeRate != null)
+            FiatValue.fromMajor(fiatCurrency, exchangeRate)
+        }
     }
 
     override val limits: TxLimits

@@ -255,7 +255,7 @@ class AssetActionsSheet :
             AssetAction.Buy -> AssetActionItem(
                 title = getString(R.string.common_buy),
                 icon = R.drawable.ic_tx_buy,
-                hasWarning = true,
+                hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
                 asset = asset,
                 action = action
