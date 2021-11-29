@@ -1,16 +1,10 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.loader.AssetCatalogueImpl
-import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
-import com.blockchain.coincore.loader.RemoteFeature
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
-import com.blockchain.remoteconfig.FeatureFlag
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should be`
 import org.junit.Before
@@ -18,15 +12,6 @@ import org.junit.Test
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 class AssetCatalogueTest : CoincoreTestBase() {
-
-    private val featureFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
-
-    private val featureConfig: AssetRemoteFeatureLookup = mock {
-        on { init(any()) }.thenReturn(Completable.complete())
-        on { featuresFor(anyOrNull()) }.thenReturn(setOf(RemoteFeature.Balance))
-    }
 
     private val assetList = listOf(
         TEST_ASSET,
@@ -44,9 +29,7 @@ class AssetCatalogueTest : CoincoreTestBase() {
             CryptoCurrency.ETHER,
             CryptoCurrency.XLM
         ),
-        featureFlag = featureFlag,
-        assetsDataManager = assetsManager,
-        featureConfig = featureConfig
+        assetsDataManager = assetsManager
     )
 
     @Before

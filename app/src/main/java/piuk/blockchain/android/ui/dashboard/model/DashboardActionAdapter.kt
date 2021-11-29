@@ -59,35 +59,27 @@ class DashboardActionAdapter(
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val dynamicAssetsFlag: FeatureFlag,
     private val dashboardBuyButtonFlag: FeatureFlag
 ) {
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        Singles.zip(
-            dynamicAssetsFlag.enabled.map { enabled ->
-                if (enabled) {
-                    coincore.activeCryptoAssets().map { it.asset }
-                } else {
-                    coincore.availableCryptoAssets()
-                }
-            },
-            coincore.fiatAssets.accountGroup()
-                .map { g -> g.accounts }
-                .switchIfEmpty(Maybe.just(emptyList()))
-                .toSingle()
-        ).subscribeBy(
-            onSuccess = { (cryptoAssets, fiatAssets) ->
-                model.process(
-                    DashboardIntent.UpdateAllAssetsAndBalances(
-                        cryptoAssets,
-                        fiatAssets.filterIsInstance<FiatAccount>()
+        coincore.fiatAssets.accountGroup()
+            .map { g -> g.accounts }
+            .switchIfEmpty(Maybe.just(emptyList()))
+            .toSingle()
+            .subscribeBy(
+                onSuccess = { fiatAssets ->
+                    val cryptoAssets = coincore.activeCryptoAssets().map { it.asset }
+                    model.process(
+                        DashboardIntent.UpdateAllAssetsAndBalances(
+                            cryptoAssets,
+                            fiatAssets.filterIsInstance<FiatAccount>()
+                        )
                     )
-                )
-            },
-            onError = {
-                Timber.e("Error fetching active assets - $it")
-            }
-        )
+                },
+                onError = {
+                    Timber.e("Error fetching active assets - $it")
+                }
+            )
 
     fun fetchAvailableAssets(model: DashboardModel): Disposable =
         Single.fromCallable {

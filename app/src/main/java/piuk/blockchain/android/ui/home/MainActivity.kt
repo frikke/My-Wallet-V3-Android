@@ -24,7 +24,6 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.core.Database
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.dynamicAssetsFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -35,7 +34,6 @@ import com.blockchain.notifications.analytics.RequestAnalyticsEvents
 import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.TransactionsAnalyticsEvents
 import com.blockchain.notifications.analytics.activityShown
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
@@ -109,7 +107,6 @@ import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class MainActivity :
@@ -131,11 +128,6 @@ class MainActivity :
     private val userIdentity: NabuUserIdentity by scopedInject()
     private val database: Database by inject()
     private val compositeDisposable = CompositeDisposable()
-
-    private val dynamicAssetsFF: FeatureFlag by inject(dynamicAssetsFeatureFlag)
-    private val useDynamicAssets: Boolean by unsafeLazy {
-        dynamicAssetsFF.enabled.blockingGet()
-    }
 
     override val view: MainView = this
 
@@ -654,7 +646,7 @@ class MainActivity :
         setCurrentTabItem(R.id.nav_transfer)
         toolbar.title = getString(R.string.transfer)
 
-        val transferFragment = TransferFragment.newInstance(useDynamicAssets, viewToShow)
+        val transferFragment = TransferFragment.newInstance(viewToShow)
         showFragment(transferFragment, reload)
     }
 
@@ -693,11 +685,7 @@ class MainActivity :
         action: AssetAction? = null,
         currency: String? = null
     ): Fragment =
-        if (useDynamicAssets) {
-            DashboardFragment.newInstance(action, currency)
-        } else {
-            PortfolioFragment.newInstance(false, action, currency)
-        }
+        DashboardFragment.newInstance(action, currency)
 
     private fun startBuyAndSellFragment(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,

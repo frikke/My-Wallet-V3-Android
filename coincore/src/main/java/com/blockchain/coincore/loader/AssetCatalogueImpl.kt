@@ -1,7 +1,6 @@
 package com.blockchain.coincore.loader
 
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodial
@@ -9,12 +8,9 @@ import info.blockchain.balance.l1chain
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicReference
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class AssetCatalogueImpl internal constructor(
     private val fixedAssets: Set<AssetInfo>,
-    private val featureFlag: FeatureFlag,
-    private val featureConfig: AssetRemoteFeatureLookup,
     private val assetsDataManager: DynamicAssetsDataManager
 ) : AssetCatalogue {
 
@@ -24,49 +20,18 @@ class AssetCatalogueImpl internal constructor(
         if (fullAssetLookup.get().isNotEmpty()) {
             Single.just(fullAssetLookup.get().values.toSet())
         } else {
-            featureFlag.enabled.flatMap { enabled ->
-                when (enabled) {
-                    true -> initialiseDynamic(fixedAssets)
-                    else -> initialiseStatic(fixedAssets)
+            assetsDataManager.availableCryptoAssets()
+                .map { list ->
+                    // Remove any fixed assets that also appear in the dynamic set
+                    list.filterNot { fixedAssets.contains(it) }
+                }.doOnSuccess { enabledAssets ->
+                    val allEnabledAssets = fixedAssets + enabledAssets
+                    fullAssetLookup.set(
+                        allEnabledAssets.associateBy { it.networkTicker.uppercase(Locale.ROOT) }
+                    )
+                }.map {
+                    fullAssetLookup.get().values.toSet()
                 }
-            }
-        }
-
-    private fun initialiseStatic(fixedAssets: Set<AssetInfo>): Single<Set<AssetInfo>> {
-        val nonDynamicAssets = fixedAssets + staticAssets
-        return featureConfig.init(nonDynamicAssets)
-            .thenSingle {
-                initDynamicAssets()
-            }.doOnSuccess { enabledAssets ->
-                val allEnabledAssets = nonDynamicAssets + enabledAssets
-                fullAssetLookup.set(
-                    allEnabledAssets.associateBy { it.networkTicker.uppercase(Locale.ROOT) }
-                )
-            }.map {
-                it + staticAssets
-            }
-    }
-
-    private fun initialiseDynamic(fixedAssets: Set<AssetInfo>): Single<Set<AssetInfo>> {
-        return assetsDataManager.availableCryptoAssets()
-            .map { list ->
-                // Remove any fixed assets that also appear in the dynamic set
-                list.filterNot { fixedAssets.contains(it) }
-            }.doOnSuccess { enabledAssets ->
-                val allEnabledAssets = fixedAssets + enabledAssets
-                fullAssetLookup.set(
-                    allEnabledAssets.associateBy { it.networkTicker.uppercase(Locale.ROOT) }
-                )
-            }.map {
-                fullAssetLookup.get().values.toSet()
-            }
-    }
-
-    private fun initDynamicAssets(): Single<Set<AssetInfo>> =
-        Single.fromCallable {
-            dynamicAssets.filterNot {
-                featureConfig.featuresFor(it).isEmpty()
-            }.toSet()
         }
 
     // Brute force impl for now, but this will operate from a downloaded cache ultimately
@@ -101,44 +66,4 @@ class AssetCatalogueImpl internal constructor(
 
     override fun supportedL2Assets(chain: AssetInfo): List<AssetInfo> =
         supportedCryptoAssets.filter { it.l1chainTicker == chain.networkTicker }
-
-    companion object {
-        private val staticAssets: Set<AssetInfo> =
-            setOf(
-                WDGLD,
-                PAX,
-                USDT,
-                AAVE,
-                YFI
-            )
-
-        private val dynamicAssets: Set<AssetInfo> =
-            setOf(
-                ALGO,
-                DOT,
-                DOGE,
-                CLOUT,
-                LTC,
-                ETC,
-                XTZ,
-                STX,
-                MOB,
-                THETA,
-                NEAR,
-                EOS,
-                OGN,
-                ENJ,
-                COMP,
-                LINK,
-                TBTC,
-                WBTC,
-                SNX,
-                SUSHI,
-                ZRX,
-                USDC,
-                UNI,
-                DAI,
-                BAT
-            )
-    }
 }

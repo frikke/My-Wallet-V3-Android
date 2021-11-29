@@ -10,17 +10,12 @@ import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
-import com.blockchain.coincore.loader.AssetLoaderSwitcher
-import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
 import com.blockchain.coincore.loader.DynamicAssetLoader
-import com.blockchain.coincore.loader.StaticAssetLoader
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
-import com.blockchain.koin.dynamicAssetsFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -137,14 +132,6 @@ val coincoreModule = module {
         }
 
         scoped {
-            AssetLoaderSwitcher(
-                featureFlag = get(dynamicAssetsFeatureFlag),
-                staticLoader = get(),
-                dynamicLoader = get()
-            )
-        }.bind(AssetLoader::class)
-
-        scoped {
             val ncAssets: List<CryptoAsset> = payloadScope.getAll()
             // For some unknown reason `getAll()` adds the last element twice. Which means
             // that last element calls init() twice. So make it a set, to remove any duplicates.
@@ -167,35 +154,7 @@ val coincoreModule = module {
                 features = get(),
                 formatUtils = get()
             )
-        }
-
-        scoped {
-            val ncCryptoAssets: List<CryptoAsset> = payloadScope.getAll()
-            val ncAssetInfo: Set<AssetInfo> = nonCustodialAssetList()
-
-            check(ncCryptoAssets.map { it.asset }.toSet() == ncAssetInfo) { "Missing CryptoAsset!" }
-
-            StaticAssetLoader(
-                nonCustodialAssets = ncCryptoAssets,
-                assetCatalogue = get(),
-                featureConfig = get(),
-                payloadManager = get(),
-                erc20DataManager = get(),
-                feeDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                crashLogger = get(),
-                labels = get(),
-                pitLinking = get(),
-                walletPreferences = get(),
-                identity = get(),
-                features = get(),
-                formatUtils = get()
-            )
-        }
+        }.bind(AssetLoader::class)
 
         scoped {
             TxProcessorFactory(
@@ -248,16 +207,8 @@ val coincoreModule = module {
     }
 
     single {
-        AssetRemoteFeatureLookup(
-            remoteConfig = get()
-        )
-    }
-
-    single {
         AssetCatalogueImpl(
             fixedAssets = nonCustodialAssetList(),
-            featureFlag = get(dynamicAssetsFeatureFlag),
-            featureConfig = get(),
             assetsDataManager = get()
         )
     }.bind(AssetCatalogue::class)
