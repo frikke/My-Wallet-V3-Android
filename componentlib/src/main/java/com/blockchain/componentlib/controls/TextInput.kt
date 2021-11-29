@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.controls
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +13,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
@@ -50,6 +55,8 @@ fun TextInput(
     keyboardActions: KeyboardActions = KeyboardActions(),
     singleLine: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
+    onFocusChanged: (FocusState) -> Unit = {},
+    onTrailingIconClicked: () -> Unit = {}
 ) {
 
     val unfocusedColor = if (isError) {
@@ -106,7 +113,11 @@ fun TextInput(
         TextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(1f),
+            modifier = Modifier
+                .fillMaxWidth(1f)
+                .onFocusChanged { focusState ->
+                    onFocusChanged.invoke(focusState)
+                },
             label = if (label != null) {
                 { Text(label) }
             } else null,
@@ -120,7 +131,12 @@ fun TextInput(
             } else null,
             trailingIcon = if (trailingIcon != ImageResource.None) {
                 {
-                    Image(imageResource = leadingIcon)
+                    Image(
+                        modifier = Modifier.clickable {
+                            onTrailingIconClicked.invoke()
+                        },
+                        imageResource = trailingIcon
+                    )
                 }
             } else null,
             enabled = enabled,
