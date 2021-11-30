@@ -90,6 +90,12 @@
         <item name="android:windowIsFloating">true</item>
     </style>
 
+    <style name="RedesignBottomSheetDialog" parent="BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
     <style name="BottomSheetModalStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/bkgd_dialog_rounder_corners</item>
     </style>

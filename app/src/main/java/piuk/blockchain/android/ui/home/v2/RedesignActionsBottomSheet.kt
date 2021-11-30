@@ -128,6 +128,8 @@ class RedesignActionsBottomSheet :
         }
     }
 
+    override fun getTheme() = R.style.RedesignBottomSheetDialog
+
     companion object {
         fun newInstance() = RedesignActionsBottomSheet()
     }
