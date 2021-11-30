@@ -30,12 +30,16 @@ data class Prices24HrWithDelta(
 interface ExchangeRates {
     @Deprecated("User the reactive get operations")
     fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat
+
     @Deprecated("User the reactive get operations")
     fun getLastFiatToUserFiatRate(sourceFiat: String): ExchangeRate.FiatToFiat
+
     @Deprecated("User the reactive get operations")
     fun getLastCryptoToFiatRate(sourceCrypto: AssetInfo, targetFiat: String): ExchangeRate.CryptoToFiat
+
     @Deprecated("User the reactive get operations")
     fun getLastFiatToFiatRate(sourceFiat: String, targetFiat: String): ExchangeRate.FiatToFiat
+
     @Deprecated("User the reactive get operations")
     fun getLastFiatToCryptoRate(sourceFiat: String, targetCrypto: AssetInfo): ExchangeRate.FiatToCrypto
 }

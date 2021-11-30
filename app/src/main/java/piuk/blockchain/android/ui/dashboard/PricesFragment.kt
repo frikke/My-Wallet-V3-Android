@@ -105,8 +105,6 @@ internal class PricesFragment :
         SafeLayoutManager(requireContext())
     }
 
-    private val displayList = mutableListOf<PricesItem>()
-
     private val compositeDisposable = CompositeDisposable()
 
     // Hold the 'current' display state, to enable optimising of state updates
@@ -177,18 +175,12 @@ internal class PricesFragment :
             updateLayoutState()
         }
 
-        with(displayList) {
-            clear()
-            addAll(
-                sortedAssets.toList().map {
-                    PricesItem(
-                        asset = it.assetInfo,
-                        priceWithDelta = it.prices
-                    )
-                }
+        theAdapter.items = sortedAssets.toList().map {
+            PricesItem(
+                asset = it.assetInfo,
+                priceWithDelta = it.prices
             )
         }
-        theAdapter.notifyDataSetChanged()
     }
 
     override fun onBackPressed(): Boolean = false
@@ -211,7 +203,6 @@ internal class PricesFragment :
 
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
         }
-        theAdapter.items = displayList
     }
 
     private fun setupSwipeRefresh() {
