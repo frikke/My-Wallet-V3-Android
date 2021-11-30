@@ -26,6 +26,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.NavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PagerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PrimaryButtonActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ProgressActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SectionHeadersActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallMinimalButtonActivity
@@ -138,6 +139,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.charts).setOnClickListener {
             startActivity(Intent(this@MainActivity, ChartsActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.progress).setOnClickListener {
+            startActivity(Intent(this@MainActivity, ProgressActivity::class.java))
         }
 
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {
