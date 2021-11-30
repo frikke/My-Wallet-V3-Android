@@ -73,13 +73,11 @@ import thepit.PitLinking
 import timber.log.Timber
 
 interface MainView : MvpView, HomeNavigator {
-    fun refreshAnnouncements()
     fun kickToLauncherPage()
     fun showProgressDialog(@StringRes message: Int)
     fun hideProgressDialog()
     fun clearAllDynamicShortcuts()
     fun showDebugMenu()
-    fun enableSwapButton(isEnabled: Boolean)
     fun shouldIgnoreDeepLinking(): Boolean
     fun displayDialog(@StringRes title: Int, @StringRes message: Int)
 
@@ -132,6 +130,7 @@ class MainPresenter internal constructor(
         } else {
             logEvents()
             doPushNotifications()
+            setDebugMenuVisibility()
         }
     }
 
@@ -150,15 +149,6 @@ class MainPresenter internal constructor(
                     { throwable -> Timber.e(throwable) }
                 )
         }
-    }
-
-    private fun checkKycStatus() {
-        compositeDisposable += kycStatusHelper.shouldDisplayKyc()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { view?.enableSwapButton(it) },
-                { Timber.e(it) }
-            )
     }
 
     private fun setDebugMenuVisibility() {

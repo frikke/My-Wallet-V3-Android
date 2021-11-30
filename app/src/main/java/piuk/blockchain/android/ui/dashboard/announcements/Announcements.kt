@@ -9,7 +9,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.android.campaign.CampaignType
 import timber.log.Timber
 
@@ -19,6 +18,7 @@ interface AnnouncementHost {
     fun showAnnouncementCard(card: AnnouncementCard)
     fun dismissAnnouncementCard()
     fun startSwap()
+
     // Actions
     fun startKyc(campaignType: CampaignType)
 
@@ -61,31 +61,16 @@ class AnnouncementList(
     private val availableAnnouncements: List<AnnouncementRule>,
     private val dismissRecorder: DismissRecorder
 ) {
-    // Hack to block announcements until metadata/simple buy etc is initialised.
-    // TODO: Refactor app startup so we can avoid nonsense like this
-    private var isEnabled = AtomicBoolean(false)
-
-    fun enable(): Boolean {
-        if (!isEnabled.get()) {
-            isEnabled.set(true)
-            return true
-        }
-        return false
-    }
 
     fun checkLatest(host: AnnouncementHost, disposables: CompositeDisposable) {
         host.dismissAnnouncementCard()
 
-        if (isEnabled.get()) {
-            disposables += showNextAnnouncement(host)
-                .doOnSubscribe { Timber.d("SB Sync: Checking announcements...") }
-                .subscribeBy(
-                    onComplete = { Timber.d("SB Sync: Announcements checked") },
-                    onError = Timber::e
-                )
-        } else {
-            Timber.d("SB Sync: ... Announcements disabled")
-        }
+        disposables += showNextAnnouncement(host)
+            .doOnSubscribe { Timber.d("SB Sync: Checking announcements...") }
+            .subscribeBy(
+                onComplete = { Timber.d("SB Sync: Announcements checked") },
+                onError = Timber::e
+            )
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

@@ -39,13 +39,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.PublishSubject
 import java.net.URLDecoder
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -135,10 +133,6 @@ class MainActivity :
         internal set
 
     private var handlingResult = false
-
-    private val _refreshAnnouncements = PublishSubject.create<Unit>()
-    val refreshAnnouncements: Observable<Unit>
-        get() = _refreshAnnouncements
 
     private val toolbar: Toolbar by lazy {
         val layout = binding.root.findViewById<LinearLayoutCompat>(R.id.toolbar)
@@ -515,12 +509,6 @@ class MainActivity :
         }
     }
 
-    override fun enableSwapButton(isEnabled: Boolean) {
-        with(binding.bottomNavigation) {
-            menu.findItem(R.id.nav_swap).isEnabled = isEnabled
-        }
-    }
-
     override fun displayDialog(title: Int, message: Int) {
         AlertDialog.Builder(this, R.style.AlertDialogStyle)
             .setTitle(title)
@@ -704,10 +692,6 @@ class MainActivity :
         showFragment(fragment, reload)
         toolbar.title = getString(R.string.common_activity)
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
-    }
-
-    override fun refreshAnnouncements() {
-        _refreshAnnouncements.onNext(Unit)
     }
 
     override fun shouldIgnoreDeepLinking() =

@@ -28,7 +28,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.android.ext.android.get
@@ -389,6 +388,9 @@ class PortfolioFragment :
     private fun showAnnouncement(card: AnnouncementCard?) {
         displayList[IDX_CARD_ANNOUNCE] = card ?: EmptyDashboardItem()
         theAdapter.notifyItemChanged(IDX_CARD_ANNOUNCE)
+        card?.let {
+            binding.recyclerView.smoothScrollToPosition(IDX_CARD_ANNOUNCE)
+        }
     }
 
     private fun updateAnalytics(oldState: DashboardState?, newState: DashboardState) {
@@ -481,14 +483,6 @@ class PortfolioFragment :
             initOrUpdateAssets()
         }
 
-        (activity as? MainActivity)?.let {
-            compositeDisposable += it.refreshAnnouncements.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (announcements.enable()) {
-                        announcements.checkLatest(announcementHost, compositeDisposable)
-                    }
-                }
-        }
         announcements.checkLatest(announcementHost, compositeDisposable)
         model.process(DashboardIntent.GetUserCanBuy)
         initOrUpdateAssets()
