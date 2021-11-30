@@ -1564,13 +1564,13 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
 
 fun PaymentAttributesResponse.toPaymentAttributes(): PaymentAttributes {
     val cardAttributes = when {
-        cardProviderAttributes != null -> CardAttributes.Provider(
-            cardAcquirerName = cardProviderAttributes.cardAcquirerName,
-            cardAcquirerAccountCode = cardProviderAttributes.cardAcquirerAccountCode,
-            paymentLink = cardProviderAttributes.paymentLink,
-            paymentState = cardProviderAttributes.paymentState,
-            clientSecret = cardProviderAttributes.clientSecret,
-            publishableApiKey = cardProviderAttributes.publishableApiKey
+        cardProvider != null -> CardAttributes.Provider(
+            cardAcquirerName = cardProvider.cardAcquirerName,
+            cardAcquirerAccountCode = cardProvider.cardAcquirerAccountCode,
+            paymentLink = cardProvider.paymentLink,
+            paymentState = cardProvider.paymentState,
+            clientSecret = cardProvider.clientSecret,
+            publishableApiKey = cardProvider.publishableApiKey
         )
         everypay != null -> CardAttributes.EveryPay(
             paymentLink = everypay.paymentLink,

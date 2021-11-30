@@ -178,7 +178,7 @@ data class PaymentAttributesResponse(
     val everypay: EverypayPaymentAttributesResponse?,
     val authorisationUrl: String?,
     val status: String?,
-    val cardProviderAttributes: CardProviderPaymentAttributesResponse?
+    val cardProvider: CardProviderPaymentAttributesResponse?
 )
 
 data class CardProviderPaymentAttributesResponse(
