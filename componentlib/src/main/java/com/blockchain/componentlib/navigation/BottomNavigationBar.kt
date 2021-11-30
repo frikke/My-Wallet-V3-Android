@@ -62,6 +62,7 @@ fun BottomNavigationBar(
     bottomNavigationState: BottomNavigationState = BottomNavigationState.Add,
     isPulseAnimationEnabled: Boolean = false
 ) {
+    val animationDuration = 300
     var isPressed by remember { mutableStateOf(false) }
 
     val scaling by animateFloatAsState(
@@ -69,7 +70,7 @@ fun BottomNavigationBar(
             true -> 0.75f
             false -> 1f
         },
-        animationSpec = tween(durationMillis = 300, easing = LinearEasing)
+        animationSpec = tween(durationMillis = animationDuration, easing = LinearEasing)
     )
 
     val backgroundColor: Color = if (!isSystemInDarkTheme()) {
@@ -121,8 +122,8 @@ fun BottomNavigationBar(
                                                 try {
                                                     awaitRelease()
                                                 } finally {
-                                                    isPressed = false
                                                     onMiddleButtonClick()
+                                                    isPressed = false
                                                 }
                                             }
                                         )
@@ -130,13 +131,13 @@ fun BottomNavigationBar(
                                     .scale(scaling),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Crossfade(targetState = bottomNavigationState) { state ->
+                                Crossfade(targetState = isPressed) { state ->
                                     when (state) {
-                                        BottomNavigationState.Add -> Image(
+                                        false -> Image(
                                             painter = painterResource(R.drawable.ic_bottom_nav_add),
                                             contentDescription = null
                                         )
-                                        BottomNavigationState.Cancel -> Image(
+                                        true -> Image(
                                             painter = painterResource(R.drawable.ic_bottom_nav_cancel),
                                             contentDescription = null
                                         )
