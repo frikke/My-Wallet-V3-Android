@@ -13,6 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.StringRes
+import androidx.appcompat.widget.AppCompatButton
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -256,23 +258,13 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             getString(R.string.yapily_approval_in_progress_subtitle)
         )
 
-        with(binding) {
-            mainCta.visible()
-            secondaryCta.apply {
-                visible()
-                background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_no_bkgd_red_selection_selector)
-                setTextColor(resources.getColorStateList(R.color.button_red_text_states, null))
-                text = getString(R.string.cancel_order)
-                setOnClickListener {
-                    model.process(BankAuthIntent.CancelOrder)
-                }
-                analytics.logEvent(bankAuthEvent(BankAuthAnalytics.PIS_EXTERNAL_FLOW_CANCEL, authSource))
-            }
-        }
+        binding.mainCta.visible()
+        showCancelButton(R.string.cancel_order)
     }
 
     private fun showActivationInProgress() {
         showLoading()
+        binding.linkBankIcon.setImageResource(R.drawable.ic_blockchain_blue_circle)
         setTitleAndSubtitle(
             getString(R.string.yapily_activating_title),
             getString(R.string.yapily_activating_subtitle)
@@ -290,6 +282,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
     private fun showExternalFlow(attrs: YapilyAttributes) {
         showLoading()
+        showCancelButton(R.string.common_cancel)
         hasChosenExternalApp = false
         setTitleAndSubtitle(
             getString(
@@ -323,36 +316,28 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     ) {
         when (errorState) {
             ErrorState.LinkedBankAlreadyLinked -> {
-                binding.mainCta.apply {
-                    text = getString(R.string.common_go_back)
-                    visible()
-                    setOnClickListener {
-                        logRetryAnalytics(errorState, partner)
-                        if (partner == BankPartner.YAPILY) {
-                            navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
-                        } else {
-                            navigator().launchYodleeSplash(
-                                attributes = linkBankTransfer?.attributes as YodleeAttributes,
-                                bankId = linkBankTransferId
-                            )
-                        }
+                showGoBackButton(binding.mainCta) {
+                    logRetryAnalytics(errorState, partner)
+                    if (partner == BankPartner.YAPILY) {
+                        navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+                    } else {
+                        navigator().launchYodleeSplash(
+                            attributes = linkBankTransfer?.attributes as YodleeAttributes,
+                            bankId = linkBankTransferId
+                        )
                     }
                 }
             }
             ErrorState.LinkedBankInvalid,
             ErrorState.LinkedBankAccountUnsupported -> {
-                binding.mainCta.apply {
-                    text = getString(R.string.common_go_back)
-                    visible()
-                    setOnClickListener {
-                        if (partner == BankPartner.YAPILY) {
-                            navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
-                        } else {
-                            navigator().launchYodleeSplash(
-                                attributes = linkBankTransfer?.attributes as YodleeAttributes,
-                                bankId = linkBankTransferId
-                            )
-                        }
+                showGoBackButton(binding.mainCta) {
+                    if (partner == BankPartner.YAPILY) {
+                        navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+                    } else {
+                        navigator().launchYodleeSplash(
+                            attributes = linkBankTransfer?.attributes as YodleeAttributes,
+                            bankId = linkBankTransferId
+                        )
                     }
                 }
             }
@@ -376,13 +361,9 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                         }
                     }
                 }
-                binding.secondaryCta.apply {
-                    text = getString(R.string.common_go_back)
-                    visible()
-                    setOnClickListener {
-                        logCancelAnalytics(errorState, partner)
-                        navigator().bankAuthCancelled()
-                    }
+                showGoBackButton(binding.secondaryCta) {
+                    logCancelAnalytics(errorState, partner)
+                    navigator().bankAuthCancelled()
                 }
             }
             ErrorState.LinkedBankExpired -> {
@@ -401,13 +382,9 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                         }
                     }
                 }
-                binding.secondaryCta.apply {
-                    text = getString(R.string.common_go_back)
-                    visible()
-                    setOnClickListener {
-                        logCancelAnalytics(errorState, partner)
-                        navigator().bankAuthCancelled()
-                    }
+                showGoBackButton(binding.secondaryCta) {
+                    logCancelAnalytics(errorState, partner)
+                    navigator().bankAuthCancelled()
                 }
             }
             ErrorState.LinkedBankNamesMismatched -> {
@@ -426,22 +403,14 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                         }
                     }
                 }
-                binding.secondaryCta.apply {
-                    text = getString(R.string.common_go_back)
-                    visible()
-                    setOnClickListener {
-                        logCancelAnalytics(errorState, partner)
-                        navigator().bankAuthCancelled()
-                    }
+                showGoBackButton(binding.secondaryCta) {
+                    logCancelAnalytics(errorState, partner)
+                    navigator().bankAuthCancelled()
                 }
             }
             else -> {
-                binding.mainCta.apply {
-                    text = getString(R.string.common_go_back)
-                    visible()
-                    setOnClickListener {
-                        navigator().bankAuthCancelled()
-                    }
+                showGoBackButton(binding.mainCta) {
+                    navigator().bankAuthCancelled()
                 }
             }
         }
@@ -638,6 +607,31 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                         )
                     }
                 }.exhaustive
+            }
+        }
+    }
+
+    private fun showCancelButton(@StringRes resId: Int) {
+        with(binding) {
+            secondaryCta.apply {
+                visible()
+                background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_no_bkgd_red_selection_selector)
+                setTextColor(resources.getColorStateList(R.color.button_red_text_states, null))
+                text = getString(resId)
+                setOnClickListener {
+                    model.process(BankAuthIntent.CancelOrder)
+                }
+                analytics.logEvent(bankAuthEvent(BankAuthAnalytics.PIS_EXTERNAL_FLOW_CANCEL, authSource))
+            }
+        }
+    }
+
+    private fun showGoBackButton(button: AppCompatButton, onClick: () -> Unit) {
+        button.apply {
+            text = getString(R.string.common_go_back)
+            visible()
+            setOnClickListener {
+                onClick()
             }
         }
     }
