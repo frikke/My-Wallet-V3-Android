@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.transfer.send
 
 import android.os.Bundle
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -28,9 +27,6 @@ class TransferSendFragment : AccountSelectorFragment() {
 
     private val analytics: Analytics by inject()
     private val compositeDisposable = CompositeDisposable()
-    private val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        refreshItems(showLoader = false)
-    }
 
     override val fragmentAction: AssetAction
         get() = AssetAction.Send
@@ -99,7 +95,7 @@ class TransferSendFragment : AccountSelectorFragment() {
     }
 
     private fun startTransactionFlow(fromAccount: CryptoAccount) {
-        startActivityForResult.launch(
+        startActivity(
             TransactionFlowActivity.newInstance(
                 context = requireActivity(),
                 sourceAccount = fromAccount,

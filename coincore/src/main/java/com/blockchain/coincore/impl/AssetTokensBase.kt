@@ -293,14 +293,7 @@ internal class ActiveAccountList(
     ): List<CryptoAccount> {
         val newActives = mutableSetOf<CryptoAccount>()
         accounts.filterIsInstance<CryptoAccount>()
-            .forEach { a ->
-                val existing = activeList.find { it.matches(a) }
-                if (existing != null) {
-                    newActives.add(existing)
-                } else {
-                    newActives.add(a)
-                }
-            }
+            .forEach { a -> newActives.add(a) }
         activeList.clear()
         activeList.addAll(newActives)
 

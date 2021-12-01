@@ -87,7 +87,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     override fun onResumeFragment() {
-        refreshItems(showLoader = false)
+        refreshItems(showLoader = true)
     }
 
     fun refreshItems(showLoader: Boolean = true) {
