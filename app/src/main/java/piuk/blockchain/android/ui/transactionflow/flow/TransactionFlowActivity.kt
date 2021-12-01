@@ -10,6 +10,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -86,6 +87,7 @@ class TransactionFlowActivity :
         setContentView(binding.root)
         loadToolbar { onBackPressed() }
         binding.txProgress.visible()
+        addMenuOptionsToRedesignToolbar()
         startModel()
     }
 
@@ -150,12 +152,18 @@ class TransactionFlowActivity :
         }
     }
 
+    private fun addMenuOptionsToRedesignToolbar() {
+        binding.toolbar.toolbarRedesign.apply {
+            navigationBarButtons = listOf(
+                NavigationBarButton.Icon(R.drawable.ic_close) { finish() }
+            )
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                navigateOnBackPressed {
-                    finish()
-                }
+                navigateOnBackPressed { finish() }
                 true
             }
             R.id.action_close -> {
@@ -169,9 +177,7 @@ class TransactionFlowActivity :
     }
 
     override fun onBackPressed() {
-        navigateOnBackPressed {
-            finish()
-        }
+        navigateOnBackPressed { finish() }
     }
 
     private fun navigateOnBackPressed(finalAction: () -> Unit) {
