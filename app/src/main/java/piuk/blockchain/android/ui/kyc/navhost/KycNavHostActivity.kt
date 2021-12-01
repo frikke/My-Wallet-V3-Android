@@ -176,7 +176,6 @@ class KycNavHostActivity :
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
-
         if (flowShouldBeClosedAfterBackAction() || !navController.navigateUp()) {
             finish()
         }
@@ -201,8 +200,6 @@ class KycNavHostActivity :
     override fun getView(): KycNavHostView = this
 
     companion object {
-
-        //        const val RESULT_KYC_STX_COMPLETE = 5
         const val RESULT_KYC_FOR_SDD_COMPLETE = 35432
         const val RESULT_KYC_FOR_TIER_COMPLETE = 8954234
         private const val EXTRA_CAMPAIGN_TYPE = "piuk.blockchain.android.EXTRA_CAMPAIGN_TYPE"
@@ -210,19 +207,19 @@ class KycNavHostActivity :
 
         @JvmStatic
         fun start(context: Context, campaignType: CampaignType) {
-            intentArgs(context, campaignType)
+            newIntent(context, campaignType)
                 .run { context.startActivity(this) }
         }
 
         @JvmStatic
         fun start(context: Context, campaignType: CampaignType, showLimits: Boolean) {
-            intentArgs(context, campaignType, showLimits)
+            newIntent(context, campaignType, showLimits)
                 .run { context.startActivity(this) }
         }
 
         @JvmStatic
         fun startForResult(activity: Activity, campaignType: CampaignType, requestCode: Int) {
-            intentArgs(activity, campaignType)
+            newIntent(activity, campaignType)
                 .run { activity.startActivityForResult(this, requestCode) }
         }
 
@@ -233,12 +230,12 @@ class KycNavHostActivity :
             requestCode: Int,
             showTiersLimitsSplash: Boolean = false
         ) {
-            intentArgs(fragment.requireContext(), campaignType, showTiersLimitsSplash)
+            newIntent(fragment.requireContext(), campaignType, showTiersLimitsSplash)
                 .run { fragment.startActivityForResult(this, requestCode) }
         }
 
         @JvmStatic
-        private fun intentArgs(
+        fun newIntent(
             context: Context,
             campaignType: CampaignType,
             showTiersLimitsSplash: Boolean = false

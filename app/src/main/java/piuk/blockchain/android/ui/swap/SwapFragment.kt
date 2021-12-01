@@ -80,8 +80,13 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
     private val assetResources: AssetResources by inject()
     private val appUtil: AppUtil by inject()
     private val compositeDisposable = CompositeDisposable()
+
     private val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        loadSwapOrKyc(showLoading = false)
+        loadSwapOrKyc(showLoading = true)
+    }
+
+    private val startKycForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        loadSwapOrKyc(showLoading = true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -274,7 +279,7 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
             R.drawable.ic_swap_blue_circle,
             ButtonOptions(visible = true, text = getString(R.string.swap_kyc_cta)) {
                 analytics.logEvent(SwapAnalyticsEvents.VerifyNowClicked)
-                KycNavHostActivity.start(requireActivity(), CampaignType.Swap)
+                startKycForResult.launch(KycNavHostActivity.newIntent(requireActivity(), CampaignType.Swap))
             },
             ButtonOptions(visible = false),
             showSheetIndicator = false
