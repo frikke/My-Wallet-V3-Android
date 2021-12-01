@@ -229,7 +229,7 @@ class TradingToOnChainTxEngine(
     // processor at some point.
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> {
         val targetAddress = txTarget as CryptoAddress
-        val address = pendingTx.memo?.let {
+        val address = pendingTx.memo?.takeIf { it.isNotEmpty() }?.let {
             "${targetAddress.address}:$it"
         } ?: targetAddress.address
 
