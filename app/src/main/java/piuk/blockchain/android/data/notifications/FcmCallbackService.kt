@@ -60,7 +60,6 @@ class FcmCallbackService : FirebaseMessagingService() {
                 title = remoteMessage.notification?.title ?: "",
                 marquee = remoteMessage.notification?.title ?: "",
                 text = remoteMessage.notification?.body ?: "",
-                icon = R.mipmap.ic_launcher,
                 // Don't want to launch an activity
                 pendingIntent = PendingIntent.getActivity(
                     applicationContext, 0, Intent(), PendingIntent.FLAG_UPDATE_CURRENT
@@ -112,7 +111,6 @@ class FcmCallbackService : FirebaseMessagingService() {
                                 title = getString(R.string.secure_channel_notif_title),
                                 marquee = getString(R.string.secure_channel_notif_title),
                                 text = getString(R.string.secure_channel_notif_summary),
-                                icon = R.mipmap.ic_launcher,
                                 pendingIntent = intent,
                                 id = notificationId,
                                 appName = R.string.app_name,
@@ -192,7 +190,6 @@ class FcmCallbackService : FirebaseMessagingService() {
             title = payload.title ?: "",
             marquee = payload.title ?: "",
             text = payload.body ?: "",
-            icon = R.mipmap.ic_launcher,
             pendingIntent = pendingIntent,
             id = notificationId,
             appName = R.string.app_name,

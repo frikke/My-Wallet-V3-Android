@@ -79,7 +79,6 @@ class CoinsWebSocketService(
                         title = title,
                         marquee = marquee,
                         text = text,
-                        icon = R.mipmap.ic_launcher,
                         pendingIntent = pendingIntent,
                         id = 1000,
                         appName = R.string.app_name,
