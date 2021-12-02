@@ -138,7 +138,8 @@ class InterestDepositOnChainTxEngine(
                 interestBalances.flushCaches(sourceAsset)
             }
 
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable = txTarget.onTxCompleted(txResult)
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
+        onChainEngine.doPostExecute(pendingTx, txResult)
 
     companion object {
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)
