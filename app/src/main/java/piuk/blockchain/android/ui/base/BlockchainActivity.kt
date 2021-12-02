@@ -115,7 +115,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     fun updateMenuItems(menuItems: List<NavigationBarButton>) {
-        toolbarBinding?.toolbarRedesign?.navigationBarButtons = menuItems
+        toolbarBinding?.toolbarRedesign?.endNavigationBarButtons = menuItems
     }
 
     // TODO when removing ff -> remove backButton from toolbarGeneral
