@@ -18,4 +18,6 @@
     <color name="paletteBaseLight">#F0F2F7</color>
     <color name="paletteBaseMedium">#DFE3EB</color>
     <color name="paletteBaseDark">#B1B8C7</color>
+
+    <color name="calendarAccent">#0C6CF2</color>
 </resources>
