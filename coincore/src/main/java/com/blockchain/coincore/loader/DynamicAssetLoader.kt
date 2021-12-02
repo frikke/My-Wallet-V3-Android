@@ -22,6 +22,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
+import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
@@ -146,7 +147,12 @@ internal class DynamicAssetLoader(
             interestBalances.getActiveAssets(),
             erc20DataManager.getActiveAssets()
         ) { activeTrading, activeInterest, activeNoncustodial ->
-            activeInterest + activeTrading + activeNoncustodial
+            // Always load the fully supported ERC20s
+            val erc20WithFullSupport = erc20Assets.filter { dynamicAsset ->
+                dynamicAsset.isNonCustodial &&
+                    dynamicAsset.isCustodial
+            }
+            activeInterest + activeTrading + activeNoncustodial + erc20WithFullSupport
         }.map { activeAssets ->
             erc20Assets.filter { activeAssets.contains(it) }
         }.map { activeSupportedAssets ->
