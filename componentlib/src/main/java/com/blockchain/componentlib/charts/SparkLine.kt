@@ -19,17 +19,17 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun SparkLine(
-    historicalRate: List<SparkLineHistoricalRate>,
+    historicalRates: List<SparkLineHistoricalRate>,
     modifier: Modifier = Modifier,
 ) {
-    if (historicalRate.isEmpty()) {
+    if (historicalRates.isEmpty()) {
         return
     }
 
     // Assumption : Crypto rates are never negative
-    val maxRate by remember(historicalRate) {
+    val maxRate by remember(historicalRates) {
         mutableStateOf(
-            historicalRate.maxByOrNull(SparkLineHistoricalRate::rate) ?: return
+            historicalRates.maxByOrNull(SparkLineHistoricalRate::rate) ?: return
         )
     }
 
@@ -39,7 +39,7 @@ fun SparkLine(
 
         val height = this.size.height
         val width = this.size.width
-        val interval = width / historicalRate.size
+        val interval = width / historicalRates.size
         var currentX = interval
         val rateScalerValue = height / maxRate.rate.toFloat()
         val gradient = Brush.horizontalGradient(
@@ -50,9 +50,9 @@ fun SparkLine(
 
         val path = Path()
 
-        path.moveTo(0f, historicalRate.first().rate.toFloat() * rateScalerValue)
+        path.moveTo(0f, historicalRates.first().rate.toFloat() * rateScalerValue)
 
-        historicalRate.forEachIndexed { index, rateEntry ->
+        historicalRates.forEachIndexed { index, rateEntry ->
             if (index == 0) {
                 return@forEachIndexed
             }
@@ -70,7 +70,7 @@ fun SparkLine(
 
 @Preview
 @Composable
-fun SparkLinePreview() {
+private fun SparkLinePreview() {
     val data: List<SparkLineHistoricalRate> = List(20) {
         object : SparkLineHistoricalRate {
             override val timestamp: Long = it.toLong()
@@ -81,7 +81,7 @@ fun SparkLinePreview() {
     AppTheme {
         AppSurface {
             SparkLine(
-                historicalRate = data,
+                historicalRates = data,
                 modifier = Modifier.size(64.dp, 16.dp)
             )
         }
