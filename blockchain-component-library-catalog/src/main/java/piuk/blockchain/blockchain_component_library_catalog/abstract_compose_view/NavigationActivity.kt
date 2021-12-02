@@ -23,7 +23,7 @@ class NavigationActivity : AppCompatActivity() {
             onBackButtonClick = {
                 Toast.makeText(this@NavigationActivity, "Back button clicked", Toast.LENGTH_SHORT).show()
             }
-            navigationBarButtons = listOf(
+            endNavigationBarButtons = listOf(
                 NavigationBarButton.Text("Cancel") {
                     Toast.makeText(this@NavigationActivity, "Text button clicked", Toast.LENGTH_SHORT).show()
                 }
@@ -35,7 +35,7 @@ class NavigationActivity : AppCompatActivity() {
             onBackButtonClick = {
                 Toast.makeText(this@NavigationActivity, "Back button clicked", Toast.LENGTH_SHORT).show()
             }
-            navigationBarButtons = listOf(
+            endNavigationBarButtons = listOf(
                 NavigationBarButton.Icon(R.drawable.ic_bottom_nav_home) {
                     Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()
                 },

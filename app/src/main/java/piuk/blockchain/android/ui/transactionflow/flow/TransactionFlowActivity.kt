@@ -154,7 +154,7 @@ class TransactionFlowActivity :
 
     private fun addMenuOptionsToRedesignToolbar() {
         binding.toolbar.toolbarRedesign.apply {
-            navigationBarButtons = listOf(
+            endNavigationBarButtons = listOf(
                 NavigationBarButton.Icon(R.drawable.ic_close) { finish() }
             )
         }

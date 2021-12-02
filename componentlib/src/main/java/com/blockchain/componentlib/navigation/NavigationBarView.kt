@@ -17,18 +17,27 @@ class NavigationBarView @JvmOverloads constructor(
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
     var onBackButtonClick by mutableStateOf(null as? (() -> Unit)?)
+    var startNavigationBarButton by mutableStateOf(null as NavigationBarButton.Icon?)
     var title by mutableStateOf("")
-    var navigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
+    var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
 
     @Composable
     override fun Content() {
         AppTheme {
             AppSurface {
-                NavigationBar(
-                    title = title,
-                    onBackButtonClick = onBackButtonClick,
-                    navigationBarButtons = navigationBarButtons
-                )
+                if (startNavigationBarButton != null) {
+                    NavigationBar(
+                        title = title,
+                        startNavigationBarButton = startNavigationBarButton,
+                        endNavigationBarButtons = endNavigationBarButtons
+                    )
+                } else {
+                    NavigationBar(
+                        title = title,
+                        onBackButtonClick = onBackButtonClick,
+                        navigationBarButtons = endNavigationBarButtons
+                    )
+                }
             }
         }
     }

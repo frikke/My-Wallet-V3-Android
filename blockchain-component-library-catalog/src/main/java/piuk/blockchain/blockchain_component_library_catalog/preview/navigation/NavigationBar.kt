@@ -15,7 +15,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun NavigationBarPreview() {
     AppTheme {
         AppSurface {
-            NavigationBar("Activity")
+            NavigationBar(title = "Activity", onBackButtonClick = null, navigationBarButtons = emptyList())
         }
     }
 }

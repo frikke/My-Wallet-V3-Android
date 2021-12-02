@@ -141,14 +141,14 @@ class RedesignSettingsActivity : BlockchainActivity() {
             .subscribeBy(
                 onSuccess = { (isSimpleBuyEligible, userInformation) ->
                     if (isSimpleBuyEligible) {
-                        binding.toolbar.navigationBarButtons = listOf(
+                        binding.toolbar.endNavigationBarButtons = listOf(
                             NavigationBarButton.Icon(R.drawable.ic_support_chat) {
                                 analytics.logEvent(AnalyticsEvents.Support)
                                 startActivity(ZendeskSubjectActivity.newInstance(this, userInformation))
                             }
                         )
                     } else {
-                        binding.toolbar.navigationBarButtons = listOf(
+                        binding.toolbar.endNavigationBarButtons = listOf(
                             NavigationBarButton.Icon(R.drawable.ic_support_chat) {
                                 analytics.logEvent(AnalyticsEvents.Support)
                                 calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
@@ -156,7 +156,7 @@ class RedesignSettingsActivity : BlockchainActivity() {
                         )
                     }
                 }, onError = {
-                binding.toolbar.navigationBarButtons = listOf(
+                binding.toolbar.endNavigationBarButtons = listOf(
                     NavigationBarButton.Icon(R.drawable.ic_support_chat) {
                         analytics.logEvent(AnalyticsEvents.Support)
                         calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)

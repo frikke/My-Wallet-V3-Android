@@ -36,7 +36,20 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 fun NavigationBar(
     title: String,
     onBackButtonClick: (() -> Unit)? = null,
-    navigationBarButtons: List<NavigationBarButton> = listOf()
+    navigationBarButtons: List<NavigationBarButton> = emptyList()
+) = NavigationBar(
+    title = title,
+    startNavigationBarButton = onBackButtonClick?.let { onClick ->
+        NavigationBarButton.Icon(R.drawable.ic_nav_bar_back, Grey400, onClick)
+    },
+    endNavigationBarButtons = navigationBarButtons
+)
+
+@Composable
+fun NavigationBar(
+    title: String,
+    startNavigationBarButton: NavigationBarButton.Icon? = null,
+    endNavigationBarButtons: List<NavigationBarButton> = emptyList()
 ) {
 
     Box(
@@ -50,11 +63,11 @@ fun NavigationBar(
                 .align(Alignment.CenterStart)
                 .padding(start = 24.dp)
         ) {
-            if (onBackButtonClick != null) {
+            startNavigationBarButton?.let { button ->
                 Box(
                     modifier = Modifier
                         .clickable {
-                            onBackButtonClick.invoke()
+                            button.onClick.invoke()
                         }
                         .align(CenterVertically)
                         .padding(
@@ -65,9 +78,9 @@ fun NavigationBar(
                         )
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_nav_bar_back),
+                        painter = painterResource(id = button.drawable),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(Grey400)
+                        colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))
@@ -84,7 +97,7 @@ fun NavigationBar(
                 .align(Alignment.CenterEnd)
                 .padding(end = 24.dp)
         ) {
-            navigationBarButtons.forEach {
+            endNavigationBarButtons.forEach {
                 Spacer(modifier = Modifier.width(12.dp))
                 Box(
                     modifier = Modifier
@@ -120,7 +133,7 @@ fun NavigationBar(
 @Composable
 fun NavigationBarPreview() {
     AppTheme {
-        NavigationBar("Test")
+        NavigationBar(title = "Test", onBackButtonClick = null, navigationBarButtons = emptyList())
     }
 }
 

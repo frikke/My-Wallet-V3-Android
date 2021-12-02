@@ -199,7 +199,7 @@ class RedesignMainActivity :
 
     private fun setupToolbar() {
         binding.mainToolbar.apply {
-            navigationBarButtons = listOf(
+            endNavigationBarButtons = listOf(
                 NavigationBarButton.Icon(R.drawable.ic_qr_scan) {
                     launchQrScan()
                 },
