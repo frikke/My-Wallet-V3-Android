@@ -229,16 +229,16 @@ class RedesignMainActivity :
                 selectedNavigationItem = it
                 when (it) {
                     NavigationItem.Home -> {
-                        launchPortfolio()
+                        launchPortfolio(reload = false)
                     }
                     NavigationItem.Prices -> {
-                        launchPrices()
+                        launchPrices(reload = false)
                     }
                     NavigationItem.BuyAndSell -> {
-                        launchBuySell()
+                        launchBuySell(reload = false)
                     }
                     NavigationItem.Activity -> {
-                        startActivitiesFragment()
+                        startActivitiesFragment(reload = false)
                     }
                     else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
                 }
@@ -541,12 +541,16 @@ class RedesignMainActivity :
         }
     }
 
-    private fun startActivitiesFragment(account: BlockchainAccount? = null, reload: Boolean = true) {
+    private fun startActivitiesFragment(
+        account: BlockchainAccount? = null,
+        reload: Boolean = true
+    ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_activity))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
         supportFragmentManager.showFragment(
             fragment = ActivitiesFragment.newInstance(account),
-            loadingView = binding.progress
+            loadingView = binding.progress,
+            reloadFragment = reload
         )
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
@@ -573,16 +577,28 @@ class RedesignMainActivity :
         showBottomSheet(bottomSheet)
     }
 
-    private fun launchPortfolio(action: AssetAction? = null, fiatCurrency: String? = null) {
+    private fun launchPortfolio(
+        action: AssetAction? = null,
+        fiatCurrency: String? = null,
+        reload: Boolean = true
+    ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
             fragment = PortfolioFragment.newInstance(true, action, fiatCurrency),
-            loadingView = binding.progress
+            loadingView = binding.progress,
+            reloadFragment = reload
         )
     }
 
-    override fun launchSwap(sourceAccount: CryptoAccount?, targetAccount: CryptoAccount?) {
+    override fun launchSwapScreen() {
+        launchSwap()
+    }
+
+    override fun launchSwap(
+        sourceAccount: CryptoAccount?,
+        targetAccount: CryptoAccount?
+    ) {
         if (sourceAccount == null && targetAccount == null) {
             startActivity(ActionActivity.newIntent(this, AssetAction.Swap))
         } else if (sourceAccount != null) {
@@ -642,7 +658,19 @@ class RedesignMainActivity :
 
     override fun launchSend() = startActivity(ActionActivity.newIntent(this, AssetAction.Send))
 
-    override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
+    override fun launchBuy() {
+        launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+    }
+
+    override fun launchSell() {
+        launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+    }
+
+    override fun launchBuySell(
+        viewType: BuySellFragment.BuySellViewType,
+        asset: AssetInfo?,
+        reload: Boolean
+    ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_buy_sell))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
         supportFragmentManager.showFragment(
@@ -650,14 +678,17 @@ class RedesignMainActivity :
                 viewType = viewType,
                 asset = asset
             ),
-            loadingView = binding.progress
+            loadingView = binding.progress,
+            reloadFragment = reload
         )
     }
 
-    private fun launchPrices() {
+    private fun launchPrices(reload: Boolean = true) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
         supportFragmentManager.showFragment(
-            PricesFragment.newInstance(), loadingView = binding.progress
+            fragment = PricesFragment.newInstance(),
+            loadingView = binding.progress,
+            reloadFragment = reload
         )
     }
 

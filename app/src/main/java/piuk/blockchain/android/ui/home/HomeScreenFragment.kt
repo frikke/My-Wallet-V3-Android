@@ -37,7 +37,8 @@ interface HomeNavigator {
     fun launchSend()
     fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        asset: AssetInfo? = null
+        asset: AssetInfo? = null,
+        reload: Boolean = true
     )
     fun launchSimpleBuy(asset: AssetInfo)
     fun launchInterestDashboard(origin: LaunchOrigin)

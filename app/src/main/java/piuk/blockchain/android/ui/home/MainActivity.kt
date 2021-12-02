@@ -941,8 +941,12 @@ class MainActivity :
         startActivity(SimpleBuyActivity.newIntent(this, launchFromApprovalDeepLink = true))
     }
 
-    override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
-        startBuyAndSellFragment(viewType, asset)
+    override fun launchBuySell(
+        viewType: BuySellFragment.BuySellViewType,
+        asset: AssetInfo?,
+        reload: Boolean
+    ) {
+        startBuyAndSellFragment(viewType, asset, reload)
     }
 
     override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount?) =
