@@ -10,7 +10,6 @@ import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.buildAnnotatedString
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
 import com.blockchain.componentlib.image.ImageResource
-import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
