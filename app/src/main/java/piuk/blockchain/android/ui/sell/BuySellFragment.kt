@@ -31,7 +31,7 @@ import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
-import piuk.blockchain.android.ui.base.setupToolbar
+import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.util.AppUtil
@@ -84,9 +84,7 @@ class BuySellFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.setupToolbar(
-            titleToolbar = getString(R.string.buy_and_sell)
-        )
+        updateTitleToolbar(getString(R.string.buy_and_sell))
         analytics.logEvent(BuySellViewedEvent())
     }
 

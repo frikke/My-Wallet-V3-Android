@@ -20,7 +20,6 @@ import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.US
 import piuk.blockchain.android.util.visibleIf
@@ -124,7 +123,7 @@ class BillingAddressFragment :
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
             }
         }
-        activity.setupToolbar(getString(R.string.add_card_address_title))
+        activity.updateTitleToolbar(getString(R.string.add_card_address_title))
     }
 
     private fun setupUserDetails(user: NabuUser) {

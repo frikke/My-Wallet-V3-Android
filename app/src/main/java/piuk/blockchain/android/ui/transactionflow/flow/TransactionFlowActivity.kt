@@ -85,7 +85,12 @@ class TransactionFlowActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar { onBackPressed() }
+        loadToolbar(
+            menuItems = listOf(
+                NavigationBarButton.Icon(R.drawable.ic_close) { finish() }
+            ),
+            backAction = { onBackPressed() }
+        )
         binding.txProgress.visible()
         addMenuOptionsToRedesignToolbar()
         startModel()
@@ -145,8 +150,8 @@ class TransactionFlowActivity :
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
             showFlowStep(step)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
-                loadToolbar(titleToolbar = it, backAction = { onBackPressed() })
-            } ?: loadToolbar("")
+                updateTitleToolbar(it)
+            } ?: loadToolbar()
 
             currentStep = step
         }

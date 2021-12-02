@@ -17,7 +17,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColours
 
@@ -31,7 +30,7 @@ class RecurringBuySuccessfulFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.setupToolbar(getString(R.string.recurring_buy_first_time_toolbar))
+        activity.loadToolbar(getString(R.string.recurring_buy_first_time_toolbar))
 
         binding.apply {
             icon.setAssetIconColours(

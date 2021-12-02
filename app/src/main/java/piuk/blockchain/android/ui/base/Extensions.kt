@@ -1,18 +1,31 @@
 package piuk.blockchain.android.ui.base
 
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.airbnb.lottie.LottieAnimationView
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.gone
 
-fun FragmentActivity.setupToolbar(
-    titleToolbar: String? = null,
+fun Fragment.loadToolbar(
+    titleToolbar: String = "",
+    menuItems: List<NavigationBarButton>? = null,
     backAction: (() -> Unit)? = null
 ) {
-    (this as? BlockchainActivity)?.loadToolbar(titleToolbar, backAction)
+    (activity as? BlockchainActivity)?.loadToolbar(titleToolbar, menuItems, backAction)
+}
+
+fun Fragment.updateTitleToolbar(titleToolbar: String = "") {
+    (activity as? BlockchainActivity)?.updateTitleToolbar(titleToolbar = titleToolbar)
+}
+
+fun Fragment.updateBackButton(backAction: () -> Unit) {
+    (activity as? BlockchainActivity)?.updateBackButton(backAction)
+}
+
+fun Fragment.updateMenuItems(menuItems: List<NavigationBarButton>) {
+    (activity as? BlockchainActivity)?.updateMenuItems(menuItems)
 }
 
 fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =

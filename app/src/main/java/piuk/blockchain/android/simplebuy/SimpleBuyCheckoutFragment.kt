@@ -32,7 +32,6 @@ import piuk.blockchain.android.databinding.PromoLayoutBinding
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
@@ -83,7 +82,7 @@ class SimpleBuyCheckoutFragment :
     }
 
     private fun setupToolbar() {
-        activity.setupToolbar(
+        activity.loadToolbar(
             titleToolbar = if (isForPendingPayment) {
                 getString(R.string.order_details)
             } else {

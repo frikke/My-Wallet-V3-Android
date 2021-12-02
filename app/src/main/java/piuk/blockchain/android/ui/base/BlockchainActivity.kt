@@ -10,6 +10,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.viewbinding.ViewBinding
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.SecurityPrefs
@@ -87,47 +88,50 @@ abstract class BlockchainActivity : ToolBarActivity() {
     protected abstract val toolbarBinding: ToolbarGeneralBinding?
 
     fun loadToolbar(
-        titleToolbar: String? = null,
+        titleToolbar: String = "",
+        menuItems: List<NavigationBarButton>? = null,
         backAction: (() -> Unit)? = null
     ) {
         compositeDisposable += redesignEnabled
             .subscribeBy(
                 onSuccess = { enabled ->
                     if (enabled) {
-                        setupToolbar(titleToolbar, backAction)
+                        toolbarBinding?.toolbarRedesign.visible()
                     } else {
-                        setupOldToolbar(titleToolbar, backAction)
+                        setupOldToolbar()
                     }
+                    updateTitleToolbar(titleToolbar)
+                    menuItems?.let { updateMenuItems(menuItems) }
+                    backAction?.let { updateBackButton(backAction) }
                 },
-                onError = { setupOldToolbar(titleToolbar, backAction) }
+                onError = { setupOldToolbar() }
             )
     }
 
-    private fun setupToolbar(
-        titleToolbar: String? = null,
-        backAction: (() -> Unit)? = null
-    ) {
-        toolbarBinding?.let { toolbar ->
-            toolbar.toolbarRedesign.apply {
-                visible()
-                onBackButtonClick = backAction
-                titleToolbar?.let { title = it }
-            }
-        }
+    // TODO when removing ff -> remove title from toolbarGeneral
+    fun updateTitleToolbar(titleToolbar: String = "") {
+        toolbarBinding?.toolbarRedesign?.title = titleToolbar
+        toolbarBinding?.toolbarGeneral?.title = titleToolbar
     }
 
-    private fun setupOldToolbar(
-        titleToolbar: String? = null,
-        backAction: (() -> Unit)? = null
-    ) {
-        toolbarBinding?.let { toolbar ->
-            setSupportActionBar(toolbar.toolbarGeneral)
-            toolbar.toolbarGeneral.apply {
-                visible()
-                titleToolbar?.let { title = it }
-                backAction?.let { setNavigationOnClickListener { it() } }
-            }
-        }
+    fun updateMenuItems(menuItems: List<NavigationBarButton>) {
+        toolbarBinding?.toolbarRedesign?.navigationBarButtons = menuItems
+    }
+
+    // TODO when removing ff -> remove backButton from toolbarGeneral
+    fun updateBackButton(backAction: () -> Unit) {
+        toolbarBinding?.toolbarRedesign?.onBackButtonClick = backAction
+        toolbarBinding?.toolbarGeneral?.setNavigationOnClickListener { backAction() }
+    }
+
+    private fun setupToolbar() {
+        toolbarBinding?.toolbarRedesign.visible()
+    }
+
+    private fun setupOldToolbar() {
+        val toolbar = toolbarBinding?.toolbarGeneral
+        toolbar.visible()
+        setSupportActionBar(toolbar)
     }
 
     @CallSuper

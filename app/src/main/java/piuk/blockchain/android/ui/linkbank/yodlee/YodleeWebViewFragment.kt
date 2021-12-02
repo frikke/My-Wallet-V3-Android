@@ -30,7 +30,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.yodlee.FastLinkMessage
 import piuk.blockchain.android.simplebuy.yodlee.MessageData
 import piuk.blockchain.android.simplebuy.yodlee.SiteData
-import piuk.blockchain.android.ui.base.setupToolbar
+import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
@@ -81,7 +81,7 @@ class YodleeWebViewFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.setupToolbar(getString(R.string.link_a_bank))
+        updateTitleToolbar(getString(R.string.link_a_bank))
         setupWebView()
         binding.yodleeRetry.setOnClickListener {
             loadYodlee()

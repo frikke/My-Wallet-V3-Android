@@ -21,7 +21,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -102,7 +101,7 @@ class AddNewCardFragment :
             })
             cardNumber.displayCardTypeIcon(false)
         }
-        activity.setupToolbar(getString(R.string.add_card_title))
+        activity.updateTitleToolbar(getString(R.string.add_card_title))
         analytics.logEvent(SimpleBuyAnalytics.ADD_CARD)
 
         setupCardInfo()

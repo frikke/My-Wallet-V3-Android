@@ -18,7 +18,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -39,7 +38,7 @@ class CardVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.setupToolbar(getString(R.string.card_verification))
+        activity.updateTitleToolbar(getString(R.string.card_verification))
         binding.okBtn.setOnClickListener {
             navigator.exitWithError()
         }

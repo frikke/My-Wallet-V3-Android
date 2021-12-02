@@ -36,7 +36,6 @@ import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -79,7 +78,7 @@ class SimpleBuyPaymentFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.setupToolbar(getString(R.string.common_payment))
+        activity.loadToolbar(getString(R.string.common_payment))
 
         // we need to make the request as soon as possible and cache the result
         if (!ratingPrefs.hasSeenRatingDialog) {
