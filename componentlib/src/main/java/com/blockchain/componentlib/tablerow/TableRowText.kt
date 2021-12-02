@@ -24,10 +24,11 @@ fun TableRowText(
     startText: AnnotatedString,
     endText: AnnotatedString?,
     textStyle: TextStyle,
-    textColor: Color
+    textColor: Color,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {

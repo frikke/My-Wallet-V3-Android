@@ -77,7 +77,8 @@ fun BalanceTableRowLarge(
                 startText = secondaryBylineStart,
                 endText = secondaryBylineEnd,
                 textStyle = AppTheme.typography.paragraph1,
-                textColor = AppTheme.colors.body
+                textColor = AppTheme.colors.body,
+                modifier = Modifier.padding(start = 40.dp)
             )
         },
         onContentClicked = onClick
@@ -101,7 +102,10 @@ private fun BalanceTableRowLargePreview() {
                 primaryBylineEnd = buildAnnotatedString { append("\$44,403.13") },
                 secondaryBylineStart = buildAnnotatedString { append("0.3576301941 BTC") },
                 secondaryBylineEnd = buildAnnotatedString { append("↓ 12.32%") },
-                startImageResource = ImageResource.None,
+                startImageResource = ImageResource.Remote(
+                    url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                    contentDescription = null,
+                ),
                 onClick = null
             )
         }
