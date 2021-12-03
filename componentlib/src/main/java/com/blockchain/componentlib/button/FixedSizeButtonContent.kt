@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.image.Image
@@ -42,12 +43,30 @@ fun FixedSizeButtonContent(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (icon !is ImageResource.None) {
-                Image(
-                    imageResource = icon,
-                    modifier = Modifier.size(16.dp),
-                )
-                Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+            when (icon) {
+                is ImageResource.Local -> {
+                    Image(
+                        imageResource = icon.withColorFilter(ColorFilter.tint(textColor)),
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                }
+                is ImageResource.LocalWithBackground -> {
+                    Image(
+                        imageResource = icon,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                }
+                is ImageResource.Remote -> {
+                    Image(
+                        imageResource = icon,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                }
+                ImageResource.None -> {/* no-op */
+                }
             }
             Text(
                 text = text,
