@@ -285,9 +285,10 @@ class PayloadDataManager internal constructor(
                             "accountV4 derivation is null",
                             account.addressLabels.isEmpty().toString()
                         )
+                        crashLogger.logState("accountV4 derivations count", account.derivations.size.toString())
                         val hasEmptyXPub = account.derivations.find {
                             it.xpub.isEmpty()
-                        }
+                        } != null
                         crashLogger.logState("accountV4 has empty xpub", hasEmptyXPub.toString())
                     }
                     else -> {
