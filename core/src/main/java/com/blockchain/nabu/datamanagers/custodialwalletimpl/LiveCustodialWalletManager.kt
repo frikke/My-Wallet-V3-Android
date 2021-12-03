@@ -278,7 +278,7 @@ class LiveCustodialWalletManager(
     ): Single<List<FiatTransaction>> =
         authenticator.authenticate { token ->
             nabuService.getTransactions(token, currency, product.toRequestString(), type).map { response ->
-                response.items.filterNot { it.hasCardFailure() }.mapNotNull {
+                response.items.filterNot { it.hasCardOrBankFailure() }.mapNotNull {
                     val state = it.state.toTransactionState() ?: return@mapNotNull null
                     val txType = it.type.toTransactionType() ?: return@mapNotNull null
 
@@ -1397,12 +1397,13 @@ class LiveCustodialWalletManager(
     }
 }
 
-private fun TransactionResponse.hasCardFailure() =
+private fun TransactionResponse.hasCardOrBankFailure() =
     error?.let { error ->
         listOf(
             TransactionResponse.CARD_PAYMENT_ABANDONED,
             TransactionResponse.CARD_PAYMENT_EXPIRED,
-            TransactionResponse.CARD_PAYMENT_FAILED
+            TransactionResponse.CARD_PAYMENT_FAILED,
+            TransactionResponse.BANK_TRANSFER_PAYMENT_REJECTED
         ).contains(error)
     } ?: false
 

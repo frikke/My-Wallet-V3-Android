@@ -263,6 +263,7 @@ data class TransactionResponse(
         const val CARD_PAYMENT_FAILED = "CARD_PAYMENT_FAILED"
         const val CARD_PAYMENT_ABANDONED = "CARD_PAYMENT_ABANDONED"
         const val CARD_PAYMENT_EXPIRED = "CARD_PAYMENT_EXPIRED"
+        const val BANK_TRANSFER_PAYMENT_REJECTED = "BANK_TRANSFER_PAYMENT_REJECTED"
         const val WITHDRAWAL = "WITHDRAWAL"
     }
 }
