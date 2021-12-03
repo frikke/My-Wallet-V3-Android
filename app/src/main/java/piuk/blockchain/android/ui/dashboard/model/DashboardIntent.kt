@@ -185,9 +185,11 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
-    object RefreshAllBalancesIntent : DashboardIntent() {
+    class RefreshAllBalancesIntent(private val loadSilently: Boolean) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(activeAssets = oldState.activeAssets.reset(), fiatAssets = oldState.fiatAssets.reset())
+            val activeAssets = if (loadSilently) oldState.activeAssets else oldState.activeAssets.reset()
+            val fiatAssets = if (loadSilently) oldState.fiatAssets else oldState.fiatAssets.reset()
+            return oldState.copy(activeAssets = activeAssets, fiatAssets = fiatAssets)
         }
     }
 

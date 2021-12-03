@@ -33,7 +33,7 @@ class DashboardModel(
             is DashboardIntent.GetActiveAssets -> interactor.fetchActiveAssets(this)
             is DashboardIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)
             is DashboardIntent.UpdateAllAssetsAndBalances -> {
-                process(DashboardIntent.RefreshAllBalancesIntent)
+                process(DashboardIntent.RefreshAllBalancesIntent(false))
                 null
             }
             is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)

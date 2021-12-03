@@ -20,7 +20,7 @@ class BuyCryptoCurrenciesAdapter(
     var items: List<BuyCryptoItem> = emptyList()
         set(value) {
             val diffResult =
-                DiffUtil.calculateDiff(BuyCryotiDiffUtil(this.items, value))
+                DiffUtil.calculateDiff(BuyCryptoDiffUtil(this.items, value))
             field = value
             diffResult.dispatchUpdatesTo(this)
         }
@@ -55,7 +55,7 @@ class BuyCryptoCurrenciesAdapter(
     }
 }
 
-class BuyCryotiDiffUtil(private val oldItems: List<BuyCryptoItem>, private val newItems: List<BuyCryptoItem>) :
+class BuyCryptoDiffUtil(private val oldItems: List<BuyCryptoItem>, private val newItems: List<BuyCryptoItem>) :
     DiffUtil.Callback() {
     override fun getOldListSize(): Int = oldItems.size
 

@@ -112,6 +112,7 @@ val nabuModule = module {
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
+                buyOrdersCache = get(),
                 pairsCache = get(),
                 stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag)
             )

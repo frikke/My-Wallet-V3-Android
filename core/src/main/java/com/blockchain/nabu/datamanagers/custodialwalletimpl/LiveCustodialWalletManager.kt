@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
+import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.nabu.Authenticator
@@ -128,6 +129,7 @@ class LiveCustodialWalletManager(
     private val authenticator: Authenticator,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val pairsCache: BuyPairsCache,
+    private val buyOrdersCache: BuyOrdersCache,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val kycFeatureEligibility: FeatureEligibility,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
@@ -388,12 +390,7 @@ class LiveCustodialWalletManager(
         }
 
     override fun getAllOrdersFor(asset: AssetInfo): Single<BuyOrderList> =
-        authenticator.authenticate {
-            nabuService.getOutstandingOrders(
-                sessionToken = it,
-                pendingOnly = false
-            )
-        }.map {
+        buyOrdersCache.orders().map {
             it.filterAndMapToOrder(asset)
         }
 
@@ -1521,12 +1518,18 @@ enum class OrderType {
 }
 
 private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue): BuySellOrder {
-    val fiatCurrency = inputCurrency
-    val cryptoCurrency = assetCatalogue.fromNetworkTicker(outputCurrency) ?: throw UnknownFormatConversionException(
-        "Unknown Crypto currency: $inputCurrency"
-    )
-    val fiatAmount = inputQuantity.toLongOrDefault(0)
-    val cryptoAmount = outputQuantity.toBigInteger()
+    val fiatCurrency = if (type() == OrderType.SELL) outputCurrency else inputCurrency
+    val cryptoCurrency =
+        assetCatalogue.fromNetworkTicker(
+            if (type() == OrderType.SELL) inputCurrency else outputCurrency
+        ) ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
+    val fiatAmount = if (type() == OrderType.SELL) {
+        outputQuantity.toLongOrDefault(0)
+    } else {
+        inputQuantity.toLongOrDefault(0)
+    }
+    val cryptoAmount =
+        if (type() == OrderType.SELL) inputQuantity.toBigInteger() else outputQuantity.toBigInteger()
 
     return BuySellOrder(
         id = id,
@@ -1551,7 +1554,10 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         price = price?.let {
             FiatValue.fromMinor(fiatCurrency, it.toLong())
         },
-        orderValue = CryptoValue.fromMinor(cryptoCurrency, cryptoAmount),
+        orderValue = if (type() == OrderType.SELL)
+            FiatValue.fromMinor(outputCurrency, outputQuantity.toLongOrDefault(0))
+        else
+            CryptoValue.fromMinor(cryptoCurrency, cryptoAmount),
         attributes = attributes?.toPaymentAttributes(),
         type = type(),
         depositPaymentId = depositPaymentId.orEmpty(),

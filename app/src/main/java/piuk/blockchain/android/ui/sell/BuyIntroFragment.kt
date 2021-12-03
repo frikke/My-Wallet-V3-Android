@@ -19,7 +19,8 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -85,36 +86,39 @@ class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, 
     }
 
     private fun loadBuyDetails(showLoading: Boolean = true) {
-        compositeDisposable +=
-            custodialWalletManager.getSupportedBuySellCryptoCurrencies().map { pairs ->
-                pairs.map { it.source }.distinct()
-            }.flatMap { assets ->
-                Single.zip(
-                    assets.map { asset ->
-                        coincore[asset].getPricesWith24hDelta().map { priceDelta ->
-                            PriceHistory(
-                                currentExchangeRate = priceDelta.currentRate as ExchangeRate.CryptoToFiat,
-                                priceDelta = priceDelta.delta24h
-                            )
-                        }
-                    }
-                ) { t: Array<Any> ->
-                    t.map { it as PriceHistory } to assets
+
+        custodialWalletManager.getSupportedBuySellCryptoCurrencies().map { pairs ->
+            pairs.map { it.source }.distinct()
+        }.flatMapObservable { assets ->
+            Observable.fromIterable(assets).flatMapMaybe { asset ->
+                coincore[asset].getPricesWith24hDelta().map { priceDelta ->
+                    PricedAsset(
+                        asset = asset,
+                        priceHistory = PriceHistory(
+                            currentExchangeRate = priceDelta.currentRate as ExchangeRate.CryptoToFiat,
+                            priceDelta = priceDelta.delta24h
+                        )
+                    )
+                }.toMaybe().onErrorResumeNext {
+                    Maybe.empty()
                 }
-            }.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    binding.buyEmpty.gone()
-                }
-                .trackProgress(activityIndicator.takeIf { showLoading })
-                .subscribeBy(
-                    onSuccess = { (exchangeRates, assets) ->
-                        renderBuyIntro(assets, exchangeRates)
-                    },
-                    onError = {
-                        renderErrorState()
-                    }
-                )
+            }
+        }.toList()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .trackProgress(activityIndicator.takeIf { showLoading })
+            .doOnSubscribe {
+                binding.buyEmpty.gone()
+                adapter.items = emptyList()
+            }
+            .subscribeBy(
+                onSuccess = { items ->
+                    renderBuyIntro(
+                        items
+                    )
+                },
+                onError = { renderErrorState() },
+            )
     }
 
     private val adapter = BuyCryptoCurrenciesAdapter(
@@ -127,7 +131,9 @@ class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, 
             val blockedState = accessState as? FeatureAccess.Blocked
             blockedState?.let {
                 when (val reason = it.reason) {
-                    is BlockedReason.TooManyInFlightTransactions -> showPendingOrdersBottomSheet(reason.maxTransactions)
+                    is BlockedReason.TooManyInFlightTransactions -> showPendingOrdersBottomSheet(
+                        reason.maxTransactions
+                    )
                     BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
                 }.exhaustive
             } ?: run {
@@ -151,22 +157,19 @@ class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, 
     }
 
     private fun renderBuyIntro(
-        assets: List<AssetInfo>,
-        pricesHistory: List<PriceHistory>
+        pricesAssets: List<PricedAsset>
     ) {
         with(binding) {
             rvCryptos.visible()
             buyEmpty.gone()
             adapter.items =
-                assets.map { asset ->
+                pricesAssets.map { pricedAsset ->
                     BuyCryptoItem(
-                        asset = asset,
-                        price = pricesHistory.first { it.cryptoCurrency == asset }
+                        asset = pricedAsset.asset,
+                        price = pricedAsset.priceHistory
                             .currentExchangeRate
                             .price(),
-                        percentageDelta = pricesHistory.first {
-                            it.cryptoCurrency == asset
-                        }.percentageDelta
+                        percentageDelta = pricedAsset.priceHistory.percentageDelta
                     )
                 }
         }
@@ -221,4 +224,9 @@ data class BuyCryptoItem(
     val asset: AssetInfo,
     val price: Money,
     val percentageDelta: Double
+)
+
+private data class PricedAsset(
+    val asset: AssetInfo,
+    val priceHistory: PriceHistory
 )

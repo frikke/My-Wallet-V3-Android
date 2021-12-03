@@ -459,7 +459,7 @@ class PortfolioFragment :
     private fun setupSwipeRefresh() {
         with(binding) {
             swipe.setOnRefreshListener {
-                model.process(DashboardIntent.RefreshAllBalancesIntent)
+                model.process(DashboardIntent.RefreshAllBalancesIntent(false))
                 model.process(DashboardIntent.GetUserCanBuy)
                 model.process(DashboardIntent.LoadFundsLocked)
             }
@@ -492,7 +492,7 @@ class PortfolioFragment :
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) {
-            model.process(DashboardIntent.RefreshAllBalancesIntent)
+            model.process(DashboardIntent.RefreshAllBalancesIntent(true))
         }
     }
 
@@ -500,7 +500,7 @@ class PortfolioFragment :
         if (displayList.isEmpty()) {
             model.process(DashboardIntent.GetActiveAssets)
         } else {
-            model.process(DashboardIntent.RefreshAllBalancesIntent)
+            model.process(DashboardIntent.RefreshAllBalancesIntent(false))
         }
     }
 
@@ -522,7 +522,7 @@ class PortfolioFragment :
 
         when (requestCode) {
             MainActivity.SETTINGS_EDIT,
-            MainActivity.ACCOUNT_EDIT -> model.process(DashboardIntent.RefreshAllBalancesIntent)
+            MainActivity.ACCOUNT_EDIT -> model.process(DashboardIntent.RefreshAllBalancesIntent(false))
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
                     model.process(DashboardIntent.CheckBackupStatus(it.account, it.action))

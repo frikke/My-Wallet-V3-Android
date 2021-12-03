@@ -23,7 +23,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
-import kotlin.properties.Delegates
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBuySellBinding
@@ -297,12 +296,6 @@ internal class ViewPagerAdapter(
 
     override fun getPageTitle(position: Int): CharSequence =
         titlesList[position]
-
-    var showPendingBuy: Boolean by Delegates.observable(false) { _, oldV, newV ->
-        if (newV != oldV) {
-            notifyDataSetChanged()
-        }
-    }
 
     override fun getItemPosition(`object`: Any): Int {
         return POSITION_NONE

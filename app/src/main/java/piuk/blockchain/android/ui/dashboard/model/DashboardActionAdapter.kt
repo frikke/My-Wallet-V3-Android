@@ -245,7 +245,9 @@ class DashboardActionAdapter(
             .map { pricesWithDelta -> DashboardIntent.AssetPriceUpdate(crypto, pricesWithDelta) }
             .subscribeBy(
                 onSuccess = { model.process(it) },
-                onError = { Timber.e(it) }
+                onError = {
+                    model.process(DashboardIntent.BalanceUpdateError(crypto))
+                }
             )
 
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
