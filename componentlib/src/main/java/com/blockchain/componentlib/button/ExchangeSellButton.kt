@@ -1,10 +1,12 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -31,9 +33,9 @@ fun ExchangeSellButton(
         disabledBackgroundLightColor = Red400,
         disabledBackgroundDarkColor = Red900,
         pressedBackgroundColor = Red700,
-        modifier = modifier,
+        modifier = modifier.requiredHeightIn(min = 48.dp),
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, _: ImageResource ->
-            FixedSizeButtonContent(
+            ButtonContent(
                 state = state,
                 text = text,
                 textColor = textColor,

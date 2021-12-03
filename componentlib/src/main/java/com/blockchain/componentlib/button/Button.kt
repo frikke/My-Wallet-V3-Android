@@ -4,8 +4,8 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.Composable
@@ -51,6 +51,7 @@ fun Button(
     pressedBackgroundTimeShown: Long = 250L,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     icon: ImageResource = ImageResource.None,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -98,7 +99,7 @@ fun Button(
     ) {
         androidx.compose.material.Button(
             onClick = { onClick.takeIf { state == ButtonState.Enabled }?.invoke() },
-            modifier = modifier.requiredHeightIn(min = 48.dp),
+            modifier = modifier,
             enabled = state != ButtonState.Disabled,
             interactionSource = interactionSource,
             shape = shape,
@@ -108,6 +109,7 @@ fun Button(
                 disabledBackgroundColor = animateColorAsState(targetValue = disabledBackgroundColor).value,
                 disabledContentColor = Color.Unspecified,
             ),
+            contentPadding = contentPadding,
             elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
             content = {
                 buttonContent(

@@ -201,7 +201,7 @@ fun DoubleMinimalButtons(
                 ),
                 elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
                 content = {
-                    FixedSizeButtonContent(
+                    ButtonContent(
                         state = startButtonState,
                         text = startButtonText,
                         textColor = startTextColor,
@@ -242,7 +242,7 @@ fun DoubleMinimalButtons(
                 ),
                 elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
                 content = {
-                    FixedSizeButtonContent(
+                    ButtonContent(
                         state = endButtonState,
                         text = endButtonText,
                         textColor = endTextColor,

@@ -21,7 +21,7 @@ import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun FixedSizeButtonContent(
+fun ButtonContent(
     state: ButtonState,
     text: String,
     textColor: Color,

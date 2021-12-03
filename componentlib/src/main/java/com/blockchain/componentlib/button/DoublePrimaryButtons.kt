@@ -167,7 +167,7 @@ fun DoublePrimaryButtons(
                 ),
                 elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
                 content = {
-                    FixedSizeButtonContent(
+                    ButtonContent(
                         state = startButtonState,
                         text = startButtonText,
                         textColor = Color.White,
@@ -205,7 +205,7 @@ fun DoublePrimaryButtons(
                     disabledContentColor = Color.Unspecified,
                 ),
                 content = {
-                    FixedSizeButtonContent(
+                    ButtonContent(
                         state = endButtonState,
                         text = endButtonText,
                         textColor = Color.White,

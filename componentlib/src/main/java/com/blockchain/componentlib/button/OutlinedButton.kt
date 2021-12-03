@@ -4,7 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.ripple.LocalRippleTheme
@@ -65,6 +65,7 @@ fun OutlinedButton(
     state: ButtonState = ButtonState.Enabled,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     icon: ImageResource = ImageResource.None,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
 ) {
     var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
     var borderColor by remember {
@@ -124,7 +125,7 @@ fun OutlinedButton(
     ) {
         OutlinedButton(
             onClick = { onClick.takeIf { state == ButtonState.Enabled }?.invoke() },
-            modifier = modifier.requiredHeightIn(min = 48.dp),
+            modifier = modifier,
             enabled = state != ButtonState.Disabled,
             interactionSource = interactionSource,
             shape = shape,
@@ -138,6 +139,7 @@ fun OutlinedButton(
                 color = animateColorAsState(targetValue = borderColor).value
             ),
             elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+            contentPadding = contentPadding,
             content = {
                 buttonContent(
                     state = state,
@@ -165,14 +167,14 @@ private fun OutlineButtonPreview() {
                 text = "Click me",
                 onClick = { },
                 buttonContent = {
-                    state: ButtonState,
-                    text: String,
-                    textColor: Color,
-                    textAlpha: Float,
-                    loadingIconResId: Int,
-                    icon: ImageResource,
+                        state: ButtonState,
+                        text: String,
+                        textColor: Color,
+                        textAlpha: Float,
+                        loadingIconResId: Int,
+                        icon: ImageResource,
                     ->
-                    ResizableButtonContent(
+                    ButtonContentSmall(
                         state = state,
                         text = text,
                         textColor = textColor,
