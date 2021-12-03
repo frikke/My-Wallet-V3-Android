@@ -34,7 +34,6 @@ data class NabuUser(
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val walletGuid: String? = null
-    // val depositAddresses":{  },  // Not sure what format these have yet. TODO: Find out
 ) : JsonSerializable {
     val tierInProgress
         get() =

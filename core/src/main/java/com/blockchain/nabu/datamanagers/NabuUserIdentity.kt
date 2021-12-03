@@ -30,6 +30,10 @@ class NabuUserIdentity(
                 it.isNotInitialisedFor(feature.tier.toKycTierLevel())
             }
             is Feature.SimpleBuy -> simpleBuyEligibilityProvider.isEligibleForSimpleBuy()
+            is Feature.CustodialAccounts -> Single.zip(
+                nabuDataProvider.getUser(),
+                simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
+            ) { nabuUser, sbEligibility -> nabuUser.currentTier == Tier.GOLD.ordinal && sbEligibility.eligible }
             is Feature.Interest -> interestEligibilityProvider.getEligibilityForCustodialAssets()
                 .map { assets -> assets.map { it.cryptoCurrency }.contains(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
@@ -44,6 +48,10 @@ class NabuUserIdentity(
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.fetchSimplifiedDueDiligenceUserState().map {
                 it.isVerified
             }
+            is Feature.CustodialAccounts -> Single.zip(
+                nabuDataProvider.getUser(),
+                simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
+            ) { nabuUser, sbEligibility -> nabuUser.currentTier == Tier.GOLD.ordinal && sbEligibility.eligible }
             is Feature.SimpleBuy,
             is Feature.Interest -> throw IllegalArgumentException("Cannot be verified for $feature")
         }.exhaustive
@@ -113,6 +121,23 @@ class NabuUserIdentity(
             ).map { (eligibility, isGold) ->
                 simpleBuyAccessState(eligibility, isGold)
             }
+            Feature.CustodialAccounts ->
+                Single.zip(
+                    nabuDataProvider.getUser(),
+                    simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
+                ) { nabuUser, sbEligibility ->
+                    when {
+                        nabuUser.currentTier == Tier.GOLD.ordinal && sbEligibility.eligible -> {
+                            FeatureAccess.Granted
+                        }
+                        nabuUser.currentTier != Tier.GOLD.ordinal -> {
+                            FeatureAccess.NotRequested
+                        }
+                        else -> {
+                            FeatureAccess.Blocked(BlockedReason.NotEligible)
+                        }
+                    }
+                }
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,
             is Feature.TierLevel -> TODO("Not Implemented Yet")
@@ -153,6 +178,7 @@ class NabuUserIdentity(
             Tier.BRONZE -> KycTierLevel.BRONZE
             Tier.SILVER -> KycTierLevel.SILVER
             Tier.GOLD -> KycTierLevel.GOLD
+            Tier.SILVER_PLUS -> throw java.lang.IllegalStateException("The app does not interact with SDD tier")
         }.exhaustive
 
     private fun KycTierLevel.toTier(): Tier =

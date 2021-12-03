@@ -28,10 +28,18 @@ sealed class Feature {
     object SimplifiedDueDiligence : Feature()
     data class Interest(val currency: AssetInfo) : Feature()
     object SimpleBuy : Feature()
+    object CustodialAccounts : Feature()
 }
 
+/**
+ in ordinal order:
+ 0 - no kyc
+ 1 - email & address verified
+ 2 - identity documents verified
+ 3 - simplified due diligence eligible; user with tier 1 verification in specific low risk countries
+ */
 enum class Tier {
-    BRONZE, SILVER, GOLD
+    BRONZE, SILVER, GOLD, SILVER_PLUS
 }
 
 data class BasicProfileInfo(

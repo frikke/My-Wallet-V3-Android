@@ -20,6 +20,7 @@ import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CryptoTransaction
@@ -132,27 +133,37 @@ class CustodialTradingAccount(
         get() =
             Single.zip(
                 balance.firstOrError(),
+                identity.userAccessForFeature(Feature.CustodialAccounts),
                 identity.userAccessForFeature(Feature.SimpleBuy),
                 identity.isEligibleFor(Feature.Interest(asset)),
                 custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
-            ) { balance, buyAccess, isEligibleForInterest, fiatAccounts ->
+            ) { balance, hasAccessToCustodialAccounts, hasSimpleBuyAccess, isEligibleForInterest, fiatAccounts ->
                 val isActiveFunded = !isArchived && balance.total.isPositive
 
                 val activity = AssetAction.ViewActivity.takeEnabledIf(baseActions) { hasTransactions }
-                val receive = AssetAction.Receive.takeEnabledIf(baseActions)
-                val buy = AssetAction.Buy.takeEnabledIf(baseActions) { !buyAccess.isBlockedDueToEligibility() }
+
+                val receive = AssetAction.Receive.takeEnabledIf(baseActions) {
+                    hasAccessToCustodialAccounts == FeatureAccess.Granted
+                }
+
+                val buy = AssetAction.Buy.takeEnabledIf(baseActions) {
+                    !hasSimpleBuyAccess.isBlockedDueToEligibility()
+                }
 
                 val send = AssetAction.Send.takeEnabledIf(baseActions) {
                     isActiveFunded && balance.actionable.isPositive
                 }
+
                 val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
                     isActiveFunded && isEligibleForInterest
                 }
+
                 val swap = AssetAction.Swap.takeEnabledIf(baseActions) {
-                    isActiveFunded && !buyAccess.isBlockedDueToEligibility()
+                    isActiveFunded && hasAccessToCustodialAccounts == FeatureAccess.Granted
                 }
+
                 val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
-                    isActiveFunded && !buyAccess.isBlockedDueToEligibility() && fiatAccounts.isNotEmpty()
+                    isActiveFunded && !hasSimpleBuyAccess.isBlockedDueToEligibility() && fiatAccounts.isNotEmpty()
                 }
 
                 setOfNotNull(
