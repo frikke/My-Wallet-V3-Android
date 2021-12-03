@@ -73,7 +73,7 @@ fun DoublePrimaryButtons(
         )
     }
 
-    var dividerAlpha by remember { mutableStateOf(1f) }
+    var dividerAlpha by remember { mutableStateOf(0.4f) }
 
     val startTextAlpha = when (startButtonState) {
         ButtonState.Enabled -> 1f
@@ -93,7 +93,7 @@ fun DoublePrimaryButtons(
                 ButtonState.Disabled -> if (isDarkTheme) Grey900 else Blue400
                 else -> Blue600
             }
-            dividerAlpha = 1f
+            dividerAlpha = 0.4f
         }
 
         startButtonInteractionSource.interactions.collectPressInteractions(
@@ -120,7 +120,7 @@ fun DoublePrimaryButtons(
                 ButtonState.Disabled -> if (isDarkTheme) Grey900 else Blue400
                 else -> Blue600
             }
-            dividerAlpha = 1f
+            dividerAlpha = 0.4f
         }
 
         endButtonInteractionSource.interactions.collectPressInteractions(

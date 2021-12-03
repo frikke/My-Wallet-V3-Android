@@ -79,7 +79,6 @@ fun DoubleMinimalButtons(
         )
     }
 
-    //    var dividerAlpha = if (isStartButtonPressed.not() && isEndButtonPressed.not()) 1f else 0f
     var dividerAlpha by remember { mutableStateOf(1f) }
 
     val startTextAlpha = when (startButtonState) {
