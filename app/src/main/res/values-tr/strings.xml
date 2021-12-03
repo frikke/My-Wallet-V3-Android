@@ -2350,5 +2350,53 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="action_sheet_swap_description">Başka Bir Kripto Parayla Takas Edin</string>
     <string name="action_sheet_send_description">Herhangi Bir Cüzdana Gönderin</string>
     <string name="action_sheet_receive_description">Adreslerinizi ve QR Kodlarınızı Kopyalayın></string>
+    <string name="main_toolbar_buy_sell">Al ve Sat</string>
+    <string name="toolbar_swap">Swap Yap</string>
+    <string name="select_a_trading_currency">Bir Al-Sat Para Birimi seçin.</string>
+    <string name="currency_not_available">Şu anda %1$s, kripto satın almak için desteklenmiyor. Aşağıdaki mevcut para birimleri listesinden bir banka hesabı veya kart ekleyebilirsiniz.</string>
+    <string name="bank_fees_disclaimer">Ek banka ücretleri geçerli olabilir. Bankanız her işleme ücret ve Döviz Kuru ekleyebilir.</string>
+    <string name="setting_limits_title">Al-Sat Hesapları</string>
+    <string name="setting_limits_description">Limitler ve Özellikler</string>
+    <string name="feature_limits_send_crypto">Kripto Gönderme</string>
+    <string name="feature_limits_receive_crypto">Kripto Teslim Alma</string>
+    <string name="feature_limits_buy_sell">Al ve Sat</string>
+    <string name="feature_limits_card_purchases">Kartla Satın Alma</string>
+    <string name="feature_limits_deposits">Bankadan Satın Alma / Para Yatırma</string>
+    <string name="feature_limits_withdrawals">Bankadan Para Çekme</string>
+    <string name="feature_limits_earn_rewards">Ödül Kazanma</string>
+    <string name="feature_limits_from_trading_accounts">Al-Sat Hesaplarından</string>
+    <string name="feature_limits_to_trading_accounts">Al-Sat Hesaplarına</string>
+    <string name="feature_limits_daily_limit">Günde %1$s</string>
+    <string name="feature_limits_monthly_limit">Ayda %1$s</string>
+    <string name="feature_limits_yearly_limit">Yılda %1$s</string>
+    <string name="feature_limits_no_limit">Limitsiz</string>
+    <string name="feature_limits_your_limits_and_features">Limitleriniz ve Özellikleriniz</string>
+    <string name="feature_limits_toolbar">Limitler ve Özellikler</string>
+    <string name="feature_limits_header_bronze_title">Cüzdanınızı Yükseltin</string>
+    <string name="feature_limits_header_bronze_description">Blockchain.com, her biri kripto hedeflerinize ve ihtiyaçlarınıza göre tasarlanmış iki tür Hesap Limiti sunar.</string>
+    <string name="feature_limits_header_silver_title">Gold Limitlerine Yükselt</string>
+    <string name="feature_limits_header_silver_description">Doğrudan cüzdanınızdan Kripto Para Almak ve Satmak için kimliğinizi doğrulayıp bankanızı bağlayın.</string>
+    <string name="feature_limits_header_denied_description">Şu anda mevcut olan en yüksek Hesap Limitlerine ve özelliklere sahipsiniz.</string>
+    <string name="feature_limits_footer">Bazı bankalar ve kart veren kuruluşlar için işlem limitleri geçerli olabilir.
 
+Satın alma veya para yatırma limitleri, hesabınızda tamamlanan doğrulama, satın alma geçmişiniz, ödeme türünüz ve daha fazlası dahil olmak üzere birçok faktörle belirlenir.
+
+<annotation link="support_center_link">Destek Merkezimizi</annotation> ziyaret ederek Al-Sat Hesapları, Limitler ve özellikler hakkında daha fazla bilgi edinin.</string>
+    <string name="feature_limits_silver_limits">Silver Limitleri</string>
+    <string name="feature_limits_gold_limits">Gold Limitleri</string>
+    <string name="feature_limits_gold_limits_description">Silver Özelliklerini İçerir</string>
+    <string name="feature_limits_error">Limit bilgileriniz alınırken bir sorun oluştu.</string>
+    <string name="kyc_upgrade_now_gold_title">Gold Limitleri</string>
+    <string name="kyc_upgrade_now_gold_description">Al ve Sat. Ödüller Kazan.</string>
+    <string name="kyc_upgrade_now_gold_info_1">Bankanızı veya kartınızı Cüzdanınıza bağlayın. Cüzdanınızda nakit bulundurun. Ödüllerle kripto kazanın.</string>
+    <string name="kyc_upgrade_now_gold_info_2">Tüm Silver limitlerini ve özelliklerini içerir.</string>
+    <string name="kyc_upgrade_now_silver_title">Silver Limitleri</string>
+    <string name="kyc_upgrade_now_silver_description">Al-Sat Hesaplarının Kilidini Açıp Swap Yapın.</string>
+    <string name="kyc_upgrade_now_silver_info">Swap Kilidini Açma - uygulama içi takas işlemimiz.</string>
+    <string name="kyc_upgrade_now_tier_state_under_review">Manuel İncelemede</string>
+    <string name="pending_buys_description">Şu an tek seferde sadece en fazla %d alım işleminin bekletilmesine izin veriyoruz.</string>
+    <string name="pending_transaction_limit">Çok Fazla Alım İşlemi Bekletiliyor</string>
+    <string name="checkout_item_price_blurb_zero_margin">Blockchain.com, %1$s satış fiyatına ek alım satım marjı dahil etmez.</string>
+    <string name="blockchain_fee">Blockchain.com Ücreti</string>
+    <string name="new_user_fee_waiver">Yeni Kullanıcı Ücretinden Feragat</string>
 </resources>

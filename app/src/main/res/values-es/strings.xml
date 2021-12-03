@@ -265,8 +265,8 @@ Alguien con acceso a ella podría ver todos sus fondos y transacciones.
     <string name="verify_email_notice">Le hemos enviado a su dirección de correo electrónico un vínculo de verificación. Haga clic en él para verificar su dirección de correo electrónico.
     </string>
     <string name="email_notifications">Notificaciones por correo electrónico</string>
-    <string name="email_notifications_summary">Reciba notificaciones cuando reciba bitcoin.</string>
-    <string name="current_password">contraseña actual</string>
+    <string name="email_notifications_summary">Reciba notificaciones cuando reciba criptomonedas.</string>
+    <string name="current_password">Contraseña actual</string>
     <string name="sms_verified">Número de móvil verificado</string>
     <string name="preferences">Preferencias</string>
     <string name="two_fa_summary">Proteja su monedero del acceso no autorizado mediante la habilitación de la verificación en dos pasos.</string>
@@ -2189,4 +2189,53 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="action_sheet_swap_description">Intercambiar por otra criptomoneda</string>
     <string name="action_sheet_send_description">Enviar a cualquier Wallet</string>
     <string name="action_sheet_receive_description">Copie sus direcciones y códigos QR></string>
+    <string name="action_sheet_withdraw_description">Retire el dinero en efectivo a su banco</string>
+    <string name="main_toolbar_buy_sell">Comprar y vender</string>
+    <string name="toolbar_swap">Intercambiar</string>
+    <string name="select_a_trading_currency">Seleccione una moneda de comercio.</string>
+    <string name="currency_not_available">En este momento, %1$s no es compatible con la compra de criptomonedas. Puede agregar una cuenta bancaria o una tarjeta de la lista de monedas disponibles a continuación.</string>
+    <string name="bank_fees_disclaimer">Pueden aplicarse comisiones bancarias adicionales. Su banco puede añadir comisiones y tipos de cambio a cada transacción.</string>
+    <string name="setting_limits_title">Cuentas comerciales</string>
+    <string name="setting_limits_description">Límites y funciones</string>
+    <string name="feature_limits_send_crypto">Enviar criptomonedas</string>
+    <string name="feature_limits_receive_crypto">Recibir criptomonedas</string>
+    <string name="feature_limits_buy_sell">Comprar y vender</string>
+    <string name="feature_limits_card_purchases">Compras con tarjeta</string>
+    <string name="feature_limits_deposits">Compras/depósitos bancarios</string>
+    <string name="feature_limits_withdrawals">Retiradas bancarias</string>
+    <string name="feature_limits_earn_rewards">Ganar recompensas</string>
+    <string name="feature_limits_from_trading_accounts">de cuentas comerciales</string>
+    <string name="feature_limits_to_trading_accounts">a cuentas comerciales</string>
+    <string name="feature_limits_daily_limit">%1$s al día</string>
+    <string name="feature_limits_monthly_limit">%1$s al mes</string>
+    <string name="feature_limits_yearly_limit">%1$s al año</string>
+    <string name="feature_limits_no_limit">Sin límite</string>
+    <string name="feature_limits_your_limits_and_features">Sus límites y funciones</string>
+    <string name="feature_limits_toolbar">Límites y funciones</string>
+    <string name="feature_limits_header_bronze_description">Blockchain.com ofrece dos tipos de límites de cuenta, cada uno diseñado para adaptarse a sus objetivos y necesidades de criptomonedas.</string>
+    <string name="feature_limits_header_silver_title">Pásese a los límites de Gold</string>
+    <string name="feature_limits_header_silver_description">Verifique su identificación y vincule su banco para comprar y vender criptomonedas directamente desde su monedero.</string>
+    <string name="feature_limits_header_denied_description">Actualmente tiene el nivel más alto de límites de cuenta y funciones disponibles.</string>
+    <string name="feature_limits_footer">Es posible que se apliquen límites a las transacciones en ciertos bancos y emisores de tarjetas.
+
+Los límites de compra o depósito están determinados por muchos factores, entre los que se incluyen la verificación completada en su cuenta, su historial de compras, su tipo de pago y más datos.
+
+Obtenga más información sobre las cuentas comerciales, los límites y las funciones en nuestro <annotation link="support_center_link"> Centro de asistencia </annotation>.</string>
+    <string name="feature_limits_silver_limits">Límites de Silver</string>
+    <string name="feature_limits_gold_limits">Límites de Gold</string>
+    <string name="feature_limits_gold_limits_description">Incluye funciones de Silver</string>
+    <string name="feature_limits_error">Hubo un problema al recuperar la información de sus límites.</string>
+    <string name="kyc_upgrade_now_gold_title">Límites de Gold</string>
+    <string name="kyc_upgrade_now_gold_description">Compre y venda. Gane recompensas.</string>
+    <string name="kyc_upgrade_now_gold_info_1">Conecte su banco o tarjeta a su Wallet. Conserve efectivo en su monedero. Gane criptomonedas con las recompensas.</string>
+    <string name="kyc_upgrade_now_gold_info_2">Incluye todos los límites y funciones de Silver.</string>
+    <string name="kyc_upgrade_now_silver_title">Límites de Silver</string>
+    <string name="kyc_upgrade_now_silver_description">Desbloquear cuentas comerciales e intercambiar.</string>
+    <string name="kyc_upgrade_now_silver_info">Desbloquear Intercambio: nuestro intercambio en la aplicación.</string>
+    <string name="kyc_upgrade_now_tier_state_under_review">En revisión manual</string>
+    <string name="pending_buys_description">En este momento, solo permitimos hasta %d compras pendientes a la vez.</string>
+    <string name="pending_transaction_limit">Demasiadas compras pendientes</string>
+    <string name="checkout_item_price_blurb_zero_margin">Blockchain.com no incluye un diferencial adicional en el precio de la venta de %1$s.</string>
+    <string name="blockchain_fee">Comisión de Blockchain.com</string>
+    <string name="new_user_fee_waiver">Exención de comisión por usuario nuevo</string>
 </resources>

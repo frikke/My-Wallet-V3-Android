@@ -2321,4 +2321,54 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="action_sheet_swap_description">Troca por Outra Criptomoeda</string>
     <string name="action_sheet_send_description">Enviar para Qualquer Wallet</string>
     <string name="action_sheet_receive_description">Copie os Seus Endereços e Códigos QR></string>
+    <string name="action_sheet_rewards_description">Ganhe Rewards na Sua Criptomoeda</string>
+    <string name="action_sheet_withdraw_description">Retirar o Dinheiro do Seu Banco</string>
+    <string name="main_toolbar_buy_sell">Compre e Venda</string>
+    <string name="toolbar_swap">Trocar</string>
+    <string name="select_a_trading_currency">Selecione uma Moeda de Negociação.</string>
+    <string name="currency_not_available">De momento, %1$s não é compatível com a compra de criptomoeda. Pode adicionar uma conta bancária ou cartão da lista de moedas disponíveis abaixo.</string>
+    <string name="bank_fees_disclaimer">Podem ser aplicadas taxas bancárias adicionais. O seu banco pode adicionar Exchange Rates a cada transação.</string>
+    <string name="setting_limits_title">Trading Accounts</string>
+    <string name="setting_limits_description">Limites e Características</string>
+    <string name="feature_limits_send_crypto">Enviar Criptomoedas</string>
+    <string name="feature_limits_receive_crypto">Receber Criptomoedas</string>
+    <string name="feature_limits_buy_sell">Compre e Venda</string>
+    <string name="feature_limits_card_purchases">Compra de Cartão</string>
+    <string name="feature_limits_deposits">Compras / Depósitos bancários</string>
+    <string name="feature_limits_withdrawals">Levantamentos Bancários</string>
+    <string name="feature_limits_earn_rewards">Ganhe Rewards</string>
+    <string name="feature_limits_from_trading_accounts">de Trading Accounts</string>
+    <string name="feature_limits_to_trading_accounts">para Trading Accounts</string>
+    <string name="feature_limits_daily_limit">%1$s por Dia</string>
+    <string name="feature_limits_monthly_limit">%1$s por Mês</string>
+    <string name="feature_limits_yearly_limit">%1$s por Ano</string>
+    <string name="feature_limits_no_limit">Sem Limite</string>
+    <string name="feature_limits_your_limits_and_features">Os Seus Limites e Características</string>
+    <string name="feature_limits_toolbar">Limites e Características</string>
+    <string name="feature_limits_header_bronze_description">Blockchain.com oferece duas categorias de Limites de conta, cada um projetado para responder às suas necessidades e objetivos de criptomoeda.</string>
+    <string name="feature_limits_header_silver_title">Atualize para os Limites Gold</string>
+    <string name="feature_limits_header_silver_description">Verifique sua identidade e vincule seu banco para Comprar e Vender Criptomoedas diretamente da sua carteira.</string>
+    <string name="feature_limits_header_denied_description">Atualmente, tem o nível mais alto de Limites de Conta e recursos disponíveis.</string>
+    <string name="feature_limits_footer">Os limites de transação podem ser aplicados a certos bancos e emissores de cartão.
+
+Os limites de compra ou depósito são determinados por muitos fatores, incluindo a verificação concluída na sua conta, o seu histórico de compras, o seu tipo de pagamento e muito mais.
+
+ Saiba mais sobre Trading Accounts, Limites e recursos visitando nosso <annotation link="support_center_link"> Centro de Suporte </annotation> .</string>
+    <string name="feature_limits_silver_limits">Limites Silver</string>
+    <string name="feature_limits_gold_limits">Limites Gold</string>
+    <string name="feature_limits_gold_limits_description">Inclui Recursos Silver</string>
+    <string name="feature_limits_error">Ocorreu um problema ao recuperar as informações dos seus limites.</string>
+    <string name="kyc_upgrade_now_gold_title">Limites Gold</string>
+    <string name="kyc_upgrade_now_gold_description">Compre e Venda. Ganhe Rewards.</string>
+    <string name="kyc_upgrade_now_gold_info_1">Conecte o seu banco ou cartão à sua Wallet. Guarde dinheiro na sua carteira. Ganhe criptomoedas com Rewards.</string>
+    <string name="kyc_upgrade_now_gold_info_2">Inclui todos os limites e recursos do Silver.</string>
+    <string name="kyc_upgrade_now_silver_title">Limites Silver</string>
+    <string name="kyc_upgrade_now_silver_description">Desbloqueie Contas Comerciais e Troque.</string>
+    <string name="kyc_upgrade_now_silver_info">Troca de Desbloqueio - a nossa troca na aplicação.</string>
+    <string name="kyc_upgrade_now_tier_state_under_review">Em Revisão Manual</string>
+    <string name="pending_buys_description">No momento, permitimos apenas %d compras pendentes ao mesmo tempo.</string>
+    <string name="pending_transaction_limit">Demasiadas compras pendentes</string>
+    <string name="checkout_item_price_blurb_zero_margin">Blockchain.com não inclui spread adicional no preço de venda de %1$s .</string>
+    <string name="blockchain_fee">Taxa de Blockchain.com</string>
+    <string name="new_user_fee_waiver">Renúncia de Taxa de Novo Utilizador</string>
 </resources>

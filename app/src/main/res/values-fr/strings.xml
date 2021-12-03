@@ -2254,5 +2254,53 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="action_sheet_swap_description">Échanger contre une autre Crypto</string>
     <string name="action_sheet_send_description">Envoyer vers n\'importe quel Portefeuille</string>
     <string name="action_sheet_receive_description">Copiez vos adresses et codes QR></string>
+    <string name="action_sheet_rewards_description">Gagnez des Rewards sur votre crypto</string>
+    <string name="main_toolbar_buy_sell">Acheter &amp; vendre</string>
+    <string name="toolbar_swap">Conversion</string>
+    <string name="select_a_trading_currency">Sélectionnez une devise de trading.</string>
+    <string name="currency_not_available">À l\'heure actuelle, %1$s n\'est pas pris en charge pour l\'achat de crypto. Vous pouvez ajouter un compte bancaire ou une carte à partir de la liste des devises disponibles ci-dessous.</string>
+    <string name="bank_fees_disclaimer">Des frais bancaires supplémentaires peuvent s\'appliquer. Votre banque peut ajouter des frais et des taux de change à chaque transaction.</string>
+    <string name="setting_limits_title">Trading Accounts</string>
+    <string name="setting_limits_description">Plafonds et fonctionnalités</string>
+    <string name="feature_limits_send_crypto">Envoyer de la crypto</string>
+    <string name="feature_limits_receive_crypto">Recevoir de la crypto</string>
+    <string name="feature_limits_buy_sell">Acheter &amp; vendre</string>
+    <string name="feature_limits_card_purchases">Achats par carte</string>
+    <string name="feature_limits_deposits">Achats bancaires / Dépôts</string>
+    <string name="feature_limits_withdrawals">Retraits bancaires</string>
+    <string name="feature_limits_earn_rewards">Gagnez des Rewards</string>
+    <string name="feature_limits_from_trading_accounts">à partir de Trading Accounts</string>
+    <string name="feature_limits_to_trading_accounts">vers des Trading Accounts</string>
+    <string name="feature_limits_daily_limit">%1$s par jour</string>
+    <string name="feature_limits_monthly_limit">%1$s par mois</string>
+    <string name="feature_limits_yearly_limit">%1$s par an</string>
+    <string name="feature_limits_no_limit">Sans plafond</string>
+    <string name="feature_limits_your_limits_and_features">Vos plafonds et fonctionnalités</string>
+    <string name="feature_limits_toolbar">Plafonds et fonctionnalités</string>
+    <string name="feature_limits_header_bronze_description">Blockchain.com propose deux types de plafonds de compte, chacun conçu pour répondre à vos objectifs et besoins en matière de crypto.</string>
+    <string name="feature_limits_header_silver_title">Mise à niveau vers les Plafonds Gold</string>
+    <string name="feature_limits_header_silver_description">Vérifiez votre identifiant et associez votre banque à Buy &amp; Sell Crypto directement depuis votre portefeuille.</string>
+    <string name="feature_limits_header_denied_description">Vous disposez actuellement du plus haut niveau de plafonds de compte et de fonctionnalités disponibles.</string>
+    <string name="feature_limits_footer">Des plafonds de transaction peuvent s\'appliquer à certaines banques et émetteurs de cartes.
 
+ Les plafonds d\'achat ou de dépôt sont déterminées par de nombreux facteurs, notamment la vérification effectuée sur votre compte, l\'historique de vos achats, votre type de paiement, etc.
+
+ En savoir plus sur les Trading Accounts, les plafonds et les fonctionnalités en visitant notre <annotation link="support_center_link"> Centre d\'assistance </annotation>.</string>
+    <string name="feature_limits_silver_limits">Plafonds Silver</string>
+    <string name="feature_limits_gold_limits">Plafonds Gold</string>
+    <string name="feature_limits_gold_limits_description">Comprend des fonctionnalités Silver</string>
+    <string name="feature_limits_error">Un problème est survenu lors de la récupération des informations sur vos plafonds.</string>
+    <string name="kyc_upgrade_now_gold_title">Plafonds Gold</string>
+    <string name="kyc_upgrade_now_gold_description">Acheter &amp; vendre. Gagner des Rewards.</string>
+    <string name="kyc_upgrade_now_gold_info_1">Connectez votre banque ou votre carte à votre Wallet. Conservez de l\'argent liquide dans votre portefeuille. Gagnez de la crypto avec des Rewards.</string>
+    <string name="kyc_upgrade_now_gold_info_2">Comprend l\'ensemble des plafonds et fonctionnalités Silver.</string>
+    <string name="kyc_upgrade_now_silver_title">Plafonds Silver</string>
+    <string name="kyc_upgrade_now_silver_description">Débloquez des comptes commerciaux et la Conversion.</string>
+    <string name="kyc_upgrade_now_silver_info">Déverrouillez la fonctionnalité Conversion - notre bourse in-app.</string>
+    <string name="kyc_upgrade_now_tier_state_under_review">En révision manuelle</string>
+    <string name="pending_buys_description">Pour le moment, nous n\'autorisons pas plus de %d achats en attente à la fois.</string>
+    <string name="pending_transaction_limit">Trop d\'achats en attente</string>
+    <string name="checkout_item_price_blurb_zero_margin">Blockchain.com n\'inclut pas de spread supplémentaire dans le prix de vente de %1$s.</string>
+    <string name="blockchain_fee">Frais Blockchain.com</string>
+    <string name="new_user_fee_waiver">Nouvelle dispense des frais d\'utilisation</string>
 </resources>
