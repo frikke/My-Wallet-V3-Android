@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.auth
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.Window
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
@@ -29,7 +28,6 @@ class PinEntryActivity : BlockchainActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(binding.root)
 
         supportFragmentManager.beginTransaction()

@@ -138,7 +138,6 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     }
 
     private fun launchEmailVerification() {
-        window.statusBarColor = getColor(R.color.primary_blue_dark)
         binding.progress.gone()
         binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))

@@ -7,10 +7,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.ViewCompat.generateViewId
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.blockchain.componentlib.control.TabLayoutLargeView
+import com.blockchain.componentlib.divider.HorizontalDividerView
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.walletRedesignFeatureFlag
@@ -71,6 +75,7 @@ class BuySellFragment :
     }
 
     private var hasReturnedFromBuyActivity = false
+    private lateinit var redesignTablayout: TabLayoutLargeView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -187,11 +192,42 @@ class BuySellFragment :
         )
     }
 
+    // TODO when removing ff -> remove this method and uncomment xml
+    private fun addTabLayout() {
+        if (!::redesignTablayout.isInitialized) {
+            redesignTablayout = TabLayoutLargeView(requireContext())
+            redesignTablayout.id = generateViewId()
+
+            val divider = HorizontalDividerView(requireContext())
+            divider.id = generateViewId()
+
+            binding.root.addView(divider)
+            binding.root.addView(redesignTablayout)
+
+            val set = ConstraintSet()
+            set.clone(binding.root)
+
+            set.connect(
+                redesignTablayout.id,
+                ConstraintSet.TOP,
+                divider.id,
+                ConstraintSet.BOTTOM
+            )
+            set.connect(
+                binding.pager.id,
+                ConstraintSet.TOP,
+                redesignTablayout.id,
+                ConstraintSet.BOTTOM
+            )
+            set.applyTo(binding.root)
+        }
+    }
+
     private fun renderBuySellUi(redesignEnabled: Boolean) {
         with(binding) {
             if (redesignEnabled) {
-                redesignDivider.visible()
-                redesignTabLayout.apply {
+                addTabLayout()
+                redesignTablayout.apply {
                     visible()
                     items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
                     onItemSelected = {
@@ -201,11 +237,11 @@ class BuySellFragment :
                 }
                 pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                        redesignTabLayout.selectedItemIndex = position
+                        redesignTablayout.selectedItemIndex = position
                     }
 
                     override fun onPageSelected(position: Int) {
-                        redesignTabLayout.selectedItemIndex = position
+                        redesignTablayout.selectedItemIndex = position
                     }
 
                     override fun onPageScrollStateChanged(state: Int) {

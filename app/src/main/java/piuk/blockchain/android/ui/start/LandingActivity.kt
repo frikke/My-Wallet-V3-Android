@@ -39,7 +39,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         get() = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme_MainActivity)
         super.onCreate(savedInstanceState)
 
         setContentView(binding.root)

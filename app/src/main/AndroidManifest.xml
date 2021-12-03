@@ -35,8 +35,8 @@
         tools:replace="android:label, android:allowBackup">
         <activity
             android:name=".ui.launcher.LauncherActivity"
-            android:theme="@style/AppTheme.Splash"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.Splash">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
@@ -89,13 +89,11 @@
             android:name=".ui.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
-            android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"
-            android:theme="@style/AppTheme" />
+            android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity" />
         <activity
             android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
             android:clearTaskOnLaunch="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.home.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -142,8 +140,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.start.LandingActivity"
-            android:theme="@style/AppTheme.Splash"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.Splash"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.createwallet.CreateWalletActivity"
@@ -160,8 +158,8 @@
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.start.ManualPairingActivity"
-            android:parentActivityName=".ui.login.LoginActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.login.LoginActivity" />
         <activity
             android:name=".ui.auth.LogoutActivity"
             android:excludeFromRecents="true"
@@ -224,10 +222,9 @@
         <activity
             android:name=".ui.locks.LocksDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
-            android:name=".ui.home.v2.ActionActivity" />
-        <activity
-            android:name=".ui.settings.v2.RedesignSettingsActivity" />
+        <activity android:name=".ui.home.v2.ActionActivity" />
+        <activity android:name=".ui.settings.v2.RedesignSettingsActivity" />
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/ic_launcher" />

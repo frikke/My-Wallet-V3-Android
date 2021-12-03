@@ -11,6 +11,7 @@ import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.viewbinding.ViewBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.navigation.NavigationBarView
 import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.SecurityPrefs
@@ -58,6 +59,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     protected open val enableLogoutTimer: Boolean = true
     private lateinit var logoutPendingIntent: PendingIntent
+    private var toolbar: NavigationBarView? = null
 
     private var alertDialog: AlertDialog? = null
         @UiThread
@@ -96,7 +98,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             .subscribeBy(
                 onSuccess = { enabled ->
                     if (enabled) {
-                        toolbarBinding?.toolbarRedesign.visible()
+                        setupToolbar()
                     } else {
                         setupOldToolbar()
                     }
@@ -104,28 +106,34 @@ abstract class BlockchainActivity : ToolBarActivity() {
                     menuItems?.let { updateMenuItems(menuItems) }
                     backAction?.let { updateBackButton(backAction) }
                 },
-                onError = { setupOldToolbar() }
+                onError = {
+                    setupOldToolbar()
+                    updateTitleToolbar(titleToolbar)
+                    menuItems?.let { updateMenuItems(menuItems) }
+                    backAction?.let { updateBackButton(backAction) }
+                }
             )
     }
 
     // TODO when removing ff -> remove title from toolbarGeneral
     fun updateTitleToolbar(titleToolbar: String = "") {
-        toolbarBinding?.toolbarRedesign?.title = titleToolbar
-        toolbarBinding?.toolbarGeneral?.title = titleToolbar
+        toolbar?.title = titleToolbar
+        supportActionBar?.title = titleToolbar
     }
 
     fun updateMenuItems(menuItems: List<NavigationBarButton>) {
-        toolbarBinding?.toolbarRedesign?.endNavigationBarButtons = menuItems
+        toolbar?.endNavigationBarButtons = menuItems
     }
 
     // TODO when removing ff -> remove backButton from toolbarGeneral
     fun updateBackButton(backAction: () -> Unit) {
-        toolbarBinding?.toolbarRedesign?.onBackButtonClick = backAction
+        toolbar?.onBackButtonClick = backAction
         toolbarBinding?.toolbarGeneral?.setNavigationOnClickListener { backAction() }
     }
 
     private fun setupToolbar() {
-        toolbarBinding?.toolbarRedesign.visible()
+        toolbar = NavigationBarView(this)
+        toolbarBinding?.root?.addView(toolbar)
     }
 
     private fun setupOldToolbar() {

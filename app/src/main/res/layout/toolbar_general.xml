@@ -6,12 +6,13 @@
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <com.blockchain.componentlib.navigation.NavigationBarView
-        android:id="@+id/toolbar_redesign"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        tools:visibility="visible" />
+<!--    TODO uncomment when feature flag off-->
+<!--    <com.blockchain.componentlib.navigation.NavigationBarView-->
+<!--        android:id="@+id/toolbar_redesign"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:visibility="gone"-->
+<!--        tools:visibility="visible" />-->
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_general"

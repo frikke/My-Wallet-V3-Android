@@ -92,7 +92,6 @@ class TransactionFlowActivity :
             backAction = { onBackPressed() }
         )
         binding.txProgress.visible()
-        addMenuOptionsToRedesignToolbar()
         startModel()
     }
 
@@ -154,14 +153,6 @@ class TransactionFlowActivity :
             } ?: loadToolbar()
 
             currentStep = step
-        }
-    }
-
-    private fun addMenuOptionsToRedesignToolbar() {
-        binding.toolbar.toolbarRedesign.apply {
-            endNavigationBarButtons = listOf(
-                NavigationBarButton.Icon(R.drawable.ic_close) { finish() }
-            )
         }
     }
 
