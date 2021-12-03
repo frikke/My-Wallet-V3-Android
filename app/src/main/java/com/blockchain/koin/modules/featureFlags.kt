@@ -32,7 +32,6 @@ val featureFlagsModule = module {
 
     single(stripeAndCheckoutPaymentsFeatureFlag) {
         StripeAndCheckoutIntegratedFeatureFlag(
-            gatedFeatures = get(),
             remoteFlag = get<RemoteConfig>().featureFlag("android_ff_checkout_stripe_payments")
         )
     }.bind(FeatureFlag::class)
