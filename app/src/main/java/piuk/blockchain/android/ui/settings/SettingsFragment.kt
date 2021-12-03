@@ -41,8 +41,6 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricAuthError.BiometricsNoSuitableMethods
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -198,7 +196,6 @@ class SettingsFragment :
     private val rxBus: RxBus by inject()
     private val formatChecker: FormatChecker by inject()
     private val environmentConfig: EnvironmentConfig by inject()
-    private val internalFeatureFlagApi: InternalFeatureFlagApi by inject()
 
     private var progressDialog: MaterialProgressDialog? = null
 
@@ -257,7 +254,6 @@ class SettingsFragment :
         limitsPref.onClick {
             startActivity(Intent(requireContext(), KycLimitsActivity::class.java))
         }
-        limitsPref?.isVisible = internalFeatureFlagApi.isFeatureEnabled(GatedFeature.SETTINGS_FEATURE_LIMITS)
 
         qrConnectPref?.isVisible = environmentConfig.isRunningInDebugMode() &&
             environmentConfig.environment != Environment.PRODUCTION

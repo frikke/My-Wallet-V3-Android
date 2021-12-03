@@ -7,8 +7,6 @@ import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitPeriod
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.Tier
 import info.blockchain.balance.AssetCatalogue
@@ -42,7 +40,6 @@ interface LimitsDataManager {
 }
 
 class LimitsDataManagerImpl(
-    private val internalFeatureFlagApi: InternalFeatureFlagApi,
     private val limitsService: TxLimitsService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val assetCatalogue: AssetCatalogue,
@@ -63,101 +60,87 @@ class LimitsDataManagerImpl(
             outputAsset, exchangeRatesDataManager
         )
 
-        if (internalFeatureFlagApi.isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS)) {
-            Single.zip(
-                legacyLimitsToOutputCurrency,
-                limitsService.getSeamlessLimits(
-                    authHeader = token.authHeader,
-                    outputCurrency = outputCurrency,
-                    sourceCurrency = sourceCurrency,
-                    targetCurrency = targetCurrency,
-                    sourceAccountType = sourceAccountType.name,
-                    targetAccountType = targetAccountType.name
+        Single.zip(
+            legacyLimitsToOutputCurrency,
+            limitsService.getSeamlessLimits(
+                authHeader = token.authHeader,
+                outputCurrency = outputCurrency,
+                sourceCurrency = sourceCurrency,
+                targetCurrency = targetCurrency,
+                sourceAccountType = sourceAccountType.name,
+                targetAccountType = targetAccountType.name
+            )
+        ) { legacyLimits, seamlessLimits ->
+            val maxLegacyLimit = legacyLimits.max
+            val maxSeamlessLimit = seamlessLimits.current?.available?.toMoneyValue()
+            val maxLimit = when {
+                maxSeamlessLimit != null && maxLegacyLimit != null -> TxLimit.Limited(
+                    Money.min(maxLegacyLimit, maxSeamlessLimit)
                 )
-            ) { legacyLimits, seamlessLimits ->
-                val maxLegacyLimit = legacyLimits.max
-                val maxSeamlessLimit = seamlessLimits.current?.available?.toMoneyValue()
-                val maxLimit = when {
-                    maxSeamlessLimit != null && maxLegacyLimit != null -> TxLimit.Limited(
-                        Money.min(maxLegacyLimit, maxSeamlessLimit)
-                    )
-                    maxLegacyLimit != null -> TxLimit.Limited(maxLegacyLimit)
-                    maxSeamlessLimit != null -> TxLimit.Limited(maxSeamlessLimit)
-                    else -> TxLimit.Unlimited
-                }
-
-                val periodicLimits = listOfNotNull(
-                    seamlessLimits.current?.daily?.let {
-                        TxPeriodicLimit(
-                            it.limit.toMoneyValue(),
-                            TxLimitPeriod.DAILY,
-                            it.effective ?: false
-                        )
-                    },
-                    seamlessLimits.current?.monthly?.let {
-                        TxPeriodicLimit(
-                            it.limit.toMoneyValue(),
-                            TxLimitPeriod.MONTHLY,
-                            it.effective ?: false
-                        )
-                    },
-                    seamlessLimits.current?.yearly?.let {
-                        TxPeriodicLimit(
-                            it.limit.toMoneyValue(),
-                            TxLimitPeriod.YEARLY,
-                            it.effective ?: false
-                        )
-                    }
-                )
-
-                val upgradedLimits = listOfNotNull(
-                    seamlessLimits.suggestedUpgrade?.daily?.let {
-                        TxPeriodicLimit(
-                            it.limit.toMoneyValue(),
-                            TxLimitPeriod.DAILY,
-                            false
-                        )
-                    },
-                    seamlessLimits.suggestedUpgrade?.monthly?.let {
-                        TxPeriodicLimit(
-                            it.limit.toMoneyValue(),
-                            TxLimitPeriod.MONTHLY,
-                            false
-                        )
-                    },
-                    seamlessLimits.suggestedUpgrade?.yearly?.let {
-                        TxPeriodicLimit(
-                            it.limit.toMoneyValue(),
-                            TxLimitPeriod.YEARLY,
-                            false
-                        )
-                    }
-                )
-
-                TxLimits(
-                    min = TxLimit.Limited(legacyLimits.min),
-                    max = maxLimit,
-                    periodicLimits = periodicLimits,
-                    suggestedUpgrade = seamlessLimits.suggestedUpgrade?.let {
-                        SuggestedUpgrade(
-                            type = UpgradeType.Kyc(Tier.values()[it.requiredTier]),
-                            upgradedLimits = upgradedLimits
-                        )
-                    }
-                )
+                maxLegacyLimit != null -> TxLimit.Limited(maxLegacyLimit)
+                maxSeamlessLimit != null -> TxLimit.Limited(maxSeamlessLimit)
+                else -> TxLimit.Unlimited
             }
-        } else {
-            legacyLimitsToOutputCurrency
-                .map { productLimits ->
-                    TxLimits(
-                        min = TxLimit.Limited(productLimits.min),
-                        max = productLimits.max?.let {
-                            TxLimit.Limited(it)
-                        } ?: TxLimit.Unlimited,
-                        periodicLimits = emptyList(),
-                        suggestedUpgrade = null
+
+            val periodicLimits = listOfNotNull(
+                seamlessLimits.current?.daily?.let {
+                    TxPeriodicLimit(
+                        it.limit.toMoneyValue(),
+                        TxLimitPeriod.DAILY,
+                        it.effective ?: false
+                    )
+                },
+                seamlessLimits.current?.monthly?.let {
+                    TxPeriodicLimit(
+                        it.limit.toMoneyValue(),
+                        TxLimitPeriod.MONTHLY,
+                        it.effective ?: false
+                    )
+                },
+                seamlessLimits.current?.yearly?.let {
+                    TxPeriodicLimit(
+                        it.limit.toMoneyValue(),
+                        TxLimitPeriod.YEARLY,
+                        it.effective ?: false
                     )
                 }
+            )
+
+            val upgradedLimits = listOfNotNull(
+                seamlessLimits.suggestedUpgrade?.daily?.let {
+                    TxPeriodicLimit(
+                        it.limit.toMoneyValue(),
+                        TxLimitPeriod.DAILY,
+                        false
+                    )
+                },
+                seamlessLimits.suggestedUpgrade?.monthly?.let {
+                    TxPeriodicLimit(
+                        it.limit.toMoneyValue(),
+                        TxLimitPeriod.MONTHLY,
+                        false
+                    )
+                },
+                seamlessLimits.suggestedUpgrade?.yearly?.let {
+                    TxPeriodicLimit(
+                        it.limit.toMoneyValue(),
+                        TxLimitPeriod.YEARLY,
+                        false
+                    )
+                }
+            )
+
+            TxLimits(
+                min = TxLimit.Limited(legacyLimits.min),
+                max = maxLimit,
+                periodicLimits = periodicLimits,
+                suggestedUpgrade = seamlessLimits.suggestedUpgrade?.let {
+                    SuggestedUpgrade(
+                        type = UpgradeType.Kyc(Tier.values()[it.requiredTier]),
+                        upgradedLimits = upgradedLimits
+                    )
+                }
+            )
         }
     }
 

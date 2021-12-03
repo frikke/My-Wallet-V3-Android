@@ -134,7 +134,6 @@ val coreModule = module {
 
         scoped {
             LimitsDataManagerImpl(
-                internalFeatureFlagApi = get(),
                 limitsService = get(),
                 exchangeRatesDataManager = get(),
                 assetCatalogue = get(),

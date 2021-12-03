@@ -11,8 +11,6 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -80,7 +78,6 @@ class SimpleBuyCryptoFragment :
     private val assetCatalogue: AssetCatalogue by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
     private var infoActionCallback: () -> Unit = {}
 
     private val fiatCurrency: String
@@ -277,12 +274,8 @@ class SimpleBuyCryptoFragment :
 
         binding.btnContinue.isEnabled = canContinue(newState)
 
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS)) {
-            updateInputStateUI(newState)
-            showCtaOrError(newState)
-        } else {
-            showLegacyPossibleErrorMessage(newState)
-        }
+        updateInputStateUI(newState)
+        showCtaOrError(newState)
 
         if (newState.confirmationActionRequested &&
             newState.kycVerificationState != null &&
@@ -303,15 +296,6 @@ class SimpleBuyCryptoFragment :
                 ),
                 BankAuthActivity.LINK_BANK_REQUEST_CODE
             )
-        }
-    }
-
-    private fun showLegacyPossibleErrorMessage(newState: SimpleBuyState) {
-        val error = legacyErrorMessage(newState)
-        if (newState.errorStateShouldBeIndicated()) {
-            binding.inputAmount.showError(error)
-        } else {
-            clearError()
         }
     }
 
@@ -547,10 +531,6 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun clearError() {
-        binding.inputAmount.hideLabels()
-    }
-
     private fun paymentMethodLoading() {
         with(binding) {
             paymentMethodTitle.showLoading()
@@ -568,30 +548,6 @@ class SimpleBuyCryptoFragment :
             navigator().launchBankAuthWithError(errorState)
         } else {
             showBottomSheet(ErrorSlidingBottomDialog.newInstance(activity))
-        }
-    }
-
-    private fun legacyErrorMessage(state: SimpleBuyState): String {
-        return when (state.errorState) {
-            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> resources.getString(
-                R.string.maximum_buy, state.selectedPaymentMethodLimits.maxAmount.toStringWithSymbol()
-            )
-            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> resources.getString(
-                R.string.minimum_buy, state.selectedPaymentMethodLimits.minAmount.toStringWithSymbol()
-            )
-            TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> resources.getString(
-                R.string.maximum_buy, state.limits.maxAmount.toStringWithSymbol()
-            )
-            TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
-                R.string.not_enough_funds, state.fiatCurrency
-            )
-            TransactionErrorState.BELOW_MIN_LIMIT -> resources.getString(
-                R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol()
-            )
-            else -> {
-                resources.getString(R.string.empty)
-            }
         }
     }
 

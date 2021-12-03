@@ -17,8 +17,6 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -46,7 +44,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
-import piuk.blockchain.android.ui.transactionflow.flow.customisations.IssueType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
@@ -62,7 +59,6 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         FragmentTxFlowEnterAmountBinding.inflate(inflater, container, false)
 
     private val customiser: EnterAmountCustomisations by inject()
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private val compositeDisposable = CompositeDisposable()
     private var state: TransactionState = TransactionState()
@@ -210,12 +206,8 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
 
-                if (gatedFeatures.isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS)) {
-                    updateInputStateUI(newState)
-                    showCtaOrError(newState)
-                } else {
-                    showFlashMessageIfNeeded(newState)
-                }
+                updateInputStateUI(newState)
+                showCtaOrError(newState)
             }
 
             newState.pendingTx?.let {
@@ -262,36 +254,6 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             !errorState.isAmountRelated() -> {
                 showError(state, customiser.issueFlashMessage(state, inputCurrency))
             }
-        }
-    }
-
-    private fun FragmentTxFlowEnterAmountBinding.showFlashMessageIfNeeded(
-        state: TransactionState
-    ) {
-        customiser.issueFlashMessageLegacy(state, amountSheetInput.configuration.inputCurrency)?.let {
-            when (customiser.selectIssueType(state)) {
-                IssueType.ERROR -> {
-                    amountSheetInput.showError(it, customiser.shouldDisableInput(state.errorState))
-                }
-                IssueType.INFO -> {
-                    amountSheetInput.showInfo(it) {
-                        KycNavHostActivity.start(requireActivity(), CampaignType.Swap, true)
-                    }
-                }
-            }
-        } ?: showFeesTooHighMessageOrHide(state)
-    }
-
-    private fun FragmentTxFlowEnterAmountBinding.showFeesTooHighMessageOrHide(
-        state: TransactionState
-    ) {
-        val feesTooHighMsg = customiser.issueFeesTooHighMessage(state)
-        if (state.pendingTx != null && state.pendingTx.isLowOnBalance() && feesTooHighMsg != null) {
-            amountSheetInput.showError(
-                errorMessage = feesTooHighMsg
-            )
-        } else {
-            amountSheetInput.hideLabels()
         }
     }
 

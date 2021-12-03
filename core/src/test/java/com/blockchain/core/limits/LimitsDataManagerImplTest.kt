@@ -15,8 +15,6 @@ import com.blockchain.api.txlimits.data.PeriodicLimit
 import com.blockchain.api.txlimits.data.SuggestedUpgrade
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.FakeAuthenticator
 import com.blockchain.nabu.Tier
@@ -48,9 +46,6 @@ class LimitsDataManagerImplTest {
         ioTrampoline()
     }
 
-    private val internalFeatureFlagApi: InternalFeatureFlagApi = mock {
-        on { isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS) }.thenReturn(true)
-    }
     private val limitsService: TxLimitsService = mock()
     private val cryptoToFiatRate: ExchangeRate = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock {
@@ -62,7 +57,6 @@ class LimitsDataManagerImplTest {
     private val authenticator: Authenticator = FakeAuthenticator(FakeNabuSessionTokenFactory.any)
 
     private val subject = LimitsDataManagerImpl(
-        internalFeatureFlagApi = internalFeatureFlagApi,
         limitsService = limitsService,
         exchangeRatesDataManager = exchangeRatesDataManager,
         assetCatalogue = assetCatalogue,
@@ -151,29 +145,6 @@ class LimitsDataManagerImplTest {
 
         legacyLimitsSingle.test().assertComplete()
         verifyNoMoreInteractions(exchangeRatesDataManager)
-    }
-
-    @Test
-    fun `when feature flag is off it shouldn't fetch seamless limits`() {
-        whenever(internalFeatureFlagApi.isFeatureEnabled(GatedFeature.SEAMLESS_LIMITS)).thenReturn(false)
-
-        val legacyLimits = object : LegacyLimits {
-            override val min: Money = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L)
-            override val max: Money? = null
-        }
-        val legacyLimitsSingle: Single<LegacyLimits> = Single.just(legacyLimits)
-
-        subject.getLimits(
-            outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
-            sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
-            targetCurrency = "ETH",
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
-            legacyLimits = legacyLimitsSingle
-        ).test().assertComplete()
-
-        legacyLimitsSingle.test().assertComplete()
-        verifyNoMoreInteractions(limitsService)
     }
 
     @Test

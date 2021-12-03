@@ -12,7 +12,5 @@ enum class GatedFeature(
     val readableName: String,
     val enabledForCompanyInternalBuild: Boolean = false
 ) {
-    ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets"),
-    SEAMLESS_LIMITS("New transaction flow errors and Limits API", true),
-    SETTINGS_FEATURE_LIMITS("Enable Features & Limits in Settings", true)
+    ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets")
 }
