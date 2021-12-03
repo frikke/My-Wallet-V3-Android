@@ -11,7 +11,6 @@ import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.featureflags.StripeAndCheckoutIntegratedFeatureFlag
-import piuk.blockchain.android.featureflags.WalletRedesignIntegratedFeatureFlag
 
 val featureFlagsModule = module {
 
@@ -28,10 +27,7 @@ val featureFlagsModule = module {
     }
 
     single(walletRedesignFeatureFlag) {
-        WalletRedesignIntegratedFeatureFlag(
-            gatedFeatures = get(),
-            remoteFlag = get<RemoteConfig>().featureFlag("android_ff_wallet_redesign")
-        )
+        get<RemoteConfig>().featureFlag("android_ff_wallet_redesign")
     }.bind(FeatureFlag::class)
 
     single(stripeAndCheckoutPaymentsFeatureFlag) {
