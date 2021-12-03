@@ -11,6 +11,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.braintreepayments.cardform.utils.CardType
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -55,6 +56,25 @@ class AddNewCardFragment :
         }
     }
 
+    private val cardTypeWatcher = object : AfterTextChangedWatcher() {
+        override fun afterTextChanged(s: Editable?) {
+            s?.let {
+                with(binding) {
+                    when (cardNumber.cardType) {
+                        CardType.MASTERCARD -> {
+                            cardCvvInput.hint = getString(R.string.card_cvc)
+                            cvv.setErrorMessage(R.string.invalid_cvc)
+                        }
+                        else -> {
+                            cardCvvInput.hint = getString(R.string.card_cvv)
+                            cvv.setErrorMessage(R.string.invalid_cvv)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun hideError() {
         binding.sameCardError.gone()
     }
@@ -65,7 +85,10 @@ class AddNewCardFragment :
 
         with(binding) {
             cardName.addTextChangedListener(textWatcher)
-            cardNumber.addTextChangedListener(textWatcher)
+            cardNumber.apply {
+                addTextChangedListener(cardTypeWatcher)
+                addTextChangedListener(textWatcher)
+            }
             cvv.addTextChangedListener(textWatcher)
             expiryDate.addTextChangedListener(textWatcher)
             btnNext.apply {
