@@ -26,7 +26,6 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
     var bodyStart by mutableStateOf(buildAnnotatedString { })
     var bodyEnd by mutableStateOf(buildAnnotatedString { })
     var onClick by mutableStateOf({})
-    var tags by mutableStateOf(null as? List<TagViewState>?)
 
     @Composable
     override fun Content() {
