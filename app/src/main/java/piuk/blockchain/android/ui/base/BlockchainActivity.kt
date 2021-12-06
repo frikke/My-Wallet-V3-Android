@@ -59,7 +59,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     protected open val enableLogoutTimer: Boolean = true
     private lateinit var logoutPendingIntent: PendingIntent
-    private lateinit var toolbar: NavigationBarView
+    private val toolbar: NavigationBarView by lazy { NavigationBarView(this) }
 
     private var alertDialog: AlertDialog? = null
         @UiThread
@@ -78,7 +78,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lockScreenOrientation()
-        toolbar = NavigationBarView(this)
     }
 
     /**
