@@ -65,7 +65,7 @@ fun ButtonContent(
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
                 }
-                ImageResource.None -> {/* no-op */
+                ImageResource.None -> { /* no-op */
                 }
             }
             Text(
