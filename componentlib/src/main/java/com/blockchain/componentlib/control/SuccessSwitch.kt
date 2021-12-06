@@ -1,11 +1,13 @@
 package com.blockchain.componentlib.control
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark600
@@ -41,7 +43,8 @@ fun SuccessSwitch(
             disabledUncheckedTrackColor = uncheckedTrackColor,
         ),
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier
+            .padding(12.dp),
     )
 }
 

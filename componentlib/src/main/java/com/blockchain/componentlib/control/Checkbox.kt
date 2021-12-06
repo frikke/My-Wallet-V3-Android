@@ -1,12 +1,14 @@
 package com.blockchain.componentlib.control
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.ContentAlpha
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark900
@@ -22,7 +24,8 @@ fun Checkbox(
     androidx.compose.material.Checkbox(
         checked = isChecked,
         onCheckedChange = onCheckChanged,
-        modifier = modifier,
+        modifier = modifier
+            .padding(12.dp),
         enabled = enabled,
         colors = CheckboxDefaults.colors(
             checkedColor = AppTheme.colors.primary,
