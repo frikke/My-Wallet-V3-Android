@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.control
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,13 +38,14 @@ fun TabLayoutLarge(
     }
 
     Surface(
-        color = AppTheme.colors.background,
+        color = Color.Transparent,
+        contentColor = Color.Transparent,
         elevation = padding,
         modifier = Modifier.padding(bottom = padding)
     ) {
         TabRow(
             selectedTabIndex = selectedItemIndex,
-            backgroundColor = Color.Transparent,
+            backgroundColor = AppTheme.colors.background,
             contentColor = AppTheme.colors.primary,
             divider = {},
             modifier = modifier
@@ -100,6 +102,23 @@ private fun TabLayoutLargePreview_Default() {
 @Preview
 @Composable
 private fun TabLayoutLargePreview_withShadow() {
+    var selectedItem by remember { mutableStateOf(0) }
+    AppTheme {
+        AppSurface {
+            TabLayoutLarge(
+                items = listOf("First", "Second", "Third"),
+                onItemSelected = { index -> selectedItem = index },
+                modifier = Modifier.fillMaxWidth(),
+                selectedItemIndex = selectedItem,
+                hasBottomShadow = true
+            )
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun TabLayoutLargeDarkPreview_withShadow() {
     var selectedItem by remember { mutableStateOf(0) }
     AppTheme {
         AppSurface {
