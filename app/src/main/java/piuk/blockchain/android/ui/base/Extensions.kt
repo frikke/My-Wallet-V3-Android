@@ -39,7 +39,7 @@ fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =
 fun FragmentManager.showFragment(
     fragment: Fragment,
     loadingView: LottieAnimationView,
-    reloadFragment: Boolean = true
+    reloadFragment: Boolean = false
 ) {
     val transaction = this.beginTransaction()
     val primaryFragment = this.primaryNavigationFragment

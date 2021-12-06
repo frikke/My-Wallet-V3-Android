@@ -132,7 +132,6 @@ class RedesignMainActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         launchPortfolio()
-
         setupToolbar()
         setupNavigation()
 
@@ -229,16 +228,16 @@ class RedesignMainActivity :
                 selectedNavigationItem = it
                 when (it) {
                     NavigationItem.Home -> {
-                        launchPortfolio(reload = false)
+                        launchPortfolio()
                     }
                     NavigationItem.Prices -> {
-                        launchPrices(reload = false)
+                        launchPrices()
                     }
                     NavigationItem.BuyAndSell -> {
-                        launchBuySell(reload = false)
+                        launchBuySell()
                     }
                     NavigationItem.Activity -> {
-                        startActivitiesFragment(reload = false)
+                        startActivitiesFragment()
                     }
                     else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
                 }
@@ -543,7 +542,7 @@ class RedesignMainActivity :
 
     private fun startActivitiesFragment(
         account: BlockchainAccount? = null,
-        reload: Boolean = true
+        reload: Boolean = false
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_activity))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
@@ -580,7 +579,7 @@ class RedesignMainActivity :
     private fun launchPortfolio(
         action: AssetAction? = null,
         fiatCurrency: String? = null,
-        reload: Boolean = true
+        reload: Boolean = false
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
@@ -673,17 +672,27 @@ class RedesignMainActivity :
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_buy_sell))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
+
+        val buySellFragment = BuySellFragment.newInstance(
+            viewType = viewType,
+            asset = asset
+        )
+
+        if (!reload) {
+            val currentBuySell: BuySellFragment? =
+                supportFragmentManager.findFragmentByTag(buySellFragment.javaClass.simpleName)
+                    as? BuySellFragment
+            currentBuySell?.goToPage(viewType.ordinal)
+        }
+
         supportFragmentManager.showFragment(
-            fragment = BuySellFragment.newInstance(
-                viewType = viewType,
-                asset = asset
-            ),
+            fragment = buySellFragment,
             loadingView = binding.progress,
             reloadFragment = reload
         )
     }
 
-    private fun launchPrices(reload: Boolean = true) {
+    private fun launchPrices(reload: Boolean = false) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
         supportFragmentManager.showFragment(
             fragment = PricesFragment.newInstance(),

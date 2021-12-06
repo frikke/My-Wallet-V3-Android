@@ -86,15 +86,24 @@ class BuySellFragment :
         return binding.root
     }
 
+    fun goToPage(position: Int) {
+        binding.pager.setCurrentItem(position, true)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateTitleToolbar(getString(R.string.buy_and_sell))
         analytics.logEvent(BuySellViewedEvent())
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (isHidden) return
+        subscribeForNavigation()
+    }
+
     private fun subscribeForNavigation(showLoader: Boolean = true) {
         val activityIndicator = if (showLoader) appUtil.activityIndicator else null
-
         compositeDisposable +=
             simpleBuySync.performSync()
                 .onErrorComplete()
@@ -118,7 +127,10 @@ class BuySellFragment :
                 )
     }
 
-    private fun renderBuySellFragments(action: BuySellIntroAction?, redesignEnabled: Boolean) {
+    private fun renderBuySellFragments(
+        action: BuySellIntroAction?,
+        redesignEnabled: Boolean
+    ) {
         with(binding) {
             buySellEmpty.gone()
             pager.visible()
@@ -155,7 +167,7 @@ class BuySellFragment :
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) {
-            subscribeForNavigation(showLoader = false)
+            subscribeForNavigation()
         }
     }
 
@@ -252,19 +264,19 @@ class BuySellFragment :
                 tabLayout.setupWithViewPager(pager)
                 tabLayout.visible()
             }
-
-            if (pager.adapter == null) {
-                pager.adapter = pagerAdapter
-                when (showView) {
-                    BuySellViewType.TYPE_BUY -> pager.setCurrentItem(
-                        BuySellViewType.TYPE_BUY.ordinal, true
-                    )
-                    BuySellViewType.TYPE_SELL -> pager.setCurrentItem(
-                        BuySellViewType.TYPE_SELL.ordinal, true
-                    )
+            with(binding) {
+                if (pager.adapter == null) {
+                    pager.adapter = pagerAdapter
+                    when (showView) {
+                        BuySellViewType.TYPE_BUY -> pager.setCurrentItem(
+                            BuySellViewType.TYPE_BUY.ordinal, true
+                        )
+                        BuySellViewType.TYPE_SELL -> pager.setCurrentItem(
+                            BuySellViewType.TYPE_SELL.ordinal, true
+                        )
+                    }
                 }
             }
-
             pager.visible()
             notEligibleIcon.gone()
             notEligibleTitle.gone()
@@ -309,12 +321,6 @@ class BuySellFragment :
 
     override fun onSellListEmptyCta() {
         binding.pager.setCurrentItem(BuySellViewType.TYPE_BUY.ordinal, true)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (isHidden) return
-        subscribeForNavigation()
     }
 
     override fun navigator(): HomeNavigator =
