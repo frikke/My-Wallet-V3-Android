@@ -59,7 +59,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     protected open val enableLogoutTimer: Boolean = true
     private lateinit var logoutPendingIntent: PendingIntent
-    private var toolbar: NavigationBarView? = null
+    private lateinit var toolbar: NavigationBarView
 
     private var alertDialog: AlertDialog? = null
         @UiThread
@@ -78,6 +78,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lockScreenOrientation()
+        toolbar = NavigationBarView(this)
     }
 
     /**
@@ -102,37 +103,34 @@ abstract class BlockchainActivity : ToolBarActivity() {
                     } else {
                         setupOldToolbar()
                     }
-                    updateTitleToolbar(titleToolbar)
-                    menuItems?.let { updateMenuItems(menuItems) }
-                    backAction?.let { updateBackButton(backAction) }
                 },
                 onError = {
                     setupOldToolbar()
-                    updateTitleToolbar(titleToolbar)
-                    menuItems?.let { updateMenuItems(menuItems) }
-                    backAction?.let { updateBackButton(backAction) }
                 }
-            )
+            ).apply {
+                updateTitleToolbar(titleToolbar)
+                menuItems?.let { updateMenuItems(menuItems) }
+                backAction?.let { updateBackButton(backAction) }
+            }
     }
 
     // TODO when removing ff -> remove title from toolbarGeneral
     fun updateTitleToolbar(titleToolbar: String = "") {
-        toolbar?.title = titleToolbar
+        toolbar.title = titleToolbar
         supportActionBar?.title = titleToolbar
     }
 
     fun updateMenuItems(menuItems: List<NavigationBarButton>) {
-        toolbar?.endNavigationBarButtons = menuItems
+        toolbar.endNavigationBarButtons = menuItems
     }
 
     // TODO when removing ff -> remove backButton from toolbarGeneral
     fun updateBackButton(backAction: () -> Unit) {
-        toolbar?.onBackButtonClick = backAction
+        toolbar.onBackButtonClick = backAction
         toolbarBinding?.toolbarGeneral?.setNavigationOnClickListener { backAction() }
     }
 
     private fun setupToolbar() {
-        toolbar = NavigationBarView(this)
         toolbarBinding?.root?.addView(toolbar)
     }
 
