@@ -890,7 +890,7 @@ class TransactionFlowCustomiserImpl(
                 )
             } ?: state.pendingTx?.limits?.maxAmount?.toStringWithSymbol()
             return resources.getString(
-                R.string.minimum_with_value, amount
+                R.string.maximum_with_value, amount
             )
         }
     }
