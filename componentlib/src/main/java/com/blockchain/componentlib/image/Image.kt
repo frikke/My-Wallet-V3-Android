@@ -39,6 +39,7 @@ fun Image(
                 painter = painterResource(id = imageResource.id),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier,
+                colorFilter = imageResource.colorFilter
             )
         is ImageResource.Remote ->
             androidx.compose.foundation.Image(

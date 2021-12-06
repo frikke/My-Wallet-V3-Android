@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +41,7 @@ fun AlertButton(
         defaultBackgroundLightColor = Grey900,
         defaultBackgroundDarkColor = Dark800,
         pressedBackgroundColor = Color.Black,
-        modifier = modifier,
+        modifier = modifier.requiredHeightIn(min = 48.dp),
         buttonContent = { state: ButtonState, text: String, color: Color, _: Float, _: ImageResource ->
             Box {
                 if (state == ButtonState.Loading) {
