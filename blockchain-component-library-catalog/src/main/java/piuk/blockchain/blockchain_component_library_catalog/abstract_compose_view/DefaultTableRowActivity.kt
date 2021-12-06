@@ -73,6 +73,18 @@ class DefaultTableRowActivity : AppCompatActivity() {
             tags = listOf(TagViewState("Fastest", TagType.Success))
         }
 
+        findViewById<DefaultTableRowView>(R.id.large_table_row_with_image).apply {
+            primaryText = "Link a bank"
+            secondaryText = "Instant connection"
+            paragraphText = "Securely link a bank to buy crypto, deposit cash " +
+                "and withdraw back to your bank at anytime."
+            startImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                contentDescription = null,
+            )
+            tags = listOf(TagViewState("Fastest", TagType.Success))
+        }
+
         findViewById<ToggleTableRowView>(R.id.toggle_table_row).apply {
             primaryText = "Cloud backup"
             secondaryText = "Buy & Sell"

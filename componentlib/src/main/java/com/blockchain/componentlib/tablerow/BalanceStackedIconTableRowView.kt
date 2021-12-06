@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.buildAnnotatedString
 import com.blockchain.componentlib.image.ImageResource
-import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -26,7 +25,6 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
     var bodyStart by mutableStateOf(buildAnnotatedString { })
     var bodyEnd by mutableStateOf(buildAnnotatedString { })
     var onClick by mutableStateOf({})
-    var tags by mutableStateOf(null as? List<TagViewState>?)
 
     @Composable
     override fun Content() {

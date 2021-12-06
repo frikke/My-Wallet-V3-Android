@@ -42,10 +42,11 @@ fun DefaultTableRow(
             )
         },
         content = {
+            val startPadding = if (startImageResource != ImageResource.None) 16.dp else 0.dp
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 16.dp, end = 8.dp)
+                    .padding(start = startPadding, end = 8.dp)
             ) {
                 Text(
                     text = primaryText,
@@ -72,7 +73,8 @@ fun DefaultTableRow(
         },
         onContentClicked = onClick,
         contentBottom = {
-            Column {
+            val startPadding = if (startImageResource != ImageResource.None) 40.dp else 0.dp
+            Column(Modifier.padding(start = startPadding)) {
                 if (paragraphText != null) {
                     Text(
                         text = paragraphText,
