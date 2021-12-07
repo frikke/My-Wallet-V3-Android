@@ -13,7 +13,7 @@ class ExchangeSplitButtonsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_exchange_split_buttons)
 
         findViewById<ExchangeSplitButtonView>(R.id.enabled).apply {
-            onStartButtonClick = {
+            onPrimaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -22,9 +22,9 @@ class ExchangeSplitButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            startButtonText = "Enabled"
-            startButtonState = ButtonState.Enabled
-            onEndButtonClick = {
+            primaryButtonText = "Enabled"
+            primaryButtonState = ButtonState.Enabled
+            onSecondaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -33,12 +33,12 @@ class ExchangeSplitButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            endButtonText = "Enabled"
-            endButtonState = ButtonState.Enabled
+            secondaryButtonText = "Enabled"
+            secondaryButtonState = ButtonState.Enabled
         }
 
         findViewById<ExchangeSplitButtonView>(R.id.disabled).apply {
-            onStartButtonClick = {
+            onPrimaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -47,9 +47,9 @@ class ExchangeSplitButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            startButtonText = "Disabled"
-            startButtonState = ButtonState.Disabled
-            onEndButtonClick = {
+            primaryButtonText = "Disabled"
+            primaryButtonState = ButtonState.Disabled
+            onSecondaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -58,12 +58,12 @@ class ExchangeSplitButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            endButtonText = "Disabled"
-            endButtonState = ButtonState.Disabled
+            secondaryButtonText = "Disabled"
+            secondaryButtonState = ButtonState.Disabled
         }
 
         findViewById<ExchangeSplitButtonView>(R.id.loading).apply {
-            onStartButtonClick = {
+            onPrimaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -72,9 +72,9 @@ class ExchangeSplitButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            startButtonText = "Loading"
-            startButtonState = ButtonState.Loading
-            onEndButtonClick = {
+            primaryButtonText = "Loading"
+            primaryButtonState = ButtonState.Loading
+            onSecondaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -83,8 +83,8 @@ class ExchangeSplitButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            endButtonText = "Loading"
-            endButtonState = ButtonState.Loading
+            secondaryButtonText = "Loading"
+            secondaryButtonState = ButtonState.Loading
         }
     }
 }

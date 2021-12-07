@@ -14,13 +14,20 @@ abstract class BaseSplitButtonView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var onStartButtonClick by mutableStateOf({})
-    var startButtonText by mutableStateOf("")
-    var startButtonState by mutableStateOf(ButtonState.Enabled)
+    var onPrimaryButtonClick by mutableStateOf({})
+    var primaryButtonText by mutableStateOf("")
+    var primaryButtonState by mutableStateOf(ButtonState.Enabled)
     var startButtonIcon: ImageResource by mutableStateOf(ImageResource.None)
 
-    var onEndButtonClick by mutableStateOf({})
-    var endButtonText by mutableStateOf("")
-    var endButtonState by mutableStateOf(ButtonState.Enabled)
+    var onSecondaryButtonClick by mutableStateOf({})
+    var secondaryButtonText by mutableStateOf("")
+    var secondaryButtonState by mutableStateOf(ButtonState.Enabled)
     var endButtonIcon: ImageResource by mutableStateOf(ImageResource.None)
+
+    var primaryButtonAlignment by mutableStateOf(Alignment.START)
+}
+
+enum class Alignment {
+    END,
+    START
 }
