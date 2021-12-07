@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.buyCryptoDashboardButton
+import com.blockchain.koin.pricingQuoteFeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.unifiedSignInFeatureFlag
@@ -25,6 +26,10 @@ val featureFlagsModule = module {
     factory(buyCryptoDashboardButton) {
         get<RemoteConfig>().featureFlag("ff_dashboard_buy_crypto_btn")
     }
+
+    single(pricingQuoteFeatureFlag) {
+        get<RemoteConfig>().featureFlag("android_ff_new_pricing_quote")
+    }.bind(FeatureFlag::class)
 
     single(walletRedesignFeatureFlag) {
         get<RemoteConfig>().featureFlag("android_ff_wallet_redesign")

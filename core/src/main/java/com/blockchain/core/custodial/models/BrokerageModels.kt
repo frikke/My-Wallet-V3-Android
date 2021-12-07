@@ -3,10 +3,10 @@ package com.blockchain.core.custodial.models
 import info.blockchain.balance.Money
 
 data class BrokerageQuote(
-    val id: String,
+    val id: String?,
     val price: Money,
-    val quoteMargin: Double,
-    val availability: Availability,
+    val quoteMargin: Double?,
+    val availability: Availability?,
     val feeDetails: QuoteFee
 )
 

@@ -12,29 +12,84 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyQuoteResponse
+import com.blockchain.nabu.service.NabuService
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
-class BrokerageDataManager(private val authenticator: Authenticator, private val brokerageService: BrokerageService) {
+class BrokerageDataManager(
+    private val featureFlag: BrokerageQuoteFeatureFlag,
+    private val authenticator: Authenticator,
+    private val nabuService: NabuService,
+    private val brokerageService: BrokerageService
+) {
     fun quoteForTransaction(
-        pair: CurrencyPair,
+        pair: CurrencyPair.FiatToCryptoCurrencyPair,
         amount: Money,
         paymentMethodType: PaymentMethodType,
         paymentMethodId: String?,
         product: Product
     ): Single<BrokerageQuote> =
         authenticator.authenticate { tokenResponse ->
-            brokerageService.fetchQuote(
-                authHeader = tokenResponse.authHeader,
-                inputValue = amount.toBigInteger().toString(),
-                paymentMethod = paymentMethodType.name,
-                paymentMethodId = paymentMethodId,
-                pair = pair.rawValue,
-                profile = product.toProfileRequestString()
-            ).map { response ->
-                response.toDomainModel(pair)
+            featureFlag.enabled.flatMap { enabled ->
+                val brokerageQuote = brokerageService.fetchQuote(
+                    authHeader = tokenResponse.authHeader,
+                    inputValue = amount.toBigInteger().toString(),
+                    paymentMethod = paymentMethodType.name,
+                    paymentMethodId = paymentMethodId,
+                    pair = pair.rawValue,
+                    profile = product.toProfileRequestString()
+                ).map { response ->
+                    response.toDomainModel(pair)
+                }
+
+                val simpleBuyQuote = nabuService.getSimpleBuyQuote(
+                    sessionToken = tokenResponse,
+                    action = product.name,
+                    currencyPair = "${pair.destination.networkTicker}-${pair.source}",
+                    amount = amount.toBigInteger().toString(),
+                    currency = amount.currencyCode
+                ).map { response ->
+                    response.toDomainModel(pair.source, pair.destination, amount)
+                }
+
+                if (enabled)
+                    brokerageQuote
+                else
+                    simpleBuyQuote
             }
         }
+}
+
+private fun SimpleBuyQuoteResponse.toDomainModel(
+    fiatCurrency: String,
+    asset: AssetInfo,
+    amount: Money
+): BrokerageQuote {
+    val amountCrypto = CryptoValue.fromMajor(
+        asset,
+        (amount.toBigInteger().toFloat().div(rate)).toBigDecimal()
+    )
+
+    val fee = FiatValue.fromMinor(
+        fiatCurrency,
+        fee.times(amountCrypto.toBigInteger().toLong())
+    )
+
+    return BrokerageQuote(
+        id = null,
+        price = FiatValue.fromMinor(fiatCurrency, rate),
+        quoteMargin = null,
+        availability = null,
+        feeDetails = QuoteFee(
+            fee = fee,
+            feeBeforePromo = fee,
+            promo = Promo.NO_PROMO
+        )
+    )
 }
 
 private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair): BrokerageQuote =

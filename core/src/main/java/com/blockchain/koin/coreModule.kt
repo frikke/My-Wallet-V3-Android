@@ -13,6 +13,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.custodial.BrokerageDataManager
+import com.blockchain.core.custodial.BrokerageQuoteFeatureFlag
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
@@ -128,7 +129,9 @@ val coreModule = module {
         scoped {
             BrokerageDataManager(
                 brokerageService = get(),
-                authenticator = get()
+                authenticator = get(),
+                nabuService = get(),
+                featureFlag = get()
             )
         }
 
@@ -396,6 +399,13 @@ val coreModule = module {
     }.bind(PinRepository::class)
 
     factory { AESUtilWrapper() }
+
+    single {
+        BrokerageQuoteFeatureFlag(
+            localApi = get(),
+            remoteConfig = get(pricingQuoteFeatureFlag)
+        )
+    }
 
     single {
         Database(driver = get())
