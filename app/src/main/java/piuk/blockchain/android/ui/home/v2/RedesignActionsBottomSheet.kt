@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.home.v2
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.componentlib.button.Alignment
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -36,13 +37,16 @@ class RedesignActionsBottomSheet :
 
     override fun initControls(binding: BottomSheetRedesignActionsBinding) {
         with(binding) {
+            splitButtons.alpha = 0f
+            model.process(ActionsSheetIntent.CheckCtaOrdering)
+
             splitButtons.apply {
-                startButtonText = getString(R.string.common_buy)
-                onStartButtonClick = {
+                primaryButtonText = getString(R.string.common_buy)
+                onPrimaryButtonClick = {
                     model.process(ActionsSheetIntent.CheckForPendingBuys)
                 }
-                endButtonText = getString(R.string.common_sell)
-                onEndButtonClick = {
+                secondaryButtonText = getString(R.string.common_sell)
+                onSecondaryButtonClick = {
                     dismiss()
                     host.launchSell()
                 }
@@ -118,6 +122,22 @@ class RedesignActionsBottomSheet :
             }
             FlowToLaunch.None -> {
                 // do nothing
+            }
+        }
+
+        with(binding.splitButtons) {
+            when (newState.splitButtonCtaOrdering) {
+                SplitButtonCtaOrdering.UNINITIALISED -> {
+                    // do nothing
+                }
+                SplitButtonCtaOrdering.BUY_END -> {
+                    primaryButtonAlignment = Alignment.END
+                    animate().alpha(1f)
+                }
+                SplitButtonCtaOrdering.BUY_START -> {
+                    primaryButtonAlignment = Alignment.START
+                    animate().alpha(1f)
+                }
             }
         }
     }

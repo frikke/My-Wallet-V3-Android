@@ -17,12 +17,12 @@ class DoubleMinimalButtonsView @JvmOverloads constructor(
         AppTheme {
             AppSurface {
                 DoubleMinimalButtons(
-                    startButtonText = startButtonText,
-                    onStartButtonClick = onStartButtonClick,
-                    endButtonText = endButtonText,
-                    onEndButtonClick = onEndButtonClick,
-                    startButtonState = startButtonState,
-                    endButtonState = endButtonState,
+                    startButtonText = primaryButtonText,
+                    onStartButtonClick = onPrimaryButtonClick,
+                    endButtonText = secondaryButtonText,
+                    onEndButtonClick = onSecondaryButtonClick,
+                    startButtonState = primaryButtonState,
+                    endButtonState = secondaryButtonState,
                     startButtonIcon = startButtonIcon,
                     endButtonIcon = endButtonIcon,
                 )

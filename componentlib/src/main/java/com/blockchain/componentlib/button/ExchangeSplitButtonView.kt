@@ -17,12 +17,12 @@ class ExchangeSplitButtonView @JvmOverloads constructor(
         AppTheme {
             AppSurface {
                 ExchangeSplitButtons(
-                    exchangeBuyButtonText = startButtonText,
-                    exchangeBuyButtonOnClick = onStartButtonClick,
-                    exchangeSellButtonText = endButtonText,
-                    exchangeSellButtonOnClick = onEndButtonClick,
-                    exchangeBuyButtonState = startButtonState,
-                    exchangeSellButtonState = endButtonState,
+                    exchangeBuyButtonText = primaryButtonText,
+                    exchangeBuyButtonOnClick = onPrimaryButtonClick,
+                    exchangeSellButtonText = secondaryButtonText,
+                    exchangeSellButtonOnClick = onSecondaryButtonClick,
+                    exchangeBuyButtonState = primaryButtonState,
+                    exchangeSellButtonState = secondaryButtonState,
                 )
             }
         }
