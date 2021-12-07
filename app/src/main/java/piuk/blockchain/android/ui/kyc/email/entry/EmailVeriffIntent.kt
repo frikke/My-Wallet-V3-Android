@@ -16,6 +16,11 @@ sealed class EmailVeriffIntent : MviIntent<EmailVeriffState> {
             )
     }
 
+    class UpdateRedesignState(private val redesignEnabled: Boolean) : EmailVeriffIntent() {
+        override fun reduce(oldState: EmailVeriffState): EmailVeriffState =
+            oldState.copy(isRedesignEnabled = redesignEnabled)
+    }
+
     class UpdateEmailInput(private val emailInput: String) : EmailVeriffIntent() {
         override fun reduce(oldState: EmailVeriffState): EmailVeriffState = oldState.copy(emailInput = emailInput)
     }

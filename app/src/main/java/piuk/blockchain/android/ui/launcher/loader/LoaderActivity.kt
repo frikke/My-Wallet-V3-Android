@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -108,6 +109,22 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     }
 
     override fun onEmailEntryFragmentShown() = loadToolbar(getString(R.string.security_check))
+
+    override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) =
+        loadToolbar(
+            getString(R.string.security_check),
+            if (shouldShowButton) {
+                listOf(
+                    NavigationBarButton.TextWithColorInt(
+                        getString(R.string.common_skip),
+                        R.color.blue_600,
+                        buttonAction
+                    )
+                )
+            } else {
+                emptyList()
+            }
+        )
 
     override fun onEmailVerified() {
         model.process(LoaderIntents.OnEmailVerificationFinished)

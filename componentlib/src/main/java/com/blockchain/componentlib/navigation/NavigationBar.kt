@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.navigation
 
+import androidx.annotation.ColorRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,6 +31,9 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
         NavigationBarButton(onIconClick)
 
     data class Text(val text: String, val color: Color? = null, val onTextClick: () -> Unit) :
+        NavigationBarButton(onTextClick)
+
+    data class TextWithColorInt(val text: String, @ColorRes val colorId: Int? = null, val onTextClick: () -> Unit) :
         NavigationBarButton(onTextClick)
 }
 
@@ -119,6 +124,13 @@ fun NavigationBar(
                             Text(
                                 text = it.text,
                                 color = it.color ?: AppTheme.colors.error,
+                                style = AppTheme.typography.body2
+                            )
+                        }
+                        is NavigationBarButton.TextWithColorInt -> {
+                            Text(
+                                text = it.text,
+                                color = it.colorId?.let { colorResource(id = it) } ?: AppTheme.colors.error,
                                 style = AppTheme.typography.body2
                             )
                         }

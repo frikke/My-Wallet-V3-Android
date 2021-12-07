@@ -134,6 +134,10 @@ class KycNavHostActivity :
         loadToolbar(getString(R.string.kyc_email_title))
     }
 
+    override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+        // do nothing for redesign
+    }
+
     override fun onEmailVerified() {
         compositeDisposable +=
             Singles.zip(
