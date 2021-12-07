@@ -386,7 +386,6 @@ data class BuySellOrder(
     val depositPaymentId: String,
     val approvalErrorStatus: ApprovalErrorStatus = ApprovalErrorStatus.NONE,
     val failureReason: RecurringBuyFailureReason? = null,
-    val processingErrorType: ProcessingErrorType? = null,
     val recurringBuyId: String? = null
 )
 
@@ -397,10 +396,6 @@ enum class ApprovalErrorStatus {
     EXPIRED,
     UNKNOWN,
     NONE
-}
-
-enum class ProcessingErrorType {
-    ISSUER, UNKNOWN
 }
 
 typealias BuyOrderList = List<BuySellOrder>
