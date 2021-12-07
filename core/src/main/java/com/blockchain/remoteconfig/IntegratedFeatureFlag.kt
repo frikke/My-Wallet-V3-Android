@@ -1,6 +1,5 @@
-package piuk.blockchain.android.featureflags
+package com.blockchain.remoteconfig
 
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

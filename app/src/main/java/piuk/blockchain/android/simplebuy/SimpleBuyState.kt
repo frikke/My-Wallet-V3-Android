@@ -113,16 +113,7 @@ data class SimpleBuyState constructor(
 
     @delegate:Transient
     val exchangeRate: Money? by unsafeLazy {
-        check(selectedCryptoAsset != null)
-        quote?.price?.let { price ->
-            val exchangeRate = ExchangeRate.FiatToCrypto(
-                from = fiatCurrency,
-                to = selectedCryptoAsset,
-                rate = price.toBigDecimal()
-            ).inverse().rate
-            check(exchangeRate != null)
-            FiatValue.fromMajor(fiatCurrency, exchangeRate)
-        }
+        quote?.price
     }
 
     override val limits: TxLimits
@@ -232,17 +223,18 @@ data class PaymentOptions(
 )
 
 data class BuyQuote(
-    val id: String,
-    val price: CryptoValue,
-    val availability: Availability,
-    val quoteMargin: Double,
+    val id: String? = null,
+    val price: FiatValue,
+    val availability: Availability? = null,
+    val quoteMargin: Double? = null,
     val feeDetails: BuyFees
 ) {
     companion object {
-        fun fromBrokerageQuote(brokerageQuote: BrokerageQuote) =
+        fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: String) =
             BuyQuote(
                 id = brokerageQuote.id,
-                price = brokerageQuote.price as CryptoValue,
+                // we should pass the fiat to the state, otherwise Money interface wont get serialised.
+                price = brokerageQuote.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
                 quoteMargin = brokerageQuote.quoteMargin,
                 feeDetails = BuyFees(
@@ -251,6 +243,18 @@ data class BuyQuote(
                     promo = brokerageQuote.feeDetails.promo
                 )
             )
+
+        private fun Money.toFiat(fiatCurrency: String): FiatValue {
+            return (this as? CryptoValue)?.let { value ->
+                val exchangeRate = ExchangeRate.FiatToCrypto(
+                    from = fiatCurrency,
+                    to = value.currency,
+                    rate = value.toBigDecimal()
+                ).inverse().rate
+                check(exchangeRate != null)
+                FiatValue.fromMajor(fiatCurrency, exchangeRate)
+            } ?: this as FiatValue
+        }
     }
 }
 

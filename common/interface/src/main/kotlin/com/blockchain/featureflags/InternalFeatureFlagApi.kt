@@ -12,5 +12,6 @@ enum class GatedFeature(
     val readableName: String,
     val enabledForCompanyInternalBuild: Boolean = false
 ) {
-    ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets")
+    ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets"),
+    NEW_PRICING_BROKERAGE_QUOTE("New pricing quote api", true),
 }

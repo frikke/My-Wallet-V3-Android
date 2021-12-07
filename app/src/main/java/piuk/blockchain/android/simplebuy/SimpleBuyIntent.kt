@@ -293,7 +293,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(
                 orderState = buyOrder.state,
                 id = buyOrder.id,
-                quote = BuyQuote.fromBrokerageQuote(quote),
+                quote = BuyQuote.fromBrokerageQuote(quote, buyOrder.fiat.currencyCode),
                 orderValue = buyOrder.orderValue as CryptoValue,
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,
