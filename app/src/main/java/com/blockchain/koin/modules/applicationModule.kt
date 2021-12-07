@@ -740,7 +740,10 @@ val applicationModule = module {
         }
 
         factory {
-            EmailVerifyInteractor(emailUpdater = get())
+            EmailVerifyInteractor(
+                emailUpdater = get(),
+                isRedesignEnabled = get(walletRedesignFeatureFlag)
+            )
         }
 
         scoped {
