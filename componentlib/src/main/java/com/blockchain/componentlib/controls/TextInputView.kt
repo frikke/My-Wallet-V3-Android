@@ -19,10 +19,7 @@ class TextInputView @JvmOverloads constructor(
 
     var value by mutableStateOf("")
     var onValueChange by mutableStateOf({ _: String -> })
-    var isInputEnabled by mutableStateOf(true)
-    var isError by mutableStateOf(false)
-    var assistiveText by mutableStateOf("")
-    var errorText by mutableStateOf("")
+    var state: TextInputState by mutableStateOf(TextInputState.Default())
     var labelText by mutableStateOf("")
     var placeholderText by mutableStateOf("")
     var trailingIconResource: ImageResource by mutableStateOf(ImageResource.None)
@@ -35,12 +32,9 @@ class TextInputView @JvmOverloads constructor(
                 TextInput(
                     value = value,
                     onValueChange = onValueChange,
-                    enabled = isInputEnabled,
-                    assistiveText = assistiveText,
+                    state = state,
                     placeholder = placeholderText,
                     label = labelText,
-                    errorMessage = errorText,
-                    isError = isError,
                     trailingIcon = trailingIconResource,
                     leadingIcon = leadingIconResource
                 )
