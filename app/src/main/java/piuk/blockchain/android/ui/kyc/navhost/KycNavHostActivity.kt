@@ -96,7 +96,7 @@ class KycNavHostActivity :
     }
 
     override fun setHostTitle(title: Int) {
-        loadToolbar(getString(title))
+        updateTitleToolbar(getString(title))
     }
 
     override fun displayLoading(loading: Boolean) {
@@ -125,13 +125,15 @@ class KycNavHostActivity :
     }
 
     override fun hideBackButton() {
-        loadToolbar(
+        updateTitleToolbar(
             titleToolbar = getString(R.string.identity_verification)
         )
     }
 
     override fun onEmailEntryFragmentShown() {
-        loadToolbar(getString(R.string.kyc_email_title))
+        updateTitleToolbar(
+            titleToolbar = getString(R.string.kyc_email_title)
+        )
     }
 
     override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {

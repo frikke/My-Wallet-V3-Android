@@ -9,6 +9,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat.generateViewId
 import androidx.viewbinding.ViewBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.navigation.NavigationBarView
@@ -130,7 +131,10 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     private fun setupToolbar() {
-        toolbarBinding?.root?.addView(toolbar)
+        if (toolbarBinding?.root?.findViewById<NavigationBarView>(toolbar.id) == null) {
+            toolbar.id = generateViewId()
+            toolbarBinding?.root?.addView(toolbar)
+        }
     }
 
     private fun setupOldToolbar() {
