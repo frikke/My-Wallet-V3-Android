@@ -541,11 +541,17 @@ class LiveCustodialWalletManager(
             }.map { paymentMethod ->
                 PaymentLimits(
                     min = paymentMethod.limits.min,
-                    max = paymentMethod.limits.daily?.available ?: paymentMethod.limits.max,
+                    max = paymentMethod.max(),
                     currency = fiatCurrency
                 )
             }.first()
         }
+
+    private fun PaymentMethodResponse.max(): Long {
+        val dailyMax = limits.daily?.available ?: limits.max
+        val max = limits.max
+        return dailyMax.coerceAtMost(max)
+    }
 
     private fun paymentMethods(
         fiatCurrency: String,

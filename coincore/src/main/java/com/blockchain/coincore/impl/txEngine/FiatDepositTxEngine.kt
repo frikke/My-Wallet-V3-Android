@@ -157,6 +157,10 @@ class FiatDepositTxEngine(
                             ValidationState.UNDER_MIN_LIMIT
                         )
                     )
+                    pendingTx.maxLimitForPaymentMethodViolated() ->
+                        Completable.error(
+                            TxValidationFailure(ValidationState.ABOVE_PAYMENT_METHOD_LIMIT)
+                        )
                     pendingTx.isMaxLimitViolated() -> {
                         userIsGoldVerified.flatMapCompletable {
                             if (it) {
@@ -166,10 +170,6 @@ class FiatDepositTxEngine(
                             }
                         }
                     }
-                    pendingTx.maxLimitForPaymentMethodViolated() ->
-                        Completable.error(
-                            TxValidationFailure(ValidationState.ABOVE_PAYMENT_METHOD_LIMIT)
-                        )
                     else -> Completable.complete()
                 }
             } else {
