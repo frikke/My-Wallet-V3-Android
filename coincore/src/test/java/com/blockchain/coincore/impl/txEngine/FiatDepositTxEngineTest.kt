@@ -375,7 +375,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
             .assertValue {
-                it.validationState == ValidationState.OVER_GOLD_TIER_LIMIT
+                it.validationState == ValidationState.ABOVE_PAYMENT_METHOD_LIMIT
             }
     }
 

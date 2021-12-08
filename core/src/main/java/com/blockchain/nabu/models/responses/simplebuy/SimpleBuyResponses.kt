@@ -101,7 +101,8 @@ data class BuySellOrderResponse(
     val depositPaymentId: String?,
     val processingErrorType: String?,
     val recurringBuyId: String?,
-    val failureReason: String?
+    val failureReason: String?,
+    val paymentError: String
 ) {
     companion object {
         const val PENDING_DEPOSIT = "PENDING_DEPOSIT"
@@ -264,6 +265,7 @@ data class TransactionResponse(
         const val CARD_PAYMENT_ABANDONED = "CARD_PAYMENT_ABANDONED"
         const val CARD_PAYMENT_EXPIRED = "CARD_PAYMENT_EXPIRED"
         const val BANK_TRANSFER_PAYMENT_REJECTED = "BANK_TRANSFER_PAYMENT_REJECTED"
+        const val BANK_TRANSFER_PAYMENT_EXPIRED = "BANK_TRANSFER_PAYMENT_EXPIRED"
         const val WITHDRAWAL = "WITHDRAWAL"
     }
 }

@@ -8,6 +8,16 @@ sealed class ActionsSheetIntent : MviIntent<ActionsSheetState> {
         override fun reduce(oldState: ActionsSheetState): ActionsSheetState = oldState
     }
 
+    object CheckCtaOrdering : ActionsSheetIntent() {
+        override fun reduce(oldState: ActionsSheetState): ActionsSheetState = oldState
+    }
+
+    class UpdateCtaOrdering(private val ordering: SplitButtonCtaOrdering) : ActionsSheetIntent() {
+        override fun reduce(oldState: ActionsSheetState): ActionsSheetState = oldState.copy(
+            splitButtonCtaOrdering = ordering
+        )
+    }
+
     class UpdateFlowToLaunch(private val flowToLaunch: FlowToLaunch) : ActionsSheetIntent() {
         override fun reduce(oldState: ActionsSheetState): ActionsSheetState =
             oldState.copy(

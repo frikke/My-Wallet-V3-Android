@@ -22,23 +22,45 @@ fun SplitButtons(
     secondaryButtonState: ButtonState = ButtonState.Enabled,
     primaryButtonIcon: ImageResource = ImageResource.None,
     secondaryButtonIcon: ImageResource = ImageResource.None,
+    primaryButtonAlignment: Alignment = Alignment.START
 ) {
     Row(modifier) {
-        PrimaryButton(
-            text = primaryButtonText,
-            onClick = primaryButtonOnClick,
-            state = primaryButtonState,
-            modifier = Modifier.weight(1f),
-            icon = primaryButtonIcon,
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        SecondaryButton(
-            text = secondaryButtonText,
-            onClick = secondaryButtonOnClick,
-            state = secondaryButtonState,
-            modifier = Modifier.weight(1f),
-            icon = secondaryButtonIcon,
-        )
+        when (primaryButtonAlignment) {
+            Alignment.END -> {
+                SecondaryButton(
+                    text = secondaryButtonText,
+                    onClick = secondaryButtonOnClick,
+                    state = secondaryButtonState,
+                    modifier = Modifier.weight(1f),
+                    icon = secondaryButtonIcon,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                PrimaryButton(
+                    text = primaryButtonText,
+                    onClick = primaryButtonOnClick,
+                    state = primaryButtonState,
+                    modifier = Modifier.weight(1f),
+                    icon = primaryButtonIcon,
+                )
+            }
+            Alignment.START -> {
+                PrimaryButton(
+                    text = primaryButtonText,
+                    onClick = primaryButtonOnClick,
+                    state = primaryButtonState,
+                    modifier = Modifier.weight(1f),
+                    icon = primaryButtonIcon,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SecondaryButton(
+                    text = secondaryButtonText,
+                    onClick = secondaryButtonOnClick,
+                    state = secondaryButtonState,
+                    modifier = Modifier.weight(1f),
+                    icon = secondaryButtonIcon,
+                )
+            }
+        }
     }
 }
 

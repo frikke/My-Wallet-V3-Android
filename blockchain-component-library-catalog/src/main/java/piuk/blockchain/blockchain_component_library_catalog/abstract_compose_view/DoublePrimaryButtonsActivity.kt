@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.Toast
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.DoublePrimaryButtonsView
-import com.blockchain.componentlib.button.ExchangeSplitButtonView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class DoublePrimaryButtonsActivity : AppCompatActivity() {
@@ -14,7 +13,7 @@ class DoublePrimaryButtonsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_double_primary_buttons)
         
         findViewById<DoublePrimaryButtonsView>(R.id.enabled).apply {
-            onStartButtonClick = {
+            onPrimaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -23,9 +22,9 @@ class DoublePrimaryButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            startButtonText = "Enabled"
-            startButtonState = ButtonState.Enabled
-            onEndButtonClick = {
+            primaryButtonText = "Enabled"
+            primaryButtonState = ButtonState.Enabled
+            onSecondaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -34,12 +33,12 @@ class DoublePrimaryButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            endButtonText = "Enabled"
-            endButtonState = ButtonState.Enabled
+            secondaryButtonText = "Enabled"
+            secondaryButtonState = ButtonState.Enabled
         }
 
         findViewById<DoublePrimaryButtonsView>(R.id.disabled).apply {
-            onStartButtonClick = {
+            onPrimaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -48,9 +47,9 @@ class DoublePrimaryButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            startButtonText = "Disabled"
-            startButtonState = ButtonState.Disabled
-            onEndButtonClick = {
+            primaryButtonText = "Disabled"
+            primaryButtonState = ButtonState.Disabled
+            onSecondaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -59,12 +58,12 @@ class DoublePrimaryButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            endButtonText = "Disabled"
-            endButtonState = ButtonState.Disabled
+            secondaryButtonText = "Disabled"
+            secondaryButtonState = ButtonState.Disabled
         }
 
         findViewById<DoublePrimaryButtonsView>(R.id.loading).apply {
-            onStartButtonClick = {
+            onPrimaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -73,9 +72,9 @@ class DoublePrimaryButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            startButtonText = "Loading"
-            startButtonState = ButtonState.Loading
-            onEndButtonClick = {
+            primaryButtonText = "Loading"
+            primaryButtonState = ButtonState.Loading
+            onSecondaryButtonClick = {
                 Toast
                     .makeText(
                         context,
@@ -84,8 +83,8 @@ class DoublePrimaryButtonsActivity : AppCompatActivity() {
                     )
                     .show()
             }
-            endButtonText = "Loading"
-            endButtonState = ButtonState.Loading
+            secondaryButtonText = "Loading"
+            secondaryButtonState = ButtonState.Loading
         }
     }
 }

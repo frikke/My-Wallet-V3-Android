@@ -17,12 +17,13 @@ class SplitButtonView @JvmOverloads constructor(
         AppTheme {
             AppSurface {
                 SplitButtons(
-                    primaryButtonText = startButtonText,
-                    primaryButtonOnClick = onStartButtonClick,
-                    secondaryButtonText = endButtonText,
-                    secondaryButtonOnClick = onEndButtonClick,
-                    primaryButtonState = startButtonState,
-                    secondaryButtonState = endButtonState,
+                    primaryButtonText = primaryButtonText,
+                    primaryButtonOnClick = onPrimaryButtonClick,
+                    secondaryButtonText = secondaryButtonText,
+                    secondaryButtonOnClick = onSecondaryButtonClick,
+                    primaryButtonState = primaryButtonState,
+                    secondaryButtonState = secondaryButtonState,
+                    primaryButtonAlignment = primaryButtonAlignment
                 )
             }
         }
