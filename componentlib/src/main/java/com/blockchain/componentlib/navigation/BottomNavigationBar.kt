@@ -148,7 +148,7 @@ fun BottomNavigationBar(
                                         .size(22.dp)
                                         .align(Alignment.Center),
                                     painter = painterResource(R.drawable.ic_bottom_nav_plus),
-                                    contentDescription = null,
+                                    contentDescription = "BottomNavigation_FAB_Cta",
                                     colorFilter = ColorFilter.tint(backgroundColor)
                                 )
                             }
