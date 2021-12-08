@@ -24,6 +24,7 @@ class DefaultTableRowView @JvmOverloads constructor(
     var paragraphText by mutableStateOf(null as? String?)
     var onClick by mutableStateOf({})
     var tags by mutableStateOf(null as? List<TagViewState>?)
+    var endTag by mutableStateOf(null as? TagViewState?)
     var startImageResource: ImageResource by mutableStateOf(ImageResource.None)
     var endImageResource by mutableStateOf(
         ImageResource.Local(
@@ -42,6 +43,7 @@ class DefaultTableRowView @JvmOverloads constructor(
                     paragraphText = paragraphText,
                     onClick = onClick,
                     tags = tags,
+                    endTag = endTag,
                     startImageResource = startImageResource,
                     endImageResource = endImageResource,
                 )
