@@ -30,6 +30,21 @@ fun DefaultTableRowPreview() {
     }
 }
 
+@Preview(name = "End Tag", group = "Table Row")
+@Composable
+fun DefaultTableRowEndTagPreview() {
+    AppTheme {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                secondaryText = "Text for more info",
+                onClick = {},
+                endTag = TagViewState("Complete", TagType.Success)
+            )
+        }
+    }
+}
+
 @Preview(name = "Tag", group = "Table Row")
 @Composable
 fun TagTableRowPreview() {

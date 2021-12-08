@@ -25,6 +25,16 @@ class DefaultTableRowActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<DefaultTableRowView>(R.id.end_tag).apply {
+            primaryText = "Trading"
+            secondaryText = "Buy & Sell"
+            onClick = {
+                Toast.makeText(this@DefaultTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            endTag = TagViewState("Completed", TagType.Success)
+        }
+
         findViewById<DefaultTableRowView>(R.id.default_image_table_row).apply {
             primaryText = "Trading"
             secondaryText = "Buy & Sell"

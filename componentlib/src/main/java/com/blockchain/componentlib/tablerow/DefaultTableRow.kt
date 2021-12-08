@@ -1,9 +1,11 @@
 package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,6 +28,7 @@ fun DefaultTableRow(
     secondaryText: String? = null,
     paragraphText: String? = null,
     tags: List<TagViewState>? = null,
+    endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
     endImageResource: ImageResource = ImageResource.Local(
         id = R.drawable.ic_chevron_end,
@@ -63,13 +66,18 @@ fun DefaultTableRow(
             }
         },
         contentEnd = {
-            Image(
-                imageResource = endImageResource,
-                modifier = Modifier.requiredSizeIn(
-                    maxWidth = 24.dp,
-                    maxHeight = 24.dp,
-                ),
-            )
+            if (endTag != null) {
+                Spacer(Modifier.width(8.dp))
+                TagsRow(listOf(endTag))
+            } else {
+                Image(
+                    imageResource = endImageResource,
+                    modifier = Modifier.requiredSizeIn(
+                        maxWidth = 24.dp,
+                        maxHeight = 24.dp,
+                    ),
+                )
+            }
         },
         onContentClicked = onClick,
         contentBottom = {
@@ -120,6 +128,21 @@ fun DefaultTableRow_TwoLine() {
                 primaryText = "Navigate over here",
                 secondaryText = "Text for more info",
                 onClick = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_TwoLine_EndTag() {
+    AppTheme {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                secondaryText = "Text for more info",
+                onClick = {},
+                endTag = TagViewState("Complete", TagType.Success)
             )
         }
     }
@@ -300,6 +323,24 @@ fun DefaultTableRow_Local_ImageStart() {
                     id = R.drawable.carousel_rewards,
                     contentDescription = null
                 )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_Local_ImageStart_EndTag() {
+    AppTheme {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                onClick = {},
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.carousel_rewards,
+                    contentDescription = null
+                ),
+                endTag = TagViewState("Complete", TagType.Success),
             )
         }
     }
