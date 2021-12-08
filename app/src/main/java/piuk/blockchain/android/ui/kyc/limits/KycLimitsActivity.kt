@@ -46,7 +46,6 @@ class KycLimitsActivity :
             titleToolbar = getString(R.string.feature_limits_toolbar),
             backAction = { finish() }
         )
-        model.process(KycLimitsIntent.FetchLimitsAndTiers)
 
         binding.recyclerviewFeatures.layoutManager = LinearLayoutManager(this)
         binding.recyclerviewFeatures.adapter = adapter
@@ -54,6 +53,11 @@ class KycLimitsActivity :
         binding.errorBtnOk.setOnClickListener {
             finish()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        model.process(KycLimitsIntent.FetchLimitsAndTiers)
     }
 
     override fun render(newState: KycLimitsState) {
