@@ -479,6 +479,9 @@ class PortfolioFragment :
     // To fix that we need to use a different PagerAdapter (FragmentStateAdapter) with the corresponding behavior
     override fun onResume() {
         super.onResume()
+        if (activeFiat != currencyPrefs.selectedFiatCurrency) {
+            model.process(DashboardIntent.ResetDashboardAssets)
+        }
         if (isHidden) return
         compositeDisposable += actionEvent.subscribe {
             initOrUpdateAssets()
