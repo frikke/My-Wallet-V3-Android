@@ -191,7 +191,8 @@
     <action
         android:id="@+id/action_startVeriff"
         app:destination="@id/veriffSplashFragment"
-        app:popUpTo="@+id/kycTierSplashFragment" />
+        app:popUpTo="@+id/kycTierSplashFragment"
+        app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_startEmailVerification"
         app:destination="@id/email_verification"
