@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -86,7 +87,7 @@ fun Checkbox(
         modifier = modifier
             .run {
                 if (!enabled) {
-                    this
+                    this.alpha(ContentAlpha.disabled)
                 } else {
                     this.clickable(
                         interactionSource = remember { MutableInteractionSource() },
