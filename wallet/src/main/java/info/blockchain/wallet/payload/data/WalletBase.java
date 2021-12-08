@@ -85,8 +85,8 @@ public class WalletBase {
     public void decryptPayload(@Nonnull String password)
             throws DecryptionException,
             IOException,
-            UnsupportedVersionException,
-            HDWalletException {
+        UnsupportedVersionException,
+        HDWalletException {
 
         if (!isV1Wallet()) {
             walletBody = decryptV3OrV4Wallet(password);
@@ -96,9 +96,9 @@ public class WalletBase {
     }
 
     private Wallet decryptV3OrV4Wallet(String password) throws IOException,
-            DecryptionException,
-            UnsupportedVersionException,
-            HDWalletException {
+        DecryptionException,
+        UnsupportedVersionException,
+        HDWalletException {
 
         WalletWrapper walletWrapperBody = WalletWrapper.fromJson(payload);
         return walletWrapperBody.decryptPayload(password);

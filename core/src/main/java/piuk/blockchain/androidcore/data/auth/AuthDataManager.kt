@@ -219,9 +219,13 @@ class AuthDataManager(
                 } else {
                     if (response.code() == 403) {
                         // Invalid PIN
-                        throw InvalidCredentialsException("Validate access failed")
+                        throw InvalidCredentialsException(
+                            "Validate access failed"
+                        )
                     } else {
-                        throw ServerConnectionException("""${response.code()} ${response.message()}""")
+                        throw ServerConnectionException(
+                            """${response.code()} ${response.message()}"""
+                        )
                     }
                 }
             }

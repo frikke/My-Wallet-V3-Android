@@ -250,7 +250,9 @@ open class BitcoinCashWallet : DeterministicWallet {
         unspentOutputs: List<Utxo>
     ): List<SigningKey> {
         if (!account.node.hasPrivKey())
-            throw HDWalletException("Wallet private key unavailable. First decrypt with second password.")
+            throw HDWalletException(
+                "Wallet private key unavailable. First decrypt with second password."
+            )
         else {
             val keys = ArrayList<SigningKey>()
 

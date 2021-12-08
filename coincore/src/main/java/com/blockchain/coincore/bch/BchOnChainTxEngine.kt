@@ -282,7 +282,9 @@ class BchOnChainTxEngine(
             val xpub = bchSource.xpubAddress
             val node = it.node.serializePubB58(networkParams)
             node == xpub
-        } ?: throw HDWalletException("No matching private key found for ${bchSource.xpubAddress}")
+        } ?: throw HDWalletException(
+            "No matching private key found for ${bchSource.xpubAddress}"
+        )
 
         return Single.just(
             bchDataManager.getHDKeysForSigning(
