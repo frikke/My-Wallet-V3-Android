@@ -28,7 +28,7 @@ class RadioView @JvmOverloads constructor(
                     state = state,
                     enabled = radioButtonEnabled,
                     onSelectedChanged = { isSelected ->
-                        state = if(isSelected) RadioButtonState.Selected else RadioButtonState.Unselected
+                        state = if (isSelected) RadioButtonState.Selected else RadioButtonState.Unselected
                         onSelectedChanged(isSelected)
                     }
                 )
