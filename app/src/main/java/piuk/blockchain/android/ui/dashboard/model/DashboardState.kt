@@ -112,8 +112,8 @@ data class FiatAssetState(
     fun reset(): FiatAssetState =
         FiatAssetState(fiatAccounts.mapValues { old -> FiatBalanceInfo(old.value.account) })
 
-    val totalBalance: Money? by lazy {
-        if (fiatAccounts.isEmpty()) {
+    val totalBalance: Money?
+        get() = if (fiatAccounts.isEmpty()) {
             null
         } else {
             val fiatList = fiatAccounts.values.mapNotNull { it.userFiat }
@@ -123,7 +123,6 @@ data class FiatAssetState(
                 null
             }
         }
-    }
 }
 
 data class CryptoAssetState(

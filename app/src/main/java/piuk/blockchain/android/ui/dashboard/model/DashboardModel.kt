@@ -81,7 +81,8 @@ class DashboardModel(
             is DashboardIntent.LongCallEnded,
             is DashboardIntent.FilterAssets,
             is DashboardIntent.UpdateLaunchDetailsFlow,
-            is DashboardIntent.FundsLocksLoaded -> null
+            is DashboardIntent.FundsLocksLoaded,
+            DashboardIntent.ResetDashboardAssets -> null
         }
     }
 

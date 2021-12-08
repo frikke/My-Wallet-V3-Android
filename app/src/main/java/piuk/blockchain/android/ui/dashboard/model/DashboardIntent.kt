@@ -193,6 +193,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
+    object ResetDashboardAssets : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            return oldState.copy(activeAssets = oldState.activeAssets.reset(), fiatAssets = oldState.fiatAssets.reset())
+        }
+    }
+
     class BalanceUpdate(
         val asset: AssetInfo,
         private val newBalance: AccountBalance
@@ -439,9 +445,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     object LoadFundsLocked : DashboardIntent() {
-
-        override fun isValidFor(oldState: DashboardState): Boolean = oldState.locks.fundsLocks == null
-
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
