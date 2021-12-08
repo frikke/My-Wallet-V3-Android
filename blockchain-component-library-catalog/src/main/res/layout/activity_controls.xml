@@ -43,6 +43,17 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Radio error state"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.control.RadioView
+            android:id="@+id/radio_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Checkbox"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
@@ -57,7 +68,7 @@
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
         <com.blockchain.componentlib.control.CheckboxView
-            android:id="@+id/error"
+            android:id="@+id/checkbox_error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.control.CheckboxView
+import com.blockchain.componentlib.control.RadioButtonState
+import com.blockchain.componentlib.control.RadioView
 import com.blockchain.componentlib.control.SearchView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
@@ -17,8 +19,12 @@ class ControlsActivity : AppCompatActivity() {
             onValueChange = {}
         }
 
-        findViewById<CheckboxView>(R.id.error).apply {
+        findViewById<CheckboxView>(R.id.checkbox_error).apply {
             state = CheckboxState.Error
+        }
+
+        findViewById<RadioView>(R.id.radio_error).apply {
+            state = RadioButtonState.Error
         }
     }
 }
