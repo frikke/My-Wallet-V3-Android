@@ -108,6 +108,7 @@ class PortfolioFragment :
     private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private var activeFiat = currencyPrefs.selectedFiatCurrency
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
@@ -492,7 +493,12 @@ class PortfolioFragment :
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) {
-            model.process(DashboardIntent.RefreshAllBalancesIntent(true))
+            model.process(
+                DashboardIntent.RefreshAllBalancesIntent(
+                    loadSilently = activeFiat == currencyPrefs.selectedFiatCurrency
+                )
+            )
+            activeFiat = currencyPrefs.selectedFiatCurrency
         }
     }
 
