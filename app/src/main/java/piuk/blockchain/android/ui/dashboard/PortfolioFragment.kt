@@ -480,6 +480,7 @@ class PortfolioFragment :
     override fun onResume() {
         super.onResume()
         if (activeFiat != currencyPrefs.selectedFiatCurrency) {
+            activeFiat = currencyPrefs.selectedFiatCurrency
             model.process(DashboardIntent.ResetDashboardAssets)
         }
         if (isHidden) return
