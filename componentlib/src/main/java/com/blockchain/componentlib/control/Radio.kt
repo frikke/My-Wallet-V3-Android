@@ -1,11 +1,13 @@
 package com.blockchain.componentlib.control
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.RadioButton
 import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppSurface
@@ -30,6 +32,10 @@ fun Radio(
             disabledColor = AppTheme.colors.medium.copy(alpha = ContentAlpha.disabled),
         )
     )
+}
+
+enum class RadioButtonState {
+
 }
 
 @Preview(name = "Not checked", group = "Radio")
