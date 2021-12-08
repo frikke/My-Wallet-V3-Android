@@ -46,9 +46,13 @@ class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
     SlidingModalBottomDialog.Host {
 
-    private val scope: Scope by lazy {
+    private val scopeId: String by lazy {
+        "${TX_SCOPE_ID}_${this@TransactionFlowActivity.hashCode()}"
+    }
+
+    val scope: Scope by lazy {
         openScope()
-        KoinJavaComponent.getKoin().getScope(TX_SCOPE_ID)
+        KoinJavaComponent.getKoin().getScope(scopeId)
     }
 
     override val model: TransactionModel by scope.inject()
@@ -233,6 +237,16 @@ class TransactionFlowActivity :
         }
     }
 
+    private fun openScope() =
+        try {
+            KoinJavaComponent.getKoin().getOrCreateScope(
+                scopeId,
+                transactionFlowActivityScope
+            )
+        } catch (e: Throwable) {
+            Timber.wtf("Error opening scope for id $scopeId - $e")
+        }
+
     override fun onSheetClosed() {
         // do nothing
     }
@@ -259,15 +273,5 @@ class TransactionFlowActivity :
                 putExtras(bundle)
             }
         }
-
-        private fun openScope() =
-            try {
-                KoinJavaComponent.getKoin().getOrCreateScope(
-                    TX_SCOPE_ID,
-                    transactionFlowActivityScope
-                )
-            } catch (e: Throwable) {
-                Timber.wtf("$e")
-            }
     }
 }

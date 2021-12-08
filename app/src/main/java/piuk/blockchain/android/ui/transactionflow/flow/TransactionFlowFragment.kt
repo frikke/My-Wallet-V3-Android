@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.transactionflow.flow
 import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.viewbinding.ViewBinding
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
-import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -17,10 +17,11 @@ abstract class TransactionFlowFragment<T : ViewBinding> :
     MviFragment<TransactionModel, TransactionIntent, TransactionState, T>() {
 
     private val scope: Scope by lazy {
-        KoinJavaComponent.getKoin().getScope(TransactionFlowActivity.TX_SCOPE_ID)
+        (requireActivity() as TransactionFlowActivity).scope
     }
 
-    override val model: TransactionModel by scope.inject()
+    override val model: TransactionModel
+        get() = scope.get()
 
     protected val analyticsHooks: TxFlowAnalytics by inject()
 

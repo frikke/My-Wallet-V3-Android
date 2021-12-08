@@ -25,9 +25,9 @@
                 android:id="@+id/account_select_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:visibility="visible"
                 android:background="@color/grey_900"
-                android:visibility="invisible">
+                android:visibility="invisible"
+                tools:visibility="visible">
 
                 <View
                     android:id="@+id/account_select_filter"
@@ -113,7 +113,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/white"
+                android:fadingEdge="vertical"
+                android:fadingEdgeLength="@dimen/very_small_margin"
                 android:fitsSystemWindows="true"
+                android:requiresFadingEdge="vertical"
                 tools:listitem="@layout/dialog_activities_tx_item"
                 tools:visibility="visible" />
 
