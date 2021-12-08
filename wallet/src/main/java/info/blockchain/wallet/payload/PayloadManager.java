@@ -1,6 +1,11 @@
 package info.blockchain.wallet.payload;
 
+import com.blockchain.AppVersion;
+import com.blockchain.api.ApiException;
+import com.blockchain.api.bitcoin.data.BalanceDto;
+import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bitcoinj.crypto.MnemonicException.MnemonicChecksumException;
@@ -25,11 +30,8 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.blockchain.api.ApiException;
-import com.blockchain.api.services.NonCustodialBitcoinService;
-import com.blockchain.api.bitcoin.data.BalanceDto;
 import info.blockchain.balance.CryptoValue;
-import info.blockchain.wallet.BlockchainFramework;
+import info.blockchain.wallet.Device;
 import info.blockchain.wallet.api.WalletApi;
 import info.blockchain.wallet.bip44.HDAccount;
 import info.blockchain.wallet.exceptions.AccountLockedException;
@@ -48,10 +50,10 @@ import info.blockchain.wallet.multiaddress.TransactionSummary;
 import info.blockchain.wallet.pairing.Pairing;
 import info.blockchain.wallet.payload.data.Account;
 import info.blockchain.wallet.payload.data.Derivation;
-import info.blockchain.wallet.payload.data.WalletBody;
 import info.blockchain.wallet.payload.data.ImportedAddress;
 import info.blockchain.wallet.payload.data.Wallet;
 import info.blockchain.wallet.payload.data.WalletBase;
+import info.blockchain.wallet.payload.data.WalletBody;
 import info.blockchain.wallet.payload.data.WalletExtensionsKt;
 import info.blockchain.wallet.payload.data.WalletWrapper;
 import info.blockchain.wallet.payload.data.XPub;
@@ -83,12 +85,17 @@ public class PayloadManager {
     // Bitcoin Cash
     private final BalanceManagerBch balanceManagerBch;
 
+    private final Device device;
+    private final AppVersion appVersion;
+
     public PayloadManager(
         WalletApi walletApi,
         NonCustodialBitcoinService bitcoinApi,
         MultiAddressFactory multiAddressFactory,
         BalanceManagerBtc balanceManagerBtc,
-        BalanceManagerBch balanceManagerBch
+        BalanceManagerBch balanceManagerBch,
+        Device device,
+        AppVersion appVersion
     ) {
         this.walletApi = walletApi;
         this.bitcoinApi = bitcoinApi;
@@ -96,7 +103,10 @@ public class PayloadManager {
         this.multiAddressFactory = multiAddressFactory;
         this.balanceManagerBtc = balanceManagerBtc;
         // Bitcoin Cash
-        this.balanceManagerBch  = balanceManagerBch;
+        this.balanceManagerBch = balanceManagerBch;
+
+        this.device = device;
+        this.appVersion = appVersion;
     }
 
     @Nullable
@@ -133,8 +143,8 @@ public class PayloadManager {
         boolean isPayloadV4Enabled
     ) throws Exception {
         this.isV4Enabled = isPayloadV4Enabled;
-        this.password = password;
-        walletBase = new WalletBase();
+        this.password    = password;
+        walletBase       = new WalletBase();
         walletBase.setWalletBody(
             new Wallet(
                 defaultAccountName,
@@ -303,7 +313,7 @@ public class PayloadManager {
         HDWalletException {
 
         this.isV4Enabled = isV4Enabled;
-        this.password = password;
+        this.password    = password;
 
         Call<ResponseBody> call = walletApi.fetchWalletData(guid, sharedKey);
         Response<ResponseBody> exe = call.execute();
@@ -314,7 +324,8 @@ public class PayloadManager {
 
             base.decryptPayload(this.password);
             walletBase = base;
-        } else {
+        }
+        else {
             log.warn("Fetching wallet data failed with provided credentials");
             String errorMessage = exe.errorBody().string();
             log.warn("", errorMessage);
@@ -357,7 +368,8 @@ public class PayloadManager {
                 password,
                 isV4Enabled
             );
-        } else {
+        }
+        else {
             log.error("", exe.code() + " - " + exe.errorBody().string());
             throw new ServerConnectionException(exe.code() + " - " + exe.errorBody().string());
         }
@@ -400,7 +412,7 @@ public class PayloadManager {
         else if (!getPayload().isEncryptionConsistent()) {
             throw new HDWalletException("Save aborted - Payload corrupted. Key encryption not consistent.");
         }
-        else if (BlockchainFramework.getDevice() == null) {
+        else if (device == null) {
             throw new HDWalletException("Save aborted - Device name not specified in FrameWork.");
         }
     }
@@ -421,14 +433,15 @@ public class PayloadManager {
             payloadWrapper.toJson(mapper),
             newPayloadChecksum,
             email,
-            BlockchainFramework.getDevice()
+            device.getOsType()
         );
 
         Response<ResponseBody> exe = call.execute();
         if (exe.isSuccessful()) {
             //set new checksum
             walletBase.setPayloadChecksum(newPayloadChecksum);
-        } else {
+        }
+        else {
             log.error("", exe.code() + " - " + exe.errorBody().string());
             throw new ServerConnectionException(exe.code() + " - " + exe.errorBody().string());
         }
@@ -482,7 +495,8 @@ public class PayloadManager {
         List<String> syncAddresses;
         if (walletBase.isSyncPubkeys() || forcePubKeySync) {
             syncAddresses = makePubKeySyncList(getPayload().getWalletBody(), payloadVersion);
-        } else {
+        }
+        else {
             syncAddresses = new ArrayList<>();
         }
 
@@ -493,7 +507,7 @@ public class PayloadManager {
             payloadWrapper.toJson(mapper),
             newPayloadChecksum,
             oldPayloadChecksum,
-            BlockchainFramework.getDevice()
+            device.getOsType()
         );
 
         Response<ResponseBody> exe = call.execute();
@@ -640,7 +654,8 @@ public class PayloadManager {
      * @param key            ECKey for existing imported address
      * @param secondPassword Double encryption password if applicable.
      */
-    public ImportedAddress setKeyForImportedAddress(SigningKey key, @Nullable String secondPassword) throws Exception {
+    public ImportedAddress setKeyForImportedAddress(SigningKey key,
+                                                    @Nullable String secondPassword) throws Exception {
         ImportedAddress matchingImportedAddress;
         try {
             matchingImportedAddress = getPayload().setKeyForImportedAddress(key, secondPassword);
@@ -658,14 +673,18 @@ public class PayloadManager {
         }
 
         return matchingImportedAddress;
-
     }
 
     public ImportedAddress addImportedAddressFromKey(
         SigningKey key,
         @Nullable String secondPassword
     ) throws Exception {
-        ImportedAddress newlyAdded = getPayload().addImportedAddressFromKey(key, secondPassword);
+        ImportedAddress newlyAdded = getPayload().addImportedAddressFromKey(
+            key,
+            secondPassword,
+            device.getOsType(),
+            appVersion.getAppVersion()
+        );
 
         boolean success = save();
 
@@ -716,7 +735,8 @@ public class PayloadManager {
                     importedAddress.getPrivateKey(),
                     getPayload().getSharedKey(),
                     secondPassword,
-                    getPayload().getOptions().getPbkdf2Iterations());
+                    getPayload().getOptions().getPbkdf2Iterations()
+                );
         }
 
         return new SigningKeyImpl(
@@ -762,7 +782,8 @@ public class PayloadManager {
             final Map<String, BalanceDto> result = response.body();
             final Map<String, Balance> balanceHashMap = BalanceKt.toBalanceMap(result);
             return balanceHashMap;
-        } else {
+        }
+        else {
             throw new ApiException(response.code() + ": " + response.errorBody().string());
         }
     }
@@ -789,7 +810,7 @@ public class PayloadManager {
             limit,
             offset,
             0
-            );
+        );
     }
 
     public MasterKey masterKey() throws HDWalletException {
@@ -849,7 +870,8 @@ public class PayloadManager {
 
         if (xpub != null) {
             label = getPayload().getWalletBody().getLabelFromXpub(xpub);
-        } else {
+        }
+        else {
             label = getPayload().getLabelFromImportedAddress(address);
         }
 
@@ -902,8 +924,10 @@ public class PayloadManager {
 
     private String derivationTypeFromXPub(XPub xpub) {
         switch (xpub.getDerivation()) {
-            case LEGACY: return Derivation.LEGACY_TYPE;
-            case SEGWIT: return Derivation.SEGWIT_BECH32_TYPE;
+            case LEGACY:
+                return Derivation.LEGACY_TYPE;
+            case SEGWIT:
+                return Derivation.SEGWIT_BECH32_TYPE;
         }
         throw new IllegalStateException("Unknown derivation type");
     }
@@ -1026,9 +1050,9 @@ public class PayloadManager {
         }
     }
 
-///////////////////////////////////////////////////////////////////////////
-// BALANCE BITCOIN
-///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    // BALANCE BITCOIN
+    ///////////////////////////////////////////////////////////////////////////
 
     public CryptoValue getAddressBalance(XPubs xpubs) {
         return balanceManagerBtc.getAddressBalance(xpubs);
@@ -1070,6 +1094,6 @@ public class PayloadManager {
      */
     public void subtractAmountFromAddressBalance(String address, BigInteger amount) throws
         Exception {
-            balanceManagerBtc.subtractAmountFromAddressBalance(address, amount);
+        balanceManagerBtc.subtractAmountFromAddressBalance(address, amount);
     }
 }

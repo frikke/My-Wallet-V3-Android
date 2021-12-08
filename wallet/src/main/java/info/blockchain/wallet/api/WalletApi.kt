@@ -21,8 +21,7 @@ import retrofit2.Response
 
 class WalletApi(
     private val explorerInstance: WalletExplorerEndpoints,
-    private val apiCode: ApiCode,
-    private val captchaSiteKey: String
+    private val api: ApiCode
 ) {
     fun updateFirebaseNotificationToken(
         token: String,
@@ -35,7 +34,7 @@ class WalletApi(
             sharedKey,
             token,
             token.length,
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -49,7 +48,7 @@ class WalletApi(
             sharedKey = sharedKey,
             payload = "",
             length = 0,
-            apiCode = getApiCode()
+            apiCode = api.apiCode
         ).ignoreElements()
 
     fun sendSecureChannel(
@@ -59,7 +58,7 @@ class WalletApi(
             "send-secure-channel",
             message,
             message.length,
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -83,11 +82,11 @@ class WalletApi(
 
     fun setAccess(key: String, value: String, pin: String): Observable<Response<Status>> {
         val hex = Hex.toHexString(value.toByteArray())
-        return explorerInstance.pinStore(key, pin, hex, "put", getApiCode())
+        return explorerInstance.pinStore(key, pin, hex, "put", api.apiCode)
     }
 
     fun validateAccess(key: String, pin: String): Observable<Response<Status>> {
-        return explorerInstance.pinStore(key, pin, null, "get", getApiCode())
+        return explorerInstance.pinStore(key, pin, null, "get", api.apiCode)
     }
 
     fun insertWallet(
@@ -112,7 +111,7 @@ class WalletApi(
             email,
             device,
             null,
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -147,7 +146,7 @@ class WalletApi(
             null,
             device,
             oldChecksum,
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -157,7 +156,7 @@ class WalletApi(
             guid,
             sharedKey,
             "json",
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -172,7 +171,7 @@ class WalletApi(
             twoFactorCode,
             twoFactorCode.length,
             "plain",
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -190,14 +189,14 @@ class WalletApi(
             "SID=$sessionId",
             "json",
             resend2FASms,
-            getApiCode()
+            api.apiCode
         )
 
     fun fetchPairingEncryptionPasswordCall(guid: String?): Call<ResponseBody> {
         return explorerInstance.fetchPairingEncryptionPasswordCall(
             "pairing-encryption-password",
             guid,
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -205,7 +204,7 @@ class WalletApi(
         return explorerInstance.fetchPairingEncryptionPassword(
             "pairing-encryption-password",
             guid,
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -215,7 +214,7 @@ class WalletApi(
             guid,
             sharedKey,
             "plain",
-            getApiCode()
+            api.apiCode
         )
     }
 
@@ -234,12 +233,12 @@ class WalletApi(
             payload.length,
             "plain",
             context,
-            getApiCode()
+            api.apiCode
         )
     }
 
     val walletOptions: Observable<WalletOptions>
-        get() = explorerInstance.getWalletOptions(getApiCode())
+        get() = explorerInstance.getWalletOptions(api.apiCode)
 
     fun getSignedJsonToken(guid: String, sharedKey: String, partner: String?): Single<String> {
         return explorerInstance.getSignedJsonToken(
@@ -247,7 +246,7 @@ class WalletApi(
             sharedKey,
             "email%7Cwallet_age",
             partner,
-            getApiCode()
+            api.apiCode
         )
             .map { signedToken ->
                 if (!signedToken.isSuccessful) {
@@ -259,13 +258,13 @@ class WalletApi(
     }
 
     fun createSessionId(email: String): Single<ResponseBody> =
-        explorerInstance.createSessionId(email, getApiCode())
+        explorerInstance.createSessionId(email, api.apiCode)
 
     fun authorizeSession(authToken: String, sessionId: String): Single<Response<ResponseBody>> =
         explorerInstance.authorizeSession(
             sessionId.withBearerPrefix(),
             authToken,
-            getApiCode(),
+            api.apiCode,
             "authorize-approve",
             true
         )
@@ -324,8 +323,4 @@ class WalletApi(
         payload = payload,
         confirmDevice = confirmDevice
     )
-
-    private fun getApiCode(): String {
-        return apiCode.apiCode
-    }
 }

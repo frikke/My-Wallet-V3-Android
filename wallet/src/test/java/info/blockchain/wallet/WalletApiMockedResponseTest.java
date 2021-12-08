@@ -3,6 +3,7 @@ package info.blockchain.wallet;
 import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import com.blockchain.api.bitcoin.data.MultiAddress;
+
 import info.blockchain.wallet.api.WalletApi;
 import info.blockchain.wallet.api.WalletExplorerEndpoints;
 import info.blockchain.wallet.util.LoaderUtilKt;
@@ -26,8 +27,7 @@ public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
 
     protected WalletApi walletApi;
 
-    // TODO: replace with real key once required for tests
-    private final String siteKey = "site-key";
+    private ApiCode api = mock(ApiCode.class);
 
     @Before
     public void setWalletApiAccess() {
@@ -36,8 +36,7 @@ public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
                 "https://explorer.staging.blockchain.info/",
                 newOkHttpClient()
             ).create(WalletExplorerEndpoints.class),
-            BlockchainFramework::getApiCode,
-            siteKey
+            api
         );
     }
 

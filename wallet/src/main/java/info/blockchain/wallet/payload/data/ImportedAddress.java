@@ -13,16 +13,15 @@ import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.params.MainNetParams;
-import java.io.IOException;
 
-import info.blockchain.wallet.BlockchainFramework;
+import java.io.IOException;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = Visibility.NONE,
-        getterVisibility = Visibility.NONE,
-        setterVisibility = Visibility.NONE,
-        creatorVisibility = Visibility.NONE,
-        isGetterVisibility = Visibility.NONE)
+    getterVisibility = Visibility.NONE,
+    setterVisibility = Visibility.NONE,
+    creatorVisibility = Visibility.NONE,
+    isGetterVisibility = Visibility.NONE)
 public class ImportedAddress implements JsonSerializableAccount {
 
     public static final int NORMAL_ADDRESS = 0;
@@ -74,10 +73,8 @@ public class ImportedAddress implements JsonSerializableAccount {
     }
 
     public String getLabel() {
-        if(label != null)
-            return label;
-        else
-            return address;
+        if (label != null) { return label; }
+        else { return address; }
     }
 
     public long getCreatedTime() {
@@ -136,7 +133,7 @@ public class ImportedAddress implements JsonSerializableAccount {
         return new ObjectMapper().writeValueAsString(this);
     }
 
-    public static ImportedAddress fromECKey(ECKey ecKey) {
+    public static ImportedAddress fromECKey(ECKey ecKey, String device, String appVersion) {
 
         ImportedAddress importedAddress = new ImportedAddress();
         importedAddress.setPrivateKeyFromBytes(ecKey.getPrivKeyBytes());
@@ -148,9 +145,9 @@ public class ImportedAddress implements JsonSerializableAccount {
                 ecKey
             ).toBase58()
         );
-        importedAddress.setCreatedDeviceName(BlockchainFramework.getDevice());
+        importedAddress.setCreatedDeviceName(device);
         importedAddress.setCreatedTime(System.currentTimeMillis());
-        importedAddress.setCreatedDeviceVersion(BlockchainFramework.getAppVersion());
+        importedAddress.setCreatedDeviceVersion(appVersion);
 
         return importedAddress;
     }

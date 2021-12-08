@@ -4,7 +4,6 @@ import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.dust.data.DustInput
 import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
@@ -18,7 +17,7 @@ class BchDustServiceTest {
     }
 
     private val dustApi: DustApi = mock()
-    private val apiCode: ApiCode = mock()
+    private val apiCode = "123"
     private val subject: DustService = BchDustService(dustApi, apiCode)
 
     @Test
@@ -26,7 +25,7 @@ class BchDustServiceTest {
         val expectedDustInput: DustInput = mock()
 
         whenever(
-            dustApi.getDust("bch", apiCode.apiCode)
+            dustApi.getDust("bch", apiCode)
         ).thenReturn(
             Single.just(expectedDustInput)
         )

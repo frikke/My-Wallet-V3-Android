@@ -21,7 +21,9 @@ val walletModule = module {
 
     scope(payloadScopeQualifier) {
 
-        scoped { PayloadManager(get(), get(), get(), get(), get()) }
+        scoped {
+            PayloadManager(get(), get(), get(), get(), get(), get(), get())
+        }
 
         factory { MultiAddressFactoryBtc(bitcoinApi = get()) }.bind(MultiAddressFactory::class)
 
@@ -40,8 +42,8 @@ val walletModule = module {
 
     factory {
         BchDustService(
-            get<Retrofit>(kotlinApiRetrofit).create(DustApi::class.java),
-            get()
+            api = get<Retrofit>(kotlinApiRetrofit).create(DustApi::class.java),
+            apiCode = getProperty("api-code")
         )
     }.bind(DustService::class)
 
@@ -58,7 +60,7 @@ val walletModule = module {
     factory {
         EthAccountApi(
             ethEndpoints = get<Retrofit>(apiRetrofit).create(EthEndpoints::class.java),
-            apiCode = get()
+            apiCode = getProperty("api-code")
         )
     }
 }

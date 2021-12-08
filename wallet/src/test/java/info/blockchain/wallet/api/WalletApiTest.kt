@@ -24,9 +24,8 @@ import retrofit2.Response
 
 class WalletApiTest {
     private val walletExplorerEndpoints: WalletExplorerEndpoints = mock()
-    private val apiCode: ApiCode = mock()
-    private val captchaSiteKey: String = "captchaSiteKey"
-    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, apiCode, captchaSiteKey)
+    private val api: ApiCode = mock()
+    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api)
 
     @Test
     fun `get encrypted payload`() {
@@ -41,7 +40,7 @@ class WalletApiTest {
                 "SID=$sessionId",
                 "json",
                 false,
-                apiCode.apiCode
+                api.apiCode
             )
         ).thenReturn(
             Observable.just(response)
@@ -68,7 +67,7 @@ class WalletApiTest {
                 "SID=$sessionId",
                 "json",
                 false,
-                apiCode.apiCode
+                api.apiCode
             )
         ).thenReturn(
             Observable.just(expectedResponse)
@@ -92,7 +91,7 @@ class WalletApiTest {
             walletExplorerEndpoints.fetchPairingEncryptionPasswordCall(
                 "pairing-encryption-password",
                 guid,
-                apiCode.apiCode
+                api.apiCode
             )
         ).thenReturn(
             callResponse
@@ -108,7 +107,7 @@ class WalletApiTest {
         val expectedWalletOptions = WalletOptions()
 
         whenever(
-            walletExplorerEndpoints.getWalletOptions(apiCode.apiCode)
+            walletExplorerEndpoints.getWalletOptions(api.apiCode)
         ).thenReturn(
             Observable.just(expectedWalletOptions)
         )
@@ -134,7 +133,7 @@ class WalletApiTest {
                 pin,
                 Hex.toHexString(value.toByteArray()),
                 "put",
-                apiCode.apiCode
+                api.apiCode
             )
         ).thenReturn(
             Observable.just(expectedResponse)
@@ -158,7 +157,7 @@ class WalletApiTest {
                 pin,
                 null,
                 "get",
-                apiCode.apiCode
+                api.apiCode
             )
         ).thenReturn(
             Observable.just(Response.success(200, Status.fromJson("{ \"success\": \"$keyReturned\"}")))
@@ -182,7 +181,7 @@ class WalletApiTest {
                 verifiedGuid,
                 verifiedSharedKey,
                 "email%7Cwallet_age",
-                partner, apiCode.apiCode
+                partner, api.apiCode
             )
         ).thenReturn(
             Single.just(expectedToken)

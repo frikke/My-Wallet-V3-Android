@@ -18,7 +18,6 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.blockchain.koin.KoinStarter
-import com.blockchain.koin.apiRetrofit
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
@@ -31,9 +30,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
-import info.blockchain.wallet.BlockchainFramework
-import info.blockchain.wallet.FrameworkInterface
-import info.blockchain.wallet.api.Environment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -55,12 +51,10 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
-import retrofit2.Retrofit
 import timber.log.Timber
 
-open class BlockchainApplication : Application(), FrameworkInterface {
+open class BlockchainApplication : Application() {
 
-    private val retrofitApi: Retrofit by inject(apiRetrofit)
     private val environmentSettings: EnvironmentConfig by inject()
     private val lifeCycleInterestedComponent: LifecycleInterestedComponent by inject()
     private val appInfoPrefs: AppInfoPrefs by inject()
@@ -105,9 +99,6 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         if (environmentSettings.isRunningInDebugMode()) {
             Stetho.initializeWithDefaults(this)
         }
-
-        // Pass objects to JAR - TODO: Remove this and use DI/Koin
-        BlockchainFramework.init(this)
 
         UncaughtExceptionHandler.install(appUtils)
         RxJavaPlugins.setErrorHandler { throwable -> Timber.tag(RX_ERROR_TAG).e(throwable) }
@@ -220,24 +211,6 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         }
     }
 
-    // FrameworkInterface
-    // Pass instances to JAR Framework, evaluate after object graph instantiated fully
-    override fun getRetrofitApiInstance(): Retrofit {
-        return retrofitApi
-    }
-
-    override fun getEnvironment(): Environment {
-        return environmentSettings.environment
-    }
-
-    override fun getDevice(): String {
-        return "android"
-    }
-
-    override fun getAppVersion(): String {
-        return BuildConfig.VERSION_NAME
-    }
-
     fun startLogoutTimer() {
         val intent = Intent(this, LogoutActivity::class.java)
             .apply {
@@ -263,9 +236,6 @@ open class BlockchainApplication : Application(), FrameworkInterface {
             (getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(logoutPendingIntent)
         }
     }
-
-    override val apiCode: String
-        get() = "25a6ad13-1633-4dfb-b6ee-9b91cdf0b5c3"
 
     /**
      * This patches a device's Security Provider asynchronously to help defend against various

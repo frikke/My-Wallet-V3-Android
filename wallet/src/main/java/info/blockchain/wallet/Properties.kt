@@ -6,3 +6,10 @@ package info.blockchain.wallet
 interface ApiCode {
     val apiCode: String
 }
+
+/**
+ * Provides an Device used
+ */
+interface Device {
+    val osType: String
+}

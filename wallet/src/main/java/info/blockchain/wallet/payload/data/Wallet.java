@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import com.google.common.annotations.VisibleForTesting;
+
 import info.blockchain.wallet.exceptions.DecryptionException;
 import info.blockchain.wallet.exceptions.EncryptionException;
 import info.blockchain.wallet.exceptions.HDWalletException;
@@ -18,6 +19,7 @@ import info.blockchain.wallet.exceptions.NoSuchAddressException;
 import info.blockchain.wallet.keys.SigningKey;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FormatsUtil;
+
 import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
@@ -25,6 +27,7 @@ import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.params.MainNetParams;
 import org.spongycastle.crypto.InvalidCipherTextException;
+
 import javax.annotation.Nullable;
 
 import java.io.IOException;
@@ -39,10 +42,10 @@ import java.util.UUID;
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = Visibility.NONE,
-        getterVisibility = Visibility.NONE,
-        setterVisibility = Visibility.NONE,
-        creatorVisibility = Visibility.NONE,
-        isGetterVisibility = Visibility.NONE)
+    getterVisibility = Visibility.NONE,
+    setterVisibility = Visibility.NONE,
+    creatorVisibility = Visibility.NONE,
+    isGetterVisibility = Visibility.NONE)
 public class Wallet {
 
     @JsonProperty("guid")
@@ -300,7 +303,8 @@ public class Wallet {
         for (String key : keyList) {
             if (isDoubleEncrypted) {
                 consistent = FormatsUtil.isKeyEncrypted(key);
-            } else {
+            }
+            else {
                 consistent = FormatsUtil.isKeyUnencrypted(key);
             }
 
@@ -370,7 +374,8 @@ public class Wallet {
     }
 
     @VisibleForTesting
-    public ImportedAddress addImportedAddress(ImportedAddress address, @Nullable String secondPassword)
+    public ImportedAddress addImportedAddress(ImportedAddress address,
+                                              @Nullable String secondPassword)
         throws Exception {
 
         validateSecondPassword(secondPassword);
@@ -393,9 +398,12 @@ public class Wallet {
         return address;
     }
 
-    public ImportedAddress addImportedAddressFromKey(SigningKey key, @Nullable String secondPassword)
+    public ImportedAddress addImportedAddressFromKey(SigningKey key,
+                                                     @Nullable String secondPassword,
+                                                     String device,
+                                                     String apiCode)
         throws Exception {
-        return addImportedAddress(ImportedAddress.fromECKey(key.toECKey()), secondPassword);
+        return addImportedAddress(ImportedAddress.fromECKey(key.toECKey(), device, apiCode), secondPassword);
     }
 
     public void decryptHDWallet(String secondPassword)
@@ -594,8 +602,7 @@ public class Wallet {
     private static final int HD_WALLET_INDEX = 0;
 
     private boolean isKeyUnencrypted(String data) {
-        if (data == null)
-            return false;
+        if (data == null) { return false; }
         try {
             Base58.decode(data);
             return true;
