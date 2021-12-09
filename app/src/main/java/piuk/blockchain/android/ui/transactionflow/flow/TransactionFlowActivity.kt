@@ -255,7 +255,7 @@ class TransactionFlowActivity :
         private const val SOURCE = "SOURCE_ACCOUNT"
         private const val TARGET = "TARGET_ACCOUNT"
         private const val ACTION = "ASSET_ACTION"
-        const val TX_SCOPE_ID = "TRANSACTION_ACTIVITY_SCOPE_ID"
+        private const val TX_SCOPE_ID = "TRANSACTION_ACTIVITY_SCOPE_ID"
 
         fun newInstance(
             context: Context,
