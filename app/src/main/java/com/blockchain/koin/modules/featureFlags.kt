@@ -3,6 +3,7 @@ package com.blockchain.koin.modules
 import com.blockchain.koin.buyCryptoDashboardButton
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.pricingQuoteFeatureFlag
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.unifiedSignInFeatureFlag
@@ -44,5 +45,9 @@ val featureFlagsModule = module {
 
     factory(fabSheetOrderingFeatureFlag) {
         get<RemoteConfig>().featureFlag("android_ff_fab_buy_cta_on_right")
+    }
+
+    factory(redesignPart2FeatureFlag) {
+        get<RemoteConfig>().featureFlag("android_ff_redesign_pt2")
     }
 }

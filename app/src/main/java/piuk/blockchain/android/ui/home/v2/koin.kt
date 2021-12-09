@@ -2,8 +2,11 @@ package piuk.blockchain.android.ui.home.v2
 
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.redesignPart2FeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
+import piuk.blockchain.android.ui.home.v2.flags.FabSheetBuySellOrderingFeatureFlag
+import piuk.blockchain.android.ui.home.v2.flags.RedesignPart2FeatureFlag
 
 val mainModule = module {
 
@@ -60,6 +63,13 @@ val mainModule = module {
             FabSheetBuySellOrderingFeatureFlag(
                 localApi = get(),
                 remoteConfig = get(fabSheetOrderingFeatureFlag)
+            )
+        }
+
+        factory {
+            RedesignPart2FeatureFlag(
+                localApi = get(),
+                remoteConfig = get(redesignPart2FeatureFlag)
             )
         }
     }
