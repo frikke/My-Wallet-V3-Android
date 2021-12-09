@@ -69,7 +69,6 @@ import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsActivity
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
@@ -316,7 +315,7 @@ class RedesignMainActivity :
             }
             BANK_DEEP_LINK_SETTINGS -> {
                 if (resultCode == RESULT_OK) {
-                    startActivity(Intent(this, SettingsActivity::class.java))
+                    startActivity(RedesignSettingsActivity.newIntent(this))
                 }
             }
             BANK_DEEP_LINK_DEPOSIT -> {
