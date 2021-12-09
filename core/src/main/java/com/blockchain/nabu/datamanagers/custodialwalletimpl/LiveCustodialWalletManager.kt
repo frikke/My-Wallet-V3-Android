@@ -1235,14 +1235,14 @@ class LiveCustodialWalletManager(
         CardProvider(
             cardAcquirerName,
             cardAcquirerAccountCode,
-            apiUserID,
-            apiToken,
-            paymentLink,
-            paymentState,
-            paymentReference,
-            orderReference,
-            clientSecret,
-            publishableApiKey
+            apiUserID.orEmpty(),
+            apiToken.orEmpty(),
+            paymentLink.orEmpty(),
+            paymentState.orEmpty(),
+            paymentReference.orEmpty(),
+            orderReference.orEmpty(),
+            clientSecret.orEmpty(),
+            publishableApiKey.orEmpty()
         )
 
     private fun Bank.toBankPaymentMethod(bankLimits: PaymentLimits) =
@@ -1588,10 +1588,10 @@ fun PaymentAttributesResponse.toPaymentAttributes(): PaymentAttributes {
         cardProvider != null -> CardAttributes.Provider(
             cardAcquirerName = cardProvider.cardAcquirerName,
             cardAcquirerAccountCode = cardProvider.cardAcquirerAccountCode,
-            paymentLink = cardProvider.paymentLink,
-            paymentState = cardProvider.paymentState,
-            clientSecret = cardProvider.clientSecret,
-            publishableApiKey = cardProvider.publishableApiKey
+            paymentLink = cardProvider.paymentLink.orEmpty(),
+            paymentState = cardProvider.paymentState.orEmpty(),
+            clientSecret = cardProvider.clientSecret.orEmpty(),
+            publishableApiKey = cardProvider.publishableApiKey.orEmpty()
         )
         everypay != null -> CardAttributes.EveryPay(
             paymentLink = everypay.paymentLink,

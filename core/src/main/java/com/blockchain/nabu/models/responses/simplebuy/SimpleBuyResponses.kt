@@ -162,17 +162,18 @@ data class EveryPayCardCredentialsResponse(
     val paymentLink: String
 )
 
+// cardAcquirerName and cardAcquirerAccountCode are mandatory
 data class CardProviderResponse(
     val cardAcquirerName: String, // "STRIPE"
     val cardAcquirerAccountCode: String,
-    val apiUserID: String, // is the old apiUserName
-    val apiToken: String, // is the old mobile token and will be fill with bearer token most of the time
-    val paymentLink: String, // link should be followed background and if an action is required we should abort
-    val paymentState: String,
-    val paymentReference: String,
-    val orderReference: String,
-    val clientSecret: String, // use when client secret is needed (stripe)
-    val publishableApiKey: String
+    val apiUserID: String?, // is the old apiUserName
+    val apiToken: String?, // is the old mobile token and will be fill with bearer token most of the time
+    val paymentLink: String?, // link should be followed background and if an action is required we should abort
+    val paymentState: String?,
+    val paymentReference: String?,
+    val orderReference: String?,
+    val clientSecret: String?, // use when client secret is needed (stripe)
+    val publishableApiKey: String?
 )
 
 data class PaymentAttributesResponse(
@@ -182,13 +183,14 @@ data class PaymentAttributesResponse(
     val cardProvider: CardProviderPaymentAttributesResponse?
 )
 
+// cardAcquirerName and cardAcquirerAccountCode are mandatory
 data class CardProviderPaymentAttributesResponse(
     val cardAcquirerName: String,
     val cardAcquirerAccountCode: String,
-    val paymentLink: String,
-    val paymentState: String,
-    val clientSecret: String,
-    val publishableApiKey: String
+    val paymentLink: String?,
+    val paymentState: String?,
+    val clientSecret: String?,
+    val publishableApiKey: String?
 )
 
 data class EverypayPaymentAttributesResponse(
