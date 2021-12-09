@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.sheets
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -22,15 +21,18 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Dark200
+import com.blockchain.componentlib.theme.Grey600
 
 @Composable
-fun SheetHeaderBackAndAction(
+fun SheetHeaderBackAndClose(
     title: String,
     onBackPress: () -> Unit,
-    actionType: SheetHeaderActionType,
-    onActionPress: () -> Unit,
+    onClosePress: () -> Unit,
     modifier: Modifier = Modifier,
+    byline: String? = null,
     backPressContentDescription: String? = null,
+    closePressContentDescription: String? = null,
 ) {
 
     Column(
@@ -54,22 +56,16 @@ fun SheetHeaderBackAndAction(
                     .size(24.dp)
             )
 
-            Text(
-                text = title,
-                style = AppTheme.typography.body2,
-                color = AppTheme.colors.title,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f),
+            SheetHeaderTitle(
+                title = title,
+                byline = byline,
+                modifier = Modifier.weight(1f)
             )
 
-            Text(
-                text = actionType.value,
-                style = AppTheme.typography.paragraph2,
-                color = when (actionType) {
-                    is SheetHeaderActionType.Cancel -> AppTheme.colors.error
-                    is SheetHeaderActionType.Next -> AppTheme.colors.primary
-                },
-                modifier = Modifier.clickable { onActionPress() },
+            SheetHeaderCloseButton(
+                onBackPress = onClosePress,
+                backPressContentDescription = closePressContentDescription,
+                modifier = Modifier.fillMaxHeight()
             )
 
             Spacer(Modifier.width(16.dp))
@@ -78,16 +74,44 @@ fun SheetHeaderBackAndAction(
     }
 }
 
+@Composable
+private fun SheetHeaderTitle(
+    title: String,
+    modifier: Modifier = Modifier,
+    byline: String? = null,
+    isDarkMode: Boolean = isSystemInDarkTheme(),
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = title,
+            style = AppTheme.typography.body2,
+            color = AppTheme.colors.title,
+            textAlign = TextAlign.Center,
+        )
+        if (byline != null) {
+            Text(
+                text = byline,
+                style = AppTheme.typography.caption1,
+                color = if (isDarkMode) Dark200 else Grey600,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(6.dp))
+        }
+    }
+}
+
 @Preview
 @Composable
-private fun SheetHeaderBackAndCancelPreview() {
+private fun SheetHeaderBackAndClosePreview() {
     AppTheme {
         AppSurface {
-            SheetHeaderBackAndAction(
+            SheetHeaderBackAndClose(
                 title = "Title",
-                onBackPress = { /* no-op */ },
-                actionType = SheetHeaderActionType.Cancel("Cancel"),
-                onActionPress = { /* no-op */ }
+                onBackPress = {/* no-op */ },
+                onClosePress = {/* no-op */ },
             )
         }
     }
@@ -95,25 +119,15 @@ private fun SheetHeaderBackAndCancelPreview() {
 
 @Preview
 @Composable
-private fun SheetHeaderBackAndNextPreview() {
+private fun SheetHeaderBackAndCloseBylinePreview() {
     AppTheme {
         AppSurface {
-            SheetHeaderBackAndAction(
+            SheetHeaderBackAndClose(
                 title = "Title",
-                onBackPress = { /* no-op */ },
-                actionType = SheetHeaderActionType.Next("Next"),
-                onActionPress = { /* no-op */ }
+                onBackPress = {/* no-op */ },
+                byline = "Byline",
+                onClosePress = {/* no-op */ },
             )
         }
     }
 }
-
-sealed class SheetHeaderActionType {
-
-    abstract val value: String
-
-    data class Cancel(override val value: String) : SheetHeaderActionType()
-
-    data class Next(override val value: String) : SheetHeaderActionType()
-}
-
