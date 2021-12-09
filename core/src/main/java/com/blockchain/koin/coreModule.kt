@@ -4,6 +4,8 @@ import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.BuildConfig
 import com.blockchain.core.Database
+import com.blockchain.core.EligibilityDataManager
+import com.blockchain.core.EligibilityDataManagerImpl
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -143,6 +145,10 @@ val coreModule = module {
                 authenticator = get()
             )
         }.bind(LimitsDataManager::class)
+
+        scoped {
+            EligibilityDataManagerImpl()
+        }.bind(EligibilityDataManager::class)
 
         factory {
             InterestBalanceCallCache(

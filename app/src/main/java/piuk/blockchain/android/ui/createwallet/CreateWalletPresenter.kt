@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.createwallet
 
 import androidx.annotation.StringRes
 import com.blockchain.api.services.Geolocation
+import com.blockchain.core.CountryIso
+import com.blockchain.core.EligibilityDataManager
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -10,7 +12,9 @@ import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Locale
 import kotlin.math.roundToInt
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
@@ -30,6 +34,7 @@ interface CreateWalletView : View {
     fun showProgressDialog(message: Int)
     fun dismissProgressDialog()
     fun getDefaultAccountName(): String
+    fun setEligibleCountries(countries: List<CountryIso>)
     fun setGeolocationInCountrySpinner(geolocation: Geolocation)
 }
 
@@ -41,19 +46,31 @@ class CreateWalletPresenter(
     private val analytics: Analytics,
     private val environmentConfig: EnvironmentConfig,
     private val formatChecker: FormatChecker,
-    private val nabuUserDataManager: NabuUserDataManager
+    private val nabuUserDataManager: NabuUserDataManager,
+    private val eligibilityDataManager: EligibilityDataManager
 ) : BasePresenter<CreateWalletView>() {
 
     override fun onViewReady() {
-        // No-op
+        eligibilityDataManager.getCustodialEligibleCountries()
+            .subscribeBy(
+                onSuccess = { eligibleCountries ->
+                    view.setEligibleCountries(eligibleCountries)
+                },
+                onError = {
+                    view.setEligibleCountries(Locale.getISOCountries().toList())
+                }
+            )
     }
 
     fun getUserGeolocation() {
         nabuUserDataManager.getUserGeolocation()
+            .zipWith(eligibilityDataManager.getCustodialEligibleCountries())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()).subscribeBy(
-                onSuccess = { geolocation ->
-                    view.setGeolocationInCountrySpinner(geolocation)
+                onSuccess = { (geolocation, eligibleCountries) ->
+                    if (eligibleCountries.contains(geolocation.countryCode)) {
+                        view.setGeolocationInCountrySpinner(geolocation)
+                    }
                 },
                 onError = {
                     Timber.e(it.localizedMessage)

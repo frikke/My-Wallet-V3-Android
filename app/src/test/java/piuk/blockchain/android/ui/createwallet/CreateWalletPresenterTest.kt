@@ -1,17 +1,24 @@
 package piuk.blockchain.android.ui.createwallet
 
+import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.services.Geolocation
+import com.blockchain.core.CountryIso
+import com.blockchain.core.EligibilityDataManager
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Single
+import java.util.Locale
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
@@ -33,6 +40,12 @@ class CreateWalletPresenterTest {
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
     private val nabuUserDataManager: NabuUserDataManager = mock()
+    private val eligibilityDataManager: EligibilityDataManager = mock()
+
+    @get:Rule
+    val rxSchedulers = rxInit {
+        mainTrampoline()
+    }
 
     @Before
     fun setUp() {
@@ -44,14 +57,19 @@ class CreateWalletPresenterTest {
             analytics = analytics,
             environmentConfig = environmentConfig,
             formatChecker = formatChecker,
-            nabuUserDataManager = nabuUserDataManager
+            nabuUserDataManager = nabuUserDataManager,
+            eligibilityDataManager = eligibilityDataManager
         )
         subject.initView(view)
     }
 
     @Test
     fun onViewReady() {
-        // Nothing to test
+        val eligibleCountries: List<CountryIso> = listOf("US", "UK", "PT", "DE", "NL")
+        whenever(eligibilityDataManager.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
+        subject.onViewReady()
+
+        verify(eligibilityDataManager).getCustodialEligibleCountries()
     }
 
     @Test
@@ -230,5 +248,36 @@ class CreateWalletPresenterTest {
         assert(!result)
         verify(view).showError(R.string.state_not_selected)
         verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `on fetch eligible countries success and set these countries`() {
+        val eligibleCountries: List<CountryIso> = listOf("US", "UK", "PT", "DE", "NL")
+        whenever(eligibilityDataManager.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
+        subject.onViewReady()
+
+        verify(eligibilityDataManager).getCustodialEligibleCountries()
+        verify(view).setEligibleCountries(eligibleCountries)
+    }
+
+    @Test
+    fun `on fetch eligible countries failure should fallback to Locale`() {
+        val error = IllegalStateException("error")
+        whenever(eligibilityDataManager.getCustodialEligibleCountries()).thenReturn(Single.error(error))
+        subject.onViewReady()
+
+        verify(eligibilityDataManager).getCustodialEligibleCountries()
+        verify(view).setEligibleCountries(Locale.getISOCountries().toList())
+    }
+
+    @Test
+    fun `on geolocation returning non eligible country should not select it`() {
+        val geolocation = Geolocation("CU", null)
+        val eligibleCountries: List<CountryIso> = listOf("US", "UK", "PT", "DE", "NL")
+        whenever(nabuUserDataManager.getUserGeolocation()).thenReturn(Single.just(geolocation))
+        whenever(eligibilityDataManager.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
+        subject.getUserGeolocation()
+
+        verify(view, never()).setGeolocationInCountrySpinner(any())
     }
 }

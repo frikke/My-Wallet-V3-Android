@@ -11,10 +11,10 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
 import com.blockchain.api.services.Geolocation
+import com.blockchain.core.CountryIso
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
-import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CountryPickerItem
@@ -93,7 +93,6 @@ class CreateWalletActivity :
 
         createWalletPresenter.getUserGeolocation()
 
-        initializeCountrySpinner()
         initializeStatesSpinner()
 
         with(binding) {
@@ -151,18 +150,6 @@ class CreateWalletActivity :
             binding.commandNext.setText(R.string.dialog_continue)
         } else {
             binding.commandNext.setText(R.string.new_account_cta_text)
-        }
-    }
-
-    private fun initializeCountrySpinner() {
-        binding.country.setOnClickListener {
-            SearchPickerItemBottomSheet.newInstance(
-                Locale.getISOCountries()
-                    .toList()
-                    .map { countryCode ->
-                        CountryPickerItem(countryCode)
-                    }
-            ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
         }
     }
 
@@ -252,6 +239,16 @@ class CreateWalletActivity :
     }
 
     override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
+
+    override fun setEligibleCountries(countries: List<CountryIso>) {
+        binding.country.setOnClickListener {
+            SearchPickerItemBottomSheet.newInstance(
+                countries.map { countryCode ->
+                    CountryPickerItem(countryCode)
+                }
+            ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
+        }
+    }
 
     override fun setGeolocationInCountrySpinner(geolocation: Geolocation) {
         if (countryPickerItem == null) {

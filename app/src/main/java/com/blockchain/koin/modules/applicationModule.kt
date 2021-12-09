@@ -320,7 +320,8 @@ val applicationModule = module {
                 environmentConfig = get(),
                 formatChecker = get(),
                 nabuUserDataManager = get(),
-                specificAnalytics = get()
+                specificAnalytics = get(),
+                eligibilityDataManager = get()
             )
         }
 
