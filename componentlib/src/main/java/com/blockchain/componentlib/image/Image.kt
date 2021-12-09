@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun Image(
     imageResource: ImageResource,
     modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit,
     coilImageBuilderScope: (ImageRequest.Builder.() -> Unit)? = null,
 ) {
     val placeholderColor = AppTheme.colors.light.toArgb()
@@ -39,7 +41,8 @@ fun Image(
                 painter = painterResource(id = imageResource.id),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier,
-                colorFilter = imageResource.colorFilter
+                colorFilter = imageResource.colorFilter,
+                contentScale = contentScale,
             )
         is ImageResource.Remote ->
             androidx.compose.foundation.Image(
@@ -49,6 +52,7 @@ fun Image(
                 ),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier,
+                contentScale = contentScale,
             )
         is ImageResource.LocalWithBackground -> {
             val filterColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.filterColorId))
@@ -70,7 +74,8 @@ fun Image(
                     painter = painterResource(id = imageResource.id),
                     contentDescription = imageResource.contentDescription,
                     modifier = modifier,
-                    colorFilter = ColorFilter.tint(filterColor)
+                    colorFilter = ColorFilter.tint(filterColor),
+                    contentScale = contentScale,
                 )
             }
         }
