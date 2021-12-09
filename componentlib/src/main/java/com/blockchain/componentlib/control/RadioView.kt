@@ -16,7 +16,8 @@ class RadioView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    var isRadioSelected by mutableStateOf(false)
+    var state by mutableStateOf(RadioButtonState.Unselected)
+    var radioButtonEnabled by mutableStateOf(true)
     var onSelectedChanged by mutableStateOf({ _: Boolean -> })
 
     @Composable
@@ -24,10 +25,11 @@ class RadioView @JvmOverloads constructor(
         AppTheme {
             AppSurface {
                 Radio(
-                    isSelected = isRadioSelected,
-                    onSelectedChanged = {
-                        isRadioSelected = it
-                        onSelectedChanged(it)
+                    state = state,
+                    enabled = radioButtonEnabled,
+                    onSelectedChanged = { isSelected ->
+                        state = if (isSelected) RadioButtonState.Selected else RadioButtonState.Unselected
+                        onSelectedChanged(isSelected)
                     }
                 )
             }

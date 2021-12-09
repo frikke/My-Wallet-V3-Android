@@ -3,6 +3,7 @@ package piuk.blockchain.blockchain_component_library_catalog.preview.control
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.Checkbox
+import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -12,7 +13,20 @@ fun CheckboxPreview_NotChecked() {
     AppTheme {
         AppSurface {
             Checkbox(
-                isChecked = false,
+                state = CheckboxState.Unchecked,
+                onCheckChanged = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Error", group = "Checkbox")
+@Composable
+fun CheckboxPreview_Error() {
+    AppTheme {
+        AppSurface {
+            Checkbox(
+                state = CheckboxState.Error,
                 onCheckChanged = {},
             )
         }
@@ -25,7 +39,7 @@ fun CheckboxPreview_IsChecked() {
     AppTheme {
         AppSurface {
             Checkbox(
-                isChecked = true,
+                state = CheckboxState.Checked,
                 onCheckChanged = {},
             )
         }
@@ -38,7 +52,7 @@ fun CheckboxPreview_NotChecked_NotEnabled() {
     AppTheme {
         AppSurface {
             Checkbox(
-                isChecked = false,
+                state = CheckboxState.Unchecked,
                 onCheckChanged = {},
                 enabled = false,
             )
@@ -52,7 +66,7 @@ fun CheckboxPreview_IsChecked_NotEnabled() {
     AppTheme {
         AppSurface {
             Checkbox(
-                isChecked = true,
+                state = CheckboxState.Checked,
                 onCheckChanged = {},
                 enabled = false,
             )

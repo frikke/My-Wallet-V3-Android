@@ -3,6 +3,7 @@ package piuk.blockchain.blockchain_component_library_catalog.preview.control
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.Radio
+import com.blockchain.componentlib.control.RadioButtonState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -12,7 +13,20 @@ fun RadioPreview_NotChecked() {
     AppTheme {
         AppSurface {
             Radio(
-                isSelected = false,
+                state = RadioButtonState.Unselected,
+                onSelectedChanged = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Error", group = "Radio")
+@Composable
+fun RadioPreview_Error() {
+    AppTheme {
+        AppSurface {
+            Radio(
+                state = RadioButtonState.Error,
                 onSelectedChanged = {},
             )
         }
@@ -25,7 +39,7 @@ fun RadioPreview_IsChecked() {
     AppTheme {
         AppSurface {
             Radio(
-                isSelected = true,
+                state = RadioButtonState.Selected,
                 onSelectedChanged = {},
             )
         }
@@ -38,7 +52,7 @@ fun RadioPreview_NotChecked_NotEnabled() {
     AppTheme {
         AppSurface {
             Radio(
-                isSelected = false,
+                state = RadioButtonState.Unselected,
                 onSelectedChanged = {},
                 enabled = false,
             )
@@ -52,7 +66,7 @@ fun RadioPreview_IsChecked_NotEnabled() {
     AppTheme {
         AppSurface {
             Radio(
-                isSelected = true,
+                state = RadioButtonState.Selected,
                 onSelectedChanged = {},
                 enabled = false,
             )
