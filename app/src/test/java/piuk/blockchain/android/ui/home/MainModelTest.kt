@@ -38,11 +38,11 @@ import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.sunriver.CampaignLinkState
-import piuk.blockchain.android.ui.home.v2.RedesignIntent
-import piuk.blockchain.android.ui.home.v2.RedesignInteractor
-import piuk.blockchain.android.ui.home.v2.RedesignModel
-import piuk.blockchain.android.ui.home.v2.RedesignState
-import piuk.blockchain.android.ui.home.v2.ViewToLaunch
+import piuk.blockchain.android.ui.home.models.MainIntent
+import piuk.blockchain.android.ui.home.models.MainInteractor
+import piuk.blockchain.android.ui.home.models.MainModel
+import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
@@ -51,14 +51,14 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import retrofit2.HttpException
 import retrofit2.Response
 
-class RedesignModelTest {
-    private lateinit var model: RedesignModel
+class MainModelTest {
+    private lateinit var model: MainModel
 
     private val environmentConfig: EnvironmentConfig = mock {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
 
-    private val interactor: RedesignInteractor = mock()
+    private val interactor: MainInteractor = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -69,8 +69,8 @@ class RedesignModelTest {
 
     @Before
     fun setUp() {
-        model = RedesignModel(
-            initialState = RedesignState(),
+        model = MainModel(
+            initialState = MainState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             crashLogger = mock(),
@@ -83,9 +83,9 @@ class RedesignModelTest {
         whenever(interactor.checkForUserWalletErrors()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(RedesignIntent.PerformInitialChecks)
+        model.process(MainIntent.PerformInitialChecks)
 
-        testState.assertValue(RedesignState())
+        testState.assertValue(MainState())
     }
 
     @Test
@@ -107,11 +107,11 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.PerformInitialChecks)
+        model.process(MainIntent.PerformInitialChecks)
 
         testState
             .assertValueAt(0) {
-                it == RedesignState()
+                it == MainState()
             }.assertValueAt(1) {
                 it.viewToLaunch is ViewToLaunch.CheckForAccountWalletLinkErrors &&
                     (it.viewToLaunch as ViewToLaunch.CheckForAccountWalletLinkErrors).walletIdHint == walletId
@@ -130,10 +130,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.DisplayAlertDialog &&
                 (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
@@ -159,10 +159,10 @@ class RedesignModelTest {
         whenever(interactor.registerForCampaign(campaignData)).thenReturn(Single.just(KycState.UnderReview))
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.Sunriver
@@ -186,10 +186,10 @@ class RedesignModelTest {
         whenever(interactor.registerForCampaign(campaignData)).thenReturn(Single.error(exception))
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.DisplayAlertDialog &&
                 (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
@@ -212,10 +212,10 @@ class RedesignModelTest {
         whenever(interactor.getExchangeLinkingState()).thenReturn(Single.just(true))
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchExchange &&
                 (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == null
@@ -237,10 +237,10 @@ class RedesignModelTest {
         whenever(interactor.getExchangeToWalletLinkId()).thenReturn(linkingId)
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchExchange &&
                 (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == linkingId
@@ -259,10 +259,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.Resubmission
@@ -281,10 +281,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.None
@@ -305,10 +305,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.None
@@ -332,10 +332,10 @@ class RedesignModelTest {
         whenever(interactor.registerForCampaign(campaignData)).thenReturn(Single.just(KycState.UnderReview))
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.Sunriver
@@ -361,10 +361,10 @@ class RedesignModelTest {
         whenever(interactor.registerForCampaign(campaignData)).thenReturn(Single.error(exception))
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.DisplayAlertDialog &&
                 (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
@@ -385,10 +385,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchExchange &&
                 (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == linkId
@@ -412,10 +412,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).resetLocalBankAuthState()
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }
 
         verify(interactor).checkForDeepLinks(mockIntent)
@@ -449,10 +449,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).updateBankLinkingState(expectedUpdatedState)
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingLinking &&
                 (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingLinking).bankLinkingInfo == bankLinkingInfoMock
@@ -490,10 +490,10 @@ class RedesignModelTest {
         whenever(interactor.updateBankLinkingState(expectedUpdatedState)).thenThrow(JsonSyntaxException("test error"))
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.ShowOpenBankingError
         }
@@ -525,10 +525,10 @@ class RedesignModelTest {
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.error(Exception()))
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingLinking &&
                 (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingLinking).bankLinkingInfo == bankLinkingInfoMock
@@ -559,10 +559,10 @@ class RedesignModelTest {
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.error(Exception()))
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.ShowOpenBankingError
         }
@@ -590,10 +590,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).resetLocalBankAuthState()
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }
 
         verify(interactor).checkForDeepLinks(mockIntent)
@@ -634,10 +634,10 @@ class RedesignModelTest {
         val estimatedCompletionTime = "121212"
         whenever(interactor.getEstimatedDepositCompletionTime()).thenReturn(estimatedCompletionTime)
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress &&
                 (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress)
@@ -682,10 +682,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).updateBankLinkingState(any())
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress &&
                 (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress)
@@ -728,10 +728,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).updateBankLinkingState(any())
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress &&
                 (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress)
@@ -773,10 +773,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress &&
                 (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress)
@@ -815,10 +815,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).resetLocalBankAuthState()
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress &&
                 (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress)
@@ -858,10 +858,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).resetLocalBankAuthState()
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval
         }
@@ -895,10 +895,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).resetLocalBankAuthState()
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchPaymentForCancelledOrder &&
                 (it.viewToLaunch as ViewToLaunch.LaunchPaymentForCancelledOrder).state == mockSBState
@@ -935,10 +935,10 @@ class RedesignModelTest {
         whenever(interactor.performSimpleBuySync()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval
         }
@@ -970,10 +970,10 @@ class RedesignModelTest {
         whenever(interactor.performSimpleBuySync()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingBuyApprovalError
         }
@@ -1009,10 +1009,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).resetLocalBankAuthState()
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchPaymentForCancelledOrder &&
                 (it.viewToLaunch as ViewToLaunch.LaunchPaymentForCancelledOrder).state == mockSBState
@@ -1044,10 +1044,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).resetLocalBankAuthState()
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingError &&
                 (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingError)
@@ -1077,10 +1077,10 @@ class RedesignModelTest {
         doNothing().whenever(interactor).resetLocalBankAuthState()
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchOpenBankingBuyApprovalError
         }
@@ -1097,10 +1097,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchSwap
         }
@@ -1117,10 +1117,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchTwoFaSetup
         }
@@ -1137,10 +1137,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchVerifyEmail
         }
@@ -1157,10 +1157,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchSetupBiometricLogin
         }
@@ -1177,10 +1177,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchInterestDashboard
         }
@@ -1197,10 +1197,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchReceive
         }
@@ -1217,10 +1217,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchSend
         }
@@ -1240,10 +1240,10 @@ class RedesignModelTest {
         whenever(interactor.getAssetFromTicker(ticker)).thenReturn(mockAssetInfo)
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchBuySell &&
                 (it.viewToLaunch as ViewToLaunch.LaunchBuySell).type == BuySellFragment.BuySellViewType.TYPE_SELL &&
@@ -1262,10 +1262,10 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchAssetAction &&
                 (it.viewToLaunch as ViewToLaunch.LaunchAssetAction).action == AssetAction.ViewActivity
@@ -1286,10 +1286,10 @@ class RedesignModelTest {
         whenever(interactor.getAssetFromTicker(ticker)).thenReturn(mockAssetInfo)
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchBuySell &&
                 (it.viewToLaunch as ViewToLaunch.LaunchBuySell).type == BuySellFragment.BuySellViewType.TYPE_BUY &&
@@ -1311,10 +1311,10 @@ class RedesignModelTest {
         whenever(interactor.getAssetFromTicker(ticker)).thenReturn(mockAssetInfo)
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchSimpleBuy &&
                 (it.viewToLaunch as ViewToLaunch.LaunchSimpleBuy).asset == mockAssetInfo
@@ -1333,12 +1333,12 @@ class RedesignModelTest {
         )
 
         val testState = model.state.test()
-        model.process(RedesignIntent.CheckForPendingLinks(mockIntent))
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
         val expectedType = valueOf<CampaignType>(campaignType.capitalizeFirstChar())
 
         testState.assertValueAt(0) {
-            it == RedesignState()
+            it == MainState()
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == expectedType
@@ -1350,11 +1350,11 @@ class RedesignModelTest {
         whenever(interactor.unpairWallet()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(RedesignIntent.UnpairWallet)
+        model.process(MainIntent.UnpairWallet)
 
         testState
             .assertValues(
-                RedesignState()
+                MainState()
             )
     }
 }

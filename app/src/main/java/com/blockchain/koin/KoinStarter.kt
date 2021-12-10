@@ -32,7 +32,7 @@ import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
-import piuk.blockchain.android.ui.home.v2.mainModule
+import piuk.blockchain.android.ui.home.mainModule
 import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule

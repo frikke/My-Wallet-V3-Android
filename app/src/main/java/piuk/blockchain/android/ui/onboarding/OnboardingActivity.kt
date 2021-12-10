@@ -16,7 +16,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 
@@ -31,9 +30,6 @@ internal class OnboardingActivity :
     private var emailLaunched = false
 
     private var progressDialog: MaterialProgressDialog? = null
-
-    override val toolbarBinding: ToolbarGeneralBinding?
-        get() = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

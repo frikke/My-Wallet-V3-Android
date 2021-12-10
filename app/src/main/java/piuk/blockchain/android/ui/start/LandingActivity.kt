@@ -14,7 +14,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.customviews.toast
@@ -34,9 +33,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     private val binding: ActivityLandingOnboardingBinding by lazy {
         ActivityLandingOnboardingBinding.inflate(layoutInflater)
     }
-
-    override val toolbarBinding: ToolbarGeneralBinding?
-        get() = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

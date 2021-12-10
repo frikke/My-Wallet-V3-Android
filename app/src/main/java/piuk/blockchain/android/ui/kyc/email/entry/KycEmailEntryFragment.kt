@@ -19,11 +19,10 @@ import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.settings.Email
 
 class KycEmailEntryFragment :
-    MviFragment<EmailVeriffModel, EmailVeriffIntent, EmailVeriffState, FragmentKycAddEmailBinding>(),
+    MviFragment<EmailVerificationModel, EmailVerificationIntent, EmailVerificationState, FragmentKycAddEmailBinding>(),
     SlidingModalBottomDialog.Host,
     ResendOrChangeEmailBottomSheet.ResendOrChangeEmailHost {
 
@@ -41,69 +40,49 @@ class KycEmailEntryFragment :
         super.onViewCreated(view, savedInstanceState)
 
         if (emailMustBeValidated && savedInstanceState == null) {
-            model.process(EmailVeriffIntent.ResendEmail)
+            model.process(EmailVerificationIntent.ResendEmail)
         }
-        model.process(EmailVeriffIntent.StartEmailVerification)
+        model.process(EmailVerificationIntent.StartEmailVerification)
 
-        binding.skip.apply {
-            gone()
-            setOnClickListener {
-                emailEntryHost.onEmailVerificationSkipped()
-            }
+        emailEntryHost.onEmailEntryFragmentUpdated(shouldShowButton = true) {
+            emailEntryHost.onEmailVerificationSkipped()
+            emailEntryHost.onEmailEntryFragmentUpdated(shouldShowButton = false)
         }
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentKycAddEmailBinding =
         FragmentKycAddEmailBinding.inflate(inflater, container, false)
 
-    override val model: EmailVeriffModel by scopedInject()
+    override val model: EmailVerificationModel by scopedInject()
 
-    override fun render(newState: EmailVeriffState) {
-        if (newState.isRedesignEnabled) {
-            emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = true) {
-                emailEntryHost.onEmailVerificationSkipped()
-                emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = false)
-            }
-            binding.skip.gone()
-        } else {
-            emailEntryHost.onEmailEntryFragmentShown()
-            binding.skip.visible()
-        }
-
+    override fun render(newState: EmailVerificationState) {
         when {
-            !newState.email.isVerified -> drawUnVerifiedEmailUi(newState.email, newState.isRedesignEnabled)
-            newState.email.isVerified -> drawVerifiedEmailUi(newState.isRedesignEnabled)
-            newState.emailChanged -> drawUnVerifiedEmailUi(newState.email, newState.isRedesignEnabled)
-            newState.hasError -> drawErrorMessage(newState.isRedesignEnabled)
+            !newState.email.isVerified -> drawUnVerifiedEmailUi(newState.email)
+            newState.email.isVerified -> drawVerifiedEmailUi()
+            newState.emailChanged -> drawUnVerifiedEmailUi(newState.email)
+            newState.hasError -> drawErrorMessage()
             else -> throw IllegalStateException("Not a valid state")
         }
     }
 
-    private fun drawErrorMessage(isRedesignEnabled: Boolean) {
+    private fun drawErrorMessage() {
         with(binding) {
             txStateIndicator.setImageResource(R.drawable.ic_alert_white_bkgd)
             emailStatusText.text = getString(R.string.error_email_veriff_title)
             emailInstructions.text = getString(R.string.error_email_veriff)
-            if (isRedesignEnabled) {
-                emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = false)
-            } else {
-                skip.gone()
-            }
+            emailEntryHost.onEmailEntryFragmentUpdated(shouldShowButton = false)
         }
         setUpPrimaryCta()
         setUpSecondaryCta()
-        model.process(EmailVeriffIntent.StartEmailVerification)
+        model.process(EmailVerificationIntent.StartEmailVerification)
     }
 
-    private fun drawVerifiedEmailUi(isRedesignEnabled: Boolean) {
+    private fun drawVerifiedEmailUi() {
         with(binding) {
             emailInstructions.text = getString(R.string.success_email_veriff)
             emailStatusText.text = getString(R.string.email_verified)
-            if (isRedesignEnabled) {
-                emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = false)
-            } else {
-                skip.gone()
-            }
+            emailEntryHost.onEmailEntryFragmentUpdated(shouldShowButton = false)
+
             txStateIndicator.setImageResource(R.drawable.ic_check_circle)
             txStateIndicator.visible()
             ctaPrimary.apply {
@@ -117,7 +96,7 @@ class KycEmailEntryFragment :
         }
     }
 
-    private fun drawUnVerifiedEmailUi(email: Email, isRedesignEnabled: Boolean) {
+    private fun drawUnVerifiedEmailUi(email: Email) {
         val boldText = email.address.takeIf { it.isNotEmpty() } ?: return
         val partOne = getString(R.string.email_verification_part_1)
         val partTwo = getString(R.string.email_verification_part_2)
@@ -135,15 +114,11 @@ class KycEmailEntryFragment :
         with(binding) {
             emailInstructions.setText(sb, TextView.BufferType.SPANNABLE)
             emailStatusText.text = getString(R.string.email_verify)
-            if (isRedesignEnabled) {
-                if (emailMustBeValidated) {
-                    emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = false)
-                }
-                skip.gone()
-            } else {
-                skip.visibleIf { !emailMustBeValidated }
-            }
             txStateIndicator.gone()
+
+            if (emailMustBeValidated) {
+                emailEntryHost.onEmailEntryFragmentUpdated(shouldShowButton = false)
+            }
         }
         setUpPrimaryCta()
         setUpSecondaryCta()
@@ -164,7 +139,7 @@ class KycEmailEntryFragment :
             visible()
             text = getString(R.string.did_not_get_email)
             setOnClickListener {
-                model.process(EmailVeriffIntent.CancelEmailVerification)
+                model.process(EmailVerificationIntent.CancelEmailVerification)
                 ResendOrChangeEmailBottomSheet().show(childFragmentManager, BOTTOM_SHEET)
             }
         }
@@ -178,7 +153,7 @@ class KycEmailEntryFragment :
     }
 
     override fun resendEmail() {
-        model.process(EmailVeriffIntent.ResendEmail)
+        model.process(EmailVerificationIntent.ResendEmail)
     }
 
     override fun editEmail() {
@@ -186,7 +161,7 @@ class KycEmailEntryFragment :
     }
 
     override fun onSheetClosed() {
-        model.process(EmailVeriffIntent.StartEmailVerification)
+        model.process(EmailVerificationIntent.StartEmailVerification)
     }
 
     companion object {
@@ -195,8 +170,7 @@ class KycEmailEntryFragment :
 }
 
 interface EmailEntryHost {
-    fun onEmailEntryFragmentShown()
-    fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit = {})
+    fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit = {})
     fun onEmailVerified()
     fun onEmailVerificationSkipped()
 }

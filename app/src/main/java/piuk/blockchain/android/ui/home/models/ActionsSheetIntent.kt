@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home.models
 
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 

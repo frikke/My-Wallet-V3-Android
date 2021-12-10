@@ -20,7 +20,7 @@ import piuk.blockchain.android.databinding.FragmentActivityBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.home.MainScreenLauncher
+import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -45,7 +45,6 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     private val buyFlowNavigator: BuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
-    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
 
     private val startedFromDashboard: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_NAVIGATION_KEY, false)
@@ -79,7 +78,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar { super.onBackPressed() }
+        updateToolbar { super.onBackPressed() }
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
                 val currentState = bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()
@@ -137,7 +136,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun exitSimpleBuyFlow() {
         if (!startedFromDashboard) {
-            mainScreenLauncher.startMainActivity(this, compositeDisposable)
+            startActivity(MainActivity.newIntentAsNewTask(this))
         } else {
             finish()
         }

@@ -94,21 +94,14 @@
             android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".ui.home.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.home.v2.RedesignMainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/AppTheme.MainActivity"
-            android:windowSoftInputMode="adjustPan" />
-        <activity
             android:name=".ui.scan.QrScanActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
-            android:name=".ui.settings.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.kyc.limits.KycLimitsActivity"
@@ -222,7 +215,7 @@
         <activity
             android:name=".ui.locks.LocksDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity android:name=".ui.home.v2.ActionActivity" />
+        <activity android:name=".ui.home.ActionActivity" />
         <activity android:name=".ui.settings.v2.RedesignSettingsActivity" />
 
         <meta-data

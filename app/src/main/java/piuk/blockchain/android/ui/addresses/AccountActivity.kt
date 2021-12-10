@@ -63,8 +63,8 @@ class AccountActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.drawer_addresses),
+        updateToolbar(
+            toolbarTitle = getString(R.string.drawer_addresses),
             backAction = { onBackPressed() }
         )
         with(binding.currencyHeader) {

@@ -41,8 +41,8 @@ class ZendeskSubjectActivity : BlockchainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.contact_support),
+        updateToolbar(
+            toolbarTitle = getString(R.string.contact_support),
             backAction = { onBackPressed() }
         )
         Chat.INSTANCE.init(applicationContext, BuildConfig.ZENDESK_API_KEY)

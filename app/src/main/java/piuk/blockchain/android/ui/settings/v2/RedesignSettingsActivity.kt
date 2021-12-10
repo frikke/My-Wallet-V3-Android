@@ -40,8 +40,8 @@ class RedesignSettingsActivity : BlockchainActivity() {
 
     override val alwaysDisableScreenshots: Boolean = true
 
-    override val toolbarBinding: ToolbarGeneralBinding?
-        get() = null
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,43 +123,44 @@ class RedesignSettingsActivity : BlockchainActivity() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.apply {
-            title = getString(R.string.toolbar_settings)
-            onBackButtonClick = { onBackPressed() }
-        }
-
-        setupSupportButton()
-    }
-
-    private fun setupSupportButton() {
         compositeDisposable += Singles.zip(
             userIdentity.isEligibleFor(Feature.SimpleBuy),
             userIdentity.getBasicProfileInformation()
         ).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnTerminate {
+                updateToolbarTitle(getString(R.string.toolbar_settings))
+                updateToolbarBackAction { onBackPressed() }
+            }
             .subscribeBy(
                 onSuccess = { (isSimpleBuyEligible, userInformation) ->
                     if (isSimpleBuyEligible) {
-                        binding.toolbar.endNavigationBarButtons = listOf(
-                            NavigationBarButton.Icon(R.drawable.ic_support_chat) {
-                                analytics.logEvent(AnalyticsEvents.Support)
-                                startActivity(ZendeskSubjectActivity.newInstance(this, userInformation))
-                            }
+                        updateToolbarMenuItems(
+                            listOf(
+                                NavigationBarButton.Icon(R.drawable.ic_support_chat) {
+                                    analytics.logEvent(AnalyticsEvents.Support)
+                                    startActivity(ZendeskSubjectActivity.newInstance(this, userInformation))
+                                }
+                            )
                         )
                     } else {
-                        binding.toolbar.endNavigationBarButtons = listOf(
-                            NavigationBarButton.Icon(R.drawable.ic_support_chat) {
-                                analytics.logEvent(AnalyticsEvents.Support)
-                                calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
-                            }
+                        updateToolbarMenuItems(
+                            listOf(
+                                NavigationBarButton.Icon(R.drawable.ic_support_chat) {
+                                    analytics.logEvent(AnalyticsEvents.Support)
+                                    calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                                }
+                            )
                         )
                     }
                 }, onError = {
-                binding.toolbar.endNavigationBarButtons = listOf(
-                    NavigationBarButton.Icon(R.drawable.ic_support_chat) {
-                        analytics.logEvent(AnalyticsEvents.Support)
-                        calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
-                    }
+                updateToolbarMenuItems(
+                    listOf(
+                        NavigationBarButton.Icon(R.drawable.ic_support_chat) {
+                            analytics.logEvent(AnalyticsEvents.Support)
+                            calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                        }
+                    )
                 )
             }
             )

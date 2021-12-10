@@ -59,8 +59,8 @@ class KycStatusActivity :
             CampaignType.None,
             CampaignType.Interest -> R.string.identity_verification
         }
-        loadToolbar(
-            titleToolbar = getString(title),
+        updateToolbar(
+            toolbarTitle = getString(title),
             backAction = { onBackPressed() }
         )
         onViewReady()

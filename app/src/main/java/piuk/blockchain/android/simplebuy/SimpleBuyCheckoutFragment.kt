@@ -82,8 +82,8 @@ class SimpleBuyCheckoutFragment :
     }
 
     private fun setupToolbar() {
-        activity.loadToolbar(
-            titleToolbar = if (isForPendingPayment) {
+        activity.updateToolbar(
+            toolbarTitle = if (isForPendingPayment) {
                 getString(R.string.order_details)
             } else {
                 getString(R.string.checkout)

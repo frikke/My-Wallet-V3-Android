@@ -47,8 +47,8 @@ class LocksDetailsActivity : BlockchainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.funds_locked_details_toolbar),
+        updateToolbar(
+            toolbarTitle = getString(R.string.funds_locked_details_toolbar),
             backAction = { onBackPressed() }
         )
         setUpRecyclerView()

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home.models
 
 import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
@@ -15,7 +15,7 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
-data class RedesignState(
+data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None
 ) : MviState
 

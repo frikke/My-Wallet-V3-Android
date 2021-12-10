@@ -18,10 +18,14 @@ import piuk.blockchain.android.ui.customviews.KeyPreImeEditText
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class EditEmailAddressBottomSheet :
-    MviBottomSheet<EmailVeriffModel, EmailVeriffIntent, EmailVeriffState, ChangeEmailBottomSheetBinding>() {
-    override val model: EmailVeriffModel by scopedInject()
+    MviBottomSheet<EmailVerificationModel,
+        EmailVerificationIntent,
+        EmailVerificationState,
+        ChangeEmailBottomSheetBinding>() {
 
-    override fun render(newState: EmailVeriffState) {
+    override val model: EmailVerificationModel by scopedInject()
+
+    override fun render(newState: EmailVerificationState) {
         binding.save.isEnabled =
             newState.canUpdateEmail &&
             !newState.isLoading
@@ -51,7 +55,7 @@ class EditEmailAddressBottomSheet :
     }
 
     override fun initControls(binding: ChangeEmailBottomSheetBinding) {
-        model.process(EmailVeriffIntent.FetchEmail)
+        model.process(EmailVerificationIntent.FetchEmail)
         showKeyboard()
         with(binding) {
             editEmailInput.keyImeChangeListener = object : KeyPreImeEditText.KeyImeChange {
@@ -63,12 +67,12 @@ class EditEmailAddressBottomSheet :
             }
             editEmailInput.addTextChangedListener(object : AfterTextChangedWatcher() {
                 override fun afterTextChanged(textEntered: Editable?) {
-                    model.process(EmailVeriffIntent.UpdateEmailInput(textEntered?.toString().orEmpty()))
+                    model.process(EmailVerificationIntent.UpdateEmailInput(textEntered?.toString().orEmpty()))
                 }
             })
 
             save.setOnClickListener {
-                model.process(EmailVeriffIntent.UpdateEmail)
+                model.process(EmailVerificationIntent.UpdateEmail)
             }
         }
     }

@@ -39,8 +39,8 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.recover_funds),
+        updateToolbar(
+            toolbarTitle = getString(R.string.recover_funds),
             backAction = { onBackPressed() }
         )
         with(binding) {

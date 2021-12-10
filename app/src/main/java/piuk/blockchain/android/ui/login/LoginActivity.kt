@@ -59,8 +59,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loadToolbar(
-            titleToolbar = getString(R.string.login_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.login_title),
             backAction = { onBackPressed() }
         )
         recaptchaClient.initReCaptcha()

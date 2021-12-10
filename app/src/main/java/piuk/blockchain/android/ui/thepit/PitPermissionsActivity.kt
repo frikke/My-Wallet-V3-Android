@@ -40,8 +40,8 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.the_exchange_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.the_exchange_title),
             backAction = { onBackPressed() }
         )
         binding.connectNow.setOnClickListener {

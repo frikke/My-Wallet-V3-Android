@@ -81,7 +81,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.loadToolbar(
+        activity.updateToolbar(
             if (isForApproval) {
                 getString(R.string.approve_payment)
             } else {

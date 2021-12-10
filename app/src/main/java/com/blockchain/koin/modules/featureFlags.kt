@@ -7,7 +7,6 @@ import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.unifiedSignInFeatureFlag
-import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
@@ -31,10 +30,6 @@ val featureFlagsModule = module {
 
     single(pricingQuoteFeatureFlag) {
         get<RemoteConfig>().featureFlag("android_ff_new_pricing_quote")
-    }.bind(FeatureFlag::class)
-
-    single(walletRedesignFeatureFlag) {
-        get<RemoteConfig>().featureFlag("android_ff_wallet_redesign")
     }.bind(FeatureFlag::class)
 
     single(stripeAndCheckoutPaymentsFeatureFlag) {

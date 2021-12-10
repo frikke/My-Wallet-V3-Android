@@ -1,19 +1,25 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home
 
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.redesignPart2FeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.home.v2.flags.FabSheetBuySellOrderingFeatureFlag
-import piuk.blockchain.android.ui.home.v2.flags.RedesignPart2FeatureFlag
+import piuk.blockchain.android.ui.home.flags.FabSheetBuySellOrderingFeatureFlag
+import piuk.blockchain.android.ui.home.flags.RedesignPart2FeatureFlag
+import piuk.blockchain.android.ui.home.models.ActionsSheetInteractor
+import piuk.blockchain.android.ui.home.models.ActionsSheetModel
+import piuk.blockchain.android.ui.home.models.ActionsSheetState
+import piuk.blockchain.android.ui.home.models.MainInteractor
+import piuk.blockchain.android.ui.home.models.MainModel
+import piuk.blockchain.android.ui.home.models.MainState
 
 val mainModule = module {
 
     scope(payloadScopeQualifier) {
         factory {
-            RedesignModel(
-                initialState = RedesignState(),
+            MainModel(
+                initialState = MainState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
@@ -22,7 +28,7 @@ val mainModule = module {
         }
 
         factory {
-            RedesignInteractor(
+            MainInteractor(
                 deepLinkProcessor = get(),
                 exchangeLinking = get(),
                 exchangePrefs = get(),

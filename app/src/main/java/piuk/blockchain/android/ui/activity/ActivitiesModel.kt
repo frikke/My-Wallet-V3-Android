@@ -4,11 +4,8 @@ import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.logging.CrashLogger
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.kotlin.Observables
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
@@ -42,8 +39,7 @@ data class ActivitiesState(
     val selectedTxId: String = "",
     val selectedCryptoCurrency: AssetInfo? = null,
     val selectedFiatCurrency: String? = null,
-    val activityType: CryptoActivityType = CryptoActivityType.UNKNOWN,
-    val redesignEnabled: Boolean = false
+    val activityType: CryptoActivityType = CryptoActivityType.UNKNOWN
 ) : MviState
 
 class ActivitiesModel(
@@ -72,13 +68,11 @@ class ActivitiesModel(
                 fetchSubscription?.dispose()
 
                 fetchSubscription =
-                    Observables.zip(
-                        Observable.fromSingle(interactor.getRedesignEnabled()),
-                        interactor.getActivityForAccount(intent.account, intent.isRefreshRequested)
-                    )
+
+                    interactor.getActivityForAccount(intent.account, intent.isRefreshRequested)
                         .subscribeBy(
-                            onNext = { (enabled, list) ->
-                                process(ActivityListUpdatedIntent(enabled, list))
+                            onNext = { list ->
+                                process(ActivityListUpdatedIntent(list))
                             },
                             onComplete = {
                                 // do nothing
@@ -91,16 +85,13 @@ class ActivitiesModel(
                 fetchSubscription
             }
             is SelectDefaultAccountIntent ->
-                Singles.zip(
-                    interactor.getDefaultAccount(),
-                    interactor.getRedesignEnabled()
-                ).subscribeBy(
-                    onSuccess = { (account, enabled) ->
-                        process(RedesignEnabledIntent(enabled))
-                        process(AccountSelectedIntent(account, false))
-                    },
-                    onError = { process(ActivityListUpdatedErrorIntent) }
-                )
+                interactor.getDefaultAccount()
+                    .subscribeBy(
+                        onSuccess = { account ->
+                            process(AccountSelectedIntent(account, false))
+                        },
+                        onError = { process(ActivityListUpdatedErrorIntent) }
+                    )
             is CancelSimpleBuyOrderIntent -> interactor.cancelSimpleBuyOrder(intent.orderId)
             else -> null
         }

@@ -84,8 +84,8 @@ class BankAuthActivity :
                 }
             }
         }
-        loadToolbar(
-            titleToolbar = title,
+        updateToolbar(
+            toolbarTitle = title,
             backAction = { onSupportNavigateUp() }
         )
     }

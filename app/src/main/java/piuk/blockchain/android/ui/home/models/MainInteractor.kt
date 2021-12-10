@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
 import android.net.Uri
@@ -44,7 +44,7 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import thepit.PitLinking
 import timber.log.Timber
 
-class RedesignInteractor internal constructor(
+class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
     private val exchangeLinking: PitLinking,
     private val exchangePrefs: ThePitLinkingPrefs,

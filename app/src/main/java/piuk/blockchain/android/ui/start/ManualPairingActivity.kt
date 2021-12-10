@@ -67,8 +67,8 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.manual_pairing),
+        updateToolbar(
+            toolbarTitle = getString(R.string.manual_pairing),
             backAction = { onBackPressed() }
         )
         with(binding) {

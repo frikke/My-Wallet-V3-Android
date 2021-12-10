@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
 import com.blockchain.banking.BankPaymentApproval
@@ -39,13 +39,13 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
-class RedesignModel(
-    initialState: RedesignState,
+class MainModel(
+    initialState: MainState,
     mainScheduler: Scheduler,
-    private val interactor: RedesignInteractor,
+    private val interactor: MainInteractor,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
-) : MviModel<RedesignState, RedesignIntent>(
+) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
@@ -56,9 +56,9 @@ class RedesignModel(
 
     fun clearDisposables() = compositeDisposable.clear()
 
-    override fun performAction(previousState: RedesignState, intent: RedesignIntent): Disposable? =
+    override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
         when (intent) {
-            is RedesignIntent.PerformInitialChecks -> {
+            is MainIntent.PerformInitialChecks -> {
                 interactor.checkForUserWalletErrors()
                     .subscribeBy(
                         onComplete = {
@@ -67,7 +67,7 @@ class RedesignModel(
                         onError = { throwable ->
                             if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
                                 process(
-                                    RedesignIntent.UpdateViewToLaunch(
+                                    MainIntent.UpdateViewToLaunch(
                                         ViewToLaunch.CheckForAccountWalletLinkErrors(throwable.getWalletIdHint())
                                     )
                                 )
@@ -75,7 +75,7 @@ class RedesignModel(
                         }
                     )
             }
-            is RedesignIntent.CheckForPendingLinks ->
+            is MainIntent.CheckForPendingLinks ->
                 interactor.checkForDeepLinks(intent.appIntent)
                     .subscribeBy(
                         onSuccess = { linkState ->
@@ -85,19 +85,19 @@ class RedesignModel(
                         },
                         onError = { Timber.e(it) }
                     )
-            is RedesignIntent.ValidateAccountAction ->
+            is MainIntent.ValidateAccountAction ->
                 interactor.checkIfShouldUpsell(intent.action, intent.account)
                     .subscribeBy(
                         onSuccess = { upsell ->
                             if (upsell != KycUpgradePromptManager.Type.NONE) {
                                 process(
-                                    RedesignIntent.UpdateViewToLaunch(
+                                    MainIntent.UpdateViewToLaunch(
                                         ViewToLaunch.LaunchUpsellAssetAction(upsell)
                                     )
                                 )
                             } else {
                                 process(
-                                    RedesignIntent.UpdateViewToLaunch(
+                                    MainIntent.UpdateViewToLaunch(
                                         ViewToLaunch.LaunchAssetAction(intent.action, intent.account)
                                     )
                                 )
@@ -107,19 +107,19 @@ class RedesignModel(
                             Timber.e("Upsell manager failure")
                         }
                     )
-            is RedesignIntent.UnpairWallet -> interactor.unpairWallet()
+            is MainIntent.UnpairWallet -> interactor.unpairWallet()
                 .onErrorComplete()
                 .subscribe()
-            is RedesignIntent.CancelAnyPendingConfirmationBuy -> interactor.cancelAnyPendingConfirmationBuy()
+            is MainIntent.CancelAnyPendingConfirmationBuy -> interactor.cancelAnyPendingConfirmationBuy()
                 .subscribe()
-            is RedesignIntent.ProcessScanResult -> interactor.processQrScanResult(intent.decodedData)
+            is MainIntent.ProcessScanResult -> interactor.processQrScanResult(intent.decodedData)
                 .subscribeBy(
                     onSuccess = {
                         when (it) {
                             is ScanResult.HttpUri -> handlePossibleDeepLinkFromScan(it)
                             is ScanResult.TxTarget -> {
                                 process(
-                                    RedesignIntent.UpdateViewToLaunch(
+                                    MainIntent.UpdateViewToLaunch(
                                         ViewToLaunch.LaunchTransactionFlowWithTargets(it.targets)
                                     )
                                 )
@@ -133,7 +133,7 @@ class RedesignModel(
                     onError = {
                         when (it) {
                             is QrScanError -> process(
-                                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.ShowTargetScanError(it))
+                                MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowTargetScanError(it))
                             )
                             else -> {
                                 Timber.d("Scan failed")
@@ -141,7 +141,7 @@ class RedesignModel(
                         }
                     }
                 )
-            is RedesignIntent.LaunchExchange -> handleExchangeLaunchingFromLinkingState()
+            is MainIntent.LaunchExchange -> handleExchangeLaunchingFromLinkingState()
             else -> null
         }
 
@@ -159,7 +159,7 @@ class RedesignModel(
             is LinkState.EmailVerifiedDeepLink -> handleEmailVerifiedForExchangeLinking(linkState)
             is LinkState.KycDeepLink -> handleKycDeepLink(linkState)
             is LinkState.ThePitDeepLink ->
-                process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange(linkState.linkId)))
+                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange(linkState.linkId)))
             is LinkState.OpenBankingLink -> handleOpenBankingDeepLink(linkState)
             is LinkState.BlockchainLink -> handleBlockchainDeepLink(linkState)
             else -> {
@@ -171,21 +171,21 @@ class RedesignModel(
     private fun handleBlockchainDeepLink(linkState: LinkState.BlockchainLink) {
         when (val link = linkState.link) {
             BlockchainLinkState.NoUri -> Timber.e("Invalid deep link")
-            BlockchainLinkState.Swap -> process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSwap))
-            BlockchainLinkState.TwoFa -> process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchTwoFaSetup))
+            BlockchainLinkState.Swap -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSwap))
+            BlockchainLinkState.TwoFa -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchTwoFaSetup))
             BlockchainLinkState.VerifyEmail -> process(
-                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchVerifyEmail)
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchVerifyEmail)
             )
             BlockchainLinkState.SetupFingerprint -> process(
-                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSetupBiometricLogin)
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSetupBiometricLogin)
             )
             BlockchainLinkState.Interest -> process(
-                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchInterestDashboard(LaunchOrigin.DEEPLINK))
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchInterestDashboard(LaunchOrigin.DEEPLINK))
             )
-            BlockchainLinkState.Receive -> process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchReceive))
-            BlockchainLinkState.Send -> process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSend))
+            BlockchainLinkState.Receive -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchReceive))
+            BlockchainLinkState.Send -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSend))
             is BlockchainLinkState.Sell -> process(
-                RedesignIntent.UpdateViewToLaunch(
+                MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.LaunchBuySell(
                         BuySellFragment.BuySellViewType.TYPE_SELL,
                         interactor.getAssetFromTicker(link.ticker)
@@ -193,10 +193,10 @@ class RedesignModel(
                 )
             )
             is BlockchainLinkState.Activities -> process(
-                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchAssetAction(AssetAction.ViewActivity, null))
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchAssetAction(AssetAction.ViewActivity, null))
             )
             is BlockchainLinkState.Buy -> process(
-                RedesignIntent.UpdateViewToLaunch(
+                MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.LaunchBuySell(
                         BuySellFragment.BuySellViewType.TYPE_BUY,
                         interactor.getAssetFromTicker(link.ticker)
@@ -204,7 +204,7 @@ class RedesignModel(
                 )
             )
             is BlockchainLinkState.SimpleBuy -> process(
-                RedesignIntent.UpdateViewToLaunch(
+                MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.LaunchSimpleBuy(
                         interactor.getAssetFromTicker(link.ticker) ?: throw IllegalStateException(
                             "Unknown asset ticker ${link.ticker}"
@@ -214,7 +214,7 @@ class RedesignModel(
             )
             is BlockchainLinkState.KycCampaign ->
                 process(
-                    RedesignIntent.UpdateViewToLaunch(
+                    MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchKyc(
                             valueOf<CampaignType>(
                                 link.campaignType.capitalizeFirstChar()
@@ -236,10 +236,10 @@ class RedesignModel(
             .subscribeBy(
                 onSuccess = { isLinked ->
                     if (isLinked) {
-                        process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange()))
+                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange()))
                     } else {
                         process(
-                            RedesignIntent.UpdateViewToLaunch(
+                            MainIntent.UpdateViewToLaunch(
                                 ViewToLaunch.LaunchExchange(interactor.getExchangeToWalletLinkId())
                             )
                         )
@@ -253,7 +253,7 @@ class RedesignModel(
     private fun handleSunriverDeepLink(linkState: LinkState.SunriverDeepLink) {
         when (linkState.link) {
             is CampaignLinkState.WrongUri -> process(
-                RedesignIntent.UpdateViewToLaunch(
+                MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.DisplayAlertDialog(
                         R.string.sunriver_invalid_url_title,
                         R.string.sunriver_invalid_url_message
@@ -270,10 +270,10 @@ class RedesignModel(
     private fun handleKycDeepLink(linkState: LinkState.KycDeepLink) {
         when (linkState.link) {
             is KycLinkState.Resubmit -> process(
-                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.Resubmission))
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.Resubmission))
             )
             is KycLinkState.EmailVerified -> process(
-                RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
             )
             is KycLinkState.General -> {
                 val data = linkState.link.campaignData
@@ -282,7 +282,7 @@ class RedesignModel(
                     registerForCampaign(data)
                 } else {
                     process(
-                        RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
+                        MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
                     )
                 }
             }
@@ -299,7 +299,7 @@ class RedesignModel(
                 onSuccess = { status ->
                     if (status != KycState.Verified) {
                         process(
-                            RedesignIntent.UpdateViewToLaunch(
+                            MainIntent.UpdateViewToLaunch(
                                 ViewToLaunch.LaunchKyc(
                                     CampaignType.Sunriver
                                 )
@@ -311,7 +311,7 @@ class RedesignModel(
                     Timber.e(throwable)
 
                     process(
-                        RedesignIntent.UpdateViewToLaunch(
+                        MainIntent.UpdateViewToLaunch(
                             ViewToLaunch.DisplayAlertDialog(
                                 R.string.sunriver_invalid_url_title,
                                 R.string.sunriver_campaign_expired
@@ -326,7 +326,7 @@ class RedesignModel(
         when (state.type) {
             OpenBankingLinkType.LINK_BANK -> handleBankLinking(state.consentToken)
             OpenBankingLinkType.PAYMENT_APPROVAL -> handleBankApproval(state.consentToken)
-            OpenBankingLinkType.UNKNOWN -> process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
+            OpenBankingLinkType.UNKNOWN -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
         }
 
     private fun handleBankLinking(consentToken: String) {
@@ -346,17 +346,17 @@ class RedesignModel(
                         )
 
                         bankLinkingState.bankLinkingInfo?.let {
-                            process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(it)))
+                            process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(it)))
                         }
                     } catch (e: JsonSyntaxException) {
-                        process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
+                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
                     }
                 },
                 onError = {
                     Timber.e("Error updating consent token on new bank link: $it")
                     bankLinkingState.bankLinkingInfo?.let { linkingInfo ->
-                        process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(linkingInfo)))
-                    } ?: process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
+                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(linkingInfo)))
+                    } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
                 }
             )
     }
@@ -385,11 +385,11 @@ class RedesignModel(
 
                     deepLinkState.bankPaymentData?.let { data ->
                         process(
-                            RedesignIntent.UpdateViewToLaunch(
+                            MainIntent.UpdateViewToLaunch(
                                 ViewToLaunch.LaunchOpenBankingError(data.orderValue.currencyCode)
                             )
                         )
-                    } ?: process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
+                    } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
                 }
             )
     }
@@ -401,7 +401,7 @@ class RedesignModel(
         compositeDisposable += interactor.pollForBankTransferCharge(paymentData)
             .doOnSubscribe {
                 process(
-                    RedesignIntent.UpdateViewToLaunch(
+                    MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress(paymentData.orderValue)
                     )
                 )
@@ -421,7 +421,7 @@ class RedesignModel(
                         }
                         is PollResult.TimeOut -> {
                             process(
-                                RedesignIntent.UpdateViewToLaunch(
+                                MainIntent.UpdateViewToLaunch(
                                     ViewToLaunch.LaunchOpenBankingApprovalTimeout(paymentData.orderValue.currencyCode)
                                 )
                             )
@@ -437,7 +437,7 @@ class RedesignModel(
                 onError = {
                     interactor.resetLocalBankAuthState()
                     process(
-                        RedesignIntent.UpdateViewToLaunch(
+                        MainIntent.UpdateViewToLaunch(
                             ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)
                         )
                     )
@@ -452,7 +452,7 @@ class RedesignModel(
         when (it.status) {
             BankTransferStatus.COMPLETE -> {
                 process(
-                    RedesignIntent.UpdateViewToLaunch(
+                    MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalDepositComplete(
                             it.amount, interactor.getEstimatedDepositCompletionTime()
                         )
@@ -461,7 +461,7 @@ class RedesignModel(
             }
             BankTransferStatus.PENDING -> {
                 process(
-                    RedesignIntent.UpdateViewToLaunch(
+                    MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalTimeout(paymentData.orderValue.currencyCode)
                     )
                 )
@@ -469,7 +469,7 @@ class RedesignModel(
             BankTransferStatus.ERROR,
             BankTransferStatus.UNKNOWN -> {
                 process(
-                    RedesignIntent.UpdateViewToLaunch(
+                    MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)
                     )
                 )
@@ -487,11 +487,11 @@ class RedesignModel(
                     onComplete = {
                         interactor.getSimpleBuySyncLocalState()?.let {
                             handleOrderState(it)
-                        } ?: process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
+                        } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
                     }, onError = {
                     Timber.e("Error doing SB sync for bank linking $it")
                     interactor.resetLocalBankAuthState()
-                    process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
+                    process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
                 }
                 )
         }
@@ -499,10 +499,10 @@ class RedesignModel(
 
     private fun handleOrderState(state: SimpleBuyState) {
         if (state.orderState == OrderState.AWAITING_FUNDS) {
-            process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval))
+            process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval))
         } else {
             interactor.resetLocalBankAuthState()
-            process(RedesignIntent.UpdateViewToLaunch(ViewToLaunch.LaunchPaymentForCancelledOrder(state)))
+            process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchPaymentForCancelledOrder(state)))
         }
     }
 

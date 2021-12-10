@@ -54,8 +54,8 @@ class PasswordRequiredActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.confirm_password),
+        updateToolbar(
+            toolbarTitle = getString(R.string.confirm_password),
             backAction = { onBackPressed() }
         )
         with(binding) {

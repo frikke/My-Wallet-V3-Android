@@ -154,8 +154,8 @@ class QrScanActivity : BlockchainActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         binding = ActivityScanBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.scan_qr),
+        updateToolbar(
+            toolbarTitle = getString(R.string.scan_qr),
             backAction = { onBackPressed() }
         )
         cameraExecutor = Executors.newSingleThreadExecutor()

@@ -16,7 +16,6 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.usd
-import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
@@ -105,11 +104,9 @@ import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.home.MainPresenter
-import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
-import piuk.blockchain.android.ui.kyc.email.entry.EmailVeriffModel
-import piuk.blockchain.android.ui.kyc.email.entry.EmailVerifyInteractor
+import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
+import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.LauncherPresenter
@@ -222,30 +219,6 @@ val applicationModule = module {
                 walletOptionsState = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get()
-            )
-        }
-
-        factory {
-            MainPresenter(
-                prefs = get(),
-                assetCatalogue = get(),
-                appUtil = get(),
-                credentialsWiper = get(),
-                payloadDataManager = get(),
-                qrProcessor = get(),
-                kycStatusHelper = get(),
-                deepLinkProcessor = get(),
-                sunriverCampaignRegistration = get(),
-                xlmDataManager = get(),
-                pitLinking = get(),
-                simpleBuySync = get(),
-                crashLogger = get(),
-                analytics = get(),
-                bankLinkingPrefs = get(),
-                custodialWalletManager = get(),
-                upsellManager = get(),
-                secureChannelManager = get(),
-                payloadManager = get()
             )
         }
 
@@ -732,7 +705,7 @@ val applicationModule = module {
         }.bind(CryptographyManager::class)
 
         factory {
-            EmailVeriffModel(
+            EmailVerificationModel(
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
@@ -741,9 +714,8 @@ val applicationModule = module {
         }
 
         factory {
-            EmailVerifyInteractor(
-                emailUpdater = get(),
-                isRedesignEnabled = get(walletRedesignFeatureFlag)
+            EmailVerificationInteractor(
+                emailUpdater = get()
             )
         }
 
@@ -756,13 +728,6 @@ val applicationModule = module {
         scoped {
             PlacesClientProvider(
                 context = get()
-            )
-        }
-
-        factory {
-            MainScreenLauncher(
-                walletRedesignFeatureFlag = get(walletRedesignFeatureFlag),
-                crashLogger = get()
             )
         }
 

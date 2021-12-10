@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.annotations.CommonCode
 import com.blockchain.coincore.ActivitySummaryItem
@@ -41,7 +40,6 @@ import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
@@ -191,15 +189,6 @@ class ActivitiesFragment :
                     setAssetIconColoursNoTint(currency)
                 }
             } ?: accountIndicator.gone()
-
-            // TODO kill this - temporary update to the current design to support Redesign Phase I
-            if (newState.redesignEnabled) {
-                accountSelectBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
-                accountName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-                fiatBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.grey_800))
-                showAccounts.setColorFilter(ContextCompat.getColor(requireContext(), R.color.grey_400))
-                accountSelectFilter.invisible()
-            }
 
             accountName.text = account.label
             fiatBalance.text = ""

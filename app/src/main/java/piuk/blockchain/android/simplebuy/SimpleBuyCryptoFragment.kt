@@ -119,8 +119,8 @@ class SimpleBuyCryptoFragment :
         super.onViewCreated(view, savedInstanceState)
 
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        activity.loadToolbar(
-            titleToolbar = getString(R.string.tx_title_buy, asset.displayTicker),
+        activity.updateToolbar(
+            toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
             backAction = { activity.onBackPressed() }
         )
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))

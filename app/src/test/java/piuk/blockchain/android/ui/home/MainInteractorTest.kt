@@ -33,14 +33,14 @@ import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
-import piuk.blockchain.android.ui.home.v2.RedesignInteractor
+import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import thepit.PitLinking
 
-class RedesignInteractorTest {
+class MainInteractorTest {
 
-    private lateinit var interactor: RedesignInteractor
+    private lateinit var interactor: MainInteractor
     private val deepLinkProcessor: DeepLinkProcessor = mock()
     private val exchangeLinking: PitLinking = mock()
     private val exchangePrefs: ThePitLinkingPrefs = mock()
@@ -60,7 +60,7 @@ class RedesignInteractorTest {
 
     @Before
     fun setup() {
-        interactor = RedesignInteractor(
+        interactor = MainInteractor(
             deepLinkProcessor = deepLinkProcessor,
             exchangeLinking = exchangeLinking,
             exchangePrefs = exchangePrefs,

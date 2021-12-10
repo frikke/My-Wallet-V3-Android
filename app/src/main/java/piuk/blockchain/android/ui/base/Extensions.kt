@@ -8,24 +8,24 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.gone
 
-fun Fragment.loadToolbar(
+fun Fragment.updateToolbar(
     titleToolbar: String = "",
     menuItems: List<NavigationBarButton>? = null,
     backAction: (() -> Unit)? = null
 ) {
-    (activity as? BlockchainActivity)?.loadToolbar(titleToolbar, menuItems, backAction)
+    (activity as? BlockchainActivity)?.updateToolbar(titleToolbar, menuItems, backAction)
 }
 
 fun Fragment.updateTitleToolbar(titleToolbar: String = "") {
-    (activity as? BlockchainActivity)?.updateTitleToolbar(titleToolbar = titleToolbar)
+    (activity as? BlockchainActivity)?.updateToolbarTitle(title = titleToolbar)
 }
 
-fun Fragment.updateBackButton(backAction: () -> Unit) {
-    (activity as? BlockchainActivity)?.updateBackButton(backAction)
+fun Fragment.updateToolbarBackAction(backAction: () -> Unit) {
+    (activity as? BlockchainActivity)?.updateToolbarBackAction(backAction)
 }
 
-fun Fragment.updateMenuItems(menuItems: List<NavigationBarButton>) {
-    (activity as? BlockchainActivity)?.updateMenuItems(menuItems)
+fun Fragment.updateToolbarMenuItems(menuItems: List<NavigationBarButton>) {
+    (activity as? BlockchainActivity)?.updateToolbarMenuItems(menuItems)
 }
 
 fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,6 +10,11 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
+import piuk.blockchain.android.ui.home.models.ActionsSheetIntent
+import piuk.blockchain.android.ui.home.models.ActionsSheetModel
+import piuk.blockchain.android.ui.home.models.ActionsSheetState
+import piuk.blockchain.android.ui.home.models.FlowToLaunch
+import piuk.blockchain.android.ui.home.models.SplitButtonCtaOrdering
 
 class RedesignActionsBottomSheet :
     MviBottomSheet<ActionsSheetModel, ActionsSheetIntent, ActionsSheetState, BottomSheetRedesignActionsBinding>() {

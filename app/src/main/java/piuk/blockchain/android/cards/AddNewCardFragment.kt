@@ -124,7 +124,7 @@ class AddNewCardFragment :
             })
             cardNumber.displayCardTypeIcon(false)
         }
-        activity.updateTitleToolbar(getString(R.string.add_card_title))
+        activity.updateToolbarTitle(getString(R.string.add_card_title))
         analytics.logEvent(SimpleBuyAnalytics.ADD_CARD)
 
         setupCardInfo()

@@ -25,8 +25,8 @@ class PitVerifyEmailActivity : BaseMvpActivity<PitVerifyEmailView, PitVerifyEmai
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.the_exchange_verify_email_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.the_exchange_verify_email_title),
             backAction = { onBackPressed() }
         )
         val email = intent.getStringExtra(ARGUMENT_EMAIL) ?: ""

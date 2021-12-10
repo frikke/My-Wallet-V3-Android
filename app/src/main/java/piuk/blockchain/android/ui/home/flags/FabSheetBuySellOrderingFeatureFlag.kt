@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2.flags
+package piuk.blockchain.android.ui.home.flags
 
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi

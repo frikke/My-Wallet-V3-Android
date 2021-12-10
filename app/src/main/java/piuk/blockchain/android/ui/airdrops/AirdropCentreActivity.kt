@@ -42,8 +42,8 @@ class AirdropCentreActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.airdrop_activity_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.airdrop_activity_title),
             backAction = { onBackPressed() }
         )
         binding.airdropList.layoutManager = LinearLayoutManager(this)

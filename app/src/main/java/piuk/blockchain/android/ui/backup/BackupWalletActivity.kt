@@ -36,8 +36,8 @@ class BackupWalletActivity : BlockchainActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         get<Analytics>().logEvent(AnalyticsEvents.Backup)
-        loadToolbar(
-            titleToolbar = getString(R.string.backup_wallet_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.backup_wallet_title),
             backAction = { onSupportNavigateUp() }
         )
         if (isBackedUp()) {

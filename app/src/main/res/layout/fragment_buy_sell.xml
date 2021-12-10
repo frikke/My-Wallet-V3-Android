@@ -5,22 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--    These views is added in runtime -->
-    <!--    TODO uncomment after removing flag-->
-<!--    <com.blockchain.componentlib.divider.HorizontalDividerView-->
-<!--        android:id="@+id/redesign_divider"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:visibility="gone"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/redesign_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent" />
 
-<!--    <com.blockchain.componentlib.control.TabLayoutLargeView-->
-<!--        android:id="@+id/redesign_tab_layout"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:visibility="gone"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/pager"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/redesign_divider" />-->
+    <com.blockchain.componentlib.control.TabLayoutLargeView
+        android:id="@+id/redesign_tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/pager"
+        app:layout_constraintTop_toBottomOf="@id/redesign_divider" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/pager"
@@ -28,21 +26,8 @@
         android:layout_height="0dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/primary_blue_dark"
-            android:visibility="gone"
-            app:tabIndicatorColor="@color/white"
-            app:tabIndicatorHeight="3dp"
-            app:tabRippleColor="@null"
-            app:tabSelectedTextColor="@android:color/white"
-            app:tabTextAppearance="@style/Text.Semibold.16"
-            app:tabTextColor="@color/white_with_opacity" />
-    </androidx.viewpager.widget.ViewPager>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/redesign_tab_layout" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/not_eligible_icon"

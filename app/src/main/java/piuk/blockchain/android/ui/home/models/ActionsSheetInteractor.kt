@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home.models
 
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BlockedReason
@@ -6,7 +6,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.home.v2.flags.FabSheetBuySellOrderingFeatureFlag
+import piuk.blockchain.android.ui.home.flags.FabSheetBuySellOrderingFeatureFlag
 
 class ActionsSheetInteractor internal constructor(
     private val userIdentity: UserIdentity,

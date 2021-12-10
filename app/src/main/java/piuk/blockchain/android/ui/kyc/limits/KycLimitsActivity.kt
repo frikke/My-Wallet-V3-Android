@@ -42,8 +42,8 @@ class KycLimitsActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loadToolbar(
-            titleToolbar = getString(R.string.feature_limits_toolbar),
+        updateToolbar(
+            toolbarTitle = getString(R.string.feature_limits_toolbar),
             backAction = { finish() }
         )
 

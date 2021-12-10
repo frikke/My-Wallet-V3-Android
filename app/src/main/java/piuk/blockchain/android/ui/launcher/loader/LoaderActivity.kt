@@ -17,7 +17,7 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.home.MainScreenLauncher
+import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
@@ -36,7 +36,6 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
     private var state: LoaderState? = null
-    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,10 +107,8 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         }
     }
 
-    override fun onEmailEntryFragmentShown() = loadToolbar(getString(R.string.security_check))
-
-    override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) =
-        loadToolbar(
+    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) =
+        updateToolbar(
             getString(R.string.security_check),
             if (shouldShowButton) {
                 listOf(
@@ -145,12 +142,13 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     }
 
     private fun onStartMainActivity(mainData: String?, launchBuySellIntro: Boolean) {
-        mainScreenLauncher.startMainActivity(
-            context = this,
-            intentData = mainData,
-            shouldLaunchBuySellIntro = launchBuySellIntro,
-            shouldBeNewTask = true,
-            compositeDisposable = compositeDisposable
+        startActivity(
+            MainActivity.newIntent(
+                context = this,
+                intentData = mainData,
+                shouldLaunchBuySellIntro = launchBuySellIntro,
+                shouldBeNewTask = true
+            )
         )
     }
 

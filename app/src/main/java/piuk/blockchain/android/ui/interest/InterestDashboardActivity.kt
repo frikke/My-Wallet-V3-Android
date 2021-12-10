@@ -46,8 +46,8 @@ class InterestDashboardActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.rewards_dashboard_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.rewards_dashboard_title),
             backAction = { onSupportNavigateUp() }
         )
         analytics.logEvent(InterestAnalytics.InterestViewed)

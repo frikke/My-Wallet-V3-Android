@@ -5,13 +5,12 @@ import android.util.Patterns
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.settings.Email
 
-data class EmailVeriffState(
+data class EmailVerificationState(
     val email: Email = Email("", false),
     val emailInput: String? = null,
     val isLoading: Boolean = false,
     val emailChanged: Boolean = false,
-    val hasError: Boolean = false,
-    val isRedesignEnabled: Boolean = false
+    val hasError: Boolean = false
 ) : MviState {
 
     val canUpdateEmail: Boolean

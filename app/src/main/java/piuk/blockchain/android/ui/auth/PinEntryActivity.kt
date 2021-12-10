@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -22,9 +21,6 @@ class PinEntryActivity : BlockchainActivity() {
     }
 
     override val alwaysDisableScreenshots: Boolean = true
-
-    override val toolbarBinding: ToolbarGeneralBinding?
-        get() = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

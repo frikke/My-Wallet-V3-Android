@@ -81,8 +81,8 @@ class CreateWalletActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupCta()
-        loadToolbar(
-            titleToolbar = if (recoveryPhrase.isNotEmpty()) {
+        updateToolbar(
+            toolbarTitle = if (recoveryPhrase.isNotEmpty()) {
                 getString(R.string.recover_funds)
             } else {
                 getString(R.string.new_account_title_1)

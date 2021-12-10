@@ -89,7 +89,7 @@ class TransactionFlowActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
+        updateToolbar(
             menuItems = listOf(
                 NavigationBarButton.Icon(R.drawable.ic_close) { finish() }
             ),
@@ -153,8 +153,8 @@ class TransactionFlowActivity :
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
             showFlowStep(step)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
-                updateTitleToolbar(it)
-            } ?: loadToolbar()
+                updateToolbarTitle(it)
+            } ?: updateToolbar()
 
             currentStep = step
         }

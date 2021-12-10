@@ -9,18 +9,18 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.kyc.email.entry.EmailVeriffIntent
-import piuk.blockchain.android.ui.kyc.email.entry.EmailVeriffModel
-import piuk.blockchain.android.ui.kyc.email.entry.EmailVeriffState
-import piuk.blockchain.android.ui.kyc.email.entry.EmailVerifyInteractor
+import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationIntent
+import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
+import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
+import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.settings.Email
 
-class EmailVeriffModelTest {
+class EmailVerificationModelTest {
 
-    private val interactor: EmailVerifyInteractor = mock()
+    private val interactor: EmailVerificationInteractor = mock()
 
-    private lateinit var model: EmailVeriffModel
+    private lateinit var model: EmailVerificationModel
 
     private val environmentConfig: EnvironmentConfig = mock {
         on { isRunningInDebugMode() }.thenReturn(false)
@@ -34,7 +34,7 @@ class EmailVeriffModelTest {
 
     @Before
     fun setUp() {
-        model = EmailVeriffModel(
+        model = EmailVerificationModel(
             interactor = interactor,
             uiScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
@@ -47,30 +47,21 @@ class EmailVeriffModelTest {
         whenever(interactor.cancelPolling()).thenReturn(Completable.complete())
         whenever(interactor.fetchEmail()).thenReturn(Single.just(Email("address@example.com", false)))
         whenever(interactor.pollForEmailStatus()).thenReturn(Single.just(Email("address@example.com", true)))
-        whenever(interactor.isRedesignEnabled()).thenReturn(Single.just(true))
 
         val statesTest = model.state.test()
-        model.process(EmailVeriffIntent.StartEmailVerification)
+        model.process(EmailVerificationIntent.StartEmailVerification)
 
-        statesTest.assertValueAt(0, EmailVeriffState())
+        statesTest.assertValueAt(0, EmailVerificationState())
         statesTest.assertValueAt(
             1,
-            EmailVeriffState(
-                isRedesignEnabled = true
+            EmailVerificationState(
+                email = Email("address@example.com", false)
             )
         )
         statesTest.assertValueAt(
             2,
-            EmailVeriffState(
-                email = Email("address@example.com", false),
-                isRedesignEnabled = true
-            )
-        )
-        statesTest.assertValueAt(
-            3,
-            EmailVeriffState(
-                email = Email("address@example.com", true),
-                isRedesignEnabled = true
+            EmailVerificationState(
+                email = Email("address@example.com", true)
             )
         )
     }

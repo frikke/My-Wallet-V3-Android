@@ -37,25 +37,13 @@ object SelectDefaultAccountIntent : ActivitiesIntent() {
 }
 
 class ActivityListUpdatedIntent(
-    private val redesignEnabled: Boolean,
     private val activityList: ActivitySummaryList
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
         return oldState.copy(
             isError = false,
             isLoading = false,
-            activityList = activityList,
-            redesignEnabled = redesignEnabled
-        )
-    }
-}
-class RedesignEnabledIntent(
-    private val redesignEnabled: Boolean
-) : ActivitiesIntent() {
-    override fun reduce(oldState: ActivitiesState): ActivitiesState {
-        return oldState.copy(
-            isLoading = true,
-            redesignEnabled = redesignEnabled
+            activityList = activityList
         )
     }
 }

@@ -9,17 +9,12 @@ import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.ViewCompat.generateViewId
 import androidx.viewbinding.ViewBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
-import com.blockchain.componentlib.navigation.NavigationBarView
-import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.SecurityPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -31,7 +26,6 @@ import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 /**
@@ -47,11 +41,11 @@ abstract class BlockchainActivity : ToolBarActivity() {
     val environment: EnvironmentConfig by inject()
 
     protected abstract val alwaysDisableScreenshots: Boolean
+    protected open val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
 
-    private val redesignFeatureFlag: FeatureFlag by inject(walletRedesignFeatureFlag)
     private val activityIndicator = ActivityIndicator()
     private val compositeDisposable = CompositeDisposable()
-    private val redesignEnabled: Single<Boolean> by lazy { redesignFeatureFlag.enabled.cache() }
 
     private val enableScreenshots: Boolean
         get() = environment.isRunningInDebugMode() ||
@@ -60,7 +54,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     protected open val enableLogoutTimer: Boolean = true
     private lateinit var logoutPendingIntent: PendingIntent
-    private val toolbar: NavigationBarView by lazy { NavigationBarView(this) }
 
     private var alertDialog: AlertDialog? = null
         @UiThread
@@ -88,59 +81,30 @@ abstract class BlockchainActivity : ToolBarActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
-    protected abstract val toolbarBinding: ToolbarGeneralBinding?
-
-    fun loadToolbar(
-        titleToolbar: String = "",
+    fun updateToolbar(
+        toolbarTitle: String = "",
         menuItems: List<NavigationBarButton>? = null,
         backAction: (() -> Unit)? = null
     ) {
-        compositeDisposable += redesignEnabled
-            .subscribeBy(
-                onSuccess = { enabled ->
-                    if (enabled) {
-                        setupToolbar()
-                    } else {
-                        setupOldToolbar()
-                    }
-                },
-                onError = {
-                    setupOldToolbar()
-                }
-            ).apply {
-                updateTitleToolbar(titleToolbar)
-                menuItems?.let { updateMenuItems(menuItems) }
-                backAction?.let { updateBackButton(backAction) }
-            }
-    }
-
-    // TODO when removing ff -> remove title from toolbarGeneral
-    fun updateTitleToolbar(titleToolbar: String = "") {
-        toolbar.title = titleToolbar
-        supportActionBar?.title = titleToolbar
-    }
-
-    fun updateMenuItems(menuItems: List<NavigationBarButton>) {
-        toolbar.endNavigationBarButtons = menuItems
-    }
-
-    // TODO when removing ff -> remove backButton from toolbarGeneral
-    fun updateBackButton(backAction: () -> Unit) {
-        toolbar.onBackButtonClick = backAction
-        toolbarBinding?.toolbarGeneral?.setNavigationOnClickListener { backAction() }
-    }
-
-    private fun setupToolbar() {
-        if (toolbarBinding?.root?.findViewById<NavigationBarView>(toolbar.id) == null) {
-            toolbar.id = generateViewId()
-            toolbarBinding?.root?.addView(toolbar)
+        updateToolbarTitle(toolbarTitle)
+        menuItems?.let { items ->
+            updateToolbarMenuItems(items)
+        }
+        backAction?.let { action ->
+            updateToolbarBackAction { action() }
         }
     }
 
-    private fun setupOldToolbar() {
-        val toolbar = toolbarBinding?.toolbarGeneral
-        toolbar.visible()
-        setSupportActionBar(toolbar)
+    fun updateToolbarTitle(title: String) {
+        toolbarBinding?.toolbarRedesign?.title = title
+    }
+
+    fun updateToolbarMenuItems(menuItems: List<NavigationBarButton>) {
+        toolbarBinding?.toolbarRedesign?.endNavigationBarButtons = menuItems
+    }
+
+    fun updateToolbarBackAction(backAction: (() -> Unit)) {
+        toolbarBinding?.toolbarRedesign?.onBackButtonClick = backAction
     }
 
     @CallSuper

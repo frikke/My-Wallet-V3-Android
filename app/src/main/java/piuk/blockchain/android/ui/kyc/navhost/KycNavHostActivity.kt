@@ -78,8 +78,8 @@ class KycNavHostActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.identity_verification),
+        updateToolbar(
+            toolbarTitle = getString(R.string.identity_verification),
             backAction = { onBackPressed() }
         )
         if (!showTiersLimitsSplash) {
@@ -96,7 +96,7 @@ class KycNavHostActivity :
     }
 
     override fun setHostTitle(title: Int) {
-        updateTitleToolbar(getString(title))
+        updateToolbarTitle(getString(title))
     }
 
     override fun displayLoading(loading: Boolean) {
@@ -125,19 +125,15 @@ class KycNavHostActivity :
     }
 
     override fun hideBackButton() {
-        updateTitleToolbar(
-            titleToolbar = getString(R.string.identity_verification)
+        updateToolbarTitle(
+            title = getString(R.string.identity_verification)
         )
     }
 
-    override fun onEmailEntryFragmentShown() {
-        updateTitleToolbar(
-            titleToolbar = getString(R.string.kyc_email_title)
+    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+        updateToolbarTitle(
+            title = getString(R.string.kyc_email_title)
         )
-    }
-
-    override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
-        // do nothing for redesign
     }
 
     override fun onEmailVerified() {

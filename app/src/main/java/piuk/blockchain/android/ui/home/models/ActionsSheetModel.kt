@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home.models
 
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler

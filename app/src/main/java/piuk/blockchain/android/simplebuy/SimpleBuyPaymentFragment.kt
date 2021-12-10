@@ -78,7 +78,7 @@ class SimpleBuyPaymentFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.loadToolbar(getString(R.string.common_payment))
+        activity.updateToolbar(getString(R.string.common_payment))
 
         // we need to make the request as soon as possible and cache the result
         if (!ratingPrefs.hasSeenRatingDialog) {

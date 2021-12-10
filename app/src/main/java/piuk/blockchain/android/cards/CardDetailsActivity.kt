@@ -30,7 +30,7 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar { onSupportNavigateUp() }
+        updateToolbar { onSupportNavigateUp() }
         if (savedInstanceState == null) {
             simpleBuyPrefs.clearCardState()
             supportFragmentManager.beginTransaction()

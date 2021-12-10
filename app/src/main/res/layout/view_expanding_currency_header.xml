@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/primary_navy_dark">
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/textview_selected_currency"
@@ -16,10 +16,11 @@
         android:layout_marginEnd="8dp"
         android:background="?attr/selectableItemBackground"
         android:drawablePadding="8dp"
+        android:drawableTint="@color/grey_600"
         android:gravity="start|center_vertical"
         android:minHeight="@dimen/action_bar_height"
         android:padding="8dp"
-        android:textColor="@color/white"
+        android:textColor="@color/grey_600"
         android:textSize="16sp"
         tools:drawableLeft="@drawable/vector_bitcoin_white"
         tools:drawableRight="@drawable/vector_expand_more"
@@ -40,25 +41,12 @@
             tools:ignore="UselessParent">
 
             <TextView
-                android:id="@+id/textview_bitcoin"
-                style="@style/CryptoCurrencySelectorTextView"
-                android:drawableStart="@drawable/vector_bitcoin_white"
-                android:text="@string/bitcoin" />
-
-            <TextView
-                android:id="@+id/textview_bitcoin_cash"
-                style="@style/CryptoCurrencySelectorTextView"
-                android:drawableStart="@drawable/vector_bitcoin_cash_white"
-                android:text="@string/bitcoin_cash" />
-
-            <TextView
                 android:id="@+id/textview_bitcoin_redesign"
                 style="@style/CryptoCurrencySelectorTextView"
                 android:drawableStart="@drawable/vector_bitcoin_white"
                 android:drawableTint="@color/grey_600"
                 android:text="@string/bitcoin"
-                android:textColor="@color/grey_600"
-                android:visibility="gone" />
+                android:textColor="@color/grey_600" />
 
             <TextView
                 android:id="@+id/textview_bitcoin_cash_redesign"
@@ -66,8 +54,7 @@
                 android:drawableStart="@drawable/vector_bitcoin_cash_white"
                 android:drawableTint="@color/grey_600"
                 android:text="@string/bitcoin_cash"
-                android:textColor="@color/grey_600"
-                android:visibility="gone" />
+                android:textColor="@color/grey_600" />
 
         </LinearLayout>
     </FrameLayout>

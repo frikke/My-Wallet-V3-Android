@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.home.v2
+package piuk.blockchain.android.ui.home
 
 import android.content.Context
 import android.content.Intent
@@ -31,26 +31,21 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         intent.getSerializableExtra(ACTION) as AssetAction
     }
 
-    override val toolbarBinding: ToolbarGeneralBinding?
-        get() = null
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setupToolbar()
+
+        updateToolbarBackAction {
+            onBackPressed()
+        }
 
         supportFragmentManager.showFragment(
             fragment = loadFragment(),
             loadingView = binding.progress
         )
-    }
-
-    private fun setupToolbar() {
-        binding.toolbar.onBackButtonClick = { onBackPressed() }
-    }
-
-    private fun updateToolbarTitle(title: String) {
-        binding.toolbar.title = title
     }
 
     private fun loadFragment(): Fragment {
