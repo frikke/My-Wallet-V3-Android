@@ -49,16 +49,16 @@ class TextInputActivity : AppCompatActivity() {
             trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
         }
 
-            findViewById<TextInputView>(R.id.success_text_input).apply {
+        findViewById<TextInputView>(R.id.success_text_input).apply {
+            value = defaultValue
+            onValueChange = {
+                defaultValue = it
                 value = defaultValue
-                onValueChange = {
-                    defaultValue = it
-                    value = defaultValue
-                }
-                labelText = "Label"
-                state = successState
-                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
             }
+            labelText = "Label"
+            state = successState
+            trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+        }
 
         findViewById<TextInputView>(R.id.disabled_text_input).apply {
             value = defaultValue

@@ -8,18 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,12 +24,10 @@ import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
-import com.blockchain.componentlib.theme.Dark400
 import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.theme.Dark700
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey300
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey600
 
 sealed class TextInputState(val message: String? = null) {
@@ -48,7 +42,6 @@ fun TextInput(
     value: String,
     onValueChange: (String) -> Unit,
     readOnly: Boolean = false,
-    textStyle: TextStyle = LocalTextStyle.current,
     state: TextInputState = TextInputState.Default(""),
     label: String? = null,
     placeholder: String? = null,
@@ -64,7 +57,6 @@ fun TextInput(
 ) {
 
     val enabled = state !is TextInputState.Disabled
-    val isError = state is TextInputState.Error
 
     val assistiveTextColor = when (state) {
         is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
@@ -109,15 +101,9 @@ fun TextInput(
     }
 
     val placeholderColor = if (!isSystemInDarkTheme()) {
-        Grey400
+        Grey600
     } else {
         Dark200
-    }
-
-    val disabledPlaceholderColor = if (!isSystemInDarkTheme()) {
-        Grey400
-    } else {
-        Dark400
     }
 
     Column {
@@ -152,7 +138,7 @@ fun TextInput(
             } else null,
             enabled = enabled,
             readOnly = readOnly,
-            textStyle = textStyle,
+            textStyle = AppTheme.typography.body1,
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
@@ -168,7 +154,8 @@ fun TextInput(
                 cursorColor = focusedColor,
                 errorCursorColor = focusedColor,
                 placeholderColor = placeholderColor,
-                disabledPlaceholderColor = disabledPlaceholderColor
+                disabledLabelColor = placeholderColor,
+                disabledPlaceholderColor = placeholderColor
             )
         )
 
