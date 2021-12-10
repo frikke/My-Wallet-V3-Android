@@ -412,7 +412,8 @@ data class Bank(
     val currency: String,
     val accountType: String,
     val paymentMethodType: PaymentMethodType,
-    val iconUrl: String
+    val iconUrl: String,
+    val canBeUsedToTransact: Boolean = true
 ) : Serializable {
 
     @SuppressLint("DefaultLocale") // Yes, lint is broken

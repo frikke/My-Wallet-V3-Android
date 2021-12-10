@@ -162,6 +162,7 @@ class DashboardActionAdapterTest {
     fun `with 1 available bank transfer, flow should be launched and wire transfer should get ignored`() {
         val linkedBankAccount: LinkedBankAccount = mock {
             on { currency }.thenReturn("USD")
+            on { type }.thenReturn(PaymentMethodType.BANK_TRANSFER)
         }
         whenever(linkedBanksFactory.eligibleBankPaymentMethods(any())).thenReturn(
             Single.just(

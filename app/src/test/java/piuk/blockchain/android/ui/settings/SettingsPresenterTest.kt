@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.datamanagers.Bank
+import com.blockchain.nabu.datamanagers.BankState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -12,6 +14,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -23,6 +26,8 @@ import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import junit.framework.Assert.assertFalse
+import junit.framework.Assert.assertTrue
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.junit.Before
@@ -111,7 +116,7 @@ class SettingsPresenterTest {
             secureChannelManager = secureChannelManager
         )
         subject.initView(activity)
-        whenever(prefsUtil.selectedFiatCurrency).thenReturn("USD")
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
         whenever(prefsUtil.arePushNotificationsEnabled).thenReturn(false)
         whenever(biometricsController.isHardwareDetected).thenReturn(false)
         whenever(prefsUtil.getValue(any(), any<Boolean>())).thenReturn(false)
@@ -130,7 +135,7 @@ class SettingsPresenterTest {
         }
 
         whenever(settingsDataManager.fetchSettings()).thenReturn(Observable.just(mockSettings))
-        whenever(prefsUtil.selectedFiatCurrency).thenReturn("USD")
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(mockSettings))
         whenever(kycStatusHelper.getSettingsKycStateTier())
             .thenReturn(Single.just(tiers(KycTierState.None, KycTierState.None)))
@@ -143,15 +148,13 @@ class SettingsPresenterTest {
         whenever(cardsFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(fundsFeatureFlag.enabled).thenReturn(Single.just(true))
 
-        whenever(custodialWalletManager.getEligiblePaymentMethodTypes("USD")).thenReturn(
-            Single.just(listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, "USD")))
-        )
+        arrangeEligiblePaymentMethodTypes(USD, listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)))
         whenever(custodialWalletManager.canTransactWithBankMethods(any())).thenReturn(Single.just(false))
         whenever(custodialWalletManager.updateSupportedCardTypes(ArgumentMatchers.anyString())).thenReturn(
             Completable.complete()
         )
-        whenever(custodialWalletManager.getBanks()).thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.getEligiblePaymentMethodTypes(any())).thenReturn(Single.just(emptyList()))
+        arrangeBanks(emptyList())
+        arrangeEligiblePaymentMethodTypes(any(), emptyList())
         // Act
         subject.onViewReady()
         // Assert
@@ -173,21 +176,19 @@ class SettingsPresenterTest {
             .thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
         whenever(pitLinking.state).thenReturn(Observable.just(pitLinkState))
         whenever(featureFlag.enabled).thenReturn(Single.just(false))
-        whenever(prefsUtil.selectedFiatCurrency).thenReturn("USD")
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
         whenever(cardsFeatureFlag.enabled).thenReturn(Single.just(false))
         whenever(fundsFeatureFlag.enabled).thenReturn(Single.just(false))
 
         whenever(custodialWalletManager.canTransactWithBankMethods(any())).thenReturn(Single.just(false))
-        whenever(custodialWalletManager.getEligiblePaymentMethodTypes("USD")).thenReturn(
-            Single.just(listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, "USD")))
-        )
+        arrangeEligiblePaymentMethodTypes(USD, listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)))
         whenever(custodialWalletManager.updateSupportedCardTypes(ArgumentMatchers.anyString())).thenReturn(
             Completable.complete()
         )
         whenever(custodialWalletManager.fetchUnawareLimitsCards(ArgumentMatchers.anyList()))
             .thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.getBanks()).thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.getEligiblePaymentMethodTypes(any())).thenReturn(Single.just(emptyList()))
+        arrangeBanks(emptyList())
+        arrangeEligiblePaymentMethodTypes(any(), emptyList())
 
         // Act
         subject.onViewReady()
@@ -654,6 +655,83 @@ class SettingsPresenterTest {
         verifyNoMoreInteractions(notificationTokenManager)
     }
 
+    @Test
+    fun updateEligibleLinkedBanks() {
+        // Arrange
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
+        arrangeEligiblePaymentMethodTypes(
+            USD,
+            listOf(
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, USD),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, "EUR")
+            )
+        )
+        arrangeBanks(
+            listOf(
+                Bank("", "", "", BankState.ACTIVE, "", "", PaymentMethodType.BANK_TRANSFER, ""),
+                Bank("", "", "", BankState.ACTIVE, "", "", PaymentMethodType.BANK_ACCOUNT, "")
+            )
+        )
+
+        // Act
+        subject.updateBanks()
+
+        // Assert
+        argumentCaptor<Set<Bank>>().apply {
+            verify(activity).updateLinkedBanks(capture())
+
+            assertTrue(firstValue.first { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER }.canBeUsedToTransact)
+            assertFalse(firstValue.first { it.paymentMethodType == PaymentMethodType.BANK_ACCOUNT }.canBeUsedToTransact)
+        }
+    }
+
+    @Test
+    fun `updateEligibleLinkedBanks - no linkable banks`() {
+        // Arrange
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
+        arrangeEligiblePaymentMethodTypes(
+            USD,
+            listOf(
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, "GBP"),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, "EUR")
+            )
+        )
+        arrangeBanks(
+            listOf(
+                Bank("", "", "", BankState.ACTIVE, "", "", PaymentMethodType.BANK_TRANSFER, ""),
+                Bank("", "", "", BankState.ACTIVE, "", "", PaymentMethodType.BANK_ACCOUNT, "")
+            )
+        )
+
+        // Act
+        subject.updateBanks()
+
+        // Assert
+        argumentCaptor<Set<Bank>>().apply {
+            verify(activity).updateLinkedBanks(capture())
+
+            assertFalse(
+                firstValue.first { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER }.canBeUsedToTransact
+            )
+            assertFalse(firstValue.first { it.paymentMethodType == PaymentMethodType.BANK_ACCOUNT }.canBeUsedToTransact)
+        }
+    }
+
+    private fun arrangeEligiblePaymentMethodTypes(
+        currency: String,
+        eligiblePaymentMethodTypes: List<EligiblePaymentMethodType>
+    ) {
+        whenever(custodialWalletManager.getEligiblePaymentMethodTypes(currency)).thenReturn(
+            Single.just(eligiblePaymentMethodTypes)
+        )
+    }
+
+    private fun arrangeBanks(banks: List<Bank>) {
+        whenever(custodialWalletManager.getBanks()).thenReturn(
+            Single.just(banks)
+        )
+    }
+
     private fun assertClickLaunchesKyc(status1: KycTierState, status2: KycTierState) {
         // Arrange
         whenever(kycStatusHelper.getKycTierStatus())
@@ -664,5 +742,10 @@ class SettingsPresenterTest {
 
         // Assert
         verify(activity).launchKycFlow()
+    }
+
+    // companion object
+    private companion object {
+        const val USD = "USD"
     }
 }

@@ -346,8 +346,9 @@ class DashboardActionAdapter(
     ).doOnSubscribe {
         model.process(DashboardIntent.LongCallStarted)
     }.flatMap { (paymentMethods, linkedBanks) ->
+        val eligibleBanks = linkedBanks.filter { paymentMethods.contains(it.type) }
         when {
-            linkedBanks.isEmpty() -> {
+            eligibleBanks.isEmpty() -> {
                 handleNoLinkedBanks(
                     targetAccount,
                     action,
@@ -359,7 +360,7 @@ class DashboardActionAdapter(
                     )
                 )
             }
-            linkedBanks.size == 1 -> {
+            eligibleBanks.size == 1 -> {
                 Single.just(
                     FiatTransactionRequestResult.LaunchDepositFlow(
                         preselectedBankAccount = linkedBanks.first(),

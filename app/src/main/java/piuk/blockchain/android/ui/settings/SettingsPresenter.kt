@@ -150,13 +150,24 @@ class SettingsPresenter(
                 .subscribeBy(
                     onSuccess = { (linkableBanks, linkedBanks) ->
                         view?.banksEnabled(linkedBanks.isNotEmpty() or linkableBanks.isNotEmpty())
-                        view?.updateLinkedBanks(linkedBanks)
+                        view?.updateLinkedBanks(linkedBanks.getEligibleLinkedBanks(linkableBanks))
                         view?.updateLinkableBanks(linkableBanks, linkedBanks.size)
                     },
                     onError = {
                         Timber.e(it)
                     }
                 )
+    }
+
+    private fun Set<Bank>.getEligibleLinkedBanks(linkableBanks: Set<LinkablePaymentMethods>): Set<Bank> {
+        val paymentMethod = linkableBanks.filter { it.currency == fiatUnit }.distinct().firstOrNull()
+        val eligibleLinkedBanks = this.filter { paymentMethod?.linkMethods?.contains(it.paymentMethodType) ?: false }
+
+        return this.map {
+            it.copy(
+                canBeUsedToTransact = eligibleLinkedBanks.contains(it)
+            )
+        }.toSet()
     }
 
     private fun onCardsUpdated(cards: List<PaymentMethod.Card>) {

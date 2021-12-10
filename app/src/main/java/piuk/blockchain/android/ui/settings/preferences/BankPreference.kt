@@ -55,13 +55,23 @@ class BankPreference(
         val addBank = holder.itemView.findViewById(R.id.add_bank) as AppCompatImageView
         val accountInfo = holder.itemView.findViewById(R.id.account_info) as AppCompatTextView
         val endDigits = holder.itemView.findViewById(R.id.end_digits) as AppCompatTextView
+        val ineligibleBanner = holder.itemView.findViewById(R.id.ineligible) as AppCompatTextView
 
         bank?.let { bank ->
             addBank.gone()
-            accountInfo.visible()
-            endDigits.visible()
-            accountInfo.text = bank.toHumanReadableAccount()
-            endDigits.text = bank.account
+
+            if (bank.canBeUsedToTransact) {
+                accountInfo.visible()
+                accountInfo.text = bank.toHumanReadableAccount()
+                endDigits.visible()
+                endDigits.text = bank.account
+                ineligibleBanner.gone()
+            } else {
+                accountInfo.gone()
+                endDigits.gone()
+                ineligibleBanner.visible()
+            }
+
             if (bank.iconUrl.isNotEmpty()) {
                 imageView?.let {
                     Glide.with(context).load(bank.iconUrl).into(it)
@@ -70,6 +80,7 @@ class BankPreference(
         } ?: kotlin.run {
             accountInfo.gone()
             endDigits.gone()
+            ineligibleBanner.gone()
             addBank.visible()
         }
         titleView?.ellipsize = TextUtils.TruncateAt.END
