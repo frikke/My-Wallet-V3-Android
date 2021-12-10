@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Walletandroidprivate">
         <activity
+            android:name=".abstract_compose_view.SheetActivity"
+            android:exported="false" />
+        <activity
             android:name=".abstract_compose_view.SectionHeadersActivity"
             android:exported="false" />
         <activity

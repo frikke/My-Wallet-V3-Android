@@ -63,7 +63,7 @@ fun SheetHeaderBackAndClose(
             )
 
             SheetHeaderCloseButton(
-                onBackPress = onClosePress,
+                onClosePress = onClosePress,
                 backPressContentDescription = closePressContentDescription,
                 modifier = Modifier.fillMaxHeight()
             )

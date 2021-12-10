@@ -48,7 +48,7 @@ fun SheetHeader(
                 .weight(1f),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(24.dp))
 
             if (startImageResource != ImageResource.None) {
                 Image(
@@ -65,7 +65,7 @@ fun SheetHeader(
             )
 
             SheetHeaderCloseButton(
-                onBackPress = onClosePress,
+                onClosePress = onClosePress,
                 backPressContentDescription = closePressContentDescription,
                 modifier = Modifier.fillMaxHeight()
             )
@@ -93,7 +93,7 @@ private fun SheetHeaderTitle(
             color = AppTheme.colors.title,
             textAlign = TextAlign.Center,
         )
-        if (byline != null) {
+        if (byline != null && byline.isNotBlank()) {
             Text(
                 text = byline,
                 style = AppTheme.typography.paragraph1,
