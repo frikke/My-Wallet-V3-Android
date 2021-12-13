@@ -137,6 +137,11 @@
             android:theme="@style/AppTheme.Splash"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name=".ui.start.LandingCtaActivity"
+            android:theme="@style/AppTheme.Splash"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
             android:name=".ui.createwallet.CreateWalletActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />

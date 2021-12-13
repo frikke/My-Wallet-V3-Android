@@ -2164,7 +2164,6 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="buy_enter_amount_max_limit_info">Solo puede comprar %1$s %2$s. Le quedan %3$s.</string>
     <string name="buy_enter_amount_max_limit_suggested_tier_upgrade_info">Solo puede comprar %1$s %2$s. Le quedan %3$s. Actualice a Gold para comprar más.</string>
     <string name="buy_enter_amount_max_limit_without_upgrade_info">Solo puede comprar %1$s %2$s. Le quedan %3$s</string>
-    <string name="deposit_enter_amount_max_limit_suggested_tier_upgrade_info">TODO(aromano)</string>
     <string name="buy_above_payment_method_error_message">Puede comprar hasta %1$s por transacción. Actualice a Gold y compre cantidades mayores con su banco o tarjeta.</string>
     <string name="buy_above_payment_method_error_message_without_upgrade">Puede comprar hasta %1$s por transacción. Para comprar %2$s divida su compra en varias transacciones.</string>
     <string name="deposit_above_payment_method_error_message">Puede depositar hasta %1$s por transacción. Actualice a Gold para depositar cantidades mayores.</string>

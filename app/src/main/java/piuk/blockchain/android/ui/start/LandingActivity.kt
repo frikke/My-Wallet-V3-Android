@@ -4,13 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
@@ -25,6 +30,8 @@ import piuk.blockchain.android.util.visible
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
+    private val internalFeatureFlagApi: InternalFeatureFlagApi by inject()
+
     override val presenter: LandingPresenter by scopedInject()
     override val view: LandingView = this
 
@@ -38,6 +45,13 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         super.onCreate(savedInstanceState)
 
         setContentView(binding.root)
+
+        if (internalFeatureFlagApi.isFeatureEnabled(GatedFeature.LANDING_CTA)) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                startActivity(LandingCtaActivity.newIntent(this))
+                overridePendingTransition(R.anim.slide_up_from_bottom, 0)
+            }, 500)
+        }
 
         with(binding) {
             if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {

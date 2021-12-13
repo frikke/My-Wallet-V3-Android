@@ -2325,7 +2325,6 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="buy_enter_amount_max_limit_info">Sadece %1$s %2$s satın alabilirsiniz. %3$s hakkınız kaldı.</string>
     <string name="buy_enter_amount_max_limit_suggested_tier_upgrade_info">Sadece %1$s %2$s satın alabilirsiniz. %3$s hakkınız kaldı. Daha fazla satın almak için hesabınızı Gold üyeliğe yükseltin.</string>
     <string name="buy_enter_amount_max_limit_without_upgrade_info">Sadece %1$s %2$s satın alabilirsiniz. %3$s hakkınız kaldı</string>
-    <string name="deposit_enter_amount_max_limit_suggested_tier_upgrade_info">TODO(aromano)</string>
     <string name="buy_above_payment_method_error_message">İşlem başına en fazla %1$s satın alabilirsiniz. Hesabınızı Gold üyeliğe yükseltip bankanız veya kartınız üzerinden daha büyük tutarlar satın alabilirsiniz.</string>
     <string name="buy_above_payment_method_error_message_without_upgrade">İşlem başına en fazla %1$s satın alabilirsiniz. %2$s satın almak için, satın alacağınız tutarı birden çok işleme bölün.</string>
     <string name="deposit_above_payment_method_error_message">İşlem başına en fazla %1$s yatırabilirsiniz. Hesabınızı Gold üyeliğe yükseltip daha büyük tutarlar yatırabilirsiniz.</string>

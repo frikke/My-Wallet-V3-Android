@@ -2429,6 +2429,9 @@
     <string name="select_a_trading_currency">Select a Trading Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
+    <string name="landing_cta_title">Buy Bitcoin. Own the Future.</string>
+    <string name="landing_cta_subtitle">Create a Blockchain.com Wallet and simply buy, sell and hold crypto. Go from zero to crypto in seconds not minutes.</string>
+    <string name="landing_cta_login">Log In</string>
 
     <!-- Pending buys -->
     <string name="pending_buys_description">Right now, we only allow up to %d buys pending at a time.</string>
