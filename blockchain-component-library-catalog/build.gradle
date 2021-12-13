@@ -61,6 +61,7 @@ dependencies {
 
     implementation "com.airbnb.android:showkase:1.0.0-beta07"
     implementation project(path: ':componentlib')
+    api(project(":charts"))
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
     kapt "com.airbnb.android:showkase-processor:1.0.0-beta07"
 
