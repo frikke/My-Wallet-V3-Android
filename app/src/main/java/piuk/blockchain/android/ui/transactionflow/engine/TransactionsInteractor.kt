@@ -25,6 +25,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.BankLinkingPrefs
@@ -43,6 +44,7 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import timber.log.Timber
@@ -239,7 +241,56 @@ class TransactionInteractor(
             currencyPrefs.selectedFiatCurrency
         }
     }
+
+    fun updateFiatDepositOptions(fiatCurrency: String): Single<TransactionIntent> {
+        return custodialWalletManager.getEligiblePaymentTypesForFiatDeposit(fiatCurrency).map { linkableBanks ->
+            val paymentMethod = linkableBanks.filter { it.currency == fiatCurrency }.distinct().firstOrNull()
+
+            paymentMethod?.let {
+                when {
+                    it.linkMethods.size > 1 -> {
+                        TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.ShowBottomSheet(it))
+                    }
+                    it.linkMethods.size == 1 -> {
+                        when {
+                            it.linkMethods.first() == PaymentMethodType.BANK_TRANSFER -> {
+                                TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.LaunchLinkBank)
+                            }
+                            it.linkMethods.first() == PaymentMethodType.BANK_ACCOUNT -> {
+                                TransactionIntent.FiatDepositOptionSelected(
+                                    DepositOptionsState.LaunchWireTransfer(fiatCurrency)
+                                )
+                            }
+                            else -> {
+                                TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.None)
+                            }
+                        }
+                    }
+                    else -> {
+                        TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.None)
+                    }
+                }
+            } ?: TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.None)
+        }
+    }
 }
+
+private fun CustodialWalletManager.getEligiblePaymentTypesForFiatDeposit(fiatCurrency: String):
+    Single<Set<LinkablePaymentMethods>> =
+
+    getEligiblePaymentMethodTypes(fiatCurrency).map { methods ->
+        val bankPaymentMethods = methods.filter {
+            it.paymentMethodType == PaymentMethodType.BANK_TRANSFER ||
+                it.paymentMethodType == PaymentMethodType.BANK_ACCOUNT
+        }
+
+        bankPaymentMethods.map { method ->
+            LinkablePaymentMethods(
+                method.currency,
+                bankPaymentMethods.filter { it.currency == method.currency }.map { it.paymentMethodType }.distinct()
+            )
+        }.toSet()
+    }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair.CryptoCurrencyPair>): Boolean =
     pairs.any { it.source == this.asset }

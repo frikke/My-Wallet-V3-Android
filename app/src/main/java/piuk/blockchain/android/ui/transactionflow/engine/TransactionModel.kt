@@ -16,6 +16,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.limits.TxLimit
@@ -38,6 +39,7 @@ import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
@@ -79,6 +81,14 @@ sealed class BankLinkingState {
     class Error(val e: Throwable) : BankLinkingState()
 }
 
+sealed class DepositOptionsState {
+    object None : DepositOptionsState()
+    data class ShowBottomSheet(val linkablePaymentMethods: LinkablePaymentMethods) : DepositOptionsState()
+    data class LaunchWireTransfer(val fiatCurrency: String) : DepositOptionsState()
+    object LaunchLinkBank : DepositOptionsState()
+    data class Error(val e: Throwable) : DepositOptionsState()
+}
+
 sealed class TxExecutionStatus {
     object NotStarted : TxExecutionStatus()
     object InProgress : TxExecutionStatus()
@@ -115,6 +125,7 @@ data class TransactionState(
     val currencyType: CurrencyType? = null,
     val availableSources: List<BlockchainAccount> = emptyList(),
     val linkBankState: BankLinkingState = BankLinkingState.NotStarted,
+    val depositOptionsState: DepositOptionsState = DepositOptionsState.None,
     val locks: FundsLocks? = null
 ) : MviState, TransactionFlowStateInfo {
 
@@ -301,6 +312,7 @@ class TransactionModel(
                 model = this,
                 available = previousState.availableBalance
             )
+            TransactionIntent.CheckAvailableOptionsForFiatDeposit -> processFiatDepositOptions(previousState)
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -308,7 +320,8 @@ class TransactionModel(
             is TransactionIntent.ClearSelectedTarget,
             TransactionIntent.TransactionApprovalDenied,
             TransactionIntent.ApprovalTriggered,
-            is TransactionIntent.FundsLocksLoaded -> null
+            is TransactionIntent.FundsLocksLoaded,
+            is TransactionIntent.FiatDepositOptionSelected -> null
         }
     }
 
@@ -562,6 +575,18 @@ class TransactionModel(
                 },
                 onComplete = {
                     Timber.d("!TRANSACTION!> Tx validation complete")
+                }
+            )
+
+    private fun processFiatDepositOptions(previousState: TransactionState) =
+        interactor.updateFiatDepositOptions((previousState.selectedTarget as FiatCustodialAccount).fiatCurrency)
+            .subscribeBy(
+                onSuccess = {
+                    process(it)
+                },
+                onError = {
+                    process(TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.Error(it)))
+                    Timber.e("Error getting Fiat deposit options. $it")
                 }
             )
 

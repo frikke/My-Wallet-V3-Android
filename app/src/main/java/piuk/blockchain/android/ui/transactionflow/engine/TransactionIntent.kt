@@ -20,7 +20,6 @@ import info.blockchain.balance.Money
 import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent.UpdateTransactionComplete.updateBackstack
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
 
@@ -412,6 +411,21 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
 
     object StartLinkABank : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    object CheckAvailableOptionsForFiatDeposit : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(
+            depositOptionsState = DepositOptionsState.None
+        )
+    }
+
+    data class FiatDepositOptionSelected(
+        private val depositOptionsState: DepositOptionsState
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                depositOptionsState = depositOptionsState
+            )
     }
 
     object RefreshSourceAccounts : TransactionIntent() {
