@@ -230,7 +230,7 @@ data class BuyQuote(
     val feeDetails: BuyFees
 ) {
     companion object {
-        fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: String) =
+        fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: String, orderFee: FiatValue?) =
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
@@ -238,11 +238,16 @@ data class BuyQuote(
                 availability = brokerageQuote.availability,
                 quoteMargin = brokerageQuote.quoteMargin,
                 feeDetails = BuyFees(
-                    fee = brokerageQuote.feeDetails.fee as FiatValue,
+                    fee = fee(brokerageQuote.feeDetails.fee as FiatValue, orderFee) as FiatValue,
                     feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
                     promo = brokerageQuote.feeDetails.promo
                 )
             )
+
+        private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): Money =
+            orderFee?.let {
+                Money.max(quoteFee, it)
+            } ?: quoteFee
 
         private fun Money.toFiat(fiatCurrency: String): FiatValue {
             return (this as? CryptoValue)?.let { value ->
