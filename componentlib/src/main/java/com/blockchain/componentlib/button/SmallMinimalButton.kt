@@ -36,12 +36,12 @@ fun SmallMinimalButton(
         modifier = modifier.requiredHeightIn(min = 32.dp),
         contentPadding = contentPadding,
         buttonContent = {
-                state: ButtonState,
-                text: String,
-                textColor: Color,
-                textAlpha: Float,
-                loadingIconResId: Int,
-                _: ImageResource,
+            state: ButtonState,
+            text: String,
+            textColor: Color,
+            textAlpha: Float,
+            loadingIconResId: Int,
+            _: ImageResource,
             ->
             ButtonContentSmall(
                 state = state,
