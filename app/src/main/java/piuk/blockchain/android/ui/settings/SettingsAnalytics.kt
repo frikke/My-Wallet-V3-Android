@@ -11,7 +11,6 @@ sealed class SettingsAnalytics(override val event: String, override val params: 
 
     object EmailClicked : SettingsAnalytics("settings_email_clicked")
     object PhoneClicked : SettingsAnalytics("settings_phone_clicked")
-    object SwapLimitChecked : SettingsAnalytics("settings_swap_limit_clicked")
     object CloudBackupSwitch : SettingsAnalytics("settings_cloud_backup_switch")
     object WalletIdCopyClicked : SettingsAnalytics("settings_wallet_id_copy_click")
     object WalletIdCopyCopied : SettingsAnalytics("settings_wallet_id_copied")

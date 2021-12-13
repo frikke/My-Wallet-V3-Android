@@ -46,7 +46,6 @@ import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -69,7 +68,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.R.string.success
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.RemoveCardBottomSheet
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
@@ -94,7 +92,6 @@ import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForActio
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
-import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.pairingcode.PairingBottomSheet
@@ -103,7 +100,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
 import piuk.blockchain.android.ui.settings.preferences.BankPreference
 import piuk.blockchain.android.ui.settings.preferences.CardPreference
-import piuk.blockchain.android.ui.settings.preferences.KycStatusPreference
 import piuk.blockchain.android.ui.settings.preferences.ThePitStatusPreference
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
@@ -129,9 +125,6 @@ class SettingsFragment :
     BankLinkingHost {
 
     // Profile
-    private val kycStatusPref by lazy {
-        findPreference<KycStatusPreference>("identity_verification")
-    }
     private val guidPref by lazy {
         findPreference<Preference>("guid")
     }
@@ -228,12 +221,6 @@ class SettingsFragment :
 
     override fun setUpUi() {
         // Profile
-        kycStatusPref.onClick {
-            settingsPresenter.onKycStatusClicked()
-            analytics.logEvent(SettingsAnalytics.SwapLimitChecked)
-        }
-        kycStatusPref?.isVisible = false
-
         guidPref.onClick {
             showDialogGuid()
             analytics.logEvent(SettingsAnalytics.WalletIdCopyClicked)
@@ -464,11 +451,6 @@ class SettingsFragment :
     override fun onCreatePreferences(bundle: Bundle?, s: String?) {
         preferenceScreen?.removeAll()
         addPreferencesFromResource(R.xml.settings)
-    }
-
-    override fun setKycState(kycTiers: KycTiers) {
-        kycStatusPref?.setValue(kycTiers)
-        kycStatusPref?.isVisible = kycTiers.isInitialised()
     }
 
     override fun setGuidSummary(summary: String) {
@@ -1017,8 +999,6 @@ class SettingsFragment :
             if (requestCode == REQUEST_CODE_BIOMETRIC_ENROLLMENT) {
                 settingsPresenter.onFingerprintClicked()
             }
-        } else if (KycNavHostActivity.kycStatusUpdated(resultCode)) {
-            settingsPresenter.updateKyc()
         }
     }
 
@@ -1222,10 +1202,6 @@ class SettingsFragment :
         }
     }
 
-    override fun launchKycFlow() {
-        KycNavHostActivity.startForResult(this, CampaignType.None, KYC_START, true)
-    }
-
     private fun setCountryFlag(tvCountry: TextView, dialCode: String, flagResourceId: Int) {
         tvCountry.text = dialCode
         val drawable = ContextCompat.getDrawable(settingsActivity, flagResourceId)
@@ -1241,7 +1217,6 @@ class SettingsFragment :
 
     companion object {
         const val URL_LOGIN = "<a href=\"https://login.blockchain.com/\">login.blockchain.com</a>"
-        private const val KYC_START = 32542
         internal const val EXTRA_SHOW_ADD_EMAIL_DIALOG = "show_add_email_dialog"
         internal const val EXTRA_SHOW_TWO_FA_DIALOG = "show_two_fa_dialog"
         private const val ADD_CARD_KEY = "ADD_CARD_KEY"

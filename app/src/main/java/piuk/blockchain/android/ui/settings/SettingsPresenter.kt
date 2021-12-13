@@ -76,12 +76,10 @@ class SettingsPresenter(
         view?.showProgress()
         compositeDisposable += settingsDataManager.fetchSettings()
             .singleOrError()
-            .zipWith(kycStatusHelper.getSettingsKycStateTier())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onSuccess = { (settings, tiers) ->
+                onSuccess = { settings ->
                     handleUpdate(settings)
-                    view?.setKycState(tiers)
                 },
                 onError = {
                     handleUpdate(Settings())
@@ -196,10 +194,6 @@ class SettingsPresenter(
             banks.toSet()
         }
 
-    fun onKycStatusClicked() {
-        view?.launchKycFlow()
-    }
-
     private fun handleUpdate(settings: Settings) {
         view?.hideProgress()
         view?.setUpUi()
@@ -269,19 +263,6 @@ class SettingsPresenter(
                 throw IllegalStateException("PIN code not found in AccessState")
             }
         }
-    }
-
-    fun updateKyc() {
-        compositeDisposable += kycStatusHelper.getSettingsKycStateTier()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onSuccess = { tiers ->
-                    view?.setKycState(tiers)
-                },
-                onError = {
-                    view?.showError(R.string.settings_error_updating)
-                }
-            )
     }
 
     private fun String?.isInvalid(): Boolean =
