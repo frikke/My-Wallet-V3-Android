@@ -30,4 +30,9 @@ class CircularProgressBarView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        progress = null
+        text = null
+    }
 }

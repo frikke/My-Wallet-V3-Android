@@ -33,4 +33,9 @@ class SuccessSwitchView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        isChecked = false
+        onCheckChanged = { _: Boolean -> }
+    }
 }

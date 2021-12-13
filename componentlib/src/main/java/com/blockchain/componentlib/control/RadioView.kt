@@ -35,4 +35,10 @@ class RadioView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        state = RadioButtonState.Unselected
+        radioButtonEnabled = true
+        onSelectedChanged = { _: Boolean -> }
+    }
 }

@@ -32,4 +32,10 @@ class DialogueView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        body = ""
+        firstButton = DialogueButton("", {})
+        secondButton = null
+    }
 }

@@ -35,4 +35,10 @@ class SliderView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        value = 0f
+        onValueChanged = { value: Float -> }
+        sliderEnabled = true
+    }
 }

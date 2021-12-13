@@ -45,4 +45,18 @@ class BottomNavigationBarView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        navigationItems = listOf(
+            NavigationItem.Home,
+            NavigationItem.Prices,
+            NavigationItem.BuyAndSell,
+            NavigationItem.Activity
+        )
+        onNavigationItemClick = { _: NavigationItem -> }
+        onMiddleButtonClick = {}
+        selectedNavigationItem = null
+        bottomNavigationState = BottomNavigationState.Add
+        isPulseAnimationEnabled = false
+    }
 }

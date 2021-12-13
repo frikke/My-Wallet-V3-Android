@@ -45,4 +45,16 @@ class ActionStackedIconTableRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        primaryText = ""
+        secondaryText = null
+        onClick = {}
+        topImageResource = ImageResource.None
+        bottomImageResource = ImageResource.None
+        endImageResource = ImageResource.Local(
+            id = R.drawable.ic_chevron_end,
+            contentDescription = null,
+        )
+    }
 }

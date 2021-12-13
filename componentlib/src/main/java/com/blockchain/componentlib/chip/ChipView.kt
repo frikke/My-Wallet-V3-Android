@@ -32,4 +32,10 @@ class ChipView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        text = ""
+        onClick = { _: ChipState -> }
+        initialChipState = ChipState.Enabled
+    }
 }

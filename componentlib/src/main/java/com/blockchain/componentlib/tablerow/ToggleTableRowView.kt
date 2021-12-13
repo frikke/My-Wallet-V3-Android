@@ -41,4 +41,13 @@ class ToggleTableRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        primaryText = ""
+        secondaryText = ""
+        isChecked = false
+        onCheckedChange = { isChecked: Boolean -> }
+        toggleEnabled = true
+        toggleType = ToggleTableRowType.Primary
+    }
 }

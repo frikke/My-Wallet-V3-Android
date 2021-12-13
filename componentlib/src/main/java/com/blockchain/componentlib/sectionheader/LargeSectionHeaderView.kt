@@ -26,4 +26,8 @@ class LargeSectionHeaderView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        sectionHeader = LargeSectionHeaderType.Default("")
+    }
 }

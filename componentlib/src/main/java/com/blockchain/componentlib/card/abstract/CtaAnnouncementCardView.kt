@@ -49,4 +49,15 @@ class CtaAnnouncementCardView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        header = ""
+        subheader = AnnotatedString("")
+        title = ""
+        body = ""
+        iconResource = ImageResource.None
+        borderColor = null
+        callToActionButton = CardButton("")
+        onClose = {}
+    }
 }

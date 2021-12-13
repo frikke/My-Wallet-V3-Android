@@ -45,4 +45,15 @@ class BalanceTableRowLargeView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        startImageResource = ImageResource.None
+        title = ""
+        primaryBylineStart = buildAnnotatedString { }
+        primaryBylineEnd = buildAnnotatedString { }
+        secondaryBylineStart = buildAnnotatedString { }
+        secondaryBylineEnd = buildAnnotatedString { }
+        onClick = {}
+        historicalRates = emptyList()
+    }
 }

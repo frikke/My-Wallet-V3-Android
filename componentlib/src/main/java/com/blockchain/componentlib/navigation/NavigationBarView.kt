@@ -41,4 +41,11 @@ class NavigationBarView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        onBackButtonClick = null
+        startNavigationBarButton = null
+        title = ""
+        endNavigationBarButtons = listOf()
+    }
 }

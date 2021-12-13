@@ -26,4 +26,8 @@ class SmallSectionHeaderView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        title = ""
+    }
 }

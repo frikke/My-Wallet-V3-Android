@@ -30,4 +30,9 @@ class SearchView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        label = ""
+        onValueChange = { _: String -> }
+    }
 }

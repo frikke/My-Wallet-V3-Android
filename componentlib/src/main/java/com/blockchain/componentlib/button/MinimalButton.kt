@@ -26,12 +26,12 @@ fun MinimalButton(
         state = state,
         icon = icon,
         buttonContent = {
-            state: ButtonState,
-            text: String,
-            textColor: Color,
-            textAlpha: Float,
-            loadingIconResId: Int,
-            icon: ImageResource,
+                state: ButtonState,
+                text: String,
+                textColor: Color,
+                textAlpha: Float,
+                loadingIconResId: Int,
+                icon: ImageResource,
             ->
             ButtonContent(
                 state = state,

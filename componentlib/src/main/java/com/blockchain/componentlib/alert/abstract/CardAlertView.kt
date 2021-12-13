@@ -38,4 +38,12 @@ class CardAlertView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        title = ""
+        subtitle = ""
+        isBordered = false
+        alertType = AlertType.Default
+        onClose = {}
+    }
 }

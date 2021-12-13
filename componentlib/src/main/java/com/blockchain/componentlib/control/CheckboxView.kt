@@ -35,4 +35,10 @@ class CheckboxView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        onCheckChanged = { _: Boolean -> }
+        state = CheckboxState.Unchecked
+        checkboxEnabled = true
+    }
 }

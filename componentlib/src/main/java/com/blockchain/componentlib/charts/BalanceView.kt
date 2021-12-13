@@ -32,4 +32,10 @@ class BalanceView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        title = "Current Balance"
+        price = "$0.00"
+        percentageChangeData = PercentageChangeData("$0.00", 0.0, "")
+    }
 }

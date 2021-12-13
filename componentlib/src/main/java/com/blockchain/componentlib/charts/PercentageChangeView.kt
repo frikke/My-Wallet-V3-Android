@@ -34,4 +34,11 @@ class PercentageChangeView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        priceChange = ""
+        percentChange = 0.0
+        interval = ""
+        state = PercentageChangeState.Neutral
+    }
 }
