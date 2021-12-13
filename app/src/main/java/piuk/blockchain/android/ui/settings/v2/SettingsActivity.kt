@@ -28,7 +28,7 @@ import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
-class RedesignSettingsActivity : BlockchainActivity() {
+class SettingsActivity : BlockchainActivity() {
 
     private val binding: ActivityRedesignSettingsBinding by lazy {
         ActivityRedesignSettingsBinding.inflate(layoutInflater)
@@ -100,7 +100,7 @@ class RedesignSettingsActivity : BlockchainActivity() {
                 visibleIf { environmentConfig.isRunningInDebugMode() }
                 primaryText = getString(R.string.item_debug_menu)
                 onClick = {
-                    startActivity(FeatureFlagsHandlingActivity.newIntent(this@RedesignSettingsActivity))
+                    startActivity(FeatureFlagsHandlingActivity.newIntent(context))
                 }
                 startImageResource = ImageResource.Local(R.drawable.ic_nav_debug_swap, null)
             }
@@ -168,10 +168,10 @@ class RedesignSettingsActivity : BlockchainActivity() {
 
     companion object {
         fun newIntent(context: Context): Intent =
-            Intent(context, RedesignSettingsActivity::class.java)
+            Intent(context, SettingsActivity::class.java)
 
         fun newIntentFor2FA(context: Context) =
-            Intent(context, RedesignSettingsActivity::class.java).apply {
+            Intent(context, SettingsActivity::class.java).apply {
                 Bundle().apply {
                     this.putBoolean(SettingsFragment.EXTRA_SHOW_TWO_FA_DIALOG, true)
                 }

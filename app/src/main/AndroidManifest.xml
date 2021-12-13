@@ -221,7 +221,9 @@
             android:name=".ui.locks.LocksDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".ui.home.ActionActivity" />
-        <activity android:name=".ui.settings.v2.RedesignSettingsActivity" />
+        <activity android:name=".ui.settings.v2.SettingsActivity" />
+        <activity android:name=".ui.settings.v2.RedesignSettingsPhase2Activity" />
+        <activity android:name=".ui.settings.v2.ProfileActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

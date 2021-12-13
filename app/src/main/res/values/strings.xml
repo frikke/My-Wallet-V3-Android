@@ -2481,4 +2481,14 @@
     <string name="kyc_upgrade_now_tier_state_under_review">In Manual Review</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
     <string name="new_user_fee_waiver">New User Fee Waiver</string>
+
+    <!-- Settings screen -->
+    <string name="settings_see_profile">See Profile</string>
+    <string name="settings_profile_toolbar">Profile</string>
+    <string name="profile_label_name">Name</string>
+    <string name="profile_label_surname">Surname</string>
+    <string name="profile_label_email">Email</string>
+    <string name="profile_label_mobile">Mobile</string>
+
+
 </resources>

@@ -14,6 +14,7 @@ import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -124,6 +125,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.settings.SettingsPresenter
+import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
@@ -728,6 +730,13 @@ val applicationModule = module {
         scoped {
             PlacesClientProvider(
                 context = get()
+            )
+        }
+
+        factory {
+            SettingsScreenLauncher(
+                redesignPart2FeatureFlag = get(),
+                crashLogger = get()
             )
         }
 

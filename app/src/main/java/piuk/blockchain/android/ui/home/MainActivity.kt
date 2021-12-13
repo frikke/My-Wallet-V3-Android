@@ -71,7 +71,8 @@ import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.v2.RedesignSettingsActivity
+import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
+import piuk.blockchain.android.ui.settings.v2.SettingsActivity
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
@@ -112,11 +113,13 @@ class MainActivity :
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
+    private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
+
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             (
-                it.data?.getSerializableExtra(RedesignSettingsActivity.SETTINGS_RESULT_DATA)
-                    as? RedesignSettingsActivity.Companion.SettingsAction
+                it.data?.getSerializableExtra(SettingsActivity.SETTINGS_RESULT_DATA)
+                    as? SettingsActivity.Companion.SettingsAction
                 )?.let { action ->
                 startSettingsAction(action)
             }
@@ -181,17 +184,17 @@ class MainActivity :
         super.onDestroy()
     }
 
-    private fun startSettingsAction(action: RedesignSettingsActivity.Companion.SettingsAction) {
+    private fun startSettingsAction(action: SettingsActivity.Companion.SettingsAction) {
         when (action) {
-            RedesignSettingsActivity.Companion.SettingsAction.Addresses ->
+            SettingsActivity.Companion.SettingsAction.Addresses ->
                 startActivityForResult(AccountActivity.newIntent(this), ACCOUNT_EDIT)
-            RedesignSettingsActivity.Companion.SettingsAction.Exchange ->
+            SettingsActivity.Companion.SettingsAction.Exchange ->
                 model.process(MainIntent.LaunchExchange)
-            RedesignSettingsActivity.Companion.SettingsAction.Airdrops ->
+            SettingsActivity.Companion.SettingsAction.Airdrops ->
                 AirdropCentreActivity.start(this)
-            RedesignSettingsActivity.Companion.SettingsAction.WebLogin ->
+            SettingsActivity.Companion.SettingsAction.WebLogin ->
                 QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
-            RedesignSettingsActivity.Companion.SettingsAction.Logout -> showLogoutDialog()
+            SettingsActivity.Companion.SettingsAction.Logout -> showLogoutDialog()
         }.also {
             hideLoading()
         }
@@ -205,7 +208,16 @@ class MainActivity :
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
                     showLoading()
-                    settingsResultContract.launch(RedesignSettingsActivity.newIntent(this@MainActivity))
+                    compositeDisposable += settingsScreenLauncher.newIntent(context = this@MainActivity)
+                        .subscribeBy(
+                            onSuccess = {
+                                settingsResultContract.launch(it)
+                            },
+                            onError = {
+                                // this should never happen
+                                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                            }
+                        )
                 }
             )
         )
@@ -313,7 +325,7 @@ class MainActivity :
             }
             BANK_DEEP_LINK_SETTINGS -> {
                 if (resultCode == RESULT_OK) {
-                    startActivity(RedesignSettingsActivity.newIntent(this))
+                    startActivity(SettingsActivity.newIntent(this))
                 }
             }
             BANK_DEEP_LINK_DEPOSIT -> {
@@ -635,7 +647,7 @@ class MainActivity :
     }
 
     override fun launchSetup2Fa() {
-        startActivity(RedesignSettingsActivity.newIntentFor2FA(this))
+        startActivity(SettingsActivity.newIntentFor2FA(this))
     }
 
     override fun launchVerifyEmail() {

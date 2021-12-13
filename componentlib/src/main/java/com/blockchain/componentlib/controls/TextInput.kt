@@ -87,7 +87,7 @@ fun TextInput(
     val textColor = if (enabled) {
         AppTheme.colors.title
     } else {
-        AppTheme.colors.muted
+        Grey600
     }
 
     val backgroundColor = if (enabled) {
