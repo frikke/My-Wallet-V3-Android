@@ -6,10 +6,6 @@
         android:key="profile"
         android:title="@string/profile"
         app:iconSpaceReserved="false">
-        <piuk.blockchain.android.ui.settings.preferences.KycStatusPreference
-            android:key="identity_verification"
-            android:title="@string/kyc_settings_swap_limit"
-            app:iconSpaceReserved="false" />
         <piuk.blockchain.android.ui.settings.preferences.CustomPreference
             android:key="guid"
             android:title="@string/options_id"
@@ -32,8 +28,8 @@
             app:iconSpaceReserved="false" />
         <piuk.blockchain.android.ui.settings.preferences.CustomPreference
             android:key="limits"
-            android:title="@string/setting_limits_title"
-            android:summary="@string/setting_limits_description"
+            android:title="@string/setting_limits_description"
+            android:summary="@string/setting_limits_title"
             app:iconSpaceReserved="false" />
     </piuk.blockchain.android.ui.settings.preferences.CustomPreferenceCategory>
 
