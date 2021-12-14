@@ -14,7 +14,7 @@ enum class GatedFeature(
 ) {
     ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets"),
     LANDING_CTA("Enable Landing CTA Screen"),
-    NEW_PRICING_BROKERAGE_QUOTE("New pricing quote api", true),
+    NEW_PRICING_BROKERAGE_QUOTE("New pricing quote api", false),
     FAB_SHEET_CTAS("Show Buy on RHS and Sell on LHS in the FAB bottom sheet", true),
     REDESIGN_PT2("Enable Redesign part 2", false)
 }
