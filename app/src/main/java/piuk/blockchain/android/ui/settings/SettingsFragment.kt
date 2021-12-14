@@ -240,6 +240,7 @@ class SettingsFragment :
 
         limitsPref.onClick {
             startActivity(Intent(requireContext(), KycLimitsActivity::class.java))
+            analytics.logEvent(SettingsAnalytics.LimitsAndFeaturesClicked)
         }
 
         qrConnectPref?.isVisible = environmentConfig.isRunningInDebugMode() &&
