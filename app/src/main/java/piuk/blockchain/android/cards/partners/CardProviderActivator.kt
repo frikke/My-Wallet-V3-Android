@@ -45,7 +45,7 @@ class CardProviderActivator(
                 CompleteCardActivation.CheckoutCardActivationDetails(
                     apiKey = cardProvider.publishableApiKey,
                     paymentLink = cardProvider.paymentLink,
-                    exitLink = CHECKOUT_EXIT_LINK
+                    exitLink = redirectUrl
                 )
             )
             CardAcquirer.STRIPE -> Single.just(
@@ -86,12 +86,4 @@ class CardProviderActivator(
 
     override fun paymentAttributes(): SimpleBuyConfirmationAttributes =
         SimpleBuyConfirmationAttributes(everypay = EveryPayAttrs(redirectUrl), redirectURL = redirectUrl)
-
-    companion object {
-        // The success and failure links which come out of the Checkout sdk look like
-        // http://example.com/payments/success... and http://example.com/payments/failure/... respectively.
-        // For now we are only interested in closing the webview and capturing the result using
-        // the PaymentForm.On3DSFinished callback. The links can be configured in the Checkout Hub
-        const val CHECKOUT_EXIT_LINK = "http://example.com/payments"
-    }
 }
