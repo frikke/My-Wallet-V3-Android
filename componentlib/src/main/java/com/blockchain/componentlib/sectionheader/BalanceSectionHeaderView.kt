@@ -37,4 +37,12 @@ class BalanceSectionHeaderView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        primaryText = ""
+        secondaryText = ""
+        buttonText = ""
+        onButtonClick = {}
+        buttonState = ButtonState.Enabled
+    }
 }

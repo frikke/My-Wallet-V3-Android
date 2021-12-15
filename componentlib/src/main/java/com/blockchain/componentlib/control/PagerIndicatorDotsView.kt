@@ -30,4 +30,9 @@ class PagerIndicatorDotsView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        selectedIndex = 0
+        count = 2
+    }
 }

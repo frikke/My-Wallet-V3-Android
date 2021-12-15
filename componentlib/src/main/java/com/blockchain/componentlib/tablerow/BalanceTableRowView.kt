@@ -43,4 +43,14 @@ class BalanceTableRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        startImageResource = ImageResource.None
+        titleStart = buildAnnotatedString { }
+        titleEnd = buildAnnotatedString { }
+        bodyStart = buildAnnotatedString { }
+        bodyEnd = buildAnnotatedString { }
+        onClick = {}
+        tags = null
+    }
 }

@@ -26,4 +26,8 @@ class TagsRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        tags = emptyList()
+    }
 }

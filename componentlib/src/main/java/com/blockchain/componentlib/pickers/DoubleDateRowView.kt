@@ -30,4 +30,9 @@ class DoubleDateRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        topDateRowData = DateRowData("", "")
+        bottomDateRowData = DateRowData("", "")
+    }
 }

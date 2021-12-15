@@ -41,4 +41,14 @@ class TextInputView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        value = ""
+        onValueChange = { _: String -> }
+        state = TextInputState.Default()
+        labelText = ""
+        placeholderText = ""
+        trailingIconResource = ImageResource.None
+        leadingIconResource = ImageResource.None
+    }
 }

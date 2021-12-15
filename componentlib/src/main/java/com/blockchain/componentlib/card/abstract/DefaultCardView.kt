@@ -39,4 +39,12 @@ class DefaultCardView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        title = ""
+        subtitle = ""
+        iconResource = ImageResource.None
+        callToActionButton = null
+        onClose = {}
+    }
 }

@@ -28,4 +28,8 @@ class DateRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        dateRowData = DateRowData("", "")
+    }
 }

@@ -50,4 +50,18 @@ class DefaultTableRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        primaryText = ""
+        secondaryText = null
+        paragraphText = null
+        onClick = {}
+        tags = null
+        endTag = null
+        startImageResource = ImageResource.None
+        endImageResource = ImageResource.Local(
+            id = R.drawable.ic_chevron_end,
+            contentDescription = null,
+        )
+    }
 }

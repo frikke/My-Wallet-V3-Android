@@ -42,4 +42,14 @@ class BalanceStackedIconTableRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        topImageResource = ImageResource.None
+        bottomImageResource = ImageResource.None
+        titleStart = buildAnnotatedString { }
+        titleEnd = buildAnnotatedString { }
+        bodyStart = buildAnnotatedString { }
+        bodyEnd = buildAnnotatedString { }
+        onClick = {}
+    }
 }

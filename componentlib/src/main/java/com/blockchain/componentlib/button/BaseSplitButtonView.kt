@@ -25,6 +25,20 @@ abstract class BaseSplitButtonView @JvmOverloads constructor(
     var endButtonIcon: ImageResource by mutableStateOf(ImageResource.None)
 
     var primaryButtonAlignment by mutableStateOf(Alignment.START)
+
+    fun clearState() {
+        onPrimaryButtonClick = {}
+        primaryButtonText = ""
+        primaryButtonState = ButtonState.Enabled
+        startButtonIcon = ImageResource.None
+
+        onSecondaryButtonClick = {}
+        secondaryButtonText = ""
+        secondaryButtonState = ButtonState.Enabled
+        endButtonIcon = ImageResource.None
+
+        primaryButtonAlignment = Alignment.START
+    }
 }
 
 enum class Alignment {

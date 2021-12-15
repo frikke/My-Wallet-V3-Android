@@ -32,4 +32,9 @@ class DefaultToastAlertView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        text = ""
+        startIconDrawableRes = ResourcesCompat.ID_NULL
+    }
 }

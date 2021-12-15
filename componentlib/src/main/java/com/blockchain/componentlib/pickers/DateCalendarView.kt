@@ -33,4 +33,10 @@ class DateCalendarView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        minimumDate = null
+        maximumDate = null
+        onDateSelected = { _: Date -> }
+    }
 }

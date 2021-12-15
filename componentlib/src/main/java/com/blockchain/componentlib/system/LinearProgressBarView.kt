@@ -28,4 +28,8 @@ class LinearProgressBarView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        progress = null
+    }
 }

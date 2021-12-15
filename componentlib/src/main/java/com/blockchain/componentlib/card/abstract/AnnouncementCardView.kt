@@ -36,4 +36,11 @@ class AnnouncementCardView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        title = ""
+        subtitle = ""
+        iconResource = ImageResource.None
+        onClose = {}
+    }
 }

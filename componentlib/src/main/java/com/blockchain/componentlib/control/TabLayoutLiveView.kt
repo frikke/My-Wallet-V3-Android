@@ -35,4 +35,10 @@ class TabLayoutLiveView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        items = emptyList()
+        onItemSelected = { _: Int -> }
+        selectedItemIndex = 0
+    }
 }

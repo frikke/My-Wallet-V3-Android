@@ -37,4 +37,12 @@ class DialogueCardView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        icon = ResourcesCompat.ID_NULL
+        title = null
+        body = ""
+        firstButton = DialogueButton("", {})
+        secondButton = null
+    }
 }

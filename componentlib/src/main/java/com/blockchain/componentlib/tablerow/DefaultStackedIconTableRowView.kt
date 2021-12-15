@@ -37,4 +37,12 @@ class DefaultStackedIconTableRowView @JvmOverloads constructor(
             }
         }
     }
+
+    fun clearState() {
+        primaryText = ""
+        secondaryText = ""
+        onClick = {}
+        topImageResource = ImageResource.None
+        bottomImageResource = ImageResource.None
+    }
 }
