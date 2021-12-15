@@ -221,6 +221,18 @@ class BuySellFragment :
 
             set.connect(
                 redesignTablayout.id,
+                ConstraintSet.START,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.START
+            )
+            set.connect(
+                redesignTablayout.id,
+                ConstraintSet.END,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.END
+            )
+            set.connect(
+                redesignTablayout.id,
                 ConstraintSet.TOP,
                 divider.id,
                 ConstraintSet.BOTTOM
