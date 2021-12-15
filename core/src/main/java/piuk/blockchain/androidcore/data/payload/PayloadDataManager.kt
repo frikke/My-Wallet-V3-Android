@@ -39,6 +39,7 @@ import org.bitcoinj.script.Script
 import piuk.blockchain.androidcore.data.metadata.MetadataCredentials
 import piuk.blockchain.androidcore.utils.RefreshUpdater
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
+import piuk.blockchain.androidcore.utils.extensions.then
 
 class WalletUpgradeFailure(
     msg: String,
@@ -209,9 +210,14 @@ class PayloadDataManager internal constructor(
             sharedKey = sharedKey,
             guid = guid,
             password = password
-        ).doOnComplete {
-            logWalletStats()
-        }
+        )
+            .then {
+                logWalletStats(hasRecoveredDerivations = false)
+                recoverMissingDerivations()
+            }
+            .doOnComplete {
+                logWalletStats(hasRecoveredDerivations = true)
+            }
             .applySchedulers()
 
     /**
@@ -260,10 +266,12 @@ class PayloadDataManager internal constructor(
         }
     }
 
-    private fun logWalletStats() {
+    private fun logWalletStats(hasRecoveredDerivations: Boolean) {
         logWalletUpgradeStats()
+        crashLogger.logState("tried recovering derivations", hasRecoveredDerivations.toString())
         payloadManager.payload?.let { payload ->
             crashLogger.logState("wallet wrapper version", payload.walletBody?.wrapperVersion.toString())
+            crashLogger.logState("wallet has second password", isDoubleEncrypted.toString())
             payload.walletBody?.accounts?.map { account ->
                 crashLogger.logState("account is archived", account.isArchived.toString())
                 val hasNullOrEmptyXPub = account.xpubs.allAddresses().find { address ->
@@ -298,6 +306,22 @@ class PayloadDataManager internal constructor(
             }
         }
     }
+
+    private fun recoverMissingDerivations(): Completable {
+        val accountsWithMissingDerivations = payloadManager.payload?.walletBody?.accounts?.filter { account ->
+            account is AccountV4 && account.derivations.isEmpty()
+        }
+        return when {
+            accountsWithMissingDerivations.isNullOrEmpty() || isDoubleEncrypted -> Completable.complete()
+            else -> {
+                accountsWithMissingDerivations.forEach { account ->
+                    payloadManager.payload?.walletBody?.generateDerivationsForAccount(account)
+                }
+                syncPayloadWithServer()
+            }
+        }
+    }
+
     // /////////////////////////////////////////////////////////////////////////
     // SYNC METHODS
     // /////////////////////////////////////////////////////////////////////////
