@@ -382,7 +382,7 @@ class SimpleBuyInteractor(
 
     fun pollForOrderStatus(orderId: String): Single<BuySellOrder> =
         custodialWalletManager.getBuyOrder(orderId)
-            .repeatWhen { it.delay(INTERVAL, TimeUnit.SECONDS).zipWith(Flowable.range(0, RETRIES_LONG)) }
+            .repeatWhen { it.delay(INTERVAL, TimeUnit.SECONDS).zipWith(Flowable.range(0, RETRIES_SHORT)) }
             .takeUntil {
                 it.state == OrderState.FINISHED ||
                     it.state == OrderState.FAILED ||
@@ -500,7 +500,6 @@ class SimpleBuyInteractor(
         private const val INTERVAL: Long = 5
         private const val RETRIES_SHORT = 6
         private const val RETRIES_DEFAULT = 12
-        private const val RETRIES_LONG = 20
         private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
         private const val NO_PAYMENT_TOKENS_ERROR = "Couldn't get any payment token"
         private const val PENDING = "pending"

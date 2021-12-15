@@ -38,7 +38,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
-import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -739,7 +738,7 @@ class SimpleBuyModel(
                     CardAcquirerCredentials.Checkout(
                         apiKey = paymentAttributes.publishableApiKey,
                         paymentLink = paymentAttributes.paymentLink,
-                        exitLink = CardProviderActivator.CHECKOUT_EXIT_LINK
+                        exitLink = cardActivator.redirectUrl
                     )
                 )
                 CardAcquirer.EVERYPAY -> {
