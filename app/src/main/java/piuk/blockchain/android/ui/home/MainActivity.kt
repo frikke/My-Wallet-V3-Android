@@ -194,7 +194,7 @@ class MainActivity :
             SettingsActivity.Companion.SettingsAction.Exchange ->
                 model.process(MainIntent.LaunchExchange)
             SettingsActivity.Companion.SettingsAction.Airdrops ->
-                AirdropCentreActivity.start(this)
+                startActivity(AirdropCentreActivity.newIntent(this))
             SettingsActivity.Companion.SettingsAction.WebLogin ->
                 QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
             SettingsActivity.Companion.SettingsAction.Logout -> showLogoutDialog()

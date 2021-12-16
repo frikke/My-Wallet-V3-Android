@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -22,50 +22,41 @@ class SettingsModel(
     crashLogger
 ) {
 
-    private val compositeDisposable = CompositeDisposable()
-
-    fun clearDisposables() = compositeDisposable.clear()
-
     override fun performAction(
         previousState: SettingsState,
         intent: SettingsIntent
     ): Disposable? =
         when (intent) {
-            is SettingsIntent.LoadContactSupportEligibility -> {
-                if (!previousState.contactSupportLoaded) {
-                    interactor.checkContactSupportEligibility()
-                        .subscribeBy(
-                            onSuccess = { (isSimpleBuyEligible, userInformation) ->
-                                if (isSimpleBuyEligible) {
-                                    process(
-                                        SettingsIntent
-                                            .LoadedContactSupportEligibility(
-                                                contactSupportLoaded = true,
-                                                userInformation = userInformation
-                                            )
-                                    )
-                                } else {
-                                    process(
-                                        SettingsIntent
-                                            .LoadedContactSupportEligibility(
-                                                contactSupportLoaded = true
-                                            )
-                                    )
-                                }
-                            }, onError = {
-                            Timber.e("LoadContactSupportEligibility failure")
+            is SettingsIntent.LoadInitialInformation -> {
+                interactor.getSupportEligibilityAndBasicInfo()
+                    .subscribeBy(
+                        onSuccess = { (isEligibleForChat, userInformation) ->
                             process(
-                                SettingsIntent
-                                    .LoadedContactSupportEligibility(
-                                        contactSupportLoaded = false
-                                    )
+                                SettingsIntent.UpdateContactSupportEligibility(
+                                    isSupportChatEnabled = isEligibleForChat,
+                                    userInformation = userInformation
+                                )
                             )
-                        }
+                        }, onError = {
+                        process(
+                            SettingsIntent.UpdateContactSupportEligibility(
+                                isSupportChatEnabled = false
+                            )
                         )
-                } else {
-                    null
-                }
+                    }
+                    )
             }
-            is SettingsIntent.LoadedContactSupportEligibility -> null
-        }
+            is SettingsIntent.UnpairWallet -> interactor.unpairWallet().subscribeBy(
+                onComplete = {
+                    process(SettingsIntent.UserLoggedOut)
+                },
+                onError = {
+                    Timber.e("Unpair wallet failed")
+                }
+            )
+            is SettingsIntent.UserLoggedOut,
+            is SettingsIntent.UpdateViewToLaunch,
+            is SettingsIntent.ResetViewState,
+            is SettingsIntent.UpdateContactSupportEligibility -> null
+        }.exhaustive
 }

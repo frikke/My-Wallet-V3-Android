@@ -37,7 +37,7 @@ class NabuUserIdentity(
             is Feature.Interest -> interestEligibilityProvider.getEligibilityForCustodialAssets()
                 .map { assets -> assets.map { it.cryptoCurrency }.contains(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
-        }.exhaustive
+        }
     }
 
     override fun isVerifiedFor(feature: Feature): Single<Boolean> {

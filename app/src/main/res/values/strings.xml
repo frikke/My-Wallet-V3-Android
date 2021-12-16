@@ -2497,11 +2497,32 @@
 
     <!-- Settings screen -->
     <string name="settings_see_profile">See Profile</string>
-    <string name="settings_profile_toolbar">Profile</string>
+    <string name="settings_label_payments">Payment Methods</string>
+    <string name="settings_title_no_payments">No Payment Methods</string>
+    <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
+    <string name="settings_label_settings">Settings</string>
+    <string name="settings_title_account">Account</string>
+    <string name="settings_subtitle_account">Limits, Currency, Notifications and more</string>
+    <string name="settings_title_security">Security</string>
+    <string name="settings_subtitle_security">Login Methods, Backup Phrases and more</string>
+    <string name="settings_title_about_app">About App</string>
+    <string name="settings_subtitle_about_app">Support, Airdrops and Policies</string>
+    <string name="settings_sign_out">Sign Out</string>
+    <string name="settings_fullname">%1s %2s</string>
+
+    <!-- Profile screen -->
+    <string name="profile_toolbar">Profile</string>
     <string name="profile_label_name">Name</string>
     <string name="profile_label_surname">Surname</string>
     <string name="profile_label_email">Email</string>
     <string name="profile_label_mobile">Mobile</string>
 
+    <!-- About app screen -->
+    <string name="about_app_toolbar">About App</string>
+    <string name="about_app_contact_support">Contact Support</string>
+    <string name="about_app_airdrops">Airdrops</string>
+    <string name="about_app_rate_app">Rate Our App</string>
+    <string name="about_app_terms_service">Terms of Service</string>
+    <string name="about_app_privacy_policy">Privacy Policy</string>
 
 </resources>

@@ -31,7 +31,7 @@ import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
-import com.blockchain.api.wallet.WalletApiInterface
+import com.blockchain.api.wallet.WalletApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -141,7 +141,7 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(explorerApi).create(WalletApiInterface::class.java)
+        val api = get<Retrofit>(explorerApi).create(WalletApi::class.java)
         WalletSettingsService(
             api,
             getProperty("api-code")

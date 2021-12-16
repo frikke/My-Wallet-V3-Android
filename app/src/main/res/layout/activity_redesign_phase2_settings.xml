@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_layout"
@@ -8,8 +8,9 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <com.blockchain.componentlib.navigation.NavigationBarView
+    <include
         android:id="@+id/toolbar"
+        layout="@layout/toolbar_general"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -26,18 +27,22 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/name"
+                style="@style/TextAppearance.Blockchain.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearance.Blockchain.Title3"
+                android:layout_marginTop="@dimen/tiny_margin"
+                android:alpha="0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/email"
+                style="@style/TextAppearance.Blockchain.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearance.Blockchain.Body1"
+                android:layout_marginTop="@dimen/tiny_margin"
+                android:alpha="0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/name" />
@@ -46,15 +51,80 @@
                 android:id="@+id/see_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/tiny_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/email" />
+
+            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+                android:id="@+id/header_payments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/xlarge_margin"
+                app:layout_constraintTop_toBottomOf="@id/see_profile" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/payments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/header_payments" />
+
+            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+                android:id="@+id/header_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/payments" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/account_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/header_settings" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:id="@+id/divider_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/account_group" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/security_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/divider_1" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:id="@+id/divider_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/security_group" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/about_app_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/divider_2" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:id="@+id/divider_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/about_app_group" />
+
+            <com.blockchain.componentlib.button.MinimalButtonView
+                android:id="@+id/sign_out_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/xhuge_margin"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
+                app:layout_constraintTop_toBottomOf="@id/divider_3" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/settings_addresses"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/see_profile" />
+                app:layout_constraintTop_toBottomOf="@id/sign_out_btn" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/settings_exchange"
@@ -63,29 +133,10 @@
                 app:layout_constraintTop_toBottomOf="@id/settings_addresses" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/settings_airdrops"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/settings_exchange" />
-
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/settings_web_login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/settings_airdrops" />
-
-            <FrameLayout
-                android:id="@+id/content_frame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@id/settings_logout"
-                app:layout_constraintTop_toBottomOf="@id/settings_web_login" />
-
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/settings_logout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@id/settings_debug" />
+                app:layout_constraintTop_toBottomOf="@id/settings_exchange" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/settings_debug"
@@ -95,4 +146,4 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-</LinearLayout>
+</androidx.appcompat.widget.LinearLayoutCompat>

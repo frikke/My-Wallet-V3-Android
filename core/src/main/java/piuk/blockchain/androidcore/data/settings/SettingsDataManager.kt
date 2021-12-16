@@ -232,6 +232,12 @@ class SettingsDataManager(
             sharedKey = sharedKey
         )
 
+    fun fetchWalletSettings(guid: String, sharedKey: String) =
+        walletSettingsService.fetchWalletSettings(
+            guid = guid,
+            sharedKey = sharedKey
+        )
+
     fun triggerOnChainTransaction(
         guid: String,
         sharedKey: String,

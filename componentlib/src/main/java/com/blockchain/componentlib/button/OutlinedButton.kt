@@ -25,6 +25,7 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Dark300
@@ -49,7 +50,7 @@ fun OutlinedButton(
         loadingIconResId: Int,
         icon: ImageResource,
     ) -> Unit,
-    pressedButtonLightColor: Color = Grey000,
+    pressedButtonLightColor: Color = Blue000,
     pressedButtonDarkColor: Color = Dark800,
     pressedBorderLightColor: Color = Blue600,
     pressedBorderDarkColor: Color = Blue400,
@@ -133,7 +134,7 @@ fun OutlinedButton(
             interactionSource = interactionSource,
             shape = shape,
             colors = ButtonDefaults.outlinedButtonColors(
-                backgroundColor = animateColorAsState(targetValue = backgroundColor).value,
+                backgroundColor = backgroundColor,
                 contentColor = Color.Unspecified,
                 disabledContentColor = Color.Unspecified,
             ),

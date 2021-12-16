@@ -4,6 +4,13 @@ import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.ui.base.mvi.MviState
 
 data class SettingsState(
-    val userInformation: BasicProfileInfo? = null,
-    val contactSupportLoaded: Boolean = false
+    val basicProfileInfo: BasicProfileInfo? = null,
+    val hasWalletUnpaired: Boolean = false,
+    val isSupportChatEnabled: Boolean = false,
+    val viewToLaunch: ViewToLaunch = ViewToLaunch.None
 ) : MviState
+
+sealed class ViewToLaunch {
+    object None : ViewToLaunch()
+    object Profile : ViewToLaunch()
+}

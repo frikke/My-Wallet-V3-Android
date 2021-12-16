@@ -26,9 +26,10 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.theme.Dark700
-import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.Grey200
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey600
+import com.blockchain.componentlib.theme.Grey800
 
 sealed class TextInputState(val message: String? = null) {
     data class Default(val defaultMessage: String? = null) : TextInputState(defaultMessage)
@@ -87,14 +88,14 @@ fun TextInput(
     val textColor = if (enabled) {
         AppTheme.colors.title
     } else {
-        Grey600
+        Grey800
     }
 
     val backgroundColor = if (enabled) {
         AppTheme.colors.light
     } else {
         if (!isSystemInDarkTheme()) {
-            Grey100
+            Grey200
         } else {
             Dark700
         }

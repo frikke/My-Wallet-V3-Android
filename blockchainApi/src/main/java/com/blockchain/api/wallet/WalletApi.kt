@@ -7,7 +7,7 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 
-internal interface WalletApiInterface {
+internal interface WalletApi {
 
     @FormUrlEncoded
     @POST("wallet")

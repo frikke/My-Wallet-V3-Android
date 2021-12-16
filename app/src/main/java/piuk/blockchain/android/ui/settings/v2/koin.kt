@@ -3,6 +3,9 @@ package piuk.blockchain.android.ui.settings.v2
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
+import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
+import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
+import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
 
 val redesignSettingsModule = module {
 
@@ -19,7 +22,9 @@ val redesignSettingsModule = module {
 
         factory {
             SettingsInteractor(
-                userIdentity = get()
+                userIdentity = get(),
+                database = get(),
+                credentialsWiper = get()
             )
         }
 
@@ -36,7 +41,8 @@ val redesignSettingsModule = module {
         factory {
             ProfileInteractor(
                 emailUpdater = get(),
-                settingsDataManager = get()
+                settingsDataManager = get(),
+                prefs = get()
             )
         }
     }

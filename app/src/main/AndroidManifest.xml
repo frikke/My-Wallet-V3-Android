@@ -226,7 +226,8 @@
         <activity android:name=".ui.home.ActionActivity" />
         <activity android:name=".ui.settings.v2.SettingsActivity" />
         <activity android:name=".ui.settings.v2.RedesignSettingsPhase2Activity" />
-        <activity android:name=".ui.settings.v2.ProfileActivity" />
+        <activity android:name=".ui.settings.v2.profile.ProfileActivity" />
+        <activity android:name=".ui.settings.v2.AboutAppActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

@@ -70,9 +70,8 @@ class AirdropCentreActivity :
     }
 
     companion object {
-        fun start(ctx: Context) {
-            Intent(ctx, AirdropCentreActivity::class.java).run { ctx.startActivity(this) }
-        }
+        fun newIntent(context: Context?) =
+            Intent(context, AirdropCentreActivity::class.java)
     }
 
     override fun onSheetClosed() {

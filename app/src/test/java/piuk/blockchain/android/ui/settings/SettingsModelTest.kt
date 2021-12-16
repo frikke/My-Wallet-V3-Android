@@ -44,16 +44,19 @@ class SettingsModelTest {
 
     @Test
     fun `checkContactSupportEligibility is simple buy NOT Eligible`() {
-        whenever(interactor.checkContactSupportEligibility()).thenReturn(Single.just(Pair(false, mock())))
+        val userInformation = mock<BasicProfileInfo>()
+        whenever(userInformation.email).thenReturn("paco@gmail.com")
+
+        whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(Single.just(Pair(false, userInformation)))
 
         val testState = model.state.test()
-        model.process(SettingsIntent.LoadContactSupportEligibility)
+        model.process(SettingsIntent.LoadInitialInformation)
 
         testState
             .assertValueAt(0) {
                 it == SettingsState()
             }.assertValueAt(1) {
-                it == SettingsState(contactSupportLoaded = true)
+                it == SettingsState(basicProfileInfo = userInformation, isSupportChatEnabled = false)
             }
     }
 
@@ -62,25 +65,25 @@ class SettingsModelTest {
         val userInformation = mock<BasicProfileInfo>()
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
-        whenever(interactor.checkContactSupportEligibility()).thenReturn(Single.just(Pair(true, userInformation)))
+        whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(Single.just(Pair(true, userInformation)))
 
         val testState = model.state.test()
-        model.process(SettingsIntent.LoadContactSupportEligibility)
+        model.process(SettingsIntent.LoadInitialInformation)
 
         testState
             .assertValueAt(0) {
                 it == SettingsState()
             }.assertValueAt(1) {
-                it == SettingsState(userInformation = userInformation, contactSupportLoaded = true)
+                it == SettingsState(basicProfileInfo = userInformation, isSupportChatEnabled = true)
             }
     }
 
     @Test
     fun `checkContactSupportEligibility throws error`() {
-        whenever(interactor.checkContactSupportEligibility()).thenReturn(Single.error { Throwable() })
+        whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(Single.error { Throwable() })
 
         val testState = model.state.test()
-        model.process(SettingsIntent.LoadContactSupportEligibility)
+        model.process(SettingsIntent.LoadInitialInformation)
 
         testState
             .assertValueAt(0) { it == SettingsState() }
