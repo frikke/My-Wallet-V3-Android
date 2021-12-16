@@ -19,11 +19,11 @@ fun TagsRow(
     ) {
         tags.forEachIndexed { index, tag ->
             when (tag.type) {
-                TagType.Default -> DefaultTag(text = tag.value)
-                TagType.InfoAlt -> InfoAltTag(text = tag.value)
-                TagType.Success -> SuccessTag(text = tag.value)
-                TagType.Warning -> WarningTag(text = tag.value)
-                TagType.Error -> ErrorTag(text = tag.value)
+                is TagType.Default -> DefaultTag(text = tag.value, size = tag.type.size)
+                is TagType.InfoAlt -> InfoAltTag(text = tag.value, size = tag.type.size)
+                is TagType.Success -> SuccessTag(text = tag.value, size = tag.type.size)
+                is TagType.Warning -> WarningTag(text = tag.value, size = tag.type.size)
+                is TagType.Error -> ErrorTag(text = tag.value, size = tag.type.size)
             }
             if (index != tags.lastIndex) {
                 Spacer(modifier = Modifier.width(8.dp))

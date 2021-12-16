@@ -32,7 +32,7 @@ class DefaultTableRowActivity : AppCompatActivity() {
                 Toast.makeText(this@DefaultTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
                     .show()
             }
-            endTag = TagViewState("Completed", TagType.Success)
+            endTag = TagViewState("Completed", TagType.Success())
         }
 
         findViewById<DefaultTableRowView>(R.id.default_image_table_row).apply {
@@ -51,7 +51,7 @@ class DefaultTableRowActivity : AppCompatActivity() {
         findViewById<DefaultTableRowView>(R.id.tag_table_row).apply {
             primaryText = "Email Address"
             secondaryText = "satoshi@blockchain.com"
-            tags = listOf(TagViewState("Confirmed", TagType.Success))
+            tags = listOf(TagViewState("Confirmed", TagType.Success()))
             onClick = {
                 Toast.makeText(this@DefaultTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
                     .show()
@@ -80,7 +80,7 @@ class DefaultTableRowActivity : AppCompatActivity() {
             secondaryText = "Instant connection"
             paragraphText = "Securely link a bank to buy crypto, deposit cash " +
                 "and withdraw back to your bank at anytime."
-            tags = listOf(TagViewState("Fastest", TagType.Success))
+            tags = listOf(TagViewState("Fastest", TagType.Success()))
         }
 
         findViewById<DefaultTableRowView>(R.id.large_table_row_with_image).apply {
@@ -92,7 +92,7 @@ class DefaultTableRowActivity : AppCompatActivity() {
                 url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
                 contentDescription = null,
             )
-            tags = listOf(TagViewState("Fastest", TagType.Success))
+            tags = listOf(TagViewState("Fastest", TagType.Success()))
         }
 
         findViewById<ToggleTableRowView>(R.id.toggle_table_row).apply {

@@ -39,7 +39,7 @@ fun DefaultTableRowEndTagPreview() {
                 primaryText = "Navigate over here",
                 secondaryText = "Text for more info",
                 onClick = {},
-                endTag = TagViewState("Complete", TagType.Success)
+                endTag = TagViewState("Complete", TagType.Success())
             )
         }
     }
@@ -57,27 +57,27 @@ fun TagTableRowPreview() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                 ),
             )
@@ -120,27 +120,27 @@ fun LargeTableRowPreview() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                 ),
             )

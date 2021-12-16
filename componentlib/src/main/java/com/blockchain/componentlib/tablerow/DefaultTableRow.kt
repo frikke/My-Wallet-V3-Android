@@ -142,7 +142,7 @@ fun DefaultTableRow_TwoLine_EndTag() {
                 primaryText = "Navigate over here",
                 secondaryText = "Text for more info",
                 onClick = {},
-                endTag = TagViewState("Complete", TagType.Success)
+                endTag = TagViewState("Complete", TagType.Success())
             )
         }
     }
@@ -201,7 +201,7 @@ fun DefaultTableRow_Tag() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     )
                 )
             )
@@ -221,27 +221,27 @@ fun DefaultTableRow_Tag_Dark() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     )
                 )
             )
@@ -262,7 +262,7 @@ fun DefaultTableRow_Long_Tag() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     )
                 )
             )
@@ -283,27 +283,27 @@ fun DefaultTableRow_Long_Tag_Dark() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     )
                 )
             )
@@ -340,7 +340,7 @@ fun DefaultTableRow_Local_ImageStart_EndTag() {
                     id = R.drawable.carousel_rewards,
                     contentDescription = null
                 ),
-                endTag = TagViewState("Complete", TagType.Success),
+                endTag = TagViewState("Complete", TagType.Success()),
             )
         }
     }

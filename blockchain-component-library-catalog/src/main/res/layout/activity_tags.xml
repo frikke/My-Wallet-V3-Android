@@ -4,10 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".abstract_compose_view.TagsActivity">
 
     <com.blockchain.componentlib.tag.TagsRowView
         android:id="@+id/tags_row"
+        android:layout_margin="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.blockchain.componentlib.tag.TagsRowView
+        android:id="@+id/large_tags_row"
+        android:layout_margin="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

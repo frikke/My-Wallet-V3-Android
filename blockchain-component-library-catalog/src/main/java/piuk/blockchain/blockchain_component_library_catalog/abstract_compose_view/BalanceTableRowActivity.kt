@@ -42,7 +42,7 @@ class BalanceTableRowActivity : AppCompatActivity() {
                 url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
                 contentDescription = null,
             )
-            tags = listOf(TagViewState("Confirmed", TagType.Success))
+            tags = listOf(TagViewState("Confirmed", TagType.Success()))
             onClick = {
                 Toast.makeText(this@BalanceTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
                     .show()
