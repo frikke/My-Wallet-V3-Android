@@ -11,14 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/portfolio_layout_group"
+        <ProgressBar
+            android:id="@+id/dashboard_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="recycler_view, dashboard_progress" />
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+            android:id="@+id/portfolio_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/white"
@@ -26,18 +31,9 @@
             android:fadingEdgeLength="@dimen/very_small_margin"
             android:fitsSystemWindows="true"
             android:requiresFadingEdge="vertical"
-            tools:itemCount="10"
-            tools:listitem="@layout/item_dashboard_asset_card" />
-
-        <ProgressBar
-            android:id="@+id/dashboard_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            tools:itemCount="10"
+            tools:listitem="@layout/item_dashboard_asset_card"
             tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.Group
@@ -121,8 +117,8 @@
             android:layout_marginEnd="@dimen/standard_margin"
             android:layout_marginBottom="@dimen/small_margin"
             android:elevation="@dimen/small_elevation"
-            android:visibility="gone"
             android:text="@string/common_buy_crypto"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

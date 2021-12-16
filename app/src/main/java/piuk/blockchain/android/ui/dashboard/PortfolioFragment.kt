@@ -81,7 +81,9 @@ import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.configureWithPinnedButton
+import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.launchUrlInBrowser
+import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
@@ -197,8 +199,6 @@ class PortfolioFragment :
 
         updateAnalytics(this.state, newState)
 
-        binding.dashboardProgress.visibleIf { newState.hasLongCallInProgress }
-
         this.state = newState
     }
 
@@ -242,12 +242,9 @@ class PortfolioFragment :
                 val atLeastOneFiatAssetHasBalancePositive =
                     fiatAssets.any { it.value.availableBalance?.isPositive == true }
 
-                val showPortfolio =
-                    isLoading || atLeastOneCryptoAssetHasBalancePositive ||
-                        atLeastOneFiatAssetHasBalancePositive
+                val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
 
-                binding.portfolioLayoutGroup.visibleIf { showPortfolio }
-                binding.emptyPortfolioGroup.visibleIf { !showPortfolio }
+                manageLoadingState(isLoading, showPortfolio)
 
                 val showBuyBottomButton = showPortfolio &&
                     !isLoading &&
@@ -264,9 +261,30 @@ class PortfolioFragment :
         theAdapter.notifyDataSetChanged()
     }
 
+    private fun manageLoadingState(isLoading: Boolean, showPortfolio: Boolean) {
+        with(binding) {
+            when {
+                isLoading && showPortfolio -> {
+                    portfolioRecyclerView.visible()
+                    dashboardProgress.gone()
+                }
+                isLoading -> {
+                    portfolioRecyclerView.gone()
+                    emptyPortfolioGroup.gone()
+                    dashboardProgress.visible()
+                }
+                else -> {
+                    portfolioRecyclerView.visibleIf { showPortfolio }
+                    emptyPortfolioGroup.visibleIf { !showPortfolio }
+                    dashboardProgress.gone()
+                }
+            }
+        }
+    }
+
     private fun configureListAndBuyButton(showBuyBottomButton: Boolean) {
         with(binding) {
-            recyclerView.configureWithPinnedButton(buyCryptoBottomButton, showBuyBottomButton)
+            portfolioRecyclerView.configureWithPinnedButton(buyCryptoBottomButton, showBuyBottomButton)
         }
     }
 
@@ -390,7 +408,7 @@ class PortfolioFragment :
         displayList[IDX_CARD_ANNOUNCE] = card ?: EmptyDashboardItem()
         theAdapter.notifyItemChanged(IDX_CARD_ANNOUNCE)
         card?.let {
-            binding.recyclerView.smoothScrollToPosition(IDX_CARD_ANNOUNCE)
+            binding.portfolioRecyclerView.smoothScrollToPosition(IDX_CARD_ANNOUNCE)
         }
     }
 
@@ -448,7 +466,7 @@ class PortfolioFragment :
     }
 
     private fun setupRecycler() {
-        binding.recyclerView.apply {
+        binding.portfolioRecyclerView.apply {
             layoutManager = theLayoutManager
             adapter = theAdapter
 
