@@ -58,7 +58,7 @@ class EURPaymentAccountMapper(private val resources: Resources) : PaymentAccount
 
                 BankDetail(
                     resources.getString(R.string.iban),
-                    bankAccountResponse.address ?: return null, true
+                    bankAccountResponse.address.formatIBAN() ?: return null, true
                 ),
 
                 BankDetail(
@@ -67,6 +67,10 @@ class EURPaymentAccountMapper(private val resources: Resources) : PaymentAccount
                 )
             )
         )
+    }
+
+    private fun String?.formatIBAN(): String? {
+        return this?.replace(Regex(".{4}"), "$0 ")?.trim()
     }
 }
 
