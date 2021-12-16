@@ -1,10 +1,13 @@
 package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,9 +26,11 @@ fun BalanceTableRow(
     bodyStart: AnnotatedString,
     bodyEnd: AnnotatedString? = null,
     startImageResource: ImageResource,
+    isInlineTags: Boolean = false,
     tags: List<TagViewState>,
     onClick: () -> Unit
 ) {
+
     TableRow(
         content = {
             Column(
@@ -39,12 +44,39 @@ fun BalanceTableRow(
                     textStyle = AppTheme.typography.body2,
                     textColor = AppTheme.colors.title
                 )
-                TableRowText(
-                    startText = bodyStart,
-                    endText = bodyEnd,
-                    textStyle = AppTheme.typography.paragraph1,
-                    textColor = AppTheme.colors.body
-                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = bodyStart,
+                            style = AppTheme.typography.paragraph1,
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .align(Alignment.CenterVertically),
+                            color = AppTheme.colors.body
+                        )
+                        if (isInlineTags) {
+                            TagsRow(
+                                tags = tags,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+                    if (bodyEnd != null) {
+                        Text(
+                            text = bodyEnd,
+                            style = AppTheme.typography.paragraph1,
+                            modifier = Modifier.wrapContentSize(),
+                            color = AppTheme.colors.body
+                        )
+                    }
+                }
             }
         },
         contentStart = {
@@ -58,10 +90,10 @@ fun BalanceTableRow(
             )
         },
         contentBottom = {
-            if (!tags.isNullOrEmpty()) {
+            if (!isInlineTags && !tags.isNullOrEmpty()) {
                 TagsRow(
                     tags = tags,
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp, start = 40.dp)
                 )
             }
         },

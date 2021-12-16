@@ -26,6 +26,7 @@ class BalanceTableRowView @JvmOverloads constructor(
     var bodyEnd by mutableStateOf(buildAnnotatedString { })
     var onClick by mutableStateOf({})
     var tags by mutableStateOf(null as? List<TagViewState>?)
+    var isInlineTags by mutableStateOf(false)
 
     @Composable
     override fun Content() {
@@ -39,6 +40,7 @@ class BalanceTableRowView @JvmOverloads constructor(
                     startImageResource = startImageResource,
                     tags = tags.orEmpty(),
                     onClick = onClick,
+                    isInlineTags = isInlineTags
                 )
             }
         }

@@ -49,6 +49,23 @@ class BalanceTableRowActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<BalanceTableRowView>(R.id.inline_tag_table_row).apply {
+            titleStart = buildAnnotatedString { append("Bitcoin") }
+            titleEnd = buildAnnotatedString { append("\$44,403.13") }
+            bodyStart = buildAnnotatedString { append("BTC") }
+            bodyEnd = buildAnnotatedString { append("↓ 12.32%") }
+            startImageResource = ImageResource.Remote(
+                url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
+                contentDescription = null,
+            )
+            tags = listOf(TagViewState("Confirmed", TagType.Success))
+            onClick = {
+                Toast.makeText(this@BalanceTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            isInlineTags = true
+        }
+
         findViewById<BalanceStackedIconTableRowView>(R.id.stacked_icon_table_row).apply {
             titleStart = buildAnnotatedString { append("Bitcoin") }
             titleEnd = buildAnnotatedString { append("\$44,403.13") }

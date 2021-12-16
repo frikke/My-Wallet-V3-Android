@@ -35,7 +35,7 @@ fun SparkLine(
 
     val strokeColor = AppTheme.colors.primary
 
-    Canvas(modifier.background(Color.White)) {
+    Canvas(modifier.background(AppTheme.colors.background)) {
 
         val height = this.size.height
         val width = this.size.width
