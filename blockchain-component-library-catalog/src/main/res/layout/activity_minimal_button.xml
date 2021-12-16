@@ -47,6 +47,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Destructive Enabled"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.button.DestructiveMinimalButtonView
+            android:id="@+id/destructive_enabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="Destructive Disabled"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.button.DestructiveMinimalButtonView
+            android:id="@+id/destructive_disabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="Destructive Loading"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.button.DestructiveMinimalButtonView
+            android:id="@+id/destructive_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </ScrollView>

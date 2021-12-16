@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.button
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -60,6 +61,8 @@ fun OutlinedButton(
     disabledBorderDarkColor: Color = Grey700,
     defaultBorderLightColor: Color = Grey100,
     defaultBorderDarkColor: Color = Dark300,
+    defaultTextColor: Color? = null,
+    @DrawableRes defaultLoadingIconResId: Int? = null,
     pressedBackgroundTimeShown: Long = 250L,
     shape: Shape = AppTheme.shapes.small,
     state: ButtonState = ButtonState.Enabled,
@@ -74,7 +77,7 @@ fun OutlinedButton(
         )
     }
 
-    val textColor = when (state) {
+    val textColor = defaultTextColor ?: when (state) {
         ButtonState.Enabled -> AppTheme.colors.primary
         ButtonState.Disabled -> {
             if (isDarkTheme) disabledTextDarkColor else disabledTextLightColor
@@ -146,7 +149,7 @@ fun OutlinedButton(
                     textColor = textColor,
                     text = text,
                     textAlpha = textAlpha,
-                    loadingIconResId = if (isDarkTheme) {
+                    loadingIconResId = defaultLoadingIconResId ?: if (isDarkTheme) {
                         R.drawable.ic_loading_minimal_dark
                     } else {
                         R.drawable.ic_loading_minimal_light
