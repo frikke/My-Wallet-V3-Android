@@ -6,7 +6,6 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -15,6 +14,7 @@ import info.blockchain.balance.isErc20
 import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
 import java.io.Serializable
+import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
@@ -156,6 +156,11 @@ data class Locks(
     val fundsLocks: FundsLocks? = null
 ) : DashboardItem, Serializable
 
+sealed class DashboardOnboardingState {
+    object Hidden : DashboardOnboardingState()
+    data class Visible(val steps: List<CompletableDashboardOnboardingStep>) : DashboardOnboardingState()
+}
+
 data class DashboardState(
     val availablePrices: Map<AssetInfo, AssetPriceState> = emptyMap(),
     val dashboardNavigationAction: DashboardNavigationAction? = null,
@@ -172,8 +177,7 @@ data class DashboardState(
     val hasLongCallInProgress: Boolean = false,
     val isLoadingAssets: Boolean = true,
     val locks: Locks = Locks(),
-    val buyAccess: FeatureAccess = FeatureAccess.Unknown,
-    val buyButtonShouldBeHidden: Boolean = true
+    val onboardingState: DashboardOnboardingState = DashboardOnboardingState.Hidden
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

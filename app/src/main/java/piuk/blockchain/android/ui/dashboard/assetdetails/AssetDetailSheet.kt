@@ -53,7 +53,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAd
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
-import piuk.blockchain.android.util.configureWithPinnedButton
+import piuk.blockchain.android.util.configureWithPinnedView
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.loadInterMedium
@@ -139,7 +139,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private fun configureBuyButton(assetDisplayMap: Map<AssetFilter, AssetDisplayInfo>, buyAccess: FeatureAccess) {
         with(binding) {
-            assetList.configureWithPinnedButton(
+            assetList.configureWithPinnedView(
                 buyCryptoBottomButton,
                 assetDisplayMap.containsKey(
                     AssetFilter.Custodial

@@ -18,6 +18,10 @@ class SimpleBuySelectCurrencyFragment :
     SlidingModalBottomDialog<FragmentSimpleBuyCurrencySelectionBinding>(),
     ChangeCurrencyOptionHost {
 
+    interface Host : SlidingModalBottomDialog.Host {
+        fun onCurrencyChanged()
+    }
+
     private val currencyPrefs: CurrencyPrefs by inject()
 
     private val currencies: List<String> by unsafeLazy {
@@ -38,6 +42,7 @@ class SimpleBuySelectCurrencyFragment :
 
     private fun updateFiat(it: CurrencyItem) {
         currencyPrefs.tradingCurrency = it.symbol
+        (host as? Host)?.onCurrencyChanged()
         dismiss()
     }
 

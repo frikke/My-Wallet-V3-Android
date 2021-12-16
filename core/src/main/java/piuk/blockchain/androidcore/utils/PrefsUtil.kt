@@ -83,9 +83,9 @@ class PrefsUtil(
         get() = getValue(KEY_PRE_IDV_FAILED, false)
         set(value) = setValue(KEY_PRE_IDV_FAILED, value)
 
-    override var isOnBoardingComplete: Boolean
-        get() = getValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, false)
-        set(completed) = setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, completed)
+    override var isOnboardingComplete: Boolean
+        get() = getValue(KEY_ONBOARDING_COMPLETE, false)
+        set(completed) = setValue(KEY_ONBOARDING_COMPLETE, completed)
 
     override var isCustodialIntroSeen: Boolean
         get() = getValue(KEY_CUSTODIAL_INTRO_SEEN, false)
@@ -640,6 +640,8 @@ class PrefsUtil(
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
         private const val KEY_TAPPED_FAB = "key_tapped_fab"
+
+        private const val KEY_ONBOARDING_COMPLETE = "KEY_ONBOARDING_COMPLETE"
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"

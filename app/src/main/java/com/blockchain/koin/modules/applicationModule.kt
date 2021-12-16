@@ -51,7 +51,6 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
-import piuk.blockchain.android.data.Mapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
@@ -67,6 +66,7 @@ import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
+import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
@@ -483,21 +483,22 @@ val applicationModule = module {
         }
 
         factory {
+            GetDashboardOnboardingStepsUseCase(
+                dashboardPrefs = get(),
+                userIdentity = get(),
+                custodialWalletManager = get(),
+                tradeDataManager = get()
+            )
+        }
+
+        factory {
             TradeDataManagerImpl(
                 tradeService = get(),
                 authenticator = get(),
-                accumulatedInPeriodMapper = get(),
-                nextPaymentRecurringBuyMapper = get()
+                accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
+                nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper()
             )
         }.bind(TradeDataManager::class)
-
-        factory {
-            GetAccumulatedInPeriodToIsFirstTimeBuyerMapper()
-        }.bind(Mapper::class)
-
-        factory {
-            GetNextPaymentDateListToFrequencyDateMapper()
-        }.bind(Mapper::class)
 
         factory {
             SimpleBuyPrefsSerializerImpl(

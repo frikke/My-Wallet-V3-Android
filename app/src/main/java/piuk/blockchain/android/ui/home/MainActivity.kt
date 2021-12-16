@@ -135,7 +135,10 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        launchPortfolio()
+
+        val startDashboardOnboarding = intent.getBooleanExtra(START_DASHBOARD_ONBOARDING_KEY, false)
+        launchPortfolio(startOnboarding = startDashboardOnboarding)
+
         setupToolbar()
         setupNavigation()
 
@@ -588,12 +591,13 @@ class MainActivity :
     private fun launchPortfolio(
         action: AssetAction? = null,
         fiatCurrency: String? = null,
+        startOnboarding: Boolean = false,
         reload: Boolean = false
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
-            fragment = PortfolioFragment.newInstance(true, action, fiatCurrency),
+            fragment = PortfolioFragment.newInstance(true, action, fiatCurrency, startOnboarding),
             loadingView = binding.progress,
             reloadFragment = reload
         )
@@ -777,7 +781,7 @@ class MainActivity :
     }
 
     companion object {
-        private const val START_BUY_SELL_INTRO_KEY = "START_BUY_SELL_INTRO_KEY"
+        private const val START_DASHBOARD_ONBOARDING_KEY = "START_DASHBOARD_ONBOARDING_KEY"
         private const val SHOW_SWAP = "SHOW_SWAP"
         private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
@@ -837,7 +841,7 @@ class MainActivity :
         fun newIntent(
             context: Context,
             intentData: String?,
-            shouldLaunchBuySellIntro: Boolean,
+            shouldLaunchDashboardOnboarding: Boolean,
             shouldBeNewTask: Boolean
         ): Intent = Intent(context, MainActivity::class.java).apply {
             if (intentData != null) {
@@ -848,7 +852,7 @@ class MainActivity :
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
-            putExtra(START_BUY_SELL_INTRO_KEY, shouldLaunchBuySellIntro)
+            putExtra(START_DASHBOARD_ONBOARDING_KEY, shouldLaunchDashboardOnboarding)
         }
     }
 }

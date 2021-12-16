@@ -12,9 +12,9 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
         override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextLoadingStep = LoadingStep.Launcher)
     }
 
-    data class StartMainActivity(val data: String?, val launchBuySellIntro: Boolean) : LoaderIntents() {
+    data class StartMainActivity(val data: String?, val launchDashboardOnboarding: Boolean) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState =
-            oldState.copy(nextLoadingStep = LoadingStep.Main(data, launchBuySellIntro))
+            oldState.copy(nextLoadingStep = LoadingStep.Main(data, launchDashboardOnboarding))
     }
 
     object OnEmailVerificationFinished : LoaderIntents() {

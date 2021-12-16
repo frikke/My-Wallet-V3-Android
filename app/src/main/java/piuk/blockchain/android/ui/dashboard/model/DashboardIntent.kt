@@ -7,12 +7,12 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
@@ -69,24 +69,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                     )
                 ),
                 fiatAssets = fiatState
-            )
-        }
-    }
-
-    object GetUserCanBuy : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState
-        }
-    }
-
-    class UserBuyAccessStateUpdated(
-        private val buyButtonShouldBeHidden: Boolean,
-        private val buyAccess: FeatureAccess
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(
-                buyButtonShouldBeHidden = buyButtonShouldBeHidden,
-                buyAccess = buyAccess
             )
         }
     }
@@ -455,5 +437,24 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             oldState.copy(
                 locks = Locks(fundsLocks)
             )
+    }
+
+    object FetchOnboardingSteps : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
+    }
+
+    class FetchOnboardingStepsSuccess(
+        private val onboardingState: DashboardOnboardingState
+    ) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
+            onboardingState = onboardingState
+        )
+    }
+
+    data class LaunchDashboardOnboarding(val initialSteps: List<CompletableDashboardOnboardingStep>) :
+        DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
+            dashboardNavigationAction = DashboardNavigationAction.DashboardOnboarding(initialSteps)
+        )
     }
 }

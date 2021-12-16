@@ -184,7 +184,6 @@ class CreateWalletPresenter(
                         walletGuid = wallet.guid
                         sharedKey = wallet.sharedKey
                         email = emailEntered
-                        isOnBoardingComplete = true
                     }
                     view.startPinEntryActivity()
                 },

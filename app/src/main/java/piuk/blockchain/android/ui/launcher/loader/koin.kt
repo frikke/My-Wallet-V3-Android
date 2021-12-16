@@ -16,10 +16,8 @@ val loaderModule = module {
                 crashLogger = get(),
                 interactor = get(),
                 prefs = get(),
-                userIdentity = get(),
                 payloadDataManager = get(),
                 prerequisites = get(),
-                analytics = get(),
                 appUtil = get(),
                 authPrefs = get()
             )

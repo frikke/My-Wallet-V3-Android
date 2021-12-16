@@ -108,17 +108,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/ic_simple_buy_intro_splash" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/buy_crypto_bottom_button"
-            style="@style/CtaButton.Blue"
+        <piuk.blockchain.android.ui.customviews.DashboardOnboardingCard
+            android:id="@+id/card_onboarding"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:layout_marginBottom="@dimen/small_margin"
-            android:elevation="@dimen/small_elevation"
-            android:text="@string/common_buy_crypto"
             android:visibility="gone"
+            android:layout_margin="@dimen/standard_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

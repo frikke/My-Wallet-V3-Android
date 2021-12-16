@@ -55,7 +55,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
             is LoadingStep.Main -> {
-                onStartMainActivity(loaderStep.data, loaderStep.launchBuySellIntro)
+                onStartMainActivity(loaderStep.data, loaderStep.launchDashboardOnboarding)
             }
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.EmailVerification -> launchEmailVerification()
@@ -141,12 +141,12 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         startSingleActivity(PinEntryActivity::class.java)
     }
 
-    private fun onStartMainActivity(mainData: String?, launchBuySellIntro: Boolean) {
+    private fun onStartMainActivity(mainData: String?, shouldLaunchDashboardOnboarding: Boolean) {
         startActivity(
             MainActivity.newIntent(
                 context = this,
                 intentData = mainData,
-                shouldLaunchBuySellIntro = launchBuySellIntro,
+                shouldLaunchDashboardOnboarding = shouldLaunchDashboardOnboarding,
                 shouldBeNewTask = true
             )
         )

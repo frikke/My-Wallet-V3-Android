@@ -2479,6 +2479,19 @@
     <string name="kyc_upgrade_now_silver_description">Unlock Trade Accounts and Swap.</string>
     <string name="kyc_upgrade_now_silver_info">Unlock Swap - our in-app exchange. </string>
     <string name="kyc_upgrade_now_tier_state_under_review">In Manual Review</string>
+    <string name="dashboard_onboarding_title3">Finish setting up your Blockchain.com account and start buying crypto today.</string>
+    <string name="dashboard_onboarding_title2">Complete Your Profile.\nBuy Crypto Today.</string>
+    <string name="dashboard_onboarding_title1">Your steps towards owning the future.</string>
+    <string name="dashboard_onboarding_step_upgrade_to_gold">Verify Your ID</string>
+    <string name="dashboard_onboarding_step_link_payment_method">Link a Bank or Card</string>
+    <string name="dashboard_onboarding_step_link_buy">Buy Crypto</string>
+    <string name="dashboard_onboarding_step_complete">Complete</string>
+    <string name="dashboard_onboarding_step_upgrade_to_gold_time">3 Minutes</string>
+    <string name="dashboard_onboarding_step_link_payment_method_time">2 Minutes</string>
+    <string name="dashboard_onboarding_step_link_buy_time">10 Seconds</string>
+    <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
+    <string name="dashboard_onboarding_card_title">Complete Your Profile</string>
+    <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
     <string name="new_user_fee_waiver">New User Fee Waiver</string>
 

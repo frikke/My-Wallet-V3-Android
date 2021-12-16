@@ -136,7 +136,6 @@ class CreateWalletPresenterTest {
 
         verify(view).showProgressDialog(any())
         verify(prefsUtil).email = email
-        verify(prefsUtil).isOnBoardingComplete = true
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
         verify(prefsUtil).isNewlyCreated = true

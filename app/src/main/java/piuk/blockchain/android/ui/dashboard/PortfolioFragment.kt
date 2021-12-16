@@ -4,11 +4,13 @@ import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
-import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AssetAction
@@ -19,6 +21,7 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -26,16 +29,20 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
+import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
+import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
@@ -56,11 +63,12 @@ import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
+import piuk.blockchain.android.ui.dashboard.model.DashboardOnboardingState
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.model.Locks
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
-import piuk.blockchain.android.ui.dashboard.navigation.LinkBankNavigationAction
+import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
 import piuk.blockchain.android.ui.dashboard.sheets.FiatFundsDetailSheet
 import piuk.blockchain.android.ui.dashboard.sheets.ForceBackupForSendSheet
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
@@ -80,7 +88,7 @@ import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.util.configureWithPinnedButton
+import piuk.blockchain.android.util.configureWithPinnedView
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.launchUrlInBrowser
 import piuk.blockchain.android.util.visible
@@ -111,6 +119,8 @@ class PortfolioFragment :
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private var activeFiat = currencyPrefs.selectedFiatCurrency
+
+    private val onboardingFeatureFlag: FeatureFlag by inject(dashboardOnboardingFeatureFlag)
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
@@ -146,6 +156,10 @@ class PortfolioFragment :
 
     private val useDynamicAssets: Boolean by unsafeLazy {
         arguments?.getBoolean(USE_DYNAMIC_ASSETS) ?: false
+    }
+
+    private val startOnboarding: Boolean by unsafeLazy {
+        arguments?.getBoolean(START_DASHBOARD_ONBOARDING_KEY, false) ?: false
     }
 
     private var state: DashboardState? =
@@ -198,6 +212,7 @@ class PortfolioFragment :
         }
 
         updateAnalytics(this.state, newState)
+        updateOnboarding(newState.onboardingState)
 
         this.state = newState
     }
@@ -245,15 +260,6 @@ class PortfolioFragment :
                 val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
 
                 manageLoadingState(isLoading, showPortfolio)
-
-                val showBuyBottomButton = showPortfolio &&
-                    !isLoading &&
-                    !newState.buyButtonShouldBeHidden &&
-                    !newState.buyAccess.isBlockedDueToEligibility()
-
-                binding.buyCryptoBottomButton.configure(newState.buyAccess)
-
-                configureListAndBuyButton(showBuyBottomButton)
             }
             clear()
             addAll(newMap.values + cryptoAssets)
@@ -282,61 +288,52 @@ class PortfolioFragment :
         }
     }
 
-    private fun configureListAndBuyButton(showBuyBottomButton: Boolean) {
-        with(binding) {
-            portfolioRecyclerView.configureWithPinnedButton(buyCryptoBottomButton, showBuyBottomButton)
-        }
-    }
-
-    private fun AppCompatButton.configure(buyAccess: FeatureAccess) {
-        when (buyAccess) {
-            is FeatureAccess.Unknown,
-            is FeatureAccess.NotRequested,
-            FeatureAccess.Granted -> {
-                setOnClickListener { navigator().launchBuySell() }
-            }
-            is FeatureAccess.Blocked -> {
-                val reason = buyAccess.reason
-                if (reason is BlockedReason.TooManyInFlightTransactions) {
-                    setOnClickListener { showPendingBuysBottomSheet(reason.maxTransactions) }
-                } else throw IllegalStateException("Button should not be accessible")
-            }
-        }
-    }
-
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
         when {
-            navigationAction.isBottomSheet() -> {
+            navigationAction is DashboardNavigationAction.BottomSheet -> {
                 handleBottomSheet(navigationAction)
                 model.process(DashboardIntent.ResetDashboardNavigation)
             }
-            navigationAction is LinkBankNavigationAction -> {
+            navigationAction is DashboardNavigationAction.LinkBankWithPartner -> {
                 startBankLinking(navigationAction)
+            }
+            navigationAction is DashboardNavigationAction.DashboardOnboarding -> {
+                launchDashboardOnboarding(navigationAction.initialSteps)
+                model.process(DashboardIntent.ResetDashboardNavigation)
             }
         }
     }
 
-    private fun startBankLinking(action: DashboardNavigationAction) {
-        (action as? DashboardNavigationAction.LinkBankWithPartner)?.let {
-            startActivityForResult(
-                BankAuthActivity.newInstance(
-                    action.linkBankTransfer,
-                    when (it.assetAction) {
-                        AssetAction.FiatDeposit -> {
-                            BankAuthSource.DEPOSIT
-                        }
-                        AssetAction.Withdraw -> {
-                            BankAuthSource.WITHDRAW
-                        }
-                        else -> {
-                            throw IllegalStateException("Attempting to link from an unsupported action")
-                        }
-                    },
-                    requireContext()
-                ),
-                BankAuthActivity.LINK_BANK_REQUEST_CODE
+    private fun launchDashboardOnboarding(
+        initialSteps: List<CompletableDashboardOnboardingStep>,
+        showCloseButton: Boolean = false
+    ) {
+        activityResultDashboardOnboarding.launch(
+            DashboardOnboardingActivity.ActivityArgs(
+                initialSteps = initialSteps,
+                showCloseButton = showCloseButton
             )
-        }
+        )
+    }
+
+    private fun startBankLinking(action: DashboardNavigationAction.LinkBankWithPartner) {
+        activityResultLinkBank.launch(
+            BankAuthActivity.newInstance(
+                action.linkBankTransfer,
+                when (action.assetAction) {
+                    AssetAction.FiatDeposit -> {
+                        BankAuthSource.DEPOSIT
+                    }
+                    AssetAction.Withdraw -> {
+                        BankAuthSource.WITHDRAW
+                    }
+                    else -> {
+                        throw IllegalStateException("Attempting to link from an unsupported action")
+                    }
+                },
+                requireContext()
+            )
+        )
     }
 
     private fun handleBottomSheet(navigationAction: DashboardNavigationAction) {
@@ -424,6 +421,21 @@ class PortfolioFragment :
         }
     }
 
+    private fun updateOnboarding(newState: DashboardOnboardingState) {
+        with(binding.cardOnboarding) {
+            binding.portfolioRecyclerView.configureWithPinnedView(this, newState is DashboardOnboardingState.Visible)
+            if (newState is DashboardOnboardingState.Visible) {
+                val totalSteps = newState.steps.size
+                val completeSteps = newState.steps.count { it.isCompleted }
+                setTotalSteps(totalSteps)
+                setCompleteSteps(completeSteps)
+                setOnClickListener {
+                    model.process(DashboardIntent.LaunchDashboardOnboarding(newState.steps))
+                }
+            }
+        }
+    }
+
     override fun onBackPressed(): Boolean = false
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPortfolioBinding =
@@ -450,6 +462,17 @@ class PortfolioFragment :
                 )
                 else -> throw IllegalStateException("Unsupported flow launch for action $flowToLaunch")
             }
+        } else if (startOnboarding) {
+            compositeDisposable += onboardingFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
+                onSuccess = { isEnabled ->
+                    if (isEnabled) {
+                        val steps = DashboardOnboardingStep.values().map { step ->
+                            CompletableDashboardOnboardingStep(step, false)
+                        }
+                        launchDashboardOnboarding(steps, showCloseButton = true)
+                    }
+                }
+            )
         }
     }
 
@@ -479,7 +502,6 @@ class PortfolioFragment :
         with(binding) {
             swipe.setOnRefreshListener {
                 model.process(DashboardIntent.RefreshAllBalancesIntent(false))
-                model.process(DashboardIntent.GetUserCanBuy)
                 model.process(DashboardIntent.LoadFundsLocked)
             }
 
@@ -507,7 +529,7 @@ class PortfolioFragment :
         }
 
         announcements.checkLatest(announcementHost, compositeDisposable)
-        model.process(DashboardIntent.GetUserCanBuy)
+        model.process(DashboardIntent.FetchOnboardingSteps)
         initOrUpdateAssets()
     }
 
@@ -545,6 +567,35 @@ class PortfolioFragment :
         super.onPause()
     }
 
+    private val activityResultLinkBank =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                (state?.dashboardNavigationAction as? DashboardNavigationAction.LinkBankWithPartner)?.let {
+                    model.process(
+                        DashboardIntent.LaunchBankTransferFlow(
+                            it.fiatAccount,
+                            it.assetAction,
+                            true
+                        )
+                    )
+                }
+            }
+            model.process(DashboardIntent.ResetDashboardNavigation)
+        }
+
+    private val activityResultDashboardOnboarding =
+        registerForActivityResult(DashboardOnboardingActivity.BlockchainActivityResultContract()) { result ->
+            when (result) {
+                // Without Handler this fails with FragmentManager is already executing transactions, investigated but came up with nothing
+                DashboardOnboardingActivity.ActivityResult.LaunchBuyFlow -> Handler(Looper.getMainLooper()).post {
+                    navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+                }
+                null -> {
+                }
+            }
+            model.process(DashboardIntent.ResetDashboardNavigation)
+        }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -554,19 +605,6 @@ class PortfolioFragment :
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
                     model.process(DashboardIntent.CheckBackupStatus(it.account, it.action))
-                }
-            }
-            BankAuthActivity.LINK_BANK_REQUEST_CODE -> {
-                if (resultCode == RESULT_OK) {
-                    (state?.dashboardNavigationAction as? DashboardNavigationAction.LinkBankWithPartner)?.let {
-                        model.process(
-                            DashboardIntent.LaunchBankTransferFlow(
-                                it.fiatAccount,
-                                it.assetAction,
-                                true
-                            )
-                        )
-                    }
                 }
             }
         }
@@ -865,13 +903,16 @@ class PortfolioFragment :
         fun newInstance(
             useDynamicAssets: Boolean,
             flowToLaunch: AssetAction? = null,
-            fiatCurrency: String? = null
+            fiatCurrency: String? = null,
+            startOnboarding: Boolean = false
         ) = PortfolioFragment().apply {
             arguments = Bundle().apply {
                 putBoolean(USE_DYNAMIC_ASSETS, useDynamicAssets)
                 if (flowToLaunch != null && fiatCurrency != null) {
                     putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
                     putString(FLOW_FIAT_CURRENCY, fiatCurrency)
+                } else {
+                    putBoolean(START_DASHBOARD_ONBOARDING_KEY, startOnboarding)
                 }
             }
         }
@@ -879,6 +920,7 @@ class PortfolioFragment :
         internal const val USE_DYNAMIC_ASSETS = "USE_DYNAMIC_ASSETS"
         internal const val FLOW_TO_LAUNCH = "FLOW_TO_LAUNCH"
         internal const val FLOW_FIAT_CURRENCY = "FLOW_FIAT_CURRENCY"
+        internal const val START_DASHBOARD_ONBOARDING_KEY = "START_DASHBOARD_ONBOARDING_KEY"
 
         private const val IDX_CARD_ANNOUNCE = 0
         private const val IDX_CARD_BALANCE = 1
@@ -893,8 +935,8 @@ class PortfolioFragment :
         TODO: We need to update the balances also (Refresh Intent) but we need to find a way so we do that silently
          and without making every rendered cell to be in a loading state again.
         */
-        model.process(DashboardIntent.GetUserCanBuy)
         model.process(DashboardIntent.LoadFundsLocked)
+        model.process(DashboardIntent.FetchOnboardingSteps)
     }
 }
 

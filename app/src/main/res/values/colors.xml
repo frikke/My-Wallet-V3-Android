@@ -172,4 +172,9 @@
 
     <color name="tier_gold">#F5B73D</color>
     <color name="tier_silver">#C2C9D6</color>
+
+    <color name="onboarding_step_upgrade_to_gold">#5322E5</color>
+    <color name="onboarding_step_link_payment_method">@color/blue_600</color>
+    <color name="onboarding_step_buy">#00994C</color>
+
 </resources>

@@ -17,6 +17,11 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymentMethodChooserBinding>() {
 
+    interface Host : SlidingModalBottomDialog.Host {
+        fun onPaymentMethodChanged(paymentMethod: PaymentMethod)
+        fun showAvailableToAddPaymentMethods()
+    }
+
     private val paymentMethods: List<PaymentMethod> by unsafeLazy {
         arguments?.getSerializable(SUPPORTED_PAYMENT_METHODS) as? List<PaymentMethod>
             ?: emptyList()
@@ -43,7 +48,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         binding.title.text =
             if (isShowingPaymentMethods) getString(R.string.pay_with_my_dotted) else getString(R.string.payment_methods)
         binding.addPaymentMethod.setOnClickListener {
-            (parentFragment as? PaymentMethodChangeListener)?.showAvailableToAddPaymentMethods()
+            (host as? Host)?.showAvailableToAddPaymentMethods()
             dismiss()
         }
 
@@ -56,7 +61,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
 
     private fun PaymentMethod.clickAction(): () -> Unit =
         {
-            (parentFragment as? PaymentMethodChangeListener)?.onPaymentMethodChanged(this)
+            (host as? Host)?.onPaymentMethodChanged(this)
             dismiss()
         }
 

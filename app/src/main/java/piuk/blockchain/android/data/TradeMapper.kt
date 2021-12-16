@@ -8,7 +8,7 @@ import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyFrequency
 
 class GetAccumulatedInPeriodToIsFirstTimeBuyerMapper : Mapper<List<AccumulatedInPeriod>, Boolean> {
     override fun map(type: List<AccumulatedInPeriod>): Boolean =
-        type.first { it.termType == AccumulatedInPeriod.ALL }.amount.value.toLong() == 0L
+        type.first { it.termType == AccumulatedInPeriod.ALL }.amount.value.toDouble() == 0.0
 }
 
 class GetNextPaymentDateListToFrequencyDateMapper :

@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.Button
 import android.widget.EditText
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
@@ -151,14 +150,14 @@ private class DebouncingOnClickListener(private val onClickListener: (View?) -> 
     }
 }
 
-fun RecyclerView.configureWithPinnedButton(pinnedButton: Button, isButtonVisible: Boolean) {
+fun RecyclerView.configureWithPinnedView(pinnedView: View, isViewVisible: Boolean) {
 
-    pinnedButton.visibleIf { isButtonVisible }
+    pinnedView.visibleIf { isViewVisible }
     when {
-        isButtonVisible && this.paddingBottom == 0 -> {
-            pinnedButton.afterMeasured { button ->
+        isViewVisible && this.paddingBottom == 0 -> {
+            pinnedView.afterMeasured { button ->
                 val bottomMargin =
-                    (pinnedButton.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
+                    (pinnedView.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
                 with(this) {
                     setPadding(
                         paddingLeft,
@@ -169,7 +168,7 @@ fun RecyclerView.configureWithPinnedButton(pinnedButton: Button, isButtonVisible
                 }
             }
         }
-        !isButtonVisible && this.paddingBottom != 0 -> {
+        !isViewVisible && this.paddingBottom != 0 -> {
             with(this) {
                 setPadding(
                     paddingLeft,

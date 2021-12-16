@@ -1,6 +1,6 @@
 package com.blockchain.koin.modules
 
-import com.blockchain.koin.buyCryptoDashboardButton
+import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.pricingQuoteFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
@@ -12,6 +12,7 @@ import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import piuk.blockchain.android.featureflags.DashboardOnboardingIntegratedFeatureFlag
 import piuk.blockchain.android.featureflags.StripeAndCheckoutIntegratedFeatureFlag
 
 val featureFlagsModule = module {
@@ -24,10 +25,6 @@ val featureFlagsModule = module {
         get<RemoteConfig>().featureFlag("android_sso_unified_sign_in")
     }
 
-    factory(buyCryptoDashboardButton) {
-        get<RemoteConfig>().featureFlag("ff_dashboard_buy_crypto_btn")
-    }
-
     single(pricingQuoteFeatureFlag) {
         get<RemoteConfig>().featureFlag("android_ff_new_pricing_quote")
     }.bind(FeatureFlag::class)
@@ -35,6 +32,13 @@ val featureFlagsModule = module {
     single(stripeAndCheckoutPaymentsFeatureFlag) {
         StripeAndCheckoutIntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag("android_ff_checkout_stripe_payments")
+        )
+    }.bind(FeatureFlag::class)
+
+    single(dashboardOnboardingFeatureFlag) {
+        DashboardOnboardingIntegratedFeatureFlag(
+            gatedFeatures = get(),
+            remoteFlag = get<RemoteConfig>().featureFlag("android_ff_dashboard_onboarding")
         )
     }.bind(FeatureFlag::class)
 

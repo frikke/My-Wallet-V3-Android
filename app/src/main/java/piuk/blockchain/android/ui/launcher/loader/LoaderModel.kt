@@ -1,16 +1,12 @@
 package piuk.blockchain.android.ui.launcher.loader
 
 import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.AuthPrefs
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.util.AppUtil
@@ -26,8 +22,6 @@ class LoaderModel(
     mainScheduler: Scheduler,
     private val crashLogger: CrashLogger,
     private val appUtil: AppUtil,
-    private val userIdentity: UserIdentity,
-    private val analytics: Analytics,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
     private val prerequisites: Prerequisites,
@@ -37,7 +31,10 @@ class LoaderModel(
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
             is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(intent.isPinValidated, intent.isAfterWalletCreation)
-            is LoaderIntents.OnEmailVerificationFinished -> onEmailVerificationFinished()
+            is LoaderIntents.OnEmailVerificationFinished -> {
+                process(LoaderIntents.StartMainActivity(null, true))
+                null
+            }
             is LoaderIntents.UpdateLoadingStep -> {
                 (intent.loadingStep as? LoadingStep.Error)?.let { error ->
                     handleError(error.throwable)
@@ -67,19 +64,6 @@ class LoaderModel(
             }
         }
     }
-
-    private fun onEmailVerificationFinished() =
-        userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)
-            .onErrorReturn { false }
-            .doOnSuccess {
-                if (it)
-                    analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE)
-            }
-            .subscribeBy(
-                onSuccess = {
-                    process(LoaderIntents.StartMainActivity(null, it))
-                }, onError = {}
-            )
 
     private fun handleError(throwable: Throwable) {
         logException(throwable)

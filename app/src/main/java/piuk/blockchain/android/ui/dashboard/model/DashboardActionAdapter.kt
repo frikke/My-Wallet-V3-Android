@@ -37,6 +37,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
+import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
@@ -56,10 +57,11 @@ class DashboardActionAdapter(
     private val custodialWalletManager: CustodialWalletManager,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
+    private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val dashboardBuyButtonFlag: FeatureFlag
+    private val dashboardOnboardingFlag: FeatureFlag
 ) {
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         coincore.fiatAssets.accountGroup()
@@ -568,13 +570,23 @@ class DashboardActionAdapter(
             }
         )
 
-    fun userCanBuy(model: DashboardModel): Disposable {
-        return userIdentity.userAccessForFeature(Feature.SimpleBuy)
-            .zipWith(dashboardBuyButtonFlag.enabled)
-            .subscribeBy { (buyState, flagEnabled) ->
-                model.process(DashboardIntent.UserBuyAccessStateUpdated(!flagEnabled, buyState))
+    fun getOnboardingSteps(model: DashboardModel): Disposable =
+        dashboardOnboardingFlag.enabled.flatMapMaybe { isEnabled ->
+            if (isEnabled) getDashboardOnboardingStepsUseCase(Unit).toMaybe()
+            else Maybe.empty()
+        }.subscribeBy(
+            onSuccess = { steps ->
+                val onboardingState = if (steps.any { !it.isCompleted }) {
+                    DashboardOnboardingState.Visible(steps)
+                } else {
+                    DashboardOnboardingState.Hidden
+                }
+                model.process(DashboardIntent.FetchOnboardingStepsSuccess(onboardingState))
+            },
+            onError = {
+                Timber.e(it)
             }
-    }
+        )
 
     companion object {
         private val FLATLINE_CHART = listOf(

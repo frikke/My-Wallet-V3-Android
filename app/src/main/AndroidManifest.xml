@@ -107,6 +107,9 @@
             android:name=".ui.kyc.limits.KycLimitsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
+            android:name=".ui.dashboard.onboarding.DashboardOnboardingActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
             android:name=".ui.auth.PinEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity

@@ -71,7 +71,7 @@ class SimpleBuyCryptoFragment :
     RecurringBuySelectionBottomSheet.Host,
     SimpleBuyScreen,
     TransactionFlowInfoHost,
-    PaymentMethodChangeListener {
+    PaymentMethodChooserBottomSheet.Host {
 
     override val model: SimpleBuyModel by scopedInject()
     private val assetResources: AssetResources by inject()
@@ -718,11 +718,6 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
         RecurringBuyFrequency.ONE_TIME,
         RecurringBuyFrequency.UNKNOWN -> ""
     }
-}
-
-interface PaymentMethodChangeListener {
-    fun onPaymentMethodChanged(paymentMethod: PaymentMethod)
-    fun showAvailableToAddPaymentMethods()
 }
 
 fun PaymentMethod.Funds.icon() =
