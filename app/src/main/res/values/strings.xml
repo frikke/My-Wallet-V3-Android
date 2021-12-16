@@ -2166,7 +2166,7 @@
     <!-- New checkout items -->
     <string name="checkout_item_price_blurb">Blockchain.com provides the best market price we receive and applies a spread.</string>
     <string name="checkout_item_price_blurb_zero_margin">Blockchain.com does not include additional spread in the price for the sale of %1$s.</string>
-    <string name="checkout_item_price_fee">Blockchain.com requires a fee when paying with a card. <annotation link="learn_more">Learn more</annotation></string>
+    <string name="checkout_item_price_fee">This fee is based on trade size, payment method and asset being purchased on Blockchain.com</string>
     <string name="checkout_item_private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
     <string name="checkout_item_private_key_wallet_explanation_1">%s Private Key wallets are not supported at this time.&#160;</string>
     <string name="checkout_item_deposit_to">Deposit To</string>

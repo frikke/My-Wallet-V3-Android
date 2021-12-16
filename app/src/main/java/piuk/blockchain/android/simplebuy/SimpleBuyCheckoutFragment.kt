@@ -282,13 +282,7 @@ class SimpleBuyCheckoutFragment :
             ),
             buildPaymentFee(
                 state,
-                StringUtils.getStringWithMappedAnnotations(
-                    requireContext(),
-                    R.string.checkout_item_price_fee,
-                    mapOf(
-                        "learn_more" to Uri.parse(ORDER_PRICE_EXPLANATION)
-                    )
-                )
+                getString(R.string.checkout_item_price_fee)
             ),
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.common_total),
