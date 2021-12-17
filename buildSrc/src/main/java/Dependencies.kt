@@ -103,6 +103,7 @@ object Versions {
     const val compose = "1.0.4"
     const val coil = "1.4.0"
     const val composeActivity = "1.3.1"
+    const val constraintLayoutCompose = "1.0.0-beta02"
 
     // Accompanist
     const val systemUi = "0.20.2"
@@ -201,6 +202,7 @@ object Libraries {
     const val googlePlayCore = "com.google.android.play:core:${Versions.googlePlayCore}"
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
     const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
+
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitJacksonConverter = "com.squareup.retrofit2:converter-jackson:${Versions.retrofit}"
@@ -277,6 +279,8 @@ object Libraries {
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
     const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
+    const val constraintLayoutCompose =
+        "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"
 
     // Accompanist
     const val accompanistSystemUi = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemUi}"

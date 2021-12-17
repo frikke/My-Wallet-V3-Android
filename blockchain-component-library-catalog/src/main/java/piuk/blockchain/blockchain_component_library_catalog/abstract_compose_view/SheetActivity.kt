@@ -4,20 +4,16 @@ import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.Gravity.CENTER
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.LinearLayoutCompat
-import androidx.core.view.setPadding
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.sheets.SheetHeaderActionType
 import com.blockchain.componentlib.sheets.SheetHeaderBackAndActionView
 import com.blockchain.componentlib.sheets.SheetHeaderBackAndCloseView
 import com.blockchain.componentlib.sheets.SheetHeaderView
-import com.blockchain.componentlib.sheets.SheetNubView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import piuk.blockchain.blockchain_component_library_catalog.R
@@ -194,11 +190,6 @@ class BackNextBottomSheetDialogFragment() : BottomSheetDialogFragment() {
 private fun BottomSheetDummyView(bottomSheetHeaderView: View, context: Context) =
     LinearLayoutCompat(context).apply {
         orientation = LinearLayoutCompat.VERTICAL
-        addView(SheetNubView(context).apply {
-            setPadding(8.toPx.toInt())
-            layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-            gravity = CENTER
-        })
         addView(bottomSheetHeaderView)
         addView(View(context).apply {
             layoutParams = LinearLayoutCompat.LayoutParams(

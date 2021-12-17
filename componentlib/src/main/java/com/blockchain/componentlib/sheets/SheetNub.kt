@@ -20,7 +20,7 @@ fun SheetNub(
     isDarkMode: Boolean = isSystemInDarkTheme(),
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(width = 24.dp, height = 4.dp)
             .background(
                 color = if (isDarkMode) Dark300 else Grey100,

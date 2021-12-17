@@ -1,20 +1,21 @@
 package com.blockchain.componentlib.sheets
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
+import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey600
 
 @Composable
@@ -35,44 +37,49 @@ fun SheetHeader(
     startImageResource: ImageResource = ImageResource.None,
     onClosePress: () -> Unit,
     closePressContentDescription: String? = null,
+    isDarkMode: Boolean = isSystemInDarkTheme(),
 ) {
-
-    Column(
+    Box(
         modifier = modifier
-            .heightIn(48.dp)
-            .height(IntrinsicSize.Max)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Spacer(Modifier.width(24.dp))
+        SheetNub(
+            Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 8.dp)
+        )
+        Column {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Spacer(Modifier.width(24.dp))
 
-            if (startImageResource != ImageResource.None) {
-                Image(
-                    imageResource = startImageResource,
-                    modifier = Modifier.size(24.dp)
+                if (startImageResource != ImageResource.None) {
+                    Image(
+                        imageResource = startImageResource,
+                        modifier = Modifier
+                            .padding(top = 24.dp)
+                            .size(28.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                }
+
+                SheetHeaderTitle(
+                    title = title,
+                    byline = byline,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(
+                            top = 24.dp,
+                            bottom = if (byline.isNullOrBlank()) 10.dp else 5.dp
+                        )
                 )
-                Spacer(Modifier.width(8.dp))
+
+                SheetHeaderCloseButton(
+                    onClosePress = onClosePress,
+                    backPressContentDescription = closePressContentDescription,
+                    modifier = Modifier.padding(top = 16.dp, end = 16.dp)
+                )
             }
-
-            SheetHeaderTitle(
-                title = title,
-                byline = byline,
-                modifier = Modifier.weight(1f)
-            )
-
-            SheetHeaderCloseButton(
-                onClosePress = onClosePress,
-                backPressContentDescription = closePressContentDescription,
-                modifier = Modifier.fillMaxHeight()
-            )
-
-            Spacer(Modifier.width(16.dp))
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
     }
 }
 
@@ -100,7 +107,6 @@ private fun SheetHeaderTitle(
                 color = if (isDarkMode) Dark200 else Grey600,
                 textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(6.dp))
         }
     }
 }
