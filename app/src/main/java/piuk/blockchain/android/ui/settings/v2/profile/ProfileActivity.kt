@@ -117,10 +117,10 @@ class ProfileActivity :
     }
 
     private fun updateTags(emailVerified: Boolean, mobileVerified: Boolean) {
-        val typeEmailTag = if (emailVerified) TagType.Success else TagType.Warning
+        val typeEmailTag = if (emailVerified) TagType.Success() else TagType.Warning()
         val textEmailTag = if (emailVerified) getString(R.string.verified) else getString(R.string.unverified)
 
-        val typeMobileTag = if (mobileVerified) TagType.Success else TagType.Warning
+        val typeMobileTag = if (mobileVerified) TagType.Success() else TagType.Warning()
         val textMobileTag = if (mobileVerified) getString(R.string.verified) else getString(R.string.unverified)
 
         with(binding) {
