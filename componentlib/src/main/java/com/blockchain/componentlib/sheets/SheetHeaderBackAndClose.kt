@@ -1,16 +1,15 @@
 package com.blockchain.componentlib.sheets
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,43 +33,44 @@ fun SheetHeaderBackAndClose(
     backPressContentDescription: String? = null,
     closePressContentDescription: String? = null,
 ) {
-
-    Column(
+    Box(
         modifier = modifier
-            .heightIn(48.dp)
-            .height(IntrinsicSize.Max)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
+        SheetNub(
+            Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 8.dp)
+        )
+        Column(
+            modifier = modifier.heightIn(56.dp)
         ) {
-            Spacer(Modifier.width(12.dp))
+            Row {
 
-            SheetHeaderBackButton(
-                onBackPress = onBackPress,
-                backPressContentDescription = backPressContentDescription,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .size(24.dp)
-            )
+                SheetHeaderBackButton(
+                    onBackPress = onBackPress,
+                    backPressContentDescription = backPressContentDescription,
+                    modifier = Modifier
+                        .padding(start = 12.dp, top = 16.dp)
+                        .size(24.dp)
+                )
 
-            SheetHeaderTitle(
-                title = title,
-                byline = byline,
-                modifier = Modifier.weight(1f)
-            )
+                SheetHeaderTitle(
+                    title = title,
+                    byline = byline,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 16.dp, start = 24.dp)
+                )
 
-            SheetHeaderCloseButton(
-                onClosePress = onClosePress,
-                backPressContentDescription = closePressContentDescription,
-                modifier = Modifier.fillMaxHeight()
-            )
+                SheetHeaderCloseButton(
+                    onClosePress = onClosePress,
+                    backPressContentDescription = closePressContentDescription,
+                    modifier = Modifier.padding(16.dp)
+                )
 
-            Spacer(Modifier.width(16.dp))
+            }
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
     }
 }
 
