@@ -24,4 +24,6 @@
     <color name="overlay800">#CC20242C</color>
     <color name="overlay600">#A33B3E46</color>
     <color name="overlay400">#6663676F</color>
+
+    <color name="sheetBackgroundColor">#FFFFFF</color>
 </resources>

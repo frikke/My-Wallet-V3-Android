@@ -82,6 +82,10 @@ class DefaultBottomSheetDialogFragment() : BottomSheetDialogFragment() {
             context = requireContext(),
         )
     }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
+    }
 }
 
 class BylineBottomSheetDialogFragment() : BottomSheetDialogFragment() {
@@ -98,6 +102,10 @@ class BylineBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                 },
             context = requireContext(),
         )
+    }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
     }
 }
 
@@ -119,6 +127,10 @@ class IconBottomSheetDialogFragment() : BottomSheetDialogFragment() {
             context = requireContext(),
         )
     }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
+    }
 }
 
 class BackDefaultBottomSheetDialogFragment() : BottomSheetDialogFragment() {
@@ -134,6 +146,10 @@ class BackDefaultBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                 },
             context = requireContext(),
         )
+    }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
     }
 }
 
@@ -152,6 +168,10 @@ class BackBylineBottomSheetDialogFragment() : BottomSheetDialogFragment() {
             context = requireContext(),
         )
     }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
+    }
 }
 
 class BackCancelBottomSheetDialogFragment() : BottomSheetDialogFragment() {
@@ -167,6 +187,10 @@ class BackCancelBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                 },
             context = requireContext(),
         )
+    }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
     }
 }
 
@@ -184,6 +208,10 @@ class BackNextBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                 },
             context = requireContext(),
         )
+    }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
     }
 }
 
