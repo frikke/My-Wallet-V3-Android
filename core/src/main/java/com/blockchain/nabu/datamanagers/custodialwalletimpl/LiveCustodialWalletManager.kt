@@ -758,17 +758,10 @@ class LiveCustodialWalletManager(
                 }
         }
 
-    override fun getCardAcquirers(): Single<Map<String, PaymentCardAcquirer>> =
+    override fun getCardAcquirers(): Single<List<PaymentCardAcquirer>> =
         authenticator.authenticate { nabuSessionToken ->
             nabuService.cardAcquirers(nabuSessionToken).map { paymentCardAcquirers ->
-                // We might have the same acquirer with multiple account codes, for example:
-                // cardAcquirerName="stripe", cardAcquirerAccountCodes=listof("stripe_us", "stripe_uk").
-                // We have to try generating a payment token for each account code. For simplicity
-                // the PaymentCardAcquirerResponse objects are transformed to multiple PaymentCardAcquirer object based
-                // on account codes
-                paymentCardAcquirers.map(PaymentCardAcquirerResponse::toPaymentCardAcquirers)
-                    .flatten()
-                    .associateBy { it.cardAcquirerAccountCode }
+                paymentCardAcquirers.map(PaymentCardAcquirerResponse::toPaymentCardAcquirer)
             }
         }
 
@@ -1647,14 +1640,12 @@ private fun InterestActivityItemResponse.toInterestActivityItem(cryptoCurrency: 
         extraAttributes = extraAttributes
     )
 
-private fun PaymentCardAcquirerResponse.toPaymentCardAcquirers() =
-    cardAcquirerAccountCodes.map { accountCode ->
-        PaymentCardAcquirer(
-            cardAcquirerName = cardAcquirerName,
-            cardAcquirerAccountCode = accountCode,
-            apiKey = apiKey
-        )
-    }
+private fun PaymentCardAcquirerResponse.toPaymentCardAcquirer() =
+    PaymentCardAcquirer(
+        cardAcquirerName = cardAcquirerName,
+        cardAcquirerAccountCodes = cardAcquirerAccountCodes,
+        apiKey = apiKey
+    )
 
 private fun PaymentMethodResponse.isEligibleCard() =
     eligible && type.toPaymentMethodType() == PaymentMethodType.PAYMENT_CARD

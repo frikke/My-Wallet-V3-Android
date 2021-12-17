@@ -2,6 +2,7 @@ package com.blockchain.payments.checkoutcom
 
 import com.blockchain.outcome.Outcome
 import com.blockchain.payments.core.CardAcquirer
+import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessingFailure
 import com.blockchain.payments.core.CardProcessor
@@ -21,6 +22,7 @@ class CheckoutCardProcessor(
 
     override suspend fun createPaymentMethod(
         cardDetails: CardDetails,
+        billingAddress: CardBillingAddress?,
         apiKey: String
     ): Outcome<CardProcessingFailure, String> {
 

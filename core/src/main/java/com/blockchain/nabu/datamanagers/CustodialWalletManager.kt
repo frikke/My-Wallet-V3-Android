@@ -165,8 +165,7 @@ interface CustodialWalletManager {
         fiatCurrency: String
     ): Single<List<EligiblePaymentMethodType>>
 
-    // Returns a map of PaymentCardAcquirers where the keys are the PaymentCardAcquirer.cardAcquirerAccountCode
-    fun getCardAcquirers(): Single<Map<String, PaymentCardAcquirer>>
+    fun getCardAcquirers(): Single<List<PaymentCardAcquirer>>
 
     fun getBankTransferLimits(
         fiatCurrency: String,
@@ -534,7 +533,7 @@ data class BankDetail(val title: String, val value: String, val isCopyable: Bool
 
 data class PaymentCardAcquirer(
     val cardAcquirerName: String,
-    val cardAcquirerAccountCode: String,
+    val cardAcquirerAccountCodes: List<String>,
     val apiKey: String
 )
 

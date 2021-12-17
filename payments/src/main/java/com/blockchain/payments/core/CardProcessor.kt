@@ -28,6 +28,7 @@ interface CardProcessor {
 
     suspend fun createPaymentMethod(
         cardDetails: CardDetails,
+        billingAddress: CardBillingAddress? = null,
         apiKey: String
     ): Outcome<CardProcessingFailure, PaymentToken>
 }

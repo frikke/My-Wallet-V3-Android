@@ -42,6 +42,7 @@ import com.blockchain.network.PollService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.outcome.fold
 import com.blockchain.payments.core.CardAcquirer
+import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.PaymentToken
@@ -434,29 +435,33 @@ class SimpleBuyInteractor(
     ) = custodialWalletManager.getCardAcquirers().flatMap { cardAcquirers ->
         rxSingle {
             // The backend is expecting a map of account codes and payment tokens.
-            // Given that custodialWalletManager.getCardAcquirers() returns a map of account codes and
-            // PaymentCardAcquirers, we need to map the PaymentCardAcquirers into payment tokens (string).
-            cardAcquirers.mapValues { (_, acquirer) ->
-                getPaymentToken(acquirer, cardData)
+            // Given that custodialWalletManager.getCardAcquirers() returns a list of PaymentCardAcquirers,
+            // we need to map the PaymentCardAcquirers into payment tokens (string).
+            cardAcquirers.associateWith { acquirer -> getPaymentToken(acquirer, cardData, billingAddress) }
+        }.flatMap { acquirerTokenMap ->
+            val acquirerAccountCodeTokensMap = acquirerTokenMap.filterValues { token ->
+                token.isNotEmpty()
             }
-        }.flatMap { paymentMethodTokens ->
-            val validTokens = paymentMethodTokens.filterValues { token -> token.isNotEmpty() }
-            if (validTokens.isEmpty()) {
-                // If the feature is enabled and we couldn't get any payment tokens, show an error.
-                // Otherwise pass it to the backend if we got at least 1 token. TODO: better error handling
-                Single.error(Throwable(NO_PAYMENT_TOKENS_ERROR))
-            } else {
-                custodialWalletManager.addNewCard(fiatCurrency, billingAddress, validTokens)
-            }
+                .flatMap { (acquirer, paymentToken) ->
+                    acquirer.cardAcquirerAccountCodes.map { accountCode ->
+                        accountCode to paymentToken
+                    }
+                }
+                .associate { (accountCode, paymentToken) ->
+                    accountCode to paymentToken
+                }
+            custodialWalletManager.addNewCard(fiatCurrency, billingAddress, acquirerAccountCodeTokensMap)
         }
     }
 
     private suspend fun getPaymentToken(
         acquirer: PaymentCardAcquirer,
-        cardData: CardData
+        cardData: CardData,
+        billingAddress: BillingAddress
     ) = cardProcessors[CardAcquirer.fromString(acquirer.cardAcquirerName)]?.createPaymentMethod(
-        cardData.toCardDetails(),
-        acquirer.apiKey
+        cardDetails = cardData.toCardDetails(),
+        billingAddress = billingAddress.toCardBillingAddress(),
+        apiKey = acquirer.apiKey
     )?.fold(
         onSuccess = { token -> token },
         onFailure = { cardProcessingFailure ->
@@ -496,12 +501,21 @@ class SimpleBuyInteractor(
             fullName = fullName
         )
 
+    private fun BillingAddress.toCardBillingAddress() =
+        CardBillingAddress(
+            city = city,
+            country = countryCode,
+            addressLine1 = addressLine1,
+            addressLine2 = addressLine2,
+            postalCode = postCode,
+            state = state
+        )
+
     companion object {
         private const val INTERVAL: Long = 5
         private const val RETRIES_SHORT = 6
         private const val RETRIES_DEFAULT = 12
         private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
-        private const val NO_PAYMENT_TOKENS_ERROR = "Couldn't get any payment token"
         private const val PENDING = "pending"
     }
 }
