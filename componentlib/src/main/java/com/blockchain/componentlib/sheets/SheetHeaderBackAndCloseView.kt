@@ -39,4 +39,3 @@ class SheetHeaderBackAndCloseView @JvmOverloads constructor(
         }
     }
 }
-

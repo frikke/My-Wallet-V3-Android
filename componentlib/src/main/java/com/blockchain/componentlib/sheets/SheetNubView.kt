@@ -21,5 +21,4 @@ class SheetNubView @JvmOverloads constructor(
             }
         }
     }
-
 }

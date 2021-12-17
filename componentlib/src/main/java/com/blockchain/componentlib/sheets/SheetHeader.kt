@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.sheets
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,12 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,7 +23,6 @@ import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
-import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey600
 
 @Composable
@@ -118,7 +114,7 @@ private fun SheetHeaderPreview() {
         AppSurface {
             SheetHeader(
                 title = "Title",
-                onClosePress = {/* no-op */ },
+                onClosePress = { /* no-op */ },
             )
         }
     }
@@ -132,7 +128,7 @@ private fun SheetHeaderBylinePreview() {
             SheetHeader(
                 title = "Title",
                 byline = "Byline",
-                onClosePress = {/* no-op */ },
+                onClosePress = { /* no-op */ },
             )
         }
     }
@@ -145,7 +141,7 @@ private fun SheetHeaderWithStartIconPreview() {
         AppSurface {
             SheetHeader(
                 title = "Title",
-                onClosePress = {/* no-op */ },
+                onClosePress = { /* no-op */ },
                 startImageResource = ImageResource.Local(
                     id = R.drawable.ic_qr_code,
                     contentDescription = null,
@@ -163,7 +159,7 @@ private fun SheetHeaderBylineWithStartIconPreview() {
             SheetHeader(
                 title = "Title",
                 byline = "Byline",
-                onClosePress = {/* no-op */ },
+                onClosePress = { /* no-op */ },
                 startImageResource = ImageResource.Local(
                     id = R.drawable.ic_qr_code,
                     contentDescription = null,

@@ -67,7 +67,6 @@ fun SheetHeaderBackAndClose(
                     backPressContentDescription = closePressContentDescription,
                     modifier = Modifier.padding(16.dp)
                 )
-
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
@@ -110,8 +109,8 @@ private fun SheetHeaderBackAndClosePreview() {
         AppSurface {
             SheetHeaderBackAndClose(
                 title = "Title",
-                onBackPress = {/* no-op */ },
-                onClosePress = {/* no-op */ },
+                onBackPress = { /* no-op */ },
+                onClosePress = { /* no-op */ },
             )
         }
     }
@@ -124,9 +123,9 @@ private fun SheetHeaderBackAndCloseBylinePreview() {
         AppSurface {
             SheetHeaderBackAndClose(
                 title = "Title",
-                onBackPress = {/* no-op */ },
+                onBackPress = { /* no-op */ },
                 byline = "Byline",
-                onClosePress = {/* no-op */ },
+                onClosePress = { /* no-op */ },
             )
         }
     }
