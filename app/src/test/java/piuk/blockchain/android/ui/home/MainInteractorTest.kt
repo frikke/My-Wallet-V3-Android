@@ -28,6 +28,7 @@ import org.junit.Ignore
 import org.junit.Test
 import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
+import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
@@ -57,6 +58,7 @@ class MainInteractorTest {
     private val credentialsWiper: CredentialsWiper = mock()
     private val qrScanResultProcessor: QrScanResultProcessor = mock()
     private val secureChannelManager: SecureChannelManager = mock()
+    private val cancelOrderUseCase: CancelOrderUseCase = mock()
 
     @Before
     fun setup() {
@@ -76,7 +78,8 @@ class MainInteractorTest {
             database = database,
             credentialsWiper = credentialsWiper,
             qrScanResultProcessor = qrScanResultProcessor,
-            secureChannelManager = secureChannelManager
+            secureChannelManager = secureChannelManager,
+            cancelOrderUseCase = cancelOrderUseCase
         )
     }
 
@@ -298,5 +301,17 @@ class MainInteractorTest {
 
         verifyNoMoreInteractions(custodialWalletManager)
         verifyNoMoreInteractions(simpleBuySync)
+    }
+
+    @Test
+    fun cancelOrder() {
+        // Arrange
+        val orderId = "orderId"
+
+        // Act
+        interactor.cancelOrder(orderId)
+
+        // Assert
+        verify(cancelOrderUseCase).invoke(orderId)
     }
 }

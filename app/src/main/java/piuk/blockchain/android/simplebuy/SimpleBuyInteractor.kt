@@ -57,6 +57,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.cards.CardIntent
+import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.featureflags.StripeAndCheckoutIntegratedFeatureFlag
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
@@ -80,7 +81,8 @@ class SimpleBuyInteractor(
     private val brokerageDataManager: BrokerageDataManager,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val stripeAndCheckoutPaymentsFeatureFlag: StripeAndCheckoutIntegratedFeatureFlag,
-    private val cardProcessors: Map<CardAcquirer, CardProcessor>
+    private val cardProcessors: Map<CardAcquirer, CardProcessor>,
+    private val cancelOrderUseCase: CancelOrderUseCase
 ) {
 
     // Hack until we have a proper limits api.
@@ -131,14 +133,7 @@ class SimpleBuyInteractor(
         custodialWalletManager.getSupportedFiatCurrencies()
             .map { SimpleBuyIntent.SupportedCurrenciesUpdated(it) }
 
-    fun cancelOrder(orderId: String): Completable {
-        bankLinkingPrefs.setBankLinkingState(BankAuthDeepLinkState().toPreferencesValue())
-        return custodialWalletManager.getBuyOrder(orderId).flatMapCompletable {
-            if (it.state <= OrderState.PENDING_CONFIRMATION) {
-                custodialWalletManager.deleteBuyOrder(it.id)
-            } else Completable.complete()
-        }
-    }
+    fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
 
     fun createOrder(
         cryptoAsset: AssetInfo,
@@ -472,10 +467,15 @@ class SimpleBuyInteractor(
         ?: EMPTY_PAYMENT_TOKEN
 
     fun updateApprovalStatus() {
-        val currentState = bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()
-        bankLinkingPrefs.setBankLinkingState(
-            currentState.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_PENDING).toPreferencesValue()
-        )
+        bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()?.let {
+            bankLinkingPrefs.setBankLinkingState(
+                it.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_PENDING).toPreferencesValue()
+            )
+        } ?: run {
+            bankLinkingPrefs.setBankLinkingState(
+                BankAuthDeepLinkState(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_PENDING).toPreferencesValue()
+            )
+        }
     }
 
     fun updateOneTimeTokenPath(callbackPath: String) {

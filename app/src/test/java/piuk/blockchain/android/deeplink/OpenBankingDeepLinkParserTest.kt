@@ -50,6 +50,15 @@ class OpenBankingDeepLinkParserTest {
         assertNull(r)
     }
 
+    @Test
+    fun `invalid consent token is correctly parsed`() {
+        val uri = Uri.parse(INVALID_TOKEN_URI)
+
+        val r = subject.mapUri(uri)
+
+        Assert.assertEquals(r, LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, null))
+    }
+
     companion object {
         private const val VALID_BANK_LINK_TEST_URI =
             "https://blockchainwallet.page.link/#/open/ob-bank-link"
@@ -58,5 +67,7 @@ class OpenBankingDeepLinkParserTest {
 
         private const val INVALID_TEST_URI =
             "https://blockchainwallet.page.link/#/open/ob-bank-link-error"
+        private const val INVALID_TOKEN_URI =
+            "https://blockchainwallet.page.link/#/open/ob-bank-approval?one-time-token=null"
     }
 }

@@ -65,6 +65,7 @@ import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
@@ -434,7 +435,8 @@ val applicationModule = module {
                 bankPartnerCallbackProvider = get(),
                 stripeAndCheckoutPaymentsFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
                 brokerageDataManager = get(),
-                cardProcessors = getCardProcessors().associateBy { it.acquirer }
+                cardProcessors = getCardProcessors().associateBy { it.acquirer },
+                cancelOrderUseCase = get()
             )
         }
 
@@ -479,6 +481,13 @@ val applicationModule = module {
         factory {
             GetReceiveAccountsForAssetUseCase(
                 coincore = get()
+            )
+        }
+
+        factory {
+            CancelOrderUseCase(
+                bankLinkingPrefs = get(),
+                custodialWalletManager = get()
             )
         }
 

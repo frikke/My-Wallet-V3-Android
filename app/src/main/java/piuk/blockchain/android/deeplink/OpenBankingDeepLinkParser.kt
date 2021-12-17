@@ -6,7 +6,10 @@ import piuk.blockchain.android.kyc.ignoreFragment
 class OpenBankingDeepLinkParser {
     fun mapUri(uri: Uri): LinkState.OpenBankingLink? {
         val fragment = uri.encodedFragment?.let { Uri.parse(it) } ?: return null
-        val consentToken = uri.ignoreFragment().getQueryParameter(OTT).orEmpty()
+        var consentToken: String? = uri.ignoreFragment().getQueryParameter(OTT).orEmpty()
+        if (consentToken == "null") {
+            consentToken = null
+        }
 
         return LinkState.OpenBankingLink(
             when (fragment.path) {

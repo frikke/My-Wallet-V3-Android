@@ -66,7 +66,7 @@ sealed class LinkState {
     data class SunriverDeepLink(val link: CampaignLinkState) : LinkState()
     data class KycDeepLink(val link: KycLinkState) : LinkState()
     data class ThePitDeepLink(val linkId: String) : LinkState()
-    data class OpenBankingLink(val type: OpenBankingLinkType, val consentToken: String) : LinkState()
+    data class OpenBankingLink(val type: OpenBankingLinkType, val consentToken: String?) : LinkState()
 
     object NoUri : LinkState()
 }

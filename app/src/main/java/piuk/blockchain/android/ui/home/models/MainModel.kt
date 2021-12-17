@@ -329,7 +329,7 @@ class MainModel(
             OpenBankingLinkType.UNKNOWN -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
         }
 
-    private fun handleBankLinking(consentToken: String) {
+    private fun handleBankLinking(consentToken: String?) {
         val bankLinkingState = interactor.getBankLinkingState()
 
         if (bankLinkingState.bankAuthFlow == BankAuthFlowState.BANK_LINK_COMPLETE) {
@@ -337,31 +337,38 @@ class MainModel(
             return
         }
 
-        compositeDisposable += interactor.updateOpenBankingConsent(consentToken)
-            .subscribeBy(
-                onComplete = {
-                    try {
-                        interactor.updateBankLinkingState(
-                            bankLinkingState.copy(bankAuthFlow = BankAuthFlowState.BANK_LINK_COMPLETE)
-                        )
+        consentToken?.let { token ->
+            compositeDisposable += interactor.updateOpenBankingConsent(token)
+                .subscribeBy(
+                    onComplete = {
+                        try {
+                            interactor.updateBankLinkingState(
+                                bankLinkingState.copy(bankAuthFlow = BankAuthFlowState.BANK_LINK_COMPLETE)
+                            )
 
-                        bankLinkingState.bankLinkingInfo?.let {
-                            process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(it)))
+                            bankLinkingState.bankLinkingInfo?.let {
+                                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(it)))
+                            }
+                        } catch (e: JsonSyntaxException) {
+                            process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
                         }
-                    } catch (e: JsonSyntaxException) {
-                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
+                    },
+                    onError = {
+                        Timber.e("Error updating consent token on new bank link: $it")
+                        bankLinkingState.bankLinkingInfo?.let { linkingInfo ->
+                            process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(linkingInfo)))
+                        } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
                     }
-                },
-                onError = {
-                    Timber.e("Error updating consent token on new bank link: $it")
-                    bankLinkingState.bankLinkingInfo?.let { linkingInfo ->
-                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(linkingInfo)))
-                    } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
-                }
-            )
+                )
+        } ?: run {
+            Timber.e("Error updating consent token on new bank link: token is null.")
+            bankLinkingState.bankLinkingInfo?.let { linkingInfo ->
+                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(linkingInfo)))
+            } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
+        }
     }
 
-    private fun handleBankApproval(consentToken: String) {
+    private fun handleBankApproval(consentToken: String?) {
         val deepLinkState = interactor.getBankLinkingState()
 
         if (deepLinkState.bankAuthFlow == BankAuthFlowState.BANK_APPROVAL_COMPLETE) {
@@ -369,29 +376,45 @@ class MainModel(
             return
         }
 
-        compositeDisposable += interactor.updateOpenBankingConsent(consentToken)
-            .subscribeBy(
-                onComplete = {
-                    if (deepLinkState.bankAuthFlow == BankAuthFlowState.BANK_APPROVAL_PENDING) {
-                        deepLinkState.bankPaymentData?.let { paymentData ->
-                            handleDepositApproval(paymentData, deepLinkState)
-                        } ?: handleSimpleBuyApproval()
+        consentToken?.let { token ->
+            compositeDisposable += interactor.updateOpenBankingConsent(token)
+                .subscribeBy(
+                    onComplete = {
+                        if (deepLinkState.bankAuthFlow == BankAuthFlowState.BANK_APPROVAL_PENDING) {
+                            deepLinkState.bankPaymentData?.let { paymentData ->
+                                handleDepositApproval(paymentData, deepLinkState)
+                            } ?: handleSimpleBuyApproval()
+                        }
+                    },
+                    onError = {
+                        Timber.e("Error updating consent token on approval: $it")
+
+                        interactor.resetLocalBankAuthState()
+
+                        deepLinkState.bankPaymentData?.let { data ->
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.LaunchOpenBankingError(data.orderValue.currencyCode)
+                                )
+                            )
+                        } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
                     }
-                },
-                onError = {
-                    Timber.e("Error updating consent token on approval: $it")
-
-                    interactor.resetLocalBankAuthState()
-
-                    deepLinkState.bankPaymentData?.let { data ->
+                )
+        } ?: run {
+            deepLinkState.bankPaymentData?.let {
+                compositeDisposable += interactor.cancelOrder(it.paymentId).subscribeBy(
+                    onComplete = {
                         process(
                             MainIntent.UpdateViewToLaunch(
-                                ViewToLaunch.LaunchOpenBankingError(data.orderValue.currencyCode)
+                                ViewToLaunch.LaunchOpenBankingError(it.orderValue.currencyCode)
                             )
                         )
-                    } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
-                }
-            )
+                    }
+                )
+            } ?: run {
+                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
+            }
+        }
     }
 
     private fun handleDepositApproval(

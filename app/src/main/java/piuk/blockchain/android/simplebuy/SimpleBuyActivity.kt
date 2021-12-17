@@ -23,6 +23,7 @@ import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
+import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
@@ -81,10 +82,17 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         updateToolbar { super.onBackPressed() }
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
-                val currentState = bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()
-                bankLinkingPrefs.setBankLinkingState(
-                    currentState.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE).toPreferencesValue()
-                )
+                bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()?.let {
+                    bankLinkingPrefs.setBankLinkingState(
+                        it.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE).toPreferencesValue()
+                    )
+                } ?: run {
+                    bankLinkingPrefs.setBankLinkingState(
+                        BankAuthDeepLinkState(
+                            bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE
+                        ).toPreferencesValue()
+                    )
+                }
             }
             analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_BUY))
             subscribeForNavigation()

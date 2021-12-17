@@ -29,6 +29,7 @@ import java.util.Locale
 import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.LinkState
+import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
@@ -60,7 +61,8 @@ class MainInteractor internal constructor(
     private val database: Database,
     private val credentialsWiper: CredentialsWiper,
     private val qrScanResultProcessor: QrScanResultProcessor,
-    private val secureChannelManager: SecureChannelManager
+    private val secureChannelManager: SecureChannelManager,
+    private val cancelOrderUseCase: CancelOrderUseCase
 ) {
 
     fun checkForDeepLinks(intent: Intent): Single<LinkState> =
@@ -101,7 +103,7 @@ class MainInteractor internal constructor(
         )
 
     fun getBankLinkingState(): BankAuthDeepLinkState =
-        bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()
+        bankLinkingPrefs.getBankLinkingState().fromPreferencesValue() ?: BankAuthDeepLinkState()
 
     fun updateBankLinkingState(bankLinkingState: BankAuthDeepLinkState) =
         bankLinkingPrefs.setBankLinkingState(bankLinkingState.toPreferencesValue())
@@ -159,4 +161,7 @@ class MainInteractor internal constructor(
 
     fun sendSecureChannelHandshake(handshake: String) =
         secureChannelManager.sendHandshake(handshake)
+
+    fun cancelOrder(orderId: String): Completable =
+        cancelOrderUseCase.invoke(orderId)
 }

@@ -52,8 +52,12 @@ data class BankAuthDeepLinkState(
 fun BankAuthDeepLinkState.toPreferencesValue(): String =
     Gson().toJson(this, BankAuthDeepLinkState::class.java)
 
-internal fun String.fromPreferencesValue(): BankAuthDeepLinkState =
-    Gson().fromJson(this, BankAuthDeepLinkState::class.java)
+internal fun String.fromPreferencesValue(): BankAuthDeepLinkState? =
+    if (this.isNotEmpty()) {
+        Gson().fromJson(this, BankAuthDeepLinkState::class.java)
+    } else {
+        null
+    }
 
 enum class BankAuthFlowState {
     BANK_LINK_PENDING,
