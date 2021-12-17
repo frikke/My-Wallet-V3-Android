@@ -132,7 +132,11 @@ class RedesignSettingsPhase2Activity :
             aboutAppGroup.apply {
                 primaryText = getString(R.string.settings_title_about_app)
                 secondaryText = getString(R.string.settings_subtitle_about_app)
-                onClick = { startActivity(AboutAppActivity.newIntent(context, basicProfileInfo)) }
+                onClick = {
+                    basicProfileInfo?.let {
+                        startActivity(AboutAppActivity.newIntent(context, it))
+                    }
+                }
             }
 
             signOutBtn.apply {

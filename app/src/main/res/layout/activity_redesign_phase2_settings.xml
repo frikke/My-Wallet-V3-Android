@@ -30,8 +30,7 @@
                 style="@style/TextAppearance.Blockchain.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tiny_margin"
-                android:alpha="0"
+                android:layout_marginTop="@dimen/standard_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -41,8 +40,6 @@
                 style="@style/TextAppearance.Blockchain.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tiny_margin"
-                android:alpha="0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/name" />
@@ -51,7 +48,7 @@
                 android:id="@+id/see_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tiny_margin"
+                android:layout_marginTop="@dimen/large_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/email" />
@@ -111,7 +108,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@+id/about_app_group" />
 
-            <com.blockchain.componentlib.button.MinimalButtonView
+            <com.blockchain.componentlib.button.DestructiveMinimalButtonView
                 android:id="@+id/sign_out_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

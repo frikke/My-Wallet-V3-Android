@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -15,6 +16,7 @@ import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
+import timber.log.Timber
 
 class AboutAppActivity : BlockchainActivity() {
 
@@ -42,7 +44,9 @@ class AboutAppActivity : BlockchainActivity() {
         with(binding) {
             supportOption.apply {
                 primaryText = getString(R.string.about_app_contact_support)
-                onClick = { startActivity(ZendeskSubjectActivity.newInstance(context, basicProfileInfo)) }
+                onClick = {
+                    startActivity(ZendeskSubjectActivity.newInstance(context, basicProfileInfo))
+                }
             }
             airdropsOption.apply {
                 primaryText = getString(R.string.about_app_airdrops)
@@ -50,7 +54,7 @@ class AboutAppActivity : BlockchainActivity() {
             }
             rateOption.apply {
                 primaryText = getString(R.string.about_app_rate_app)
-                onClick = { }
+                onClick = { goToPlayStore() }
             }
             termsOption.apply {
                 primaryText = getString(R.string.about_app_terms_service)
@@ -68,6 +72,22 @@ class AboutAppActivity : BlockchainActivity() {
             toolbarTitle = getString(R.string.about_app_toolbar),
             backAction = { onBackPressed() }
         )
+    }
+
+    private fun goToPlayStore() {
+        val flags = Intent.FLAG_ACTIVITY_NO_HISTORY or
+            Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_NEW_DOCUMENT
+        try {
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("market://details?id=$packageName")
+            ).let {
+                it.addFlags(flags)
+                startActivity(it)
+            }
+        } catch (e: ActivityNotFoundException) {
+            Timber.e(e, "Google Play Store not found")
+        }
     }
 
     private fun onTermsOfServiceClicked() {
@@ -89,7 +109,7 @@ class AboutAppActivity : BlockchainActivity() {
     }
 
     companion object {
-        fun newIntent(context: Context, basicProfileInfo: BasicProfileInfo?) =
+        fun newIntent(context: Context, basicProfileInfo: BasicProfileInfo) =
             Intent(context, AboutAppActivity::class.java).apply {
                 putExtra(BASIC_INFO, basicProfileInfo)
             }
