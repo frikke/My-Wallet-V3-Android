@@ -263,6 +263,13 @@
             android:text="Progress"
             android:textAllCaps="false" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sheets"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bottom sheets"
+            android:textAllCaps="false" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

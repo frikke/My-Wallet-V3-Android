@@ -59,6 +59,7 @@ dependencies {
     implementation Libraries.composeCoil
     implementation Libraries.composeCoilSvg
     implementation Libraries.accompanistSystemUi
+    implementation Libraries.constraintLayoutCompose
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling

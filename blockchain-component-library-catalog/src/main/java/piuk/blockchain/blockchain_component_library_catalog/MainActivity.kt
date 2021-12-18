@@ -30,6 +30,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ProgressActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SectionHeadersActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SheetActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallMinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallPrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
@@ -147,7 +148,9 @@ class MainActivity : ComponentActivity() {
         findViewById<MaterialButton>(R.id.date_picker).setOnClickListener {
             startActivity(Intent(this@MainActivity, DatePickerActivity::class.java))
         }
-
+        findViewById<MaterialButton>(R.id.sheets).setOnClickListener {
+            startActivity(Intent(this@MainActivity, SheetActivity::class.java))
+        }
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {
             startActivity(Showkase.getBrowserIntent(this@MainActivity))
         }
