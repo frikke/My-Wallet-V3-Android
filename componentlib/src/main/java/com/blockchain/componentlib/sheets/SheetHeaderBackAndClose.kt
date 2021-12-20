@@ -84,6 +84,10 @@ private fun SheetHeaderTitle(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (byline == null) {
+            Spacer(Modifier.height(4.dp))
+        }
+
         Text(
             text = title,
             style = AppTheme.typography.body2,
