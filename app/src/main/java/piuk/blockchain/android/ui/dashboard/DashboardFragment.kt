@@ -127,9 +127,9 @@ class DashboardPagerAdapter(
 
     private val dashboardFragment: Fragment by unsafeLazy {
         if (flowToLaunch != null && flowCurrency != null) {
-            PortfolioFragment.newInstance(true, flowToLaunch, flowCurrency)
+            PortfolioFragment.newInstance(flowToLaunch, flowCurrency)
         } else {
-            PortfolioFragment.newInstance(true)
+            PortfolioFragment.newInstance()
         }
     }
 

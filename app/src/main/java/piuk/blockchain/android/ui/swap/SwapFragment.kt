@@ -46,18 +46,29 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
-class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromoBottomSheet.Host {
+class SwapFragment :
+    Fragment(),
+    KycBenefitsBottomSheet.Host,
+    TradingWalletPromoBottomSheet.Host,
+    NoAccountsToSwapFromBottomSheet.Host {
+
+    interface Host {
+        fun navigateToReceive()
+        fun navigateToBuy()
+    }
+
     private var _binding: FragmentSwapBinding? = null
 
     private val binding: FragmentSwapBinding
         get() = _binding!!
+
+    private val host: Host
+        get() = requireActivity() as Host
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -78,7 +89,6 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
     private val walletPrefs: WalletStatus by inject()
     private val analytics: Analytics by inject()
     private val assetResources: AssetResources by inject()
-    private val appUtil: AppUtil by inject()
     private val compositeDisposable = CompositeDisposable()
 
     private val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -139,9 +149,15 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
         startSwap()
     }
 
-    private fun loadSwapOrKyc(showLoading: Boolean) {
-        val activityIndicator = if (showLoading) appUtil.activityIndicator else null
+    override fun receiveClicked() {
+        host.navigateToReceive()
+    }
 
+    override fun buyClicked() {
+        host.navigateToBuy()
+    }
+
+    private fun loadSwapOrKyc(showLoading: Boolean) {
         compositeDisposable +=
             Singles.zip(
                 kycTierService.tiers(),
@@ -164,7 +180,8 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
                 )
             }
                 .observeOn(AndroidSchedulers.mainThread())
-                .trackProgress(activityIndicator)
+                .doOnSubscribe { if (showLoading) showLoading() }
+                .doOnTerminate { hideLoading() }
                 .subscribeBy(
                     onSuccess = { composite ->
                         showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
@@ -181,7 +198,9 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
                                 assetResources = assetResources
                             )
 
-                            if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
+                            if (!composite.hasAtLeastOneAccountToSwapFrom) {
+                                showNoAccountsToSwapFrom()
+                            } else if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
                                 showKycUpsellIfEligible(composite.limits)
                             }
                         } else {
@@ -230,6 +249,10 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
             )
             showBottomSheet(fragment)
         }
+    }
+
+    private fun showNoAccountsToSwapFrom() {
+        showBottomSheet(NoAccountsToSwapFromBottomSheet.newInstance())
     }
 
     private fun <T : ViewBinding> showBottomSheet(fragment: SlidingModalBottomDialog<T>) {
@@ -308,6 +331,16 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
                 }
             layoutManager = LinearLayoutManager(activity)
         }
+    }
+
+    private fun showLoading() {
+        binding.progress.visible()
+        binding.progress.playAnimation()
+    }
+
+    private fun hideLoading() {
+        binding.progress.gone()
+        binding.progress.pauseAnimation()
     }
 
     companion object {

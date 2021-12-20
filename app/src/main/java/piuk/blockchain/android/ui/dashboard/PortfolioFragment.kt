@@ -154,10 +154,6 @@ class PortfolioFragment :
         arguments?.getString(FLOW_FIAT_CURRENCY)
     }
 
-    private val useDynamicAssets: Boolean by unsafeLazy {
-        arguments?.getBoolean(USE_DYNAMIC_ASSETS) ?: false
-    }
-
     private val startOnboarding: Boolean by unsafeLazy {
         arguments?.getBoolean(START_DASHBOARD_ONBOARDING_KEY, false) ?: false
     }
@@ -246,21 +242,19 @@ class PortfolioFragment :
             )
             val fiatAssets = newState.fiatAssets.fiatAccounts
 
-            if (useDynamicAssets) {
-                val dashboardLoading = newState.isLoadingAssets
-                val atLeastOneAssetIsLoading = cryptoAssets.any { it.isLoading }
-                val isLoading = dashboardLoading || atLeastOneAssetIsLoading
+            val dashboardLoading = newState.isLoadingAssets
+            val atLeastOneAssetIsLoading = cryptoAssets.any { it.isLoading }
+            val isLoading = dashboardLoading || atLeastOneAssetIsLoading
 
-                val atLeastOneCryptoAssetHasBalancePositive =
-                    cryptoAssets.any { it.accountBalance?.total?.isPositive == true }
+            val atLeastOneCryptoAssetHasBalancePositive =
+                cryptoAssets.any { it.accountBalance?.total?.isPositive == true }
 
-                val atLeastOneFiatAssetHasBalancePositive =
-                    fiatAssets.any { it.value.availableBalance?.isPositive == true }
+            val atLeastOneFiatAssetHasBalancePositive =
+                fiatAssets.any { it.value.availableBalance?.isPositive == true }
 
-                val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
+            val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
 
-                manageLoadingState(isLoading, showPortfolio)
-            }
+            manageLoadingState(isLoading, showPortfolio)
             clear()
             addAll(newMap.values + cryptoAssets)
         }
@@ -901,13 +895,11 @@ class PortfolioFragment :
 
     companion object {
         fun newInstance(
-            useDynamicAssets: Boolean,
             flowToLaunch: AssetAction? = null,
             fiatCurrency: String? = null,
             startOnboarding: Boolean = false
         ) = PortfolioFragment().apply {
             arguments = Bundle().apply {
-                putBoolean(USE_DYNAMIC_ASSETS, useDynamicAssets)
                 if (flowToLaunch != null && fiatCurrency != null) {
                     putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
                     putString(FLOW_FIAT_CURRENCY, fiatCurrency)
@@ -917,7 +909,6 @@ class PortfolioFragment :
             }
         }
 
-        internal const val USE_DYNAMIC_ASSETS = "USE_DYNAMIC_ASSETS"
         internal const val FLOW_TO_LAUNCH = "FLOW_TO_LAUNCH"
         internal const val FLOW_FIAT_CURRENCY = "FLOW_FIAT_CURRENCY"
         internal const val START_DASHBOARD_ONBOARDING_KEY = "START_DASHBOARD_ONBOARDING_KEY"

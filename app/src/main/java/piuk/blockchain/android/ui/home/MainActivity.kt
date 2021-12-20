@@ -126,9 +126,13 @@ class MainActivity :
         }
     }
 
-    private val kycUpsellContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) {
-            launchKyc(CampaignType.None)
+    private val actionsResultContract = registerForActivityResult(ActionActivity.BlockchainActivityResultContract()) {
+        when (it) {
+            ActionActivity.ActivityResult.StartKyc -> launchKyc(CampaignType.None)
+            ActionActivity.ActivityResult.StartReceive -> launchReceive()
+            ActionActivity.ActivityResult.StartBuyIntro -> launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+            null -> {
+            }
         }
     }
 
@@ -597,7 +601,7 @@ class MainActivity :
         updateToolbarTitle(title = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
-            fragment = PortfolioFragment.newInstance(true, action, fiatCurrency, startOnboarding),
+            fragment = PortfolioFragment.newInstance(action, fiatCurrency, startOnboarding),
             loadingView = binding.progress,
             reloadFragment = reload
         )
@@ -612,7 +616,7 @@ class MainActivity :
         targetAccount: CryptoAccount?
     ) {
         if (sourceAccount == null && targetAccount == null) {
-            startActivity(ActionActivity.newIntent(this, AssetAction.Swap))
+            actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Swap))
         } else if (sourceAccount != null) {
             startActivity(
                 TransactionFlowActivity.newInstance(
@@ -666,9 +670,13 @@ class MainActivity :
         OnboardingActivity.launchForFingerprints(this)
     }
 
-    override fun launchReceive() = kycUpsellContract.launch(ActionActivity.newIntent(this, AssetAction.Receive))
+    override fun launchReceive() {
+        actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Receive))
+    }
 
-    override fun launchSend() = startActivity(ActionActivity.newIntent(this, AssetAction.Send))
+    override fun launchSend() {
+        actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Send))
+    }
 
     override fun launchBuy() {
         launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)

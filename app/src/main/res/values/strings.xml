@@ -2494,6 +2494,8 @@
     <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
     <string name="new_user_fee_waiver">New User Fee Waiver</string>
+    <string name="swap_empty_state_sheet_title">You’ll need some crypto first!</string>
+    <string name="swap_empty_state_sheet_subtitle">Link a bank or card and buy now or receive from a friend. Once you hold a balance, you can swap crypto at anytime.</string>
 
     <!-- Settings screen -->
     <string name="settings_see_profile">See Profile</string>

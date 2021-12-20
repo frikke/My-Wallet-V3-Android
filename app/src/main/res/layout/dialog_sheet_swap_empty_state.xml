@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/standard_margin">
+
+    <ImageView
+        android:id="@+id/swap_empty_state_sheet_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tiny_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/vector_sheet_indicator_small" />
+
+    <TextView
+        android:id="@+id/swap_empty_state_title"
+        style="@style/Text.Semibold.16"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:text="@string/swap_empty_state_sheet_title"
+        app:layout_constraintTop_toBottomOf="@id/swap_empty_state_sheet_indicator" />
+
+    <TextView
+        android:id="@+id/swap_empty_state_subtitle"
+        style="@style/Text.Standard.14"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:text="@string/swap_empty_state_sheet_subtitle"
+        app:layout_constraintTop_toBottomOf="@id/swap_empty_state_title" />
+
+    <com.blockchain.componentlib.button.DoubleMinimalButtonsView
+        android:id="@+id/receive_buy_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/large_margin"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/swap_empty_state_subtitle" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
