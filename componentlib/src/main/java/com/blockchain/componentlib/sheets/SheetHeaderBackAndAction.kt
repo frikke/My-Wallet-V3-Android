@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -73,7 +72,10 @@ fun SheetHeaderBackAndAction(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 24.dp),
+                        .padding(
+                            start = 24.dp,
+                            top = 4.dp
+                        ),
                 )
 
                 Text(
@@ -90,7 +92,8 @@ fun SheetHeaderBackAndAction(
                             indication = null,
                             onClick = { onActionPress() }
                         )
-                        .widthIn(min = 48.dp),
+                        .widthIn(min = 48.dp)
+                        .padding(top = 4.dp),
                 )
 
                 Spacer(Modifier.width(16.dp))
