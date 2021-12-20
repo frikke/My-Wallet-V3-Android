@@ -73,7 +73,7 @@ fun SheetHeaderBackAndAction(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 24.dp),
+                        .padding(start = 24.dp, top = 4.dp),
                 )
 
                 Text(
@@ -90,7 +90,8 @@ fun SheetHeaderBackAndAction(
                             indication = null,
                             onClick = { onActionPress() }
                         )
-                        .widthIn(min = 48.dp),
+                        .widthIn(min = 48.dp)
+                        .padding(top = 4.dp),
                 )
 
                 Spacer(Modifier.width(16.dp))
