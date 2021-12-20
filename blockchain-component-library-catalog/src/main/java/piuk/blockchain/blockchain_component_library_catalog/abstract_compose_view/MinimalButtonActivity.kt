@@ -1,12 +1,11 @@
 package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.DestructiveMinimalButtonView
 import com.blockchain.componentlib.button.MinimalButtonView
-import com.blockchain.componentlib.button.PrimaryButtonView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class MinimalButtonActivity : AppCompatActivity() {
