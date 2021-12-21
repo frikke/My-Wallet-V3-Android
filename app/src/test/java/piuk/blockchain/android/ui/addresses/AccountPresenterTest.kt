@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.addresses
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
@@ -14,10 +15,10 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.util.PrivateKeyFactory
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -135,10 +136,13 @@ class AccountPresenterTest {
     @Test
     fun updateImportedAddressLabelSuccessful() {
         // Arrange
-        val cryptoValue: Money = CryptoValue.fromMinor(CryptoCurrency.BCH, 1.toBigInteger())
+        val cryptoValue = mock<AccountBalance> {
+            on { total }.thenReturn(CryptoValue.fromMinor(CryptoCurrency.BTC, 1.toBigInteger()))
+            on { withdrawable }.thenReturn(CryptoValue.fromMinor(CryptoCurrency.BTC, 1.toBigInteger()))
+        }
         val importedAccount: BtcCryptoWalletAccount = mock {
             on { updateLabel(UPDATED_BTC_LABEL) }.thenReturn(Completable.complete())
-            on { actionableBalance }.thenReturn(Single.just(cryptoValue))
+            on { balance }.thenReturn(Observable.just(cryptoValue))
         }
 
         // Act
@@ -170,9 +174,10 @@ class AccountPresenterTest {
     fun importedAddressHasBalance() {
         // Arrange
         val sendingAccount: BtcCryptoWalletAccount = mock()
-
-        val cryptoValue = CryptoValue.fromMinor(CryptoCurrency.BTC, 1.toBigInteger())
-        whenever(sendingAccount.actionableBalance).thenReturn(Single.just(cryptoValue))
+        val balance: AccountBalance = mock {
+            on { withdrawable }.thenReturn(CryptoValue.fromMinor(CryptoCurrency.BTC, 1.toBigInteger()))
+        }
+        whenever(sendingAccount.balance).thenReturn(Observable.just(balance))
 
         // Act
         subject.checkBalanceForTransfer(sendingAccount)
@@ -186,9 +191,10 @@ class AccountPresenterTest {
     fun importedAddressHasNoBalance() {
         // Arrange
         val sendingAccount: BtcCryptoWalletAccount = mock()
-
-        val cryptoValue = CryptoValue.zero(CryptoCurrency.BTC)
-        whenever(sendingAccount.actionableBalance).thenReturn(Single.just(cryptoValue))
+        val balance: AccountBalance = mock {
+            on { withdrawable }.thenReturn(CryptoValue.zero(CryptoCurrency.BTC))
+        }
+        whenever(sendingAccount.balance).thenReturn(Observable.just(balance))
 
         // Act
         subject.checkBalanceForTransfer(sendingAccount)

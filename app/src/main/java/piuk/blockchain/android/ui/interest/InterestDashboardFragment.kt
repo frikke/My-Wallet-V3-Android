@@ -12,7 +12,9 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -39,7 +41,7 @@ class InterestDashboardFragment : Fragment() {
 
     interface InterestDashboardHost {
         fun startKyc()
-        fun showInterestSummarySheet(account: SingleAccount, asset: AssetInfo)
+        fun showInterestSummarySheet(account: CryptoAccount)
         fun startAccountSelection(filter: Single<List<BlockchainAccount>>, toAccount: SingleAccount)
     }
 
@@ -169,9 +171,9 @@ class InterestDashboardFragment : Fragment() {
 
     private fun interestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
         compositeDisposable += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
-            val interestAccount = it.accounts.first()
+            val interestAccount = it.accounts.first() as CryptoInterestAccount
             if (hasBalance) {
-                host.showInterestSummarySheet(interestAccount, cryptoCurrency)
+                host.showInterestSummarySheet(interestAccount)
             } else {
                 startActivity(
                     TransactionFlowActivity.newInstance(

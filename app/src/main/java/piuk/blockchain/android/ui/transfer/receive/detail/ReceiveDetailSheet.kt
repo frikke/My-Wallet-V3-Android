@@ -75,7 +75,7 @@ internal class ReceiveDetailSheet :
     private fun renderReceive(newState: ReceiveDetailState) {
         with(binding) {
             switcher.displayedChild = VIEW_RECEIVE
-            receiveTitle.text = getString(R.string.tx_title_receive, newState.account.asset.displayTicker)
+            receiveTitle.text = getString(R.string.tx_title_receive, newState.account.currency.displayTicker)
             val addressAvailable = newState.qrUri != null
             if (addressAvailable) {
                 shareButton.setOnClickListener { shareAddress() }
@@ -83,7 +83,7 @@ internal class ReceiveDetailSheet :
                     analytics.logEvent(
                         TransferAnalyticsEvent.ReceiveDetailsCopied(
                             accountType = TxFlowAnalyticsAccountType.fromAccount(newState.account),
-                            asset = account?.asset ?: throw IllegalStateException(
+                            asset = account?.currency ?: throw IllegalStateException(
                                 "Account asset is missing"
                             )
                         )
@@ -118,10 +118,12 @@ internal class ReceiveDetailSheet :
             switcher.displayedChild = VIEW_SHARE
             check(newState.qrUri != null)
             val dataIntent = qrBitmap?.let {
-                receiveIntentHelper.getIntentDataList(uri = newState.qrUri, bitmap = it, asset = newState.account.asset)
+                receiveIntentHelper.getIntentDataList(
+                    uri = newState.qrUri, bitmap = it, asset = newState.account.currency
+                )
             } ?: emptyList()
 
-            shareTitle.text = getString(R.string.receive_share_title, newState.account.asset.displayTicker)
+            shareTitle.text = getString(R.string.receive_share_title, newState.account.currency.displayTicker)
             with(shareList) {
                 layoutManager = LinearLayoutManager(context)
                 adapter = ShareListAdapter(dataIntent).apply {

@@ -1,5 +1,10 @@
 package info.blockchain.balance
 
+import com.blockchain.testutils.bitcoin
+import com.blockchain.testutils.bitcoinCash
+import com.blockchain.testutils.cad
+import com.blockchain.testutils.ether
+import com.blockchain.testutils.jpy
 import org.amshove.kluent.`should be`
 import org.junit.Test
 

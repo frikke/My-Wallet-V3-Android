@@ -9,7 +9,6 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
@@ -113,8 +112,8 @@ class InterestDashboardActivity :
         KycNavHostActivity.start(this, CampaignType.Interest)
     }
 
-    override fun showInterestSummarySheet(account: SingleAccount, asset: AssetInfo) {
-        showBottomSheet(InterestSummarySheet.newInstance(account, asset))
+    override fun showInterestSummarySheet(account: CryptoAccount) {
+        showBottomSheet(InterestSummarySheet.newInstance(account))
     }
 
     override fun startAccountSelection(
@@ -128,7 +127,7 @@ class InterestDashboardActivity :
                         startDeposit(account as SingleAccount, toAccount)
                         analytics.logEvent(
                             InterestAnalytics.InterestDepositClicked(
-                                currency = (toAccount as CryptoAccount).asset.networkTicker,
+                                currency = toAccount.currency.networkTicker,
                                 origin = LaunchOrigin.SAVINGS_PAGE
                             )
                         )

@@ -8,6 +8,7 @@ import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -41,7 +42,7 @@ class XlmActivitySummaryItem(
     override val description: String?
         get() = payloadDataManager.getTransactionNotes(txId)
 
-    override val fee: Observable<CryptoValue>
+    override val fee: Observable<Money>
         get() = Observable.just(xlmTransaction.fee)
 
     override val txId: String

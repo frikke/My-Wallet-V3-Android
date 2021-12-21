@@ -5,11 +5,12 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 
 class TransactionFlowIntentMapper(
-    private val sourceAccount: BlockchainAccount,
+    private val sourceAccount: SingleAccount,
     private val target: TransactionTarget,
     private val action: AssetAction
 ) {

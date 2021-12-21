@@ -12,6 +12,7 @@ import com.blockchain.nabu.models.data.YapilyAttributes
 import com.blockchain.nabu.models.data.YapilyInstitution
 import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.preferences.BankLinkingPrefs
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentActivityBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
@@ -230,7 +231,7 @@ class BankAuthActivity :
         }
     }
 
-    override fun bankLinkingFinished(bankId: String, currency: String) {
+    override fun bankLinkingFinished(bankId: String, currency: FiatCurrency) {
         val data = Intent()
         data.putExtra(LINKED_BANK_ID_KEY, bankId)
         data.putExtra(LINKED_BANK_CURRENCY, currency)

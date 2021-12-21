@@ -34,14 +34,14 @@ class AccountIcon(
     private val standardIcon: Int?
         @DrawableRes get() = when (account) {
             is CryptoAccount -> null
-            is FiatAccount -> assetResources.fiatCurrencyIcon(account.fiatCurrency)
+            is FiatAccount -> assetResources.fiatCurrencyIcon(account.currency)
             is AccountGroup -> accountGroupIcon(account)
             else -> throw IllegalStateException("$account is not supported")
         }
 
     private val assetForIcon: AssetInfo?
         get() = when (account) {
-            is CryptoAccount -> account.asset
+            is CryptoAccount -> account.currency
             is FiatAccount -> null
             is AccountGroup -> accountGroupTicker(account)
             else -> throw IllegalStateException("$account is not supported")
@@ -63,7 +63,7 @@ class AccountIcon(
             is CryptoAccountCustodialGroup -> null
             is CryptoAccountNonCustodialGroup -> null
             is FiatAccountGroup -> (account.accounts.getOrNull(0) as? FiatAccount)?.let {
-                assetResources.fiatCurrencyIcon(it.fiatCurrency)
+                assetResources.fiatCurrencyIcon(it.currency)
             } ?: DEFAULT_FIAT_ICON
             else -> throw IllegalArgumentException("$account is not a valid group")
         }
@@ -75,7 +75,7 @@ class AccountIcon(
         private fun accountGroupTicker(account: AccountGroup): AssetInfo? {
             return when (account) {
                 is AllWalletsAccount -> null
-                is CryptoAccountCustodialGroup -> (account.accounts[0] as CryptoAccount).asset
+                is CryptoAccountCustodialGroup -> (account.accounts[0] as CryptoAccount).currency
                 is CryptoAccountNonCustodialGroup -> account.asset
                 is FiatAccountGroup -> null
                 else -> throw IllegalArgumentException("$account is not a valid group")

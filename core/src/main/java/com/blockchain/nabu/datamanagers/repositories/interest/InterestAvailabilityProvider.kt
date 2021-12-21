@@ -18,9 +18,9 @@ class InterestAvailabilityProviderImpl(
     override fun getEnabledStatusForAllAssets(): Single<List<AssetInfo>> =
         authenticator.authenticate { token ->
             nabuService.getInterestEnabled(token).map { instrumentsResponse ->
-                instrumentsResponse.instruments.map {
-                    assetCatalogue.fromNetworkTicker(it)
-                }.mapNotNull { it }
+                instrumentsResponse.instruments.mapNotNull {
+                    assetCatalogue.assetInfoFromNetworkTicker(it)
+                }
             }
         }
 }

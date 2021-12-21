@@ -1,5 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
@@ -77,7 +78,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
 
         whenever(exchangeRates.getLastCryptoToUserFiatRate(SRC_ASSET))
             .thenReturn(
-                ExchangeRate.CryptoToFiat(
+                ExchangeRate(
                     from = SRC_ASSET,
                     to = TEST_USER_FIAT,
                     rate = EXCHANGE_RATE
@@ -88,11 +89,11 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     @Test
     fun `inputs validate when correct`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(SRC_ASSET)
+            on { currency }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -105,8 +106,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         subject.assertInputsValid()
 
         // Assert
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(txTarget, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
 
         noMoreInteractions(txTarget)
@@ -115,11 +116,11 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Account incorrect`() {
         val sourceAccount: BtcCryptoWalletAccount = mock {
-            on { asset }.thenReturn(SRC_ASSET)
+            on { currency }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -135,11 +136,11 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when assets match`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(SRC_ASSET)
+            on { currency }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(SRC_ASSET)
+            on { currency }.thenReturn(SRC_ASSET)
         }
 
         // Act
@@ -155,11 +156,11 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when target incorrect`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(SRC_ASSET)
+            on { currency }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: XlmCryptoWalletAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -176,11 +177,11 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     fun `asset is returned correctly`() {
         // Arrange
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(SRC_ASSET)
+            on { currency }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -195,8 +196,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         // Assert
         assertEquals(asset, SRC_ASSET)
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(txTarget, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
 
         noMoreInteractions(txTarget)
@@ -213,7 +214,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         val txQuote: TransferQuote = mock {
@@ -255,8 +256,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(txTarget, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(txTarget, atLeastOnce()).currency
         verify(currencyPrefs).selectedFiatCurrency
         verifyQuotesEngineStarted()
         verifyLimitsFetched()
@@ -275,7 +276,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         val error: NabuApiException = mock {
@@ -309,8 +310,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(txTarget, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(txTarget, atLeastOnce()).currency
         verify(currencyPrefs).selectedFiatCurrency
         verifyQuotesEngineStarted()
         verify(quotesEngine).pricedQuote
@@ -327,7 +328,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -364,8 +365,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             .assertComplete()
             .assertNoErrors()
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(txTarget, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
 
         verify(quotesEngine).updateAmount(inputAmount)
@@ -384,7 +385,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -422,7 +423,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -460,7 +461,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -498,7 +499,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TGT_ASSET)
+            on { currency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -533,8 +534,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             .assertComplete()
             .assertNoErrors()
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(txTarget, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
 
         noMoreInteractions(txTarget)
@@ -542,9 +543,17 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
 
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<CustodialTradingAccount> {
-            on { asset }.thenReturn(SRC_ASSET)
-            on { accountBalance }.thenReturn(Single.just(totalBalance))
-            on { actionableBalance }.thenReturn(Single.just(availableBalance))
+            on { currency }.thenReturn(SRC_ASSET)
+            on { balance }.thenReturn(
+                Observable.just(
+                    AccountBalance(
+                        total = totalBalance,
+                        withdrawable = availableBalance,
+                        pending = Money.zero(totalBalance.currency),
+                        exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
+                    )
+                )
+            )
         }
 
     private fun mockLimits() {
@@ -563,9 +572,9 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     private fun verifyLimitsFetched() {
         verify(walletManager).getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.INTERNAL)
         verify(limitsDataManager).getLimits(
-            outputCurrency = eq(SRC_ASSET.networkTicker),
-            sourceCurrency = eq(SRC_ASSET.networkTicker),
-            targetCurrency = eq(TGT_ASSET.networkTicker),
+            outputCurrency = eq(SRC_ASSET),
+            sourceCurrency = eq(SRC_ASSET),
+            targetCurrency = eq(TGT_ASSET),
             sourceAccountType = eq(AssetCategory.CUSTODIAL),
             targetAccountType = eq(AssetCategory.CUSTODIAL),
             legacyLimits = any()
@@ -575,7 +584,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     private fun verifyQuotesEngineStarted() {
         verify(quotesEngine).start(
             TransferDirection.INTERNAL,
-            CurrencyPair.CryptoCurrencyPair(SRC_ASSET, TGT_ASSET)
+            CurrencyPair(SRC_ASSET, TGT_ASSET)
         )
     }
 

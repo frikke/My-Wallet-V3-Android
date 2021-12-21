@@ -3,6 +3,7 @@ package com.blockchain.nabu.datamanagers.repositories
 import com.blockchain.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import timber.log.Timber
@@ -21,7 +22,7 @@ class WithdrawLocksRepository(custodialWalletManager: CustodialWalletManager) {
 
     fun getWithdrawLockTypeForPaymentMethod(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: String
+        fiatCurrency: FiatCurrency
     ): Single<BigInteger> =
         cache.getCachedSingle(
             WithdrawalData(paymentMethodType, fiatCurrency)
@@ -30,6 +31,6 @@ class WithdrawLocksRepository(custodialWalletManager: CustodialWalletManager) {
 
     private data class WithdrawalData(
         val paymentMethodType: PaymentMethodType,
-        val fiatCurrency: String
+        val fiatCurrency: FiatCurrency
     )
 }

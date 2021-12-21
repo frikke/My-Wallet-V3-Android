@@ -83,7 +83,7 @@ class XlmAccountActivityTest : CoincoreTestBase() {
             sendingValue = CryptoValue.zero(CryptoCurrency.XLM),
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
+            currencyPair = CurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
             apiFiatValue = FiatValue.zero(TEST_API_FIAT),
             price = mock()
         )
@@ -170,7 +170,7 @@ class XlmAccountActivityTest : CoincoreTestBase() {
             sendingValue = CryptoValue.zero(CryptoCurrency.XLM),
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
+            currencyPair = CurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
             apiFiatValue = FiatValue.zero(TEST_API_FIAT),
             price = mock()
         )
@@ -250,7 +250,7 @@ class XlmAccountActivityTest : CoincoreTestBase() {
             sendingValue = CryptoValue.zero(CryptoCurrency.XLM),
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
+            currencyPair = CurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
             apiFiatValue = FiatValue.zero(TEST_API_FIAT),
             price = mock()
         )
@@ -277,7 +277,7 @@ class XlmAccountActivityTest : CoincoreTestBase() {
                     swapItem is TradeActivitySummaryItem &&
                     swapItem.txId == swapSummary.txId &&
                     swapItem.direction == swapSummary.direction &&
-                    swapItem.currencyPair == CurrencyPair.CryptoCurrencyPair(
+                    swapItem.currencyPair == CurrencyPair(
                     CryptoCurrency.XLM,
                     CryptoCurrency.BTC
                 ) &&

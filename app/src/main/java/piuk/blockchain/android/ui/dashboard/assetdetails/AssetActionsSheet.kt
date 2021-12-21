@@ -16,7 +16,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -130,7 +130,7 @@ class AssetActionsSheet :
         hasWarning: Boolean,
         account: CryptoAccount
     ): AssetActionItem {
-        val asset: AssetInfo = account.asset
+        val asset = account.currency
         return when (action) {
             // using the secondary ctor ensures the action is always enabled if it is present
             AssetAction.ViewActivity ->
@@ -268,7 +268,7 @@ class AssetActionsSheet :
         }
     }
 
-    private fun logActionEvent(event: AssetDetailsAnalytics, asset: AssetInfo) {
+    private fun logActionEvent(event: AssetDetailsAnalytics, asset: Currency) {
         analytics.logEvent(assetActionEvent(event, asset))
     }
 
@@ -408,7 +408,7 @@ private data class AssetActionItem(
     val title: String,
     val icon: Int,
     val description: String,
-    val asset: AssetInfo,
+    val asset: Currency,
     val action: AssetAction,
     val hasWarning: Boolean,
     val actionCta: () -> Unit
@@ -418,7 +418,7 @@ private data class AssetActionItem(
         icon: Int,
         hasWarning: Boolean,
         description: String,
-        asset: AssetInfo,
+        asset: Currency,
         action: AssetAction,
         actionCta: () -> Unit
     ) : this(

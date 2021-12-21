@@ -76,7 +76,7 @@ private class AssetTickerDeserializer(
         json: JsonElement,
         typeOfT: Type,
         context: JsonDeserializationContext
-    ): AssetInfo = assetCatalogue.fromNetworkTicker(
+    ): AssetInfo = assetCatalogue.assetInfoFromNetworkTicker(
         json.asString
     ) ?: throw JsonParseException("Unknown Asset ticker")
 }

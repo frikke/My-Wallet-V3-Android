@@ -2,7 +2,8 @@ package piuk.blockchain.android.ui.activity
 
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class ActivitiesIntent : MviIntent<ActivitiesState>
@@ -71,29 +72,19 @@ class CancelSimpleBuyOrderIntent(
 }
 
 class ShowActivityDetailsIntent(
-    private val asset: AssetInfo,
+    private val currency: Currency,
     private val txHash: String,
-    private val type: CryptoActivityType
+    private val type: ActivityType
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
         return oldState.copy(
-            bottomSheet = ActivitiesSheet.CRYPTO_ACTIVITY_DETAILS,
-            selectedCryptoCurrency = asset,
+            bottomSheet =
+            if (currency.type == CurrencyType.CRYPTO)
+                ActivitiesSheet.CRYPTO_ACTIVITY_DETAILS
+            else ActivitiesSheet.FIAT_ACTIVITY_DETAILS,
+            selectedCurrency = currency,
             selectedTxId = txHash,
             activityType = type
-        )
-    }
-}
-
-class ShowFiatActivityDetailsIntent(
-    val currency: String,
-    val txHash: String
-) : ActivitiesIntent() {
-    override fun reduce(oldState: ActivitiesState): ActivitiesState {
-        return oldState.copy(
-            bottomSheet = ActivitiesSheet.FIAT_ACTIVITY_DETAILS,
-            selectedFiatCurrency = currency,
-            selectedTxId = txHash
         )
     }
 }
@@ -102,8 +93,8 @@ object ClearBottomSheetIntent : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState =
         oldState.copy(
             bottomSheet = null,
-            selectedCryptoCurrency = null,
+            selectedCurrency = null,
             selectedTxId = "",
-            activityType = CryptoActivityType.UNKNOWN
+            activityType = ActivityType.UNKNOWN
         )
 }

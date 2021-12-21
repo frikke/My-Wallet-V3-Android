@@ -28,7 +28,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
     private val features: InternalFeatureFlagApi = mock()
 
     private val subject = CustodialTradingAccount(
-        asset = TEST_ASSET,
+        currency = TEST_ASSET,
         label = "Test Account",
         exchangeRates = exchangeRates,
         custodialWalletManager = custodialManager,
@@ -46,23 +46,23 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
     @Test
     fun `Balance is fetched correctly and is non-zero`() {
 
-        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
-            actionable = 90.testValue(TEST_ASSET),
+            withdrawable = 90.testValue(TEST_ASSET),
             pending = 10.testValue(TEST_ASSET)
         )
 
-        whenever(tradingBalances.getBalanceForAsset(TEST_ASSET)).thenReturn(Observable.just(balance))
+        whenever(tradingBalances.getBalanceForCurrency(TEST_ASSET)).thenReturn(Observable.just(balance))
 
         subject.balance
             .test()
             .assertComplete()
             .assertValue {
                 it.total == balance.total &&
-                    it.actionable == balance.actionable &&
+                    it.withdrawable == balance.withdrawable &&
                     it.pending == balance.pending &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
@@ -73,23 +73,23 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
     @Test
     fun `Balance is fetched correctly and is zero`() {
 
-        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
 
         val balance = TradingAccountBalance(
             total = 0.testValue(TEST_ASSET),
-            actionable = 0.testValue(TEST_ASSET),
+            withdrawable = 0.testValue(TEST_ASSET),
             pending = 0.testValue(TEST_ASSET)
         )
 
-        whenever(tradingBalances.getBalanceForAsset(TEST_ASSET)).thenReturn(Observable.just(balance))
+        whenever(tradingBalances.getBalanceForCurrency(TEST_ASSET)).thenReturn(Observable.just(balance))
 
         subject.balance
             .test()
             .assertComplete()
             .assertValue {
                 it.total == balance.total &&
-                    it.actionable == balance.actionable &&
+                    it.withdrawable == balance.withdrawable &&
                     it.pending == balance.pending &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
@@ -108,16 +108,16 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
             Observable.fromIterable(rates)
         ) { /* tick */ _, rate -> rate as ExchangeRate }
 
-        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(rateSource)
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
-            actionable = 90.testValue(TEST_ASSET),
+            withdrawable = 90.testValue(TEST_ASSET),
             pending = 10.testValue(TEST_ASSET)
         )
 
-        whenever(tradingBalances.getBalanceForAsset(TEST_ASSET)).thenReturn(Observable.just(balance))
+        whenever(tradingBalances.getBalanceForCurrency(TEST_ASSET)).thenReturn(Observable.just(balance))
 
         val testSubscriber = subject.balance
             .subscribeOn(scheduler)
@@ -150,13 +150,13 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
         private val RATE_1 = 1.2.toBigDecimal()
         private val RATE_2 = 1.4.toBigDecimal()
 
-        private val TEST_TO_USER_RATE_1 = ExchangeRate.CryptoToFiat(
+        private val TEST_TO_USER_RATE_1 = ExchangeRate(
             from = TEST_ASSET,
             to = TEST_USER_FIAT,
             rate = RATE_1
         )
 
-        private val TEST_TO_USER_RATE_2 = ExchangeRate.CryptoToFiat(
+        private val TEST_TO_USER_RATE_2 = ExchangeRate(
             from = TEST_ASSET,
             to = TEST_USER_FIAT,
             rate = RATE_2

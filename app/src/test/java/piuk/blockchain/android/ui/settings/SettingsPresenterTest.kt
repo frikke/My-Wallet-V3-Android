@@ -12,6 +12,9 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.GBP
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
@@ -19,6 +22,7 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.settings.SettingsManager
@@ -146,7 +150,7 @@ class SettingsPresenterTest {
 
         arrangeEligiblePaymentMethodTypes(USD, listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)))
         whenever(custodialWalletManager.canTransactWithBankMethods(any())).thenReturn(Single.just(false))
-        whenever(custodialWalletManager.updateSupportedCardTypes(ArgumentMatchers.anyString())).thenReturn(
+        whenever(custodialWalletManager.updateSupportedCardTypes(any())).thenReturn(
             Completable.complete()
         )
         arrangeBanks(emptyList())
@@ -176,9 +180,7 @@ class SettingsPresenterTest {
 
         whenever(custodialWalletManager.canTransactWithBankMethods(any())).thenReturn(Single.just(false))
         arrangeEligiblePaymentMethodTypes(USD, listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)))
-        whenever(custodialWalletManager.updateSupportedCardTypes(ArgumentMatchers.anyString())).thenReturn(
-            Completable.complete()
-        )
+        whenever(custodialWalletManager.updateSupportedCardTypes(any())).thenReturn(Completable.complete())
         whenever(custodialWalletManager.fetchUnawareLimitsCards(ArgumentMatchers.anyList()))
             .thenReturn(Single.just(emptyList()))
         arrangeBanks(emptyList())
@@ -622,13 +624,13 @@ class SettingsPresenterTest {
             USD,
             listOf(
                 EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, USD),
-                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, "EUR")
+                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, EUR)
             )
         )
         arrangeBanks(
             listOf(
-                Bank("", "", "", BankState.ACTIVE, "", "", PaymentMethodType.BANK_TRANSFER, ""),
-                Bank("", "", "", BankState.ACTIVE, "", "", PaymentMethodType.BANK_ACCOUNT, "")
+                Bank("", "", "", BankState.ACTIVE, USD, "", PaymentMethodType.BANK_TRANSFER, ""),
+                Bank("", "", "", BankState.ACTIVE, USD, "", PaymentMethodType.BANK_ACCOUNT, "")
             )
         )
 
@@ -651,14 +653,14 @@ class SettingsPresenterTest {
         arrangeEligiblePaymentMethodTypes(
             USD,
             listOf(
-                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, "GBP"),
-                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, "EUR")
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, GBP),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, EUR)
             )
         )
         arrangeBanks(
             listOf(
-                Bank("", "", "", BankState.ACTIVE, "", "", PaymentMethodType.BANK_TRANSFER, ""),
-                Bank("", "", "", BankState.ACTIVE, "", "", PaymentMethodType.BANK_ACCOUNT, "")
+                Bank("", "", "", BankState.ACTIVE, USD, "", PaymentMethodType.BANK_TRANSFER, ""),
+                Bank("", "", "", BankState.ACTIVE, USD, "", PaymentMethodType.BANK_ACCOUNT, "")
             )
         )
 
@@ -677,7 +679,7 @@ class SettingsPresenterTest {
     }
 
     private fun arrangeEligiblePaymentMethodTypes(
-        currency: String,
+        currency: FiatCurrency,
         eligiblePaymentMethodTypes: List<EligiblePaymentMethodType>
     ) {
         whenever(custodialWalletManager.getEligiblePaymentMethodTypes(currency)).thenReturn(
@@ -689,10 +691,5 @@ class SettingsPresenterTest {
         whenever(custodialWalletManager.getBanks()).thenReturn(
             Single.just(banks)
         )
-    }
-
-    // companion object
-    private companion object {
-        const val USD = "USD"
     }
 }

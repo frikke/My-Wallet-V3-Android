@@ -6,7 +6,6 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
-import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
@@ -18,7 +17,6 @@ import com.blockchain.coincore.eth.EthActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.coincore.xlm.XlmActivitySummaryItem
 import com.blockchain.core.price.historic.HistoricRateFetcher
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.TransactionType
@@ -29,9 +27,11 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -125,7 +125,7 @@ class ActivityDetailsInteractor(
             TransactionId(cacheTransaction.txId),
             Created(recurringBuy.createDate),
             TotalCostAmount(cacheTransaction.fundedFiat),
-            FeeAmount(FiatValue.fromMinor(cacheTransaction.fee.currencyCode, 0)),
+            FeeAmount(Money.zero(cacheTransaction.fee.currency)),
             RecurringBuyFrequency(recurringBuy.recurringBuyFrequency, recurringBuy.nextPaymentDate),
             NextPayment(recurringBuy.nextPaymentDate)
         )
@@ -194,7 +194,7 @@ class ActivityDetailsInteractor(
         }
         return if (summaryItem.type == TransactionSummary.TransactionType.WITHDRAW) {
             coincore.findAccountByAddress(
-                summaryItem.account.asset,
+                summaryItem.account.currency,
                 summaryItem.accountRef
             ).map {
                 if (it !is NullCryptoAccount) {
@@ -280,18 +280,19 @@ class ActivityDetailsInteractor(
     }
 
     private fun getSwapFromField(tradeActivity: TradeActivitySummaryItem): From {
-        val pair = tradeActivity.currencyPair as CurrencyPair.CryptoCurrencyPair
-        return From("${pair.source.displayTicker} ${tradeActivity.sendingAccount.label}")
+        return From(
+            "${tradeActivity.currencyPair.source.displayTicker} ${tradeActivity.sendingAccount.label}"
+        )
     }
 
     private fun getSellFromField(tradeActivity: TradeActivitySummaryItem): From {
-        val pair = tradeActivity.currencyPair as CurrencyPair.CryptoToFiatCurrencyPair
-        return From("${pair.source.displayTicker} ${tradeActivity.sendingAccount.label}")
+        return From(
+            "${tradeActivity.currencyPair.source.displayTicker} ${tradeActivity.sendingAccount.label}"
+        )
     }
 
     private fun getSellToField(tradeActivity: TradeActivitySummaryItem): To {
-        val pair = tradeActivity.currencyPair as CurrencyPair.CryptoToFiatCurrencyPair
-        return To("${pair.destination} ${tradeActivity.sendingAccount.label}")
+        return To("${tradeActivity.currencyPair.destination} ${tradeActivity.sendingAccount.label}")
     }
 
     fun loadSellItems(
@@ -311,7 +312,7 @@ class ActivityDetailsInteractor(
         }
     }
 
-    private fun getToField(label: String, defaultLabel: String, asset: AssetInfo): To =
+    private fun getToField(label: String, defaultLabel: String, asset: Currency): To =
         To(
             if (label.isEmpty() || label == defaultLabel) {
                 "${asset.displayTicker} $defaultLabel"
@@ -321,21 +322,25 @@ class ActivityDetailsInteractor(
         )
 
     private fun buildReceivingLabel(item: TradeActivitySummaryItem): Single<To> {
-        require(item.currencyPair is CurrencyPair.CryptoCurrencyPair)
-        val cryptoPair = item.currencyPair as CurrencyPair.CryptoCurrencyPair
+        require(
+            item.currencyPair.source.type == CurrencyType.CRYPTO &&
+                item.currencyPair.destination.type == CurrencyType.CRYPTO
+        )
         return when (item.direction) {
             TransferDirection.ON_CHAIN -> coincore.findAccountByAddress(
-                cryptoPair.destination, item.receivingAddress!!
+                item.currencyPair.destination.asAssetInfoOrThrow(), item.receivingAddress!!
             ).toSingle().map {
                 val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
-                getToField(it.label, defaultLabel, cryptoPair.destination)
+                getToField(it.label, defaultLabel, item.currencyPair.destination)
             }
             TransferDirection.INTERNAL,
-            TransferDirection.FROM_USERKEY -> coincore[cryptoPair.destination].accountGroup(AssetFilter.Custodial)
+            TransferDirection.FROM_USERKEY -> coincore[item.currencyPair.destination.asAssetInfoOrThrow()].accountGroup(
+                AssetFilter.Custodial
+            )
                 .toSingle()
                 .map {
                     val defaultLabel = it.selectFirstAccount().label
-                    getToField(defaultLabel, defaultLabel, cryptoPair.destination)
+                    getToField(defaultLabel, defaultLabel, item.currencyPair.destination)
                 }
             TransferDirection.TO_USERKEY -> throw IllegalStateException("TO_USERKEY swap direction not supported")
         }
@@ -430,12 +435,6 @@ class ActivityDetailsInteractor(
             txHash
         ) as? RecurringBuyActivitySummaryItem
 
-    fun getFiatActivityDetails(
-        currency: String,
-        txHash: String
-    ): FiatActivitySummaryItem? =
-        assetActivityRepository.findCachedItem(currency, txHash)
-
     fun getNonCustodialActivityDetails(
         asset: AssetInfo,
         txHash: String
@@ -518,12 +517,13 @@ class ActivityDetailsInteractor(
 
     fun loadTransferItems(
         item: NonCustodialActivitySummaryItem
-    ) = historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
-        .flatMap { fiatValue ->
-            getTransactionsMapForTransferItems(item, fiatValue)
-        }.onErrorResumeNext {
-            getTransactionsMapForTransferItems(item, null)
-        }
+    ): Single<List<ActivityDetailsType>> =
+        historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
+            .flatMap { fiatValue ->
+                getTransactionsMapForTransferItems(item, fiatValue)
+            }.onErrorResumeNext {
+                getTransactionsMapForTransferItems(item, null)
+            }
 
     private fun getTransactionsMapForTransferItems(
         item: NonCustodialActivitySummaryItem,
@@ -550,7 +550,7 @@ class ActivityDetailsInteractor(
 
     fun loadConfirmedSentItems(
         item: NonCustodialActivitySummaryItem
-    ) = item.fee.single(item.value as? CryptoValue).flatMap { cryptoValue ->
+    ) = item.fee.single(item.value).flatMap { cryptoValue ->
         getTotalFiat(item, cryptoValue, currencyPrefs.selectedFiatCurrency)
     }.onErrorResumeNext {
         getTotalFiat(item, null, currencyPrefs.selectedFiatCurrency)
@@ -559,7 +559,7 @@ class ActivityDetailsInteractor(
     private fun getTotalFiat(
         item: NonCustodialActivitySummaryItem,
         value: Money?,
-        selectedFiatCurrency: String
+        selectedFiatCurrency: FiatCurrency
     ) = historicRateFetcher.fetch(item.asset, selectedFiatCurrency, item.timeStampMs, item.value).flatMap { fiatValue ->
         getTransactionsMapForConfirmedSentItems(value, fiatValue, item)
     }.onErrorResumeNext {
@@ -595,7 +595,7 @@ class ActivityDetailsInteractor(
 
     fun loadUnconfirmedSentItems(
         item: NonCustodialActivitySummaryItem
-    ) = item.fee.singleOrError().flatMap { cryptoValue ->
+    ): Single<List<ActivityDetailsType>> = item.fee.singleOrError().flatMap { cryptoValue ->
         getTransactionsMapForUnconfirmedSentItems(item, cryptoValue)
     }.onErrorResumeNext {
         getTransactionsMapForUnconfirmedSentItems(item, null)
@@ -603,7 +603,7 @@ class ActivityDetailsInteractor(
 
     private fun getTransactionsMapForUnconfirmedSentItems(
         item: NonCustodialActivitySummaryItem,
-        cryptoValue: CryptoValue?
+        cryptoValue: Money?
     ) = transactionInputOutputMapper.transformInputAndOutputs(item).map {
         getListOfItemsForUnconfirmedSends(item, cryptoValue, it)
     }.onErrorReturn {
@@ -612,7 +612,7 @@ class ActivityDetailsInteractor(
 
     private fun getListOfItemsForUnconfirmedSends(
         item: NonCustodialActivitySummaryItem,
-        cryptoValue: CryptoValue?,
+        cryptoValue: Money?,
         transactionInOutDetails: TransactionInOutDetails?
     ) = listOfNotNull(
         Amount(item.value),

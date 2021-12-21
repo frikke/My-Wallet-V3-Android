@@ -12,6 +12,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.utils.toFormattedString
+import info.blockchain.balance.FiatCurrency
 import java.util.Date
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -26,8 +27,8 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActivityDetailsBinding>() {
     private val model: FiatActivityDetailsModel by scopedInject()
     private val fiatDetailsSheetAdapter = FiatDetailsSheetAdapter()
-    private val currency: String by unsafeLazy {
-        arguments?.getString(CURRENCY_KEY) ?: throw IllegalStateException("No currency  provided")
+    private val currency: FiatCurrency by unsafeLazy {
+        arguments?.getSerializable(CURRENCY_KEY) as FiatCurrency
     }
 
     private val txHash: String by unsafeLazy {
@@ -158,12 +159,12 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
         private const val TX_HASH_KEY = "TX_HASH_KEY"
 
         fun newInstance(
-            fiatCurrency: String,
+            fiatCurrency: FiatCurrency,
             txHash: String
         ): FiatActivityDetailsBottomSheet {
             return FiatActivityDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putString(CURRENCY_KEY, fiatCurrency)
+                    putSerializable(CURRENCY_KEY, fiatCurrency)
                     putString(TX_HASH_KEY, txHash)
                 }
             }

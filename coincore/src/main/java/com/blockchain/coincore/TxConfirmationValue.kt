@@ -1,20 +1,21 @@
 package com.blockchain.coincore
 
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
 class FeeInfo(
     val feeAmount: Money,
     val fiatAmount: Money,
-    val asset: AssetInfo
+    val asset: Currency
 )
 
 sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
 
-    data class ExchangePriceConfirmation(val money: Money, val asset: AssetInfo) :
+    data class ExchangePriceConfirmation(val money: Money, val asset: Currency) :
         TxConfirmationValue(TxConfirmation.EXPANDABLE_SIMPLE_READ_ONLY)
 
-    data class From(val sourceAccount: BlockchainAccount, val sourceAsset: AssetInfo? = null) :
+    data class From(val sourceAccount: BlockchainAccount, val sourceAsset: Currency? = null) :
         TxConfirmationValue(TxConfirmation.SIMPLE_READ_ONLY)
 
     data class PaymentMethod(

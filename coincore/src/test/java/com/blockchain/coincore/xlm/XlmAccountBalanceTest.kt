@@ -1,5 +1,6 @@
 package com.blockchain.coincore.xlm
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -50,7 +51,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
     @Before
     fun setup() {
         initMocks()
-        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.XLM))
+        whenever(exchangeRates.exchangeRateToUserFiat(CryptoCurrency.XLM))
             .thenReturn(Observable.just(XLM_TO_USER_RATE))
     }
 
@@ -70,7 +71,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.total == xlmBalance &&
-                    it.actionable == xlmBalance - xlmMinimum &&
+                    it.withdrawable == xlmBalance - xlmMinimum &&
                     it.pending.isZero &&
                     it.exchangeRate == XLM_TO_USER_RATE
             }
@@ -78,19 +79,24 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
 
     @Test
     fun `account balance is correct`() {
-        val xlmBalance = 100.lumens()
+
         val xlmMinimum = 10.lumens()
         val xlmBalanceAndMin = BalanceAndMin(
-            xlmBalance,
+            100.lumens(),
             xlmMinimum
         )
 
         whenever(xlmDataManager.getBalanceAndMin()).thenReturn(Single.just(xlmBalanceAndMin))
 
-        subject.accountBalance
+        subject.balance
             .test()
             .assertValue {
-                it == xlmBalance
+                it == AccountBalance(
+                    total = 100.lumens(),
+                    withdrawable = 100.lumens() - xlmMinimum,
+                    pending = 0.lumens(),
+                    exchangeRate = XLM_TO_USER_RATE
+                )
             }
 
         assert(subject.isFunded)
@@ -108,7 +114,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
 
         whenever(xlmDataManager.getBalanceAndMin()).thenReturn(Single.just(xlmBalanceAndMin))
 
-        subject.pendingBalance
+        subject.balance.map { it.pending }
             .test()
             .assertValue { it.isZero }
 
@@ -131,7 +137,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.total == xlmBalance &&
-                    it.actionable == xlmBalance - xlmMinimum &&
+                    it.withdrawable == xlmBalance - xlmMinimum &&
                     it.pending.isZero &&
                     it.exchangeRate == XLM_TO_USER_RATE
             }
@@ -155,7 +161,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.total == 5.lumens() &&
-                    it.actionable.isZero &&
+                    it.withdrawable.isZero &&
                     it.pending.isZero &&
                     it.exchangeRate == XLM_TO_USER_RATE
             }
@@ -180,7 +186,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.total.isZero &&
-                    it.actionable.isZero &&
+                    it.withdrawable.isZero &&
                     it.pending.isZero &&
                     it.exchangeRate == XLM_TO_USER_RATE
             }
@@ -189,7 +195,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
     }
 
     companion object {
-        private val XLM_TO_USER_RATE = ExchangeRate.CryptoToFiat(
+        private val XLM_TO_USER_RATE = ExchangeRate(
             from = CryptoCurrency.XLM,
             to = TEST_USER_FIAT,
             rate = 1.2.toBigDecimal()

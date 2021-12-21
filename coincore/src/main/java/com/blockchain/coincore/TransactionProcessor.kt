@@ -13,6 +13,8 @@ import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -69,7 +71,7 @@ data class FeeSelection(
     val customLevelRates: FeeLevelRates? = null,
     val feeState: FeeState? = null,
     val asset: AssetInfo? = null,
-    val feesForLevels: Map<FeeLevel, CryptoValue> = emptyMap()
+    val feesForLevels: Map<FeeLevel, Money> = emptyMap()
 )
 
 data class PendingTx(
@@ -80,7 +82,7 @@ data class PendingTx(
     val feeForFullAvailable: Money,
     val feeAmount: Money,
     val feeSelection: FeeSelection,
-    val selectedFiat: String,
+    val selectedFiat: FiatCurrency,
     val confirmations: List<TxConfirmationValue> = emptyList(),
     val limits: TxLimits? = null,
     val validationState: ValidationState = ValidationState.UNINITIALISED,
@@ -219,14 +221,14 @@ abstract class TxEngine : KoinComponent {
     // are valid for this engine.
     open fun assertInputsValid() {}
 
-    val userFiat: String by unsafeLazy {
+    val userFiat: FiatCurrency by unsafeLazy {
         payloadScope.get<CurrencyPrefs>().selectedFiatCurrency
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     // workaround for using engine without cryptocurrency source
-    val sourceAsset: AssetInfo
-        get() = (sourceAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
+    val sourceAsset: Currency
+        get() = ((sourceAccount as? SingleAccount)?.currency) ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
 
@@ -242,19 +244,7 @@ abstract class TxEngine : KoinComponent {
         check(sourceAccount is CryptoAccount || sourceAccount is FiatAccount) {
             "Attempting to use exchange rate for non crypto or fiat sources"
         }
-
-        return when (sourceAccount) {
-            is CryptoAccount -> {
-                exchangeRates.cryptoToUserFiatRate((sourceAccount as CryptoAccount).asset)
-            }
-            is FiatAccount -> {
-                exchangeRates.fiatToUserFiatRate((sourceAccount as FiatAccount).fiatCurrency)
-            }
-            else -> {
-                Timber.e("Attempting to use exchange rate for non crypto or fiat sources")
-                Observable.empty()
-            }
-        }
+        return exchangeRates.exchangeRateToUserFiat((sourceAccount as SingleAccount).currency)
     }
 
     abstract fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx>

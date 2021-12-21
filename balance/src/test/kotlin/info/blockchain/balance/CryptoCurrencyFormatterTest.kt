@@ -1,5 +1,10 @@
 package info.blockchain.balance
 
+import com.blockchain.testutils.bitcoin
+import com.blockchain.testutils.bitcoinCash
+import com.blockchain.testutils.ether
+import com.blockchain.testutils.satoshi
+import com.blockchain.testutils.satoshiCash
 import java.util.Locale
 import org.amshove.kluent.`should be equal to`
 import org.junit.Before

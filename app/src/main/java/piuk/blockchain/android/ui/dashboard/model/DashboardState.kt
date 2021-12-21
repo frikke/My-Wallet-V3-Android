@@ -8,6 +8,8 @@ import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.Prices24HrWithDelta
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
@@ -76,27 +78,27 @@ interface BalanceState : DashboardItem {
     val delta: Pair<Money, Double>?
     operator fun get(currency: AssetInfo): CryptoAssetState
     val assetList: List<CryptoAssetState>
-    fun getFundsFiat(fiat: String): Money
+    fun getFundsFiat(fiat: FiatCurrency): Money
 }
 
 data class FiatBalanceInfo(
     val account: FiatAccount,
-    val balance: Money = FiatValue.zero(account.fiatCurrency),
+    val balance: Money = Money.zero(account.currency),
     val userFiat: Money? = null,
     val availableBalance: Money? = null
 )
 
 data class FiatAssetState(
-    val fiatAccounts: Map<String, FiatBalanceInfo> = emptyMap()
+    val fiatAccounts: Map<Currency, FiatBalanceInfo> = emptyMap()
 ) : DashboardItem {
 
     fun updateWith(
-        currencyCode: String,
+        currency: Currency,
         balance: FiatValue,
         userFiatBalance: FiatValue,
         availableBalance: Money
     ): FiatAssetState {
-        val newBalanceInfo = fiatAccounts[currencyCode]?.copy(
+        val newBalanceInfo = fiatAccounts[currency]?.copy(
             balance = balance,
             userFiat = userFiatBalance,
             availableBalance = availableBalance
@@ -104,7 +106,7 @@ data class FiatAssetState(
 
         return newBalanceInfo?.let {
             val newMap = fiatAccounts.toMutableMap()
-            newMap[currencyCode] = it
+            newMap[currency] = it
             FiatAssetState(newMap)
         } ?: this
     }
@@ -234,8 +236,8 @@ data class DashboardState(
     override operator fun get(currency: AssetInfo): CryptoAssetState =
         activeAssets[currency]
 
-    override fun getFundsFiat(fiat: String): Money =
-        fiatAssets.totalBalance ?: FiatValue.zero(fiat)
+    override fun getFundsFiat(fiat: FiatCurrency): Money =
+        fiatAssets.totalBalance ?: Money.zero(fiat)
 
     val assetMapKeys = activeAssets.keys
 

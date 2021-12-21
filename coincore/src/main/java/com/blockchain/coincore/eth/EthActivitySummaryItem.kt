@@ -5,6 +5,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
@@ -51,7 +52,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
     override val description: String?
         get() = ethDataManager.getTransactionNotes(txId)
 
-    override val fee: Observable<CryptoValue>
+    override val fee: Observable<Money>
         get() = Observable.just(
             CryptoValue.fromMinor(
                 CryptoCurrency.ETHER,

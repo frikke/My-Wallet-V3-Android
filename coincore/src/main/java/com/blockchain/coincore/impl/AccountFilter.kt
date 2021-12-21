@@ -68,8 +68,8 @@ private fun buildAssetMasterGroup(
     asset: AssetInfo,
     labels: DefaultLabels,
     accountList: List<SingleAccount>
-): AccountGroup? =
-    if (accountList.isEmpty())
+): AccountGroup? {
+    return if (accountList.isEmpty())
         null
     else
         CryptoAccountNonCustodialGroup(
@@ -77,3 +77,4 @@ private fun buildAssetMasterGroup(
             labels.getAssetMasterWalletLabel(asset),
             accountList
         )
+}

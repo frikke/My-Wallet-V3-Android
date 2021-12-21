@@ -1,5 +1,6 @@
 package com.blockchain.coincore.impl
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
@@ -43,18 +44,23 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
         override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> {
             STUB_THIS()
         }
+
         override fun doInitialiseTx(): Single<PendingTx> {
             STUB_THIS()
         }
+
         override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
             STUB_THIS()
         }
+
         override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> {
             STUB_THIS()
         }
+
         override fun doValidateAll(pendingTx: PendingTx): Single<PendingTx> {
             STUB_THIS()
         }
+
         override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> {
             STUB_THIS()
         }
@@ -74,7 +80,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
     @Test
     fun `asset is returned correctly`() {
         // Arrange
-        whenever(sourceAccount.asset).thenReturn(ASSET)
+        whenever(sourceAccount.currency).thenReturn(ASSET)
 
         // Act
         subject.start(
@@ -88,7 +94,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
         // Assert
         assertEquals(asset, ASSET)
 
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions()
     }
@@ -109,11 +115,11 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
     @Test
     fun `exchange rate stream is returned`() {
         // Arrange
-        whenever(sourceAccount.asset).thenReturn(ASSET)
-        whenever(exchangeRates.cryptoToUserFiatRate(ASSET))
+        whenever(sourceAccount.currency).thenReturn(ASSET)
+        whenever(exchangeRates.exchangeRateToUserFiat(ASSET))
             .thenReturn(
                 Observable.just(
-                    ExchangeRate.CryptoToFiat(
+                    ExchangeRate(
                         from = ASSET,
                         to = TEST_USER_FIAT,
                         rate = EXCHANGE_RATE
@@ -131,13 +137,13 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
         subject.userExchangeRate()
             .test()
             .assertValueAt(0) {
-                it.rate == EXCHANGE_RATE
+                it.price.toBigDecimal() == EXCHANGE_RATE
             }
             .assertComplete()
             .assertNoErrors()
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(exchangeRates).cryptoToUserFiatRate(ASSET)
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(exchangeRates).exchangeRateToUserFiat(ASSET)
 
         noMoreInteractions()
     }
@@ -146,11 +152,20 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
     fun `confirmations are refreshed`() {
         // Arrange
         val balance = CryptoValue.fromMajor(ASSET, 10.1.toBigDecimal())
-        whenever(sourceAccount.accountBalance).thenReturn(Single.just(balance))
+        whenever(sourceAccount.balance).thenReturn(
+            Observable.just(
+                AccountBalance(
+                    total = balance,
+                    withdrawable = Money.zero(balance.currency),
+                    pending = Money.zero(balance.currency),
+                    exchangeRate = ExchangeRate.identityExchangeRate(balance.currency),
+                )
+            )
+        )
 
         val refreshTrigger = object : TxEngine.RefreshTrigger {
             override fun refreshConfirmations(revalidate: Boolean): Completable =
-                Completable.fromAction { sourceAccount.accountBalance }
+                Completable.fromAction { sourceAccount.balance }
         }
 
         // Act
@@ -164,7 +179,7 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
         subject.refreshConfirmations(false)
 
         // Assert
-        verify(sourceAccount).accountBalance
+        verify(sourceAccount).balance
 
         noMoreInteractions()
     }

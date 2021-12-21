@@ -7,8 +7,11 @@ import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.logging.CrashLogger
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -32,13 +35,13 @@ class Coincore internal constructor(
     private val txProcessorFactory: TxProcessorFactory,
     private val defaultLabels: DefaultLabels,
     private val fiatAsset: Asset,
+    private val currencyPrefs: CurrencyPrefs,
     private val crashLogger: CrashLogger,
     private val paymentsDataManager: PaymentsDataManager
 ) {
 
-    fun getWithdrawalLocks(localCurrency: String): Single<FundsLocks> {
-        return paymentsDataManager.getWithdrawalLocks(localCurrency)
-    }
+    fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
+        paymentsDataManager.getWithdrawalLocks(localCurrency)
 
     operator fun get(asset: AssetInfo): CryptoAsset =
         assetLoader[asset]
@@ -51,8 +54,6 @@ class Coincore internal constructor(
             .doOnError {
                 crashLogger.logEvent("Coincore initialisation failed! $it")
             }
-
-    fun initialiseAssetCatalogue() = assetCatalogue.initialise()
 
     val fiatAssets: Asset
         get() = fiatAsset
@@ -74,7 +75,7 @@ class Coincore internal constructor(
             }
         ).reduce { a, l -> a + l }
             .map { list ->
-                AllWalletsAccount(list, defaultLabels) as AccountGroup
+                AllWalletsAccount(list, defaultLabels, currencyPrefs) as AccountGroup
             }.toSingle()
 
     fun allWalletsWithActions(
@@ -98,7 +99,7 @@ class Coincore internal constructor(
         action: AssetAction
     ): Single<SingleAccountList> {
         val sameCurrencyTransactionTargets =
-            get(sourceAccount.asset).transactionTargets(sourceAccount)
+            get(sourceAccount.currency as AssetInfo).transactionTargets(sourceAccount)
 
         val fiatTargets = fiatAsset.accountGroup(AssetFilter.All)
             .map {
@@ -137,7 +138,7 @@ class Coincore internal constructor(
             AssetAction.Swap -> {
                 {
                     it is CryptoAccount &&
-                        it.asset != sourceAccount.asset &&
+                        it.currency != sourceAccount.currency &&
                         it !is FiatAccount &&
                         it !is InterestAccount &&
                         if (sourceAccount.isCustodial()) it.isCustodial() else true
@@ -150,7 +151,7 @@ class Coincore internal constructor(
             }
             AssetAction.InterestWithdraw -> {
                 {
-                    it is CryptoAccount && it.asset == sourceAccount.asset
+                    it is CryptoAccount && it.currency == sourceAccount.currency
                 }
             }
             else -> {
@@ -205,12 +206,11 @@ class Coincore internal constructor(
             action
         )
 
-    // TODO: Fix this; we don't need to call exchangeRate any more, getPricesWith24hDelta() is enough
     fun getExchangePriceWithDelta(asset: AssetInfo): Single<ExchangePriceWithDelta> =
         this[asset].exchangeRate().zipWith(
             this[asset].getPricesWith24hDelta()
         ) { currentPrice, priceDelta ->
-            ExchangePriceWithDelta(currentPrice.price(), priceDelta.delta24h)
+            ExchangePriceWithDelta(currentPrice.price, priceDelta.delta24h)
         }
 
     @Suppress("SameParameterValue")
@@ -228,5 +228,5 @@ class Coincore internal constructor(
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
 
-    fun supportedFiatAssets(): List<String> = assetCatalogue.supportedFiatAssets
+    fun supportedFiatAssets(): List<FiatCurrency> = assetCatalogue.supportedFiatAssets
 }

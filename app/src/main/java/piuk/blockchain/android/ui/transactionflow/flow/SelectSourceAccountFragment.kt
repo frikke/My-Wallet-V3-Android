@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.SingleAccount
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -54,6 +56,7 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
 
     override fun render(newState: TransactionState) {
         binding.accountList.onAccountSelected = {
+            require(it is SingleAccount)
             model.process(TransactionIntent.SourceAccountSelected(it))
             analyticsHooks.onSourceAccountSelected(it, newState)
         }
@@ -171,9 +174,9 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         binding.progress.visible()
     }
 
-    override fun onBankWireTransferSelected(currency: String) {
+    override fun onBankWireTransferSelected(currency: FiatCurrency) {
         WireTransferAccountDetailsBottomSheet.newInstance(currency).show(childFragmentManager, BOTTOM_SHEET)
-        analytics.logEvent(linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, currency))
+        analytics.logEvent(linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, currency.networkTicker))
     }
 
     override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {

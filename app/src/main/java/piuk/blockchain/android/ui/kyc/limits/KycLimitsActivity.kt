@@ -124,6 +124,7 @@ class KycLimitsActivity :
         when (header) {
             Header.NEW_KYC -> model.process(KycLimitsIntent.NewKycHeaderCtaClicked)
             Header.UPGRADE_TO_GOLD -> model.process(KycLimitsIntent.UpgradeToGoldHeaderCtaClicked)
+            Header.HIDDEN,
             Header.MAX_TIER_REACHED -> {
             }
         }

@@ -3,6 +3,7 @@ package com.blockchain.coincore.fiat
 import com.blockchain.nabu.datamanagers.BankState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 
 class LinkedBanksFactory(
@@ -42,7 +43,7 @@ class LinkedBanksFactory(
                 }
         }
 
-    fun eligibleBankPaymentMethods(fiat: String): Single<Set<PaymentMethodType>> =
+    fun eligibleBankPaymentMethods(fiat: FiatCurrency): Single<Set<PaymentMethodType>> =
         custodialWalletManager.getEligiblePaymentMethodTypes(fiat).map { methods ->
             methods.filter {
                 it.paymentMethodType == PaymentMethodType.BANK_TRANSFER ||

@@ -1,5 +1,7 @@
 package info.blockchain.balance
 
+import com.blockchain.testutils.bitcoin
+import com.blockchain.testutils.ether
 import java.util.Locale
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test

@@ -7,6 +7,8 @@ import com.blockchain.core.limits.FeatureWithLimit
 import com.blockchain.core.limits.TxLimitPeriod
 import com.blockchain.core.limits.TxPeriodicLimit
 import com.blockchain.nabu.Tier
+import com.blockchain.testutils.USD
+import com.blockchain.testutils.numberToBigInteger
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatValue
@@ -204,7 +206,7 @@ class KycLimitsModelTest {
                 Feature.REWARDS,
                 FeatureLimit.Limited(
                     TxPeriodicLimit(
-                        amount = FiatValue.fromMinor("USD", 4000L),
+                        amount = FiatValue.fromMinor(USD, 4000L.numberToBigInteger()),
                         period = TxLimitPeriod.MONTHLY,
                         effective = true
                     )

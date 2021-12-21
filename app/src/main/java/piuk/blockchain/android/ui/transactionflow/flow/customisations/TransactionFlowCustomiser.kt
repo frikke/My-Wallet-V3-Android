@@ -11,6 +11,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
@@ -18,13 +19,12 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
-import java.math.BigInteger
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Currency
 import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.account.AccountInfoBank
@@ -32,7 +32,6 @@ import piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
 import piuk.blockchain.android.ui.customviews.account.AccountInfoFiat
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.swap.SwapAccountSelectSheetFeeDecorator
@@ -190,7 +189,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> resources.getString(
                 R.string.tx_title_swap,
                 state.sendingAsset.displayTicker,
-                (state.selectedTarget as CryptoAccount).asset.displayTicker
+                (state.selectedTarget as CryptoAccount).currency.displayTicker
             )
             AssetAction.InterestDeposit -> resources.getString(
                 R.string.tx_title_deposit,
@@ -202,11 +201,11 @@ class TransactionFlowCustomiserImpl(
             )
             AssetAction.FiatDeposit -> resources.getString(
                 R.string.tx_title_deposit,
-                (state.selectedTarget as FiatAccount).fiatCurrency
+                (state.selectedTarget as FiatAccount).currency.displayTicker
             )
             AssetAction.Withdraw -> resources.getString(
                 R.string.tx_title_withdraw,
-                (state.sendingAccount as FiatAccount).fiatCurrency
+                (state.sendingAccount as FiatAccount).currency.displayTicker
             )
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.tx_title_withdraw, state.sendingAsset.displayTicker
@@ -237,8 +236,8 @@ class TransactionFlowCustomiserImpl(
     override fun enterAmountTargetLabel(state: TransactionState): String =
         when (state.action) {
             AssetAction.Swap -> {
-                val amount = state.targetRate?.convert(state.amount) ?: CryptoValue.zero(
-                    (state.selectedTarget as CryptoAccount).asset
+                val amount = state.targetRate?.convert(state.amount) ?: Money.zero(
+                    (state.selectedTarget as CryptoAccount).currency
                 )
                 resources.getString(
                     R.string.swap_enter_amount_target,
@@ -253,7 +252,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit,
             AssetAction.Withdraw -> {
                 imageView.setImageDrawable(
-                    when ((state.selectedTarget as FiatAccount).fiatCurrency) {
+                    when ((state.selectedTarget as FiatAccount).currency.networkTicker) {
                         "GBP" -> R.drawable.ic_funds_gbp
                         "EUR" -> R.drawable.ic_funds_euro
                         else -> R.drawable.ic_funds_usd
@@ -408,8 +407,8 @@ class TransactionFlowCustomiserImpl(
                 R.string.send_progress_sending_title, amount
             )
             AssetAction.Swap -> {
-                val receivingAmount = state.targetRate?.convert(state.amount) ?: CryptoValue.zero(
-                    (state.selectedTarget as CryptoAccount).asset
+                val receivingAmount = state.targetRate?.convert(state.amount) ?: Money.zero(
+                    (state.selectedTarget as CryptoAccount).currency
                 )
                 resources.getString(
                     R.string.swap_progress_title,
@@ -556,7 +555,7 @@ class TransactionFlowCustomiserImpl(
                 } else {
                     resources.getString(
                         R.string.sell_confirmation_success_message,
-                        (state.selectedTarget as? FiatAccount)?.fiatCurrency
+                        (state.selectedTarget as? FiatAccount)?.currency
                     )
                 }
             }
@@ -567,7 +566,7 @@ class TransactionFlowCustomiserImpl(
                         resources.getString(
                             R.string.swap_confirmation_awaiting_nc_receiving_success_message,
                             state.sendingAsset.name,
-                            state.selectedTarget.asset.name
+                            state.selectedTarget.currency.name
                         )
                     }
                     state.sendingAccount is NonCustodialAccount -> {
@@ -578,7 +577,7 @@ class TransactionFlowCustomiserImpl(
                     else -> {
                         resources.getString(
                             R.string.swap_confirmation_success_message,
-                            (state.selectedTarget as CryptoAccount).asset.displayTicker
+                            (state.selectedTarget as CryptoAccount).currency.displayTicker
                         )
                     }
                 }
@@ -586,7 +585,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(
                 R.string.deposit_confirmation_success_message,
                 state.pendingTx?.amount?.toStringWithSymbol() ?: "",
-                (state.sendingAccount as? FiatAccount)?.fiatCurrency ?: "",
+                (state.sendingAccount as? FiatAccount)?.currency ?: "",
                 getEstimatedTransactionCompletionTime()
             )
             AssetAction.Withdraw -> resources.getString(
@@ -673,64 +672,6 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
-    override fun issueFlashMessageLegacy(state: TransactionState, input: CurrencyType?): String? {
-        if (state.pendingTx?.amount?.toBigInteger() == BigInteger.ZERO && (
-            state.errorState == TransactionErrorState.INVALID_AMOUNT ||
-                state.errorState == TransactionErrorState.BELOW_MIN_LIMIT
-            )
-        ) return null
-        return when (state.errorState) {
-            TransactionErrorState.NONE -> null
-            TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
-                R.string.send_enter_amount_error_insufficient_funds,
-                state.sendingAccount.uiCurrency()
-            )
-            TransactionErrorState.INVALID_AMOUNT -> resources.getString(
-                R.string.send_enter_amount_error_invalid_amount_1,
-                state.pendingTx?.limits?.minAmount?.formatOrSymbolForZero() ?: throw IllegalStateException(
-                    "Missing limit"
-                )
-            )
-            TransactionErrorState.INVALID_ADDRESS -> resources.getString(
-                R.string.send_error_not_valid_asset_address,
-                state.sendingAccount.uiCurrency()
-            )
-            TransactionErrorState.ADDRESS_IS_CONTRACT -> resources.getString(
-                R.string.send_error_address_is_eth_contract
-            )
-            TransactionErrorState.INVALID_PASSWORD -> resources.getString(
-                R.string.send_enter_invalid_password
-            )
-            TransactionErrorState.NOT_ENOUGH_GAS -> resources.getString(
-                R.string.send_enter_insufficient_gas
-            )
-            TransactionErrorState.UNEXPECTED_ERROR -> resources.getString(
-                R.string.send_enter_unexpected_error
-            )
-            TransactionErrorState.BELOW_MIN_LIMIT -> composeBelowLimitErrorMessage(state, input)
-
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> resources.getString(R.string.swap_enter_amount_silver_limit)
-            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT,
-            TransactionErrorState.OVER_GOLD_TIER_LIMIT -> {
-                val exchangeRate = state.fiatRate ?: return ""
-                val amount =
-                    input?.let {
-                        state.pendingTx?.limits?.maxAmount?.toEnteredCurrency(
-                            it, exchangeRate, RoundingMode.FLOOR
-                        )
-                    } ?: state.pendingTx?.limits?.maxAmount?.toStringWithSymbol()
-
-                resources.getString(R.string.swap_enter_amount_over_limit, amount)
-            }
-            TransactionErrorState.TRANSACTION_IN_FLIGHT -> resources.getString(R.string.send_error_tx_in_flight)
-            TransactionErrorState.TX_OPTION_INVALID -> resources.getString(R.string.send_error_tx_option_invalid)
-            TransactionErrorState.UNKNOWN_ERROR -> resources.getString(R.string.send_error_tx_option_invalid)
-            TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED ->
-                resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.displayTicker)
-            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> null
-        }
-    }
-
     override fun selectIssueType(state: TransactionState): IssueType =
         when (state.errorState) {
             TransactionErrorState.OVER_SILVER_TIER_LIMIT -> IssueType.INFO
@@ -752,7 +693,7 @@ class TransactionFlowCustomiserImpl(
             )
             TransactionErrorState.INVALID_ADDRESS -> resources.getString(
                 R.string.send_error_not_valid_asset_address,
-                state.sendingAccount.uiCurrency()
+                (state.sendingAccount as SingleAccount).uiCurrency()
             )
             TransactionErrorState.ADDRESS_IS_CONTRACT -> resources.getString(
                 R.string.send_error_address_is_eth_contract
@@ -895,47 +836,6 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
-    private fun composeBelowLimitErrorMessage(state: TransactionState, input: CurrencyType?): String {
-        val exchangeRate = state.fiatRate ?: return ""
-        val amount =
-            input?.let {
-                state.pendingTx?.limits?.minAmount?.toEnteredCurrency(
-                    it, exchangeRate, RoundingMode.CEILING
-                )
-            } ?: state.pendingTx?.limits?.minAmount?.toStringWithSymbol()
-
-        return when (state.action) {
-            AssetAction.InterestDeposit -> resources.getString(
-                R.string.send_enter_amount_min_deposit,
-                amount
-            )
-            AssetAction.Sell -> resources.getString(
-                R.string.sell_enter_amount_min_error,
-                amount
-            )
-            AssetAction.Send -> resources.getString(
-                R.string.send_enter_amount_min_send,
-                amount
-            )
-            AssetAction.Swap -> resources.getString(
-                R.string.swap_enter_amount_min_swap,
-                amount
-            )
-            AssetAction.FiatDeposit -> resources.getString(
-                R.string.deposit_enter_amount_min_swap,
-                amount
-            )
-            AssetAction.Withdraw,
-            AssetAction.InterestWithdraw -> resources.getString(
-                R.string.withdraw_enter_amount_min,
-                amount
-            )
-            else -> throw IllegalArgumentException(
-                "Action not supported by Transaction Flow ${state.action}"
-            )
-        }
-    }
-
     override fun showTargetIcon(state: TransactionState): Boolean =
         state.action == AssetAction.Swap
 
@@ -944,7 +844,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> R.drawable.swap_masked_asset
             AssetAction.Withdraw,
             AssetAction.FiatDeposit -> {
-                val sendingCurrency = (state.sendingAccount as? FiatAccount)?.fiatCurrency
+                val sendingCurrency = (state.sendingAccount as? FiatAccount)?.currency?.networkTicker
                 when (sendingCurrency) {
                     "GBP" -> R.drawable.ic_funds_gbp_masked
                     "EUR" -> R.drawable.ic_funds_euro_masked
@@ -1058,13 +958,13 @@ class TransactionFlowCustomiserImpl(
             else -> SimpleInfoHeaderView(ctx).also { frame.addView(it) }
         }
 
-    override fun defInputType(state: TransactionState, fiatCurrency: String): CurrencyType =
+    override fun defInputType(state: TransactionState, fiatCurrency: Currency): Currency =
         when (state.action) {
             AssetAction.Swap,
-            AssetAction.Sell -> CurrencyType.Fiat(fiatCurrency)
+            AssetAction.Sell -> fiatCurrency
             AssetAction.Withdraw,
-            AssetAction.FiatDeposit -> CurrencyType.Fiat(state.amount.currencyCode)
-            else -> CurrencyType.Crypto(state.sendingAsset)
+            AssetAction.FiatDeposit -> state.amount.currency
+            else -> state.sendingAsset
         }
 
     override fun sourceAccountSelectionStatusDecorator(state: TransactionState): StatusDecorator =
@@ -1130,13 +1030,8 @@ class TransactionFlowCustomiserImpl(
     }
 }
 
-private fun BlockchainAccount.uiCurrency(): String {
-    require(this is CryptoAccount || this is FiatAccount)
-    return when (this) {
-        is CryptoAccount -> asset.displayTicker
-        is FiatAccount -> fiatCurrency
-        else -> throw IllegalStateException("Unsupported account type")
-    }
+private fun SingleAccount.uiCurrency(): String {
+    return this.currency.displayTicker
 }
 
 enum class IssueType {
@@ -1157,16 +1052,16 @@ fun Money.toEnteredCurrency(
     roundingMode: RoundingMode
 ): String =
     when {
-        input.isSameType(this) -> toStringWithSymbol()
-        input.isFiat() && this is CryptoValue -> {
-            val cryptoToFiatRate = exchangeRate as ExchangeRate.CryptoToFiat
-            FiatValue.fromMajor(
-                cryptoToFiatRate.to,
-                cryptoToFiatRate.convert(this, round = false).toBigDecimal().setScale(
-                    Currency.getInstance(exchangeRate.to).defaultFractionDigits, roundingMode
+        input == this.currency.type -> toStringWithSymbol()
+        input == CurrencyType.FIAT && this is CryptoValue -> {
+            Money.fromMajor(
+                exchangeRate.to,
+                exchangeRate.convert(this, round = false).toBigDecimal().setScale(
+                    exchangeRate.to.precisionDp, roundingMode
                 )
             ).toStringWithSymbol()
         }
-        input.isCrypto() && this is FiatValue -> exchangeRate.inverse().convert(this).toStringWithSymbol()
+        input == CurrencyType.CRYPTO && this.currency.type == CurrencyType.FIAT -> exchangeRate.inverse()
+            .convert(this).toStringWithSymbol()
         else -> throw IllegalStateException("Not valid currency")
     }

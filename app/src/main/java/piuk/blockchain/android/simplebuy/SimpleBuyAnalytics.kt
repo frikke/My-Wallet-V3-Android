@@ -6,7 +6,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.io.Serializable
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -138,7 +138,7 @@ class BuyFrequencySelected(frequency: String) : AnalyticsEvent {
     )
 }
 
-class CustodialBalanceClicked(asset: AssetInfo) : AnalyticsEvent {
+class CustodialBalanceClicked(asset: Currency) : AnalyticsEvent {
     override val event: String = "sb_trading_wallet_clicked"
     override val params: Map<String, String> = mapOf(
         "asset" to asset.networkTicker

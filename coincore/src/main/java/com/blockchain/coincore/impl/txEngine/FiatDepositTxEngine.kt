@@ -63,8 +63,8 @@ class FiatDepositTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> {
         check(sourceAccount is BankAccount)
         check(txTarget is FiatAccount)
-        val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
-        val zeroFiat = FiatValue.zero(sourceAccountCurrency)
+        val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).currency
+        val zeroFiat = Money.zero(sourceAccountCurrency)
         val paymentMethodLimits = walletManager.getBankTransferLimits(sourceAccountCurrency, true)
         val locks = withdrawLocksRepository.getWithdrawLockTypeForPaymentMethod(
             paymentMethodType = PaymentMethodType.BANK_TRANSFER,
@@ -76,7 +76,7 @@ class FiatDepositTxEngine(
                 limitsDataManager.getLimits(
                     outputCurrency = sourceAccountCurrency,
                     sourceCurrency = sourceAccountCurrency,
-                    targetCurrency = (txTarget as FiatAccount).fiatCurrency,
+                    targetCurrency = (txTarget as FiatAccount).currency,
                     sourceAccountType = AssetCategory.NON_CUSTODIAL,
                     targetAccountType = AssetCategory.CUSTODIAL,
                     legacyLimits = Single.just(paymentMethodLimits).map {
@@ -204,7 +204,7 @@ class FiatDepositTxEngine(
                             paymentId,
                             it,
                             linkedBank,
-                            bankTransferDetails.amount
+                            bankTransferDetails.amount as FiatValue
                         )
                     } ?: throw InvalidParameterException("No auth url was returned")
                 }
@@ -216,8 +216,7 @@ class FiatDepositTxEngine(
         }
 
     private fun isOpenBankingCurrency(): Boolean {
-        val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
-        return sourceAccountCurrency == "EUR" || sourceAccountCurrency == "GBP"
+        return (sourceAccount as? LinkedBankAccount)?.isOpenBankingCurrency() == true
     }
 
     private fun PendingTx.maxLimitForPaymentMethodViolated(): Boolean =

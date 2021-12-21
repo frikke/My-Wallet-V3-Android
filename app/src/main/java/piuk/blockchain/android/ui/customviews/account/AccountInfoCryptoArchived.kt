@@ -34,7 +34,7 @@ class AccountInfoCryptoArchived @JvmOverloads constructor(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit
     ) {
-        val asset = account.asset
+        val asset = account.currency
         with(binding) {
             walletName.text = account.label
             assetResources.loadAssetIcon(icon, asset)

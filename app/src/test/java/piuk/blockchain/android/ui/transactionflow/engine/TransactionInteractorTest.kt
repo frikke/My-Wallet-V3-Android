@@ -11,8 +11,11 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
@@ -88,7 +91,7 @@ class TransactionInteractorTest {
             USD,
             listOf(
                 EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, USD),
-                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, "EUR")
+                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, EUR)
             )
         )
 
@@ -105,7 +108,7 @@ class TransactionInteractorTest {
         arrangeEligiblePaymentMethodTypes(
             USD,
             listOf(
-                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, "EUR"),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, EUR),
                 EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, USD)
             )
         )
@@ -155,7 +158,7 @@ class TransactionInteractorTest {
         arrangeEligiblePaymentMethodTypes(
             USD,
             listOf(
-                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, "EUR"),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, EUR),
             )
         )
 
@@ -167,7 +170,7 @@ class TransactionInteractorTest {
     }
 
     private fun arrangeEligiblePaymentMethodTypes(
-        currency: String,
+        currency: FiatCurrency,
         eligiblePaymentMethodTypes: List<EligiblePaymentMethodType>
     ) {
         whenever(custodialWalletManager.getEligiblePaymentMethodTypes(currency)).thenReturn(
@@ -184,9 +187,5 @@ class TransactionInteractorTest {
             .assertValue {
                 it == TransactionIntent.FiatDepositOptionSelected(expectedDepositOptionsState)
             }
-    }
-
-    private companion object {
-        private const val USD = "USD"
     }
 }

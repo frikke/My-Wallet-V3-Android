@@ -6,7 +6,7 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.banktransfer.LinkBankAttrsResponse
 import com.blockchain.nabu.models.responses.banktransfer.YapilyMediaResponse
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
@@ -86,7 +86,7 @@ data class InstitutionCountry(val countryCode: String, val displayName: String) 
 
 data class LinkedBank(
     val id: String,
-    val currency: String,
+    val currency: FiatCurrency,
     val partner: BankPartner,
     val bankName: String,
     val accountName: String,
@@ -116,7 +116,7 @@ data class LinkedBank(
     fun toPaymentMethod() =
         PaymentMethod.Bank(
             bankId = id,
-            limits = PaymentLimits(0, 0, currency),
+            limits = PaymentLimits(BigInteger.ZERO, BigInteger.ZERO, currency),
             bankName = accountName,
             accountEnding = accountNumber,
             accountType = accountType,
@@ -149,8 +149,8 @@ enum class LinkedBankState {
 }
 
 data class FiatWithdrawalFeeAndLimit(
-    val minLimit: FiatValue,
-    val fee: FiatValue
+    val minLimit: Money,
+    val fee: Money
 ) : LegacyLimits {
     override val min: Money
         get() = minLimit
@@ -165,7 +165,7 @@ data class CryptoWithdrawalFeeAndLimit(
 
 data class BankTransferDetails(
     val id: String,
-    val amount: FiatValue,
+    val amount: Money,
     val authorisationUrl: String?,
     val status: BankTransferStatus
 )

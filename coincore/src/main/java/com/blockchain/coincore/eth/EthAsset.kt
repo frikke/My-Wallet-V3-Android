@@ -65,10 +65,10 @@ internal class EthAsset(
     features
 ),
     NonCustodialSupport {
-    override val asset: AssetInfo
+    override val assetInfo: AssetInfo
         get() = CryptoCurrency.ETHER
 
-    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = false
 
     override fun initToken(): Completable =
@@ -101,7 +101,7 @@ internal class EthAsset(
         Single.just(
             listOf(
                 CustodialTradingAccount(
-                    asset = asset,
+                    currency = assetInfo,
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
@@ -114,7 +114,7 @@ internal class EthAsset(
 
     private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
         val notify = NotificationAddresses(
-            assetTicker = asset.networkTicker,
+            assetTicker = assetInfo.networkTicker,
             addressList = listOf(account.address)
         )
         return notificationUpdater.updateNotificationBackend(notify)

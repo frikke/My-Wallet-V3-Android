@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.impl.AllWalletsAccount
-import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -30,7 +30,7 @@ class AccountInfoGroup @JvmOverloads constructor(
     private val binding: ViewAccountGroupOverviewBinding =
         ViewAccountGroupOverviewBinding.inflate(LayoutInflater.from(context), this, true)
 
-    private val exchangeRates: ExchangeRates by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val currencyPrefs: CurrencyPrefs by scopedInject()
 
     private val disposables = CompositeDisposable()
@@ -55,13 +55,13 @@ class AccountInfoGroup @JvmOverloads constructor(
             assetSubtitle.text = context.getString(R.string.activity_wallet_total_balance)
 
             walletBalanceFiat.invisible()
-            walletCurrency.text = currency
+            walletCurrency.text = currency.displayTicker
 
-            disposables += account.fiatBalance(currency, exchangeRates)
+            disposables += account.balance.firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = {
-                        walletBalanceFiat.text = it.toStringWithSymbol()
+                        walletBalanceFiat.text = it.total.toStringWithSymbol()
                         walletBalanceFiat.visible()
                     },
                     onError = {

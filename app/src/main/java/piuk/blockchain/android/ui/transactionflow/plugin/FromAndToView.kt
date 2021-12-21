@@ -62,7 +62,7 @@ class FromAndToView @JvmOverloads constructor(
 
             if (customiser.showTargetIcon(state)) {
                 (state.selectedTarget as? CryptoAccount)?.let {
-                    assetResources.loadAssetIcon(amountSheetTargetIcon, it.asset)
+                    assetResources.loadAssetIcon(amountSheetTargetIcon, it.currency)
                 }
             } else {
                 amountSheetTargetIcon.gone()

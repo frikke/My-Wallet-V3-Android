@@ -33,7 +33,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     private val asset: AssetInfo? by unsafeLazy {
         intent?.getStringExtra(ASSET)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         }
     }
 

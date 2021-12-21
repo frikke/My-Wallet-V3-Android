@@ -22,7 +22,6 @@ import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
@@ -37,6 +36,7 @@ import com.blockchain.nabu.models.responses.nabu.SendToMercuryAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SendWithdrawalAddressesRequest
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
 import com.blockchain.nabu.models.responses.nabu.TierUpdateJson
+import com.blockchain.nabu.models.responses.nabu.TiersResponse
 import com.blockchain.nabu.models.responses.nabu.VeriffToken
 import com.blockchain.nabu.models.responses.nabu.WalletMercuryLink
 import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
@@ -205,7 +205,7 @@ internal interface Nabu {
     @GET(NABU_KYC_TIERS)
     fun getTiers(
         @Header("authorization") authorization: String
-    ): Single<KycTiers>
+    ): Single<TiersResponse>
 
     @POST(NABU_KYC_TIERS)
     fun setTier(
@@ -246,12 +246,6 @@ internal interface Nabu {
     fun getSupportedSimpleBuyPairs(
         @Query("fiatCurrency") fiatCurrency: String? = null
     ): Single<SimpleBuyPairsResp>
-
-    @GET(NABU_SIMPLE_BUY_AMOUNTS)
-    fun getPredefinedAmounts(
-        @Header("authorization") authorization: String,
-        @Query("currency") currency: String
-    ): Single<List<Map<String, List<Long>>>>
 
     @GET(NABU_SIMPLE_BUY_TRANSACTIONS)
     fun getTransactions(

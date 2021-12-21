@@ -3,9 +3,12 @@ package com.blockchain.coincore.loader
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.l1chain
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicReference
 
@@ -14,16 +17,16 @@ class AssetCatalogueImpl internal constructor(
     private val assetsDataManager: DynamicAssetsDataManager
 ) : AssetCatalogue {
 
-    private val fullAssetLookup: AtomicReference<Map<String, AssetInfo>> = AtomicReference(emptyMap())
+    private val fullAssetLookup: AtomicReference<Map<String, Currency>> = AtomicReference(emptyMap())
 
-    fun initialise(): Single<Set<AssetInfo>> =
+    fun initialise(): Single<Set<Currency>> =
         if (fullAssetLookup.get().isNotEmpty()) {
             Single.just(fullAssetLookup.get().values.toSet())
         } else {
-            assetsDataManager.availableCryptoAssets()
-                .map { list ->
+            assetsDataManager.availableCryptoAssets().zipWith(assetsDataManager.availableFiatAssets())
+                .map { (cryptos, fiats) ->
                     // Remove any fixed assets that also appear in the dynamic set
-                    list.filterNot { fixedAssets.contains(it) }
+                    cryptos.filterNot { fixedAssets.contains(it) }.plus(fiats)
                 }.doOnSuccess { enabledAssets ->
                     val allEnabledAssets = fixedAssets + enabledAssets
                     fullAssetLookup.set(
@@ -35,34 +38,43 @@ class AssetCatalogueImpl internal constructor(
         }
 
     // Brute force impl for now, but this will operate from a downloaded cache ultimately
-    override fun fromNetworkTicker(symbol: String): AssetInfo? =
+    override fun fromNetworkTicker(symbol: String): Currency? =
         fullAssetLookup.get()[symbol.uppercase()]
+
+    override fun fiatFromNetworkTicker(symbol: String): FiatCurrency? =
+        fullAssetLookup.get()[symbol.uppercase()]?.asFiatCurrencyOrNull()
+
+    override fun assetInfoFromNetworkTicker(symbol: String): AssetInfo? =
+        fullAssetLookup.get()[symbol.uppercase()]?.asAssetInfoOrNull()
 
     override fun fromNetworkTickerWithL2Id(
         symbol: String,
         l2chain: AssetInfo,
         l2Id: String
     ): AssetInfo? =
-        fromNetworkTicker(symbol)?.let { found ->
+        (fromNetworkTicker(symbol) as? AssetInfo)?.let { found ->
             found.takeIf {
                 it.l1chain(this) == l2chain &&
                     it.l2identifier?.equals(l2Id, ignoreCase = true) == true
             }
         }
 
-    override fun isFiatTicker(symbol: String): Boolean =
-        supportedFiatAssets.contains(symbol)
-
-    override val supportedCryptoAssets: List<AssetInfo> by lazy {
-        fullAssetLookup.get().values.toList()
+    private fun Currency.asAssetInfoOrNull(): AssetInfo? {
+        return (this as? AssetInfo)
     }
 
-    override val supportedCustodialAssets: List<AssetInfo> by lazy {
-        fullAssetLookup.get().values.filter { it.isCustodial }
+    private fun Currency?.asFiatCurrencyOrNull(): FiatCurrency? {
+        return (this as? FiatCurrency)
     }
 
-    // TEMP: This will come from the /fiat BE supported assets call
-    override val supportedFiatAssets: List<String> = listOf("EUR", "USD", "GBP")
+    override val supportedCryptoAssets: List<AssetInfo>
+        get() = fullAssetLookup.get().values.filterIsInstance<AssetInfo>().toList()
+
+    override val supportedCustodialAssets: List<AssetInfo>
+        get() = supportedCryptoAssets.filter { it.isCustodial }
+
+    override val supportedFiatAssets: List<FiatCurrency>
+        get() = fullAssetLookup.get().values.filterIsInstance<FiatCurrency>().toList()
 
     override fun supportedL2Assets(chain: AssetInfo): List<AssetInfo> =
         supportedCryptoAssets.filter { it.l1chainTicker == chain.networkTicker }

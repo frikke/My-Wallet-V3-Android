@@ -7,7 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.FiatAccount
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.Money
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsBorderedBinding
@@ -20,7 +21,7 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visibleIf
 
 class FundsCardDelegate<in T>(
-    private val selectedFiat: String,
+    private val selectedFiat: Currency,
     private val onFundsItemClicked: (FiatAccount) -> Unit
 ) : AdapterDelegate<T> {
 
@@ -48,7 +49,7 @@ private class FundsCardViewHolder(
     private val binding: ItemDashboardFundsParentBinding,
     private val singleLayoutBinding: ItemDashboardFundsBinding,
     private val onFundsItemClicked: (FiatAccount) -> Unit,
-    private val selectedFiat: String
+    private val selectedFiat: Currency
 ) : RecyclerView.ViewHolder(binding.root) {
     private val multipleFundsAdapter: MultipleFundsAdapter by lazy {
         MultipleFundsAdapter(onFundsItemClicked, selectedFiat)
@@ -71,9 +72,9 @@ private class FundsCardViewHolder(
     }
 
     private fun showSingleAsset(assetInfo: FiatBalanceInfo) {
-        val ticker = assetInfo.account.fiatCurrency
+        val ticker = assetInfo.account.currency.networkTicker
         singleLayoutBinding.apply {
-            fundsUserFiatBalance.visibleIf { selectedFiat != ticker }
+            fundsUserFiatBalance.visibleIf { selectedFiat.networkTicker != ticker }
             fundsUserFiatBalance.text = assetInfo.balance.toStringWithSymbol()
             binding.fundsList.gone()
             binding.fundsSingleItem.setOnClickListener {
@@ -81,10 +82,10 @@ private class FundsCardViewHolder(
             }
             fundsTitle.setStringFromTicker(context, ticker)
             fundsFiatTicker.text = ticker
-            fundsBalance.text = if (selectedFiat == ticker) {
+            fundsBalance.text = if (selectedFiat.networkTicker == ticker) {
                 assetInfo.balance.toStringWithSymbol()
             } else {
-                val fiat = assetInfo.userFiat ?: FiatValue.zero(selectedFiat)
+                val fiat = assetInfo.userFiat ?: Money.zero(selectedFiat)
                 fiat.toStringWithSymbol()
             }
             fundsIcon.setIcon(ticker)
@@ -94,7 +95,7 @@ private class FundsCardViewHolder(
 
 private class MultipleFundsAdapter(
     private val onFundsItemClicked: (FiatAccount) -> Unit,
-    private val selectedFiat: String
+    private val selectedFiat: Currency
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var items = listOf<FiatBalanceInfo>()
@@ -119,13 +120,13 @@ private class MultipleFundsAdapter(
     private class SingleFundsViewHolder(
         private val binding: ItemDashboardFundsBorderedBinding,
         private val onFundsItemClicked: (FiatAccount) -> Unit,
-        private val selectedFiat: String
+        private val selectedFiat: Currency
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(assetInfo: FiatBalanceInfo) {
-            val ticker = assetInfo.account.fiatCurrency
+            val ticker = assetInfo.account.currency.networkTicker
             binding.apply {
-                borderedFundsBalanceOtherFiat.visibleIf { selectedFiat != ticker }
+                borderedFundsBalanceOtherFiat.visibleIf { selectedFiat.networkTicker != ticker }
                 borderedFundsBalanceOtherFiat.text = assetInfo.balance.toStringWithSymbol()
 
                 borderedFundsParent.setOnClickListener {
@@ -133,7 +134,7 @@ private class MultipleFundsAdapter(
                 }
                 borderedFundsTitle.setStringFromTicker(context, ticker)
                 borderedFundsFiatTicker.text = ticker
-                borderedFundsBalance.text = if (selectedFiat == ticker) {
+                borderedFundsBalance.text = if (selectedFiat.networkTicker == ticker) {
                     assetInfo.balance.toStringWithSymbol()
                 } else {
                     assetInfo.userFiat?.toStringWithSymbol()

@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.logging.CrashLogger
@@ -67,8 +68,8 @@ class TransactionFlowActivity :
     private val customiser: TransactionFlowCustomisations by inject()
     private val crashLogger: CrashLogger by inject()
 
-    private val sourceAccount: BlockchainAccount by lazy {
-        intent.extras?.getAccount(SOURCE) ?: kotlin.run {
+    private val sourceAccount: SingleAccount by lazy {
+        intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
             crashLogger.logException(IllegalStateException(), "No source account specified for action $action")
             NullCryptoAccount()
         }

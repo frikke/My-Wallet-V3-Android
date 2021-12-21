@@ -28,8 +28,8 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
@@ -159,7 +159,7 @@ class SwapFragment :
 
     private fun loadSwapOrKyc(showLoading: Boolean) {
         compositeDisposable +=
-            Singles.zip(
+            Single.zip(
                 kycTierService.tiers(),
                 trendingPairsProvider.getTrendingPairs(),
                 walletManager.getProductTransferLimits(currencyPrefs.selectedFiatCurrency, Product.TRADE),
@@ -263,8 +263,8 @@ class SwapFragment :
         analytics.logEvent(SwapAnalyticsEvents.TrendingPairClicked)
         analytics.logEvent(
             SwapAnalyticsEvents.SwapAccountsSelected(
-                inputCurrency = pair.sourceAccount.asset,
-                outputCurrency = pair.destinationAccount.asset,
+                inputCurrency = pair.sourceAccount.currency,
+                outputCurrency = pair.destinationAccount.currency,
                 sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.sourceAccount),
                 targetAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.destinationAccount),
                 werePreselected = true

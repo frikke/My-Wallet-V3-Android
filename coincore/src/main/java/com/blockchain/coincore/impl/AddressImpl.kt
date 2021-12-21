@@ -19,8 +19,8 @@ internal fun makeExternalAssetAddress(
     address: String,
     label: String = address,
     postTransactions: (TxResult) -> Completable = { Completable.complete() }
-): CryptoAddress =
-    when {
+): CryptoAddress {
+    return when {
         asset == CryptoCurrency.ETHER -> {
             EthAddress(
                 address = address,
@@ -66,3 +66,4 @@ internal fun makeExternalAssetAddress(
         }
         else -> throw IllegalArgumentException("External Address not not supported for asset: $asset")
     }
+}

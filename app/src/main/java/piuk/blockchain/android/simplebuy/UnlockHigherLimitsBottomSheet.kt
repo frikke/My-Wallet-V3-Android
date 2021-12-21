@@ -37,7 +37,7 @@ class UnlockHigherLimitsBottomSheet : SlidingModalBottomDialog<UnlockHigherLimit
 
     override fun initControls(binding: UnlockHigherLimitsLayoutBinding) {
         compositeDisposable += tiers.tiers().map {
-            it.tierForLevel(KycTierLevel.GOLD).limits?.dailyFiat?.let { dailyLimit ->
+            it.tierForLevel(KycTierLevel.GOLD).limits?.dailyLimit?.let { dailyLimit ->
                 dailyLimit.toStringWithSymbol()
             } ?: getString(R.string.empty)
         }.onErrorReturn { getString(R.string.empty) }

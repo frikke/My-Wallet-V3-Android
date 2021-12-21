@@ -7,6 +7,9 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.GBP
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -50,8 +53,8 @@ class BuySellFlowNavigatorTest {
             )
         )
 
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "GBP")))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("GBP"))
+        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, GBP)))
+        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(GBP))
             .thenReturn(Single.just(true))
 
         val test = subject.navigateTo().test()
@@ -66,8 +69,8 @@ class BuySellFlowNavigatorTest {
                 FeatureAccess.Granted
             )
         )
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "USD")))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
+        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
+        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(USD))
             .thenReturn(Single.just(true))
 
         val test = subject.navigateTo().test()
@@ -90,8 +93,8 @@ class BuySellFlowNavigatorTest {
             )
         )
 
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "USD")))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("USD"))
+        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
+        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(USD))
             .thenReturn(Single.just(true))
         whenever(custodialWalletManager.deleteBuyOrder("ORDERID"))
             .thenReturn(Completable.complete())

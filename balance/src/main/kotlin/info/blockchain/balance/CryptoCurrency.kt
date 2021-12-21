@@ -5,29 +5,23 @@ enum class AssetCategory {
     NON_CUSTODIAL
 }
 
-interface AssetInfo {
-    // Use for UI only.
-    val displayTicker: String
-    // If the ticker is NOT being directly displayed to the user in the UI, use this.
-    val networkTicker: String
-    val name: String
-    val categories: Set<AssetCategory>
-    // token price start times in epoch-seconds. null if charting not supported
-    val startDate: Long?
-    // max decimal places; ie the quanta of this asset
-    val precisionDp: Int
+interface AssetInfo : Currency {
     val requiredConfirmations: Int
+
     // If non-null, then this is an l2 asset, and this contains the ticker of the chain on which this is implemented?
     val l1chainTicker: String?
+
     // If non-null, then this an l2 asset and this is the id on the l1 chain. Ie contract address for erc20 assets
     val l2identifier: String?
+
     // Resources
-    val colour: String
-    val logo: String
     val txExplorerUrlBase: String?
+
+    override val type: CurrencyType
+        get() = CurrencyType.CRYPTO
 }
 
-val AssetInfo.isCustodialOnly: Boolean
+val Currency.isCustodialOnly: Boolean
     get() = categories.size == 1 && categories.contains(AssetCategory.CUSTODIAL)
 
 val AssetInfo.isCustodial: Boolean
@@ -41,18 +35,19 @@ val AssetInfo.isNonCustodial: Boolean
 
 fun AssetInfo.l1chain(assetCatalogue: AssetCatalogue): AssetInfo? =
     l1chainTicker?.let { ticker ->
-        assetCatalogue.fromNetworkTicker(ticker)
+        assetCatalogue.fromNetworkTicker(ticker) as AssetInfo
     }
 
 interface AssetCatalogue {
-    val supportedFiatAssets: List<String>
+    val supportedFiatAssets: List<FiatCurrency>
     val supportedCryptoAssets: List<AssetInfo>
     val supportedCustodialAssets: List<AssetInfo>
 
-    fun fromNetworkTicker(symbol: String): AssetInfo?
+    fun fromNetworkTicker(symbol: String): Currency?
+    fun fiatFromNetworkTicker(symbol: String): FiatCurrency?
+    fun assetInfoFromNetworkTicker(symbol: String): AssetInfo?
     fun fromNetworkTickerWithL2Id(symbol: String, l2chain: AssetInfo, l2Id: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
-    fun isFiatTicker(symbol: String): Boolean
 }
 
 open class CryptoCurrency(
@@ -69,6 +64,9 @@ open class CryptoCurrency(
     override val logo: String = "",
     override val txExplorerUrlBase: String? = null
 ) : AssetInfo {
+
+    override val symbol: String
+        get() = displayTicker
 
     override fun equals(other: Any?): Boolean =
         when {
@@ -140,5 +138,5 @@ open class CryptoCurrency(
     )
 }
 
-fun AssetInfo.isErc20() =
-    l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true
+fun Currency.isErc20() =
+    (this as? AssetInfo)?.l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true

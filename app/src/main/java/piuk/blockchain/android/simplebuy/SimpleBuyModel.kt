@@ -28,6 +28,8 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -65,7 +67,9 @@ class SimpleBuyModel(
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
-    initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(prefs.tradingCurrency),
+    initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
+        prefs.tradingCurrency
+    ),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
     crashLogger = crashLogger
@@ -345,7 +349,7 @@ class SimpleBuyModel(
 
     private fun onPaymentMethodsUpdated(
         asset: AssetInfo,
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         selectedPaymentMethodType: PaymentMethodType
     ): Disposable {
         return interactor.fetchBuyLimits(
@@ -456,7 +460,11 @@ class SimpleBuyModel(
         }.exhaustive
     }
 
-    private fun processGetPaymentMethod(fiatCurrency: String, preselectedId: String?, previousSelectedId: String?) =
+    private fun processGetPaymentMethod(
+        fiatCurrency: FiatCurrency,
+        preselectedId: String?,
+        previousSelectedId: String?
+    ) =
         interactor.eligiblePaymentMethods(
             fiatCurrency
         ).flatMap { paymentMethods ->
@@ -542,7 +550,7 @@ class SimpleBuyModel(
     private fun handleOrderAttrs(order: BuySellOrder) {
         when {
             order.attributes?.isCardPayment == true -> handleCardPayment(order)
-            !order.fiat.isOpenBankingCurrency() -> process(SimpleBuyIntent.CheckOrderStatus)
+            !order.source.currency.isOpenBankingCurrency() -> process(SimpleBuyIntent.CheckOrderStatus)
             order.attributes?.authorisationUrl != null -> handleBankAuthorisationPayment(
                 paymentMethodId = order.paymentMethodId,
                 authorisationUrl = order.attributes?.authorisationUrl!!
@@ -551,8 +559,8 @@ class SimpleBuyModel(
         }
     }
 
-    private fun FiatValue.isOpenBankingCurrency() =
-        this.currencyCode == "EUR" || this.currencyCode == "GBP"
+    private fun Currency.isOpenBankingCurrency() =
+        this.networkTicker == "EUR" || this.networkTicker == "GBP"
 
     private fun processCreateOrder(
         selectedCryptoAsset: AssetInfo?,
@@ -789,10 +797,10 @@ class SimpleBuyModel(
     }
 }
 
-private fun SimpleBuyState.withSelectedFiatCurrency(selectedFiatCurrency: String): SimpleBuyState =
-    selectedFiatCurrency.takeIf { it.isNotEmpty() }?.let {
+private fun SimpleBuyState.withSelectedFiatCurrency(selectedFiatCurrency: Currency?): SimpleBuyState =
+    (selectedFiatCurrency as? FiatCurrency)?.let {
         this.copy(
             fiatCurrency = selectedFiatCurrency,
-            amount = FiatValue.zero(selectedFiatCurrency)
+            amount = Money.zero(selectedFiatCurrency) as FiatValue
         )
     } ?: this

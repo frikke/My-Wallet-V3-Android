@@ -22,7 +22,8 @@ val pricesModule = module {
             priceStore = get(),
             sparklineCall = get(),
             assetPriceService = get(),
-            currencyPrefs = get()
+            currencyPrefs = get(),
+            assetCatalogue = get()
         )
     }.bind(ExchangeRatesDataManager::class)
         .bind(ExchangeRates::class)

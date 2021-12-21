@@ -15,7 +15,7 @@ import info.blockchain.balance.AssetInfo
 import java.util.Date
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
-import piuk.blockchain.android.ui.activity.CryptoActivityType
+import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
@@ -23,7 +23,7 @@ import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.visible
 
 class CustodialRecurringBuyActivityItemDelegate(
-    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit
+    private val onItemClicked: (AssetInfo, String, ActivityType) -> Unit
 ) : AdapterDelegate<ActivitySummaryItem> {
 
     override fun isForViewType(items: List<ActivitySummaryItem>, position: Int): Boolean =
@@ -50,7 +50,7 @@ private class CustodialRecurringBuyActivityViewHolder(
 
     fun bind(
         tx: RecurringBuyActivitySummaryItem,
-        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, ActivityType) -> Unit
     ) {
         val context = binding.root.context
         with(binding) {
@@ -69,7 +69,7 @@ private class CustodialRecurringBuyActivityViewHolder(
             tx.setFiatAndCryptoText()
 
             root.setOnClickListener {
-                onAccountClicked(tx.asset, tx.txId, CryptoActivityType.RECURRING_BUY)
+                onAccountClicked(tx.asset, tx.txId, ActivityType.RECURRING_BUY)
             }
         }
     }

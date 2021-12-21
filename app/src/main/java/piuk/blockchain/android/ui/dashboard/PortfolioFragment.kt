@@ -32,6 +32,7 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -358,8 +359,7 @@ class PortfolioFragment :
                 }
                 DashboardNavigationAction.FiatFundsNoKyc -> showFiatFundsKyc()
                 is DashboardNavigationAction.InterestSummary -> InterestSummarySheet.newInstance(
-                    navigationAction.account,
-                    navigationAction.asset
+                    navigationAction.account
                 )
                 else -> null
             }
@@ -367,7 +367,7 @@ class PortfolioFragment :
     }
 
     private fun showFiatFundsKyc(): BottomSheetDialogFragment {
-        val currencyIcon = when (currencyPrefs.selectedFiatCurrency) {
+        val currencyIcon = when (currencyPrefs.selectedFiatCurrency.networkTicker) {
             "EUR" -> R.drawable.ic_funds_euro
             "GBP" -> R.drawable.ic_funds_gbp
             else -> R.drawable.ic_funds_usd // show dollar if currency isn't selected
@@ -618,7 +618,9 @@ class PortfolioFragment :
     }
 
     private fun onFundsClicked(fiatAccount: FiatAccount) {
-        analytics.logEvent(fiatAssetAction(AssetDetailsAnalytics.FIAT_DETAIL_CLICKED, fiatAccount.fiatCurrency))
+        analytics.logEvent(
+            fiatAssetAction(AssetDetailsAnalytics.FIAT_DETAIL_CLICKED, fiatAccount.currency.networkTicker)
+        )
         model.process(DashboardIntent.ShowFiatAssetDetails(fiatAccount))
     }
 
@@ -735,7 +737,7 @@ class PortfolioFragment :
     }
 
     // BankLinkingHost
-    override fun onBankWireTransferSelected(currency: String) {
+    override fun onBankWireTransferSelected(currency: FiatCurrency) {
         state?.selectedFiatAccount?.let {
             model.process(DashboardIntent.ShowBankLinkingSheet(it))
         }
@@ -835,18 +837,16 @@ class PortfolioFragment :
         navigator().launchInterestDashboard(LaunchOrigin.CURRENCY_PAGE)
     }
 
-    override fun goToSummary(account: SingleAccount, asset: AssetInfo) {
+    override fun goToSummary(account: CryptoAccount) {
         model.process(
             DashboardIntent.UpdateSelectedCryptoAccount(
-                account,
-                asset
+                account
             )
         )
         model.process(
             DashboardIntent.ShowPortfolioSheet(
                 DashboardNavigationAction.InterestSummary(
-                    account,
-                    asset
+                    account
                 )
             )
         )

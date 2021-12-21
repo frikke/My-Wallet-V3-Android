@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.data.settings
 
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
@@ -209,8 +210,8 @@ class SettingsDataManager(
      * @param fiatUnit The user's preference for fiat unit
      * @return An [Observable] object wrapping a [Settings] object
      */
-    fun updateFiatUnit(fiatUnit: String): Observable<Settings> =
-        settingsService.updateFiatUnit(fiatUnit)
+    fun updateFiatUnit(fiatUnit: FiatCurrency): Observable<Settings> =
+        settingsService.updateFiatUnit(fiatUnit.networkTicker)
             .flatMap { fetchSettings() }
             .doOnNext {
                 currencyPrefs.selectedFiatCurrency = fiatUnit
@@ -219,7 +220,7 @@ class SettingsDataManager(
 
     fun setDefaultUserFiat(): Single<String> {
         val userFiat = currencyPrefs.defaultFiatCurrency
-        return settingsService.updateFiatUnit(userFiat)
+        return settingsService.updateFiatUnit(userFiat.networkTicker)
             .flatMap { fetchSettings() }
             .singleOrError()
             .map { it.currency }

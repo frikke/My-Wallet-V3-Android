@@ -24,7 +24,7 @@ class DashboardAccountsSorting(
                     compareBy(
                         {
                             (it as? CryptoAccount)?.let { cryptoAccount ->
-                                orderedAssets.indexOf(cryptoAccount.asset)
+                                orderedAssets.indexOf(cryptoAccount.currency)
                             } ?: 0
                         },
                         { it !is NonCustodialAccount },
@@ -38,6 +38,6 @@ class DashboardAccountsSorting(
     private fun getOrdering(): List<AssetInfo> =
         dashboardPrefs.dashboardAssetOrder
             .takeIf { it.isNotEmpty() }?.let {
-                it.mapNotNull { ticker -> assetCatalogue.fromNetworkTicker(ticker) }
+                it.mapNotNull { ticker -> assetCatalogue.assetInfoFromNetworkTicker(ticker) }
             } ?: assetCatalogue.supportedCryptoAssets.sortedBy { it.displayTicker }
 }

@@ -45,7 +45,7 @@ internal class SwapTrendingPairsProvider(
                     getAccounts(groups)
                 }
             }.map { accountList ->
-                val accountMap = accountList.associateBy { it.asset }
+                val accountMap = accountList.associateBy { it.currency }
                 buildPairs(accountMap)
             }.onErrorReturn {
                 emptyList()

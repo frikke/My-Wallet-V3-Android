@@ -1,9 +1,8 @@
 package com.blockchain.coincore.impl.txEngine
 
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
@@ -26,8 +25,11 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import info.blockchain.balance.asFiatCurrencyOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -50,25 +52,29 @@ abstract class QuotedEngine(
 
     protected abstract val availableBalance: Single<Money>
 
+    private val targetAsset
+        get() = (txTarget as SingleAccount).currency
+
     private val userIsGoldVerified: Single<Boolean>
         get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))
 
     protected fun updateLimits(
-        fiat: String,
+        fiat: Currency,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): Single<PendingTx> =
         limitsDataManager.getLimits(
-            outputCurrency = sourceAsset.networkTicker,
-            sourceCurrency = sourceAsset.networkTicker,
-            targetCurrency = when (val target = txTarget) {
-                is CryptoAccount -> target.asset.networkTicker
-                is FiatAccount -> target.fiatCurrency
-                else -> throw IllegalStateException("Only CryptoAccount and FiatAccount txTarget are supported")
-            },
-            legacyLimits = walletManager.getProductTransferLimits(fiat, productType, direction).map {
-                it as LegacyLimits
-            },
+            outputCurrency = sourceAsset,
+            sourceCurrency = sourceAsset,
+            targetCurrency = (txTarget as SingleAccount).currency,
+            legacyLimits = walletManager.getProductTransferLimits(
+                fiat.asFiatCurrencyOrThrow(),
+                productType,
+                direction
+            )
+                .map {
+                    it as LegacyLimits
+                },
             sourceAccountType = direction.sourceAccountType(),
             targetAccountType = direction.targetAccountType()
         ).map { limits ->
@@ -76,15 +82,7 @@ abstract class QuotedEngine(
         }
 
     protected val pair: CurrencyPair
-        get() {
-            return txTarget.let {
-                when (it) {
-                    is CryptoAccount -> CurrencyPair.CryptoCurrencyPair(sourceAsset, it.asset)
-                    is FiatAccount -> CurrencyPair.CryptoToFiatCurrencyPair(sourceAsset, it.fiatCurrency)
-                    else -> throw IllegalStateException("Unsupported target")
-                }
-            }
-        }
+        get() = CurrencyPair(sourceAsset, targetAsset)
 
     protected fun validationFailureForTier(): Completable {
         return userIsGoldVerified.flatMapCompletable {
@@ -153,11 +151,10 @@ abstract class QuotedEngine(
     }
 
     protected fun OnChainTxEngineBase.startFromQuote(quote: PricedQuote) {
-
         start(
             sourceAccount = this@QuotedEngine.sourceAccount,
             txTarget = makeExternalAssetAddress(
-                asset = this@QuotedEngine.sourceAsset,
+                asset = this@QuotedEngine.sourceAsset as AssetInfo,
                 address = quote.transferQuote.sampleDepositAddress
             ),
             exchangeRates = this@QuotedEngine.exchangeRates
@@ -167,7 +164,7 @@ abstract class QuotedEngine(
     protected fun OnChainTxEngineBase.restartFromOrder(order: CustodialOrder, pendingTx: PendingTx): Single<PendingTx> =
         restart(
             txTarget = makeExternalAssetAddress(
-                asset = sourceAsset,
+                asset = sourceAsset as AssetInfo,
                 address = order.depositAddress ?: throw IllegalStateException("Missing deposit address"),
                 postTransactions = { Completable.complete() }
             ),

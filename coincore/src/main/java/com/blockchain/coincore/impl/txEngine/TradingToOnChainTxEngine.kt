@@ -25,8 +25,10 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.then
@@ -60,32 +62,36 @@ class TradingToOnChainTxEngine(
         check(sourceAccount is SingleAccount)
     }
 
+    private val sourceAssetInfo: AssetInfo
+        get() = sourceAsset.asAssetInfoOrThrow()
+
     override fun doInitialiseTx(): Single<PendingTx> {
-        val withdrawFeeAndMinLimit = walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY).cache()
+        val withdrawFeeAndMinLimit =
+            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.BUY).cache()
         return Single.zip(
             sourceAccount.balance.firstOrError(),
             withdrawFeeAndMinLimit,
             limitsDataManager.getLimits(
-                outputCurrency = sourceAsset.networkTicker,
-                sourceCurrency = sourceAsset.networkTicker,
-                targetCurrency = (txTarget as CryptoAddress).asset.networkTicker,
+                outputCurrency = sourceAsset,
+                sourceCurrency = sourceAsset,
+                targetCurrency = (txTarget as CryptoAddress).asset,
                 sourceAccountType = AssetCategory.CUSTODIAL,
                 targetAccountType = AssetCategory.NON_CUSTODIAL,
                 legacyLimits = withdrawFeeAndMinLimit.map { limits ->
                     object : LegacyLimits {
                         override val min: Money
-                            get() = CryptoValue.fromMinor(sourceAsset, limits.minLimit)
+                            get() = Money.fromMinor(sourceAsset, limits.minLimit)
                         override val max: Money?
                             get() = null
                     }
                 }
             ),
             { balance, cryptoFee, limits ->
-                val fees = CryptoValue.fromMinor(sourceAsset, cryptoFee.fee)
+                val fees = Money.fromMinor(sourceAsset, cryptoFee.fee)
                 PendingTx(
-                    amount = CryptoValue.zero(sourceAsset),
+                    amount = Money.zero(sourceAsset),
                     totalBalance = balance.total,
-                    availableBalance = Money.max(balance.actionable - fees, CryptoValue.zero(sourceAsset)),
+                    availableBalance = Money.max(balance.withdrawable - fees, Money.zero(sourceAsset)),
                     feeForFullAvailable = fees,
                     feeAmount = fees,
                     feeSelection = FeeSelection(),
@@ -102,13 +108,13 @@ class TradingToOnChainTxEngine(
 
         return Single.zip(
             sourceAccount.balance.firstOrError(),
-            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY)
+            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.BUY)
         ) { balance, cryptoFeeAndMin ->
-            val fees = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee)
+            val fees = Money.fromMinor(sourceAsset, cryptoFeeAndMin.fee)
             pendingTx.copy(
                 amount = amount,
                 totalBalance = balance.total,
-                availableBalance = Money.max(balance.actionable - fees, CryptoValue.zero(sourceAsset))
+                availableBalance = Money.max(balance.withdrawable - fees, Money.zero(sourceAsset))
             )
         }
     }

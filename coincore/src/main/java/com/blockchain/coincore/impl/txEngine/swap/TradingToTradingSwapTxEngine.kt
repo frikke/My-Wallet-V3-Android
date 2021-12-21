@@ -25,12 +25,14 @@ class TradingToTradingSwapTxEngine(
 ) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager) {
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.accountBalance
+        get() = sourceAccount.balance.firstOrError().map {
+            it.total
+        }
 
     override fun assertInputsValid() {
         check(txTarget is CustodialTradingAccount)
         check(sourceAccount is CustodialTradingAccount)
-        check((txTarget as CustodialTradingAccount).asset != sourceAsset)
+        check((txTarget as CustodialTradingAccount).currency != sourceAsset)
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
@@ -39,11 +41,11 @@ class TradingToTradingSwapTxEngine(
                 availableBalance.flatMap { balance ->
                     Single.just(
                         PendingTx(
-                            amount = CryptoValue.zero(sourceAsset),
+                            amount = Money.zero(sourceAsset),
                             totalBalance = balance,
                             availableBalance = balance,
-                            feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                            feeAmount = CryptoValue.zero(sourceAsset),
+                            feeForFullAvailable = Money.zero(sourceAsset),
+                            feeAmount = Money.zero(sourceAsset),
                             feeSelection = FeeSelection(),
                             selectedFiat = userFiat
                         )
@@ -53,11 +55,11 @@ class TradingToTradingSwapTxEngine(
                 }
             }.handlePendingOrdersError(
                 PendingTx(
-                    amount = CryptoValue.zero(sourceAsset),
-                    totalBalance = CryptoValue.zero(sourceAsset),
-                    availableBalance = CryptoValue.zero(sourceAsset),
-                    feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                    feeAmount = CryptoValue.zero(sourceAsset),
+                    amount = Money.zero(sourceAsset),
+                    totalBalance = Money.zero(sourceAsset),
+                    availableBalance = Money.zero(sourceAsset),
+                    feeForFullAvailable = Money.zero(sourceAsset),
+                    feeAmount = Money.zero(sourceAsset),
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat
                 )

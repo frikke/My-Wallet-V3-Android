@@ -144,7 +144,7 @@ class AssetDetailsModel(
     }
 
     private fun load24hPriceDelta(token: CryptoAsset) =
-        interactor.load24hPriceDelta(token.asset)
+        interactor.load24hPriceDelta(token.assetInfo)
             .subscribeBy(
                 onSuccess = {
                     process(UpdatePriceDeltaDetails(it))
@@ -193,7 +193,7 @@ class AssetDetailsModel(
             )
 
     private fun loadRecurringBuysForAsset(asset: CryptoAsset): Disposable =
-        interactor.loadRecurringBuysForAsset(asset.asset)
+        interactor.loadRecurringBuysForAsset(asset.assetInfo)
             .subscribeBy(
                 onSuccess = { list ->
                     process(RecurringBuyDataLoaded(list.map { it.id to it }.toMap()))

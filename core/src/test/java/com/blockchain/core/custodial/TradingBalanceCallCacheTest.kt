@@ -4,6 +4,8 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.TradingBalance
 import com.blockchain.auth.AuthHeaderProvider
+import com.blockchain.nabu.GBP
+import com.blockchain.nabu.USD
 import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -30,15 +32,9 @@ class TradingBalanceCallCacheTest {
     private val assetCatalogue: AssetCatalogue = mock {
         on { fromNetworkTicker(CRYPTO_TICKER_1) }.thenReturn(CRYPTO_ASSET_1)
         on { fromNetworkTicker(CRYPTO_TICKER_2) }.thenReturn(CRYPTO_ASSET_2)
-        on { fromNetworkTicker(FIAT_TICKER_1) }.thenReturn(null)
-        on { fromNetworkTicker(FIAT_TICKER_2) }.thenReturn(null)
+        on { fromNetworkTicker(FIAT_TICKER_1) }.thenReturn(FIAT_CURRENCY_1)
+        on { fromNetworkTicker(FIAT_TICKER_2) }.thenReturn(FIAT_CURRENCY_2)
         on { fromNetworkTicker(UNKNOWN_TICKER) }.thenReturn(null)
-
-        on { isFiatTicker(CRYPTO_TICKER_1) }.thenReturn(false)
-        on { isFiatTicker(CRYPTO_TICKER_2) }.thenReturn(false)
-        on { isFiatTicker(FIAT_TICKER_1) }.thenReturn(true)
-        on { isFiatTicker(FIAT_TICKER_2) }.thenReturn(true)
-        on { isFiatTicker(UNKNOWN_TICKER) }.thenReturn(false)
     }
 
     private val balanceService: CustodialBalanceService = mock()
@@ -63,12 +59,9 @@ class TradingBalanceCallCacheTest {
             .test()
             .waitForCompletionWithoutErrors()
             .assertValue {
-                it.cryptoBalances.keys.size == 2 &&
-                    it.fiatBalances.keys.size == 2
+                it.balances.keys.size == 4
             }.assertValue {
-                it.cryptoBalances.keys.containsAll(setOf(CRYPTO_ASSET_1, CRYPTO_ASSET_2))
-            }.assertValue {
-                it.fiatBalances.keys.containsAll(setOf(FIAT_TICKER_1, FIAT_TICKER_2))
+                it.balances.keys.containsAll(setOf(CRYPTO_ASSET_1, CRYPTO_ASSET_2, FIAT_CURRENCY_1, FIAT_CURRENCY_2))
             }
     }
 
@@ -86,7 +79,7 @@ class TradingBalanceCallCacheTest {
             assetTicker = symbol,
             pending = 2.toBigInteger(),
             total = 10.toBigInteger(),
-            actionable = 3.toBigInteger()
+            withdrawable = 3.toBigInteger()
         )
 
     companion object {
@@ -104,7 +97,7 @@ class TradingBalanceCallCacheTest {
             precisionDp = 8,
             requiredConfirmations = 5,
             colour = "#123456"
-        ) { }
+        ) {}
 
         private val CRYPTO_ASSET_2 = object : CryptoCurrency(
             networkTicker = CRYPTO_TICKER_2,
@@ -114,7 +107,10 @@ class TradingBalanceCallCacheTest {
             precisionDp = 8,
             requiredConfirmations = 5,
             colour = "#123456"
-        ) { }
+        ) {}
+
+        private val FIAT_CURRENCY_1 = USD
+        private val FIAT_CURRENCY_2 = GBP
 
         private const val EXPECTED_HEADER = "some_header"
     }

@@ -132,20 +132,21 @@ class AnnouncementQueries(
 
     fun getAssetFromCatalogue(): Maybe<AssetInfo> =
         remoteConfig.getRawJson(NEW_ASSET_TICKER).flatMapMaybe { ticker ->
-            assetCatalogue.fromNetworkTicker(ticker)?.let { asset ->
+            assetCatalogue.assetInfoFromNetworkTicker(ticker)?.let { asset ->
                 Maybe.just(asset)
             }
                 ?: Maybe.empty()
         }
 
-    fun getAssetFromCatalogueByTicker(ticker: String): AssetInfo? = assetCatalogue.fromNetworkTicker(ticker)
+    fun getAssetFromCatalogueByTicker(ticker: String): AssetInfo? =
+        assetCatalogue.assetInfoFromNetworkTicker(ticker)
 
     fun getCountryCode(): Single<String> = userIdentity.getUserCountry().switchIfEmpty(Single.just(""))
 
     fun getRenamedAssetFromCatalogue(): Maybe<Pair<String, AssetInfo>> =
         remoteConfig.getRawJson(RENAME_ASSET_TICKER).flatMapMaybe { json ->
             val renamedAsset = Json.decodeFromString<RenamedAsset>(json)
-            assetCatalogue.fromNetworkTicker(renamedAsset.networkTicker)?.let { asset ->
+            assetCatalogue.assetInfoFromNetworkTicker(renamedAsset.networkTicker)?.let { asset ->
                 Maybe.just(Pair(renamedAsset.oldTicker, asset))
             }
                 ?: Maybe.empty()

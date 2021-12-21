@@ -63,7 +63,7 @@ class BuySellFragment :
 
     private val selectedAsset: AssetInfo? by unsafeLazy {
         arguments?.getString(SELECTED_ASSET)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         }
     }
 

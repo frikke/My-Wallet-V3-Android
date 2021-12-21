@@ -4,22 +4,16 @@ import android.annotation.SuppressLint
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.elyeproj.loaderviewlibrary.LoaderTextView
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
 
 fun LoaderTextView.showLoading() =
     resetLoader()
 
-fun Money?.format(fiatSymbol: String) =
+fun Money?.format(cryptoCurrency: Currency) =
     this?.toStringWithSymbol()
-        ?: FiatValue.zero(fiatSymbol).toStringWithSymbol()
-
-fun Money?.format(cryptoCurrency: AssetInfo) =
-    this?.toStringWithSymbol()
-        ?: CryptoValue.zero(cryptoCurrency).toStringWithSymbol()
+        ?: Money.zero(cryptoCurrency).toStringWithSymbol()
 
 fun Double.asPercentString() =
     String.format("%.2f%%", this)

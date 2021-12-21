@@ -4,7 +4,7 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import java.io.Serializable
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.FEE_SCHEDULE
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.PARAM_ASSET
@@ -29,7 +29,7 @@ sealed class SendAnalyticsEvent(
     object CancelTransaction : SendAnalyticsEvent("send_summary_cancel")
 
     data class ConfirmTransaction(
-        val asset: AssetInfo,
+        val asset: Currency,
         val source: String,
         val target: String,
         val feeLevel: String
@@ -43,7 +43,7 @@ sealed class SendAnalyticsEvent(
         )
     )
 
-    data class TransactionSuccess(val asset: AssetInfo, val target: String, val source: String) :
+    data class TransactionSuccess(val asset: Currency, val target: String, val source: String) :
         SendAnalyticsEvent(
             "send_confirm_success",
             mapOf(
@@ -54,7 +54,7 @@ sealed class SendAnalyticsEvent(
         )
 
     data class TransactionFailure(
-        val asset: AssetInfo,
+        val asset: Currency,
         val target: String?,
         val source: String?,
         val error: String

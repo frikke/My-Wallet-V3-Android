@@ -23,7 +23,6 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -50,9 +49,9 @@ abstract class SwapTxEngineBase(
 
     override fun targetExchangeRate(): Observable<ExchangeRate> =
         quotesEngine.pricedQuote.map {
-            ExchangeRate.CryptoToCrypto(
+            ExchangeRate(
                 from = sourceAsset,
-                to = target.asset,
+                to = target.currency,
                 rate = it.price.toBigDecimal()
             )
         }
@@ -103,8 +102,8 @@ abstract class SwapTxEngineBase(
         pendingTx.copy(
             confirmations = listOfNotNull(
                 TxConfirmationValue.SwapExchange(
-                    CryptoValue.fromMajor(sourceAsset, BigDecimal.ONE),
-                    CryptoValue.fromMajor(target.asset, pricedQuote.price.toBigDecimal())
+                    Money.fromMajor(sourceAsset, BigDecimal.ONE),
+                    Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal())
                 ),
                 TxConfirmationValue.CompoundNetworkFee(
                     if (pendingTx.feeAmount.isZero) {
@@ -121,7 +120,7 @@ abstract class SwapTxEngineBase(
                         FeeInfo(
                             pricedQuote.transferQuote.networkFee,
                             pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
-                            target.asset
+                            target.currency
                         )
                 )
             )
@@ -151,8 +150,8 @@ abstract class SwapTxEngineBase(
         ).apply {
             addOrReplaceOption(
                 TxConfirmationValue.SwapExchange(
-                    CryptoValue.fromMajor(sourceAsset, BigDecimal.ONE),
-                    CryptoValue.fromMajor(target.asset, pricedQuote.price.toBigDecimal())
+                    Money.fromMajor(sourceAsset, BigDecimal.ONE),
+                    Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal())
                 )
             )
             addOrReplaceOption(
@@ -171,7 +170,7 @@ abstract class SwapTxEngineBase(
                         FeeInfo(
                             pricedQuote.transferQuote.networkFee,
                             pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
-                            target.asset
+                            target.currency
                         )
                 )
             )
@@ -204,7 +203,7 @@ abstract class SwapTxEngineBase(
         this == TransferDirection.ON_CHAIN || this == TransferDirection.FROM_USERKEY
 
     private fun minAmountToPayNetworkFees(price: Money, networkFee: Money): Money =
-        CryptoValue.fromMajor(
+        Money.fromMajor(
             sourceAsset,
             networkFee.toBigDecimal()
                 .divide(price.toBigDecimal(), sourceAsset.precisionDp, RoundingMode.HALF_UP)

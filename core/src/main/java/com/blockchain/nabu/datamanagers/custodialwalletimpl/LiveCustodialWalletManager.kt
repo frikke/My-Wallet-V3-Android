@@ -112,6 +112,8 @@ import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -122,7 +124,6 @@ import java.lang.IllegalArgumentException
 import java.math.BigInteger
 import java.util.Calendar
 import java.util.Date
-import java.util.UnknownFormatConversionException
 import okhttp3.internal.toLongOrDefault
 
 class LiveCustodialWalletManager(
@@ -146,7 +147,7 @@ class LiveCustodialWalletManager(
         stripeAndCheckoutFeatureFlag.enabled.cache()
     }
 
-    override val defaultFiatCurrency: String
+    override val defaultFiatCurrency: FiatCurrency
         get() = currencyPrefs.defaultFiatCurrency
 
     override fun createOrder(
@@ -182,20 +183,20 @@ class LiveCustodialWalletManager(
         }
 
     override fun fetchFiatWithdrawFeeAndMinLimit(
-        asset: String,
+        fiatCurrency: FiatCurrency,
         product: Product,
         paymentMethodType: PaymentMethodType
     ): Single<FiatWithdrawalFeeAndLimit> =
         authenticator.authenticate {
             nabuService.fetchWithdrawFeesAndLimits(it, product.toRequestString(), paymentMethodType.mapToRequest())
         }.map { response ->
-            val fee = response.fees.firstOrNull { it.symbol == asset }?.let {
-                FiatValue.fromMinor(it.symbol, it.minorValue.toLong())
-            } ?: FiatValue.zero(asset)
+            val fee = response.fees.firstOrNull { it.symbol == fiatCurrency.networkTicker }?.let {
+                Money.fromMinor(fiatCurrency, it.minorValue.toBigInteger())
+            } ?: Money.zero(fiatCurrency)
 
-            val minLimit = response.minAmounts.firstOrNull { it.symbol == asset }?.let {
-                FiatValue.fromMinor(it.symbol, it.minorValue.toLong())
-            } ?: FiatValue.zero(asset)
+            val minLimit = response.minAmounts.firstOrNull { it.symbol == fiatCurrency.networkTicker }?.let {
+                Money.fromMinor(fiatCurrency, it.minorValue.toBigInteger())
+            } ?: Money.zero(fiatCurrency)
 
             FiatWithdrawalFeeAndLimit(minLimit, fee)
         }
@@ -227,22 +228,26 @@ class LiveCustodialWalletManager(
 
     override fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: String
+        fiatCurrency: FiatCurrency
     ): Single<BigInteger> =
         authenticator.authenticate {
-            nabuService.fetchWithdrawLocksRules(it, paymentMethodType, fiatCurrency)
+            nabuService.fetchWithdrawLocksRules(
+                it,
+                paymentMethodType,
+                fiatCurrency.networkTicker
+            )
         }.flatMap { response ->
             response.rule?.let {
                 Single.just(it.lockTime.toBigInteger())
             } ?: Single.just(BigInteger.ZERO)
         }
 
-    override fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair.CryptoToFiatCurrencyPair>> =
+    override fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair>> =
         pairsCache.pairs()
             .map { response ->
                 response.pairs.mapNotNull { pair ->
                     pair.toBuySellPair()?.let {
-                        CurrencyPair.CryptoToFiatCurrencyPair(it.cryptoCurrency, it.fiatCurrency)
+                        CurrencyPair(source = it.cryptoCurrency, destination = it.fiatCurrency)
                     }
                 }
             }
@@ -252,7 +257,9 @@ class LiveCustodialWalletManager(
         val crypto = parts.getOrNull(0)?.let {
             assetCatalogue.fromNetworkTicker(it)
         }
-        val fiat = parts.getOrNull(1)
+        val fiat = parts.getOrNull(1)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        }
 
         return if (crypto == null || fiat == null) {
             null
@@ -260,51 +267,51 @@ class LiveCustodialWalletManager(
             BuySellPair(
                 cryptoCurrency = crypto,
                 fiatCurrency = fiat,
-                buyLimits = BuySellLimits(buyMin, buyMax),
-                sellLimits = BuySellLimits(sellMin, sellMax)
+                buyLimits = BuySellLimits(buyMin.toBigInteger(), buyMax.toBigInteger()),
+                sellLimits = BuySellLimits(sellMin.toBigInteger(), sellMax.toBigInteger())
             )
         }
     }
 
-    override fun getSupportedFiatCurrencies(): Single<List<String>> =
+    override fun getSupportedFiatCurrencies(): Single<List<FiatCurrency>> =
         pairsCache.pairs().map {
-            it.pairs.map { pair ->
-                pair.pair.split("-")[1]
+            it.pairs.mapNotNull { pair ->
+                assetCatalogue.fiatFromNetworkTicker(pair.pair.split("-")[1])
             }.distinct()
         }
 
     override fun getCustodialFiatTransactions(
-        currency: String,
+        fiatCurrency: FiatCurrency,
         product: Product,
         type: String?
     ): Single<List<FiatTransaction>> =
         authenticator.authenticate { token ->
-            nabuService.getTransactions(token, currency, product.toRequestString(), type).map { response ->
-                response.items.filterNot {
-                    it.hasCardOrBankFailure()
-                }.mapNotNull {
-                    val state = it.state.toTransactionState() ?: return@mapNotNull null
-                    val txType = it.type.toTransactionType() ?: return@mapNotNull null
-
-                    FiatTransaction(
-                        id = it.id,
-                        amount = FiatValue.fromMinor(it.amount.symbol, it.amountMinor.toLong()),
-                        date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-                        state = state,
-                        type = txType,
-                        paymentId = it.beneficiaryId
-                    )
+            nabuService.getTransactions(token, fiatCurrency.networkTicker, product.toRequestString(), type)
+                .map { response ->
+                    response.items.filterNot {
+                        it.hasCardOrBankFailure()
+                    }.mapNotNull {
+                        val state = it.state.toTransactionState() ?: return@mapNotNull null
+                        val txType = it.type.toTransactionType() ?: return@mapNotNull null
+                        FiatTransaction(
+                            id = it.id,
+                            amount = Money.fromMinor(fiatCurrency, it.amountMinor.toBigInteger()) as FiatValue,
+                            date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+                            state = state,
+                            type = txType,
+                            paymentId = it.beneficiaryId
+                        )
+                    }
                 }
-            }
         }
 
     override fun getCustodialCryptoTransactions(
-        currency: String,
+        asset: AssetInfo,
         product: Product,
         type: String?
     ): Single<List<CryptoTransaction>> =
         authenticator.authenticate { token ->
-            nabuService.getTransactions(token, currency, product.toRequestString(), type).map { response ->
+            nabuService.getTransactions(token, asset.networkTicker, product.toRequestString(), type).map { response ->
                 response.items.mapNotNull {
                     val crypto = assetCatalogue.fromNetworkTicker(it.amount.symbol) ?: return@mapNotNull null
                     val state = it.state.toTransactionState() ?: return@mapNotNull null
@@ -312,13 +319,13 @@ class LiveCustodialWalletManager(
 
                     CryptoTransaction(
                         id = it.id,
-                        amount = CryptoValue.fromMinor(crypto, it.amountMinor.toBigInteger()),
+                        amount = Money.fromMinor(crypto, it.amountMinor.toBigInteger()),
                         date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
                         state = state,
                         type = txType,
                         fee = it.feeMinor?.let { fee ->
-                            CryptoValue.fromMinor(crypto, fee.toBigInteger())
-                        } ?: CryptoValue.zero(crypto),
+                            Money.fromMinor(crypto, fee.toBigInteger())
+                        } ?: Money.zero(crypto),
                         receivingAddress = it.extraAttributes.beneficiary?.accountRef.orEmpty(),
                         txHash = it.txHash.orEmpty(),
                         currency = currencyPrefs.selectedFiatCurrency,
@@ -328,35 +335,25 @@ class LiveCustodialWalletManager(
             }
         }
 
-    override fun getPredefinedAmounts(currency: String): Single<List<FiatValue>> =
+    override fun getBankAccountDetails(currency: FiatCurrency): Single<BankAccount> =
         authenticator.authenticate {
-            nabuService.getPredefinedAmounts(it, currency)
+            nabuService.getSimpleBuyBankAccountDetails(it, currency.networkTicker)
         }.map { response ->
-            val currencyAmounts = response.firstOrNull { it[currency] != null } ?: emptyMap()
-            currencyAmounts[currency]?.map { value ->
-                FiatValue.fromMinor(currency, value)
-            } ?: emptyList()
-        }
-
-    override fun getBankAccountDetails(currency: String): Single<BankAccount> =
-        authenticator.authenticate {
-            nabuService.getSimpleBuyBankAccountDetails(it, currency)
-        }.map { response ->
-            paymentAccountMapperMappers[currency]?.map(response)
+            paymentAccountMapperMappers[currency.networkTicker]?.map(response)
                 ?: throw IllegalStateException("Not valid Account returned")
         }
 
-    override fun getCustodialAccountAddress(asset: AssetInfo): Single<String> =
+    override fun getCustodialAccountAddress(asset: Currency): Single<String> =
         authenticator.authenticate {
             nabuService.getSimpleBuyBankAccountDetails(it, asset.networkTicker)
         }.map { response ->
             response.address
         }
 
-    override fun isCurrencySupportedForSimpleBuy(fiatCurrency: String): Single<Boolean> =
+    override fun isCurrencySupportedForSimpleBuy(fiatCurrency: FiatCurrency): Single<Boolean> =
         pairsCache.pairs().map {
             it.pairs.firstOrNull { buyPair ->
-                buyPair.pair.split("-")[1] == fiatCurrency
+                buyPair.pair.split("-")[1] == fiatCurrency.networkTicker
             } != null
         }.onErrorReturn { false }
 
@@ -395,7 +392,11 @@ class LiveCustodialWalletManager(
 
     override fun getAllOrdersFor(asset: AssetInfo): Single<BuyOrderList> =
         buyOrdersCache.orders().map {
+            println("BEFORE XXX ${asset.networkTicker} ${it.size}")
             it.filterAndMapToOrder(asset)
+        }.map {
+            println("AFTER XXX ${asset.networkTicker} ${it.size}")
+            it
         }
 
     private fun BuyOrderListResponse.filterAndMapToOrder(asset: AssetInfo): List<BuySellOrder> =
@@ -450,17 +451,17 @@ class LiveCustodialWalletManager(
     }
 
     override fun updateSupportedCardTypes(
-        fiatCurrency: String
+        currency: FiatCurrency
     ): Completable =
         authenticator.authenticate {
-            paymentMethods(it, fiatCurrency, true).doOnSuccess { paymentMethods ->
+            paymentMethods(it, currency, true).doOnSuccess { paymentMethods ->
                 updateSupportedCards(paymentMethods)
             }
         }.ignoreElement()
 
-    override fun linkToABank(fiatCurrency: String): Single<LinkBankTransfer> {
+    override fun linkToABank(currency: FiatCurrency): Single<LinkBankTransfer> {
         return authenticator.authenticate {
-            nabuService.linkToABank(it, fiatCurrency)
+            nabuService.linkToABank(it, currency.networkTicker)
         }.flatMap { response ->
             val partner = response.partner.toLinkingBankPartner() ?: return@flatMap Single.error<LinkBankTransfer>(
                 IllegalStateException("Partner not Supported")
@@ -491,7 +492,7 @@ class LiveCustodialWalletManager(
     }
 
     override fun fetchSuggestedPaymentMethod(
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         fetchSddLimits: Boolean,
         onlyEligible: Boolean
     ): Single<List<PaymentMethod>> =
@@ -516,7 +517,7 @@ class LiveCustodialWalletManager(
 
     private fun getSupportedPaymentMethods(
         sessionTokenResponse: NabuSessionTokenResponse,
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         shouldFetchSddLimits: Boolean,
         onlyEligible: Boolean
     ) = paymentMethods(
@@ -530,18 +531,18 @@ class LiveCustodialWalletManager(
         updateSupportedCards(it)
     }
 
-    override fun getBankTransferLimits(fiatCurrency: String, onlyEligible: Boolean): Single<PaymentLimits> =
+    override fun getBankTransferLimits(fiatCurrency: FiatCurrency, onlyEligible: Boolean): Single<PaymentLimits> =
         authenticator.authenticate {
-            nabuService.paymentMethods(it, fiatCurrency, onlyEligible, null).map { methods ->
+            nabuService.paymentMethods(it, fiatCurrency.networkTicker, onlyEligible, null).map { methods ->
                 methods.filter { method -> method.eligible || !onlyEligible }
             }
         }.map {
             it.filter { response ->
-                response.type == PaymentMethodResponse.BANK_TRANSFER && response.currency == fiatCurrency
+                response.type == PaymentMethodResponse.BANK_TRANSFER && response.currency == fiatCurrency.networkTicker
             }.map { paymentMethod ->
                 PaymentLimits(
-                    min = paymentMethod.limits.min,
-                    max = paymentMethod.max(),
+                    min = paymentMethod.limits.min.toBigInteger(),
+                    max = paymentMethod.max().toBigInteger(),
                     currency = fiatCurrency
                 )
             }.first()
@@ -554,17 +555,16 @@ class LiveCustodialWalletManager(
     }
 
     private fun paymentMethods(
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         onlyEligible: Boolean,
         cardProvidersSupported: Boolean,
         fetchSdddLimits: Boolean = false
     ) =
         authenticator.authenticate { authToken ->
             Single.zip(
-                tradingBalanceDataManager.getBalanceForFiat(fiatCurrency)
+                tradingBalanceDataManager.getBalanceForCurrency(fiatCurrency)
                     .firstOrError()
-                    .map { balance -> balance.total as FiatValue }
-                    .map { total -> CustodialFiatBalance(fiatCurrency, true, total) },
+                    .map { balance -> CustodialFiatBalance(fiatCurrency, true, balance.total) },
                 nabuService.getCards(authToken, cardProvidersSupported).onErrorReturn { emptyList() },
                 getBanks().map { banks ->
                     banks.filter { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER }
@@ -581,7 +581,11 @@ class LiveCustodialWalletManager(
                 paymentMethods.forEach { paymentMethod ->
                     if (paymentMethod.type == PaymentMethodResponse.PAYMENT_CARD) {
                         val cardLimits =
-                            PaymentLimits(paymentMethod.limits.min, paymentMethod.limits.max, fiatCurrency)
+                            PaymentLimits(
+                                paymentMethod.limits.min.toBigInteger(),
+                                paymentMethod.limits.max.toBigInteger(),
+                                fiatCurrency
+                            )
                         cardsResponse.takeIf { cards -> cards.isNotEmpty() }?.filter { it.state.isActive() }
                             ?.forEach { cardResponse: CardResponse ->
                                 availablePaymentMethods.add(
@@ -592,25 +596,25 @@ class LiveCustodialWalletManager(
                             }
                     } else if (
                         paymentMethod.type == PaymentMethodResponse.FUNDS &&
-                        paymentMethod.currency == fiatCurrency &&
+                        paymentMethod.currency == fiatCurrency.networkTicker &&
                         SUPPORTED_FUNDS_CURRENCIES.contains(paymentMethod.currency)
                     ) {
                         custodialFiatBalance.balance.takeIf { balance ->
-                            balance > FiatValue.fromMinor(
-                                paymentMethod.currency,
-                                paymentMethod.limits.min
+                            balance > Money.fromMinor(
+                                fiatCurrency,
+                                paymentMethod.limits.min.toBigInteger()
                             )
                         }?.let { balance ->
                             val fundsLimits =
                                 PaymentLimits(
-                                    paymentMethod.limits.min,
-                                    paymentMethod.limits.max.coerceAtMost(balance.toBigInteger().toLong()),
-                                    paymentMethod.currency
+                                    paymentMethod.limits.min.toBigInteger(),
+                                    paymentMethod.limits.max.toBigInteger().coerceAtMost(balance.toBigInteger()),
+                                    fiatCurrency
                                 )
                             availablePaymentMethods.add(
                                 PaymentMethod.Funds(
                                     balance,
-                                    paymentMethod.currency,
+                                    fiatCurrency,
                                     fundsLimits,
                                     true
                                 )
@@ -621,7 +625,11 @@ class LiveCustodialWalletManager(
                         linkedBanks.isNotEmpty()
                     ) {
                         val bankLimits =
-                            PaymentLimits(paymentMethod.limits.min, paymentMethod.limits.max, fiatCurrency)
+                            PaymentLimits(
+                                min = paymentMethod.limits.min.toBigInteger(),
+                                max = paymentMethod.limits.max.toBigInteger(),
+                                currency = fiatCurrency
+                            )
                         linkedBanks.filter { linkedBank ->
                             linkedBank.state == BankState.ACTIVE
                         }.forEach { linkedBank: Bank ->
@@ -632,14 +640,16 @@ class LiveCustodialWalletManager(
                     } else if (
                         paymentMethod.type == PaymentMethodResponse.BANK_ACCOUNT &&
                         paymentMethod.eligible &&
-                        paymentMethod.currency?.isSupportedCurrency() == true &&
-                        paymentMethod.currency == fiatCurrency
+                        paymentMethod.currency == fiatCurrency.networkTicker &&
+                        fiatCurrency.isSupportedCurrency() == true
                     ) {
                         availablePaymentMethods.add(
                             PaymentMethod.UndefinedBankAccount(
                                 paymentMethod.currency,
                                 PaymentLimits(
-                                    paymentMethod.limits.min, paymentMethod.limits.max, paymentMethod.currency
+                                    paymentMethod.limits.min.toBigInteger(),
+                                    paymentMethod.limits.max.toBigInteger(),
+                                    fiatCurrency
                                 ),
                                 paymentMethod.eligible
                             )
@@ -653,8 +663,8 @@ class LiveCustodialWalletManager(
                     availablePaymentMethods.add(
                         PaymentMethod.UndefinedCard(
                             PaymentLimits(
-                                paymentMethod.limits.min,
-                                paymentMethod.limits.max,
+                                paymentMethod.limits.min.toBigInteger(),
+                                paymentMethod.limits.max.toBigInteger(),
                                 fiatCurrency
                             ),
                             paymentMethod.eligible
@@ -668,8 +678,8 @@ class LiveCustodialWalletManager(
                     availablePaymentMethods.add(
                         PaymentMethod.UndefinedBankTransfer(
                             PaymentLimits(
-                                bankTransfer.limits.min,
-                                bankTransfer.limits.max,
+                                bankTransfer.limits.min.toBigInteger(),
+                                bankTransfer.limits.max.toBigInteger(),
                                 fiatCurrency
                             ),
                             bankTransfer.eligible
@@ -705,13 +715,13 @@ class LiveCustodialWalletManager(
         }
     }
 
-    override fun cancelRecurringBuy(id: String): Completable =
+    override fun cancelRecurringBuy(recurringBuyId: String): Completable =
         authenticator.authenticateCompletable { sessionToken ->
-            nabuService.cancelRecurringBuy(sessionToken, id)
+            nabuService.cancelRecurringBuy(sessionToken, recurringBuyId)
         }
 
     override fun addNewCard(
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         billingAddress: BillingAddress,
         paymentMethodTokens: Map<String, String>?
     ): Single<CardToBeActivated> =
@@ -719,7 +729,7 @@ class LiveCustodialWalletManager(
             nabuService.addNewCard(
                 sessionToken = it,
                 addNewCardBodyRequest = AddNewCardBodyRequest(
-                    fiatCurrency,
+                    fiatCurrency.networkTicker,
                     AddAddressRequest.fromBillingAddress(billingAddress),
                     paymentMethodTokens
                 )
@@ -728,7 +738,7 @@ class LiveCustodialWalletManager(
             CardToBeActivated(cardId = it.id, partner = it.partner)
         }
 
-    override fun getEligiblePaymentMethodTypes(fiatCurrency: String): Single<List<EligiblePaymentMethodType>> =
+    override fun getEligiblePaymentMethodTypes(fiatCurrency: FiatCurrency): Single<List<EligiblePaymentMethodType>> =
         authenticator.authenticate {
             paymentMethods(
                 sessionToken = it,
@@ -737,20 +747,24 @@ class LiveCustodialWalletManager(
             )
                 .map { methodsResponse ->
                     methodsResponse.mapNotNull { method ->
+                        val paymentMethodCurrency =
+                            assetCatalogue.fiatFromNetworkTicker(method.currency.orEmpty())
+                                ?: return@mapNotNull null
                         when (method.type) {
-                            PaymentMethodResponse.PAYMENT_CARD -> EligiblePaymentMethodType(
-                                PaymentMethodType.PAYMENT_CARD,
-                                method.currency ?: return@mapNotNull null
-                            )
+                            PaymentMethodResponse.PAYMENT_CARD ->
+                                EligiblePaymentMethodType(
+                                    PaymentMethodType.PAYMENT_CARD,
+                                    paymentMethodCurrency
+                                )
                             PaymentMethodResponse.BANK_TRANSFER -> {
                                 EligiblePaymentMethodType(
                                     PaymentMethodType.BANK_TRANSFER,
-                                    method.currency ?: return@mapNotNull null
+                                    paymentMethodCurrency
                                 )
                             }
                             PaymentMethodResponse.BANK_ACCOUNT -> EligiblePaymentMethodType(
                                 PaymentMethodType.BANK_ACCOUNT,
-                                method.currency ?: return@mapNotNull null
+                                paymentMethodCurrency
                             )
                             else -> null
                         }
@@ -790,8 +804,9 @@ class LiveCustodialWalletManager(
         }.map { cardsResponse ->
             cardsResponse.toCardPaymentMethod(
                 cardLimits = PaymentLimits(
-                    FiatValue.zero(cardsResponse.currency),
-                    FiatValue.zero(cardsResponse.currency)
+                    BigInteger.ZERO,
+                    BigInteger.ZERO,
+                    FiatCurrency.fromCurrencyCode(cardsResponse.currency)
                 )
             )
         }
@@ -804,11 +819,17 @@ class LiveCustodialWalletManager(
                 nabuService.getCards(it, cardProvidersSupported)
             }
         }.map { cardsResponse ->
-            cardsResponse.filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }.map {
-                it.toCardPaymentMethod(
-                    cardLimits = PaymentLimits(FiatValue.zero(it.currency), FiatValue.zero(it.currency))
-                )
-            }
+            cardsResponse.filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }
+                .mapNotNull {
+                    val currency = assetCatalogue.fromNetworkTicker(it.currency) ?: return@mapNotNull null
+                    it.toCardPaymentMethod(
+                        cardLimits = PaymentLimits(
+                            BigInteger.ZERO,
+                            BigInteger.ZERO,
+                            currency
+                        )
+                    )
+                }
         }
 
     override fun confirmOrder(
@@ -857,7 +878,7 @@ class LiveCustodialWalletManager(
                         nabuService.getInterestActivity(sessionToken, asset.networkTicker)
                             .map { interestActivityResponse ->
                                 interestActivityResponse.items.map {
-                                    val ccy = assetCatalogue.fromNetworkTicker(it.amount.symbol)!!
+                                    val ccy = assetCatalogue.fromNetworkTicker(it.amount.symbol) as AssetInfo
                                     it.toInterestActivityItem(ccy)
                                 }
                             }
@@ -891,10 +912,7 @@ class LiveCustodialWalletManager(
             )
         }
 
-    override fun getSupportedFundsFiats(
-        fiatCurrency: String
-    ): Single<List<String>> {
-
+    override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Single<List<FiatCurrency>> {
         return authenticator.authenticate {
             paymentMethods(it, fiatCurrency, true)
         }.map { methods ->
@@ -902,18 +920,20 @@ class LiveCustodialWalletManager(
                 it.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
                     SUPPORTED_FUNDS_CURRENCIES.contains(it.currency) && it.eligible
             }.mapNotNull {
-                it.currency
+                it.currency?.let { currency ->
+                    assetCatalogue.fromNetworkTicker(currency) as FiatCurrency
+                }
             }
         }
     }
 
-    private fun getSupportedCurrenciesForBankTransactions(fiatCurrency: String): Single<List<String>> {
+    private fun getSupportedCurrenciesForBankTransactions(fiatCurrency: FiatCurrency): Single<List<String>> {
         return authenticator.authenticate {
             paymentMethods(it, fiatCurrency, true)
         }.map { methods ->
             methods.filter {
                 (it.type == PaymentMethodResponse.BANK_ACCOUNT || it.type == PaymentMethodResponse.BANK_TRANSFER) &&
-                    it.currency == fiatCurrency
+                    it.currency == fiatCurrency.networkTicker
             }.mapNotNull {
                 it.currency
             }
@@ -929,24 +949,24 @@ class LiveCustodialWalletManager(
      */
     private fun paymentMethods(
         sessionToken: NabuSessionTokenResponse,
-        currency: String,
+        currency: Currency,
         eligibleOnly: Boolean,
         shouldFetchSddLimits: Boolean = false
     ) = nabuService.paymentMethods(
         sessionToken = sessionToken,
-        currency = currency,
+        currency = currency.networkTicker,
         eligibleOnly = eligibleOnly,
         tier = if (shouldFetchSddLimits) SDD_ELIGIBLE_TIER else null
     ).map {
         it.filter { paymentMethod -> paymentMethod.visible }
     }
 
-    override fun canTransactWithBankMethods(fiatCurrency: String): Single<Boolean> {
+    override fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean> {
         if (!fiatCurrency.isSupportedCurrency())
             return Single.just(false)
         return getSupportedCurrenciesForBankTransactions(fiatCurrency)
             .map { supportedCurrencies ->
-                supportedCurrencies.contains(fiatCurrency)
+                supportedCurrencies.contains(fiatCurrency.networkTicker)
             }
     }
 
@@ -1003,7 +1023,7 @@ class LiveCustodialWalletManager(
         }
 
     override fun getProductTransferLimits(
-        currency: String,
+        currency: FiatCurrency,
         product: Product,
         orderDirection: TransferDirection?
     ): Single<TransferLimits> =
@@ -1020,7 +1040,7 @@ class LiveCustodialWalletManager(
 
             nabuService.fetchProductLimits(
                 it,
-                currency,
+                currency.networkTicker,
                 product.toRequestString(),
                 side,
                 direction
@@ -1029,11 +1049,11 @@ class LiveCustodialWalletManager(
                     TransferLimits(currency)
                 } else {
                     TransferLimits(
-                        minLimit = FiatValue.fromMinor(currency, response.minOrder?.toLong() ?: 0L),
-                        maxOrder = FiatValue.fromMinor(currency, response.maxOrder?.toLong() ?: 0L),
-                        maxLimit = FiatValue.fromMinor(
+                        minLimit = Money.fromMinor(currency, response.minOrder?.toBigInteger() ?: BigInteger.ZERO),
+                        maxOrder = Money.fromMinor(currency, response.maxOrder?.toBigInteger() ?: BigInteger.ZERO),
+                        maxLimit = Money.fromMinor(
                             currency,
-                            response.maxPossibleOrder?.toLong() ?: 0L
+                            response.maxPossibleOrder?.toBigInteger() ?: BigInteger.ZERO
                         )
                     )
                 }
@@ -1080,7 +1100,7 @@ class LiveCustodialWalletManager(
             id = id,
             name = name.takeIf { it?.isNotEmpty() == true } ?: accountName.orEmpty(),
             state = state.toBankState(),
-            currency = currency,
+            currency = assetCatalogue.fromNetworkTicker(currency) as FiatCurrency,
             account = accountNumber ?: "****",
             accountType = bankAccountType.orEmpty(),
             paymentMethodType = if (this.isBankTransferAccount)
@@ -1092,7 +1112,7 @@ class LiveCustodialWalletManager(
         val bankPartner = partner.toLinkingBankPartner() ?: return null
         return LinkedBank(
             id = id,
-            currency = currency,
+            currency = assetCatalogue.fiatFromNetworkTicker(currency) ?: return null,
             partner = bankPartner,
             state = state.toLinkedBankState(),
             bankName = details?.bankName.orEmpty(),
@@ -1279,7 +1299,12 @@ class LiveCustodialWalletManager(
     private fun BankTransferChargeResponse.toBankTransferDetails() =
         BankTransferDetails(
             id = this.beneficiaryId,
-            amount = FiatValue.fromMinor(this.amount.symbol, this.amountMinor.toLong()),
+            amount = Money.fromMinor(
+                assetCatalogue.fromNetworkTicker(amount.symbol) ?: throw IllegalArgumentException(
+                    "Currency not supported"
+                ),
+                this.amountMinor.toBigInteger()
+            ),
             authorisationUrl = this.extraAttributes.authorisationUrl,
             status = this.state?.toBankTransferStatus() ?: this.extraAttributes.status?.toBankTransferStatus()
                 ?: BankTransferStatus.UNKNOWN
@@ -1318,13 +1343,13 @@ class LiveCustodialWalletManager(
             state = this.state.toCustodialOrderState(),
             depositAddress = this.kind.depositAddress,
             createdAt = this.createdAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-            inputMoney = CryptoValue.fromMinor(
+            inputMoney = Money.fromMinor(
                 assetCatalogue.fromNetworkTicker(
                     this.pair.toCryptoCurrencyPair()?.source?.networkTicker.toString()
                 ) ?: return null,
                 this.priceFunnel.inputMoney.toBigInteger()
             ),
-            outputMoney = CryptoValue.fromMinor(
+            outputMoney = Money.fromMinor(
                 assetCatalogue.fromNetworkTicker(
                     this.pair.toCryptoCurrencyPair()?.destination?.networkTicker.toString()
                 ) ?: return null,
@@ -1347,12 +1372,14 @@ class LiveCustodialWalletManager(
             state = this.state.toCustodialOrderState(),
             depositAddress = this.kind.depositAddress,
             createdAt = this.createdAt.fromIso8601ToUtc() ?: Date(),
-            inputMoney = CurrencyPair.fromRawPair(pair, assetCatalogue, SUPPORTED_FUNDS_CURRENCIES)?.let {
-                it.toSourceMoney(priceFunnel.inputMoney.toBigInteger())
+
+            inputMoney = CurrencyPair.fromRawPair(pair, assetCatalogue)?.let {
+                Money.fromMinor(it.source, priceFunnel.inputMoney.toBigInteger())
             } ?: return null,
-            outputMoney = CurrencyPair.fromRawPair(pair, assetCatalogue, SUPPORTED_FUNDS_CURRENCIES)?.let {
-                it.toDestinationMoney(priceFunnel.outputMoney.toBigInteger())
-            } ?: return null
+
+            outputMoney = CurrencyPair.fromRawPair(pair, assetCatalogue)?.let {
+                Money.fromMinor(it.source, priceFunnel.outputMoney.toBigInteger())
+            } ?: return null,
         )
     }
 
@@ -1363,12 +1390,8 @@ class LiveCustodialWalletManager(
             else -> Completable.error(java.lang.IllegalStateException("Unknown Bank type"))
         }
 
-    private fun String.toCryptoCurrencyPair(): CurrencyPair.CryptoCurrencyPair? {
-        val parts = split("-")
-        if (parts.size != 2) return null
-        val source = assetCatalogue.fromNetworkTicker(parts[0]) ?: return null
-        val destination = assetCatalogue.fromNetworkTicker(parts[1]) ?: return null
-        return CurrencyPair.CryptoCurrencyPair(source, destination)
+    private fun String.toCryptoCurrencyPair(): CurrencyPair? {
+        return CurrencyPair.fromRawPair(this, assetCatalogue)
     }
 
     companion object {
@@ -1388,8 +1411,8 @@ class LiveCustodialWalletManager(
         private const val SDD_ELIGIBLE_TIER = 3
     }
 
-    private fun String.isSupportedCurrency(): Boolean =
-        SUPPORTED_FUNDS_FOR_WIRE_TRANSFER.contains(this)
+    private fun FiatCurrency.isSupportedCurrency(): Boolean =
+        SUPPORTED_FUNDS_FOR_WIRE_TRANSFER.contains(networkTicker)
 
     private fun String.toLinkingBankPartner(): BankPartner? {
         val partner = when (this) {
@@ -1527,30 +1550,38 @@ enum class OrderType {
 }
 
 private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue): BuySellOrder {
-    val fiatCurrency = if (type() == OrderType.SELL) outputCurrency else inputCurrency
-    val cryptoCurrency =
-        assetCatalogue.fromNetworkTicker(
-            if (type() == OrderType.SELL) inputCurrency else outputCurrency
-        ) ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
-    val fiatAmount = if (type() == OrderType.SELL) {
-        outputQuantity.toLongOrDefault(0)
-    } else {
-        inputQuantity.toLongOrDefault(0)
-    }
-    val cryptoAmount =
-        if (type() == OrderType.SELL) inputQuantity.toBigInteger() else outputQuantity.toBigInteger()
+    /* val fiatCurrencyString = if (type() == OrderType.SELL) outputCurrency else inputCurrency
+     val cryptoCurrency =
+         assetCatalogue.fromNetworkTicker(
+             if (type() == OrderType.SELL) inputCurrency else outputCurrency
+         ) ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
+     val fiatAmount = if (type() == OrderType.SELL) {
+         outputQuantity.toLongOrDefault(0)
+     } else {
+         inputQuantity.toLongOrDefault(0)
+     }
+     val cryptoAmount =
+         if (type() == OrderType.SELL) inputQuantity.toBigInteger() else outputQuantity.toBigInteger()
+    */
 
     return BuySellOrder(
         id = id,
         pair = pair,
-        fiat = FiatValue.fromMinor(fiatCurrency, fiatAmount),
-        crypto = CryptoValue.fromMinor(cryptoCurrency, cryptoAmount),
+        source = Money.fromMinor(
+            assetCatalogue.fromNetworkTicker(inputCurrency)!!, inputQuantity.toBigInteger()
+        ),
+        target = Money.fromMinor(
+            assetCatalogue.fromNetworkTicker(outputCurrency)!!, outputQuantity.toBigInteger()
+        ),
         state = state.toLocalState(),
         expires = expiresAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
         updated = updatedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
         created = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
         fee = fee?.let {
-            FiatValue.fromMinor(fiatCurrency, it.toLongOrDefault(0))
+            Money.fromMinor(
+                assetCatalogue.fromNetworkTicker(inputCurrency)!!,
+                it.toLongOrDefault(0).toBigInteger()
+            )
         },
         paymentMethodId = paymentMethodId ?: (
             when (paymentType.toPaymentMethodType()) {
@@ -1561,12 +1592,12 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
             ),
         paymentMethodType = paymentType.toPaymentMethodType(),
         price = price?.let {
-            FiatValue.fromMinor(fiatCurrency, it.toLong())
+            Money.fromMinor(assetCatalogue.fromNetworkTicker(inputCurrency)!!, it.toBigInteger())
         },
-        orderValue = if (type() == OrderType.SELL)
-            FiatValue.fromMinor(outputCurrency, outputQuantity.toLongOrDefault(0))
-        else
-            CryptoValue.fromMinor(cryptoCurrency, cryptoAmount),
+        orderValue = Money.fromMinor(
+            assetCatalogue.fromNetworkTicker(outputCurrency)!!,
+            outputQuantity.toLongOrDefault(0).toBigInteger()
+        ),
         attributes = attributes?.toPaymentAttributes(),
         type = type(),
         depositPaymentId = depositPaymentId.orEmpty(),
@@ -1655,7 +1686,7 @@ interface PaymentAccountMapper {
 }
 
 private data class CustodialFiatBalance(
-    val currency: String,
+    val currency: FiatCurrency,
     val available: Boolean,
-    val balance: FiatValue
+    val balance: Money
 )

@@ -9,7 +9,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
-import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
@@ -47,7 +47,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
     }
 
     private val prefs: CurrencyPrefs by scopedInject()
-    private val exchangeRates: ExchangeRates by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val disposables = CompositeDisposable()
 
     private var account: FiatAccount = NullFiatAccount
@@ -56,26 +56,33 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
         DialogSheetFiatFundsDetailBinding.inflate(inflater, container, false)
 
     override fun initControls(binding: DialogSheetFiatFundsDetailBinding) {
-        val ticker = account.fiatCurrency
+        val currency = account.currency
         binding.apply {
             with(fundDetails) {
-                fundsTitle.setStringFromTicker(requireContext(), ticker)
-                fundsFiatTicker.text = ticker
-                fundsIcon.setIcon(ticker)
+                fundsTitle.setStringFromTicker(requireContext(), currency.displayTicker)
+                fundsFiatTicker.text = currency.displayTicker
+                fundsIcon.setIcon(currency.networkTicker)
                 fundsBalance.gone()
                 fundsUserFiatBalance.gone()
             }
             disposables += Singles.zip(
-                account.accountBalance,
-                account.fiatBalance(prefs.selectedFiatCurrency, exchangeRates),
+                account.balance.firstOrError().map { it.total }.flatMap { balance ->
+                    exchangeRates.exchangeRateToUserFiat(account.currency).firstOrError().map {
+                        it.convert(balance) to balance
+                    }
+                },
                 account.actions
             ).observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
-                    onSuccess = { (fiatBalance, userFiatBalance, actions) ->
-                        fundDetails.fundsUserFiatBalance.visibleIf { prefs.selectedFiatCurrency != ticker }
-                        fundDetails.fundsUserFiatBalance.text = userFiatBalance.toStringWithSymbol()
-                        fundDetails.fundsBalance.text = fiatBalance.toStringWithSymbol()
-                        fundDetails.fundsBalance.visibleIf { fiatBalance.isZero || fiatBalance.isPositive }
+                    onSuccess = { (accountBalance, actions) ->
+                        val balanceInWalletCurrency = accountBalance.first
+                        val accountBalance = accountBalance.second
+                        fundDetails.fundsUserFiatBalance.visibleIf {
+                            prefs.selectedFiatCurrency.networkTicker != account.currency.networkTicker
+                        }
+                        fundDetails.fundsUserFiatBalance.text = balanceInWalletCurrency.toStringWithSymbol()
+                        fundDetails.fundsBalance.text = accountBalance.toStringWithSymbol()
+                        fundDetails.fundsBalance.visibleIf { accountBalance.isZero || accountBalance.isPositive }
                         fundsWithdrawHolder.visibleIf { actions.contains(AssetAction.Withdraw) }
                         fundsDepositHolder.visibleIf { actions.contains(AssetAction.FiatDeposit) }
                         fundsActivityHolder.visibleIf { actions.contains(AssetAction.ViewActivity) }
@@ -87,19 +94,25 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                 )
 
             fundsDepositHolder.setOnClickListener {
-                analytics.logEvent(fiatAssetAction(AssetDetailsAnalytics.FIAT_DEPOSIT_CLICKED, account.fiatCurrency))
+                analytics.logEvent(
+                    fiatAssetAction(AssetDetailsAnalytics.FIAT_DEPOSIT_CLICKED, account.currency.networkTicker)
+                )
                 analytics.logEvent(DepositAnalytics.DepositClicked(LaunchOrigin.CURRENCY_PAGE))
                 dismiss()
                 host.startDepositFlow(account)
             }
             fundsWithdrawHolder.setOnClickListener {
                 analytics.logEvent(WithdrawAnalytics.WithdrawalClicked(LaunchOrigin.CURRENCY_PAGE))
-                analytics.logEvent(fiatAssetAction(AssetDetailsAnalytics.FIAT_WITHDRAW_CLICKED, account.fiatCurrency))
+                analytics.logEvent(
+                    fiatAssetAction(AssetDetailsAnalytics.FIAT_WITHDRAW_CLICKED, account.currency.networkTicker)
+                )
                 handleWithdrawalChecks()
             }
 
             fundsActivityHolder.setOnClickListener {
-                analytics.logEvent(fiatAssetAction(AssetDetailsAnalytics.FIAT_ACTIVITY_CLICKED, account.fiatCurrency))
+                analytics.logEvent(
+                    fiatAssetAction(AssetDetailsAnalytics.FIAT_ACTIVITY_CLICKED, account.currency.networkTicker)
+                )
                 dismiss()
                 host.goToActivityFor(account)
             }

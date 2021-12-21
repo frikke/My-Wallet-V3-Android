@@ -3,8 +3,9 @@ package com.blockchain.nabu.models
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.LimitsJson
-import com.blockchain.nabu.models.responses.nabu.TierResponse
+import com.blockchain.nabu.models.responses.nabu.Limits
+import com.blockchain.nabu.models.responses.nabu.Tier
+import com.blockchain.nabu.models.responses.nabu.Tiers
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -126,38 +127,25 @@ class KycStateCombinerTest {
     }
 }
 
-fun tiers(tier1State: KycTierState, tier2State: KycTierState): KycTiers {
+private fun tiers(tier1State: KycTierState, tier2State: KycTierState): KycTiers {
     return KycTiers(
-        tiersResponse = listOf(
-            TierResponse(
-                0,
-                "Tier 0",
-                state = KycTierState.Verified,
-                limits = LimitsJson(
-                    currency = "USD",
-                    daily = null,
-                    annual = null
-                )
-            ),
-            TierResponse(
-                1,
-                "Tier 1",
-                state = tier1State,
-                limits = LimitsJson(
-                    currency = "USD",
-                    daily = null,
-                    annual = 1000.0.toBigDecimal()
-                )
-            ),
-            TierResponse(
-                2,
-                "Tier 2",
-                state = tier2State,
-                limits = LimitsJson(
-                    currency = "USD",
-                    daily = 25000.0.toBigDecimal(),
-                    annual = null
-                )
+        Tiers(
+            mapOf(
+                KycTierLevel.BRONZE to
+                    Tier(
+                        KycTierState.Verified,
+                        Limits(null, null)
+                    ),
+                KycTierLevel.SILVER to
+                    Tier(
+                        tier1State,
+                        Limits(null, null)
+                    ),
+                KycTierLevel.GOLD to
+                    Tier(
+                        tier2State,
+                        Limits(null, null)
+                    )
             )
         )
     )

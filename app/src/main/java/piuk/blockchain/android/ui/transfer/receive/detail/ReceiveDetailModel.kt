@@ -105,7 +105,7 @@ internal class ReceiveDetailModel(
                     process(UpdateAddressAndGenerateQrCode(it))
                 },
                 onError = {
-                    Timber.e("Unable to fetch ${account.asset} address from account")
+                    Timber.e("Unable to fetch ${account.currency} address from account")
                     process(AddressError)
                 }
             )

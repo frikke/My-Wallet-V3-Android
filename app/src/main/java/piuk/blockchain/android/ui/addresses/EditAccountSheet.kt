@@ -73,7 +73,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
             setOnClickListener { }
 
             if (!account.isInternalAccount) {
-                account.actionableBalance
+                account.balance.firstOrError().map { it.withdrawable }
                     .subscribeBy(
                         onSuccess = {
                             visible()
@@ -200,7 +200,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                 tvXpub.setText(R.string.extended_public_key)
                 tvXpubDescription.visible()
 
-                if (account.asset == CryptoCurrency.BCH) {
+                if (account.currency == CryptoCurrency.BCH) {
                     tvXpubDescription.setText(R.string.extended_public_key_description_bch_only)
                 } else {
                     tvXpubDescription.setText(R.string.extended_public_key_description)

@@ -25,6 +25,7 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -354,8 +355,7 @@ internal class PricesFragment :
                 }
                 DashboardNavigationAction.FiatFundsNoKyc -> showFiatFundsKyc()
                 is DashboardNavigationAction.InterestSummary -> InterestSummarySheet.newInstance(
-                    navigationAction.account,
-                    navigationAction.asset
+                    navigationAction.account
                 )
                 else -> null
             }
@@ -363,7 +363,7 @@ internal class PricesFragment :
     }
 
     private fun showFiatFundsKyc(): BottomSheetDialogFragment {
-        val currencyIcon = when (currencyPrefs.selectedFiatCurrency) {
+        val currencyIcon = when (currencyPrefs.selectedFiatCurrency.networkTicker) {
             "EUR" -> R.drawable.ic_funds_euro
             "GBP" -> R.drawable.ic_funds_gbp
             else -> R.drawable.ic_funds_usd // show dollar if currency isn't selected
@@ -469,18 +469,16 @@ internal class PricesFragment :
         navigator().launchInterestDashboard(LaunchOrigin.CURRENCY_PAGE)
     }
 
-    override fun goToSummary(account: SingleAccount, asset: AssetInfo) {
+    override fun goToSummary(account: CryptoAccount) {
         model.process(
             DashboardIntent.UpdateSelectedCryptoAccount(
-                account,
-                asset
+                account
             )
         )
         model.process(
             DashboardIntent.ShowPortfolioSheet(
                 DashboardNavigationAction.InterestSummary(
-                    account,
-                    asset
+                    account
                 )
             )
         )
@@ -507,7 +505,7 @@ internal class PricesFragment :
     }
 
     // BankLinkingHost
-    override fun onBankWireTransferSelected(currency: String) {
+    override fun onBankWireTransferSelected(currency: FiatCurrency) {
         state?.selectedFiatAccount?.let {
             model.process(DashboardIntent.ShowBankLinkingSheet(it))
         }

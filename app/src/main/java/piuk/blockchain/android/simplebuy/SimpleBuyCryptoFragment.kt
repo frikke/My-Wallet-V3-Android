@@ -25,6 +25,7 @@ import com.blockchain.utils.to12HourFormat
 import com.bumptech.glide.Glide
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -38,7 +39,6 @@ import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
@@ -64,7 +64,6 @@ import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -80,21 +79,19 @@ class SimpleBuyCryptoFragment :
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private var infoActionCallback: () -> Unit = {}
 
-    private val fiatCurrency: String
+    private val fiatCurrency: FiatCurrency
         get() = currencyPrefs.tradingCurrency
 
     private var lastState: SimpleBuyState? = null
     private val compositeDisposable = CompositeDisposable()
 
-    private val asset: AssetInfo by unsafeLazy {
-        arguments?.getString(ARG_CRYPTO_ASSET)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+    private val asset: AssetInfo
+        get() = arguments?.getString(ARG_CRYPTO_ASSET)?.let {
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         } ?: throw IllegalArgumentException("No cryptoCurrency specified")
-    }
 
-    private val preselectedMethodId: String? by unsafeLazy {
-        arguments?.getString(ARG_PAYMENT_METHOD_ID)
-    }
+    private val preselectedMethodId: String?
+        get() = arguments?.getString(ARG_PAYMENT_METHOD_ID)
 
     private val errorContainer by lazy {
         binding.errorLayout.errorContainer
@@ -180,7 +177,7 @@ class SimpleBuyCryptoFragment :
             analytics.logEvent(
                 buyConfirmClicked(
                     state.amount.toBigInteger().toString(),
-                    state.fiatCurrency,
+                    state.fiatCurrency.networkTicker,
                     state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
                 )
             )
@@ -239,9 +236,9 @@ class SimpleBuyCryptoFragment :
 
         newState.selectedCryptoAsset?.let {
             binding.inputAmount.configuration = FiatCryptoViewConfiguration(
-                inputCurrency = CurrencyType.Fiat(newState.fiatCurrency),
-                outputCurrency = CurrencyType.Fiat(newState.fiatCurrency),
-                exchangeCurrency = CurrencyType.Crypto(it),
+                inputCurrency = newState.fiatCurrency,
+                outputCurrency = newState.fiatCurrency,
+                exchangeCurrency = it,
                 canSwap = false,
                 predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency)
             )
@@ -258,7 +255,7 @@ class SimpleBuyCryptoFragment :
         }
 
         (newState.limits.max as? TxLimit.Limited)?.amount?.takeIf {
-            it.currencyCode == fiatCurrency
+            it.currency == fiatCurrency
         }?.let {
             binding.inputAmount.maxLimit = it
         }
@@ -310,7 +307,7 @@ class SimpleBuyCryptoFragment :
         binding.btnContinue.gone()
         binding.errorLayout.errorMessage.text = state.errorState.message(state)
         errorContainer.visible()
-        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state, CurrencyType.Fiat(state.fiatCurrency))
+        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state, state.fiatCurrency.type)
         bottomSheetInfo?.let { info ->
             errorContainer.setOnClickListener {
                 TransactionFlowInfoBottomSheet.newInstance(info)
@@ -582,7 +579,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun addPaymentMethod(type: PaymentMethodType, fiatCurrency: String) {
+    private fun addPaymentMethod(type: PaymentMethodType, fiatCurrency: FiatCurrency) {
         when (type) {
             PaymentMethodType.PAYMENT_CARD -> {
                 val intent = Intent(activity, CardDetailsActivity::class.java)
@@ -661,7 +658,7 @@ class SimpleBuyCryptoFragment :
             TransactionErrorState.BELOW_MIN_LIMIT ->
                 resources.getString(R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol())
             TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
-                R.string.not_enough_funds, state.fiatCurrency
+                R.string.not_enough_funds, state.fiatCurrency.displayTicker
             )
             TransactionErrorState.OVER_SILVER_TIER_LIMIT,
             TransactionErrorState.OVER_GOLD_TIER_LIMIT -> resources.getString(
@@ -721,7 +718,7 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
 }
 
 fun PaymentMethod.Funds.icon() =
-    when (fiatCurrency) {
+    when (fiatCurrency.networkTicker) {
         "GBP" -> R.drawable.ic_funds_gbp
         "EUR" -> R.drawable.ic_funds_euro
         "USD" -> R.drawable.ic_funds_usd
@@ -729,7 +726,7 @@ fun PaymentMethod.Funds.icon() =
     }
 
 fun PaymentMethod.Funds.label() =
-    when (fiatCurrency) {
+    when (fiatCurrency.networkTicker) {
         "GBP" -> R.string.pounds
         "EUR" -> R.string.euros
         "USD" -> R.string.us_dollars

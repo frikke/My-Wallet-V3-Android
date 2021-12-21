@@ -7,6 +7,7 @@ import com.blockchain.core.chains.erc20.model.Erc20HistoryList
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
@@ -32,11 +33,11 @@ internal class Erc20HistoryCallCache(
             }
     }
 
-    private fun getFeeFetcher(txHash: String): Single<CryptoValue> =
+    private fun getFeeFetcher(txHash: String): Single<Money> =
         ethDataManager.getTransaction(txHash)
             .map { transaction ->
                 val fee = transaction.gasUsed * transaction.gasPrice
-                CryptoValue.fromMinor(CryptoCurrency.ETHER, fee)
+                Money.fromMinor(CryptoCurrency.ETHER, fee)
             }.firstOrError()
 
     fun flush(asset: AssetInfo) {
@@ -46,7 +47,7 @@ internal class Erc20HistoryCallCache(
 
 private fun Erc20Transfer.toHistoryEvent(
     asset: AssetInfo,
-    feeFetcher: Single<CryptoValue>
+    feeFetcher: Single<Money>
 ): Erc20HistoryEvent =
     Erc20HistoryEvent(
         transactionHash = transactionHash,

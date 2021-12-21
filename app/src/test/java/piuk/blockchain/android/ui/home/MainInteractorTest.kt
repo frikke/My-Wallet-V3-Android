@@ -129,10 +129,10 @@ class MainInteractorTest {
     fun getAssetFromTicker_Known_Ticker() {
         val assetInfo: AssetInfo = mock()
         val ticker = "BTC"
-        whenever(assetCatalogue.fromNetworkTicker(ticker)).thenReturn(assetInfo)
+        whenever(assetCatalogue.assetInfoFromNetworkTicker(ticker)).thenReturn(assetInfo)
 
         val resultAsset = interactor.getAssetFromTicker(ticker)
-        verify(assetCatalogue).fromNetworkTicker(ticker)
+        verify(assetCatalogue).assetInfoFromNetworkTicker(ticker)
         Assert.assertEquals(assetInfo, resultAsset)
     }
 
@@ -140,11 +140,11 @@ class MainInteractorTest {
     fun getAssetFromTicker_Unknown_Ticker() {
         val assetInfo: AssetInfo? = null
         val ticker = "BTC"
-        whenever(assetCatalogue.fromNetworkTicker(ticker)).thenReturn(null)
+        whenever(assetCatalogue.assetInfoFromNetworkTicker(ticker)).thenReturn(null)
 
         val resultAsset = interactor.getAssetFromTicker(ticker)
 
-        verify(assetCatalogue).fromNetworkTicker(ticker)
+        verify(assetCatalogue).assetInfoFromNetworkTicker(ticker)
         Assert.assertEquals(assetInfo, resultAsset)
     }
 

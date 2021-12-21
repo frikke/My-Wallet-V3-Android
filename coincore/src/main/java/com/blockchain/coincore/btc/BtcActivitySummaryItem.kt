@@ -5,6 +5,7 @@ import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -35,7 +36,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
     override val supportsDescription: Boolean
         get() = true
 
-    override val fee: Observable<CryptoValue>
+    override val fee: Observable<Money>
         get() = Observable.just(CryptoValue.fromMinor(CryptoCurrency.BTC, transactionSummary.fee))
 
     override val txId: String

@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.activity
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.logging.CrashLogger
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -18,7 +18,7 @@ enum class ActivitiesSheet {
     FIAT_ACTIVITY_DETAILS
 }
 
-enum class CryptoActivityType {
+enum class ActivityType {
     NON_CUSTODIAL,
     CUSTODIAL_TRADING,
     CUSTODIAL_INTEREST,
@@ -37,9 +37,8 @@ data class ActivitiesState(
     val bottomSheet: ActivitiesSheet? = null,
     val isError: Boolean = false,
     val selectedTxId: String = "",
-    val selectedCryptoCurrency: AssetInfo? = null,
-    val selectedFiatCurrency: String? = null,
-    val activityType: CryptoActivityType = CryptoActivityType.UNKNOWN
+    val selectedCurrency: Currency? = null,
+    val activityType: ActivityType = ActivityType.UNKNOWN
 ) : MviState
 
 class ActivitiesModel(

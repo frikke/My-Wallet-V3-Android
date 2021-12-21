@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.preferences.CurrencyPrefs
 import com.robinhood.spark.SparkAdapter
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemDashboardAssetCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -53,7 +54,7 @@ private class AssetCardViewHolder(
 
     fun bind(
         state: CryptoAssetState,
-        fiatSymbol: String,
+        fiatSymbol: FiatCurrency,
         assetResources: AssetResources,
         onCardClicked: (AssetInfo) -> Unit
     ) {
@@ -92,7 +93,7 @@ private class AssetCardViewHolder(
 
     private fun renderLoaded(
         state: CryptoAssetState,
-        fiatSymbol: String,
+        fiatCurrency: FiatCurrency,
         assetResources: AssetResources,
         onCardClicked: (AssetInfo) -> Unit
     ) {
@@ -102,10 +103,10 @@ private class AssetCardViewHolder(
 
             showContent()
 
-            fiatBalance.text = state.fiatBalance.format(fiatSymbol)
+            fiatBalance.text = state.fiatBalance.format(fiatCurrency)
             cryptoBalance.text = state.accountBalance?.total.format(state.currency)
 
-            price.text = state.accountBalance?.exchangeRate?.price().format(fiatSymbol)
+            price.text = state.accountBalance?.exchangeRate?.price.format(fiatCurrency)
 
             priceDelta.asDeltaPercent(state.priceDelta)
             priceDeltaInterval.text = context.getString(R.string.asset_card_rate_period)

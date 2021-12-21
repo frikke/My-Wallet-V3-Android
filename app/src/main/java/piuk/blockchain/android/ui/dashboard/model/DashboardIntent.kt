@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.payments.model.FundsLocks
@@ -57,7 +58,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState {
             val fiatState = FiatAssetState(
                 fiatAssetList.associateBy(
-                    keySelector = { it.fiatCurrency },
+                    keySelector = { it.currency },
                     valueTransform = { FiatBalanceInfo(it) }
                 )
             )
@@ -151,7 +152,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             val oldFiatValues = oldState.fiatAssets
             return oldState.copy(
                 fiatAssets = oldFiatValues.updateWith(
-                    balance.currencyCode,
+                    balance.currency,
                     balance as FiatValue,
                     fiatBalance as FiatValue,
                     balanceAvailable
@@ -352,13 +353,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class UpdateSelectedCryptoAccount(
-        private val singleAccount: SingleAccount,
-        private val asset: AssetInfo
+        private val cryptoAccount: CryptoAccount
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
-                selectedCryptoAccount = singleAccount,
-                selectedAsset = asset
+                selectedCryptoAccount = cryptoAccount,
+                selectedAsset = cryptoAccount.currency
             )
     }
 

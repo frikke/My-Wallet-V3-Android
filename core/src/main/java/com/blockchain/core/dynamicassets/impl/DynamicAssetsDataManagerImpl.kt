@@ -6,10 +6,10 @@ import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.dynamicassets.CryptoAssetList
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.FiatAssetList
-import com.blockchain.core.dynamicassets.FiatInfo
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 
 internal class DynamicAssetsDataManagerImpl(
@@ -30,7 +30,7 @@ internal class DynamicAssetsDataManagerImpl(
 
     override fun availableFiatAssets(): Single<FiatAssetList> =
         discoveryService.getFiatAssets()
-            .map { list -> list.map { it.toFiatInfo() } }
+            .map { list -> list.map { it.toFiatCurrency() } }
 }
 
 private fun DynamicAsset.hasSupport() =
@@ -111,9 +111,5 @@ private val colourLookup = mapOf(
     "BAT" to "#FF4724"
 )
 
-private fun DynamicAsset.toFiatInfo(): FiatInfo =
-    FiatInfo(
-        name = assetName,
-        displayTicker = displayTicker,
-        networkTicker = networkTicker
-    )
+private fun DynamicAsset.toFiatCurrency(): FiatCurrency =
+    FiatCurrency.fromCurrencyCode(this.networkTicker)

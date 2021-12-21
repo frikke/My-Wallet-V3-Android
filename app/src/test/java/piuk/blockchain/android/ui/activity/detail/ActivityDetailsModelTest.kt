@@ -16,6 +16,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -24,7 +25,7 @@ import java.util.Date
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.activity.CryptoActivityType
+import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class ActivityDetailsModelTest {
@@ -40,7 +41,7 @@ class ActivityDetailsModelTest {
         override val timeStampMs: Long = 1L,
         override val value: CryptoValue = mock(),
         override val transactionType: TransactionSummary.TransactionType = TransactionSummary.TransactionType.SENT,
-        override val fee: Observable<CryptoValue> = mock(),
+        override val fee: Observable<Money> = mock(),
         override val inputsMap: Map<String, CryptoValue> = mock(),
         override val outputsMap: Map<String, CryptoValue> = mock(),
         override val description: String? = "desc",
@@ -101,7 +102,7 @@ class ActivityDetailsModelTest {
         val txId = "123455"
         whenever(interactor.getNonCustodialActivityDetails(crypto, txId)).thenReturn(item)
 
-        model.process(LoadActivityDetailsIntent(crypto, txId, CryptoActivityType.NON_CUSTODIAL))
+        model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.NON_CUSTODIAL))
 
         verify(interactor).getNonCustodialActivityDetails(crypto, txId)
     }
@@ -115,7 +116,7 @@ class ActivityDetailsModelTest {
             Single.just(emptyList())
         )
 
-        model.process(LoadActivityDetailsIntent(crypto, txId, CryptoActivityType.CUSTODIAL_TRADING))
+        model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.CUSTODIAL_TRADING))
 
         verify(interactor).getCustodialTradingActivityDetails(crypto, txId)
     }
@@ -129,7 +130,7 @@ class ActivityDetailsModelTest {
             Single.just(emptyList())
         )
 
-        model.process(LoadActivityDetailsIntent(crypto, txId, CryptoActivityType.CUSTODIAL_INTEREST))
+        model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.CUSTODIAL_INTEREST))
 
         verify(interactor).getCustodialInterestActivityDetails(crypto, txId)
     }
@@ -199,7 +200,7 @@ class ActivityDetailsModelTest {
         whenever(interactor.getNonCustodialActivityDetails(crypto, txId)).thenReturn(null)
 
         val testObserver = model.state.test()
-        model.process(LoadActivityDetailsIntent(crypto, txId, CryptoActivityType.NON_CUSTODIAL))
+        model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.NON_CUSTODIAL))
 
         testObserver.assertValueAt(0, state)
         testObserver.assertValueAt(1, state.copy(isError = true))
@@ -212,7 +213,7 @@ class ActivityDetailsModelTest {
         whenever(interactor.getCustodialTradingActivityDetails(crypto, txId)).thenReturn(null)
 
         val testObserver = model.state.test()
-        model.process(LoadActivityDetailsIntent(crypto, txId, CryptoActivityType.CUSTODIAL_TRADING))
+        model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.CUSTODIAL_TRADING))
 
         testObserver.assertValueAt(0, state)
         testObserver.assertValueAt(1, state.copy(isError = true))
@@ -225,7 +226,7 @@ class ActivityDetailsModelTest {
         whenever(interactor.getCustodialInterestActivityDetails(crypto, txId)).thenReturn(null)
 
         val testObserver = model.state.test()
-        model.process(LoadActivityDetailsIntent(crypto, txId, CryptoActivityType.CUSTODIAL_INTEREST))
+        model.process(LoadActivityDetailsIntent(crypto, txId, ActivityType.CUSTODIAL_INTEREST))
 
         testObserver.assertValueAt(0, state)
         testObserver.assertValueAt(1, state.copy(isError = true))

@@ -5,10 +5,13 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
+import com.blockchain.nabu.models.responses.nabu.Limits
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
-import com.blockchain.nabu.models.responses.nabu.TierResponse
+import com.blockchain.nabu.models.responses.nabu.Tier
+import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
@@ -86,7 +89,7 @@ class AnnouncementQueriesTest {
     fun `asset ticker raw json returns known ticker`() {
         whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER))
             .thenReturn(Single.just(CryptoCurrency.BTC.networkTicker))
-        whenever(assetCatalogue.fromNetworkTicker(CryptoCurrency.BTC.networkTicker))
+        whenever(assetCatalogue.assetInfoFromNetworkTicker(CryptoCurrency.BTC.networkTicker))
             .thenReturn(CryptoCurrency.BTC)
 
         subject.getAssetFromCatalogue().test().assertValue(CryptoCurrency.BTC)
@@ -98,24 +101,23 @@ class AnnouncementQueriesTest {
         whenever(tierService.tiers()).thenReturn(
             Single.just(
                 KycTiers(
-                    listOf(
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.None,
-                            sampleLimits
-                        ),
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.Verified,
-                            sampleLimits
-                        ),
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.None,
-                            sampleLimits
+                    Tiers(
+                        mapOf(
+                            KycTierLevel.BRONZE to
+                                Tier(
+                                    KycTierState.None,
+                                    Limits(null, null)
+                                ),
+                            KycTierLevel.SILVER to
+                                Tier(
+                                    KycTierState.Verified,
+                                    Limits(null, null)
+                                ),
+                            KycTierLevel.GOLD to
+                                Tier(
+                                    KycTierState.None,
+                                    Limits(null, null)
+                                )
                         )
                     )
                 )
@@ -134,24 +136,23 @@ class AnnouncementQueriesTest {
         whenever(tierService.tiers()).thenReturn(
             Single.just(
                 KycTiers(
-                    listOf(
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.None,
-                            sampleLimits
-                        ),
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.Verified,
-                            sampleLimits
-                        ),
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.Verified,
-                            sampleLimits
+                    Tiers(
+                        mapOf(
+                            KycTierLevel.BRONZE to
+                                Tier(
+                                    KycTierState.None,
+                                    Limits(null, null)
+                                ),
+                            KycTierLevel.SILVER to
+                                Tier(
+                                    KycTierState.Verified,
+                                    Limits(null, null)
+                                ),
+                            KycTierLevel.GOLD to
+                                Tier(
+                                    KycTierState.Verified,
+                                    Limits(null, null)
+                                )
                         )
                     )
                 )
@@ -170,25 +171,25 @@ class AnnouncementQueriesTest {
         whenever(tierService.tiers()).thenReturn(
             Single.just(
                 KycTiers(
-                    listOf(
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.None,
-                            sampleLimits
-                        ),
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.None,
-                            sampleLimits
-                        ),
-                        TierResponse(
-                            0,
-                            "",
-                            KycTierState.None,
-                            sampleLimits
+                    Tiers(
+                        mapOf(
+                            KycTierLevel.BRONZE to
+                                Tier(
+                                    KycTierState.None,
+                                    Limits(null, null)
+                                ),
+                            KycTierLevel.SILVER to
+                                Tier(
+                                    KycTierState.None,
+                                    Limits(null, null)
+                                ),
+                            KycTierLevel.GOLD to
+                                Tier(
+                                    KycTierState.None,
+                                    Limits(null, null)
+                                )
                         )
+
                     )
                 )
             )

@@ -4,9 +4,7 @@ import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.PriceTier
 import info.blockchain.balance.Money
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.math.RoundingMode
-import java.util.Currency
 
 class PricesInterpolator(
     private val interpolator: Interpolator = LinearInterpolator(),
@@ -17,8 +15,8 @@ class PricesInterpolator(
         this.add(
             index = 0,
             element = PriceTier(
-                pair.toSourceMoney(BigInteger.ZERO),
-                pair.toSourceMoney(BigInteger.ZERO)
+                Money.zero(pair.source),
+                Money.zero(pair.source)
             )
         )
     }.toList()
@@ -35,24 +33,18 @@ class PricesInterpolator(
                 if (index == 0) {
                     return nextTier.price
                 }
-                return pair.toDestinationMoney(
+                return Money.fromMajor(
+                    pair.destination,
                     interpolator.interpolate(
                         listOf(priceTier.volume.toBigDecimal(), nextTier.volume.toBigDecimal()),
                         listOf(priceTier.price.toBigDecimal(), nextTier.price.toBigDecimal()),
                         amount.toBigDecimal(),
-                        when (pair) {
-                            is CurrencyPair.CryptoCurrencyPair -> pair.destination.precisionDp
-                            is CurrencyPair.CryptoToFiatCurrencyPair ->
-                                Currency.getInstance(pair.destination).defaultFractionDigits
-                            is CurrencyPair.FiatToCryptoCurrencyPair -> throw IllegalArgumentException(
-                                "Quote is not supported from fiat->crypto"
-                            )
-                        }
+                        pair.destination.precisionDp
                     )
                 )
             }
         }
-        return pair.toDestinationMoney(BigInteger.ZERO)
+        return Money.zero(pair.destination)
     }
 }
 

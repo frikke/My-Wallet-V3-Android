@@ -12,6 +12,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
@@ -31,7 +32,7 @@ class FiatAsset(
             AssetFilter.Interest -> Maybe.empty() // Only support single accounts
         }
 
-    private fun setSelectedFiatFirst(fiatList: List<String>): List<String> {
+    private fun setSelectedFiatFirst(fiatList: List<FiatCurrency>): List<FiatCurrency> {
         val fiatMutableList = fiatList.toMutableList()
         if (fiatMutableList.first() != currencyPrefs.selectedFiatCurrency) {
             fiatMutableList.firstOrNull { it == currencyPrefs.selectedFiatCurrency }?.let {
@@ -61,13 +62,13 @@ class FiatAsset(
                 }
             }
 
-    private val accounts = mutableMapOf<String, FiatAccount>()
+    private val accounts = mutableMapOf<FiatCurrency, FiatAccount>()
 
-    private fun getAccount(fiatCurrency: String): FiatAccount =
+    private fun getAccount(fiatCurrency: FiatCurrency): FiatAccount =
         accounts.getOrPut(fiatCurrency) {
             FiatCustodialAccount(
                 label = labels.getDefaultCustodialFiatWalletLabel(fiatCurrency),
-                fiatCurrency = fiatCurrency,
+                currency = fiatCurrency,
                 tradingBalanceDataManager = tradingBalanceDataManager,
                 exchangesRates = exchangeRateDataManager,
                 custodialWalletManager = custodialWalletManager

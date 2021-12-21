@@ -4,6 +4,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -80,7 +81,7 @@ class DashboardOnboardingModel(
             .onErrorReturn { DashboardOnboardingIntent.FetchFailed(it) }
 
     private fun fetchEligiblePaymentMethodsAndNavigateToAddPaymentMethod(
-        tradingCurrency: String
+        tradingCurrency: FiatCurrency
     ): Single<DashboardOnboardingIntent> = interactor.getEligiblePaymentMethods(tradingCurrency)
         .map {
             val paymentMethods = it.filter { it is UndefinedPaymentMethod }

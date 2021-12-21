@@ -85,7 +85,7 @@ class SwapInfoHeaderView @JvmOverloads constructor(
                 targetIcon.indicator?.let {
                     receivingAccountIcon.apply {
                         visible()
-                        setAssetIconColoursNoTint(account.asset)
+                        setAssetIconColoursNoTint(account.currency)
                         setImageResource(it)
                     }
                 }

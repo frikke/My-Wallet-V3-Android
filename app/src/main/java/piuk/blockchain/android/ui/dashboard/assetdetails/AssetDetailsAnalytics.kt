@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import com.blockchain.notifications.analytics.AnalyticsEvent
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 
 enum class AssetDetailsAnalytics(
     override val event: String,
@@ -19,7 +19,7 @@ enum class AssetDetailsAnalytics(
     FIAT_ACTIVITY_CLICKED("cash_wallet_activity_clicked")
 }
 
-fun assetActionEvent(event: AssetDetailsAnalytics, asset: AssetInfo): AnalyticsEvent =
+fun assetActionEvent(event: AssetDetailsAnalytics, asset: Currency): AnalyticsEvent =
     object : AnalyticsEvent {
         override val event: String = event.event
         override val params: Map<String, String> = mapOf(

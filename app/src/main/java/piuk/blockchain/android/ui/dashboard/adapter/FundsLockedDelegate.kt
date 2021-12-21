@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.dashboard.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import piuk.blockchain.android.databinding.FundsLockedSummaryItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.model.Locks
@@ -41,7 +41,7 @@ private class FundsLockedViewHolder(
             )
             with(binding) {
                 val amount = locks.fundsLocks.onHoldTotalAmount
-                val total = if (amount.isPositive) amount else FiatValue.zero(amount.currencyCode)
+                val total = if (amount.isPositive) amount else Money.zero(amount.currency)
                 root.apply {
                     visible()
                     setOnClickListener { onHoldAmountClicked(locks) }

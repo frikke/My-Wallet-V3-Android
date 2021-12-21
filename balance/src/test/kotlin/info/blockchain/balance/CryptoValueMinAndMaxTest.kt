@@ -1,5 +1,8 @@
 package info.blockchain.balance
 
+import com.blockchain.testutils.ether
+import com.blockchain.testutils.satoshi
+import com.blockchain.testutils.satoshiCash
 import info.blockchain.balance.Money.Companion.max
 import info.blockchain.balance.Money.Companion.min
 import org.amshove.kluent.`should be`

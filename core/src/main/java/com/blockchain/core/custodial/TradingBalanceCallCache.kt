@@ -6,14 +6,12 @@ import com.blockchain.api.services.TradingBalanceList
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.caching.TimedCacheRequest
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 internal class TradingBalanceRecord(
-    val cryptoBalances: Map<AssetInfo, TradingAccountBalance> = emptyMap(),
-    val fiatBalances: Map<String, TradingAccountBalance> = emptyMap()
+    val balances: Map<Currency, TradingAccountBalance> = emptyMap()
 )
 
 internal class TradingBalanceCallCache(
@@ -30,16 +28,9 @@ internal class TradingBalanceCallCache(
 
     private fun buildRecordMap(balanceList: TradingBalanceList): TradingBalanceRecord =
         TradingBalanceRecord(
-            cryptoBalances = balanceList.mapNotNull { balance ->
-                assetCatalogue.fromNetworkTicker(balance.assetTicker)?.let { assetInfo ->
-                    assetInfo to balance.toCryptoTradingAccountBalance(assetInfo)
-                }
-            }.toMap(),
-            fiatBalances = balanceList.mapNotNull { balance ->
-                if (assetCatalogue.isFiatTicker(balance.assetTicker)) {
-                    balance.assetTicker to balance.toFiatTradingAccountBalance(balance.assetTicker)
-                } else {
-                    null
+            balances = balanceList.mapNotNull { balance ->
+                assetCatalogue.fromNetworkTicker(balance.assetTicker)?.let { currency ->
+                    currency to balance.toTradingAccountBalance(currency)
                 }
             }.toMap()
         )
@@ -57,18 +48,10 @@ internal class TradingBalanceCallCache(
     }
 }
 
-private fun TradingBalance.toCryptoTradingAccountBalance(assetInfo: AssetInfo) =
+private fun TradingBalance.toTradingAccountBalance(currency: Currency) =
     TradingAccountBalance(
-        total = CryptoValue.fromMinor(assetInfo, total),
-        actionable = CryptoValue.fromMinor(assetInfo, actionable),
-        pending = CryptoValue.fromMinor(assetInfo, pending),
-        hasTransactions = true
-    )
-
-private fun TradingBalance.toFiatTradingAccountBalance(fiatSymbol: String) =
-    TradingAccountBalance(
-        total = FiatValue.fromMinor(fiatSymbol, total.toLong()),
-        actionable = FiatValue.fromMinor(fiatSymbol, actionable.toLong()),
-        pending = FiatValue.fromMinor(fiatSymbol, pending.toLong()),
+        total = Money.fromMinor(currency, total),
+        withdrawable = Money.fromMinor(currency, withdrawable),
+        pending = Money.fromMinor(currency, pending),
         hasTransactions = true
     )

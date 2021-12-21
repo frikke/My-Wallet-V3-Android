@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
-import java.util.Currency
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.FiatCurrency
 import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -23,25 +23,25 @@ class SimpleBuySelectCurrencyFragment :
     }
 
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val assetCatalogue: AssetCatalogue by inject()
 
-    private val currencies: List<String> by unsafeLazy {
-        arguments?.getStringArrayList(CURRENCIES_KEY) ?: emptyList()
+    private val currencies: List<FiatCurrency> by unsafeLazy {
+        arguments?.getStringArrayList(CURRENCIES_KEY)?.mapNotNull {
+            assetCatalogue.fiatFromNetworkTicker(it)
+        } ?: emptyList()
     }
 
-    private val selectedCurrency: String by unsafeLazy {
-        arguments?.getString(SELECTED_CURRENCY).orEmpty()
+    private val selectedCurrency: FiatCurrency by unsafeLazy {
+        arguments?.getSerializable(SELECTED_CURRENCY) as FiatCurrency
     }
-
-    // show all currencies if passed list is empty
-    private var filter: (CurrencyItem) -> Boolean =
-        { if (currencies.isEmpty()) true else currencies.contains(it.symbol) }
 
     private val adapter = CurrenciesAdapter(true) {
         updateFiat(it)
     }
 
     private fun updateFiat(it: CurrencyItem) {
-        currencyPrefs.tradingCurrency = it.symbol
+        currencyPrefs.tradingCurrency =
+            assetCatalogue.fiatFromNetworkTicker(it.symbol) ?: throw IllegalStateException("Unknown fiat currency")
         (host as? Host)?.onCurrencyChanged()
         dismiss()
     }
@@ -56,17 +56,17 @@ class SimpleBuySelectCurrencyFragment :
         analytics.logEvent(SimpleBuyAnalytics.SELECT_YOUR_CURRENCY_SHOWN)
         with(binding) {
             introHeaderDescription.text = getString(
-                R.string.currency_not_available, Currency.getInstance(selectedCurrency).getDisplayName(locale)
+                R.string.currency_not_available, selectedCurrency.name
             )
             recycler.layoutManager = LinearLayoutManager(activity)
             recycler.adapter = adapter
+            adapter.items = currencies.map { currency ->
+                CurrencyItem(
+                    name = currency.name,
+                    symbol = currency.symbol
+                )
+            }.sortedWith(compareBy { it.name })
         }
-        adapter.items = UNIT_FIAT.map { symbol ->
-            CurrencyItem(
-                name = Currency.getInstance(symbol).getDisplayName(locale),
-                symbol = symbol
-            )
-        }.sortedWith(compareBy { it.name }).filter(filter)
     }
 
     private val locale = Locale.getDefault()
@@ -75,11 +75,6 @@ class SimpleBuySelectCurrencyFragment :
         ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
 
     override fun onBackPressed(): Boolean = true
-
-    override fun needsToChange() {
-        analytics.logEvent(SimpleBuyAnalytics.CURRENCY_NOT_SUPPORTED_CHANGE)
-        adapter.items = adapter.items.filter(filter)
-    }
 
     override fun skip() {
         analytics.logEvent(SimpleBuyAnalytics.CURRENCY_NOT_SUPPORTED_SKIP)
@@ -90,13 +85,13 @@ class SimpleBuySelectCurrencyFragment :
         private const val CURRENCIES_KEY = "CURRENCIES_KEY"
         private const val SELECTED_CURRENCY = "SELECTED_CURRENCY"
         fun newInstance(
-            currencies: List<String> = emptyList(),
-            selectedCurrency: String
+            currencies: List<FiatCurrency> = emptyList(),
+            selectedCurrency: FiatCurrency
         ): SimpleBuySelectCurrencyFragment {
             return SimpleBuySelectCurrencyFragment().apply {
                 arguments = Bundle().apply {
-                    putStringArrayList(CURRENCIES_KEY, ArrayList(currencies))
-                    putString(SELECTED_CURRENCY, selectedCurrency)
+                    putStringArrayList(CURRENCIES_KEY, ArrayList(currencies.map { it.networkTicker }))
+                    putSerializable(SELECTED_CURRENCY, selectedCurrency)
                 }
             }
         }
@@ -109,6 +104,5 @@ data class CurrencyItem(
 )
 
 interface ChangeCurrencyOptionHost : SimpleBuyScreen {
-    fun needsToChange()
     fun skip()
 }

@@ -34,20 +34,14 @@ private object FiatFormat {
     }
 }
 
-// TODO: AND-1363 Remove suppress, possibly by implementing equals manually as copy is not needed
-@Suppress("DataClassPrivateConstructor")
-data class FiatValue private constructor(
-    override val currencyCode: String,
+class FiatValue private constructor(
+    override val currency: FiatCurrency,
     private val amount: BigDecimal
 ) : Money() {
 
     // ALWAYS for display, so use default Locale
     override val symbol: String =
-        try {
-            Currency.getInstance(currencyCode).getSymbol(Locale.getDefault())
-        } catch (t: IllegalArgumentException) {
-            throw IllegalArgumentException("${t.message} (currency=$currencyCode)")
-        }
+        currency.symbol
 
     override val maxDecimalPlaces: Int get() = maxDecimalPlaces(currencyCode)
 
@@ -62,9 +56,6 @@ data class FiatValue private constructor(
 
     override fun toFloat(): Float =
         toBigDecimal().toFloat()
-
-    @Deprecated(message = "Tech Debt", replaceWith = ReplaceWith("toBigInteger"))
-    val valueMinor: Long = amount.movePointRight(maxDecimalPlaces).toLong()
 
     override fun toStringWithSymbol(): String =
         FiatFormat[Key(Locale.getDefault(), currencyCode, includeSymbol = true)].format(amount)
@@ -82,17 +73,17 @@ data class FiatValue private constructor(
 
     override fun add(other: Money): FiatValue {
         require(other is FiatValue)
-        return FiatValue(currencyCode, amount + other.amount)
+        return FiatValue(currency, amount + other.amount)
     }
 
     override fun subtract(other: Money): FiatValue {
         require(other is FiatValue)
-        return FiatValue(currencyCode, amount - other.amount)
+        return FiatValue(currency, amount - other.amount)
     }
 
     override fun division(other: Money): Money {
         require(other is FiatValue)
-        return FiatValue(currencyCode, amount / other.amount)
+        return FiatValue(currency, amount / other.amount)
     }
 
     override fun compare(other: Money): Int {
@@ -110,7 +101,7 @@ data class FiatValue private constructor(
         }
     }
 
-    override fun toZero(): FiatValue = fromMajor(currencyCode, BigDecimal.ZERO)
+    override fun toZero(): FiatValue = fromMajor(currency, BigDecimal.ZERO)
 
     override fun equals(other: Any?): Boolean =
         (other is FiatValue) && (other.currencyCode == currencyCode) && (other.amount.compareTo(amount) == 0)
@@ -123,29 +114,29 @@ data class FiatValue private constructor(
 
     companion object {
 
-        fun fromMinor(currencyCode: String, minor: Long) =
+        fun fromMinor(fiatCurrency: FiatCurrency, minor: BigInteger) =
             fromMajor(
-                currencyCode,
-                BigDecimal.valueOf(minor).movePointLeft(maxDecimalPlaces(currencyCode))
+                fiatCurrency,
+                BigDecimal.valueOf(minor.toLong()).movePointLeft(fiatCurrency.precisionDp)
             )
 
         @JvmStatic
-        fun fromMajor(currencyCode: String, major: BigDecimal, round: Boolean = true) =
+        fun fromMajor(fiatCurrency: FiatCurrency, major: BigDecimal, round: Boolean = true) =
             FiatValue(
-                currencyCode,
+                fiatCurrency,
                 if (round) major.setScale(
-                    maxDecimalPlaces(currencyCode),
+                    fiatCurrency.precisionDp,
                     RoundingMode.DOWN
                 ) else major
             )
 
-        fun fromMajorOrZero(currencyCode: String, major: String, locale: Locale = Locale.getDefault()) =
+        fun fromMajorOrZero(fiatCurrency: FiatCurrency, major: String, locale: Locale = Locale.getDefault()) =
             fromMajor(
-                currencyCode,
+                fiatCurrency,
                 major.tryParseBigDecimal(locale) ?: BigDecimal.ZERO
             )
 
-        fun zero(currencyCode: String) = FiatValue(currencyCode, BigDecimal.ZERO)
+        fun zero(currency: FiatCurrency) = FiatValue(currency, BigDecimal.ZERO)
 
         private fun maxDecimalPlaces(currencyCode: String) =
             Currency.getInstance(currencyCode).defaultFractionDigits

@@ -75,7 +75,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget, atLeastOnce()).asset
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -83,7 +83,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount = mock<EthCryptoWalletAccount> {
-            on { asset }.thenReturn(WRONG_ASSET)
+            on { currency }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget = mockNonContractTarget()
@@ -99,7 +99,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget).asset
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -123,7 +123,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         assertEquals(asset, ASSET)
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -158,7 +158,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(walletPreferences).getFeeTypeForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
 
@@ -214,7 +214,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
@@ -274,7 +274,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
@@ -336,7 +336,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
@@ -415,7 +415,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
@@ -495,7 +495,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
@@ -651,14 +651,14 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<EthCryptoWalletAccount> {
-        on { asset }.thenReturn(ASSET)
+        on { currency }.thenReturn(ASSET)
         on { balance }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
-                    actionable = availableBalance,
+                    withdrawable = availableBalance,
                     pending = CryptoValue.zero(CryptoCurrency.ETHER),
-                    exchangeRate = ExchangeRate.InvalidRate
+                    exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER)
                 )
             )
         )

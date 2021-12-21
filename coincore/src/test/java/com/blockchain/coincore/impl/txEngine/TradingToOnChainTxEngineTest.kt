@@ -87,7 +87,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget).asset
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -95,7 +95,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount = mock<Erc20NonCustodialAccount> {
-            on { asset }.thenReturn(WRONG_ASSET)
+            on { currency }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -113,7 +113,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget).asset
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -137,7 +137,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         assertEquals(asset, ASSET)
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -183,12 +183,12 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(walletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY)
         verify(limitsDataManager).getLimits(
-            outputCurrency = eq(ASSET.networkTicker),
-            sourceCurrency = eq(ASSET.networkTicker),
-            targetCurrency = eq(ASSET.networkTicker),
+            outputCurrency = eq(ASSET),
+            sourceCurrency = eq(ASSET),
+            targetCurrency = eq(ASSET),
             sourceAccountType = eq(AssetCategory.CUSTODIAL),
             targetAccountType = eq(AssetCategory.NON_CUSTODIAL),
             legacyLimits = any()
@@ -244,7 +244,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             .assertComplete()
             .assertNoErrors()
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
     }
 
@@ -410,15 +410,15 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
         val accountBalance = AccountBalance(
             total = totalBalance,
             pending = 0.testValue(),
-            actionable = actionable,
-            exchangeRate = ExchangeRate.CryptoToFiat(
+            withdrawable = actionable,
+            exchangeRate = ExchangeRate(
                 from = TEST_ASSET,
                 to = TEST_USER_FIAT,
                 rate = 1.2.toBigDecimal()
             )
         )
         return mock {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
             on { balance }.thenReturn(
                 Observable.just(
                     accountBalance

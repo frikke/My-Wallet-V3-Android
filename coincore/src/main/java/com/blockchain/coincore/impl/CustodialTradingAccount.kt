@@ -35,6 +35,9 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
+import info.blockchain.balance.asFiatCurrencyOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -42,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.utils.extensions.mapList
 
 class CustodialTradingAccount(
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
     val custodialWalletManager: CustodialWalletManager,
@@ -58,9 +61,9 @@ class CustodialTradingAccount(
     private val hasFunds = AtomicBoolean(false)
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = custodialWalletManager.getCustodialAccountAddress(asset).map {
+        get() = custodialWalletManager.getCustodialAccountAddress(currency).map {
             makeExternalAssetAddress(
-                asset = asset,
+                asset = currency,
                 address = it,
                 label = label,
                 postTransactions = onTxCompleted
@@ -88,28 +91,32 @@ class CustodialTradingAccount(
         Single.just(false)
 
     override fun matches(other: CryptoAccount): Boolean =
-        other is CustodialTradingAccount && other.asset == asset
+        other is CustodialTradingAccount && other.currency == currency
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
-            tradingBalances.getBalanceForAsset(asset),
-            exchangeRates.cryptoToUserFiatRate(asset)
+            tradingBalances.getBalanceForCurrency(currency),
+            exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             setHasTransactions(balance.hasTransactions)
             AccountBalance.from(balance, rate)
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>
-        get() = custodialWalletManager.getAllOrdersFor(asset)
+        get() = custodialWalletManager.getAllOrdersFor(currency)
             .mapList { orderToSummary(it) }
             .flatMap { buySellList ->
-                appendTradeActivity(custodialWalletManager, asset, buySellList)
+                println("XXX AFTER MAPPING $buySellList ${currency.networkTicker}")
+                appendTradeActivity(custodialWalletManager, currency, buySellList)
             }
             .flatMap {
-                appendTransferActivity(custodialWalletManager, asset, it)
+                appendTransferActivity(custodialWalletManager, currency, it)
             }.filterActivityStates()
             .doOnSuccess { setHasTransactions(it.isNotEmpty()) }
-            .onErrorReturn { emptyList() }
+            .onErrorReturn {
+                println("XXX $it")
+                emptyList()
+            }
 
     override val isFunded: Boolean
         get() = hasFunds.get()
@@ -118,13 +125,10 @@ class CustodialTradingAccount(
         false // Default is, presently, only ever a non-custodial account.
 
     override val sourceState: Single<TxSourceState>
-        get() = Single.zip(
-            accountBalance,
-            actionableBalance
-        ) { total, actionable ->
+        get() = balance.firstOrError().map { balance ->
             when {
-                total <= CryptoValue.zero(asset) -> TxSourceState.NO_FUNDS
-                actionable <= CryptoValue.zero(asset) -> TxSourceState.FUNDS_LOCKED
+                balance.total <= Money.zero(currency) -> TxSourceState.NO_FUNDS
+                balance.withdrawable <= Money.zero(currency) -> TxSourceState.FUNDS_LOCKED
                 else -> TxSourceState.CAN_TRANSACT
             }
         }
@@ -135,7 +139,7 @@ class CustodialTradingAccount(
                 balance.firstOrError(),
                 identity.userAccessForFeature(Feature.CustodialAccounts),
                 identity.userAccessForFeature(Feature.SimpleBuy),
-                identity.isEligibleFor(Feature.Interest(asset)),
+                identity.isEligibleFor(Feature.Interest(currency)),
                 custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
             ) { balance, hasAccessToCustodialAccounts, hasSimpleBuyAccess, isEligibleForInterest, fiatAccounts ->
                 val isActiveFunded = !isArchived && balance.total.isPositive
@@ -151,7 +155,7 @@ class CustodialTradingAccount(
                 }
 
                 val send = AssetAction.Send.takeEnabledIf(baseActions) {
-                    isActiveFunded && balance.actionable.isPositive
+                    isActiveFunded && balance.withdrawable.isPositive
                 }
 
                 val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
@@ -177,7 +181,7 @@ class CustodialTradingAccount(
         custodialWalletManager: CustodialWalletManager,
         asset: AssetInfo,
         summaryList: List<ActivitySummaryItem>
-    ) = custodialWalletManager.getCustodialCryptoTransactions(asset.networkTicker, Product.BUY)
+    ) = custodialWalletManager.getCustodialCryptoTransactions(asset, Product.BUY)
         .map { txs ->
             txs.map {
                 it.toSummaryItem()
@@ -186,7 +190,7 @@ class CustodialTradingAccount(
 
     private fun CryptoTransaction.toSummaryItem() =
         CustodialTransferActivitySummaryItem(
-            asset = asset,
+            asset = this@CustodialTradingAccount.currency,
             exchangeRates = exchangeRates,
             txId = id,
             timeStampMs = date.time,
@@ -206,13 +210,13 @@ class CustodialTradingAccount(
             OrderType.RECURRING_BUY -> {
                 RecurringBuyActivitySummaryItem(
                     exchangeRates = exchangeRates,
-                    asset = order.crypto.currency,
-                    value = order.crypto,
-                    fundedFiat = order.fiat,
+                    asset = order.target.currency.asAssetInfoOrThrow(),
+                    value = order.target,
+                    fundedFiat = order.source,
                     txId = order.id,
                     timeStampMs = order.created.time,
                     transactionState = order.state,
-                    fee = order.fee ?: FiatValue.zero(order.fiat.currencyCode),
+                    fee = (order.fee ?: Money.zero(order.source.currency)),
                     account = this,
                     type = order.type,
                     paymentMethodId = order.paymentMethodId,
@@ -224,14 +228,14 @@ class CustodialTradingAccount(
             OrderType.BUY -> {
                 CustodialTradingActivitySummaryItem(
                     exchangeRates = exchangeRates,
-                    asset = order.crypto.currency,
-                    value = order.crypto,
-                    fundedFiat = order.fiat,
+                    asset = order.target.currency.asAssetInfoOrThrow(),
+                    value = order.target,
+                    fundedFiat = order.source,
                     price = order.price,
                     txId = order.id,
                     timeStampMs = order.created.time,
                     status = order.state,
-                    fee = order.fee ?: FiatValue.zero(order.fiat.currencyCode),
+                    fee = (order.fee ?: Money.zero(order.source.currency)),
                     account = this,
                     type = order.type,
                     paymentMethodId = order.paymentMethodId,
@@ -239,12 +243,12 @@ class CustodialTradingAccount(
                     depositPaymentId = order.depositPaymentId
                 )
             }
-            else -> {
+            OrderType.SELL -> {
                 TradeActivitySummaryItem(
                     exchangeRates = exchangeRates,
                     txId = order.id,
                     timeStampMs = order.created.time,
-                    sendingValue = order.crypto,
+                    sendingValue = order.target,
                     price = order.price,
                     sendingAccount = this,
                     sendingAddress = null,
@@ -254,13 +258,13 @@ class CustodialTradingAccount(
                     receivingValue = order.orderValue ?: throw IllegalStateException(
                         "Order missing receivingValue"
                     ),
-                    depositNetworkFee = Single.just(CryptoValue.zero(order.crypto.currency)),
-                    withdrawalNetworkFee = order.fee ?: FiatValue.zero(order.fiat.currencyCode),
-                    currencyPair = CurrencyPair.CryptoToFiatCurrencyPair(
-                        order.crypto.currency, order.fiat.currencyCode
+                    depositNetworkFee = Single.just(Money.zero(order.target.currency)),
+                    withdrawalNetworkFee = order.fee ?: Money.zero(order.source.currency),
+                    currencyPair = CurrencyPair(
+                        order.source.currency, order.target.currency
                     ),
-                    fiatValue = order.fiat,
-                    fiatCurrency = order.fiat.currencyCode
+                    fiatValue = order.target,
+                    fiatCurrency = order.target.currency.asFiatCurrencyOrThrow()
                 )
             }
         }

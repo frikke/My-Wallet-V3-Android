@@ -118,7 +118,7 @@ class ReceiveFragment : MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, F
                 analytics.logEvent(
                     TransferAnalyticsEvent.ReceiveAccountSelected(
                         TxFlowAnalyticsAccountType.fromAccount(account),
-                        account.asset
+                        account.currency
                     )
                 )
             }

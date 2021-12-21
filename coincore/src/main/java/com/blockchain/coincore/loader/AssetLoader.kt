@@ -4,7 +4,6 @@ import com.blockchain.coincore.CryptoAsset
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 
-// TODO this will change to support both fiat and crypto, when we have a common interface/class for both
 interface AssetLoader {
     fun initAndPreload(): Completable
     // The assets which have balances and/or transaction history. This list is used for displaying content on the

@@ -10,7 +10,8 @@ import com.blockchain.core.payments.model.PaymentMethodDetailsError
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.mapLeft
 import com.blockchain.utils.toZonedDateTime
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.await
 
@@ -19,7 +20,7 @@ interface PaymentsDataManager {
         paymentId: String
     ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails>
 
-    fun getWithdrawalLocks(localCurrency: String): Single<FundsLocks>
+    fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks>
 }
 class PaymentsDataManagerImpl(
     private val paymentsService: PaymentsService,
@@ -40,15 +41,15 @@ class PaymentsDataManagerImpl(
         }
     }
 
-    override fun getWithdrawalLocks(localCurrency: String): Single<FundsLocks> =
+    override fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
         authenticator.getAuthHeader().flatMap {
-            paymentsService.getWithdrawalLocks(it, localCurrency)
+            paymentsService.getWithdrawalLocks(it, localCurrency.networkTicker)
                 .map { locks ->
                     FundsLocks(
-                        onHoldTotalAmount = FiatValue.fromMinor(locks.currency, locks.value.toLong()),
+                        onHoldTotalAmount = Money.fromMinor(localCurrency, locks.value.toBigInteger()),
                         locks = locks.locks.map { lock ->
                             FundsLock(
-                                amount = FiatValue.fromMinor(lock.currency, lock.value.toLong()),
+                                amount = Money.fromMinor(localCurrency, locks.value.toBigInteger()),
                                 date = lock.date.toZonedDateTime()
                             )
                         }

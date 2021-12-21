@@ -483,16 +483,17 @@ class MainActivity :
                 launchOpenBankingLinking(view.bankLinkingInfo)
             }
             is ViewToLaunch.LaunchPaymentForCancelledOrder -> {
-                val currencyCode = view.state.fiatCurrency
+
                 replaceBottomSheet(
                     FiatTransactionBottomSheet.newInstance(
-                        currencyCode, getString(R.string.yapily_payment_to_fiat_wallet_title, currencyCode),
+                        view.state.fiatCurrency.displayTicker,
+                        getString(R.string.yapily_payment_to_fiat_wallet_title, view.state.fiatCurrency.displayTicker),
                         getString(
                             R.string.yapily_payment_to_fiat_wallet_subtitle,
                             view.state.selectedCryptoAsset?.displayTicker ?: getString(
                                 R.string.yapily_payment_to_fiat_wallet_default
                             ),
-                            currencyCode
+                            view.state.fiatCurrency.displayTicker
                         ),
                         FiatTransactionState.SUCCESS
                     )

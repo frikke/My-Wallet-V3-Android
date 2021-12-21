@@ -23,7 +23,7 @@ import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Completable
@@ -68,10 +68,11 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     features
 ),
     NonCustodialSupport {
-    override val asset: AssetInfo
+
+    override val assetInfo: AssetInfo
         get() = CryptoCurrency.BCH
 
-    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = true
 
     override fun initToken(): Completable =
@@ -110,7 +111,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
         Single.just(
             listOf(
                 CustodialTradingAccount(
-                    asset = asset,
+                    currency = assetInfo,
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
@@ -134,7 +135,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
         }
 
         val notify = NotificationAddresses(
-            assetTicker = asset.networkTicker,
+            assetTicker = assetInfo.networkTicker,
             addressList = result
         )
         return beNotifyUpdate.updateNotificationBackend(notify)
@@ -171,7 +172,7 @@ internal class BchAddress(
     override val address: String = address_.removeBchUri()
     override val asset: AssetInfo = CryptoCurrency.BCH
 
-    override fun toUrl(amount: CryptoValue): String {
+    override fun toUrl(amount: Money): String {
         return "$BCH_URL_PREFIX$address"
     }
 }

@@ -11,9 +11,11 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
+import info.blockchain.balance.FiatCurrency
 import java.util.Date
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LayoutFiatActivityItemBinding
+import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
@@ -23,7 +25,7 @@ import piuk.blockchain.android.util.visible
 
 class CustodialFiatActivityItemDelegate<in T>(
     private val prefs: CurrencyPrefs,
-    private val onItemClicked: (String, String) -> Unit
+    private val onItemClicked: (FiatCurrency, String, ActivityType) -> Unit
 ) : AdapterDelegate<T> {
 
     override fun isForViewType(items: List<T>, position: Int): Boolean =
@@ -49,8 +51,8 @@ private class FiatActivityItemViewHolder(
 
     fun bind(
         tx: FiatActivitySummaryItem,
-        selectedFiatCurrency: String,
-        onAccountClicked: (String, String) -> Unit
+        selectedFiatCurrency: FiatCurrency,
+        onAccountClicked: (FiatCurrency, String, ActivityType) -> Unit
     ) {
         with(binding) {
             when {
@@ -73,7 +75,7 @@ private class FiatActivityItemViewHolder(
                 assetBalanceFiatExchange.gone()
             }
 
-            txRoot.setOnClickListener { onAccountClicked(tx.currency, tx.txId) }
+            txRoot.setOnClickListener { onAccountClicked(tx.currency, tx.txId, ActivityType.UNKNOWN) }
         }
     }
 
@@ -122,9 +124,9 @@ private class FiatActivityItemViewHolder(
         this == TransactionState.COMPLETED
 }
 
-private fun AppCompatTextView.setTxLabel(currency: String, type: TransactionType) {
+private fun AppCompatTextView.setTxLabel(currency: FiatCurrency, type: TransactionType) {
     text = when (type) {
-        TransactionType.DEPOSIT -> context.getString(R.string.tx_title_deposited, currency)
-        else -> context.getString(R.string.tx_title_withdrawn, currency)
+        TransactionType.DEPOSIT -> context.getString(R.string.tx_title_deposited, currency.displayTicker)
+        else -> context.getString(R.string.tx_title_withdrawn, currency.displayTicker)
     }
 }

@@ -1,12 +1,9 @@
 package com.blockchain.coincore
 
-import com.blockchain.core.price.ExchangeRates
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
@@ -26,7 +23,7 @@ class NullCryptoAccount(
     override val isDefault: Boolean
         get() = false
 
-    override val asset: AssetInfo
+    override val currency: AssetInfo
         get() = CryptoCurrency.BTC
 
     override val sourceState: Single<TxSourceState>
@@ -34,15 +31,6 @@ class NullCryptoAccount(
 
     override val balance: Observable<AccountBalance>
         get() = Observable.error(NotImplementedError())
-
-    override val accountBalance: Single<Money>
-        get() = Single.just(CryptoValue.zero(asset))
-
-    override val actionableBalance: Single<Money>
-        get() = accountBalance
-
-    override val pendingBalance: Single<Money>
-        get() = accountBalance
 
     override val activity: Single<ActivitySummaryList>
         get() = Single.just(emptyList())
@@ -58,12 +46,6 @@ class NullCryptoAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is NullCryptoAccount
 
-    override fun fiatBalance(
-        fiatCurrency: String,
-        exchangeRates: ExchangeRates
-    ): Single<Money> =
-        Single.just(FiatValue.zero(fiatCurrency))
-
     override val isEnabled: Single<Boolean>
         get() = Single.just(true)
 
@@ -72,7 +54,8 @@ class NullCryptoAccount(
 }
 
 object NullFiatAccount : FiatAccount {
-    override val fiatCurrency: String = "NULL"
+    override val currency: FiatCurrency
+        get() = throw IllegalStateException("")
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(NullAddress)
@@ -88,12 +71,6 @@ object NullFiatAccount : FiatAccount {
     override val balance: Observable<AccountBalance>
         get() = Observable.error(NotImplementedError())
 
-    override val accountBalance: Single<Money>
-        get() = Single.just(FiatValue.zero(fiatCurrency))
-
-    override val actionableBalance: Single<Money>
-        get() = accountBalance
-
     override val activity: Single<ActivitySummaryList>
         get() = Single.just(emptyList())
 
@@ -108,12 +85,6 @@ object NullFiatAccount : FiatAccount {
         get() = Single.just(IneligibilityReason.NONE)
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
-
-    override fun fiatBalance(
-        fiatCurrency: String,
-        exchangeRates: ExchangeRates
-    ): Single<Money> =
-        Single.just(FiatValue.zero(fiatCurrency))
 }
 
 class NullAccountGroup : AccountGroup {
@@ -123,16 +94,10 @@ class NullAccountGroup : AccountGroup {
     override val label: String = ""
 
     override val balance: Observable<AccountBalance> = Observable.error(NotImplementedError())
-    override val accountBalance: Single<Money> = Single.error(NotImplementedError())
-    override val actionableBalance: Single<Money> = Single.error(NotImplementedError())
-    override val pendingBalance: Single<Money> = Single.error(NotImplementedError())
     override val activity: Single<ActivitySummaryList> = Single.just(emptyList())
     override val actions: Single<AvailableActions> = Single.just(emptySet())
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
-
-    override fun fiatBalance(fiatCurrency: String, exchangeRates: ExchangeRates): Single<Money> =
-        Single.error(NotImplementedError())
 
     override val receiveAddress: Single<ReceiveAddress> =
         Single.error(NotImplementedError())

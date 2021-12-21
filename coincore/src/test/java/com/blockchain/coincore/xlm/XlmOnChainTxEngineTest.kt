@@ -63,7 +63,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     @Test
     fun `inputs validate when correct`() {
         val sourceAccount: CryptoAccount = mock {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -81,7 +81,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget).asset
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -89,7 +89,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount: CryptoAccount = mock {
-            on { asset }.thenReturn(WRONG_ASSET)
+            on { currency }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -107,7 +107,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget).asset
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -116,7 +116,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     fun `asset is returned correctly`() {
         // Arrange
         val sourceAccount: CryptoAccount = mock {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -134,7 +134,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         assertEquals(asset, ASSET)
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -143,7 +143,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     fun `PendingTx is correctly initialised for non-exchange address`() {
         // Arrange
         val sourceAccount: CryptoAccount = mock {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
         }
 
         val txTarget: XlmAddress = mock {
@@ -152,7 +152,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             on { memo }.thenReturn(MEMO_TEXT)
         }
 
-        whenever(sourceAccount.asset).thenReturn(ASSET)
+        whenever(sourceAccount.currency).thenReturn(ASSET)
 
         subject.start(
             sourceAccount,
@@ -185,7 +185,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(txTarget).address
         verify(txTarget).memo
         verify(currencyPrefs).selectedFiatCurrency
@@ -198,7 +198,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     fun `PendingTx is correctly initialised for exchange address`() {
         // Arrange
         val sourceAccount: CryptoAccount = mock {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
         }
 
         val txTarget: XlmAddress = mock {
@@ -239,7 +239,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(txTarget).address
         verify(txTarget).memo
         verify(currencyPrefs).selectedFiatCurrency
@@ -487,14 +487,14 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
 
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<XlmCryptoWalletAccount> {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
             on { balance }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,
-                        actionable = availableBalance,
+                        withdrawable = availableBalance,
                         pending = CryptoValue.zero(ASSET),
-                        exchangeRate = ExchangeRate.InvalidRate,
+                        exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency),
 
                     )
                 )

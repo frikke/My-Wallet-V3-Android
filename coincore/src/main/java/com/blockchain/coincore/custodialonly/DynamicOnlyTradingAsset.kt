@@ -24,7 +24,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import thepit.PitLinking
 
 internal class DynamicOnlyTradingAsset(
-    override val asset: AssetInfo,
+    override val assetInfo: AssetInfo,
     payloadManager: PayloadDataManager,
     custodialManager: CustodialWalletManager,
     interestBalances: InterestBalanceDataManager,
@@ -51,7 +51,7 @@ internal class DynamicOnlyTradingAsset(
     identity,
     features
 ) {
-    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = false
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
@@ -61,7 +61,7 @@ internal class DynamicOnlyTradingAsset(
         Single.just(
             listOf(
                 CustodialTradingAccount(
-                    asset = asset,
+                    currency = assetInfo,
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
@@ -83,7 +83,7 @@ internal class DynamicOnlyTradingAsset(
                 Maybe.just(
                     DynamicCustodialAddress(
                         address = address,
-                        asset = asset
+                        asset = assetInfo as AssetInfo
                     )
                 )
             } else {

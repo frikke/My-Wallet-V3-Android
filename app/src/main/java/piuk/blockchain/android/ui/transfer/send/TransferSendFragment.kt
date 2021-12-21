@@ -80,7 +80,7 @@ class TransferSendFragment : AccountSelectorFragment() {
         analytics.logEvent(TransferAnalyticsEvent.SourceWalletSelected(account))
         analytics.logEvent(
             SendAnalyticsEvent.SendSourceAccountSelected(
-                currency = account.asset.networkTicker,
+                currency = account.currency.networkTicker,
                 fromAccountType = TxFlowAnalyticsAccountType.fromAccount(
                     account
                 )

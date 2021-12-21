@@ -12,6 +12,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
@@ -75,21 +76,21 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
 
             radioEur.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = "EUR"
+                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("EUR")
                     showToast("Currency changed to EUR")
                 }
             }
 
             radioUsd.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = "USD"
+                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("USD")
                     showToast("Currency changed to USD")
                 }
             }
 
             radioGbp.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = "GBP"
+                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("GBP")
                     showToast("Currency changed to GBP")
                 }
             }

@@ -23,7 +23,7 @@ import com.blockchain.sunriver.isValidXlmQr
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -64,10 +64,10 @@ internal class XlmAsset(
     features
 ) {
 
-    override val asset: AssetInfo
+    override val assetInfo: AssetInfo
         get() = CryptoCurrency.XLM
 
-    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = false
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
@@ -92,7 +92,7 @@ internal class XlmAsset(
         Single.just(
             listOf(
                 CustodialTradingAccount(
-                    asset = asset,
+                    currency = assetInfo,
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
@@ -156,7 +156,7 @@ internal class XlmAddress(
         return result
     }
 
-    override fun toUrl(amount: CryptoValue): String {
+    override fun toUrl(amount: Money): String {
         val root = "web+stellar:pay?destination=$address"
         val memo = memo?.let {
             "&memo=${URLEncoder.encode(memo, StandardCharsets.UTF_8.name())}&memo_type=MEMO_TEXT"

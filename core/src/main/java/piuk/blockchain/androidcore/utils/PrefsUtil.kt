@@ -7,16 +7,14 @@ import android.content.SharedPreferences
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import com.blockchain.featureflags.GatedFeature
-import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.wallet.api.data.Settings
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
-import java.util.Currency
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -37,7 +35,7 @@ class PrefsUtil(
     private val backupStore: SharedPreferences,
     private val idGenerator: DeviceIdGenerator,
     private val uuidGenerator: UUIDGenerator,
-    private val crashLogger: CrashLogger,
+    private val assetCatalogue: AssetCatalogue,
     private val environmentConfig: EnvironmentConfig
 ) : PersistentPrefs {
 
@@ -131,30 +129,19 @@ class PrefsUtil(
         setValue(PersistentPrefs.KEY_SCREENSHOTS_ENABLED, enable)
 
     // From CurrencyPrefs
-    override var selectedFiatCurrency: String
-        get() = getValue(KEY_SELECTED_FIAT, "")
+    override var selectedFiatCurrency: FiatCurrency
+        get() = assetCatalogue.fiatFromNetworkTicker(getValue(KEY_SELECTED_FIAT, "")) ?: FiatCurrency.Dollars
         set(fiat) {
-            // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
-            // So we'll try and catch them when it's written and find the root cause on a future iteration
-            // Check the currency is supported and throw a meaningful exception message if it's not
-            // Everytime that local currency changes (either from settings or from a different platform)
-            // we need to align the tradingCurrency accordingly.
-            try {
-                Currency.getInstance(fiat)
-                setValue(KEY_SELECTED_FIAT, fiat)
-                tradingCurrency = fiat
-            } catch (e: IllegalArgumentException) {
-                crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
-            }
+            setValue(KEY_SELECTED_FIAT, fiat.networkTicker)
+            tradingCurrency = fiat
         }
 
-    override val defaultFiatCurrency: String
-        get() = try {
-            val localeFiat = Currency.getInstance(Locale.getDefault()).currencyCode
-            if (Settings.UNIT_FIAT.contains(localeFiat)) localeFiat else DEFAULT_FIAT_CURRENCY
-        } catch (e: Exception) {
-            DEFAULT_FIAT_CURRENCY
-        }
+    override val defaultFiatCurrency: FiatCurrency
+        get() = FiatCurrency.locale().takeIf { assetCatalogue.fiatFromNetworkTicker(it.networkTicker) != null }
+            ?: FiatCurrency.Dollars
+
+    override val noCurrencySet: Boolean
+        get() = getValue(KEY_SELECTED_FIAT, "").isEmpty()
 
     // From ThePitLinkingPrefs
     override var pitToWalletLinkId: String
@@ -227,10 +214,11 @@ class PrefsUtil(
             setValue(KEY_FIRST_TIME_BUYER, value)
         }
 
-    override var tradingCurrency: String
-        get() = getValue(KEY_SIMPLE_BUY_CURRENCY, selectedFiatCurrency)
+    override var tradingCurrency: FiatCurrency
+        get() = assetCatalogue.fromNetworkTicker(getValue(KEY_SIMPLE_BUY_CURRENCY, "")) as? FiatCurrency
+            ?: selectedFiatCurrency
         set(value) {
-            setValue(KEY_SIMPLE_BUY_CURRENCY, value)
+            setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
         }
 
     override var hasCompletedAtLeastOneBuy: Boolean
@@ -607,9 +595,6 @@ class PrefsUtil(
     }
 
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val DEFAULT_FIAT_CURRENCY = "USD"
-
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

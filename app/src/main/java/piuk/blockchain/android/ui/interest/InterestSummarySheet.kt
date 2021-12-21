@@ -22,6 +22,7 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
@@ -89,7 +90,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
             interestDetailsAssetWithIcon.updateIcon(account as CryptoAccount)
 
             disposables += coincore.allWalletsWithActions(setOf(AssetAction.InterestDeposit)).map { accounts ->
-                accounts.filter { account -> account is CryptoAccount && account.asset == asset }
+                accounts.filter { account -> account is CryptoAccount && account.currency == asset }
             }
                 .onErrorReturn { emptyList() }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -196,12 +197,11 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
     companion object {
         fun newInstance(
-            singleAccount: SingleAccount,
-            selectedAsset: AssetInfo
+            singleAccount: CryptoAccount
         ): InterestSummarySheet =
             InterestSummarySheet().apply {
                 account = singleAccount
-                asset = selectedAsset
+                asset = singleAccount.currency
             }
     }
 
@@ -211,9 +211,9 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     )
 
     private data class CompositeInterestDetails(
-        val balance: CryptoValue,
-        val totalInterest: CryptoValue,
-        val pendingInterest: CryptoValue,
+        val balance: Money,
+        val totalInterest: Money,
+        val pendingInterest: Money,
         var nextInterestPayment: Date,
         val lockupDuration: Int,
         val interestRate: Double

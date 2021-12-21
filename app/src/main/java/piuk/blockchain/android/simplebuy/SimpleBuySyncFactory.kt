@@ -7,6 +7,9 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.asAssetInfoOrThrow
+import info.blockchain.balance.asFiatCurrencyOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -176,9 +179,9 @@ class SimpleBuySyncFactory(
 fun BuySellOrder.toSimpleBuyState(): SimpleBuyState =
     SimpleBuyState(
         id = id,
-        amount = fiat,
-        fiatCurrency = fiat.currencyCode,
-        selectedCryptoAsset = crypto.currency,
+        amount = source as FiatValue,
+        fiatCurrency = source.currency.asFiatCurrencyOrThrow(),
+        selectedCryptoAsset = target.currency.asAssetInfoOrThrow(),
         orderState = state,
         orderValue = orderValue as? CryptoValue,
         selectedPaymentMethod = SelectedPaymentMethod(

@@ -25,7 +25,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
     private val features: InternalFeatureFlagApi = mock()
 
     private val subject = CryptoInterestAccount(
-        asset = TEST_ASSET,
+        currency = TEST_ASSET,
         label = "Test Account",
         exchangeRates = exchangeRates,
         custodialWalletManager = custodialManager,
@@ -41,7 +41,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
     @Test
     fun `Balance is fetched correctly and is non-zero`() {
 
-        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
 
         val balance = InterestAccountBalance(
@@ -60,7 +60,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             .assertComplete()
             .assertValue {
                 it.total == balance.totalBalance &&
-                    it.actionable == 40.testValue(TEST_ASSET) &&
+                    it.withdrawable == 40.testValue(TEST_ASSET) &&
                     it.pending == balance.pendingDeposit &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
@@ -71,7 +71,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
     @Test
     fun `Balance is fetched correctly and is zero`() {
 
-        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
 
         val balance = InterestAccountBalance(
@@ -107,7 +107,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             Observable.fromIterable(rates)
         ) { /* tick */ _, rate -> rate as ExchangeRate }
 
-        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(rateSource)
 
         val balance = InterestAccountBalance(
@@ -152,13 +152,13 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
         private val RATE_1 = 1.2.toBigDecimal()
         private val RATE_2 = 1.4.toBigDecimal()
 
-        private val TEST_TO_USER_RATE_1 = ExchangeRate.CryptoToFiat(
+        private val TEST_TO_USER_RATE_1 = ExchangeRate(
             from = TEST_ASSET,
             to = TEST_USER_FIAT,
             rate = RATE_1
         )
 
-        private val TEST_TO_USER_RATE_2 = ExchangeRate.CryptoToFiat(
+        private val TEST_TO_USER_RATE_2 = ExchangeRate(
             from = TEST_ASSET,
             to = TEST_USER_FIAT,
             rate = RATE_2

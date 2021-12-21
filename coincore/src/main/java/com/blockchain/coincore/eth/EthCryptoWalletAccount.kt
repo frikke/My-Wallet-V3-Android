@@ -47,7 +47,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
     override fun getOnChainBalance(): Observable<Money> =
         ethDataManager.fetchEthAddress()
-            .map { CryptoValue(asset, it.getTotalBalance()) as Money }
+            .map { CryptoValue(currency, it.getTotalBalance()) as Money }
             .doOnNext { hasFunds.set(it.isPositive) }
 
     override val isFunded: Boolean
@@ -87,13 +87,13 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
                         }
                     }
                     .flatMap {
-                        appendTradeActivity(custodialWalletManager, asset, it)
+                        appendTradeActivity(custodialWalletManager, currency, it)
                     }
             }
             .doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     fun isErc20FeeTransaction(to: String): Boolean =
-        assetCatalogue.supportedL2Assets(asset).firstOrNull { erc20 ->
+        assetCatalogue.supportedL2Assets(currency).firstOrNull { erc20 ->
             to.equals(erc20.l2identifier, true)
         } != null
 

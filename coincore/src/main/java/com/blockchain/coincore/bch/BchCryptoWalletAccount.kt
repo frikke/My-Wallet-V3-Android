@@ -56,7 +56,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override fun getOnChainBalance(): Observable<Money> =
         Single.fromCallable { internalAccount.xpubs() }
             .flatMap { xpub -> bchManager.getBalance(xpub) }
-            .map { CryptoValue.fromMinor(asset, it) as Money }
+            .map { CryptoValue.fromMinor(currency, it) as Money }
             .doOnSuccess { hasFunds.set(it.isPositive) }
             .toObservable()
 
@@ -95,7 +95,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
                     payloadDataManager = payloadDataManager
                 )
             }.flatMap {
-                appendTradeActivity(custodialWalletManager, asset, it)
+                appendTradeActivity(custodialWalletManager, currency, it)
             }.doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     override fun createTxEngine(): TxEngine =
@@ -120,14 +120,14 @@ import piuk.blockchain.androidcore.utils.extensions.then
         if (!isArchived && !isDefault) {
             toggleArchived()
         } else {
-            Completable.error(IllegalStateException("${asset.networkTicker} Account $label cannot be archived"))
+            Completable.error(IllegalStateException("${currency.networkTicker} Account $label cannot be archived"))
         }
 
     override fun unarchive(): Completable =
         if (isArchived) {
             toggleArchived()
         } else {
-            Completable.error(IllegalStateException("${asset.networkTicker} Account $label cannot be unarchived"))
+            Completable.error(IllegalStateException("${currency.networkTicker} Account $label cannot be unarchived"))
         }
 
     private fun toggleArchived(): Completable {

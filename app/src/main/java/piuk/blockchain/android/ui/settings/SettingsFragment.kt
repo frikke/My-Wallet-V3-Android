@@ -56,6 +56,7 @@ import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.mukesh.countrypicker.CountryPicker
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.Environment
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.util.PasswordUtil
@@ -519,7 +520,7 @@ class SettingsFragment :
             banksPref?.findPreference<BankPreference>(LINK_BANK_KEY.plus(linkableBank.hashCode()))?.let {
                 it.order = it.order + linkedBanksCount + linkablePaymentMethods.indexOf(linkableBank)
             } ?: banksPref?.addPreference(
-                BankPreference(context = requireContext(), fiatCurrency = linkableBank.currency).apply {
+                BankPreference(context = requireContext(), fiatCurrency = linkableBank.currency.displayTicker).apply {
                     onClick {
                         linkBank(linkableBank)
                     }
@@ -536,7 +537,9 @@ class SettingsFragment :
 
         newBanks.forEach { bank ->
             banksPref?.addPreference(
-                BankPreference(context = requireContext(), bank = bank, fiatCurrency = bank.currency).apply {
+                BankPreference(
+                    context = requireContext(), bank = bank, fiatCurrency = bank.currency.displayTicker
+                ).apply {
                     onClick {
                         removeBank(bank)
                     }
@@ -550,9 +553,9 @@ class SettingsFragment :
         RemoveLinkedBankBottomSheet.newInstance(bank).show(childFragmentManager, BOTTOM_SHEET)
     }
 
-    override fun onBankWireTransferSelected(currency: String) {
+    override fun onBankWireTransferSelected(currency: FiatCurrency) {
         WireTransferAccountDetailsBottomSheet.newInstance(currency).show(childFragmentManager, BOTTOM_SHEET)
-        analytics.logEvent(linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, currency))
+        analytics.logEvent(linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, currency.networkTicker))
     }
 
     private fun linkBank(linkablePaymentMethods: LinkablePaymentMethods) {
@@ -910,11 +913,11 @@ class SettingsFragment :
     }
 
     private fun showDialogFiatUnits() {
-        val currencies = settingsPresenter.currencyLabels.toTypedArray()
-        val strCurrency = currencyPrefs.selectedFiatCurrency
+        val currencies = settingsPresenter.currencyLabels
+        val selectedCurrency = currencyPrefs.selectedFiatCurrency
         var selected = 0
         for (i in currencies.indices) {
-            if (currencies[i].endsWith(strCurrency)) {
+            if (currencies[i] == selectedCurrency) {
                 selected = i
                 break
             }
@@ -922,9 +925,8 @@ class SettingsFragment :
 
         AlertDialog.Builder(settingsActivity, R.style.AlertDialogStyle)
             .setTitle(R.string.select_currency)
-            .setSingleChoiceItems(currencies, selected) { dialog, which ->
-                val fiatUnit = currencies[which].substring(currencies[which].length - 3)
-                settingsPresenter.updateFiatUnit(fiatUnit)
+            .setSingleChoiceItems(currencies.map { it.displayTicker }.toTypedArray(), selected) { dialog, which ->
+                settingsPresenter.updateFiatUnit(currencies[which])
                 dialog.dismiss()
             }
             .show()
@@ -1281,6 +1283,6 @@ enum class ReviewAnalytics : AnalyticsEvent {
 }
 
 interface BankLinkingHost : SlidingModalBottomDialog.Host {
-    fun onBankWireTransferSelected(currency: String)
+    fun onBankWireTransferSelected(currency: FiatCurrency)
     fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction)
 }

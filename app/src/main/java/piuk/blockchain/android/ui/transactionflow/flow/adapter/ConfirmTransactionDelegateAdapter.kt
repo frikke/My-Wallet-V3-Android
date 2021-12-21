@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.UserEditable
 import com.blockchain.core.price.ExchangeRates
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -13,7 +14,7 @@ class ConfirmTransactionDelegateAdapter(
     model: TransactionModel,
     mapper: TxConfirmReadOnlyMapperCheckout,
     exchangeRates: ExchangeRates,
-    selectedCurrency: String
+    selectedCurrency: FiatCurrency
 ) : DelegationAdapter<TxConfirmationValue>(AdapterDelegatesManager(), emptyList()) {
 
     override var items: List<TxConfirmationValue> = emptyList()

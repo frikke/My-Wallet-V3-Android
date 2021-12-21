@@ -5,7 +5,7 @@ import com.blockchain.api.services.AssetPriceService
 import com.blockchain.preferences.CurrencyPrefs
 import com.jakewharton.rxrelay3.BehaviorRelay
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -67,8 +67,8 @@ internal class AssetPriceStore(
     private val pricesCache: BehaviorRelay<AssetPricesMap> =
         BehaviorRelay.createDefault(mutableMapOf())
 
-    private fun targetQuoteList(): List<String> =
-        assetCatalogue.supportedFiatAssets + prefs.selectedFiatCurrency
+    private fun targetQuoteList(): Set<Currency> =
+        (assetCatalogue.supportedFiatAssets + prefs.selectedFiatCurrency).toSet()
 
     fun init(): Single<SupportedTickerList> {
         return assetPriceService.getSupportedCurrencies()
@@ -211,7 +211,7 @@ internal class AssetPriceStore(
         } else {
             loadAndCachePrices(
                 baseTickerSet = nextReq,
-                quoteTickerSet = targetQuoteList().toSet()
+                quoteTickerSet = targetQuoteList().map { it.networkTicker }.toSet()
             ).doFinally {
                 requestBuffer.requestComplete()
             }.map { FETCH_REQUIRED_VALUE_IGNORED }
@@ -220,16 +220,16 @@ internal class AssetPriceStore(
     }
 
     @Synchronized
-    fun getCachedAssetPrice(fromAsset: AssetInfo, toFiat: String): AssetPriceRecord {
-        val pair = AssetPair(fromAsset.networkTicker, toFiat)
+    fun getCachedAssetPrice(fromAsset: Currency, toFiat: Currency): AssetPriceRecord {
+        val pair = AssetPair(fromAsset.networkTicker, toFiat.networkTicker)
         return pricesCache.value?.get(pair) ?: throw IllegalStateException(
             "Unknown pair: ${fromAsset.networkTicker} - $toFiat"
         )
     }
 
     @Synchronized
-    fun getCachedFiatPrice(fromFiat: String, toFiat: String): AssetPriceRecord {
-        val pair = AssetPair(fromFiat, toFiat)
+    fun getCachedFiatPrice(fromFiat: Currency, toFiat: Currency): AssetPriceRecord {
+        val pair = AssetPair(fromFiat.networkTicker, toFiat.networkTicker)
         return pricesCache.value?.get(pair) ?: throw IllegalStateException("Unknown pair: $fromFiat - $toFiat")
     }
 

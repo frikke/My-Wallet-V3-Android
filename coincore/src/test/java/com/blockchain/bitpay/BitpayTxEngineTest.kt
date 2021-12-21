@@ -1,5 +1,6 @@
 package com.blockchain.bitpay
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
@@ -12,6 +13,7 @@ import com.blockchain.coincore.btc.BtcOnChainTxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoin
@@ -26,6 +28,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
@@ -66,7 +69,7 @@ class BitpayTxEngineTest : CoincoreTestBase() {
         subject.assertInputsValid()
 
         // Assert
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(onChainEngine).assertInputsValid()
         verifyOnChainEngineStarted(sourceAccount)
 
@@ -107,7 +110,7 @@ class BitpayTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source asset is not BTC incorrect`() {
         val sourceAccount = mock<CryptoNonCustodialAccount>() {
-            on { asset }.thenReturn(WRONG_ASSET)
+            on { currency }.thenReturn(WRONG_ASSET)
         }
         val txTarget = mockTransactionTarget()
 
@@ -156,7 +159,7 @@ class BitpayTxEngineTest : CoincoreTestBase() {
         // Assert
         asset shouldEqual ASSET
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verifyOnChainEngineStarted(sourceAccount)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -416,9 +419,17 @@ class BitpayTxEngineTest : CoincoreTestBase() {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
-        on { asset }.thenReturn(ASSET)
-        on { accountBalance }.thenReturn(Single.just(totalBalance))
-        on { actionableBalance }.thenReturn(Single.just(availableBalance))
+        on { currency }.thenReturn(ASSET)
+        on { balance }.thenReturn(
+            Observable.just(
+                AccountBalance(
+                    total = totalBalance,
+                    withdrawable = availableBalance,
+                    pending = Money.zero(totalBalance.currency),
+                    exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
+                )
+            )
+        )
     }
 
     private fun mockTransactionTarget(

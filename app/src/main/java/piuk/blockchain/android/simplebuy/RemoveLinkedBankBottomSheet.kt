@@ -44,7 +44,7 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
         binding.root.layoutTransition = transition
 
         with(binding) {
-            title.text = resources.getString(R.string.common_spaced_strings, bank.name, bank.currency)
+            title.text = resources.getString(R.string.common_spaced_strings, bank.name, bank.currency.displayTicker)
             endDigits.text = resources.getString(R.string.dotted_suffixed_string, bank.account)
             accountInfo.text = getString(R.string.payment_method_type_account_info, bank.toHumanReadableAccount(), "")
             rmvBankBtn.setOnClickListener {

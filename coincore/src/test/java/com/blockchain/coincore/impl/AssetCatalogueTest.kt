@@ -20,6 +20,7 @@ class AssetCatalogueTest : CoincoreTestBase() {
 
     private val assetsManager: DynamicAssetsDataManager = mock {
         on { availableCryptoAssets() }.thenReturn(Single.just(assetList))
+        on { availableFiatAssets() }.thenReturn(Single.just(emptyList()))
     }
 
     private val subject = AssetCatalogueImpl(

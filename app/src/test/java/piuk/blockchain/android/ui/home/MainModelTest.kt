@@ -12,6 +12,7 @@ import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
+import com.blockchain.testutils.EUR
 import com.blockchain.utils.capitalizeFirstChar
 import com.google.gson.JsonSyntaxException
 import com.nhaarman.mockitokotlin2.any
@@ -614,7 +615,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
@@ -625,7 +626,7 @@ class MainModelTest {
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
             on { status }.thenReturn(BankTransferStatus.COMPLETE)
-            on { amount }.thenReturn(FiatValue.zero("EUR"))
+            on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
             Single.just(PollResult.FinalResult(transferDetails))
@@ -663,7 +664,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
@@ -674,7 +675,7 @@ class MainModelTest {
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
             on { status }.thenReturn(BankTransferStatus.PENDING)
-            on { amount }.thenReturn(FiatValue.zero("EUR"))
+            on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
             Single.just(PollResult.FinalResult(transferDetails))
@@ -709,7 +710,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
@@ -720,7 +721,7 @@ class MainModelTest {
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
             on { status }.thenReturn(BankTransferStatus.ERROR)
-            on { amount }.thenReturn(FiatValue.zero("EUR"))
+            on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
             Single.just(PollResult.FinalResult(transferDetails))
@@ -755,7 +756,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
@@ -766,7 +767,7 @@ class MainModelTest {
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
             on { status }.thenReturn(BankTransferStatus.ERROR)
-            on { amount }.thenReturn(FiatValue.zero("EUR"))
+            on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
             Single.just(PollResult.TimeOut(transferDetails))
@@ -800,7 +801,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
@@ -842,7 +843,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
@@ -879,7 +880,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
@@ -917,7 +918,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
@@ -1031,7 +1032,7 @@ class MainModelTest {
         )
 
         val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero("EUR"))
+            on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)

@@ -12,7 +12,7 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -182,8 +182,8 @@ private class InterestAssetItemViewHolder(
     }
 
     private data class InterestDetails(
-        val balance: CryptoValue,
-        val totalInterest: CryptoValue,
+        val balance: Money,
+        val totalInterest: Money,
         val interestRate: Double,
         val available: Boolean,
         val disabledReason: IneligibilityReason

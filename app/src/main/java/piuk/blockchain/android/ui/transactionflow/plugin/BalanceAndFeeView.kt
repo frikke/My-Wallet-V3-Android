@@ -7,10 +7,10 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTxFullscreenFeeAndBalanceBinding
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -88,10 +88,10 @@ class BalanceAndFeeView @JvmOverloads constructor(
             showFiatOrCryptoValues(
                 currencyType = state.currencyType ?: (
                     state.pendingTx?.selectedFiat?.let {
-                        val defaultMode = customiser.defInputType(state, it)
+                        val defaultMode = customiser.defInputType(state, it).type
                         model.process(TransactionIntent.DisplayModeChanged(defaultMode))
                         defaultMode
-                    } ?: CurrencyType.Crypto(state.sendingAsset)
+                    } ?: CurrencyType.CRYPTO
                     ),
                 state.fiatRate,
                 value
@@ -102,12 +102,12 @@ class BalanceAndFeeView @JvmOverloads constructor(
 
     private fun showFiatOrCryptoValues(currencyType: CurrencyType, rate: ExchangeRate, value: Money) =
         when (currencyType) {
-            is CurrencyType.Fiat -> {
+            CurrencyType.FIAT -> {
                 if (rate.canConvert(value))
                     rate.convert(value).toStringWithSymbol()
                 else value.toStringWithSymbol()
             }
-            is CurrencyType.Crypto -> value.toStringWithSymbol()
+            CurrencyType.CRYPTO -> value.toStringWithSymbol()
         }
 
     private fun updateMaxGroup(state: TransactionState) =

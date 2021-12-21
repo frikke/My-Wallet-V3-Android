@@ -23,6 +23,7 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.YapilyAttributes
 import com.blockchain.nabu.models.data.YodleeAttributes
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
 import piuk.blockchain.android.simplebuy.ErrorState
@@ -635,7 +636,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
     }
 
-    private fun showLinkingSuccess(label: String, id: String, partner: BankPartner?, currency: String) {
+    private fun showLinkingSuccess(label: String, id: String, partner: BankPartner?, currency: FiatCurrency) {
         logAnalytics(BankAuthAnalytics.SUCCESS, partner)
 
         with(binding) {

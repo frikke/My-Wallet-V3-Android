@@ -49,6 +49,7 @@ import com.blockchain.payments.core.PaymentToken
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
@@ -92,13 +93,13 @@ class SimpleBuyInteractor(
     // restrict him only.
 
     fun fetchBuyLimits(
-        fiat: String,
+        fiat: FiatCurrency,
         asset: AssetInfo,
         paymentMethodType: PaymentMethodType
     ): Single<TxLimits> =
         tierService.tiers().flatMap { tier ->
             fetchLimits(
-                sourceCurrency = fiat, targetCurrency = asset.networkTicker, paymentMethodType = paymentMethodType
+                sourceCurrency = fiat, targetCurrency = asset, paymentMethodType = paymentMethodType
             ).map { limits ->
                 if (tier.isInInitialState()) {
                     limits.copy(
@@ -109,8 +110,8 @@ class SimpleBuyInteractor(
         }
 
     private fun fetchLimits(
-        targetCurrency: String,
-        sourceCurrency: String,
+        targetCurrency: AssetInfo,
+        sourceCurrency: FiatCurrency,
         paymentMethodType: PaymentMethodType
     ): Single<TxLimits> {
         return limitsDataManager.getLimits(
@@ -145,7 +146,7 @@ class SimpleBuyInteractor(
         recurringBuyFrequency: RecurringBuyFrequency?
     ): Single<SimpleBuyIntent.OrderCreated> =
         brokerageDataManager.quoteForTransaction(
-            pair = CurrencyPair.FiatToCryptoCurrencyPair(amount.currencyCode, cryptoAsset),
+            pair = CurrencyPair(amount.currency, cryptoAsset),
             amount = amount,
             paymentMethodType = paymentMethod,
             paymentMethodId = paymentMethodId,
@@ -201,7 +202,7 @@ class SimpleBuyInteractor(
 
     fun fetchWithdrawLockTime(
         paymentMethod: PaymentMethodType,
-        fiatCurrency: String
+        fiatCurrency: FiatCurrency
     ): Single<SimpleBuyIntent.WithdrawLocksTimeUpdated> =
         withdrawLocksRepository.getWithdrawLockTypeForPaymentMethod(paymentMethod, fiatCurrency)
             .map {
@@ -324,7 +325,7 @@ class SimpleBuyInteractor(
         }.onErrorReturn { SimpleBuyIntent.KycStateUpdated(KycState.PENDING) }
     }
 
-    fun linkNewBank(fiatCurrency: String): Single<SimpleBuyIntent.BankLinkProcessStarted> {
+    fun linkNewBank(fiatCurrency: FiatCurrency): Single<SimpleBuyIntent.BankLinkProcessStarted> {
         return custodialWalletManager.linkToABank(fiatCurrency).map { linkBankTransfer ->
             SimpleBuyIntent.BankLinkProcessStarted(linkBankTransfer)
         }
@@ -344,7 +345,7 @@ class SimpleBuyInteractor(
                 SimpleBuyIntent.ExchangePriceWithDeltaUpdated(exchangePriceWithDelta = exchangePriceWithDelta)
             }
 
-    fun eligiblePaymentMethods(fiatCurrency: String):
+    fun eligiblePaymentMethods(fiatCurrency: FiatCurrency):
         Single<List<PaymentMethod>> =
         tierService.tiers()
             .zipWith(
@@ -405,7 +406,7 @@ class SimpleBuyInteractor(
                 CardIntent.CardUpdated(it.value)
             }
 
-    fun eligiblePaymentMethodsTypes(fiatCurrency: String): Single<List<EligiblePaymentMethodType>> =
+    fun eligiblePaymentMethodsTypes(fiatCurrency: FiatCurrency): Single<List<EligiblePaymentMethodType>> =
         custodialWalletManager.getEligiblePaymentMethodTypes(
             fiatCurrency = fiatCurrency
         )
@@ -417,7 +418,7 @@ class SimpleBuyInteractor(
 
     fun addNewCard(
         cardData: CardData,
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         billingAddress: BillingAddress
     ): Single<CardToBeActivated> =
         stripeAndCheckoutPaymentsFeatureFlag.enabled.flatMap { enabled ->
@@ -430,7 +431,7 @@ class SimpleBuyInteractor(
 
     private fun addCardWithPaymentTokens(
         cardData: CardData,
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         billingAddress: BillingAddress
     ) = custodialWalletManager.getCardAcquirers().flatMap { cardAcquirers ->
         rxSingle {
@@ -488,8 +489,8 @@ class SimpleBuyInteractor(
         bankLinkingPrefs.setDynamicOneTimeTokenUrl(sanitisedUrl)
     }
 
-    fun updateExchangeRate(fiat: String, asset: AssetInfo): Single<ExchangeRate> {
-        return exchangeRatesDataManager.cryptoToFiatRate(asset, fiat).firstOrError()
+    fun updateExchangeRate(fiat: FiatCurrency, asset: AssetInfo): Single<ExchangeRate> {
+        return exchangeRatesDataManager.exchangeRate(asset, fiat).firstOrError()
     }
 
     private fun CardData.toCardDetails() =

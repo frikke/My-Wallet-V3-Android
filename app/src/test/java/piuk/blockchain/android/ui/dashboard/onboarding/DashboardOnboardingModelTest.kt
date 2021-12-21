@@ -8,6 +8,10 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkBankAttributes
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.GBP
+import com.blockchain.testutils.USD
+import com.blockchain.testutils.numberToBigInteger
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -121,8 +125,8 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `given user clicked link payment method step, fetching supported currencies success, if user currency is not supported should navigate to select trading currency`() {
-        val userCurrency = "EUR"
-        val supportedCurrencies = listOf("USD", "GBP")
+        val userCurrency = EUR
+        val supportedCurrencies = listOf(USD, GBP)
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(userCurrency)
         whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(supportedCurrencies))
@@ -140,7 +144,7 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `given user clicked link payment method step, fetching supported currencies success, if user currency is supported should fetch eligible payment methods`() {
-        val currency = "EUR"
+        val currency = EUR
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
         whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(currency)))
@@ -154,7 +158,7 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `given user clicked link payment method step, fetching supported currencies failure should show error`() {
-        val currency = "EUR"
+        val currency = EUR
         val error = IllegalStateException("error")
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
@@ -171,8 +175,8 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `given user clicked link payment method step, on trading currency changed should check trading currency again fetch eligible payment methods`() {
-        val userCurrency = "EUR"
-        val supportedCurrencies = listOf("USD", "GBP")
+        val userCurrency = EUR
+        val supportedCurrencies = listOf(USD, GBP)
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(userCurrency)
         whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(supportedCurrencies))
@@ -181,7 +185,7 @@ class DashboardOnboardingModelTest {
         model.process(DashboardOnboardingIntent.FetchSteps)
         model.process(DashboardOnboardingIntent.StepClicked(DashboardOnboardingStep.LINK_PAYMENT_METHOD))
 
-        val newUserCurrency = "USD"
+        val newUserCurrency = USD
         whenever(currencyPrefs.tradingCurrency).thenReturn(newUserCurrency)
 
         model.process(DashboardOnboardingIntent.TradingCurrencyChanged)
@@ -191,11 +195,11 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `given user clicked link payment method step, fetching eligible payment methods success should navigate to add payment method`() {
-        val currency = "EUR"
+        val currency = EUR
         val paymentMethods = listOf(
-            PaymentMethod.UndefinedCard(PaymentLimits(0, 0, currency), true),
-            PaymentMethod.UndefinedBankAccount(currency, PaymentLimits(0, 0, currency), true),
-            PaymentMethod.UndefinedBankTransfer(PaymentLimits(0, 0, currency), true)
+            PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true),
+            PaymentMethod.UndefinedBankAccount(currency.name, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true),
+            PaymentMethod.UndefinedBankTransfer(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true)
         )
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
@@ -213,7 +217,7 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `given user clicked link payment method step, fetching eligible payment methods failure should show error`() {
-        val currency = "EUR"
+        val currency = EUR
         val error = IllegalStateException("error")
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
@@ -241,7 +245,7 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `clicking wire transfer payment method should navigate to wire transfer account details`() {
-        val currency = "EUR"
+        val currency = EUR
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
 
         val state = model.state.test()
@@ -254,7 +258,7 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `clicking link bank payment method should fetch link bank transfer`() {
-        val currency = "EUR"
+        val currency = EUR
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
 
         val state = model.state.test()
@@ -265,7 +269,7 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `fetching link bank transfer success should navigate to link bank`() {
-        val currency = "EUR"
+        val currency = EUR
         val linkBankTransfer = LinkBankTransfer(
             "id",
             BankPartner.YAPILY,
@@ -284,7 +288,7 @@ class DashboardOnboardingModelTest {
 
     @Test
     fun `fetching link bank transfer failure should show error`() {
-        val currency = "EUR"
+        val currency = EUR
         val error = IllegalStateException("error")
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
         whenever(interactor.linkBank(currency)).thenReturn(Single.error(error))

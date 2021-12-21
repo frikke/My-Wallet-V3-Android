@@ -135,7 +135,7 @@ class InterestDepositOnChainTxEngine(
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         onChainEngine.doExecute(pendingTx, secondPassword)
             .doOnSuccess {
-                interestBalances.flushCaches(sourceAsset)
+                interestBalances.flushCaches(sourceAssetInfo)
             }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =

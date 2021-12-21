@@ -9,6 +9,7 @@ import com.blockchain.nabu.models.responses.swap.QuoteRequest
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
+import info.blockchain.balance.Money
 import java.util.Date
 
 class QuotesProvider(
@@ -30,12 +31,12 @@ class QuotesProvider(
                     id = it.id,
                     prices = it.quote.priceTiers.map { price ->
                         PriceTier(
-                            volume = pair.toSourceMoney(price.volume.toBigInteger()),
-                            price = pair.toDestinationMoney(price.price.toBigInteger())
+                            volume = Money.fromMinor(pair.source, price.volume.toBigInteger()),
+                            price = Money.fromMinor(pair.destination, price.price.toBigInteger())
                         )
                     },
-                    staticFee = pair.toSourceMoney(it.staticFee.toBigInteger()),
-                    networkFee = pair.toDestinationMoney(it.networkFee.toBigInteger()),
+                    staticFee = Money.fromMinor(pair.source, it.staticFee.toBigInteger()),
+                    networkFee = Money.fromMinor(pair.destination, it.networkFee.toBigInteger()),
                     sampleDepositAddress = it.sampleDepositAddress,
                     expirationDate = it.expiresAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
                     creationDate = it.createdAt.fromIso8601ToUtc()?.toLocalTime() ?: Date()

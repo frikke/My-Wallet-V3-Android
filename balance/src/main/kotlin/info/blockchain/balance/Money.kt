@@ -8,11 +8,13 @@ import java.util.Locale
 
 abstract class Money : Serializable {
 
-    // Use [symbol] for user display. This can be used by APIs etc.
-    abstract val currencyCode: String
+    abstract val currency: Currency
 
     // User displayable symbol
     abstract val symbol: String
+
+    val currencyCode: String
+        get() = currency.networkTicker
 
     abstract val isZero: Boolean
     abstract val isPositive: Boolean
@@ -113,6 +115,22 @@ abstract class Money : Serializable {
             a.ensureComparable("compare", b)
             return if (a >= b) a else b
         }
+
+        fun fromMinor(currency: Currency, value: BigInteger): Money =
+            when (currency) {
+                is CryptoCurrency -> CryptoValue.fromMinor(currency, value)
+                is FiatCurrency -> FiatValue.fromMinor(currency, value)
+                else -> throw IllegalArgumentException("Unsupported type")
+            }
+
+        fun fromMajor(currency: Currency, value: BigDecimal): Money =
+            when (currency) {
+                is CryptoCurrency -> CryptoValue.fromMajor(currency, value)
+                is FiatCurrency -> FiatValue.fromMajor(currency, value)
+                else -> throw IllegalArgumentException("Unsupported type")
+            }
+
+        fun zero(currency: Currency): Money = fromMinor(currency, BigInteger.ZERO)
     }
 }
 

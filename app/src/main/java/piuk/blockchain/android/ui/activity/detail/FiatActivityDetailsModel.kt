@@ -6,6 +6,7 @@ import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.outcome.fold
+import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +31,7 @@ class FiatActivityDetailsModel(
 
     val uiState: StateFlow<FiatActivityDetailsViewState> = internalState
 
-    fun findCachedItem(currency: String, txHash: String) {
+    fun findCachedItem(currency: FiatCurrency, txHash: String) {
         viewModelScope.launch {
             withContext(dispatcher) {
                 assetActivityRepository.findCachedItem(currency, txHash)?.let { activityItem ->

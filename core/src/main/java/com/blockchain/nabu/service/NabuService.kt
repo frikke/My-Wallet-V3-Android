@@ -341,14 +341,6 @@ class NabuService internal constructor(
         amount = amount
     )
 
-    internal fun getPredefinedAmounts(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ): Single<List<Map<String, List<Long>>>> = nabu.getPredefinedAmounts(
-        sessionToken.authHeader,
-        currency
-    ).wrapErrorMessage()
-
     internal fun getTransactions(
         sessionToken: NabuSessionTokenResponse,
         currency: String,

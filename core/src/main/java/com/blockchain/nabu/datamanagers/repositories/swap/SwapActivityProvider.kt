@@ -4,13 +4,11 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager.Companion.SUPPORTED_FUNDS_CURRENCIES
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toCustodialOrderState
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
@@ -30,13 +28,14 @@ class SwapActivityProviderImpl(
         }.map { response ->
             response.mapNotNull {
                 val pair = CurrencyPair.fromRawPair(
-                    it.pair, assetCatalogue, SUPPORTED_FUNDS_CURRENCIES
+                    it.pair, assetCatalogue
                 ) ?: return@mapNotNull null
-
-                val apiFiat = FiatValue.fromMinor(it.fiatCurrency, it.fiatValue.toLong())
-                val receivingValue = pair.toDestinationMoney(it.priceFunnel.outputMoney.toBigInteger())
+                val fiatCurrency =
+                    assetCatalogue.fiatFromNetworkTicker(it.fiatCurrency) ?: return@mapNotNull null
+                val apiFiat = Money.fromMinor(fiatCurrency, it.fiatValue.toBigInteger())
+                val receivingValue = Money.fromMinor(pair.destination, it.priceFunnel.outputMoney.toBigInteger())
                 // priceFunnel.price comes as Major Value
-                val price = FiatValue.fromMajor(it.fiatCurrency, BigDecimal(it.priceFunnel.price))
+                val price = Money.fromMajor(fiatCurrency, BigDecimal(it.priceFunnel.price))
 
                 TradeTransactionItem(
                     txId = it.kind.depositTxHash ?: it.id,
@@ -46,9 +45,9 @@ class SwapActivityProviderImpl(
                     sendingAddress = it.kind.depositAddress,
                     receivingAddress = it.kind.withdrawalAddress,
                     state = it.state.toCustodialOrderState(),
-                    sendingValue = pair.toSourceMoney(it.priceFunnel.inputMoney.toBigInteger()),
+                    sendingValue = Money.fromMinor(pair.source, it.priceFunnel.inputMoney.toBigInteger()),
                     receivingValue = receivingValue,
-                    withdrawalNetworkFee = pair.toDestinationMoney(it.priceFunnel.networkFee.toBigInteger()),
+                    withdrawalNetworkFee = Money.fromMinor(pair.destination, it.priceFunnel.networkFee.toBigInteger()),
                     currencyPair = pair,
                     apiFiatValue = apiFiat,
                     price = price
@@ -79,6 +78,6 @@ data class TradeTransactionItem(
     val receivingValue: Money,
     val withdrawalNetworkFee: Money,
     val currencyPair: CurrencyPair,
-    val apiFiatValue: FiatValue,
-    val price: FiatValue
+    val apiFiatValue: Money,
+    val price: Money
 )

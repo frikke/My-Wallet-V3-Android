@@ -24,6 +24,7 @@ import com.blockchain.sunriver.SendDetails
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -79,15 +80,15 @@ class XlmOnChainTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.just(
             PendingTx(
-                amount = CryptoValue.zero(sourceAsset),
-                totalBalance = CryptoValue.zero(sourceAsset),
-                availableBalance = CryptoValue.zero(sourceAsset),
-                feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                feeAmount = CryptoValue.zero(sourceAsset),
+                amount = Money.zero(sourceAsset),
+                totalBalance = Money.zero(sourceAsset),
+                availableBalance = Money.zero(sourceAsset),
+                feeForFullAvailable = Money.zero(sourceAsset),
+                feeAmount = Money.zero(sourceAsset),
                 feeSelection = FeeSelection(
                     selectedLevel = FeeLevel.Regular,
                     availableLevels = AVAILABLE_FEE_LEVELS,
-                    asset = sourceAsset
+                    asset = sourceAsset as AssetInfo
                 ),
                 selectedFiat = userFiat
             ).setMemo(
@@ -111,7 +112,7 @@ class XlmOnChainTxEngine(
                 amount = amount,
                 totalBalance = balance.total,
                 availableBalance = Money.max(
-                    balance.actionable - fees, CryptoValue.zero(CryptoCurrency.XLM)
+                    balance.withdrawable - fees, CryptoValue.zero(CryptoCurrency.XLM)
                 ) as CryptoValue,
                 feeForFullAvailable = fees,
                 feeAmount = fees,
@@ -132,14 +133,14 @@ class XlmOnChainTxEngine(
 
     private fun validateAmounts(pendingTx: PendingTx): Completable =
         Completable.fromCallable {
-            if (pendingTx.amount <= CryptoValue.zero(sourceAsset)) {
+            if (pendingTx.amount <= Money.zero(sourceAsset)) {
                 throw TxValidationFailure(ValidationState.INVALID_AMOUNT)
             }
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Singles.zip(
-            sourceAccount.actionableBalance,
+            sourceAccount.balance.firstOrError().map { it.withdrawable },
             absoluteFee()
         ) { balance: Money, fee: Money ->
             if (fee + pendingTx.amount > balance) {

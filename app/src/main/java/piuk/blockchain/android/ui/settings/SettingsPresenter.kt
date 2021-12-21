@@ -14,6 +14,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.settings.SettingsManager
@@ -67,8 +68,8 @@ class SettingsPresenter(
     private val secureChannelManager: SecureChannelManager
 ) : BasePresenter<SettingsView>() {
 
-    private val fiatUnit: String
-        get() = prefs.selectedFiatCurrency
+    private val fiatCurrency: FiatCurrency
+        get() = prefs.selectedFiatCurrency as FiatCurrency
 
     private var pitClickedListener = {}
 
@@ -99,7 +100,7 @@ class SettingsPresenter(
 
     private fun updateCards() {
         compositeDisposable +=
-            custodialWalletManager.getEligiblePaymentMethodTypes(fiatUnit).map { eligiblePaymentMethods ->
+            custodialWalletManager.getEligiblePaymentMethodTypes(fiatCurrency).map { eligiblePaymentMethods ->
                 eligiblePaymentMethods.firstOrNull { it.paymentMethodType == PaymentMethodType.PAYMENT_CARD } != null
             }
                 .doOnSuccess { isCardEligible ->
@@ -107,7 +108,7 @@ class SettingsPresenter(
                 }
                 .flatMap { isCardEligible ->
                     if (isCardEligible) {
-                        custodialWalletManager.updateSupportedCardTypes(fiatUnit)
+                        custodialWalletManager.updateSupportedCardTypes(fiatCurrency)
                             .thenSingle {
                                 custodialWalletManager.fetchUnawareLimitsCards(
                                     listOf(CardStatus.ACTIVE, CardStatus.EXPIRED)
@@ -140,7 +141,7 @@ class SettingsPresenter(
 
     fun updateBanks() {
         compositeDisposable +=
-            eligibleBankPaymentMethods(fiatUnit).zipWith(linkedBanks().onErrorReturn { emptySet() })
+            eligibleBankPaymentMethods(fiatCurrency).zipWith(linkedBanks().onErrorReturn { emptySet() })
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe {
                     view?.banksEnabled(false)
@@ -158,7 +159,7 @@ class SettingsPresenter(
     }
 
     private fun Set<Bank>.getEligibleLinkedBanks(linkableBanks: Set<LinkablePaymentMethods>): Set<Bank> {
-        val paymentMethod = linkableBanks.filter { it.currency == fiatUnit }.distinct().firstOrNull()
+        val paymentMethod = linkableBanks.filter { it.currency == fiatCurrency }.distinct().firstOrNull()
         val eligibleLinkedBanks = this.filter { paymentMethod?.linkMethods?.contains(it.paymentMethodType) ?: false }
 
         return this.map {
@@ -183,7 +184,7 @@ class SettingsPresenter(
         }
     }
 
-    private fun eligibleBankPaymentMethods(fiat: String): Single<Set<LinkablePaymentMethods>> =
+    private fun eligibleBankPaymentMethods(fiat: FiatCurrency): Single<Set<LinkablePaymentMethods>> =
         custodialWalletManager.getEligiblePaymentMethodTypes(fiat).map { methods ->
             val bankPaymentMethods = methods.filter {
                 it.paymentMethodType == PaymentMethodType.BANK_TRANSFER ||
@@ -216,7 +217,7 @@ class SettingsPresenter(
             setGuidSummary(settings.guid)
             setEmailSummary(settings.email, settings.isEmailVerified)
             setSmsSummary(settings.smsNumber, settings.isSmsVerified)
-            setFiatSummary(fiatUnit)
+            setFiatSummary(fiatCurrency.displayTicker)
             setEmailNotificationsVisibility(settings.isEmailVerified)
 
             setEmailNotificationPref(false)
@@ -527,7 +528,7 @@ class SettingsPresenter(
     /**
      * Updates the user's fiat unit preference
      */
-    fun updateFiatUnit(fiatUnit: String) {
+    fun updateFiatUnit(fiatUnit: FiatCurrency) {
         compositeDisposable += settingsDataManager.updateFiatUnit(fiatUnit)
             .map { settings ->
                 prefs.clearBuyState()
@@ -565,7 +566,7 @@ class SettingsPresenter(
             )
     }
 
-    val currencyLabels: List<String>
+    val currencyLabels: List<FiatCurrency>
         get() = exchangeRates.fiatAvailableForRates
 
     fun onThePitClicked() {
@@ -619,7 +620,7 @@ class SettingsPresenter(
         }
     }
 
-    fun linkBank(currency: String) {
+    fun linkBank(currency: FiatCurrency) {
         compositeDisposable += custodialWalletManager.linkToABank(currency)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = {
@@ -631,6 +632,6 @@ class SettingsPresenter(
 }
 
 data class LinkablePaymentMethods(
-    val currency: String,
+    val currency: FiatCurrency,
     val linkMethods: List<PaymentMethodType>
 ) : Serializable

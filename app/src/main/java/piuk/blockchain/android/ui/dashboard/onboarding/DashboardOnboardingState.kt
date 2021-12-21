@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.models.data.LinkBankTransfer
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.ui.base.mvi.MviState
@@ -18,11 +19,11 @@ sealed class DashboardOnboardingNavigationAction {
     object StartKyc : DashboardOnboardingNavigationAction()
     data class AddPaymentMethod(val eligiblePaymentMethods: List<PaymentMethod>) : DashboardOnboardingNavigationAction()
     object OpenBuy : DashboardOnboardingNavigationAction()
-    data class SelectTradingCurrency(val supportedCurrencies: List<String>, val selectedCurrency: String) :
+    data class SelectTradingCurrency(val supportedCurrencies: List<FiatCurrency>, val selectedCurrency: FiatCurrency) :
         DashboardOnboardingNavigationAction()
 
     object AddCard : DashboardOnboardingNavigationAction()
-    data class WireTransferAccountDetails(val currency: String) : DashboardOnboardingNavigationAction()
+    data class WireTransferAccountDetails(val currency: FiatCurrency) : DashboardOnboardingNavigationAction()
     data class LinkBank(val linkBankTransfer: LinkBankTransfer) : DashboardOnboardingNavigationAction()
 }
 

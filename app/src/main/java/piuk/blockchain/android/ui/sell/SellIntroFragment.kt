@@ -23,6 +23,7 @@ import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -236,7 +237,7 @@ class SellIntroFragment : ViewPagerFragment() {
                             accountsSorting.sorter()
                         ).map {
                             it.filterIsInstance<CryptoAccount>().filter { account ->
-                                supportedCryptos.contains(account.asset)
+                                supportedCryptos.contains(account.currency)
                             }
                         },
                         status = ::statusDecorator,
@@ -292,11 +293,13 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
         val availableFiats =
             custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
-        return custodialWalletManager.getSupportedBuySellCryptoCurrencies()
-            .zipWith(availableFiats) { supportedPairs, fiats ->
-                supportedPairs.filter { fiats.contains(it.destination) }
-                    .map { it.source }
-            }
+        return Single.zip(
+            custodialWalletManager.getSupportedBuySellCryptoCurrencies(), availableFiats
+        ) { supportedPairs, fiats ->
+            supportedPairs
+                .filter { fiats.contains(it.destination) }
+                .map { it.source.asAssetInfoOrThrow() }
+        }
     }
 
     override fun onResumeFragment() {

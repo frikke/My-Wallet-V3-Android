@@ -3,7 +3,6 @@ package com.blockchain.nabu.datamanagers
 import android.annotation.SuppressLint
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
@@ -27,6 +26,8 @@ import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -34,7 +35,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
-import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Date
 import java.util.Locale
@@ -63,12 +63,12 @@ enum class OrderState {
 }
 
 interface CustodialWalletManager {
-    fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair.CryptoToFiatCurrencyPair>>
+    fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair>>
 
-    fun getSupportedFiatCurrencies(): Single<List<String>>
+    fun getSupportedFiatCurrencies(): Single<List<FiatCurrency>>
 
     fun fetchFiatWithdrawFeeAndMinLimit(
-        asset: String,
+        fiatCurrency: FiatCurrency,
         product: Product,
         paymentMethodType: PaymentMethodType
     ): Single<FiatWithdrawalFeeAndLimit>
@@ -80,7 +80,7 @@ interface CustodialWalletManager {
 
     fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: String
+        fiatCurrency: FiatCurrency
     ): Single<BigInteger>
 
     fun createOrder(
@@ -97,30 +97,26 @@ interface CustodialWalletManager {
         bankId: String
     ): Completable
 
-    fun getPredefinedAmounts(
-        currency: String
-    ): Single<List<FiatValue>>
-
     fun getCustodialFiatTransactions(
-        currency: String,
+        fiatCurrency: FiatCurrency,
         product: Product,
         type: String? = null
     ): Single<List<FiatTransaction>>
 
     fun getCustodialCryptoTransactions(
-        currency: String,
+        asset: AssetInfo,
         product: Product,
         type: String? = null
     ): Single<List<CryptoTransaction>>
 
     fun getBankAccountDetails(
-        currency: String
+        currency: FiatCurrency
     ): Single<BankAccount>
 
-    fun getCustodialAccountAddress(asset: AssetInfo): Single<String>
+    fun getCustodialAccountAddress(asset: Currency): Single<String>
 
     fun isCurrencySupportedForSimpleBuy(
-        fiatCurrency: String
+        fiatCurrency: FiatCurrency
     ): Single<Boolean>
 
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
@@ -144,9 +140,9 @@ interface CustodialWalletManager {
     // For test/dev
     fun cancelAllPendingOrders(): Completable
 
-    fun updateSupportedCardTypes(fiatCurrency: String): Completable
+    fun updateSupportedCardTypes(currency: FiatCurrency): Completable
 
-    fun linkToABank(fiatCurrency: String): Single<LinkBankTransfer>
+    fun linkToABank(currency: FiatCurrency): Single<LinkBankTransfer>
 
     fun updateSelectedBankAccount(
         linkingId: String,
@@ -156,24 +152,24 @@ interface CustodialWalletManager {
     ): Completable
 
     fun fetchSuggestedPaymentMethod(
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         fetchSddLimits: Boolean,
         onlyEligible: Boolean
     ): Single<List<PaymentMethod>>
 
     fun getEligiblePaymentMethodTypes(
-        fiatCurrency: String
+        fiatCurrency: FiatCurrency
     ): Single<List<EligiblePaymentMethodType>>
 
     fun getCardAcquirers(): Single<List<PaymentCardAcquirer>>
 
     fun getBankTransferLimits(
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         onlyEligible: Boolean
     ): Single<PaymentLimits>
 
     fun addNewCard(
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         billingAddress: BillingAddress,
         paymentMethodTokens: Map<String, String>? = null
     ): Single<CardToBeActivated>
@@ -209,9 +205,9 @@ interface CustodialWalletManager {
 
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
-    fun getSupportedFundsFiats(fiatCurrency: String = defaultFiatCurrency): Single<List<String>>
+    fun getSupportedFundsFiats(fiatCurrency: FiatCurrency = defaultFiatCurrency): Single<List<FiatCurrency>>
 
-    fun canTransactWithBankMethods(fiatCurrency: String): Single<Boolean>
+    fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
@@ -236,7 +232,7 @@ interface CustodialWalletManager {
     ): Completable
 
     fun getProductTransferLimits(
-        currency: String,
+        currency: FiatCurrency,
         product: Product,
         orderDirection: TransferDirection? = null
     ): Single<TransferLimits>
@@ -269,7 +265,7 @@ interface CustodialWalletManager {
 
     fun updateOpenBankingConsent(url: String, token: String): Completable
 
-    val defaultFiatCurrency: String
+    val defaultFiatCurrency: FiatCurrency
 
     fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>>
 
@@ -369,16 +365,16 @@ sealed class CardAttributes {
 data class BuySellOrder(
     val id: String,
     val pair: String,
-    val fiat: FiatValue,
-    val crypto: CryptoValue,
+    val source: Money,
+    val target: Money,
     val paymentMethodId: String,
     val paymentMethodType: PaymentMethodType,
     val state: OrderState = OrderState.UNINITIALISED,
     val expires: Date = Date(),
     val updated: Date = Date(),
     val created: Date = Date(),
-    val fee: FiatValue? = null,
-    val price: FiatValue? = null,
+    val fee: Money? = null,
+    val price: Money? = null,
     val orderValue: Money? = null,
     val attributes: PaymentAttributes? = null,
     val type: OrderType,
@@ -408,7 +404,7 @@ data class Bank(
     val name: String,
     val account: String,
     val state: BankState,
-    val currency: String,
+    val currency: FiatCurrency,
     val accountType: String,
     val paymentMethodType: PaymentMethodType,
     val iconUrl: String,
@@ -446,7 +442,7 @@ data class CryptoTransaction(
     val receivingAddress: String,
     val fee: Money,
     val txHash: String,
-    val currency: String,
+    val currency: FiatCurrency,
     val paymentId: String?
 )
 
@@ -507,17 +503,15 @@ enum class CustodialOrderState {
 }
 
 data class BuySellPair(
-    val cryptoCurrency: AssetInfo,
-    val fiatCurrency: String,
+    val cryptoCurrency: Currency,
+    val fiatCurrency: Currency,
     val buyLimits: BuySellLimits,
     val sellLimits: BuySellLimits
 )
 
-data class BuySellPairs(val pairs: List<BuySellPair>)
-
-data class BuySellLimits(private val min: Long, private val max: Long) {
-    fun minLimit(currency: String): FiatValue = FiatValue.fromMinor(currency, min)
-    fun maxLimit(currency: String): FiatValue = FiatValue.fromMinor(currency, max)
+data class BuySellLimits(private val min: BigInteger, private val max: BigInteger) {
+    fun minLimit(currency: Currency): Money = Money.fromMinor(currency, min)
+    fun maxLimit(currency: Currency): Money = Money.fromMinor(currency, max)
 }
 
 enum class TransferDirection {
@@ -592,8 +586,8 @@ sealed class PaymentMethod(
         UndefinedPaymentMethod
 
     data class Funds(
-        val balance: FiatValue,
-        val fiatCurrency: String,
+        val balance: Money,
+        val fiatCurrency: FiatCurrency,
         override val limits: PaymentLimits,
         override val isEligible: Boolean
     ) : PaymentMethod(FUNDS_PAYMENT_ID, PaymentMethodType.FUNDS, limits, FUNDS_PAYMENT_METHOD_ORDER, isEligible)
@@ -726,10 +720,12 @@ sealed class PaymentMethod(
 
 interface UndefinedPaymentMethod
 
-data class PaymentLimits(override val min: FiatValue, override val max: FiatValue) : Serializable, LegacyLimits {
-    constructor(min: Long, max: Long, currency: String) : this(
-        FiatValue.fromMinor(currency, min),
-        FiatValue.fromMinor(currency, max)
+data class PaymentLimits internal constructor(override val min: Money, override val max: Money) :
+    Serializable,
+    LegacyLimits {
+    constructor(min: BigInteger, max: BigInteger, currency: Currency) : this(
+        Money.fromMinor(currency, min),
+        Money.fromMinor(currency, max)
     )
 }
 
@@ -794,63 +790,20 @@ data class TransferQuote(
     val sampleDepositAddress: String
 )
 
-sealed class CurrencyPair(val rawValue: String) {
-    data class CryptoCurrencyPair(val source: AssetInfo, val destination: AssetInfo) :
-        CurrencyPair("${source.networkTicker}-${destination.networkTicker}")
+data class CurrencyPair(val source: Currency, val destination: Currency) {
 
-    data class CryptoToFiatCurrencyPair(val source: AssetInfo, val destination: String) :
-        CurrencyPair("${source.networkTicker}-$destination")
-
-    data class FiatToCryptoCurrencyPair(val source: String, val destination: AssetInfo) :
-        CurrencyPair("$source-${destination.networkTicker}")
-
-    fun toSourceMoney(value: BigInteger): Money =
-        when (this) {
-            is CryptoCurrencyPair -> CryptoValue.fromMinor(source, value)
-            is CryptoToFiatCurrencyPair -> CryptoValue.fromMinor(source, value)
-            is FiatToCryptoCurrencyPair -> FiatValue.fromMinor(source, value.toLong())
-        }
-
-    fun toDestinationMoney(value: BigInteger): Money =
-        when (this) {
-            is CryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
-            is CryptoToFiatCurrencyPair -> FiatValue.fromMinor(destination, value.toLong())
-            is FiatToCryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
-        }
-
-    fun toDestinationMoney(value: BigDecimal): Money =
-        when (this) {
-            is CryptoCurrencyPair -> CryptoValue.fromMajor(destination, value)
-            is CryptoToFiatCurrencyPair -> FiatValue.fromMajor(destination, value)
-            is FiatToCryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
-        }
-
-    fun sourceCurrencyCode(): String = when (this) {
-        is CryptoCurrencyPair -> source.networkTicker
-        is CryptoToFiatCurrencyPair -> source.networkTicker
-        is FiatToCryptoCurrencyPair -> source
-    }
-
-    fun destinationCurrencyCode(): String = when (this) {
-        is CryptoCurrencyPair -> destination.networkTicker
-        is CryptoToFiatCurrencyPair -> destination
-        is FiatToCryptoCurrencyPair -> destination.networkTicker
-    }
+    val rawValue: String
+        get() = listOf(source.networkTicker, destination.networkTicker).joinToString("-")
 
     companion object {
         fun fromRawPair(
             rawValue: String,
-            assetCatalogue: AssetCatalogue,
-            supportedFiatCurrencies: List<String> = LiveCustodialWalletManager.SUPPORTED_FUNDS_CURRENCIES
+            assetCatalogue: AssetCatalogue
         ): CurrencyPair? {
             val parts = rawValue.split("-")
-            val source: AssetInfo = assetCatalogue.fromNetworkTicker(parts[0]) ?: return null
-            val destinationCryptoCurrency: AssetInfo? = assetCatalogue.fromNetworkTicker(parts[1])
-            if (destinationCryptoCurrency != null)
-                return CryptoCurrencyPair(source, destinationCryptoCurrency)
-            if (supportedFiatCurrencies.contains(parts[1]))
-                return CryptoToFiatCurrencyPair(source, parts[1])
-            return null
+            val source: Currency = assetCatalogue.fromNetworkTicker(parts[0]) ?: return null
+            val destination: Currency = assetCatalogue.fromNetworkTicker(parts[1]) ?: return null
+            return CurrencyPair(source, destination)
         }
     }
 }
@@ -861,14 +814,14 @@ data class PriceTier(
 )
 
 data class TransferLimits(
-    val minLimit: FiatValue,
-    val maxOrder: FiatValue,
-    val maxLimit: FiatValue
+    val minLimit: Money,
+    val maxOrder: Money,
+    val maxLimit: Money
 ) : LegacyLimits {
-    constructor(currency: String) : this(
-        minLimit = FiatValue.zero(currency),
-        maxOrder = FiatValue.zero(currency),
-        maxLimit = FiatValue.zero(currency)
+    constructor(currency: Currency) : this(
+        minLimit = Money.zero(currency),
+        maxOrder = Money.zero(currency),
+        maxLimit = Money.zero(currency)
     )
 
     override val min: Money
@@ -888,7 +841,7 @@ data class CustodialOrder(
 
 data class EligiblePaymentMethodType(
     val paymentMethodType: PaymentMethodType,
-    val currency: String
+    val currency: FiatCurrency
 )
 
 data class SimplifiedDueDiligenceUserState(

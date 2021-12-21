@@ -360,7 +360,7 @@ val coreModule = module {
             backupStore = CloudBackupAgent.backupPrefs(ctx = get()),
             idGenerator = get(),
             uuidGenerator = get(),
-            crashLogger = get(),
+            assetCatalogue = get(),
             environmentConfig = get()
         )
     }.bind(PersistentPrefs::class)

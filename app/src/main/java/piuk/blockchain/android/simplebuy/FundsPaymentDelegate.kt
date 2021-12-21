@@ -33,7 +33,7 @@ class FundsPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
             with(binding) {
                 (paymentMethodItem.paymentMethod as? PaymentMethod.Funds)?.let {
                     paymentMethodIcon.setImageResource(it.icon())
-                    ticker.text = paymentMethodItem.paymentMethod.fiatCurrency
+                    ticker.text = paymentMethodItem.paymentMethod.fiatCurrency.displayTicker
                     paymentMethodTitle.text = context.getString(it.label())
                     balance.text = it.balance.toStringWithSymbol()
                 }

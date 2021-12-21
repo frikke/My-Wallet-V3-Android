@@ -455,6 +455,7 @@ dependencies {
     androidTestImplementation Libraries.testRules
 
     testImplementation project(':testutils-android')
+    testImplementation project(':testutils')
 
     debugImplementation Libraries.chuckerDebug
     releaseImplementation Libraries.chuckerRelease

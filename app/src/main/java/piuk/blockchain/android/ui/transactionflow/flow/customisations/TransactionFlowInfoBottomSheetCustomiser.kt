@@ -11,12 +11,11 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimitPeriod
 import info.blockchain.balance.AssetCategory
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CurrencyType
 import java.io.Serializable
 import java.math.RoundingMode
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 
@@ -169,7 +168,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     description = infoDescriptionForPeriodicLimits(
                         R.string.max_swap_amount_description,
                         asset.displayTicker,
-                        state.receivingCurrency,
+                        state.receivingAsset.displayTicker,
                         availableAmount
                     )
                 )
@@ -182,7 +181,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     description = infoDescriptionForPeriodicLimits(
                         R.string.max_sell_amount_description,
                         asset.displayTicker,
-                        state.receivingCurrency,
+                        state.receivingAsset.displayTicker,
                         availableAmount
                     )
                 )
@@ -385,7 +384,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         val action = state.action.toHumanReadable().lowercase()
         when (state.action) {
             AssetAction.Send -> {
-                val sendingCryptoCurrency: AssetInfo =
+                val sendingCryptoCurrency =
                     state.sendingAsset ?: throw IllegalArgumentException("Missing source crypto currency")
                 val diff = (state.amount - balance).toStringWithSymbol()
                 return TransactionFlowBottomSheetInfo(

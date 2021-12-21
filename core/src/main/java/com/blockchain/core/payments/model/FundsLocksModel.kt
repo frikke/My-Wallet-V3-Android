@@ -1,15 +1,15 @@
 package com.blockchain.core.payments.model
 
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import java.io.Serializable
 import java.time.ZonedDateTime
 
 data class FundsLocks(
-    val onHoldTotalAmount: FiatValue,
+    val onHoldTotalAmount: Money,
     val locks: List<FundsLock>
 ) : Serializable
 
 data class FundsLock(
-    val amount: FiatValue,
+    val amount: Money,
     val date: ZonedDateTime
 ) : Serializable

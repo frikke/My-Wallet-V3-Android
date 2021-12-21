@@ -33,7 +33,7 @@ import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.ui.activity.CryptoActivityType
+import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.activity.detail.adapter.ActivityDetailsDelegateAdapter
 import piuk.blockchain.android.ui.base.HostedBottomSheet
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
@@ -87,12 +87,12 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
     private val asset: AssetInfo by lazy {
         arguments?.getString(ARG_CRYPTO_ASSET)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         } ?: throw IllegalArgumentException("Crypto asset should not be null")
     }
 
     private val activityType by lazy {
-        arguments?.getSerializable(ARG_ACTIVITY_TYPE) as? CryptoActivityType
+        arguments?.getSerializable(ARG_ACTIVITY_TYPE) as? ActivityType
             ?: throw IllegalArgumentException("ActivityDetailsType should not be null")
     }
 
@@ -536,7 +536,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     private fun loadActivityDetails(
         asset: AssetInfo,
         txHash: String,
-        activityType: CryptoActivityType
+        activityType: ActivityType
     ) {
         model.process(LoadActivityDetailsIntent(asset, txHash, activityType))
     }
@@ -554,7 +554,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         fun newInstance(
             asset: AssetInfo,
             txHash: String,
-            activityType: CryptoActivityType
+            activityType: ActivityType
         ): CryptoActivityDetailsBottomSheet {
             return CryptoActivityDetailsBottomSheet().apply {
                 arguments = Bundle().apply {

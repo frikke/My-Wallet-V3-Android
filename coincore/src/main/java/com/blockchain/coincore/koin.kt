@@ -127,7 +127,8 @@ val coincoreModule = module {
                 txProcessorFactory = get(),
                 defaultLabels = get(),
                 crashLogger = get(),
-                paymentsDataManager = get()
+                paymentsDataManager = get(),
+                currencyPrefs = get()
             )
         }
 

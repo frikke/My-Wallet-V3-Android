@@ -3,21 +3,21 @@ package piuk.blockchain.android.ui.transactionflow.engine
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NeedsApprovalException
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.FiatCustodialAccount
-import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -29,6 +29,9 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -38,7 +41,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
@@ -84,7 +86,7 @@ sealed class BankLinkingState {
 sealed class DepositOptionsState {
     object None : DepositOptionsState()
     data class ShowBottomSheet(val linkablePaymentMethods: LinkablePaymentMethods) : DepositOptionsState()
-    data class LaunchWireTransfer(val fiatCurrency: String) : DepositOptionsState()
+    data class LaunchWireTransfer(val fiatCurrency: FiatCurrency) : DepositOptionsState()
     object LaunchLinkBank : DepositOptionsState()
     data class Error(val e: Throwable) : DepositOptionsState()
 }
@@ -97,18 +99,13 @@ sealed class TxExecutionStatus {
     data class Error(val exception: Throwable) : TxExecutionStatus()
 }
 
-fun BlockchainAccount.getZeroAmountForAccount() =
-    when (this) {
-        is CryptoAccount -> CryptoValue.zero(this.asset)
-        is LinkedBankAccount -> FiatValue.zero(this.currency)
-        is FiatAccount -> FiatValue.zero(this.fiatCurrency)
-        else -> throw IllegalStateException("Account is not a crypto, bank or fiat account")
-    }
+fun SingleAccount.getZeroAmountForAccount() =
+    Money.zero(this.currency)
 
 data class TransactionState(
     override val action: AssetAction = AssetAction.Send,
     val currentStep: TransactionStep = TransactionStep.ZERO,
-    val sendingAccount: BlockchainAccount = NullCryptoAccount(),
+    val sendingAccount: SingleAccount = NullCryptoAccount(),
     val selectedTarget: TransactionTarget = NullAddress,
     override val fiatRate: ExchangeRate? = null,
     val targetRate: ExchangeRate? = null,
@@ -130,16 +127,17 @@ data class TransactionState(
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
-    override val sendingAsset: AssetInfo
-        get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
-            "Trying to use cryptocurrency with non-crypto source"
-        )
+    override val sendingAsset: Currency
+        get() = sendingAccount.currency
 
-    override val receivingCurrency: String
-        get() = (selectedTarget as? CryptoAccount)?.asset?.networkTicker
-            ?: (selectedTarget as? FiatAccount)?.fiatCurrency ?: throw IllegalStateException(
-            "Missing receiving currency"
-        )
+    override val receivingAsset: Currency
+        get() = when (selectedTarget) {
+            is SingleAccount -> selectedTarget.currency
+            is CryptoTarget -> selectedTarget.asset
+            else -> throw IllegalStateException(
+                "Missing receiving currency"
+            )
+        }
 
     override val limits: TxLimits
         get() = pendingTx?.limits ?: throw IllegalStateException("Limits are not define")
@@ -177,18 +175,17 @@ data class TransactionState(
 
     private fun availableToAmountCurrency(available: Money, amount: Money): Money =
         when (amount) {
-            is FiatValue -> fiatRate?.convert(available) ?: FiatValue.zero(amount.currencyCode)
+            is FiatValue -> fiatRate?.convert(available) ?: Money.zero(amount.currency)
             is CryptoValue -> available
             else -> throw IllegalStateException("Unknown money type")
         }
 
     // If the current amount is the amount that was specified in a CryptoAddress target, then return that amount.
-    // This is a hack to allow the enter amount screen to uypdate to the initial amount, if one is specified,
+    // This is a hack to allow the enter amount screen to update to the initial amount, if one is specified,
     // without getting stuck in an update loop
-    fun initialAmountToSet(): CryptoValue? {
+    fun initialAmountToSet(): Money? {
         return if (selectedTarget is CryptoAddress) {
             val amount = selectedTarget.amount
-
             if (amount != null && amount.isPositive && amount == pendingTx?.amount) {
                 selectedTarget.amount
             } else {
@@ -347,7 +344,7 @@ class TransactionModel(
     }
 
     private fun processLinkABank(previousState: TransactionState): Disposable =
-        interactor.linkABank((previousState.selectedTarget as FiatAccount).fiatCurrency)
+        interactor.linkABank((previousState.selectedTarget as FiatAccount).currency)
             .subscribeBy(
                 onSuccess = { bankTransfer ->
                     process(TransactionIntent.LinkBankInfoSuccess(bankTransfer))
@@ -579,7 +576,7 @@ class TransactionModel(
             )
 
     private fun processFiatDepositOptions(previousState: TransactionState) =
-        interactor.updateFiatDepositOptions((previousState.selectedTarget as FiatCustodialAccount).fiatCurrency)
+        interactor.updateFiatDepositOptions((previousState.selectedTarget as FiatCustodialAccount).currency)
             .subscribeBy(
                 onSuccess = {
                     process(it)

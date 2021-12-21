@@ -31,6 +31,8 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -135,7 +137,7 @@ class TransactionInteractor(
         ).map { (accountList, pairs) ->
             accountList.filterIsInstance(FiatAccount::class.java)
                 .filter { account ->
-                    pairs.any { it.source == sourceAccount.asset && account.fiatCurrency == it.destination }
+                    pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
                 }
         }
     }
@@ -148,7 +150,7 @@ class TransactionInteractor(
         ).map { (accountList, pairs, eligible) ->
             accountList.filterIsInstance(CryptoAccount::class.java)
                 .filter { account ->
-                    pairs.any { it.source == sourceAccount.asset && account.asset == it.destination }
+                    pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
                 }.filter { account ->
                     eligible or (account is NonCustodialAccount)
                 }
@@ -176,7 +178,7 @@ class TransactionInteractor(
                 require(targetAccount is CryptoAccount)
                 coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter()).map {
                     it.filter { acc ->
-                        acc is CryptoAccount && acc.asset == targetAccount.asset && acc != targetAccount
+                        acc is CryptoAccount && acc.currency == targetAccount.currency && acc != targetAccount
                     }
                 }
             }
@@ -210,7 +212,8 @@ class TransactionInteractor(
         transactionProcessor?.reset() ?: Timber.i("TxProcessor is not initialised yet")
     }
 
-    fun linkABank(selectedFiat: String): Single<LinkBankTransfer> = custodialWalletManager.linkToABank(selectedFiat)
+    fun linkABank(selectedFiat: FiatCurrency): Single<LinkBankTransfer> =
+        custodialWalletManager.linkToABank(selectedFiat)
 
     fun updateFiatDepositState(bankPaymentData: BankPaymentApproval) {
         bankLinkingPrefs.setBankLinkingState(
@@ -234,15 +237,15 @@ class TransactionInteractor(
             }
         )
 
-    private fun showLocksInFiat(available: Money): String {
+    private fun showLocksInFiat(available: Money): Currency {
         return if (available is FiatValue) {
-            available.currencyCode
+            available.currency
         } else {
             currencyPrefs.selectedFiatCurrency
         }
     }
 
-    fun updateFiatDepositOptions(fiatCurrency: String): Single<TransactionIntent> {
+    fun updateFiatDepositOptions(fiatCurrency: FiatCurrency): Single<TransactionIntent> {
         return custodialWalletManager.getEligiblePaymentTypesForFiatDeposit(fiatCurrency).map { linkableBanks ->
             val paymentMethod = linkableBanks.filter { it.currency == fiatCurrency }.distinct().firstOrNull()
 
@@ -275,7 +278,7 @@ class TransactionInteractor(
     }
 }
 
-private fun CustodialWalletManager.getEligiblePaymentTypesForFiatDeposit(fiatCurrency: String):
+private fun CustodialWalletManager.getEligiblePaymentTypesForFiatDeposit(fiatCurrency: FiatCurrency):
     Single<Set<LinkablePaymentMethods>> =
 
     getEligiblePaymentMethodTypes(fiatCurrency).map { methods ->
@@ -292,5 +295,5 @@ private fun CustodialWalletManager.getEligiblePaymentTypesForFiatDeposit(fiatCur
         }.toSet()
     }
 
-private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair.CryptoCurrencyPair>): Boolean =
-    pairs.any { it.source == this.asset }
+private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =
+    pairs.any { it.source == this.currency }

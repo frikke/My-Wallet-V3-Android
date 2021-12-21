@@ -10,15 +10,16 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -33,7 +34,6 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
@@ -74,7 +74,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         binding.errorLayout.errorContainer
     }
 
-    private val inputCurrency: CurrencyType
+    private val inputCurrency: Currency
         get() = binding.amountSheetInput.configuration.inputCurrency
 
     private val imm: InputMethodManager by lazy {
@@ -100,7 +100,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                         TransactionIntent.AmountChanged(
                             when {
                                 !state.allowFiatInput && amount is FiatValue -> {
-                                    convertFiatToCrypto(amount, rate as ExchangeRate.CryptoToFiat, state).also {
+                                    convertFiatToCrypto(amount, rate, state).also {
                                         binding.amountSheetInput.fixExchange(it)
                                     }
                                 }
@@ -141,7 +141,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         compositeDisposable += binding.amountSheetInput.onInputToggle
             .subscribe {
                 analyticsHooks.onCryptoToggle(it, state)
-                model.process(TransactionIntent.DisplayModeChanged(it))
+                model.process(TransactionIntent.DisplayModeChanged(it.type))
             }
     }
 
@@ -246,13 +246,13 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             }
             errorState.isAmountRelated() -> {
                 if (isAmountPositive) {
-                    showError(state, customiser.issueFlashMessage(state, inputCurrency))
+                    showError(state, customiser.issueFlashMessage(state, inputCurrency.type))
                 } else {
                     showCta()
                 }
             }
             !errorState.isAmountRelated() -> {
-                showError(state, customiser.issueFlashMessage(state, inputCurrency))
+                showError(state, customiser.issueFlashMessage(state, inputCurrency.type))
             }
         }
     }
@@ -268,7 +268,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             binding.errorLayout.errorMessage.text = it
             errorContainer.visible()
             val bottomSheetInfo =
-                bottomSheetInfoCustomiser.info(state, binding.amountSheetInput.configuration.inputCurrency)
+                bottomSheetInfoCustomiser.info(state, binding.amountSheetInput.configuration.inputCurrency.type)
             bottomSheetInfo?.let { info ->
                 errorContainer.setOnClickListener {
                     TransactionFlowInfoBottomSheet.newInstance(info)
@@ -283,8 +283,9 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         info.action?.actionType?.let { type ->
             when (type) {
                 InfoActionType.BUY -> {
-                    val asset = (state.sendingAccount as? CryptoAccount)?.asset
+                    val asset = (state.sendingAccount as? CryptoAccount)?.currency
                     require(asset != null)
+                    require(asset is AssetInfo)
                     return { startBuyForCurrency(asset) }
                 }
                 InfoActionType.KYC_UPGRADE -> return { startKyc() }
@@ -379,7 +380,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
     private fun convertFiatToCrypto(
         amount: FiatValue,
-        rate: ExchangeRate.CryptoToFiat,
+        rate: ExchangeRate,
         state: TransactionState
     ): Money {
         val min = state.pendingTx?.limits?.minAmount ?: return rate.inverse().convert(amount)
@@ -405,34 +406,40 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
     private fun FiatCryptoInputView.configure(
         state: TransactionState,
-        inputCurrency: CurrencyType
+        inputCurrency: Currency
     ) {
         val selectedFiat = state.pendingTx?.selectedFiat ?: return
         // Input currency is configured as crypto or we are coming back from the checkout screen
         when {
-            inputCurrency is CurrencyType.Crypto || state.amount.takeIf { it is CryptoValue }?.isPositive == true -> {
+            inputCurrency.type ==
+                CurrencyType.CRYPTO || state.amount.takeIf { it is CryptoValue }?.isPositive == true -> {
                 configuration = FiatCryptoViewConfiguration(
-                    inputCurrency = CurrencyType.Crypto(state.sendingAsset),
-                    exchangeCurrency = CurrencyType.Fiat(selectedFiat),
+                    inputCurrency = state.sendingAsset,
+                    exchangeCurrency = selectedFiat,
                     predefinedAmount = state.amount
                 )
             }
             // both input and selected fiat are fiats (Deposit and withdraw fiat from/to external)
-            inputCurrency is CurrencyType.Fiat && inputCurrency.fiatCurrency != selectedFiat -> {
+            inputCurrency.type == CurrencyType.FIAT && inputCurrency != selectedFiat -> {
                 configuration = FiatCryptoViewConfiguration(
                     inputCurrency = inputCurrency,
                     outputCurrency = inputCurrency,
-                    exchangeCurrency = CurrencyType.Fiat(selectedFiat),
+                    exchangeCurrency = selectedFiat,
                     predefinedAmount = state.amount
                 )
             }
             else -> {
                 val fiatRate = state.fiatRate ?: return
-                val isCryptoWithFiatExchange = state.amount is CryptoValue && fiatRate is ExchangeRate.CryptoToFiat
+                val isCryptoWithFiatExchange =
+                    state.amount is CryptoValue &&
+                        (
+                            fiatRate.from.type == CurrencyType.CRYPTO &&
+                                fiatRate.to.type == CurrencyType.FIAT
+                            )
                 configuration = FiatCryptoViewConfiguration(
-                    inputCurrency = CurrencyType.Fiat(selectedFiat),
-                    outputCurrency = CurrencyType.Fiat(selectedFiat),
-                    exchangeCurrency = state.sendingAccount.currencyType(),
+                    inputCurrency = selectedFiat,
+                    outputCurrency = selectedFiat,
+                    exchangeCurrency = (state.sendingAccount as SingleAccount).currency,
                     predefinedAmount = if (isCryptoWithFiatExchange) {
                         fiatRate.convert(state.amount)
                     } else {
@@ -496,13 +503,6 @@ private fun TransactionState.isAmountValid(): Boolean {
     if (amount.isZero) return true
     return !errorState.isAmountRelated()
 }
-
-private fun BlockchainAccount.currencyType(): CurrencyType =
-    when (this) {
-        is CryptoAccount -> CurrencyType.Crypto(this.asset)
-        is FiatAccount -> CurrencyType.Fiat(this.fiatCurrency)
-        else -> throw IllegalStateException("Account not supported")
-    }
 
 private fun PendingTx.isLowOnBalance() =
     feeSelection.selectedLevel != FeeLevel.None &&

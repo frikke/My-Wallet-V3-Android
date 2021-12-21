@@ -6,17 +6,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
-import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.Date
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
-import piuk.blockchain.android.ui.activity.CryptoActivityType
+import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
@@ -24,9 +22,7 @@ import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 
 class CustodialTradingActivityItemDelegate<in T>(
-    private val currencyPrefs: CurrencyPrefs,
-    private val historicRateFetcher: HistoricRateFetcher,
-    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
+    private val onItemClicked: (AssetInfo, String, ActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<T> {
 
     override fun isForViewType(items: List<T>, position: Int): Boolean =
@@ -43,8 +39,6 @@ class CustodialTradingActivityItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as CustodialTradingActivityItemViewHolder).bind(
         items[position] as CustodialTradingActivitySummaryItem,
-        currencyPrefs.selectedFiatCurrency,
-        historicRateFetcher,
         onItemClicked
     )
 }
@@ -57,9 +51,7 @@ private class CustodialTradingActivityItemViewHolder(
 
     fun bind(
         tx: CustodialTradingActivitySummaryItem,
-        selectedFiatCurrency: String,
-        historicRateFetcher: HistoricRateFetcher,
-        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, ActivityType) -> Unit
     ) {
         disposables.clear()
         with(binding) {
@@ -85,7 +77,7 @@ private class CustodialTradingActivityItemViewHolder(
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
 
             txRoot.setOnClickListener {
-                onAccountClicked(tx.asset, tx.txId, CryptoActivityType.CUSTODIAL_TRADING)
+                onAccountClicked(tx.asset, tx.txId, ActivityType.CUSTODIAL_TRADING)
             }
         }
     }

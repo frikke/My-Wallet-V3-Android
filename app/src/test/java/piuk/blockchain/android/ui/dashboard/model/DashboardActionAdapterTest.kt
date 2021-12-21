@@ -11,6 +11,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.YodleeAttributes
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -28,7 +29,7 @@ class DashboardActionAdapterTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
-        on { fiatCurrency }.thenReturn("USD")
+        on { currency }.thenReturn(USD)
     }
 
     private val internalFlags: InternalFeatureFlagApi = mock()
@@ -85,7 +86,7 @@ class DashboardActionAdapterTest {
                 targetFiatAccount,
                 LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                     LinkablePaymentMethods(
-                        "USD",
+                        USD,
                         listOf(
                             PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT
                         )
@@ -107,7 +108,7 @@ class DashboardActionAdapterTest {
                 emptyList()
             )
         )
-        whenever(custodialWalletManager.linkToABank("USD")).thenReturn(
+        whenever(custodialWalletManager.linkToABank(USD)).thenReturn(
             Single.just(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
@@ -162,7 +163,7 @@ class DashboardActionAdapterTest {
     @Test
     fun `with 1 available bank transfer, flow should be launched and wire transfer should get ignored`() {
         val linkedBankAccount: LinkedBankAccount = mock {
-            on { currency }.thenReturn("USD")
+            on { currency }.thenReturn(USD)
             on { type }.thenReturn(PaymentMethodType.BANK_TRANSFER)
         }
         whenever(linkedBanksFactory.eligibleBankPaymentMethods(any())).thenReturn(
@@ -203,7 +204,7 @@ class DashboardActionAdapterTest {
             )
         )
 
-        whenever(custodialWalletManager.linkToABank("USD")).thenReturn(
+        whenever(custodialWalletManager.linkToABank(USD)).thenReturn(
             Single.just(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")

@@ -26,6 +26,7 @@ import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TEST_ASSET
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
+import com.blockchain.coincore.testutil.EUR
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -80,7 +81,7 @@ class TxProcessorFactoryTest {
         val source: CryptoNonCustodialAccount = mock {
             on { createTxEngine() }.thenReturn(mockBaseEngine)
             // this Crypto instance needs to live here as Bitpay only accepts BTC and BCH
-            on { asset }.thenReturn(CryptoCurrency.BTC)
+            on { currency }.thenReturn(CryptoCurrency.BTC)
         }
 
         val target: BitPayInvoiceTarget = mock()
@@ -106,7 +107,7 @@ class TxProcessorFactoryTest {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
         val source: CryptoNonCustodialAccount = mock {
             on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         val mockReceiveAddress: ReceiveAddress = mock()
@@ -134,7 +135,7 @@ class TxProcessorFactoryTest {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
         val source: CryptoNonCustodialAccount = mock {
             on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         val target: CryptoAddress = mock()
@@ -154,11 +155,11 @@ class TxProcessorFactoryTest {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
         val source: CryptoNonCustodialAccount = mock {
             on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         val target: CryptoNonCustodialAccount = mock {
-            on { asset }.thenReturn(SECONDARY_TEST_ASSET)
+            on { currency }.thenReturn(SECONDARY_TEST_ASSET)
         }
 
         subject.createProcessor(source, target, AssetAction.Swap)
@@ -181,7 +182,7 @@ class TxProcessorFactoryTest {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
         val source: CryptoNonCustodialAccount = mock {
             on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         val mockReceiveAddress: ReceiveAddress = mock()
@@ -204,11 +205,11 @@ class TxProcessorFactoryTest {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
         val source: CryptoNonCustodialAccount = mock {
             on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         val target: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn("EUR")
+            on { currency }.thenReturn(EUR)
         }
 
         subject.createProcessor(source, target, AssetAction.Send)
@@ -241,7 +242,7 @@ class TxProcessorFactoryTest {
     @Test
     fun tradingToOnChainNoteSupportedSendProcessor() {
         val source: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
             on { isNoteSupported }.thenReturn(true)
         }
 
@@ -266,7 +267,7 @@ class TxProcessorFactoryTest {
     @Test
     fun tradingToOnChainNoteNotSupportedSendProcessor() {
         val source: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
             on { isNoteSupported }.thenReturn(false)
         }
 
@@ -291,11 +292,11 @@ class TxProcessorFactoryTest {
     @Test
     fun tradingToInterestProcessor() {
         val source: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         val target: CryptoInterestAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         subject.createProcessor(source, target, AssetAction.Send)
@@ -315,11 +316,11 @@ class TxProcessorFactoryTest {
     @Test
     fun tradingToFiatProcessor() {
         val source: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         val target: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn("EUR")
+            on { currency }.thenReturn(EUR)
         }
 
         subject.createProcessor(source, target, AssetAction.Send)
@@ -339,11 +340,11 @@ class TxProcessorFactoryTest {
     @Test
     fun tradingToTradingProcessor() {
         val source: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         val target: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(SECONDARY_TEST_ASSET)
+            on { currency }.thenReturn(SECONDARY_TEST_ASSET)
         }
 
         subject.createProcessor(source, target, AssetAction.Send)
@@ -363,7 +364,7 @@ class TxProcessorFactoryTest {
     @Test
     fun tradingToOnChainNoteSupportedProcessor() {
         val source: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
             on { isNoteSupported }.thenReturn(true)
         }
 
@@ -391,7 +392,7 @@ class TxProcessorFactoryTest {
     @Test
     fun tradingToOnChainNoteNotSupportedProcessor() {
         val source: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
             on { isNoteSupported }.thenReturn(false)
         }
 
@@ -431,10 +432,10 @@ class TxProcessorFactoryTest {
     @Test
     fun interestWithdrawalToTradingProcessor() {
         val source: CryptoInterestAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
         val target: CustodialTradingAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         subject.createProcessor(source, target, AssetAction.Send)
@@ -454,10 +455,10 @@ class TxProcessorFactoryTest {
     @Test
     fun interestWithdrawalToOnChainProcessor() {
         val source: CryptoInterestAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
         val target: CryptoNonCustodialAccount = mock {
-            on { asset }.thenReturn(TEST_ASSET)
+            on { currency }.thenReturn(TEST_ASSET)
         }
 
         subject.createProcessor(source, target, AssetAction.Send)

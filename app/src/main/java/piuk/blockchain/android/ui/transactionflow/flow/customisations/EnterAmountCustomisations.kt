@@ -3,7 +3,8 @@ package piuk.blockchain.android.ui.transactionflow.flow.customisations
 import android.content.Context
 import android.widget.FrameLayout
 import android.widget.ImageView
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
@@ -16,11 +17,10 @@ interface EnterAmountCustomisations {
     fun enterAmountSourceLabel(state: TransactionState): String
     fun enterAmountTargetLabel(state: TransactionState): String
     fun enterAmountLoadSourceIcon(imageView: ImageView, state: TransactionState)
-    fun defInputType(state: TransactionState, fiatCurrency: String): CurrencyType
+    fun defInputType(state: TransactionState, fiatCurrency: Currency): Currency
     fun showTargetIcon(state: TransactionState): Boolean
     fun shouldDisableInput(errorState: TransactionErrorState): Boolean
     fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String
-    fun issueFlashMessageLegacy(state: TransactionState, input: CurrencyType?): String?
     fun issueFeesTooHighMessage(state: TransactionState): String?
     fun shouldDisplayFeesErrorMessage(state: TransactionState): Boolean
     fun selectIssueType(state: TransactionState): IssueType

@@ -201,7 +201,13 @@ val nabuModule = module {
             AnalyticsWalletReporter(userAnalytics = get())
         }.bind(WalletReporter::class)
 
-        factory { NabuTierService(get(), get()) }
+        factory {
+            NabuTierService(
+                assetCatalogue = get(),
+                authenticator = get(),
+                endpoint = get()
+            )
+        }
             .bind(TierService::class)
             .bind(TierUpdater::class)
 

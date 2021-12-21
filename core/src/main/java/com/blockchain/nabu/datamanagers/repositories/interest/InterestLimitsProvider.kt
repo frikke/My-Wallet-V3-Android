@@ -5,7 +5,7 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
 import java.util.Date
@@ -23,19 +23,19 @@ class InterestLimitsProviderImpl(
 ) : InterestLimitsProvider {
     override fun getLimitsForAllAssets(): Single<InterestLimitsList> =
         authenticator.authenticate {
-            nabuService.getInterestLimits(it, currencyPrefs.selectedFiatCurrency)
+            nabuService.getInterestLimits(it, currencyPrefs.selectedFiatCurrency.networkTicker)
                 .map { responseBody ->
                     InterestLimitsList(
                         responseBody.limits.assetMap.entries.mapNotNull { entry ->
-                            assetCatalogue.fromNetworkTicker(entry.key)?.let { crypto ->
+                            assetCatalogue.assetInfoFromNetworkTicker(entry.key)?.let { crypto ->
 
-                                val minDepositFiatValue = FiatValue.fromMinor(
+                                val minDepositFiatValue = Money.fromMinor(
                                     currencyPrefs.selectedFiatCurrency,
-                                    entry.value.minDepositAmount.toLong()
+                                    entry.value.minDepositAmount.toBigInteger()
                                 )
-                                val maxWithdrawalFiatValue = FiatValue.fromMinor(
+                                val maxWithdrawalFiatValue = Money.fromMinor(
                                     currencyPrefs.selectedFiatCurrency,
-                                    entry.value.maxWithdrawalAmount.toLong()
+                                    entry.value.maxWithdrawalAmount.toBigInteger()
                                 )
 
                                 val calendar = Calendar.getInstance()
@@ -59,11 +59,11 @@ class InterestLimitsProviderImpl(
 
 data class InterestLimits(
     val interestLockUpDuration: Int,
-    val minDepositFiatValue: FiatValue,
+    val minDepositFiatValue: Money,
     val cryptoCurrency: AssetInfo,
     val currency: String,
     val nextInterestPayment: Date,
-    val maxWithdrawalFiatValue: FiatValue
+    val maxWithdrawalFiatValue: Money
 )
 
 data class InterestLimitsList(

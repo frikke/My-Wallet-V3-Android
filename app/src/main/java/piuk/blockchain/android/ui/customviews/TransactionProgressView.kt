@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
@@ -29,7 +29,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         binding.txIcon.setImageResource(assetIcon)
     }
 
-    fun setAssetIcon(asset: AssetInfo) {
+    fun setAssetIcon(asset: Currency) {
         assetResources.loadAssetIcon(binding.txIcon, asset)
     }
 

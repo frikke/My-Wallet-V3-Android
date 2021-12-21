@@ -6,7 +6,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.SimpleBuyState
@@ -37,10 +37,10 @@ sealed class ViewToLaunch {
     object ShowOpenBankingError : ViewToLaunch()
     class LaunchOpenBankingLinking(val bankLinkingInfo: BankLinkingInfo) : ViewToLaunch()
     object LaunchOpenBankingBuyApprovalError : ViewToLaunch()
-    class LaunchOpenBankingApprovalDepositInProgress(val value: FiatValue) : ViewToLaunch()
+    class LaunchOpenBankingApprovalDepositInProgress(val value: Money) : ViewToLaunch()
     class LaunchOpenBankingApprovalTimeout(val currencyCode: String) : ViewToLaunch()
     class LaunchOpenBankingError(val currencyCode: String) : ViewToLaunch()
-    class LaunchOpenBankingApprovalDepositComplete(val amount: FiatValue, val estimatedDepositCompletionTime: String) :
+    class LaunchOpenBankingApprovalDepositComplete(val amount: Money, val estimatedDepositCompletionTime: String) :
         ViewToLaunch()
 
     object LaunchSimpleBuyFromDeepLinkApproval : ViewToLaunch()

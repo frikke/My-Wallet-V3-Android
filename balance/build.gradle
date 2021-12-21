@@ -8,6 +8,7 @@ dependencies {
     implementation Libraries.kotlin
 
     // Testing
+    testImplementation project(':testutils')
     testImplementation Libraries.junit
     testImplementation Libraries.mockito
     testImplementation Libraries.kluent

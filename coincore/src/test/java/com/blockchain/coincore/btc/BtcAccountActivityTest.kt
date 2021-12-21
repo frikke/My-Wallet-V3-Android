@@ -3,6 +3,7 @@ package com.blockchain.coincore.btc
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.coincore.testutil.USD
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -92,8 +93,8 @@ class BtcAccountActivityTest : CoincoreTestBase() {
             sendingValue = sendingValue,
             receivingValue = receivingValue,
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.ETHER),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            apiFiatValue = FiatValue.zero("USD"),
+            currencyPair = CurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
+            apiFiatValue = FiatValue.zero(USD),
             price = mock()
         )
 
@@ -152,7 +153,7 @@ class BtcAccountActivityTest : CoincoreTestBase() {
             sendingValue = sendingValue,
             receivingValue = receivingValue,
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.ETHER),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
+            currencyPair = CurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
             apiFiatValue = FiatValue.zero(TEST_USER_FIAT),
             price = mock()
         )
@@ -176,7 +177,7 @@ class BtcAccountActivityTest : CoincoreTestBase() {
                     swapItem is TradeActivitySummaryItem &&
                     swapItem.txId == swapSummary.txId &&
                     swapItem.direction == swapSummary.direction &&
-                    swapItem.currencyPair == CurrencyPair.CryptoCurrencyPair(
+                    swapItem.currencyPair == CurrencyPair(
                     CryptoCurrency.BTC,
                     CryptoCurrency.ETHER
                 ) &&
@@ -220,7 +221,7 @@ class BtcAccountActivityTest : CoincoreTestBase() {
             sendingValue = sendingValue,
             receivingValue = receivingValue,
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.ETHER),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
+            currencyPair = CurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
             apiFiatValue = FiatValue.zero(TEST_USER_FIAT),
             price = mock()
         )

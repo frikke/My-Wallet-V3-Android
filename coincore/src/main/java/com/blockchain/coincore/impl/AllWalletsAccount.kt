@@ -7,32 +7,33 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
-import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 class AllWalletsAccount(
     override val accounts: SingleAccountList,
-    labels: DefaultLabels
+    labels: DefaultLabels,
+    private val currencyPrefs: CurrencyPrefs
 ) : AccountGroup {
 
     override val label: String = labels.getAllWalletLabel()
 
     override val balance: Observable<AccountBalance>
-        get() = Observable.error(NotImplementedError("No unified balance for All Wallets meta account"))
-
-    override val accountBalance: Single<Money>
-        get() = Single.error(NotImplementedError("No unified balance for All Wallets meta account"))
-
-    override val actionableBalance: Single<Money>
-        get() = Single.error(NotImplementedError("No unified balance for All Wallets meta account"))
-
-    override val pendingBalance: Single<Money>
-        get() = Single.error(NotImplementedError("No unified pending balance for All Wallets meta account"))
+        get() = allAccounts().flattenAsObservable { it.filterIsInstance<SingleAccount>() }.flatMapSingle {
+            it.balance.firstOrError()
+        }.reduce { a, v ->
+            AccountBalance(
+                total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
+                withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
+                pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+                exchangeRate = ExchangeRate.identityExchangeRate(currencyPrefs.selectedFiatCurrency)
+            )
+        }.toObservable()
 
     override val activity: Single<ActivitySummaryList>
         get() = allActivities()
@@ -45,12 +46,6 @@ class AllWalletsAccount(
 
     override val hasTransactions: Boolean
         get() = true
-
-    override fun fiatBalance(fiatCurrency: String, exchangeRates: ExchangeRates): Single<Money> =
-        allAccounts().flattenAsObservable { it }
-            .flatMapSingle { it.fiatBalance(fiatCurrency, exchangeRates) }
-            .reduce { a, v -> a + v }
-            .defaultIfEmpty(FiatValue.zero(fiatCurrency))
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.error(NotImplementedError("No receive address for All Wallets meta account"))

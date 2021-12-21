@@ -2,8 +2,7 @@ package piuk.blockchain.android.ui.customviews.account
 
 import androidx.recyclerview.widget.DiffUtil
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.SingleAccount
 
 internal class AccountsDiffUtil(
     private val oldAccounts: List<AccountsListItem>,
@@ -30,15 +29,8 @@ internal fun BlockchainAccount.isTheSameWith(other: BlockchainAccount): Boolean 
         this.label == other.label
 
 private fun BlockchainAccount.hasTheSameAsset(other: BlockchainAccount): Boolean {
-    val thisCryptoAsset = (this as? CryptoAccount)?.asset
-    val otherCryptoAsset = (other as? CryptoAccount)?.asset
-    if (thisCryptoAsset != null && thisCryptoAsset == otherCryptoAsset)
-        return true
+    val otherCurrency = (other as? SingleAccount)?.currency ?: return false
+    val thisCurrency = (this as? SingleAccount)?.currency ?: return false
 
-    val thisFiatAsset = (this as? FiatAccount)?.fiatCurrency
-    val otherFiatAsset = (other as? FiatAccount)?.fiatCurrency
-    if (thisFiatAsset != null && thisFiatAsset == otherFiatAsset)
-        return true
-
-    return false
+    return otherCurrency == thisCurrency
 }

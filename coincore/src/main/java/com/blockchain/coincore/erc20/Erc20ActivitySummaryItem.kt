@@ -7,6 +7,7 @@ import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -40,7 +41,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
     override val description: String?
         get() = erc20DataManager.getErc20TxNote(asset = asset, txHash = txId)
 
-    override val fee: Observable<CryptoValue>
+    override val fee: Observable<Money>
         get() = event.fee.toObservable()
 
     override val txId: String = event.transactionHash

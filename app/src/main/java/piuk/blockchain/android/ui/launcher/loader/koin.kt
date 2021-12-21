@@ -31,6 +31,7 @@ val loaderModule = module {
                 analytics = get(),
                 currencyPrefs = get(),
                 nabuUserDataManager = get(),
+                assetCatalogue = get(),
                 notificationTokenManager = get(),
                 settingsDataManager = get(),
                 prerequisites = get(),

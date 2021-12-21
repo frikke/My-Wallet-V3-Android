@@ -3,14 +3,17 @@ package piuk.blockchain.android.ui.activity.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.asAssetInfoOrThrow
 import java.util.Date
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
-import piuk.blockchain.android.ui.activity.CryptoActivityType
+import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
@@ -18,14 +21,12 @@ import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.setTransactionIsConfirming
 
-class SellActivityItemDelegate<in T>(
-    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
-) : AdapterDelegate<T> {
+class SellActivityItemDelegate(
+    private val onItemClicked: (AssetInfo, String, ActivityType) -> Unit // crypto, txID, type
+) : AdapterDelegate<ActivitySummaryItem> {
 
-    override fun isForViewType(items: List<T>, position: Int): Boolean =
-        (items[position] as? TradeActivitySummaryItem)?.let {
-            it.currencyPair is CurrencyPair.CryptoToFiatCurrencyPair
-        } ?: false
+    override fun isForViewType(items: List<ActivitySummaryItem>, position: Int): Boolean =
+        (items[position] as? TradeActivitySummaryItem)?.currencyPair?.isSellingPair() ?: false
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         SellActivityItemViewHolder(
@@ -33,7 +34,7 @@ class SellActivityItemDelegate<in T>(
         )
 
     override fun onBindViewHolder(
-        items: List<T>,
+        items: List<ActivitySummaryItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as SellActivityItemViewHolder).bind(
@@ -48,29 +49,29 @@ private class SellActivityItemViewHolder(
 
     fun bind(
         tx: TradeActivitySummaryItem,
-        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, ActivityType) -> Unit
     ) {
+        val pair = tx.currencyPair
         with(binding) {
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
-            (tx.currencyPair as? CurrencyPair.CryptoToFiatCurrencyPair)?.let { pair ->
-                txType.text = context.resources.getString(
-                    R.string.tx_title_sold,
-                    pair.source.displayTicker
-                )
-                when {
-                    tx.state.isPending -> icon.setTransactionIsConfirming()
-                    tx.state.hasFailed -> icon.setTransactionHasFailed()
-                    else -> {
-                        icon.apply {
-                            setImageResource(R.drawable.ic_tx_sell)
-                            setAssetIconColoursWithTint(pair.source)
-                        }
+            txType.text = context.resources.getString(
+                R.string.tx_title_sold,
+                pair.source.displayTicker
+            )
+            when {
+                tx.state.isPending -> icon.setTransactionIsConfirming()
+                tx.state.hasFailed -> icon.setTransactionHasFailed()
+                else -> {
+                    icon.apply {
+                        setImageResource(R.drawable.ic_tx_sell)
+                        setAssetIconColoursWithTint(pair.source)
                     }
                 }
-                txRoot.setOnClickListener {
-                    onAccountClicked(pair.source, tx.txId, CryptoActivityType.SELL)
-                }
             }
+            txRoot.setOnClickListener {
+                onAccountClicked(pair.source.asAssetInfoOrThrow(), tx.txId, ActivityType.SELL)
+            }
+
             setTextColours(tx.state.isPending)
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.text = tx.receivingValue.toStringWithSymbol()
@@ -93,3 +94,6 @@ private class SellActivityItemViewHolder(
         }
     }
 }
+
+private fun CurrencyPair.isSellingPair(): Boolean =
+    source.type == CurrencyType.CRYPTO && destination.type == CurrencyType.FIAT

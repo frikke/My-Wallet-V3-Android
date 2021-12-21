@@ -19,6 +19,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
@@ -55,16 +56,16 @@ internal class DynamicAssetLoader(
     private val formatUtils: FormatUtilities
 ) : AssetLoader {
 
-    private val activeAssetMap = mutableMapOf<AssetInfo, CryptoAsset>()
-    private val assetMap = mutableMapOf<AssetInfo, CryptoAsset>()
+    private val activeAssetMap = mutableMapOf<Currency, CryptoAsset>()
+    private val assetMap = mutableMapOf<Currency, CryptoAsset>()
 
     override operator fun get(asset: AssetInfo): CryptoAsset =
         assetMap[asset] ?: attemptLoadAsset(asset)
 
-    private fun attemptLoadAsset(assetInfo: AssetInfo): CryptoAsset =
+    private fun attemptLoadAsset(assetInfo: Currency): CryptoAsset =
         when {
             assetInfo.isErc20() -> loadErc20Asset(assetInfo)
-            assetInfo.isCustodialOnly -> loadCustodialOnlyAsset(assetInfo)
+            (assetInfo as? AssetInfo)?.isCustodialOnly == true -> loadCustodialOnlyAsset(assetInfo)
             else -> throw IllegalStateException("Unknown asset type enabled: ${assetInfo.networkTicker}")
         }.also {
             check(!assetMap.containsKey(assetInfo)) { "Asset already loaded" }
@@ -77,14 +78,19 @@ internal class DynamicAssetLoader(
             .flatMap { supportedAssets ->
                 // We need to make sure than any l1 assets - notably ETH - is initialised before
                 // create any l2s. So that things like balance calls will work
-                activeAssetMap.putAll(nonCustodialAssets.associateBy { it.asset })
+                activeAssetMap.putAll(nonCustodialAssets.associateBy { it.assetInfo })
                 initNonCustodialAssets(nonCustodialAssets)
                     // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
                     // and the non-custodial accounts won't show up.
-                    .thenSingle { doLoadAssets(supportedAssets.minus(nonCustodialAssets.map { it.asset })) }
+                    .thenSingle {
+                        doLoadAssets(
+                            supportedAssets.filterIsInstance<AssetInfo>().toSet()
+                                .minus(nonCustodialAssets.map { it.assetInfo }.toSet())
+                        )
+                    }
             }
             .map { nonCustodialAssets + it }
-            .doOnSuccess { assetList -> assetMap.putAll(assetList.associateBy { it.asset }) }
+            .doOnSuccess { assetList -> assetMap.putAll(assetList.associateBy { it.assetInfo }) }
             .doOnError { Timber.e("init failed") }
             .ignoreElement()
 
@@ -95,7 +101,9 @@ internal class DynamicAssetLoader(
                     Completable.defer { asset.initToken() }
                         .doOnError {
                             crashLogger.logException(
-                                CoincoreInitFailure("Failed init: ${(asset as CryptoAsset).asset.networkTicker}", it)
+                                CoincoreInitFailure(
+                                    "Failed init: ${(asset as CryptoAsset).assetInfo.networkTicker}", it
+                                )
                             )
                         }
                 }.toList()
@@ -110,11 +118,11 @@ internal class DynamicAssetLoader(
             // Loading Custodial ERC20s even without a balance is necessary so they show up for swap
             val custodialAssets = dynamicAssets.filter { dynamicAsset ->
                 dynamicAsset.isCustodial &&
-                    loadedErc20.find { erc20 -> erc20.asset == dynamicAsset } == null
+                    loadedErc20.find { erc20 -> erc20.assetInfo == dynamicAsset } == null
             }
             // Those two sets should NOT overlap
             check(loadedErc20.intersect(custodialAssets).isEmpty())
-            activeAssetMap.putAll(loadedErc20.associateBy { it.asset })
+            activeAssetMap.putAll(loadedErc20.associateBy { it.assetInfo })
             loadCustodialOnlyAssets(custodialAssets).map { custodialList ->
                 loadedErc20 + custodialList
             }
@@ -163,7 +171,7 @@ internal class DynamicAssetLoader(
 
     private fun loadCustodialOnlyAsset(assetInfo: AssetInfo): CryptoAsset {
         return DynamicOnlyTradingAsset(
-            asset = assetInfo,
+            assetInfo = assetInfo,
             payloadManager = payloadManager,
             custodialManager = custodialManager,
             tradingBalances = tradingBalances,
@@ -180,10 +188,11 @@ internal class DynamicAssetLoader(
         )
     }
 
-    private fun loadErc20Asset(assetInfo: AssetInfo): CryptoAsset {
+    private fun loadErc20Asset(assetInfo: Currency): CryptoAsset {
+        require(assetInfo is AssetInfo)
         require(assetInfo.isErc20())
         return Erc20Asset(
-            asset = assetInfo,
+            assetInfo = assetInfo,
             payloadManager = payloadManager,
             erc20DataManager = erc20DataManager,
             feeDataManager = feeDataManager,

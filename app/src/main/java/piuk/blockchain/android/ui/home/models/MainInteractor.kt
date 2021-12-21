@@ -85,7 +85,7 @@ class MainInteractor internal constructor(
 
     fun getAssetFromTicker(ticker: String?): AssetInfo? =
         ticker?.let {
-            assetCatalogue.fromNetworkTicker(ticker)
+            assetCatalogue.assetInfoFromNetworkTicker(ticker)
         }
 
     fun registerForCampaign(data: CampaignData): Single<KycState> =

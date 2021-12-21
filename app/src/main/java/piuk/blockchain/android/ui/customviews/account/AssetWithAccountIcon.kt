@@ -39,7 +39,7 @@ class AssetWithAccountIcon @JvmOverloads constructor(
         accountIcon.indicator?.let {
             binding.accountIcon.apply {
                 visible()
-                setAssetIconColoursNoTint(account.asset)
+                setAssetIconColoursNoTint(account.currency)
                 setImageResource(it)
             }
         } ?: kotlin.run { binding.accountIcon.gone() }

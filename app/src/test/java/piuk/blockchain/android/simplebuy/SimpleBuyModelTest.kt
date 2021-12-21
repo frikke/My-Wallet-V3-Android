@@ -18,6 +18,8 @@ import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
@@ -49,8 +51,8 @@ class SimpleBuyModelTest {
 
     private val defaultState = SimpleBuyState(
         selectedCryptoAsset = CryptoCurrency.BTC,
-        amount = FiatValue.fromMinor("USD", 1000),
-        fiatCurrency = "USD",
+        amount = FiatValue.fromMinor(USD, 1000.toBigInteger()),
+        fiatCurrency = USD,
         selectedPaymentMethod = SelectedPaymentMethod(
             id = "123-321",
             paymentMethodType = PaymentMethodType.PAYMENT_CARD,
@@ -132,12 +134,12 @@ class SimpleBuyModelTest {
                         id = "testId",
                         expires = date,
                         state = OrderState.AWAITING_FUNDS,
-                        crypto = CryptoValue.zero(CryptoCurrency.BTC),
+                        target = CryptoValue.zero(CryptoCurrency.BTC),
                         orderValue = CryptoValue.zero(CryptoCurrency.BTC),
                         paymentMethodId = "213",
                         updated = Date(),
                         paymentMethodType = PaymentMethodType.FUNDS,
-                        fiat = FiatValue.zero("USD"),
+                        source = FiatValue.zero(USD),
                         pair = "USD-BTC",
                         type = OrderType.BUY,
                         depositPaymentId = ""
@@ -192,8 +194,8 @@ class SimpleBuyModelTest {
     @Test
     fun `make card payment should update price and payment attributes`() {
         val price = FiatValue.fromMinor(
-            "EUR",
-            1000.toLong()
+            EUR,
+            1000.toBigInteger()
         )
 
         val paymentLink = "http://example.com"
@@ -206,8 +208,8 @@ class SimpleBuyModelTest {
                     BuySellOrder(
                         id = id,
                         pair = "EUR-BTC",
-                        fiat = FiatValue.fromMinor("EUR", 10000),
-                        crypto = CryptoValue.zero(CryptoCurrency.BTC),
+                        source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+                        target = CryptoValue.zero(CryptoCurrency.BTC),
                         state = OrderState.AWAITING_FUNDS,
                         paymentMethodId = "123-123",
                         expires = Date(),
@@ -251,12 +253,12 @@ class SimpleBuyModelTest {
                     id = "testId",
                     expires = Date(),
                     state = OrderState.CANCELED,
-                    crypto = CryptoValue.zero(CryptoCurrency.BTC),
+                    target = CryptoValue.zero(CryptoCurrency.BTC),
                     orderValue = CryptoValue.zero(CryptoCurrency.BTC),
                     paymentMethodId = "213",
                     updated = Date(),
                     paymentMethodType = PaymentMethodType.BANK_TRANSFER,
-                    fiat = FiatValue.zero("USD"),
+                    source = FiatValue.zero(USD),
                     pair = "USD-BTC",
                     type = OrderType.BUY,
                     depositPaymentId = "",
@@ -279,7 +281,7 @@ class SimpleBuyModelTest {
     fun `WHEN eligiblePaymentMethods and getRecurringBuyEligibility success THEN observe state`() {
 
         val eligibleAndNextPaymentDate: EligibleAndNextPaymentRecurringBuy = mock()
-        whenever(interactor.eligiblePaymentMethods("USD"))
+        whenever(interactor.eligiblePaymentMethods(USD))
             .thenReturn(Single.just(emptyList()))
 
         val eligibleNextPaymentMethodType: EligibleAndNextPaymentRecurringBuy = mock()
@@ -300,7 +302,7 @@ class SimpleBuyModelTest {
             paymentOptions = PaymentOptions()
         )
 
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD, "123-321"))
         model.state
             .test()
             .awaitCount(3)
@@ -311,7 +313,7 @@ class SimpleBuyModelTest {
 
     @Test
     fun `WHEN eligiblePaymentMethods fails THEN observe state`() {
-        whenever(interactor.eligiblePaymentMethods("USD"))
+        whenever(interactor.eligiblePaymentMethods(USD))
             .thenReturn(Single.error(Throwable()))
 
         verifyNoMoreInteractions(interactor)
@@ -327,7 +329,7 @@ class SimpleBuyModelTest {
             confirmationActionRequested = false
         )
 
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD, "123-321"))
 
         model.state
             .test()
@@ -339,7 +341,7 @@ class SimpleBuyModelTest {
 
     @Test
     fun `WHEN eligiblePaymentMethods success and getRecurringBuyEligibility fails THEN observe state`() {
-        whenever(interactor.eligiblePaymentMethods("USD"))
+        whenever(interactor.eligiblePaymentMethods(USD))
             .thenReturn(Single.just(mock()))
 
         whenever(getEligibilityAndNextPaymentDateUseCase(Unit))
@@ -352,7 +354,7 @@ class SimpleBuyModelTest {
             selectedPaymentMethod = null
         )
 
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD, "123-321"))
 
         model.state
             .test()

@@ -2,6 +2,7 @@ package com.blockchain.coincore.erc20
 
 import com.blockchain.coincore.impl.CryptoAccountBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
 import com.blockchain.nabu.datamanagers.CurrencyPair
@@ -75,8 +76,8 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
             sendingValue = CryptoValue.zero(ERC20_TOKEN),
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(ERC20_TOKEN, CryptoCurrency.BTC),
-            apiFiatValue = FiatValue.zero("USD"),
+            currencyPair = CurrencyPair(ERC20_TOKEN, CryptoCurrency.BTC),
+            apiFiatValue = FiatValue.zero(USD),
             price = mock()
         )
 

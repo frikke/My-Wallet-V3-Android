@@ -9,6 +9,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -65,7 +66,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     private val asset: AssetInfo? by unsafeLazy {
         intent.getStringExtra(ASSET_KEY)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         }
     }
 
@@ -121,9 +122,14 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             }
     }
 
-    private fun launchCurrencySelector(currencies: List<String>, selectedCurrency: String) {
+    private fun launchCurrencySelector(currencies: List<FiatCurrency>, selectedCurrency: FiatCurrency) {
         compositeDisposable.clear()
-        showBottomSheet(SimpleBuySelectCurrencyFragment.newInstance(currencies, selectedCurrency))
+        showBottomSheet(
+            SimpleBuySelectCurrencyFragment.newInstance(
+                currencies = currencies,
+                selectedCurrency = selectedCurrency
+            )
+        )
     }
 
     private fun startFlow(screenWithCurrency: BuyNavigation.FlowScreenWithCurrency) {

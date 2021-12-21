@@ -23,7 +23,7 @@ class TradingPairsProviderImpl(
             if (parts.size != 2) return@mapNotNull null
             val source = assetCatalogue.fromNetworkTicker(parts[0]) ?: return@mapNotNull null
             val destination = assetCatalogue.fromNetworkTicker(parts[1]) ?: return@mapNotNull null
-            CurrencyPair.CryptoCurrencyPair(source, destination)
+            CurrencyPair(source, destination)
         }
     }
 }

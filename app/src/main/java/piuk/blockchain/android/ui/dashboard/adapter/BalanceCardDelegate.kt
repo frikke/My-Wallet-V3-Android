@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemDashboardBalanceCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -20,7 +21,7 @@ import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
 
 class BalanceCardDelegate<in T>(
-    private val selectedFiat: String,
+    private val selectedFiat: FiatCurrency,
     private val assetResources: AssetResources
 ) : AdapterDelegate<T> {
 
@@ -43,7 +44,7 @@ class BalanceCardDelegate<in T>(
 
 private class BalanceCardViewHolder(
     private val binding: ItemDashboardBalanceCardBinding,
-    private val selectedFiat: String,
+    private val selectedFiat: FiatCurrency,
     private val assetResources: AssetResources
 ) : RecyclerView.ViewHolder(binding.root) {
 

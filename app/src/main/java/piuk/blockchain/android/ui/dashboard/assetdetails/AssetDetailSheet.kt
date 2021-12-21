@@ -33,11 +33,10 @@ import com.google.android.material.tabs.TabLayout
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import java.math.RoundingMode
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
-import java.util.Currency
 import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
@@ -70,7 +69,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private val asset: AssetInfo by lazy {
         arguments?.getString(ARG_CRYPTO_ASSET)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         } ?: throw IllegalArgumentException("No cryptoCurrency specified")
     }
 
@@ -125,7 +124,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         chartData = newState.chartData
 
         newState.prices24HrWithDelta?.let {
-            val price = it.currentRate.price().toStringWithSymbol()
+            val price = it.currentRate.price.toStringWithSymbol()
             binding.currentPrice.text = price
             updatePriceChange(it, binding.priceChange, newState.chartData)
         }
@@ -145,7 +144,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                     AssetFilter.Custodial
                 ) && !buyAccess.isBlockedDueToEligibility()
             )
-            buyCryptoBottomButton.text = resources.getString(R.string.tx_title_buy, token.asset.displayTicker)
+            buyCryptoBottomButton.text = resources.getString(R.string.tx_title_buy, asset.displayTicker)
             buyCryptoBottomButton.setOnClickListener {
                 model.process(HandleActionIntent(AssetAction.Buy))
             }
@@ -159,7 +158,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         with(binding) {
             configureChart(
                 chart,
-                getFiatSymbol(currencyPrefs.selectedFiatCurrency),
+                currencyPrefs.selectedFiatCurrency.symbol,
                 numOfDecimalsForChart(asset)
             )
             buyCryptoBottomButton.gone()
@@ -279,7 +278,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         clearList()
 
         if (account is CryptoAccount && assetFilter == AssetFilter.Custodial) {
-            analytics.logEvent(CustodialBalanceClicked(account.asset))
+            analytics.logEvent(CustodialBalanceClicked(account.currency))
         }
 
         model.process(
@@ -315,7 +314,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                     marker = ValueMarker(
                         context,
                         R.layout.price_chart_marker,
-                        getFiatSymbol(currencyPrefs.selectedFiatCurrency),
+                        currencyPrefs.selectedFiatCurrency.symbol,
                         numOfDecimalsForChart(asset)
                     )
                 }
@@ -407,7 +406,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
 
         percentageView.text =
-            FiatValue.fromMajor(
+            Money.fromMajor(
             currencyPrefs.selectedFiatCurrency,
             difference.toBigDecimal()
         ).toStringWithSymbol() + " ($percentChangeTxt%)"
@@ -511,9 +510,6 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 }
             }
         }
-
-        private fun getFiatSymbol(currencyCode: String, locale: Locale = Locale.getDefault()) =
-            Currency.getInstance(currencyCode).getSymbol(locale)
 
         private fun numOfDecimalsForChart(asset: AssetInfo): Int =
             when (asset.networkTicker) {
