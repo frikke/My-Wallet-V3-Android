@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.core.Database
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.core.Completable
@@ -16,9 +15,9 @@ class SettingsInteractor internal constructor(
     private val credentialsWiper: CredentialsWiper
 ) {
 
-    fun getSupportEligibilityAndBasicInfo(): Single<Pair<Boolean, BasicProfileInfo>> =
+    fun getSupportEligibilityAndBasicInfo(): Single<Pair<Tier, BasicProfileInfo>> =
         Singles.zip(
-            userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)),
+            userIdentity.getHighestApprovedKycTier(),
             userIdentity.getBasicProfileInformation()
         )
 

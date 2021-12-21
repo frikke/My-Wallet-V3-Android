@@ -2,6 +2,7 @@
 <androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,26 +15,50 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <androidx.core.widget.NestedScrollView
+    <ScrollView
+        android:id="@+id/profile_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fadingEdge="vertical"
         android:fadingEdgeLength="@dimen/very_small_margin"
-        android:requiresFadingEdge="vertical">
+        android:requiresFadingEdge="vertical"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/user_initials"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/xlarge_margin"
+                android:background="@drawable/bkgd_profile_circle_empty"
+                android:gravity="center"
+                android:textSize="40sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="LM" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/icon_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/user_initials"
+                app:layout_constraintEnd_toEndOf="@+id/user_initials" />
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/name"
                 style="@style/TextAppearance.Blockchain.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/small_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/user_initials" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/email"
@@ -112,35 +137,18 @@
                 android:id="@+id/sign_out_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/xhuge_margin"
                 android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/xhuge_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
                 app:layout_constraintTop_toBottomOf="@id/divider_3" />
-
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/settings_addresses"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/sign_out_btn" />
-
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/settings_exchange"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/settings_addresses" />
-
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/settings_web_login"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/settings_exchange" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/settings_debug"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/sign_out_btn" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
+    </ScrollView>
+
 </androidx.appcompat.widget.LinearLayoutCompat>

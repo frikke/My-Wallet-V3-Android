@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.nabu.Tier
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
@@ -43,38 +44,47 @@ class SettingsModelTest {
     }
 
     @Test
-    fun `checkContactSupportEligibility is simple buy NOT Eligible`() {
+    fun `checkContactSupportEligibility is NOT isSupportChatEnabled`() {
         val userInformation = mock<BasicProfileInfo>()
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
-        whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(Single.just(Pair(false, userInformation)))
+        whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(
+            Single.just(Pair(Tier.SILVER, userInformation))
+        )
 
         val testState = model.state.test()
-        model.process(SettingsIntent.LoadInitialInformation)
+        model.process(SettingsIntent.LoadSupportEligibilityAndUserInfo)
 
         testState
             .assertValueAt(0) {
                 it == SettingsState()
             }.assertValueAt(1) {
-                it == SettingsState(basicProfileInfo = userInformation, isSupportChatEnabled = false)
+                it == SettingsState(
+                    basicProfileInfo = userInformation,
+                    tier = Tier.SILVER
+                )
             }
     }
 
     @Test
-    fun `checkContactSupportEligibility is simple buy eligible`() {
+    fun `checkContactSupportEligibility is tier=GOLD and isSupportChatEnabled`() {
         val userInformation = mock<BasicProfileInfo>()
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
-        whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(Single.just(Pair(true, userInformation)))
+        whenever(interactor.getSupportEligibilityAndBasicInfo())
+            .thenReturn(Single.just(Pair(Tier.GOLD, userInformation)))
 
         val testState = model.state.test()
-        model.process(SettingsIntent.LoadInitialInformation)
+        model.process(SettingsIntent.LoadSupportEligibilityAndUserInfo)
 
         testState
             .assertValueAt(0) {
                 it == SettingsState()
             }.assertValueAt(1) {
-                it == SettingsState(basicProfileInfo = userInformation, isSupportChatEnabled = true)
+                it == SettingsState(
+                    basicProfileInfo = userInformation,
+                    tier = Tier.GOLD
+                )
             }
     }
 
@@ -83,7 +93,7 @@ class SettingsModelTest {
         whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(Single.error { Throwable() })
 
         val testState = model.state.test()
-        model.process(SettingsIntent.LoadInitialInformation)
+        model.process(SettingsIntent.LoadSupportEligibilityAndUserInfo)
 
         testState
             .assertValueAt(0) { it == SettingsState() }

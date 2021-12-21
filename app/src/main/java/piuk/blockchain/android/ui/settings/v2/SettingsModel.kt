@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.Tier
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -27,26 +28,26 @@ class SettingsModel(
         intent: SettingsIntent
     ): Disposable? =
         when (intent) {
-            is SettingsIntent.LoadInitialInformation -> {
+            is SettingsIntent.LoadSupportEligibilityAndUserInfo -> {
                 interactor.getSupportEligibilityAndBasicInfo()
                     .subscribeBy(
-                        onSuccess = { (isEligibleForChat, userInformation) ->
+                        onSuccess = { (tier, userInformation) ->
                             process(
                                 SettingsIntent.UpdateContactSupportEligibility(
-                                    isSupportChatEnabled = isEligibleForChat,
-                                    userInformation = userInformation
+                                    userInformation = userInformation,
+                                    tier = tier
                                 )
                             )
                         }, onError = {
                         process(
                             SettingsIntent.UpdateContactSupportEligibility(
-                                isSupportChatEnabled = false
+                                tier = Tier.BRONZE
                             )
                         )
                     }
                     )
             }
-            is SettingsIntent.UnpairWallet -> interactor.unpairWallet().subscribeBy(
+            is SettingsIntent.LogOut -> interactor.unpairWallet().subscribeBy(
                 onComplete = {
                     process(SettingsIntent.UserLoggedOut)
                 },

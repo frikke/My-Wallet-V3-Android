@@ -2510,7 +2510,7 @@
     <string name="settings_title_about_app">About App</string>
     <string name="settings_subtitle_about_app">Support, Airdrops and Policies</string>
     <string name="settings_sign_out">Sign Out</string>
-    <string name="settings_fullname">%1s %2s</string>
+    <string name="settings_initials">%1s%2s</string>
 
     <!-- Profile screen -->
     <string name="profile_toolbar">Profile</string>

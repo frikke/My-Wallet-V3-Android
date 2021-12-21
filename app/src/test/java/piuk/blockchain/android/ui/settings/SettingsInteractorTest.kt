@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.settings
 
 import com.blockchain.core.Database
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.nhaarman.mockitokotlin2.doNothing
@@ -34,24 +33,24 @@ class SettingsInteractorTest {
     }
 
     @Test
-    fun `Load eligibility`() {
+    fun `Load eligibility and basic information`() {
         val userInformation = mock<BasicProfileInfo>()
 
-        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(true))
+        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
         whenever(userIdentity.getBasicProfileInformation()).thenReturn(Single.just(userInformation))
         val observer = interactor.getSupportEligibilityAndBasicInfo().test()
         observer.assertValueAt(0) {
-            it.first && it.second == userInformation
+            it.first == Tier.GOLD && it.second == userInformation
         }
 
-        verify(userIdentity).isVerifiedFor(Feature.TierLevel(Tier.GOLD))
+        verify(userIdentity).getHighestApprovedKycTier()
         verify(userIdentity).getBasicProfileInformation()
 
         verifyNoMoreInteractions(userIdentity)
     }
 
     @Test
-    fun unpairWallet() {
+    fun `Sign out then unpair wallet`() {
         val mockQueries: HistoricRateQueries = mock()
 
         doNothing().whenever(credentialsWiper).wipe()

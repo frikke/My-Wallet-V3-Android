@@ -5,10 +5,12 @@ import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.nabu.Tier
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -23,6 +25,7 @@ import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
@@ -52,29 +55,25 @@ class RedesignSettingsPhase2Activity :
 
     override fun onResume() {
         super.onResume()
-        model.process(SettingsIntent.LoadInitialInformation)
+        model.process(SettingsIntent.LoadSupportEligibilityAndUserInfo)
     }
 
     override fun render(newState: SettingsState) {
         setupMenuItems(newState.basicProfileInfo)
-
         newState.basicProfileInfo?.let { userInfo ->
-            if (newState.isSupportChatEnabled) {
+            if (newState.tier.isSupportChatEnabled()) {
                 setupActiveSupportButton(userInfo)
             }
+            setInfoHeader(userInfo, newState.tier)
+        } ?: setupEmptyHeader()
 
-            setUserInfoHeader(userInfo)
-        } ?: {
-            // TODO what do we show if we don't know have any profile info
-        }
+        showUserTierIcon(newState.tier)
 
         if (newState.viewToLaunch != ViewToLaunch.None) {
             when (newState.viewToLaunch) {
                 ViewToLaunch.Profile -> startActivity(
                     newState.basicProfileInfo?.let {
-                        ProfileActivity.newIntent(
-                            this@RedesignSettingsPhase2Activity, it
-                        )
+                        ProfileActivity.newIntent(this, it)
                     }
                 )
                 ViewToLaunch.None -> {
@@ -90,6 +89,16 @@ class RedesignSettingsPhase2Activity :
                 getSystemService(ShortcutManager::class.java).removeAllDynamicShortcuts()
             }
         }
+    }
+
+    private fun showUserTierIcon(tier: Tier) {
+        binding.iconUser.setImageResource(
+            when (tier) {
+                Tier.GOLD -> R.drawable.ic_icon_gold
+                Tier.SILVER -> R.drawable.ic_icon_silver
+                else -> 0
+            }
+        )
     }
 
     private fun setupMenuItems(basicProfileInfo: BasicProfileInfo?) {
@@ -144,22 +153,6 @@ class RedesignSettingsPhase2Activity :
                 onClick = { showLogoutDialog() }
             }
 
-            settingsAddresses.apply {
-                primaryText = getString(R.string.drawer_addresses)
-                onClick = {
-                    setResultIntent(SettingsAction.Addresses)
-                }
-                startImageResource = ImageResource.Local(R.drawable.ic_nav_wallet, null)
-            }
-
-            settingsWebLogin.apply {
-                primaryText = getString(R.string.web_wallet_log_in)
-                onClick = {
-                    setResultIntent(SettingsAction.WebLogin)
-                }
-                startImageResource = ImageResource.Local(R.drawable.ic_nav_web_login, null)
-            }
-
             settingsDebug.apply {
                 visibleIf { environmentConfig.isRunningInDebugMode() }
                 primaryText = getString(R.string.item_debug_menu)
@@ -175,73 +168,67 @@ class RedesignSettingsPhase2Activity :
         AlertDialog.Builder(this, R.style.AlertDialogStyle)
             .setTitle(R.string.logout_wallet)
             .setMessage(R.string.ask_you_sure_logout)
-            .setPositiveButton(R.string.btn_logout) { _, _ -> model.process(SettingsIntent.UnpairWallet) }
+            .setPositiveButton(R.string.btn_logout) { _, _ -> model.process(SettingsIntent.LogOut) }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
-    // TODO extract methods so there is not duplicates in SimpleBiy
-/*    private fun showAvailableToAddPaymentMethods() =
-        showPaymentMethodsBottomSheet(
-            paymentOptions = lastState?.paymentOptions ?: PaymentOptions(),
-            state = SimpleBuyCryptoFragment.PaymentMethodsChooserState.AVAILABLE_TO_ADD
-        )
-
-    private fun showPaymentMethodsBottomSheet(paymentOptions: PaymentOptions, state: SimpleBuyCryptoFragment.PaymentMethodsChooserState) {
-        showBottomSheet(
-            PaymentMethodChooserBottomSheet.newInstance(
-                when (state) {
-                    SimpleBuyCryptoFragment.PaymentMethodsChooserState.AVAILABLE_TO_PAY ->
-                        paymentOptions.availablePaymentMethods
-                            .filter { method ->
-                                method.canUsedForPaying()
-                            }
-                    SimpleBuyCryptoFragment.PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
-                        paymentOptions.availablePaymentMethods
-                            .filter { method ->
-                                method.canBeAdded()
-                            }
-                }
-            )
-        )
-   } */
-
-    private fun setUserInfoHeader(userInformation: BasicProfileInfo) {
-        with(binding) {
-            if (userInformation.email.isNotEmpty()) {
-                if (userInformation.firstName == userInformation.email &&
-                    userInformation.lastName == userInformation.email
-                ) {
-                    name.text = userInformation.email
-                    name.animate().alpha(1f)
-                    email.gone()
-                } else {
-                    name.text = getString(
-                        R.string.common_spaced_strings, userInformation.firstName, userInformation.lastName
-                    )
-                    name.animate().alpha(1f)
-                    email.text = userInformation.email
-                    email.animate().alpha(1f)
-                }
-            } else {
-                // TODO can user email ever be empty?
-            }
+    private fun setInfoHeader(userInformation: BasicProfileInfo, tier: Tier) {
+        if (tier == Tier.BRONZE) {
+            setUserTier0Info(userInformation.email)
+        } else {
+            setUserInfo(userInformation)
         }
     }
 
-    private fun setResultIntent(action: RedesignSettingsPhase2Activity.Companion.SettingsAction) {
-        setResult(
-            RESULT_OK,
-            Intent().apply {
-                putExtra(SETTINGS_RESULT_DATA, action)
-            }
-        )
-        finish()
+    private fun Tier.isSupportChatEnabled(): Boolean = this == Tier.GOLD
+
+    private fun setUserInfo(userInformation: BasicProfileInfo) {
+        with(binding) {
+            name.text = getString(
+                R.string.common_spaced_strings, userInformation.firstName, userInformation.lastName
+            )
+            name.visible()
+            email.text = userInformation.email
+            email.visible()
+            userInitials.background = ContextCompat.getDrawable(
+                this@RedesignSettingsPhase2Activity,
+                R.drawable.bkgd_profile_circle
+            )
+            userInitials.text = getString(
+                R.string.settings_initials,
+                userInformation.firstName.first().uppercase(),
+                userInformation.lastName.first().uppercase()
+            )
+            seeProfile.visible()
+            iconUser.visible()
+        }
     }
 
-    override fun onBackPressed() {
-        setResult(RESULT_CANCELED)
-        finish()
+    private fun setUserTier0Info(emailAddress: String) {
+        with(binding) {
+            name.text = emailAddress
+            userInitials.background = ContextCompat.getDrawable(
+                this@RedesignSettingsPhase2Activity,
+                R.drawable.bkgd_profile_circle_empty
+            )
+            name.visible()
+            email.gone()
+            seeProfile.visible()
+        }
+    }
+
+    // Network calls fail or lack of connectivity UI
+    private fun setupEmptyHeader() {
+        with(binding) {
+            userInitials.background = ContextCompat.getDrawable(
+                this@RedesignSettingsPhase2Activity,
+                R.drawable.bkgd_profile_circle_empty
+            )
+            name.gone()
+            email.gone()
+            seeProfile.gone()
+        }
     }
 
     private fun setupToolbar() {
@@ -249,7 +236,6 @@ class RedesignSettingsPhase2Activity :
             toolbarTitle = getString(R.string.toolbar_settings),
             backAction = { onBackPressed() }
         )
-
         setupDefaultSupportButton()
     }
 
@@ -287,12 +273,5 @@ class RedesignSettingsPhase2Activity :
                     this.putBoolean(SettingsFragment.EXTRA_SHOW_TWO_FA_DIALOG, true)
                 }
             }
-
-        const val SETTINGS_RESULT_DATA = "SETTINGS_RESULT_DATA"
-
-        enum class SettingsAction {
-            Addresses,
-            WebLogin
-        }
     }
 }
