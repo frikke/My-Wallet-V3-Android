@@ -17,7 +17,7 @@ class FiatCurrency private constructor(
     override val precisionDp: Int
         get() = java.util.Currency.getInstance(currencyCode).defaultFractionDigits
     override val logo: String
-        get() = "file:///android_asset/logo/eur/logo.png"
+        get() = "file:///android_asset/logo/${currencyCode.lowercase(Locale.ROOT)}/logo.png"
     override val colour: String
         get() = "#00000000"
     override val startDate: Long?

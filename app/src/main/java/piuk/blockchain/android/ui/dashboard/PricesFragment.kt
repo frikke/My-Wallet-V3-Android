@@ -363,11 +363,6 @@ internal class PricesFragment :
     }
 
     private fun showFiatFundsKyc(): BottomSheetDialogFragment {
-        val currencyIcon = when (currencyPrefs.selectedFiatCurrency.networkTicker) {
-            "EUR" -> R.drawable.ic_funds_euro
-            "GBP" -> R.drawable.ic_funds_gbp
-            else -> R.drawable.ic_funds_usd // show dollar if currency isn't selected
-        }
 
         return KycBenefitsBottomSheet.newInstance(
             KycBenefitsBottomSheet.BenefitsDetails(
@@ -387,7 +382,7 @@ internal class PricesFragment :
                         getString(R.string.fiat_funds_no_kyc_step_3_description)
                     )
                 ),
-                icon = currencyIcon
+                icon = currencyPrefs.selectedFiatCurrency.logo
             )
         )
     }

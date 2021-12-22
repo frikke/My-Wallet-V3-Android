@@ -51,7 +51,7 @@ class AccountInfoFiat @JvmOverloads constructor(
             val userFiat = currencyPrefs.selectedFiatCurrency
 
             walletName.text = account.label
-            icon.setIcon(account.currency.networkTicker)
+            icon.setIcon(account.currency)
             assetSubtitle.text = account.currency.networkTicker
 
             compositeDisposable += account.balance.firstOrError().map { it.total }

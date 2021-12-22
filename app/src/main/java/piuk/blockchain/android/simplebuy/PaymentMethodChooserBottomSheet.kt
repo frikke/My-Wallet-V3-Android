@@ -6,12 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import java.io.Serializable
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyPaymentMethodChooserBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -27,6 +29,8 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
             ?: emptyList()
     }
 
+    private val assetResources: AssetResources by inject()
+
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): SimpleBuyPaymentMethodChooserBinding =
         SimpleBuyPaymentMethodChooserBinding.inflate(inflater, container, false)
 
@@ -37,7 +41,8 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
                     paymentMethods
                         .map {
                             it.toPaymentMethodItem()
-                        }
+                        },
+                    assetResources
                 )
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             layoutManager = LinearLayoutManager(context)
@@ -83,7 +88,8 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
 data class PaymentMethodItem(val paymentMethod: PaymentMethod, val clickAction: () -> Unit)
 
 private class PaymentMethodsAdapter(
-    adapterItems: List<PaymentMethodItem>
+    adapterItems: List<PaymentMethodItem>,
+    assetResources: AssetResources
 ) :
     DelegationAdapter<PaymentMethodItem>(AdapterDelegatesManager(), adapterItems) {
     init {
@@ -92,7 +98,7 @@ private class PaymentMethodsAdapter(
         val addFundsPaymentDelegate = AddFundsDelegate()
         val addCardPaymentDelegate = AddCardDelegate()
         val linkBankPaymentDelegate = LinkBankDelegate()
-        val fundsPaymentDelegate = FundsPaymentDelegate()
+        val fundsPaymentDelegate = FundsPaymentDelegate(assetResources)
 
         delegatesManager.apply {
             addAdapterDelegate(cardPaymentDelegate)

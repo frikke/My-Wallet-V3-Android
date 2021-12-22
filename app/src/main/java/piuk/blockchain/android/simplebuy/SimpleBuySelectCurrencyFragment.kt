@@ -63,7 +63,7 @@ class SimpleBuySelectCurrencyFragment :
             adapter.items = currencies.map { currency ->
                 CurrencyItem(
                     name = currency.name,
-                    symbol = currency.symbol
+                    symbol = currency.displayTicker
                 )
             }.sortedWith(compareBy { it.name })
         }

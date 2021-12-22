@@ -8,7 +8,10 @@ import android.view.LayoutInflater
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import java.io.Serializable
 import kotlinx.parcelize.Parcelize
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.VerifyIdentityBenefitsLayoutBinding
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visibleIf
@@ -23,7 +26,7 @@ class VerifyIdentityBenefitsView(context: Context, attrs: AttributeSet) : Constr
         benefits: List<VerifyIdentityItem>,
         title: String,
         description: String,
-        @DrawableRes icon: Int? = null,
+        icon: Serializable? = null,
         primaryButton: ButtonOptions,
         secondaryButton: ButtonOptions,
         footerText: String = "",
@@ -41,7 +44,10 @@ class VerifyIdentityBenefitsView(context: Context, attrs: AttributeSet) : Constr
                 gravity = descriptionGravity
             }
             icon?.let {
-                kycBenefitsDefaultSymbol.setImageResource(icon)
+                Glide.with(context)
+                    .load(icon)
+                    .error(R.drawable.ic_cash)
+                    .into(kycBenefitsDefaultSymbol)
             } ?: kycBenefitsDefaultSymbol.gone()
             kycBenefitsNegativeAction.visibleIf { secondaryButton.visible }
             kycBenefitsPositiveAction.visibleIf { primaryButton.visible }

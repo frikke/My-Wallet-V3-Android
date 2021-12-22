@@ -7,6 +7,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatAccountGroup
 import com.blockchain.coincore.impl.AllWalletsAccount
@@ -14,7 +15,7 @@ import com.blockchain.coincore.impl.CryptoAccountCustodialGroup
 import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import com.blockchain.coincore.impl.CryptoExchangeAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import piuk.blockchain.android.R
 
 class AccountIcon(
@@ -22,9 +23,9 @@ class AccountIcon(
     private val assetResources: AssetResources
 ) {
     fun loadAssetIcon(imageView: ImageView) {
-        val assetTicker = assetForIcon
-        if (assetTicker != null) {
-            assetResources.loadAssetIcon(imageView, assetTicker)
+        val currency = currencyForIcon
+        if (currency != null) {
+            assetResources.loadAssetIcon(imageView, currency)
         } else {
             val icon = standardIcon ?: throw IllegalStateException("$account is not supported")
             imageView.setImageResource(icon)
@@ -34,15 +35,14 @@ class AccountIcon(
     private val standardIcon: Int?
         @DrawableRes get() = when (account) {
             is CryptoAccount -> null
-            is FiatAccount -> assetResources.fiatCurrencyIcon(account.currency)
+            is FiatAccount -> null
             is AccountGroup -> accountGroupIcon(account)
             else -> throw IllegalStateException("$account is not supported")
         }
 
-    private val assetForIcon: AssetInfo?
+    private val currencyForIcon: Currency?
         get() = when (account) {
-            is CryptoAccount -> account.currency
-            is FiatAccount -> null
+            is SingleAccount -> account.currency
             is AccountGroup -> accountGroupTicker(account)
             else -> throw IllegalStateException("$account is not supported")
         }
@@ -62,22 +62,18 @@ class AccountIcon(
             is AllWalletsAccount -> R.drawable.ic_all_wallets_white
             is CryptoAccountCustodialGroup -> null
             is CryptoAccountNonCustodialGroup -> null
-            is FiatAccountGroup -> (account.accounts.getOrNull(0) as? FiatAccount)?.let {
-                assetResources.fiatCurrencyIcon(it.currency)
-            } ?: DEFAULT_FIAT_ICON
+            is FiatAccountGroup -> null
             else -> throw IllegalArgumentException("$account is not a valid group")
         }
     }
 
     companion object {
-        private const val DEFAULT_FIAT_ICON = R.drawable.ic_funds_usd
-
-        private fun accountGroupTicker(account: AccountGroup): AssetInfo? {
+        private fun accountGroupTicker(account: AccountGroup): Currency? {
             return when (account) {
                 is AllWalletsAccount -> null
-                is CryptoAccountCustodialGroup -> (account.accounts[0] as CryptoAccount).currency
+                is FiatAccount,
+                is CryptoAccountCustodialGroup -> account.accounts[0].currency
                 is CryptoAccountNonCustodialGroup -> account.asset
-                is FiatAccountGroup -> null
                 else -> throw IllegalArgumentException("$account is not a valid group")
             }
         }

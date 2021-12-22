@@ -470,10 +470,8 @@ class SimpleBuyCryptoFragment :
     private fun renderFundsPayment(paymentMethod: PaymentMethod.Funds) {
         with(binding) {
             paymentMethodBankInfo.gone()
-            paymentMethodIcon.setImageResource(
-                paymentMethod.icon()
-            )
-            paymentMethodTitle.text = getString(paymentMethod.label())
+            assetResources.loadAssetIcon(paymentMethodIcon, paymentMethod.fiatCurrency)
+            paymentMethodTitle.text = paymentMethod.fiatCurrency.name
 
             paymentMethodLimit.text = paymentMethod.limits.max.toStringWithSymbol()
         }
@@ -716,19 +714,3 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
         RecurringBuyFrequency.UNKNOWN -> ""
     }
 }
-
-fun PaymentMethod.Funds.icon() =
-    when (fiatCurrency.networkTicker) {
-        "GBP" -> R.drawable.ic_funds_gbp
-        "EUR" -> R.drawable.ic_funds_euro
-        "USD" -> R.drawable.ic_funds_usd
-        else -> throw IllegalStateException("Unsupported currency")
-    }
-
-fun PaymentMethod.Funds.label() =
-    when (fiatCurrency.networkTicker) {
-        "GBP" -> R.string.pounds
-        "EUR" -> R.string.euros
-        "USD" -> R.string.us_dollars
-        else -> throw IllegalStateException("Unsupported currency")
-    }

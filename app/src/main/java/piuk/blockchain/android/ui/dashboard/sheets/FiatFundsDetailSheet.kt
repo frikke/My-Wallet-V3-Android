@@ -61,7 +61,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
             with(fundDetails) {
                 fundsTitle.setStringFromTicker(requireContext(), currency.displayTicker)
                 fundsFiatTicker.text = currency.displayTicker
-                fundsIcon.setIcon(currency.networkTicker)
+                fundsIcon.setIcon(currency)
                 fundsBalance.gone()
                 fundsUserFiatBalance.gone()
             }

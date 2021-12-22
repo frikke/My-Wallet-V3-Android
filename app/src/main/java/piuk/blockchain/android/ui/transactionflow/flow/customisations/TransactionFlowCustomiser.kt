@@ -51,7 +51,6 @@ import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.setImageDrawable
 import timber.log.Timber
 
 interface TransactionFlowCustomiser :
@@ -248,19 +247,7 @@ class TransactionFlowCustomiserImpl(
         }
 
     override fun enterAmountLoadSourceIcon(imageView: ImageView, state: TransactionState) {
-        when (state.action) {
-            AssetAction.FiatDeposit,
-            AssetAction.Withdraw -> {
-                imageView.setImageDrawable(
-                    when ((state.selectedTarget as FiatAccount).currency.networkTicker) {
-                        "GBP" -> R.drawable.ic_funds_gbp
-                        "EUR" -> R.drawable.ic_funds_euro
-                        else -> R.drawable.ic_funds_usd
-                    }
-                )
-            }
-            else -> assetResources.loadAssetIcon(imageView, state.sendingAsset)
-        }
+        assetResources.loadAssetIcon(imageView, state.sendingAsset)
     }
 
     override fun shouldShowMaxLimit(state: TransactionState): Boolean =

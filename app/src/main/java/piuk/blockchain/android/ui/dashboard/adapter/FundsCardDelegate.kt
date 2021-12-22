@@ -88,7 +88,7 @@ private class FundsCardViewHolder(
                 val fiat = assetInfo.userFiat ?: Money.zero(selectedFiat)
                 fiat.toStringWithSymbol()
             }
-            fundsIcon.setIcon(ticker)
+            fundsIcon.setIcon(assetInfo.account.currency)
         }
     }
 }
@@ -139,7 +139,7 @@ private class MultipleFundsAdapter(
                 } else {
                     assetInfo.userFiat?.toStringWithSymbol()
                 }
-                borderedFundsIcon.setIcon(ticker)
+                borderedFundsIcon.setIcon(assetInfo.account.currency)
             }
         }
     }
