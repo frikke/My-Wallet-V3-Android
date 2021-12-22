@@ -24,7 +24,9 @@ val redesignSettingsModule = module {
             SettingsInteractor(
                 userIdentity = get(),
                 database = get(),
-                credentialsWiper = get()
+                credentialsWiper = get(),
+                custodialWalletManager = get(),
+                currencyPrefs = get()
             )
         }
 

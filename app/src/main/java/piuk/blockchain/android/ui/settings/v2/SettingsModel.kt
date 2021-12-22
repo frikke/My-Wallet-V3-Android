@@ -28,36 +28,60 @@ class SettingsModel(
         intent: SettingsIntent
     ): Disposable? =
         when (intent) {
-            is SettingsIntent.LoadSupportEligibilityAndUserInfo -> {
+            is SettingsIntent.LoadHeaderInformation -> {
                 interactor.getSupportEligibilityAndBasicInfo()
                     .subscribeBy(
-                        onSuccess = { (tier, userInformation) ->
+                        onSuccess = { userDetails ->
                             process(
                                 SettingsIntent.UpdateContactSupportEligibility(
-                                    userInformation = userInformation,
-                                    tier = tier
+                                    tier = userDetails.userTier,
+                                    userInformation = userDetails.userInfo
                                 )
                             )
                         }, onError = {
-                        process(
-                            SettingsIntent.UpdateContactSupportEligibility(
-                                tier = Tier.BRONZE
-                            )
-                        )
+                        process(SettingsIntent.UpdateContactSupportEligibility(tier = Tier.BRONZE))
                     }
                     )
             }
-            is SettingsIntent.LogOut -> interactor.unpairWallet().subscribeBy(
-                onComplete = {
-                    process(SettingsIntent.UserLoggedOut)
-                },
-                onError = {
-                    Timber.e("Unpair wallet failed")
+            is SettingsIntent.LoadPaymentMethods ->
+                interactor.getExistingPaymentMethods()
+                    .subscribeBy(
+                        onSuccess = { paymentMethodInfo ->
+                            process(SettingsIntent.UpdatePaymentMethodsInfo(paymentMethodInfo = paymentMethodInfo))
+                        }, onError = {
+                        process(SettingsIntent.UpdateErrorState(SettingsError.PAYMENT_METHODS_LOAD_FAIL))
+                    }
+                    )
+            is SettingsIntent.AddBankTransferSelected -> interactor.getBankLinkingInfo()
+                .subscribeBy(
+                    onSuccess = { bankTransferInfo ->
+                        process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankTransfer(bankTransferInfo)))
+                    }, onError = {
+                    process(SettingsIntent.UpdateErrorState(SettingsError.BANK_LINK_START_FAIL))
                 }
-            )
+                )
+            is SettingsIntent.AddBankAccountSelected -> {
+                process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankAccount(interactor.getUserFiat())))
+                null
+            }
+            is SettingsIntent.Logout -> interactor.unpairWallet()
+                .subscribeBy(
+                    onComplete = {
+                        process(SettingsIntent.UserLoggedOut)
+                    },
+                    onError = {
+                        Timber.e("Unpair wallet failed $it")
+                        process(SettingsIntent.UpdateErrorState(SettingsError.UNPAIR_FAILED))
+                    }
+                )
             is SettingsIntent.UserLoggedOut,
             is SettingsIntent.UpdateViewToLaunch,
             is SettingsIntent.ResetViewState,
-            is SettingsIntent.UpdateContactSupportEligibility -> null
+            is SettingsIntent.UpdateContactSupportEligibility,
+            is SettingsIntent.UpdatePaymentMethodsInfo,
+            is SettingsIntent.OnCardRemoved,
+            is SettingsIntent.OnBankRemoved,
+            is SettingsIntent.ResetErrorState,
+            is SettingsIntent.UpdateErrorState -> null
         }.exhaustive
 }

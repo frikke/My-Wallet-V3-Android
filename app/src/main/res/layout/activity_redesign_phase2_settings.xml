@@ -46,7 +46,7 @@
                 android:id="@+id/icon_user"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
+                android:alpha="0"
                 app:layout_constraintBottom_toBottomOf="@+id/user_initials"
                 app:layout_constraintEnd_toEndOf="@+id/user_initials" />
 
@@ -54,6 +54,7 @@
                 android:id="@+id/name"
                 style="@style/TextAppearance.Blockchain.Title3"
                 android:layout_width="wrap_content"
+                android:alpha="0"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/small_margin"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -73,7 +74,7 @@
                 android:id="@+id/see_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/large_margin"
+                android:layout_marginTop="@dimen/medium_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/email" />
@@ -85,17 +86,34 @@
                 android:layout_marginTop="@dimen/xlarge_margin"
                 app:layout_constraintTop_toBottomOf="@id/see_profile" />
 
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/payments"
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/payments_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/header_payments" />
+                android:orientation="vertical"
+                android:paddingTop="@dimen/very_small_margin"
+                android:paddingBottom="@dimen/very_small_margin"
+                app:layout_constraintTop_toBottomOf="@id/header_payments">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/payments_progress"
+                    android:layout_width="@dimen/xlarge_margin"
+                    android:layout_height="@dimen/xlarge_margin"
+                    android:layout_gravity="center"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="lottie/loader.json"
+                    app:lottie_imageAssetsFolder="lottie/loader.json"
+                    app:lottie_loop="true"
+                    android:visibility="gone"
+                    app:lottie_repeatMode="restart" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
                 android:id="@+id/header_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/payments" />
+                app:layout_constraintTop_toBottomOf="@id/payments_container" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/account_group"
@@ -150,5 +168,4 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-
 </androidx.appcompat.widget.LinearLayoutCompat>

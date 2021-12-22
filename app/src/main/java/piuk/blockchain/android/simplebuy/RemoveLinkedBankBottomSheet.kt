@@ -85,7 +85,7 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
             .subscribeBy(
                 onComplete = {
                     analytics.logEvent(SimpleBuyAnalytics.REMOVE_BANK)
-                    (parentFragment as? RemovePaymentMethodBottomSheetHost)?.onLinkedBankRemoved(bank.id)
+                    ((parentFragment ?: activity) as? RemovePaymentMethodBottomSheetHost)?.onLinkedBankRemoved(bank.id)
                     dismiss()
                 }, onError = {
                 ToastCustom.makeText(

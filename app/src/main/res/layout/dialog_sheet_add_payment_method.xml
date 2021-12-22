@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/sheet_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/very_small_margin"
+        app:srcCompat="@drawable/vector_sheet_indicator_small" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/payment_methods_title"
+        style="@style/Text.Semibold.20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/small_margin"
+        android:background="@color/white"
+        android:paddingBottom="@dimen/very_small_margin"
+        android:text="@string/payment_methods" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/add_card_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/add_bank_link_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/add_bank_account_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>
+

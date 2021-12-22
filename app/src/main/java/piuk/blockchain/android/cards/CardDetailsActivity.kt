@@ -1,5 +1,6 @@
 package piuk.blockchain.android.cards
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -90,6 +91,8 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
     companion object {
         const val CARD_KEY = "card_key"
         const val ADD_CARD_REQUEST_CODE = 3245
+
+        fun newIntent(context: Context): Intent = Intent(context, CardDetailsActivity::class.java)
     }
 }
 

@@ -5,7 +5,12 @@ import com.blockchain.nabu.Tier
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class SettingsIntent : MviIntent<SettingsState> {
-    object LoadSupportEligibilityAndUserInfo : SettingsIntent() {
+
+    object LoadHeaderInformation : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    object LoadPaymentMethods : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }
 
@@ -20,7 +25,24 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
             )
     }
 
-    object LogOut : SettingsIntent() {
+    class UpdatePaymentMethodsInfo(
+        private val paymentMethodInfo: PaymentMethods
+    ) : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState =
+            oldState.copy(
+                paymentMethodInfo = paymentMethodInfo
+            )
+    }
+
+    object AddBankTransferSelected : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    object AddBankAccountSelected : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    object Logout : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }
 
@@ -37,5 +59,43 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
 
     object ResetViewState : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState.copy(viewToLaunch = ViewToLaunch.None)
+    }
+
+    class OnBankRemoved(private val bankId: String) : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState {
+            val updatedBankList = oldState.paymentMethodInfo?.linkedBanks?.toMutableSet()?.apply {
+                removeIf { it.id == bankId }
+            } ?: emptySet()
+
+            return oldState.copy(
+                paymentMethodInfo = oldState.paymentMethodInfo?.copy(
+                    linkedBanks = updatedBankList.toSet()
+                )
+            )
+        }
+    }
+
+    class OnCardRemoved(private val cardId: String) : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState {
+            val updatedCardList = oldState.paymentMethodInfo?.linkedCards?.toMutableList()?.apply {
+                removeIf { it.id == cardId }
+            } ?: emptyList()
+
+            return oldState.copy(
+                paymentMethodInfo = oldState.paymentMethodInfo?.copy(
+                    linkedCards = updatedCardList.toList()
+                )
+            )
+        }
+    }
+
+    class UpdateErrorState(private val error: SettingsError) : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState =
+            oldState.copy(error = error)
+    }
+
+    object ResetErrorState : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState =
+            oldState.copy(error = SettingsError.NONE)
     }
 }

@@ -45,7 +45,9 @@ class RemoveCardBottomSheet : SlidingModalBottomDialog<RemoveCardBottomSheetBind
                         updateUi(false)
                     }
                     .subscribeBy(onComplete = {
-                        (parentFragment as? RemovePaymentMethodBottomSheetHost)?.onCardRemoved(card.cardId)
+                        ((parentFragment ?: activity) as? RemovePaymentMethodBottomSheetHost)?.onCardRemoved(
+                            card.cardId
+                        )
                         dismiss()
                         analytics.logEvent(SimpleBuyAnalytics.REMOVE_CARD)
                     }, onError = {})

@@ -4,6 +4,8 @@ import com.blockchain.core.Database
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -22,13 +24,17 @@ class SettingsInteractorTest {
     private val userIdentity: UserIdentity = mock()
     private val database: Database = mock()
     private val credentialsWiper: CredentialsWiper = mock()
+    private val custodialWalletManager: CustodialWalletManager = mock()
+    private val currencyPrefs: CurrencyPrefs = mock()
 
     @Before
     fun setup() {
         interactor = SettingsInteractor(
             userIdentity = userIdentity,
             database = database,
-            credentialsWiper = credentialsWiper
+            credentialsWiper = credentialsWiper,
+            custodialWalletManager = custodialWalletManager,
+            currencyPrefs = currencyPrefs
         )
     }
 
@@ -40,7 +46,7 @@ class SettingsInteractorTest {
         whenever(userIdentity.getBasicProfileInformation()).thenReturn(Single.just(userInformation))
         val observer = interactor.getSupportEligibilityAndBasicInfo().test()
         observer.assertValueAt(0) {
-            it.first == Tier.GOLD && it.second == userInformation
+            it.userTier == Tier.GOLD && it.userInfo == userInformation
         }
 
         verify(userIdentity).getHighestApprovedKycTier()
