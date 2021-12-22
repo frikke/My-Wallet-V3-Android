@@ -537,6 +537,7 @@ class PortfolioFragment :
                 )
             )
             activeFiat = currencyPrefs.selectedFiatCurrency
+            model.process(DashboardIntent.FetchOnboardingSteps)
         }
     }
 
