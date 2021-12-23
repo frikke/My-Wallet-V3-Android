@@ -163,19 +163,7 @@ platform :android do
       )
 
        ci_test_app
-       ci_test_balance
-       ci_test_common
-       ci_test_blockchainApi
-       ci_test_coincore
-       ci_test_core
-       ci_test_notifications
-       ci_test_sunriver
-       ci_test_testutils
-       ci_test_testutils_android
-       ci_test_wallet
-       ci_test_biometrics
-       ci_test_payments
-       ci_test_componentlib
+       ci_modules_tests
 
     end
 
@@ -188,126 +176,11 @@ platform :android do
 
     end
 
-    desc "Tests to run on CI balance"
-    lane :ci_test_balance do
-      gradle(
-        task: "balance:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
+    desc "Tests to run on all modules"
+    lane :ci_modules_tests do
+      sh("chmod +x ./../scripts/tests/run_modules_tests.sh")
+      sh("./../scripts/tests/run_modules_tests.sh")
     end
-
-    desc "Tests to run on CI common"
-    lane :ci_test_common do
-      gradle(
-        task: "common:network:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-      gradle(
-        task: "common:interface:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI coincore"
-    lane :ci_test_coincore do
-      gradle(
-        task: "coincore:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI blockchainApi"
-    lane :ci_test_blockchainApi do
-      gradle(
-        task: "blockchainApi:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI core"
-    lane :ci_test_core do
-      gradle(
-        task: "core:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI notifications"
-    lane :ci_test_notifications do
-      gradle(
-        task: "notifications:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI sunriver"
-    lane :ci_test_sunriver do
-      gradle(
-        task: "sunriver:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI testutils"
-    lane :ci_test_testutils do
-      gradle(
-        task: "testutils:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI testutils-android"
-    lane :ci_test_testutils_android do
-      gradle(
-        task: "testutils-android:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI wallet"
-    lane :ci_test_wallet do
-      gradle(
-        task: "wallet:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI biometrics"
-    lane :ci_test_biometrics do
-      gradle(
-        task: "biometrics:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI payments"
-        lane :ci_test_payments do
-          gradle(
-            task: "payments:test",
-            flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-          )
-
-        end
-
-    desc "Tests to run on CI componentlib"
-        lane :ci_test_componentlib do
-          gradle(
-            task: "componentlib:test",
-            flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-          )
-
-        end
 
     desc "Get the configuration files from the Android credentials repository on CI."
     lane :ci_credentials do
