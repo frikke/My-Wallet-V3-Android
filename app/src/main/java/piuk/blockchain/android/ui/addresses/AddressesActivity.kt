@@ -20,7 +20,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityAccountsBinding
+import piuk.blockchain.android.databinding.ActivityAddressesBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.addresses.adapter.AccountAdapter
 import piuk.blockchain.android.ui.addresses.adapter.AccountListItem
@@ -38,7 +38,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
-class AccountActivity :
+class AddressesActivity :
     MvpActivity<AccountView, AccountPresenter>(),
     AccountView,
     AccountAdapter.Listener,
@@ -49,8 +49,8 @@ class AccountActivity :
     private val features: InternalFeatureFlagApi by inject()
     private val compositeDisposable = CompositeDisposable()
 
-    private val binding: ActivityAccountsBinding by lazy {
-        ActivityAccountsBinding.inflate(layoutInflater)
+    private val binding: ActivityAddressesBinding by lazy {
+        ActivityAddressesBinding.inflate(layoutInflater)
     }
 
     private val accountsAdapter: AccountAdapter by unsafeLazy {
@@ -73,7 +73,7 @@ class AccountActivity :
         }
 
         with(binding.recyclerviewAccounts) {
-            layoutManager = LinearLayoutManager(this@AccountActivity)
+            layoutManager = LinearLayoutManager(this@AddressesActivity)
             itemAnimator = null
             setHasFixedSize(true)
             adapter = accountsAdapter
@@ -137,7 +137,7 @@ class AccountActivity :
             .subscribeBy(
                 onSuccess = { password ->
                     promptForAccountLabel(
-                        ctx = this@AccountActivity,
+                        ctx = this@AddressesActivity,
                         title = R.string.create_a_new_wallet,
                         msg = R.string.create_a_new_wallet_helper_text,
                         okAction = { presenter.createNewAccount(it, password) }
@@ -145,7 +145,7 @@ class AccountActivity :
                 },
                 onComplete = {
                     promptForAccountLabel(
-                        ctx = this@AccountActivity,
+                        ctx = this@AddressesActivity,
                         title = R.string.create_a_new_wallet,
                         msg = R.string.create_a_new_wallet_helper_text,
                         okAction = { presenter.createNewAccount(it) }
@@ -269,6 +269,6 @@ class AccountActivity :
         private const val TX_FLOW_REQUEST = 567
 
         fun newIntent(context: Context): Intent =
-            Intent(context, AccountActivity::class.java)
+            Intent(context, AddressesActivity::class.java)
     }
 }

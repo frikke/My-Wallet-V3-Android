@@ -102,7 +102,7 @@ import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_M
 import piuk.blockchain.android.ui.settings.preferences.BankPreference
 import piuk.blockchain.android.ui.settings.preferences.CardPreference
 import piuk.blockchain.android.ui.settings.preferences.ThePitStatusPreference
-import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
+import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
@@ -771,7 +771,7 @@ class SettingsFragment :
     }
 
     override fun launchThePit() {
-        PitLaunchBottomDialog.launch(requireActivity())
+        ExchangeConnectionSheet.launch(requireActivity())
     }
 
     private fun onUpdateEmailClicked() {

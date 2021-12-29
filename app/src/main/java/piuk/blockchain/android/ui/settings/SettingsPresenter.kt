@@ -69,7 +69,7 @@ class SettingsPresenter(
 ) : BasePresenter<SettingsView>() {
 
     private val fiatCurrency: FiatCurrency
-        get() = prefs.selectedFiatCurrency as FiatCurrency
+        get() = prefs.selectedFiatCurrency
 
     private var pitClickedListener = {}
 

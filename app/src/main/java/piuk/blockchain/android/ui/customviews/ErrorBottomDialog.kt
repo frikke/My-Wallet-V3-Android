@@ -27,7 +27,7 @@ abstract class ErrorBottomDialog<E : ViewBinding> : BottomSheetDialogFragment() 
         val descriptionToFormat: Pair<Int, String>? = null,
         @StringRes val ctaButtonText: Int = 0,
         @StringRes val dismissText: Int = 0,
-        @DrawableRes val icon: Int
+        @DrawableRes val icon: Int = 0
     ) : Parcelable
 
     val analytics: Analytics by inject()

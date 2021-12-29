@@ -18,6 +18,7 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.PaymentMethod
+import info.blockchain.balance.FiatCurrency
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -26,8 +27,8 @@ import piuk.blockchain.android.databinding.ActivityDashboardOnboardingBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
+import piuk.blockchain.android.simplebuy.CurrencySelectionSheet
 import piuk.blockchain.android.simplebuy.PaymentMethodChooserBottomSheet
-import piuk.blockchain.android.simplebuy.SimpleBuySelectCurrencyFragment
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -43,7 +44,7 @@ class DashboardOnboardingActivity :
         DashboardOnboardingState,
         ActivityDashboardOnboardingBinding
         >(),
-    SimpleBuySelectCurrencyFragment.Host,
+    CurrencySelectionSheet.Host,
     PaymentMethodChooserBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean = false
@@ -137,8 +138,10 @@ class DashboardOnboardingActivity :
             }
             is DashboardOnboardingNavigationAction.SelectTradingCurrency -> {
                 showBottomSheet(
-                    SimpleBuySelectCurrencyFragment.newInstance(
-                        action.supportedCurrencies, action.selectedCurrency
+                    CurrencySelectionSheet.newInstance(
+                        currencies = action.supportedCurrencies,
+                        selectedCurrency = action.selectedCurrency,
+                        currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.TRADING_CURRENCY
                     )
                 )
             }
@@ -170,7 +173,7 @@ class DashboardOnboardingActivity :
         throw UnsupportedOperationException()
     }
 
-    override fun onCurrencyChanged() {
+    override fun onCurrencyChanged(currency: FiatCurrency) {
         model.process(DashboardOnboardingIntent.TradingCurrencyChanged)
     }
 
@@ -243,9 +246,11 @@ class DashboardOnboardingActivity :
         val initialSteps: List<CompletableDashboardOnboardingStep>,
         val showCloseButton: Boolean = false
     )
+
     sealed class ActivityResult {
         object LaunchBuyFlow : ActivityResult()
     }
+
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {
         override fun createIntent(context: Context, input: ActivityArgs): Intent = newIntent(
             context = context,

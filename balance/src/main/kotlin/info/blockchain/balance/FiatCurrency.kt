@@ -28,6 +28,12 @@ class FiatCurrency private constructor(
     override val type: CurrencyType
         get() = CurrencyType.FIAT
 
+    fun tickerWithSymbol(): String =
+        "$displayTicker ($symbol)"
+
+    fun nameWithSymbol(): String =
+        "$name ($symbol)"
+
     companion object {
         fun fromCurrencyCode(currencyCode: String): FiatCurrency =
             FiatCurrency(currencyCode)

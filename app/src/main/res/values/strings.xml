@@ -57,6 +57,7 @@
     <string name="common_buy_crypto">Buy Crypto</string>
     <string name="common_preview">Preview</string>
     <string name="common_unavailable">Unavailable</string>
+    <string name="common_connect">Connect</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -2427,6 +2428,7 @@
     <string name="toolbar_settings">Settings</string>
 
     <string name="select_a_trading_currency">Select a Trading Currency.</string>
+    <string name="select_a_display_currency">Select a Display Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
     <string name="landing_cta_title">Buy Bitcoin. Own the Future.</string>
@@ -2504,7 +2506,7 @@
     <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
     <string name="settings_label_settings">Settings</string>
     <string name="settings_title_account">Account</string>
-    <string name="settings_subtitle_account">Limits, Currency, Notifications and more</string>
+    <string name="settings_subtitle_account">Limits, Currency and more</string>
     <string name="settings_title_security">Security</string>
     <string name="settings_subtitle_security">Login Methods, Backup Phrases and more</string>
     <string name="settings_title_about_app">About App</string>
@@ -2514,6 +2516,29 @@
     <string name="settings_add_payment_method">Add Payment Method</string>
     <string name="settings_bank_transfer_blurb">Send funds directly from your bank to your Blockchain Wallet. Once we receive the wire transfer, we’ll complete your purchase.</string>
     <string name="settings_logout_error">There was an issue while logging you out, please try again!</string>
+
+
+    <!-- Account screen -->
+    <string name="account_toolbar">Account</string>
+    <string name="account_limits_title">Limits and Features</string>
+    <string name="account_limits_subtitle">Trading Accounts</string>
+    <string name="account_wallet_id_title">Wallet ID</string>
+    <string name="account_wallet_id_subtitle">Warning: Do Not Share Publicly</string>
+    <string name="account_currency_title">Local Currency</string>
+    <string name="account_exchange_title">Blockchain Exchange</string>
+    <string name="account_exchange_not_connected">Connect to your Exchange Account</string>
+    <string name="account_exchange_connected">Connected</string>
+    <string name="account_airdrops_title">Airdrops</string>
+    <string name="account_wallet_id_copy_error">There was an error copying your Wallet ID, please try again.</string>
+    <string name="account_exchange_connect_title">Connect to Exchange</string>
+    <string name="account_exchange_connect_subtitle">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>
+    <string name="account_exchange_connected_title">Blockchain Exchange</string>
+    <string name="account_exchange_connected_cta">Launch the Exchange</string>
+    <string name="account_load_info_error">There was an error loading your details, please try again</string>
+    <string name="account_load_fiat_error">There was an error loading currency details, please try again</string>
+    <string name="account_fiat_update_error">There was an error updating your currency details, please try again</string>
+    <string name="account_exchange_info_error">There was an error loading Exchange information, please try again</string>
+    <string name="account_load_exchange_error">There was an error loading the Exchange, please try again</string>
 
     <!-- Profile screen -->
     <string name="profile_toolbar">Profile</string>

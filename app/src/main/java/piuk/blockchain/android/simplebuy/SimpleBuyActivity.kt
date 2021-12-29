@@ -125,9 +125,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     private fun launchCurrencySelector(currencies: List<FiatCurrency>, selectedCurrency: FiatCurrency) {
         compositeDisposable.clear()
         showBottomSheet(
-            SimpleBuySelectCurrencyFragment.newInstance(
+            CurrencySelectionSheet.newInstance(
                 currencies = currencies,
-                selectedCurrency = selectedCurrency
+                selectedCurrency = selectedCurrency,
+                currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.TRADING_CURRENCY
             )
         )
     }

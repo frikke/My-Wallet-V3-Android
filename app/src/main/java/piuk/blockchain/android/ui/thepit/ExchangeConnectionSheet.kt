@@ -5,52 +5,63 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.io.Serializable
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.PitLaunchBottomDialogBinding
+import piuk.blockchain.android.databinding.DialogSheetExchangeConnectBinding
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.urllinks.URL_THE_PIT_LAUNCH_SUPPORT
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.launchUrlInBrowser
-import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.android.util.visibleIf
 
-class PitLaunchBottomDialog : ErrorBottomDialog<PitLaunchBottomDialogBinding>() {
+class ExchangeConnectionSheet : ErrorBottomDialog<DialogSheetExchangeConnectBinding>() {
 
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): PitLaunchBottomDialogBinding =
-        PitLaunchBottomDialogBinding.inflate(inflater, container, false)
+    private val tagsList: List<TagViewState> by lazy {
+        arguments?.getSerializable(ARG_TAGS) as? List<TagViewState> ?: emptyList()
+    }
+
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetExchangeConnectBinding =
+        DialogSheetExchangeConnectBinding.inflate(inflater, container, false)
 
     override fun init(content: Content) {
         with(binding) {
-            dialogTitle.text = content.title
+            exchangeTitle.text = content.title
+
             content.icon.takeIf { it > 0 }?.let {
                 dialogIcon.setImageResource(it)
                 dialogIcon.visible()
             } ?: dialogIcon.gone()
 
-            dialogBody.apply {
+            exchangeBody.apply {
                 with(content) {
                     text = descriptionToFormat?.let {
                         getString(descriptionToFormat.first, descriptionToFormat.second)
                     } ?: description
                     movementMethod = LinkMovementMethod.getInstance()
+                    visibleIf { descriptionToFormat != null || description.isNotEmpty() }
                 }
             }
 
-            buttonCta.apply {
+            exchangeTags.apply {
+                visibleIf { tagsList.isNotEmpty() }
+                tags = tagsList
+            }
+
+            exchangePrimaryCta.apply {
                 if (content.ctaButtonText != 0) {
-                    setText(content.ctaButtonText)
+                    text = getString(content.ctaButtonText)
                 } else {
                     gone()
                 }
             }
 
-            buttonDismiss.apply {
+            exchangeSecondaryCta.apply {
                 if (content.dismissText != 0) {
-                    setText(content.dismissText)
+                    text = getString(content.dismissText)
                 } else {
                     gone()
                 }
@@ -60,26 +71,30 @@ class PitLaunchBottomDialog : ErrorBottomDialog<PitLaunchBottomDialogBinding>() 
 
     override fun onResume() {
         super.onResume()
-        clicksDisposable += binding.buttonCta.throttledClicks()
-            .subscribeBy(onNext = {
-                onCtaClick()
-                analytics.logEvent(AnalyticsEvents.SwapErrorDialogCtaClicked)
-                dismiss()
-            })
-        clicksDisposable += binding.buttonDismiss.throttledClicks()
-            .subscribeBy(onNext = {
-                analytics.logEvent(AnalyticsEvents.SwapErrorDialogDismissClicked)
-                onDismissClick()
-                dismiss()
-            })
+        binding.exchangePrimaryCta.onClick = {
+            this.dismiss()
+            analytics.logEvent(AnalyticsEvents.SwapErrorDialogCtaClicked)
+            onCtaClick()
+        }
+
+        binding.exchangeSecondaryCta.onClick = {
+            this.dismiss()
+            analytics.logEvent(AnalyticsEvents.SwapErrorDialogDismissClicked)
+            onDismissClick()
+        }
     }
 
     companion object {
         private const val ARG_CONTENT = "arg_content"
+        private const val ARG_TAGS = "arg_tags"
 
-        private fun newInstance(content: Content): PitLaunchBottomDialog {
-            return PitLaunchBottomDialog().apply {
+        private fun newInstance(
+            content: Content,
+            tags: List<TagViewState> = emptyList()
+        ): ExchangeConnectionSheet {
+            return ExchangeConnectionSheet().apply {
                 arguments = Bundle().apply {
+                    putSerializable(ARG_TAGS, tags as Serializable)
                     putParcelable(ARG_CONTENT, content)
                 }
             }
@@ -92,7 +107,7 @@ class PitLaunchBottomDialog : ErrorBottomDialog<PitLaunchBottomDialogBinding>() 
                     description = "",
                     ctaButtonText = R.string.launch_the_exchange,
                     dismissText = R.string.the_exchange_contact_support,
-                    icon = R.drawable.ic_the_exchange_colour
+                    icon = R.drawable.ic_exchange_logo
                 )
             ).apply {
                 onCtaClick = { activity.launchUrlInBrowser(BuildConfig.PIT_LAUNCHING_URL) }
@@ -100,5 +115,16 @@ class PitLaunchBottomDialog : ErrorBottomDialog<PitLaunchBottomDialogBinding>() 
                 show(activity.supportFragmentManager, "BottomDialog")
             }
         }
+
+        fun newInstance(
+            content: Content,
+            tags: List<TagViewState>,
+            primaryCtaClick: () -> Unit = {},
+            secondaryCtaClick: () -> Unit = {}
+        ): ExchangeConnectionSheet =
+            newInstance(content, tags).apply {
+                onCtaClick = { primaryCtaClick() }
+                onDismissClick = { secondaryCtaClick() }
+            }
     }
 }

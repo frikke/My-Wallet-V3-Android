@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.kyc.limits
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.core.limits.Feature
@@ -142,6 +144,10 @@ class KycLimitsActivity :
 
     override fun onSheetClosed() {
         model.process(KycLimitsIntent.CloseSheet)
+    }
+
+    companion object {
+        fun newIntent(context: Context): Intent = Intent(context, KycLimitsActivity::class.java)
     }
 }
 

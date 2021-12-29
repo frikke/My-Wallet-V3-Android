@@ -42,7 +42,7 @@ import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
-import piuk.blockchain.android.ui.addresses.AccountActivity
+import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
@@ -73,7 +73,7 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
-import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
+import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -194,7 +194,7 @@ class MainActivity :
     private fun startSettingsAction(action: SettingsActivity.Companion.SettingsAction) {
         when (action) {
             SettingsActivity.Companion.SettingsAction.Addresses ->
-                startActivityForResult(AccountActivity.newIntent(this), ACCOUNT_EDIT)
+                startActivityForResult(AddressesActivity.newIntent(this), ACCOUNT_EDIT)
             SettingsActivity.Companion.SettingsAction.Exchange ->
                 model.process(MainIntent.LaunchExchange)
             SettingsActivity.Companion.SettingsAction.Airdrops ->
@@ -646,7 +646,7 @@ class MainActivity :
     }
 
     override fun launchThePit() {
-        PitLaunchBottomDialog.launch(this)
+        ExchangeConnectionSheet.launch(this)
     }
 
     override fun launchBackupFunds(fragment: Fragment?, requestCode: Int) {
