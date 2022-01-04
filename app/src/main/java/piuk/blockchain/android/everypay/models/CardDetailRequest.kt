@@ -20,9 +20,27 @@ data class CcDetails(
 )
 
 data class CardDetailResponse(
-    @field:Json(name = "payment_state") val status: String
-)
+    @field:Json(name = "payment_state") val status: EveryPayPaymentStatus?
+) {
+    // If the received payment state is null or is set to "failed", then the payment authorization failed.
+    val isSuccess: Boolean = status?.let { paymentStatus ->
+        paymentStatus != EveryPayPaymentStatus.FAILED ||
+            paymentStatus != EveryPayPaymentStatus.UNKNOWN
+    } ?: false
+}
 
-data class PaymentStateWebviewResponse(
-    val state: String
-)
+enum class EveryPayPaymentStatus {
+    @Json(name = "initial")
+    INITIAL,
+    @Json(name = "settled")
+    SETTLED,
+    @Json(name = "failed")
+    FAILED,
+    @Json(name = "waiting_for_3ds_response")
+    WAITING_FOR_3DS_RESPONSE,
+    @Json(name = "waiting_for_sca")
+    WAITING_FOR_SCA,
+    @Json(name = "confirmed_3ds")
+    CONFIRMED_3DS,
+    UNKNOWN
+}

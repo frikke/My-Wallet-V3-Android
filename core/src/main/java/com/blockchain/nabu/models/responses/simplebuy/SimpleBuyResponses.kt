@@ -2,10 +2,11 @@ package com.blockchain.nabu.models.responses.simplebuy
 
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
-import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.models.responses.nabu.Address
 import java.util.Date
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 data class SimpleBuyPairsResp(val pairs: List<SimpleBuyPairResp>)
 
@@ -183,19 +184,37 @@ data class PaymentAttributesResponse(
     val cardProvider: CardProviderPaymentAttributesResponse?
 )
 
+@Serializable
+enum class PaymentStateResponse {
+    @SerialName("INITIAL")
+    INITIAL,
+    @SerialName("WAITING_FOR_3DS_RESPONSE")
+    WAITING_FOR_3DS_RESPONSE,
+    @SerialName("CONFIRMED_3DS")
+    CONFIRMED_3DS,
+    @SerialName("SETTLED")
+    SETTLED,
+    @SerialName("VOIDED")
+    VOIDED,
+    @SerialName("ABANDONED")
+    ABANDONED,
+    @SerialName("FAILED")
+    FAILED
+}
+
 // cardAcquirerName and cardAcquirerAccountCode are mandatory
 data class CardProviderPaymentAttributesResponse(
     val cardAcquirerName: String,
     val cardAcquirerAccountCode: String,
     val paymentLink: String?,
-    val paymentState: String?,
+    val paymentState: PaymentStateResponse?,
     val clientSecret: String?,
     val publishableApiKey: String?
 )
 
 data class EverypayPaymentAttributesResponse(
     val paymentLink: String,
-    val paymentState: String
+    val paymentState: PaymentStateResponse?
 )
 
 data class ConfirmOrderRequestBody(
@@ -293,12 +312,3 @@ data class SimpleBuyConfirmationAttributes(
 data class EveryPayAttrs(private val customerUrl: String)
 
 typealias BuyOrderListResponse = List<BuySellOrderResponse>
-
-private fun OrderState.isPending(): Boolean =
-    this == OrderState.PENDING_CONFIRMATION ||
-        this == OrderState.PENDING_EXECUTION ||
-        this == OrderState.AWAITING_FUNDS
-
-private fun OrderState.hasFailed(): Boolean = this == OrderState.FAILED
-
-private fun OrderState.isFinished(): Boolean = this == OrderState.FINISHED

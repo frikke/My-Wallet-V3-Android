@@ -10,6 +10,7 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
+import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -220,7 +221,7 @@ class SimpleBuyModelTest {
                             status = null,
                             cardAttributes = CardAttributes.EveryPay(
                                 paymentLink = paymentLink,
-                                paymentState = CardAttributes.EveryPay.WAITING_3DS
+                                paymentState = CardPaymentState.WAITING_FOR_3DS
                             )
                         ),
                         type = OrderType.BUY,

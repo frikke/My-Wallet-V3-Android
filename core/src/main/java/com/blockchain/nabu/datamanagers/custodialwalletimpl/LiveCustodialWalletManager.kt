@@ -14,6 +14,7 @@ import com.blockchain.nabu.datamanagers.BuySellLimits
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CardAttributes
+import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.CardProvider
 import com.blockchain.nabu.datamanagers.CardToBeActivated
 import com.blockchain.nabu.datamanagers.CryptoTransaction
@@ -91,6 +92,7 @@ import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.EveryPayCardCredentialsResponse
 import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributesResponse
+import com.blockchain.nabu.models.responses.simplebuy.PaymentStateResponse
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
@@ -1613,13 +1615,13 @@ fun PaymentAttributesResponse.toPaymentAttributes(): PaymentAttributes {
             cardAcquirerName = cardProvider.cardAcquirerName,
             cardAcquirerAccountCode = cardProvider.cardAcquirerAccountCode,
             paymentLink = cardProvider.paymentLink.orEmpty(),
-            paymentState = cardProvider.paymentState.orEmpty(),
+            paymentState = cardProvider.paymentState.toCardPaymentState(),
             clientSecret = cardProvider.clientSecret.orEmpty(),
             publishableApiKey = cardProvider.publishableApiKey.orEmpty()
         )
         everypay != null -> CardAttributes.EveryPay(
             paymentLink = everypay.paymentLink,
-            paymentState = everypay.paymentState
+            paymentState = everypay.paymentState.toCardPaymentState()
         )
         else -> CardAttributes.Empty
     }
@@ -1629,6 +1631,18 @@ fun PaymentAttributesResponse.toPaymentAttributes(): PaymentAttributes {
         cardAttributes = cardAttributes
     )
 }
+
+fun PaymentStateResponse?.toCardPaymentState() =
+    when (this) {
+        PaymentStateResponse.WAITING_FOR_3DS_RESPONSE -> CardPaymentState.WAITING_FOR_3DS
+        PaymentStateResponse.CONFIRMED_3DS -> CardPaymentState.CONFIRMED_3DS
+        PaymentStateResponse.SETTLED -> CardPaymentState.SETTLED
+        PaymentStateResponse.VOIDED -> CardPaymentState.VOIDED
+        PaymentStateResponse.ABANDONED -> CardPaymentState.ABANDONED
+        PaymentStateResponse.FAILED -> CardPaymentState.FAILED
+        PaymentStateResponse.INITIAL,
+        null -> CardPaymentState.INITIAL
+    }
 
 fun String.toRecurringBuyError() =
     when (this) {

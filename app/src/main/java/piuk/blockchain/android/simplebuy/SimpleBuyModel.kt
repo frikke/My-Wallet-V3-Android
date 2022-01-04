@@ -11,6 +11,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
+import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
@@ -284,19 +285,8 @@ class SimpleBuyModel(
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
             ).subscribeBy(
-                onSuccess = {
-                    if (it.state == OrderState.FINISHED) {
-                        updatePersistingCountersForCompletedOrders()
-                        process(SimpleBuyIntent.PaymentSucceeded)
-                    } else if (it.state == OrderState.AWAITING_FUNDS || it.state == OrderState.PENDING_EXECUTION) {
-                        process(SimpleBuyIntent.PaymentPending)
-                    } else {
-                        if (it.approvalErrorStatus != ApprovalErrorStatus.NONE) {
-                            handleApprovalErrorState(it)
-                        } else {
-                            process(SimpleBuyIntent.ErrorIntent())
-                        }
-                    }
+                onSuccess = { buySellOrder ->
+                    processOrderStatus(buySellOrder)
                 },
                 onError = {
                     process(SimpleBuyIntent.ErrorIntent())
@@ -346,6 +336,32 @@ class SimpleBuyModel(
             )
             else -> null
         }
+
+    private fun processOrderStatus(buySellOrder: BuySellOrder) {
+        when {
+            buySellOrder.state == OrderState.FINISHED -> {
+                updatePersistingCountersForCompletedOrders()
+                process(SimpleBuyIntent.PaymentSucceeded)
+            }
+            buySellOrder.state.isPending() -> {
+                process(SimpleBuyIntent.PaymentPending)
+            }
+            else -> {
+                when (val cardAttributes = buySellOrder.attributes?.cardAttributes ?: CardAttributes.Empty) {
+                    is CardAttributes.EveryPay -> {
+                        handleCardPaymentState(cardAttributes.paymentState)
+                    }
+                    is CardAttributes.Provider -> {
+                        handleCardPaymentState(cardAttributes.paymentState)
+                    }
+                    is CardAttributes.Empty -> {
+                        // Usual path for any non-card payment
+                        handleApprovalErrorState(buySellOrder.approvalErrorStatus)
+                    }
+                }
+            }
+        }
+    }
 
     private fun onPaymentMethodsUpdated(
         asset: AssetInfo,
@@ -437,8 +453,8 @@ class SimpleBuyModel(
             }
         }
 
-    private fun handleApprovalErrorState(it: BuySellOrder) {
-        when (it.approvalErrorStatus) {
+    private fun handleApprovalErrorState(approvalErrorStatus: ApprovalErrorStatus) {
+        when (approvalErrorStatus) {
             ApprovalErrorStatus.FAILED -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankFailed)
             )
@@ -455,9 +471,27 @@ class SimpleBuyModel(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedGenericError)
             )
             ApprovalErrorStatus.NONE -> {
-                // do nothing
+                process(SimpleBuyIntent.ErrorIntent())
             }
         }.exhaustive
+    }
+
+    private fun handleCardPaymentState(paymentState: CardPaymentState) {
+        // TODO: currently we continue polling as the OrderState will reflect what we need to do.
+        // Discuss with product and design to handle the different states for card payments. Same for iOS.
+        when (paymentState) {
+            CardPaymentState.WAITING_FOR_3DS -> {
+                // This is handled in handleCardPayment for now
+            }
+            CardPaymentState.INITIAL,
+            CardPaymentState.CONFIRMED_3DS,
+            CardPaymentState.SETTLED,
+            CardPaymentState.VOIDED,
+            CardPaymentState.ABANDONED,
+            CardPaymentState.FAILED -> {
+                // Continue polling
+            }
+        }
     }
 
     private fun processGetPaymentMethod(
@@ -717,7 +751,7 @@ class SimpleBuyModel(
                     createIntentForCardProvider(paymentAttributes, order.state)
                 }
                 is CardAttributes.EveryPay -> {
-                    if (paymentAttributes.paymentState == CardAttributes.EveryPay.WAITING_3DS &&
+                    if (paymentAttributes.paymentState == CardPaymentState.WAITING_FOR_3DS &&
                         order.state == OrderState.AWAITING_FUNDS
                     ) {
                         SimpleBuyIntent.Open3dsAuth(
@@ -750,7 +784,7 @@ class SimpleBuyModel(
                     )
                 )
                 CardAcquirer.EVERYPAY -> {
-                    if (paymentAttributes.paymentState == CardAttributes.EveryPay.WAITING_3DS) {
+                    if (paymentAttributes.paymentState == CardPaymentState.WAITING_FOR_3DS) {
                         SimpleBuyIntent.Open3dsAuth(
                             CardAcquirerCredentials.Everypay(
                                 paymentLink = paymentAttributes.paymentLink,

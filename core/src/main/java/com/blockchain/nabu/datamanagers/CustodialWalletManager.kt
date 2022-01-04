@@ -338,6 +338,16 @@ data class PaymentAttributes(
     }
 }
 
+enum class CardPaymentState {
+    INITIAL, // Should never happen. It means a case was forgotten by backend
+    WAITING_FOR_3DS, // We have to display a 3DS verification popup
+    CONFIRMED_3DS, // 3DS valid
+    SETTLED, // Ready for capture, no need for 3DS
+    VOIDED, // Payment voided
+    ABANDONED, // Payment abandoned
+    FAILED // Payment failed
+}
+
 sealed class CardAttributes {
 
     object Empty : CardAttributes()
@@ -347,19 +357,15 @@ sealed class CardAttributes {
         val cardAcquirerName: String,
         val cardAcquirerAccountCode: String,
         val paymentLink: String,
-        val paymentState: String,
+        val paymentState: CardPaymentState,
         val clientSecret: String,
         val publishableApiKey: String
     ) : CardAttributes()
 
     data class EveryPay(
         val paymentLink: String,
-        val paymentState: String
-    ) : CardAttributes() {
-        companion object {
-            const val WAITING_3DS = "WAITING_FOR_3DS_RESPONSE"
-        }
-    }
+        val paymentState: CardPaymentState
+    ) : CardAttributes()
 }
 
 data class BuySellOrder(

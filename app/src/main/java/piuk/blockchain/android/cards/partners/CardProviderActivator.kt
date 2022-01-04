@@ -77,11 +77,17 @@ class CardProviderActivator(
             cardData.toCcDetails(),
             everyPay.apiUsername,
             everyPay.mobileToken
-        ).map {
-            CompleteCardActivation.EverypayCompleteCardActivationDetails(
-                paymentLink = everyPay.paymentLink,
-                exitLink = redirectUrl
-            )
+        ).flatMap { response ->
+            if (response.isSuccess) {
+                Single.just(
+                    CompleteCardActivation.EverypayCompleteCardActivationDetails(
+                        paymentLink = everyPay.paymentLink,
+                        exitLink = redirectUrl
+                    )
+                )
+            } else {
+                Single.error(Exception("Error: failed to activate card with EveryPay with status: ${response.status}"))
+            }
         }
 
     override fun paymentAttributes(): SimpleBuyConfirmationAttributes =
