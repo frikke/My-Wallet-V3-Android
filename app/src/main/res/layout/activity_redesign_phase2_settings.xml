@@ -128,7 +128,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/account_group" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/security_group"
+                android:id="@+id/notifications_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/divider_1" />
@@ -137,16 +137,28 @@
                 android:id="@+id/divider_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/security_group" />
+                app:layout_constraintTop_toBottomOf="@+id/notifications_group" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/about_app_group"
+                android:id="@+id/security_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/divider_2" />
 
             <com.blockchain.componentlib.divider.HorizontalDividerView
                 android:id="@+id/divider_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/security_group" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/about_app_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/divider_3" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:id="@+id/divider_4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@+id/about_app_group" />
@@ -158,7 +170,7 @@
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/standard_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
-                app:layout_constraintTop_toBottomOf="@id/divider_3" />
+                app:layout_constraintTop_toBottomOf="@id/divider_4" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/settings_debug"

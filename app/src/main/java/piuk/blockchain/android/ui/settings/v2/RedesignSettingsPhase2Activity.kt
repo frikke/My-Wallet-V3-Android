@@ -52,6 +52,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.settings.SettingsFragment
 import piuk.blockchain.android.ui.settings.v2.account.AccountActivity
+import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsActivity
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.AndroidUtils
@@ -368,6 +369,14 @@ class RedesignSettingsPhase2Activity :
                 secondaryText = getString(R.string.settings_subtitle_account)
                 onClick = {
                     startActivity(AccountActivity.newIntent(this@RedesignSettingsPhase2Activity))
+                }
+            }
+
+            notificationsGroup.apply {
+                primaryText = getString(R.string.settings_notifications_title)
+                secondaryText = getString(R.string.settings_notifications_subtitle)
+                onClick = {
+                    startActivity(NotificationsActivity.newIntent(this@RedesignSettingsPhase2Activity))
                 }
             }
 

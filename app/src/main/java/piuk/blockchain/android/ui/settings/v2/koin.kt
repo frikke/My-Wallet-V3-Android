@@ -6,6 +6,9 @@ import org.koin.dsl.module
 import piuk.blockchain.android.ui.settings.v2.account.AccountInteractor
 import piuk.blockchain.android.ui.settings.v2.account.AccountModel
 import piuk.blockchain.android.ui.settings.v2.account.AccountState
+import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsInteractor
+import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsModel
+import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsState
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
@@ -52,12 +55,31 @@ val redesignSettingsModule = module {
         }
 
         factory {
+            NotificationsModel(
+                initialState = NotificationsState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+
+        factory {
             AccountModel(
                 initialState = AccountState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
                 crashLogger = get()
+            )
+        }
+
+        factory {
+            NotificationsInteractor(
+                notificationPrefs = get(),
+                notificationTokenManager = get(),
+                settingsDataManager = get(),
+                payloadDataManager = get()
             )
         }
 

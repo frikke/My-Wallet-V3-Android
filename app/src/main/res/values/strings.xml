@@ -2506,6 +2506,8 @@
     <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
     <string name="settings_label_settings">Settings</string>
     <string name="settings_title_account">Account</string>
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_notifications_subtitle">Emails and push alerts</string>
     <string name="settings_subtitle_account">Limits, Currency and more</string>
     <string name="settings_title_security">Security</string>
     <string name="settings_subtitle_security">Login Methods, Backup Phrases and more</string>
@@ -2547,6 +2549,11 @@
     <string name="profile_label_email">Email</string>
     <string name="profile_label_mobile">Mobile</string>
 
+    <!-- Notifications screen -->
+    <string name="notifications_toolbar">Notifications</string>
+    <string name="email_notifications_title">Email Notifications</string>
+    <string name="push_notifications_title">Push Notifications</string>
+
     <!-- About app screen -->
     <string name="about_app_toolbar">About App</string>
     <string name="about_app_contact_support">Contact Support</string>
@@ -2554,5 +2561,9 @@
     <string name="about_app_rate_app">Rate Our App</string>
     <string name="about_app_terms_service">Terms of Service</string>
     <string name="about_app_privacy_policy">Privacy Policy</string>
+    <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
+    <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
+    <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
+    <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
 
 </resources>
