@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui
+package piuk.blockchain.android.ui.debug
 
 import android.content.Context
 import android.content.Intent
@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
@@ -27,6 +28,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLocalFeatureFlagsBinding
     private val internalFlags: InternalFeatureFlagApi by inject()
+    private val featureFlagHandler: FeatureFlagHandler by inject()
     private val compositeDisposable = CompositeDisposable()
     private val prefs: PersistentPrefs by inject()
     private val appUtil: AppUtil by inject()
@@ -35,20 +37,35 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
 
+    private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLocalFeatureFlagsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val featureFlags = internalFlags.getAll()
-        if (featureFlags.isEmpty()) {
-            ToastCustom.makeText(
-                this, "There are no local features defined", Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
+        featuresAdapter.items = featureFlagHandler.getAllFeatureFlags().entries.map { (featureFlag, status) ->
+            FeatureFlagItem(
+                name = featureFlag.readableName,
+                featureFlagState = status,
+                onStatusChanged = { featureStatus ->
+                    featureFlagHandler.setFeatureFlagState(featureFlag, featureStatus)
+                }
             )
-        } else {
-            val parent = binding.nestedParent
-            featureFlags.entries.forEachIndexed { index, flag ->
-                val switch = SwitchCompat(this)
+        }
+
+        with(binding) {
+            featureFlagList.apply {
+                layoutManager = LinearLayoutManager(
+                    this@FeatureFlagsHandlingActivity,
+                    LinearLayoutManager.VERTICAL,
+                    false
+                )
+                adapter = featuresAdapter
+            }
+            val parent = nestedParent
+            internalFlags.getAll().entries.forEachIndexed { index, flag ->
+                val switch = SwitchCompat(this@FeatureFlagsHandlingActivity)
                 switch.text = flag.key.readableName
                 switch.isChecked = flag.value
                 switch.setOnCheckedChangeListener { _, isChecked ->
@@ -61,9 +78,6 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
                 // adding index specifically so flags show before all other items
                 parent.addView(switch, index + 1)
             }
-        }
-
-        with(binding) {
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
             btnResetWallet.setOnClickListener { onResetWallet() }
             btnResetAnnounce.setOnClickListener { onResetAnnounce() }

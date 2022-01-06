@@ -745,7 +745,7 @@ val applicationModule = module {
 
         factory {
             SettingsScreenLauncher(
-                redesignPart2FeatureFlag = get()
+                redesignPart2FeatureFlag = get(redesignPart2FeatureFlag)
             )
         }
 

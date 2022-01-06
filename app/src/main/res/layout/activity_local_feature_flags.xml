@@ -18,6 +18,19 @@
             android:layout_marginBottom="@dimen/standard_margin"
             android:text="Local feature flags" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Text.Semibold.16"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_margin"
+            android:layout_marginBottom="@dimen/standard_margin"
+            android:text="Remote feature flags" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/feature_flag_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
         <TextView
             android:id="@+id/device_currency"
             android:layout_width="match_parent"

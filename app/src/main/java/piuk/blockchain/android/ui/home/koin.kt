@@ -2,11 +2,8 @@ package piuk.blockchain.android.ui.home
 
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.redesignPart2FeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.home.flags.FabSheetBuySellOrderingFeatureFlag
-import piuk.blockchain.android.ui.home.flags.RedesignPart2FeatureFlag
 import piuk.blockchain.android.ui.home.models.ActionsSheetInteractor
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetState
@@ -62,21 +59,7 @@ val mainModule = module {
         factory {
             ActionsSheetInteractor(
                 userIdentity = get(),
-                fabSheetBuySellOrderingFeatureFlag = get()
-            )
-        }
-
-        factory {
-            FabSheetBuySellOrderingFeatureFlag(
-                localApi = get(),
-                remoteConfig = get(fabSheetOrderingFeatureFlag)
-            )
-        }
-
-        factory {
-            RedesignPart2FeatureFlag(
-                localApi = get(),
-                remoteConfig = get(redesignPart2FeatureFlag)
+                fabSheetBuySellOrderingFeatureFlag = get(fabSheetOrderingFeatureFlag)
             )
         }
     }

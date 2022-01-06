@@ -15,7 +15,6 @@ import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.custodial.BrokerageDataManager
-import com.blockchain.core.custodial.BrokerageQuoteFeatureFlag
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
@@ -43,6 +42,7 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.FeatureFlagOverridePrefs
 import com.blockchain.preferences.InternalFeatureFlagPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RatingPrefs
@@ -133,7 +133,7 @@ val coreModule = module {
                 brokerageService = get(),
                 authenticator = get(),
                 nabuService = get(),
-                featureFlag = get()
+                featureFlag = get(pricingQuoteFeatureFlag)
             )
         }
 
@@ -378,6 +378,7 @@ val coreModule = module {
         .bind(BankLinkingPrefs::class)
         .bind(InternalFeatureFlagPrefs::class)
         .bind(SecureChannelPrefs::class)
+        .bind(FeatureFlagOverridePrefs::class)
 
     factory {
         PaymentService(
@@ -405,13 +406,6 @@ val coreModule = module {
     }.bind(PinRepository::class)
 
     factory { AESUtilWrapper() }
-
-    single {
-        BrokerageQuoteFeatureFlag(
-            localApi = get(),
-            remoteConfig = get(pricingQuoteFeatureFlag)
-        )
-    }
 
     single {
         Database(driver = get())

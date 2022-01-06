@@ -32,6 +32,7 @@ import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
+import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
 import piuk.blockchain.android.ui.home.mainModule
 import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
@@ -95,7 +96,8 @@ object KoinStarter {
                     xlmModule,
                     kycAutocompleteModule,
                     mainModule,
-                    redesignSettingsModule
+                    redesignSettingsModule,
+                    remoteFeatureFlagsModule
                 )
             )
         }

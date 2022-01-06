@@ -1,5 +1,6 @@
 package com.blockchain.featureflags
 
+// TODO: delete the internal flags api once
 interface InternalFeatureFlagApi {
     fun isFeatureEnabled(gatedFeature: GatedFeature): Boolean
     fun enable(gatedFeature: GatedFeature)
@@ -13,9 +14,5 @@ enum class GatedFeature(
     val enabledForCompanyInternalBuild: Boolean = false
 ) {
     ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets"),
-    DASHBOARD_ONBOARDING("Enable Dashboard Onboarding", true),
     LANDING_CTA("Enable Landing CTA Screen"),
-    NEW_PRICING_BROKERAGE_QUOTE("New pricing quote api", false),
-    FAB_SHEET_CTAS("Show Buy on RHS and Sell on LHS in the FAB bottom sheet", true),
-    REDESIGN_PT2("Enable Redesign part 2", false)
 }

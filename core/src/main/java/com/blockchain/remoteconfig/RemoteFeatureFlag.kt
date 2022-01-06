@@ -76,7 +76,8 @@ class RemoteConfiguration(
         configuration.map { it.getLong(key) }
 }
 
-fun RemoteConfig.featureFlag(key: String): FeatureFlag = object :
-    FeatureFlag {
+fun RemoteConfig.featureFlag(key: String, name: String): FeatureFlag = object : FeatureFlag {
+    override val key: String = key
+    override val readableName: String = name
     override val enabled: Single<Boolean> get() = getIfFeatureEnabled(key)
 }

@@ -14,12 +14,13 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyQuoteResponse
 import com.blockchain.nabu.service.NabuService
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 class BrokerageDataManager(
-    private val featureFlag: BrokerageQuoteFeatureFlag,
+    private val featureFlag: IntegratedFeatureFlag,
     private val authenticator: Authenticator,
     private val nabuService: NabuService,
     private val brokerageService: BrokerageService

@@ -2,51 +2,75 @@ package com.blockchain.koin.modules
 
 import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.pricingQuoteFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.unifiedSignInFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.featureflags.DashboardOnboardingIntegratedFeatureFlag
-import piuk.blockchain.android.featureflags.StripeAndCheckoutIntegratedFeatureFlag
 
 val featureFlagsModule = module {
 
     factory(ssoSignInPolling) {
-        get<RemoteConfig>().featureFlag("android_ff_sso_polling")
+        get<RemoteConfig>().featureFlag("android_ff_sso_polling", "Single Sign-on Polling")
     }
 
     factory(unifiedSignInFeatureFlag) {
-        get<RemoteConfig>().featureFlag("android_sso_unified_sign_in")
+        get<RemoteConfig>().featureFlag("android_sso_unified_sign_in", "SSO Unified Sign In")
     }
 
     single(pricingQuoteFeatureFlag) {
-        get<RemoteConfig>().featureFlag("android_ff_new_pricing_quote")
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_new_pricing_quote",
+                "New Pricing Quote"
+            )
+        )
     }.bind(FeatureFlag::class)
 
     single(stripeAndCheckoutPaymentsFeatureFlag) {
-        StripeAndCheckoutIntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag("android_ff_checkout_stripe_payments")
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_checkout_stripe_payments",
+                "Checkout And Stripe Payments"
+            )
         )
     }.bind(FeatureFlag::class)
 
     single(dashboardOnboardingFeatureFlag) {
-        DashboardOnboardingIntegratedFeatureFlag(
-            gatedFeatures = get(),
-            remoteFlag = get<RemoteConfig>().featureFlag("android_ff_dashboard_onboarding")
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_dashboard_onboarding",
+                "Dashboard Onboarding"
+            )
         )
     }.bind(FeatureFlag::class)
 
-    factory(fabSheetOrderingFeatureFlag) {
-        get<RemoteConfig>().featureFlag("android_ff_fab_buy_cta_on_right")
-    }
+    single(fabSheetOrderingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_fab_buy_cta_on_right",
+                "Fab Buy CTA On Right"
+            )
+        )
+    }.bind(FeatureFlag::class)
 
-    factory(redesignPart2FeatureFlag) {
-        get<RemoteConfig>().featureFlag("android_ff_redesign_pt2")
-    }
+    single(redesignPart2FeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_redesign_pt2",
+                "Wallet Redesign Part 2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+}
+
+fun getFeatureFlags(): List<FeatureFlag> {
+    return payloadScope.getAll()
 }

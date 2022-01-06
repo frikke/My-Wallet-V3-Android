@@ -2,13 +2,13 @@ package piuk.blockchain.android.ui.settings
 
 import android.content.Context
 import android.content.Intent
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.home.flags.RedesignPart2FeatureFlag
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
 
 class SettingsScreenLauncher(
-    private val redesignPart2FeatureFlag: RedesignPart2FeatureFlag
+    private val redesignPart2FeatureFlag: IntegratedFeatureFlag
 ) {
     private val isNewIAEnabled by lazy {
         redesignPart2FeatureFlag.enabled.cache()

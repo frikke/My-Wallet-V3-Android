@@ -47,6 +47,7 @@ import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.PaymentToken
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -60,7 +61,6 @@ import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.cards.CardIntent
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
-import piuk.blockchain.android.featureflags.StripeAndCheckoutIntegratedFeatureFlag
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -82,7 +82,7 @@ class SimpleBuyInteractor(
     private val coincore: Coincore,
     private val brokerageDataManager: BrokerageDataManager,
     private val bankLinkingPrefs: BankLinkingPrefs,
-    private val stripeAndCheckoutPaymentsFeatureFlag: StripeAndCheckoutIntegratedFeatureFlag,
+    private val stripeAndCheckoutPaymentsFeatureFlag: IntegratedFeatureFlag,
     private val cardProcessors: Map<CardAcquirer, CardProcessor>,
     private val cancelOrderUseCase: CancelOrderUseCase
 ) {

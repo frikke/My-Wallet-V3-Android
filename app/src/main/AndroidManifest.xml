@@ -86,7 +86,7 @@
             android:noHistory="true"
             android:theme="@style/AppTheme.Loader" />
         <activity
-            android:name=".ui.FeatureFlagsHandlingActivity"
+            android:name=".ui.debug.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
             android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity" />

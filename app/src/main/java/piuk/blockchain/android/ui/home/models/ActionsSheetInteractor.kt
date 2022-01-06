@@ -5,12 +5,12 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.home.flags.FabSheetBuySellOrderingFeatureFlag
 
 class ActionsSheetInteractor internal constructor(
     private val userIdentity: UserIdentity,
-    private val fabSheetBuySellOrderingFeatureFlag: FabSheetBuySellOrderingFeatureFlag
+    private val fabSheetBuySellOrderingFeatureFlag: IntegratedFeatureFlag
 ) {
     fun getUserAccessToSimpleBuy(): Single<ActionsSheetIntent> =
         userIdentity.userAccessForFeature(Feature.SimpleBuy).map { accessState ->
