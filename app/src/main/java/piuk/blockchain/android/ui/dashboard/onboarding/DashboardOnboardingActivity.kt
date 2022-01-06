@@ -128,7 +128,12 @@ class DashboardOnboardingActivity :
                 KycNavHostActivity.start(this, CampaignType.None)
             }
             is DashboardOnboardingNavigationAction.AddPaymentMethod -> {
-                showBottomSheet(PaymentMethodChooserBottomSheet.newInstance(action.eligiblePaymentMethods))
+                showBottomSheet(
+                    PaymentMethodChooserBottomSheet.newInstance(
+                        paymentMethods = action.eligiblePaymentMethods,
+                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES
+                    )
+                )
             }
             DashboardOnboardingNavigationAction.OpenBuy -> {
                 val intent = Intent()

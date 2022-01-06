@@ -84,14 +84,14 @@ class DashboardOnboardingModel(
         tradingCurrency: FiatCurrency
     ): Single<DashboardOnboardingIntent> = interactor.getEligiblePaymentMethods(tradingCurrency)
         .map {
-            val paymentMethods = it.filter { it is UndefinedPaymentMethod }
+            val paymentMethods = it.filter { method -> method is UndefinedPaymentMethod }
             if (paymentMethods.isNotEmpty()) {
                 DashboardOnboardingIntent.NavigateTo(
                     DashboardOnboardingNavigationAction.AddPaymentMethod(paymentMethods)
                 )
             } else {
                 DashboardOnboardingIntent.FetchFailed(IllegalStateException())
-            } as DashboardOnboardingIntent
+            }
         }.onErrorReturn {
             DashboardOnboardingIntent.FetchFailed(it)
         }

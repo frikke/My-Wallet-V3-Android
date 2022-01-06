@@ -1428,6 +1428,8 @@
     <string name="buy_asset_now">Buy %1s Now</string>
     <string name="preview_buy">Preview Buy</string>
     <string name="simple_buy_transfer_details_error">Something went wrong while loading the transfer details.\n\nPlease try again later.</string>
+    <string name="payment_methods_bank_transfer">If you\'d prefer to deposit funds directly from your bank account first, follow the instructions on the next screen. Once your deposit arrives in your Blockchain.com account you can come back here to buy crypto.</string>
+    <string name="payment_methods_make_deposit">Make A Deposit -></string>
 
     <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
     <string name="old_default_non_custodial_wallet_label">My %1s Wallet</string>
@@ -1997,7 +1999,6 @@
 
     <string name="add_a_bank_account">Add a Bank Account</string>
     <string name="add_a_deposit_method">Select a Deposit Method</string>
-    <string name="wire_transfer">Wire Transfer</string>
     <string name="link_a_bank_wire_transfer">Link a bank to your Wallet by sending any amount via wire transfer. Note: This is much slower and high bank fees may apply.</string>
     <string name="link_a_bank_bank_transfer">Securely link a bank to buy crypto, deposit cash and withdraw back to your bank at anytime.</string>
 

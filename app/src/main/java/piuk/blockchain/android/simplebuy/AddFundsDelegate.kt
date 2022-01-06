@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import piuk.blockchain.android.databinding.AddFundsLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.util.visibleIf
 
 class AddFundsDelegate : AdapterDelegate<PaymentMethodItem> {
 
@@ -35,7 +34,6 @@ class AddFundsDelegate : AdapterDelegate<PaymentMethodItem> {
         fun bind(paymentMethodItem: PaymentMethodItem) {
             require(paymentMethodItem.paymentMethod is PaymentMethod.UndefinedBankAccount)
             binding.apply {
-                paymentMethodAvailability.visibleIf { paymentMethodItem.paymentMethod.showAvailability }
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
             }
         }

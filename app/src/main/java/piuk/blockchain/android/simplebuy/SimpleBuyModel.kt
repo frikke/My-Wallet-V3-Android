@@ -575,7 +575,7 @@ class SimpleBuyModel(
                 // and it should always be actioned before
                 val paymentMethodsThatCanBePreselected =
                     availablePaymentMethods.filter { it !is PaymentMethod.UndefinedBankAccount }
-                paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible && it.canUsedForPaying() }?.id
+                paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible && it.canBeUsedForPaying() }?.id
                     ?: paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible }?.id
                     ?: paymentMethodsThatCanBePreselected.firstOrNull()?.id
             }

@@ -29,6 +29,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
             ?: emptyList()
     }
 
+    private val displayedMode: DisplayMode by unsafeLazy {
+        arguments?.getSerializable(DISPLAY_MODE) as DisplayMode
+    }
+
     private val assetResources: AssetResources by inject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): SimpleBuyPaymentMethodChooserBinding =
@@ -47,7 +51,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             layoutManager = LinearLayoutManager(context)
         }
-        val isShowingPaymentMethods = paymentMethods.all { it.canUsedForPaying() }
+        val isShowingPaymentMethods = displayedMode == DisplayMode.PAYMENT_METHODS
 
         binding.addPaymentMethod.visibleIf { isShowingPaymentMethods }
         binding.title.text =
@@ -64,6 +68,9 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         return PaymentMethodItem(this, clickAction())
     }
 
+    private fun PaymentMethod.canBeDisplayedAsPayingMethod(): Boolean =
+        canBeUsedForPaying() || this is PaymentMethod.UndefinedBankAccount
+
     private fun PaymentMethod.clickAction(): () -> Unit =
         {
             (host as? Host)?.onPaymentMethodChanged(this)
@@ -72,16 +79,23 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
 
     companion object {
         private const val SUPPORTED_PAYMENT_METHODS = "supported_payment_methods_key"
+        private const val DISPLAY_MODE = "DISPLAY_MODE"
 
         fun newInstance(
-            paymentMethods: List<PaymentMethod>
+            paymentMethods: List<PaymentMethod>,
+            mode: DisplayMode
         ): PaymentMethodChooserBottomSheet {
             val bundle = Bundle()
             bundle.putSerializable(SUPPORTED_PAYMENT_METHODS, paymentMethods as Serializable)
+            bundle.putSerializable(DISPLAY_MODE, mode)
             return PaymentMethodChooserBottomSheet().apply {
                 arguments = bundle
             }
         }
+    }
+
+    enum class DisplayMode {
+        PAYMENT_METHODS, PAYMENT_METHOD_TYPES
     }
 }
 

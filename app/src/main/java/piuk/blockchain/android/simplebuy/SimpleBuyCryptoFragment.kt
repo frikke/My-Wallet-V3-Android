@@ -153,20 +153,25 @@ class SimpleBuyCryptoFragment :
 
     private fun showPaymentMethodsBottomSheet(paymentOptions: PaymentOptions, state: PaymentMethodsChooserState) {
         showBottomSheet(
-            PaymentMethodChooserBottomSheet.newInstance(
-                when (state) {
-                    PaymentMethodsChooserState.AVAILABLE_TO_PAY ->
-                        paymentOptions.availablePaymentMethods
+            when (state) {
+                PaymentMethodsChooserState.AVAILABLE_TO_PAY ->
+                    PaymentMethodChooserBottomSheet.newInstance(
+                        paymentMethods = paymentOptions.availablePaymentMethods
                             .filter { method ->
-                                method.canUsedForPaying()
-                            }
-                    PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
-                        paymentOptions.availablePaymentMethods
+                                method.canBeUsedForPaying() ||
+                                    method is PaymentMethod.UndefinedBankAccount
+                            },
+                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHODS
+                    )
+                PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
+                    PaymentMethodChooserBottomSheet.newInstance(
+                        paymentMethods = paymentOptions.availablePaymentMethods
                             .filter { method ->
                                 method.canBeAdded()
-                            }
-                }
-            )
+                            },
+                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES
+                    )
+            }
         )
     }
 
@@ -419,7 +424,7 @@ class SimpleBuyCryptoFragment :
             paymentMethodDetailsRoot.visible()
             paymentMethodDetailsRoot.setOnClickListener {
                 showPaymentMethodsBottomSheet(
-                    state = if (state.paymentOptions.availablePaymentMethods.any { it.canUsedForPaying() }) {
+                    state = if (state.paymentOptions.availablePaymentMethods.any { it.canBeUsedForPaying() }) {
                         PaymentMethodsChooserState.AVAILABLE_TO_PAY
                     } else {
                         PaymentMethodsChooserState.AVAILABLE_TO_ADD
@@ -443,7 +448,7 @@ class SimpleBuyCryptoFragment :
         if (state.isSelectedPaymentMethodRecurringBuyEligible()) {
             enableRecurringBuyCta()
         } else {
-            disableRecurringBuyCta(state.selectedPaymentMethodDetails?.canUsedForPaying() ?: false)
+            disableRecurringBuyCta(state.selectedPaymentMethodDetails?.canBeUsedForPaying() ?: false)
         }
     }
 
@@ -566,7 +571,7 @@ class SimpleBuyCryptoFragment :
 
     override fun onPaymentMethodChanged(paymentMethod: PaymentMethod) {
         model.process(SimpleBuyIntent.PaymentMethodChangeRequested(paymentMethod))
-        if (paymentMethod.canUsedForPaying())
+        if (paymentMethod.canBeUsedForPaying())
             analytics.logEvent(
                 BuyPaymentMethodSelected(
                     paymentMethod.toNabuAnalyticsString()

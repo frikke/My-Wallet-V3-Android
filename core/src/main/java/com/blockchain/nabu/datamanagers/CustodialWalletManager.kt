@@ -697,11 +697,11 @@ sealed class PaymentMethod(
             get() = PaymentMethodType.PAYMENT_CARD
     }
 
-    fun canUsedForPaying(): Boolean =
+    fun canBeUsedForPaying(): Boolean =
         this is Card || this is Funds || this is Bank
 
     fun canBeAdded(): Boolean =
-        this is UndefinedBankTransfer || this is UndefinedBankAccount || this is UndefinedCard
+        this is UndefinedPaymentMethod
 
     open fun detailedLabel(): String = ""
 
