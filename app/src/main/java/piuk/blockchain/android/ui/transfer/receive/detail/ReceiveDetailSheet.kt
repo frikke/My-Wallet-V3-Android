@@ -12,11 +12,11 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.RequestAnalyticsEvents
-import piuk.blockchain.android.R
-import com.blockchain.coincore.CryptoAccount
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogReceiveBinding
 import piuk.blockchain.android.databinding.ReceiveShareRowBinding
 import piuk.blockchain.android.scan.QRCodeEncoder

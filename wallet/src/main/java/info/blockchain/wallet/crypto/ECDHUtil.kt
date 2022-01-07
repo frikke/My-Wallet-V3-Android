@@ -2,16 +2,16 @@ package info.blockchain.wallet.crypto
 
 import com.blockchain.preferences.BrowserIdentity
 import info.blockchain.wallet.keys.SigningKey
+import java.security.SecureRandom
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.crypto.digests.SHA256Digest
 import org.spongycastle.crypto.generators.HKDFBytesGenerator
 import org.spongycastle.crypto.params.HKDFParameters
 import org.spongycastle.util.encoders.Hex
-import java.security.SecureRandom
-import javax.crypto.Cipher
-import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.SecretKeySpec
 
 object ECDHUtil {
 

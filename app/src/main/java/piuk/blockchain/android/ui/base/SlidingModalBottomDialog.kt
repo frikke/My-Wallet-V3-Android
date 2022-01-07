@@ -55,19 +55,19 @@ abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFrag
         dlg.setCanceledOnTouchOutside(false)
 
         bottomSheetBehavior.addBottomSheetCallback(object :
-            BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(view: View, i: Int) {
-                when (i) {
-                    BottomSheetBehavior.STATE_EXPANDED -> onSheetExpanded()
-                    BottomSheetBehavior.STATE_COLLAPSED -> onSheetCollapsed()
-                    BottomSheetBehavior.STATE_HIDDEN -> onSheetHidden()
-                    else -> { /* shouldn't get here! */
+                BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(view: View, i: Int) {
+                    when (i) {
+                        BottomSheetBehavior.STATE_EXPANDED -> onSheetExpanded()
+                        BottomSheetBehavior.STATE_COLLAPSED -> onSheetCollapsed()
+                        BottomSheetBehavior.STATE_HIDDEN -> onSheetHidden()
+                        else -> { /* shouldn't get here! */
+                        }
                     }
                 }
-            }
 
-            override fun onSlide(view: View, v: Float) {}
-        })
+                override fun onSlide(view: View, v: Float) {}
+            })
 
         initControls(binding)
 

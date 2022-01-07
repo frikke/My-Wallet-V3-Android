@@ -8,8 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.preferences.CurrencyPrefs
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.FragmentSimpleBuyKycPendingBinding
@@ -24,7 +22,6 @@ class SimpleBuyPendingKycFragment :
     SimpleBuyScreen {
 
     override val model: SimpleBuyModel by scopedInject()
-    private val currencyPrefs: CurrencyPrefs by inject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimpleBuyKycPendingBinding =
         FragmentSimpleBuyKycPendingBinding.inflate(inflater, container, false)
@@ -156,8 +153,10 @@ class SimpleBuyPendingKycFragment :
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CardDetailsActivity.ADD_CARD_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                val card = (data?.extras?.getSerializable(CardDetailsActivity.CARD_KEY) as?
-                    PaymentMethod.Card) ?: return
+                val card = (
+                    data?.extras?.getSerializable(CardDetailsActivity.CARD_KEY) as?
+                        PaymentMethod.Card
+                    ) ?: return
                 val cardId = card.cardId
                 val cardLabel = card.uiLabel()
                 val cardPartner = card.partner

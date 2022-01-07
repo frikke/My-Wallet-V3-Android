@@ -7,8 +7,8 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
 import java.lang.IllegalStateException
+import timber.log.Timber
 
 /*internal*/ data class NotificationAddresses(
     val assetTicker: String,

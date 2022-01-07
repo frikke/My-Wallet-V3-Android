@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.auth
 
 import com.blockchain.remoteconfig.RemoteConfig
-import io.reactivex.rxjava3.core.Single
 import com.squareup.moshi.Moshi
+import io.reactivex.rxjava3.core.Single
 
 class FirebaseMobileNoticeRemoteConfig(private val remoteConfig: RemoteConfig) : MobileNoticeRemoteConfig {
 

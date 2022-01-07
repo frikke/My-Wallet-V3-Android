@@ -1,7 +1,8 @@
 package com.blockchain.coincore.impl.txEngine
 
-import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.coincore.impl.PricesInterpolator
 import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferQuote
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import info.blockchain.balance.Money
@@ -9,7 +10,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
-import com.blockchain.coincore.impl.PricesInterpolator
 import java.math.BigInteger
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -45,7 +45,8 @@ class TransferQuotesEngine(
                 PricesInterpolator(
                     list = quote.prices,
                     pair = pair
-                ).getRate(amount), quote
+                ).getRate(amount),
+                quote
             )
         }.doOnNext {
             latestQuote = it

@@ -10,7 +10,8 @@ data class EmailVeriffState(
     val emailInput: String? = null,
     val isLoading: Boolean = false,
     val emailChanged: Boolean = false,
-    val hasError: Boolean = false
+    val hasError: Boolean = false,
+    val isRedesignEnabled: Boolean = false
 ) : MviState {
 
     val canUpdateEmail: Boolean

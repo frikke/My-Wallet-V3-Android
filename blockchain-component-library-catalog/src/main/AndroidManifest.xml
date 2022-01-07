@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="piuk.blockchain.blockchain_component_library_catalog">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Walletandroidprivate">
+        <activity
+            android:name=".abstract_compose_view.SectionHeadersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.TabLayoutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.PagerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ControlsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.DoublePrimaryButtonsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.DoubleMinimalButtonsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SplitButtonsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SmallSecondaryButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SmallPrimaryButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SmallMinimalButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SecondaryButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.MinimalButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ExchangeSplitButtonsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ExchangeSellButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ExchangeBuyButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.AlertButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.PrimaryButtonActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.DividerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.BalanceTableRowActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ActionTableRowActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.DefaultTableRowActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.TagsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.SpacingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.TypographyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ColorsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.BottomNavigationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.NavigationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.TextInputActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.DialogueActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.CardAlertActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.CardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ChartsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.ProgressActivity"
+            android:exported="false" />
+        <activity
+            android:name=".abstract_compose_view.DatePickerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Walletandroidprivate">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

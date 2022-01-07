@@ -2,12 +2,12 @@ package piuk.blockchain.android.ui.kyc.settings
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.exceptions.MetadataNotFoundException
-import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.Scope
-import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
+import com.blockchain.nabu.models.responses.nabu.Scope
+import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -38,7 +38,8 @@ class KycStatusHelper(
         }
 
     fun shouldDisplayKyc(): Single<Boolean> = Singles.zip(
-        isInKycRegion(), hasAccount()) { allowedRegion, hasAccount -> allowedRegion || hasAccount }
+        isInKycRegion(), hasAccount()
+    ) { allowedRegion, hasAccount -> allowedRegion || hasAccount }
 
     @Deprecated("Use NabuUserSync")
     fun syncPhoneNumberWithNabu(): Completable = nabuDataManager.requestJwt()

@@ -13,9 +13,9 @@ import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import org.bitcoinj.core.Transaction
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
-import java.math.BigInteger
 
 class SendDataManager(
     private val paymentService: PaymentService,

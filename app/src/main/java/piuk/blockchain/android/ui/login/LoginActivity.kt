@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
+import androidx.appcompat.app.AlertDialog
 import com.blockchain.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -12,8 +13,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import info.blockchain.wallet.api.Environment
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityLoginNewBinding
+import piuk.blockchain.android.databinding.ActivityLoginBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -31,7 +34,7 @@ import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
-class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginNewBinding>() {
+class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
 
     override val model: LoginModel by scopedInject()
 
@@ -51,8 +54,15 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     private lateinit var state: LoginState
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadToolbar(
+            titleToolbar = getString(R.string.login_title),
+            backAction = { onBackPressed() }
+        )
         recaptchaClient.initReCaptcha()
         checkExistingSessionOrDeeplink(intent)
     }
@@ -70,7 +80,6 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
         analytics.logEvent(LoginAnalytics.LoginViewed)
         with(binding) {
-            backButton.setOnClickListener { finish() }
             loginEmailText.apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
 
@@ -116,10 +125,22 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private fun onContinueButtonClicked() {
         binding.loginEmailText.text?.let { emailInputText ->
             if (emailInputText.isNotBlank()) {
-                ViewUtils.hideKeyboard(this@LoginActivity)
-                verifyReCaptcha(emailInputText.toString())
+                if (isDemoAccount(emailInputText.toString().trim())) {
+                    val intent = ManualPairingActivity.newInstance(this, BuildConfig.PLAY_STORE_DEMO_WALLET_ID)
+                    startActivity(intent)
+                } else {
+                    ViewUtils.hideKeyboard(this@LoginActivity)
+                    verifyReCaptcha(emailInputText.toString())
+                }
             }
         }
+    }
+
+    private fun isDemoAccount(email: String): Boolean = email == BuildConfig.PLAY_STORE_DEMO_EMAIL
+
+    override fun onPause() {
+        model.process(LoginIntents.CancelPolling)
+        super.onPause()
     }
 
     override fun onDestroy() {
@@ -132,7 +153,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         checkExistingSessionOrDeeplink(intent)
     }
 
-    override fun initBinding(): ActivityLoginNewBinding = ActivityLoginNewBinding.inflate(layoutInflater)
+    override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginState) {
         state = newState
@@ -141,14 +162,11 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             LoginStep.SHOW_SCAN_ERROR -> {
                 toast(R.string.pairing_failed, ToastCustom.TYPE_ERROR)
                 if (newState.shouldRestartApp) {
-                    startActivity(
-                        Intent(this, LauncherActivity::class.java).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                    )
+                    restartToLauncherActivity()
                 }
             }
             LoginStep.ENTER_PIN -> {
+                showLoginApprovalStatePrompt(newState.loginApprovalState)
                 startActivity(
                     Intent(this, PinEntryActivity::class.java).apply {
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -163,12 +181,92 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))
                 }
             }
-            LoginStep.UNKNOWN_ERROR -> toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+            LoginStep.NAVIGATE_FROM_PAYLOAD -> {
+                newState.payload?.let {
+                    startActivity(LoginAuthActivity.newInstance(this, it, newState.payloadBase64String))
+                }
+            }
+            LoginStep.UNKNOWN_ERROR -> {
+                model.process(LoginIntents.CheckShouldNavigateToOtherScreen)
+                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+            }
+            LoginStep.POLLING_PAYLOAD_ERROR -> handlePollingError(newState.pollingState)
+            LoginStep.ENTER_EMAIL -> returnToEmailInput()
+            // TODO AND-5317 this should display a bottom sheet with info about what device we're authorising
+            LoginStep.REQUEST_APPROVAL -> showLoginApprovalDialog()
+            LoginStep.NAVIGATE_TO_LANDING_PAGE -> {
+                showLoginApprovalStatePrompt(newState.loginApprovalState)
+                model.process(LoginIntents.ResetState)
+                restartToLauncherActivity()
+                finish()
+            }
             else -> {
                 // do nothing
             }
         }
     }
+
+    private fun showLoginApprovalStatePrompt(loginApprovalState: LoginApprovalState) =
+        when (loginApprovalState) {
+            LoginApprovalState.NONE -> {
+                // do nothing
+            }
+            LoginApprovalState.APPROVED ->
+                ToastCustom.makeText(
+                    this, getString(R.string.login_approved_toast), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK
+                )
+            LoginApprovalState.REJECTED -> ToastCustom.makeText(
+                this, getString(R.string.login_denied_toast), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR
+            )
+        }
+
+    private fun restartToLauncherActivity() {
+        startActivity(
+            Intent(this, LauncherActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        )
+    }
+
+    private fun showLoginApprovalDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.login_approval_dialog_title)
+            .setMessage(R.string.login_approval_dialog_message)
+            .setPositiveButton(R.string.common_approve) { di, _ ->
+                model.process(LoginIntents.ApproveLoginRequest)
+                di.dismiss()
+            }
+            .setNegativeButton(R.string.common_deny) { di, _ ->
+                model.process(LoginIntents.DenyLoginRequest)
+                di.dismiss()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun handlePollingError(state: AuthPollingState) =
+        when (state) {
+            AuthPollingState.TIMEOUT -> {
+                ToastCustom.makeText(
+                    this, getString(R.string.login_polling_timeout), ToastCustom.LENGTH_LONG,
+                    ToastCustom.TYPE_ERROR
+                )
+                returnToEmailInput()
+            }
+            AuthPollingState.ERROR -> {
+                // fail silently? - maybe log analytics
+            }
+            AuthPollingState.DENIED -> {
+                ToastCustom.makeText(
+                    this, getString(R.string.login_polling_denied), ToastCustom.LENGTH_LONG,
+                    ToastCustom.TYPE_ERROR
+                )
+                returnToEmailInput()
+            }
+            else -> {
+                // no error, do nothing
+            }
+        }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -190,6 +288,17 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         }
     }
 
+    private fun returnToEmailInput() {
+        supportFragmentManager.run {
+            this.findFragmentByTag(VerifyDeviceFragment::class.simpleName)?.let { fragment ->
+                beginTransaction()
+                    .remove(fragment)
+                    .commitAllowingStateLoss()
+                model.process(LoginIntents.RevertToEmailInput)
+            }
+        }
+    }
+
     private fun updateUI(newState: LoginState) {
         with(binding) {
             progressBar.visibleIf { newState.isLoading }
@@ -199,7 +308,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     newState.currentStep == LoginStep.SEND_EMAIL ||
                     newState.currentStep == LoginStep.VERIFY_DEVICE
             }
-            continueButton.isEnabled = newState.isTypingEmail && emailRegex.matches(newState.email)
+            continueButton.isEnabled =
+                emailRegex.matches(newState.email) || (newState.isTypingEmail && emailRegex.matches(newState.email))
         }
     }
 

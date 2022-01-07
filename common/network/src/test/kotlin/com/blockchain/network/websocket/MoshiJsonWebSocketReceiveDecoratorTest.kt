@@ -3,7 +3,6 @@ package com.blockchain.network.websocket
 import com.nhaarman.mockitokotlin2.mock
 import com.squareup.moshi.Moshi
 import io.reactivex.rxjava3.core.Observable
-
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 

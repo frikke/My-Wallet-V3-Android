@@ -3,11 +3,13 @@ package com.blockchain.koin
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 
-val obFeatureFlag = StringQualifier("ff_ob")
-val achDepositWithdrawFeatureFlag = StringQualifier("ff_ach_deposit_withdrawal")
-val sddFeatureFlag = StringQualifier("ff_sdd")
 val unifiedSignInFeatureFlag = StringQualifier("ff_unified_sign_in")
-val dynamicAssetsFeatureFlag = StringQualifier("ff_dynamic_assets")
+val walletRedesignFeatureFlag = StringQualifier("ff_wallet_redesign")
+val pricingQuoteFeatureFlag = StringQualifier("ff_pricing_quote")
+val fabSheetOrderingFeatureFlag = StringQualifier("ff_fab_sheet_ordering")
+val stripeAndCheckoutPaymentsFeatureFlag = StringQualifier("ff_stripe_checkout_payments")
+val ssoSignInPolling = StringQualifier("ff_sso_polling")
+val buyCryptoDashboardButton = StringQualifier("ff_dashboard_buy_crypto")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")
 val kotlinApiRetrofit = StringQualifier("kotlin-api")
@@ -29,3 +31,4 @@ val uniqueUserAnalytics = StringQualifier("unique_user_analytics")
 val userAnalytics = StringQualifier("user_analytics")
 val walletAnalytics = StringQualifier("wallet_analytics")
 val payloadScopeQualifier = named("Payload")
+val ioDispatcher = named("io_dispatcher")

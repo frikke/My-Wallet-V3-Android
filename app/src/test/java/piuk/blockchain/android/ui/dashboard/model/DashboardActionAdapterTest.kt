@@ -1,6 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -12,14 +16,9 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.coincore.fiat.LinkedBanksFactory
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 
 class DashboardActionAdapterTest {
@@ -51,7 +50,7 @@ class DashboardActionAdapterTest {
             crashLogger = mock(),
             analytics = mock(),
             simpleBuyPrefs = mock(),
-            featureFlag = mock(),
+            dashboardBuyButtonFlag = mock(),
             currencyPrefs = mock(),
             userIdentity = mock(),
             exchangeRates = mock()

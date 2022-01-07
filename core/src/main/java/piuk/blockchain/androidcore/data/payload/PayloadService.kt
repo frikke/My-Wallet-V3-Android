@@ -1,7 +1,6 @@
 package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.annotations.BurnCandidate
-import com.blockchain.logging.CrashLogger
 import com.blockchain.api.ApiException
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -15,17 +14,15 @@ import info.blockchain.wallet.payload.model.Balance
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import org.bitcoinj.core.ECKey
 import java.util.LinkedHashMap
+import org.bitcoinj.core.ECKey
 
 @BurnCandidate("Not useful")
 // This class is only used my PayloadDataManager, which also has an instance on PayloadManager, and
 // provides an rx wrapper for some PayloadManager calls. This is, at best, confusing and this can be merged
 // into PayloadManager
 internal class PayloadService(
-    private val payloadManager: PayloadManager,
-    private val versionController: PayloadVersionController,
-    private val crashLogger: CrashLogger
+    private val payloadManager: PayloadManager
 ) {
 
     // /////////////////////////////////////////////////////////////////////////
@@ -70,7 +67,7 @@ internal class PayloadService(
             walletName,
             email,
             password,
-            versionController.isFullRolloutV4
+            true
         )
     }
 
@@ -87,11 +84,11 @@ internal class PayloadService(
         walletName: String,
         email: String
     ): Single<Wallet> = Single.fromCallable {
-            payloadManager.create(
+        payloadManager.create(
             walletName,
             email,
             password,
-            versionController.isFullRolloutV4
+            true
         )
     }
 
@@ -108,18 +105,14 @@ internal class PayloadService(
         sharedKey: String,
         guid: String,
         password: String
-    ): Completable = versionController.isV4Enabled(guid, sharedKey)
-        .doOnSuccess { crashLogger.logState("Segwit enabled", it.toString()) }
-        .flatMapCompletable { v4Enabled ->
-            Completable.fromCallable {
-                payloadManager.initializeAndDecrypt(
-                    sharedKey,
-                    guid,
-                    password,
-                    v4Enabled
-                )
-            }
-        }
+    ): Completable = Completable.fromCallable {
+        payloadManager.initializeAndDecrypt(
+            sharedKey,
+            guid,
+            password,
+            true
+        )
+    }
 
     /**
      * Initializes and decrypts a user's payload given valid QR code scan data.
@@ -132,7 +125,7 @@ internal class PayloadService(
     ): Completable = Completable.fromCallable {
         payloadManager.initializeAndDecryptFromQR(
             data,
-            versionController.isFullRolloutV4
+            true
         )
     }
 

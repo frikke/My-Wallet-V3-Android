@@ -6,7 +6,6 @@ import android.content.Intent
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationsUtil
-import piuk.blockchain.android.R
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.WalletStatus
@@ -19,12 +18,13 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.encodeToString
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
+import piuk.blockchain.androidcore.data.rxjava.RxBus
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
@@ -36,6 +36,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val analytics: Analytics by inject()
     private val secureChannelManager: SecureChannelManager by scopedInject()
     private val compositeDisposable = CompositeDisposable()
+    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Check if message contains a data payload.
@@ -59,7 +60,6 @@ class FcmCallbackService : FirebaseMessagingService() {
                 title = remoteMessage.notification?.title ?: "",
                 marquee = remoteMessage.notification?.title ?: "",
                 text = remoteMessage.notification?.body ?: "",
-                icon = R.mipmap.ic_launcher,
                 // Don't want to launch an activity
                 pendingIntent = PendingIntent.getActivity(
                     applicationContext, 0, Intent(), PendingIntent.FLAG_UPDATE_CURRENT
@@ -111,7 +111,6 @@ class FcmCallbackService : FirebaseMessagingService() {
                                 title = getString(R.string.secure_channel_notif_title),
                                 marquee = getString(R.string.secure_channel_notif_title),
                                 text = getString(R.string.secure_channel_notif_summary),
-                                icon = R.mipmap.ic_launcher,
                                 pendingIntent = intent,
                                 id = notificationId,
                                 appName = R.string.app_name,
@@ -133,15 +132,12 @@ class FcmCallbackService : FirebaseMessagingService() {
     private fun createIntentForNotification(payload: NotificationPayload, foreground: Boolean): Maybe<Intent> {
         return when {
             isSecureChannelMessage(payload) -> createSecureChannelIntent(payload.payload, foreground)
-            foreground -> Maybe.just(
-                Intent(applicationContext, MainActivity::class.java).apply {
-                    putExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION, true)
-                }
-            )
+            foreground -> mainScreenLauncher.startMainActivity(
+                context = applicationContext,
+                intentFromNotification = true
+            ).toMaybe()
             else -> Maybe.just(
-                Intent(applicationContext, LauncherActivity::class.java).apply {
-                    putExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION, true)
-                }
+                LauncherActivity.newInstance(context = applicationContext, intentFromNotification = true)
             )
         }
     }
@@ -150,29 +146,25 @@ class FcmCallbackService : FirebaseMessagingService() {
         payload.type == NotificationPayload.NotificationType.SECURE_CHANNEL_MESSAGE
 
     private fun createSecureChannelIntent(payload: MutableMap<String, String>, foreground: Boolean): Maybe<Intent> {
-            val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH]
-                ?: return Maybe.empty()
-            val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE]
-                ?: return Maybe.empty()
+        val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH]
+            ?: return Maybe.empty()
+        val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE]
+            ?: return Maybe.empty()
 
-            val message = secureChannelManager.decryptMessage(pubKeyHash, messageRawEncrypted)
-                ?: return Maybe.empty()
+        val message = secureChannelManager.decryptMessage(pubKeyHash, messageRawEncrypted)
+            ?: return Maybe.empty()
 
-            return Maybe.just(
-                Intent(applicationContext, MainActivity::class.java).apply {
-                    putExtra(MainActivity.LAUNCH_AUTH_FLOW, true)
-                    putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
-                    putExtra(AuthNewLoginSheet.MESSAGE, SecureChannelManager.jsonBuilder.encodeToString(message))
-
-                    putExtra(AuthNewLoginSheet.ORIGIN_IP, payload[NotificationPayload.ORIGIN_IP])
-                    putExtra(AuthNewLoginSheet.ORIGIN_LOCATION, payload[NotificationPayload.ORIGIN_COUNTRY])
-                    putExtra(AuthNewLoginSheet.ORIGIN_BROWSER, payload[NotificationPayload.ORIGIN_BROWSER])
-                    putExtra(AuthNewLoginSheet.FORCE_PIN, !foreground)
-                    if (foreground) {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                }
-            )
+        return mainScreenLauncher.startMainActivity(
+            context = applicationContext,
+            launchAuthFlow = true,
+            pubKeyHash = pubKeyHash,
+            message = SecureChannelManager.jsonBuilder.encodeToString(message),
+            originIp = payload[NotificationPayload.ORIGIN_IP],
+            originLocation = payload[NotificationPayload.ORIGIN_COUNTRY],
+            originBrowser = payload[NotificationPayload.ORIGIN_BROWSER],
+            forcePin = !foreground,
+            shouldBeNewTask = foreground
+        ).toMaybe()
     }
 
     /**
@@ -198,7 +190,6 @@ class FcmCallbackService : FirebaseMessagingService() {
             title = payload.title ?: "",
             marquee = payload.title ?: "",
             text = payload.body ?: "",
-            icon = R.mipmap.ic_launcher,
             pendingIntent = pendingIntent,
             id = notificationId,
             appName = R.string.app_name,

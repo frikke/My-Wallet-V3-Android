@@ -13,14 +13,14 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
+import javax.net.ssl.SSLPeerUnverifiedException
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
-import javax.net.ssl.SSLPeerUnverifiedException
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class LoginPresenterTest {
 
@@ -45,10 +45,12 @@ class LoginPresenterTest {
         val sharedKey = "SHARED_KEY"
         val guid = "GUID"
         whenever(payloadDataManager.handleQrCode(qrCode)).thenReturn(Completable.complete())
-        whenever(payloadDataManager.wallet).thenReturn(Wallet().apply {
-            this.sharedKey = sharedKey
-            this.guid = guid
-        })
+        whenever(payloadDataManager.wallet).thenReturn(
+            Wallet().apply {
+                this.sharedKey = sharedKey
+                this.guid = guid
+            }
+        )
         subject.attachView(view)
 
         // Act

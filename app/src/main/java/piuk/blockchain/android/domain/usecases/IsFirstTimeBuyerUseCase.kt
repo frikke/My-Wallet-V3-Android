@@ -9,5 +9,5 @@ class IsFirstTimeBuyerUseCase(
 ) : UseCase<Unit, Single<Boolean>>() {
 
     override fun execute(parameter: Unit): Single<Boolean> =
-            tradeDataManager.isFirstTimeBuyer()
+        tradeDataManager.isFirstTimeBuyer()
 }

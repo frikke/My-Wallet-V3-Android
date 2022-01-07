@@ -6,24 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.CheckBox
+import android.widget.Button
 import android.widget.EditText
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.RecyclerView
 import timber.log.Timber
-
-fun CheckBox.setThrottledCheckedChange(interval: Long = 500L, action: (Boolean) -> Unit) {
-    var lastClickTime = 0L
-
-    this.setOnCheckedChangeListener { view, isChecked ->
-        if (System.currentTimeMillis() - lastClickTime > interval) {
-            view.isChecked = isChecked
-            action.invoke(isChecked)
-            lastClickTime = System.currentTimeMillis()
-        } else {
-            view.isChecked = !isChecked
-        }
-    }
-}
 
 // In window/screen co-ordinates
 val View.windowRect: Rect
@@ -161,6 +148,37 @@ private class DebouncingOnClickListener(private val onClickListener: (View?) -> 
 
     companion object {
         private const val DEBOUNCE_TIMEOUT = 500L
+    }
+}
+
+fun RecyclerView.configureWithPinnedButton(pinnedButton: Button, isButtonVisible: Boolean) {
+
+    pinnedButton.visibleIf { isButtonVisible }
+    when {
+        isButtonVisible && this.paddingBottom == 0 -> {
+            pinnedButton.afterMeasured { button ->
+                val bottomMargin =
+                    (pinnedButton.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
+                with(this) {
+                    setPadding(
+                        paddingLeft,
+                        paddingTop,
+                        paddingRight,
+                        button.height + bottomMargin
+                    )
+                }
+            }
+        }
+        !isButtonVisible && this.paddingBottom != 0 -> {
+            with(this) {
+                setPadding(
+                    paddingLeft,
+                    paddingTop,
+                    paddingRight,
+                    0
+                )
+            }
+        }
     }
 }
 

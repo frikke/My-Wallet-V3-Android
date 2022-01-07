@@ -1,23 +1,23 @@
 package piuk.blockchain.android.ui.thepit
 
+import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.nabu.NabuToken
 import com.blockchain.preferences.ThePitLinkingPrefs
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.net.URLEncoder
+import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.ui.base.BasePresenter
 import thepit.PitLinking
 import timber.log.Timber
-import java.net.URLEncoder
-import java.util.concurrent.TimeUnit
 
 class PitPermissionsPresenter(
     private val nabu: NabuDataManager,
@@ -70,9 +70,9 @@ class PitPermissionsPresenter(
         val encodedEmail = URLEncoder.encode(params.email, "utf-8")
         val link =
             BuildConfig.PIT_LINKING_URL +
-                    "${params.linkId}?email=$encodedEmail" +
-                    "&utm_source=android_wallet" +
-                    "&utm_medium=wallet_linking"
+                "${params.linkId}?email=$encodedEmail" +
+                "&utm_source=android_wallet" +
+                "&utm_medium=wallet_linking"
 
         view?.onLinkSuccess(link)
     }

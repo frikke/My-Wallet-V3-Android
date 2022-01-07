@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.base
 
-import android.content.Context
 import androidx.fragment.app.Fragment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -16,11 +15,13 @@ open class ViewPagerFragment : Fragment() {
 
     private val appUtil: AppUtil by inject()
     private val disposable = CompositeDisposable()
-    private var blockchainActivity: BlockchainActivity? = null
     private var isFirstLoad = true
 
     override fun onResume() {
         super.onResume()
+
+        val blockchainActivity = activity as? BlockchainActivity
+
         isFirstLoad = false
         if (!isFirstLoad) onResumeFragment()
 
@@ -29,21 +30,16 @@ open class ViewPagerFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
                 if (it == true) {
-                    blockchainActivity?.showLoading()
+                    blockchainActivity.showLoading()
                 } else {
-                    blockchainActivity?.hideLoading()
+                    blockchainActivity.hideLoading()
                 }
             }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        blockchainActivity = context as? BlockchainActivity
-    }
-
     override fun onPause() {
         super.onPause()
-        blockchainActivity?.hideLoading()
+        (activity as? BlockchainActivity)?.hideLoading()
         disposable.clear()
     }
 

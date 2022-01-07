@@ -9,12 +9,12 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
     }
 
     object StartLauncherActivity : LoaderIntents() {
-        override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextLoaderStep = LoaderStep.Launcher)
+        override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextLoadingStep = LoadingStep.Launcher)
     }
 
     data class StartMainActivity(val data: String?, val launchBuySellIntro: Boolean) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState =
-            oldState.copy(nextLoaderStep = LoaderStep.Main(data, launchBuySellIntro))
+            oldState.copy(nextLoadingStep = LoadingStep.Main(data, launchBuySellIntro))
     }
 
     object OnEmailVerificationFinished : LoaderIntents() {
@@ -45,8 +45,8 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
         override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextProgressStep = progressStep)
     }
 
-    data class UpdateLoaderStep(val loaderStep: LoaderStep) : LoaderIntents() {
-        override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextLoaderStep = loaderStep)
+    data class UpdateLoadingStep(val loadingStep: LoadingStep) : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextLoadingStep = loadingStep)
     }
 
     data class ShowToast(val toastType: ToastType) : LoaderIntents() {

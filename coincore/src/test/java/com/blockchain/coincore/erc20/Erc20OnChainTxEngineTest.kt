@@ -1,5 +1,13 @@
 package com.blockchain.coincore.erc20
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.gwei
@@ -18,18 +26,10 @@ import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import kotlin.test.assertEquals
 
 @Suppress("UnnecessaryVariable")
 class Erc20OnChainTxEngineTest : CoincoreTestBase() {
@@ -156,8 +156,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(FEE_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == null &&
-                    it.maxLimit == null &&
+                    it.limits == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }

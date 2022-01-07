@@ -1,10 +1,10 @@
 package info.blockchain.wallet.api.dust.data
 
 import com.squareup.moshi.Json
+import java.math.BigInteger
 import org.bitcoinj.core.NetworkParameters
 import org.bitcoinj.core.Sha256Hash
 import org.bitcoinj.core.TransactionOutPoint
-import java.math.BigInteger
 
 data class DustInput(
     val confirmations: Int,

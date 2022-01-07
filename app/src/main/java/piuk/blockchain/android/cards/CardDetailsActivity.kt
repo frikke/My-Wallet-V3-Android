@@ -24,11 +24,13 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
         ActivityCardDetailsBinding.inflate(layoutInflater)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-
+        loadToolbar { onSupportNavigateUp() }
         if (savedInstanceState == null) {
             simpleBuyPrefs.clearCardState()
             supportFragmentManager.beginTransaction()
@@ -65,9 +67,11 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
 
     override fun exitWithSuccess(card: PaymentMethod.Card) {
         val data = Intent().apply {
-            putExtras(Bundle().apply {
-                putSerializable(CARD_KEY, card)
-            })
+            putExtras(
+                Bundle().apply {
+                    putSerializable(CARD_KEY, card)
+                }
+            )
         }
         setResult(RESULT_OK, data)
         finish()

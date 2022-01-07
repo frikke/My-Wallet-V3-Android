@@ -1,23 +1,5 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.core.price.ExchangeRates
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
-import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import info.blockchain.balance.total
-import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActivitySummaryItem
@@ -37,8 +19,26 @@ import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.takeEnabledIf
 import com.blockchain.coincore.toFiat
 import com.blockchain.coincore.toUserFiat
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
+import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import info.blockchain.balance.total
+import info.blockchain.wallet.multiaddress.TransactionSummary
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigInteger
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal const val transactionFetchCount = 50
 internal const val transactionFetchOffset = 0

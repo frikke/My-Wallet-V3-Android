@@ -1,5 +1,17 @@
 package com.blockchain.coincore.xlm
 
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.fees.FeeType
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.XlmDataManager
@@ -14,20 +26,11 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.BlockchainAccount
-import kotlin.test.assertEquals
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import timber.log.Timber
 
@@ -162,22 +165,21 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.amount == CryptoValue.zero(ASSET) &&
-                it.totalBalance == CryptoValue.zero(ASSET) &&
-                it.availableBalance == CryptoValue.zero(ASSET) &&
-                it.feeAmount == CryptoValue.zero(ASSET) &&
-                it.selectedFiat == TEST_USER_FIAT &&
-                it.confirmations.isEmpty() &&
-                it.minLimit == null &&
-                it.maxLimit == null &&
+                    it.totalBalance == CryptoValue.zero(ASSET) &&
+                    it.availableBalance == CryptoValue.zero(ASSET) &&
+                    it.feeAmount == CryptoValue.zero(ASSET) &&
+                    it.selectedFiat == TEST_USER_FIAT &&
+                    it.confirmations.isEmpty() &&
+                    it.limits == null
                 it.validationState == ValidationState.UNINITIALISED &&
-                it.engineState.size == 1 &&
-                it.engineState[STATE_MEMO]?.let { memo ->
-                    memo is TxConfirmationValue.Memo &&
-                    memo.text == MEMO_TEXT &&
-                    !memo.isRequired &&
-                    memo.id == null &&
-                    memo.editable
-                } ?: false
+                    it.engineState.size == 1 &&
+                    it.engineState[STATE_MEMO]?.let { memo ->
+                        memo is TxConfirmationValue.Memo &&
+                            memo.text == MEMO_TEXT &&
+                            !memo.isRequired &&
+                            memo.id == null &&
+                            memo.editable
+                    } ?: false
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
             .assertNoErrors()
@@ -222,8 +224,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == null &&
-                    it.maxLimit == null &&
+                    it.limits == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.size == 1 &&
                     it.engineState[STATE_MEMO]?.let { memo ->
@@ -293,15 +294,14 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == expectedAvailable &&
-                it.feeForFullAvailable == expectedFullFee &&
-                it.feeAmount == expectedFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == expectedAvailable &&
+                    it.feeForFullAvailable == expectedFullFee &&
+                    it.feeAmount == expectedFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
-        verify(sourceAccount).accountBalance
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount).balance
         verify(xlmFeesFetcher).operationFee(FeeType.Regular)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -476,9 +476,9 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue {
                 val v = 100
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == expectedAvailable &&
-                it.feeAmount == expectedFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == expectedAvailable &&
+                    it.feeAmount == expectedFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
@@ -488,8 +488,17 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<XlmCryptoWalletAccount> {
             on { asset }.thenReturn(ASSET)
-            on { accountBalance }.thenReturn(Single.just(totalBalance))
-            on { actionableBalance }.thenReturn(Single.just(availableBalance))
+            on { balance }.thenReturn(
+                Observable.just(
+                    AccountBalance(
+                        total = totalBalance,
+                        actionable = availableBalance,
+                        pending = CryptoValue.zero(ASSET),
+                        exchangeRate = ExchangeRate.InvalidRate,
+
+                    )
+                )
+            )
         }
 
     private fun verifyFeeLevels(

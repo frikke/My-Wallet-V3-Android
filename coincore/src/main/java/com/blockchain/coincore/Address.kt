@@ -1,21 +1,15 @@
 package com.blockchain.coincore
 
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import info.blockchain.balance.AssetInfo
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.DomainAddressNotFound
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 import java.lang.IllegalStateException
-
-class AddressParseError(val error: Error) : Exception("Error Parsing address") {
-    enum class Error {
-        ETH_UNEXPECTED_CONTRACT_ADDRESS
-    }
-}
+import timber.log.Timber
 
 interface TransactionTarget {
     val label: String

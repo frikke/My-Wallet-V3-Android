@@ -5,12 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.RadioButton
-import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityZendeskSubjectBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
+import piuk.blockchain.android.ui.base.BlockchainActivity
 import zendesk.chat.Chat
 import zendesk.chat.ChatConfiguration
 import zendesk.chat.ChatEngine
@@ -19,7 +19,7 @@ import zendesk.chat.PreChatFormFieldStatus
 import zendesk.chat.VisitorInfo
 import zendesk.messaging.MessagingActivity
 
-class ZendeskSubjectActivity : AppCompatActivity() {
+class ZendeskSubjectActivity : BlockchainActivity() {
 
     private val binding: ActivityZendeskSubjectBinding by lazy {
         ActivityZendeskSubjectBinding.inflate(layoutInflater)
@@ -28,39 +28,52 @@ class ZendeskSubjectActivity : AppCompatActivity() {
     private val userInformation by lazy {
         intent.getSerializableExtra(USER_INFO) as BasicProfileInfo
     }
+    override val alwaysDisableScreenshots: Boolean
+        get() = false
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
+    private val subject: String by lazy {
+        intent.getStringExtra(SUBJECT).orEmpty()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setTitle(R.string.contact_support)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-        supportActionBar?.let {
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setHomeButtonEnabled(true)
-        }
-
+        loadToolbar(
+            titleToolbar = getString(R.string.contact_support),
+            backAction = { onBackPressed() }
+        )
         Chat.INSTANCE.init(applicationContext, BuildConfig.ZENDESK_API_KEY)
 
         setChatVisitorInfo()
 
-        with(binding) {
-            zendeskOptions.setOnCheckedChangeListener { _, _ ->
-                zendeskContinue.isEnabled = true
-            }
-
-            zendeskContinue.setOnClickListener {
-                val checkedButton = findViewById<RadioButton>(zendeskOptions.checkedRadioButtonId)
-
-                Chat.INSTANCE.providers()?.profileProvider()?.apply {
-                    setVisitorNote(checkedButton.text.toString())
-                    appendVisitorNote(checkedButton.text.toString())
-                    addVisitorTags(listOf(checkedButton.text.toString()), null)
+        if (subject.isEmpty()) {
+            with(binding) {
+                zendeskOptions.setOnCheckedChangeListener { _, _ ->
+                    zendeskContinue.isEnabled = true
                 }
 
-                startChat()
-                finish()
+                zendeskContinue.setOnClickListener {
+                    val checkedButton = findViewById<RadioButton>(zendeskOptions.checkedRadioButtonId)
+                    setupChat(checkedButton.text.toString())
+                }
             }
+        } else {
+            setupChat(subject)
         }
+    }
+
+    private fun setupChat(note: String) {
+        Chat.INSTANCE.providers()?.profileProvider()?.apply {
+            setVisitorNote(note)
+            appendVisitorNote(note)
+            addVisitorTags(listOf(note), null)
+        }
+
+        startChat()
+        finish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -107,11 +120,13 @@ class ZendeskSubjectActivity : AppCompatActivity() {
 
     companion object {
         private const val USER_INFO = "USER_INFO"
+        private const val SUBJECT = "SUBJECT"
         private const val ZENDESK_CHANNEL = "wallet_sb_department"
 
-        fun newInstance(context: Context, userInfo: BasicProfileInfo): Intent =
+        fun newInstance(context: Context, userInfo: BasicProfileInfo, subject: String = ""): Intent =
             Intent(context, ZendeskSubjectActivity::class.java).apply {
                 putExtra(USER_INFO, userInfo)
+                putExtra(SUBJECT, subject)
             }
     }
 }

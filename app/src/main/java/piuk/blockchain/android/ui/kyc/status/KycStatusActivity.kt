@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycStatusBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
@@ -27,7 +28,8 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
-class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
+class KycStatusActivity :
+    BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
     KycStatusView {
 
     private val binding: ActivityKycStatusBinding by lazy {
@@ -38,6 +40,9 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
     private val campaignType by unsafeLazy { intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType }
     private var progressDialog: MaterialProgressDialog? = null
     private val compositeDisposable = CompositeDisposable()
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +59,10 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
             CampaignType.None,
             CampaignType.Interest -> R.string.identity_verification
         }
-        setupToolbar(binding.toolbarKyc, title)
-
+        loadToolbar(
+            titleToolbar = getString(title),
+            backAction = { onBackPressed() }
+        )
         onViewReady()
     }
 

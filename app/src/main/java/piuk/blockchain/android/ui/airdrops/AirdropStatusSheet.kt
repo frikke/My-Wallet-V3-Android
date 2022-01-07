@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.airdrops
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Bundle
 import android.net.Uri
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.ColorRes
@@ -12,19 +12,19 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import piuk.blockchain.android.urllinks.STX_STACKS_LEARN_MORE
+import java.lang.IllegalStateException
+import java.text.DateFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.databinding.DialogAirdropStatusBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import piuk.blockchain.android.urllinks.STX_STACKS_LEARN_MORE
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.goneIf
 import piuk.blockchain.android.util.visible
-import java.lang.IllegalStateException
-import java.text.DateFormat
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(), AirdropCentreView {
 

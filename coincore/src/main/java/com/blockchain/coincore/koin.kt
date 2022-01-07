@@ -1,26 +1,24 @@
 package com.blockchain.coincore
 
-import com.blockchain.koin.payloadScope
-import com.blockchain.koin.payloadScopeQualifier
-import info.blockchain.balance.AssetCatalogue
-import org.koin.dsl.bind
-import org.koin.dsl.module
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.EthAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
-import com.blockchain.coincore.loader.AssetLoaderSwitcher
-import com.blockchain.coincore.loader.AssetRemoteFeatureLookup
+import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetLoader
-import com.blockchain.coincore.loader.StaticAssetLoader
+import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
-import com.blockchain.koin.dynamicAssetsFeatureFlag
+import com.blockchain.koin.payloadScope
+import com.blockchain.koin.payloadScopeQualifier
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CryptoCurrency
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
 val coincoreModule = module {
 
@@ -105,7 +103,8 @@ val coincoreModule = module {
                 notificationUpdater = get(),
                 identity = get(),
                 features = get(),
-                assetCatalogue = lazy { get() }
+                assetCatalogue = lazy { get() },
+                formatUtils = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -127,17 +126,10 @@ val coincoreModule = module {
                 assetLoader = get(),
                 txProcessorFactory = get(),
                 defaultLabels = get(),
-                crashLogger = get()
+                crashLogger = get(),
+                paymentsDataManager = get()
             )
         }
-
-        scoped {
-            AssetLoaderSwitcher(
-                featureFlag = get(dynamicAssetsFeatureFlag),
-                staticLoader = get(),
-                dynamicLoader = get()
-            )
-        }.bind(AssetLoader::class)
 
         scoped {
             val ncAssets: List<CryptoAsset> = payloadScope.getAll()
@@ -159,32 +151,10 @@ val coincoreModule = module {
                 pitLinking = get(),
                 walletPreferences = get(),
                 identity = get(),
-                features = get()
+                features = get(),
+                formatUtils = get()
             )
-        }
-
-        scoped {
-            val ncAssets: List<CryptoAsset> = payloadScope.getAll()
-            StaticAssetLoader(
-                nonCustodialAssets = ncAssets,
-                assetCatalogue = get(),
-                featureConfig = get(),
-                payloadManager = get(),
-                erc20DataManager = get(),
-                feeDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                crashLogger = get(),
-                labels = get(),
-                pitLinking = get(),
-                walletPreferences = get(),
-                identity = get(),
-                features = get()
-            )
-        }
+        }.bind(AssetLoader::class)
 
         scoped {
             TxProcessorFactory(
@@ -192,6 +162,7 @@ val coincoreModule = module {
                 exchangeRates = get(),
                 interestBalances = get(),
                 walletManager = get(),
+                limitsDataManager = get(),
                 walletPrefs = get(),
                 quotesEngine = get(),
                 analytics = get(),
@@ -236,16 +207,21 @@ val coincoreModule = module {
     }
 
     single {
-        AssetRemoteFeatureLookup(
-            remoteConfig = get()
-        )
-    }
-
-    single {
         AssetCatalogueImpl(
-            featureFlag = get(dynamicAssetsFeatureFlag),
-            featureConfig = get(),
+            fixedAssets = nonCustodialAssetList(),
             assetsDataManager = get()
         )
     }.bind(AssetCatalogue::class)
+
+    factory {
+        FormatUtilities()
+    }
 }
+
+fun nonCustodialAssetList() =
+    setOf(
+        CryptoCurrency.BTC,
+        CryptoCurrency.BCH,
+        CryptoCurrency.ETHER,
+        CryptoCurrency.XLM
+    )

@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import piuk.blockchain.android.R
 import com.blockchain.coincore.CryptoAccount
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewReceiveInfoBinding
 
 class ReceiveInfoView @JvmOverloads constructor(

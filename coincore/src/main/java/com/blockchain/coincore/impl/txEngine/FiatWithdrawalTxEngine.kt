@@ -1,11 +1,6 @@
 package com.blockchain.coincore.impl.txEngine
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -18,11 +13,27 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 class FiatWithdrawalTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager
+    val walletManager: CustodialWalletManager,
+    private val limitsDataManager: LimitsDataManager,
+    private val userIdentity: UserIdentity
 ) : TxEngine() {
+
+    private val userIsGoldVerified: Single<Boolean>
+        get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))
 
     override fun assertInputsValid() {
         check(sourceAccount is FiatAccount)
@@ -35,19 +46,27 @@ class FiatWithdrawalTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> {
         check(txTarget is LinkedBankAccount)
         check(sourceAccount is FiatAccount)
-
+        val withdrawFeeAndMinLimit = (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit().cache()
+        val zeroFiat = FiatValue.zero((sourceAccount as FiatAccount).fiatCurrency)
         return Single.zip(
             sourceAccount.balance.firstOrError(),
-            (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit(),
-            { balance, limitAndFee ->
-                val zeroFiat = FiatValue.zero((sourceAccount as FiatAccount).fiatCurrency)
+            withdrawFeeAndMinLimit,
+            limitsDataManager.getLimits(
+                outputCurrency = zeroFiat.currencyCode,
+                sourceCurrency = zeroFiat.currencyCode,
+                targetCurrency = (txTarget as LinkedBankAccount).fiatCurrency,
+                sourceAccountType = AssetCategory.CUSTODIAL,
+                targetAccountType = AssetCategory.NON_CUSTODIAL,
+                legacyLimits = withdrawFeeAndMinLimit.map { it as LegacyLimits }
+            ),
+            { balance, withdrawalFee, limits ->
                 PendingTx(
                     amount = zeroFiat,
-                    minLimit = limitAndFee.minLimit,
-                    availableBalance = balance.actionable - limitAndFee.fee,
+                    limits = limits,
+                    availableBalance = Money.max(balance.actionable - withdrawalFee.fee, zeroFiat),
                     feeForFullAvailable = zeroFiat,
                     totalBalance = balance.total,
-                    feeAmount = limitAndFee.fee,
+                    feeAmount = withdrawalFee.fee,
                     selectedFiat = userFiat,
                     feeSelection = FeeSelection()
                 )
@@ -56,7 +75,6 @@ class FiatWithdrawalTxEngine(
     }
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
-
         (txTarget as LinkedBankAccount).receiveAddress.flatMapCompletable {
             walletManager.createWithdrawOrder(
                 amount = pendingTx.amount,
@@ -112,13 +130,20 @@ class FiatWithdrawalTxEngine(
 
     private fun validateAmount(pendingTx: PendingTx): Completable =
         Completable.defer {
-            if (pendingTx.minLimit != null) {
+            if (pendingTx.limits != null) {
                 when {
-                    pendingTx.amount < pendingTx.minLimit -> Completable.error(
+                    pendingTx.isMinLimitViolated() -> Completable.error(
                         TxValidationFailure(
                             ValidationState.UNDER_MIN_LIMIT
                         )
                     )
+                    pendingTx.isMaxLimitViolated() -> userIsGoldVerified.flatMapCompletable {
+                        if (it) {
+                            Completable.error(TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT))
+                        } else {
+                            Completable.error(TxValidationFailure(ValidationState.OVER_SILVER_TIER_LIMIT))
+                        }
+                    }
                     pendingTx.availableBalance < pendingTx.amount -> Completable.error(
                         TxValidationFailure(
                             ValidationState.INSUFFICIENT_FUNDS

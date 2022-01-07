@@ -12,6 +12,8 @@ import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.Account
+import info.blockchain.wallet.payload.data.AccountV3
+import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.Wallet
@@ -26,6 +28,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.math.BigInteger
+import java.util.LinkedHashMap
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
 import org.bitcoinj.core.NetworkParameters
@@ -35,8 +39,6 @@ import org.bitcoinj.script.Script
 import piuk.blockchain.androidcore.data.metadata.MetadataCredentials
 import piuk.blockchain.androidcore.utils.RefreshUpdater
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
-import java.math.BigInteger
-import java.util.LinkedHashMap
 
 class WalletUpgradeFailure(
     msg: String,
@@ -207,7 +209,10 @@ class PayloadDataManager internal constructor(
             sharedKey = sharedKey,
             guid = guid,
             password = password
-        ).applySchedulers()
+        ).doOnComplete {
+            logWalletStats()
+        }
+            .applySchedulers()
 
     /**
      * Initializes and decrypts a user's payload given valid QR code scan data.
@@ -252,6 +257,45 @@ class PayloadDataManager internal constructor(
             crashLogger.logState("body count", (payload.walletBodies?.size ?: 0).toString())
             crashLogger.logState("account count", (payload.walletBody?.accounts?.size ?: 0).toString())
             crashLogger.logState("imported count", payload.importedAddressList.size.toString())
+        }
+    }
+
+    private fun logWalletStats() {
+        logWalletUpgradeStats()
+        payloadManager.payload?.let { payload ->
+            crashLogger.logState("wallet wrapper version", payload.walletBody?.wrapperVersion.toString())
+            payload.walletBody?.accounts?.map { account ->
+                crashLogger.logState("account is archived", account.isArchived.toString())
+                val hasNullOrEmptyXPub = account.xpubs.allAddresses().find { address ->
+                    address.isNullOrEmpty()
+                } != null
+                crashLogger.logState("account has null or empty xpub", hasNullOrEmptyXPub.toString())
+                when (account) {
+                    is AccountV3 -> {
+                        crashLogger.logState("account type", "V3")
+                        crashLogger.logState(
+                            "accountV3 is legacy xpub empty",
+                            account.legacyXpub.isEmpty().toString()
+                        )
+                    }
+                    is AccountV4 -> {
+                        crashLogger.logState("account type", "V4")
+                        // Address labels returns empty if the derivation is null
+                        crashLogger.logState(
+                            "accountV4 derivation is null",
+                            account.addressLabels.isEmpty().toString()
+                        )
+                        crashLogger.logState("accountV4 derivations count", account.derivations.size.toString())
+                        val hasEmptyXPub = account.derivations.find {
+                            it.xpub.isEmpty()
+                        } != null
+                        crashLogger.logState("accountV4 has empty xpub", hasEmptyXPub.toString())
+                    }
+                    else -> {
+                        // Do nothing
+                    }
+                }
+            }
         }
     }
     // /////////////////////////////////////////////////////////////////////////
@@ -357,7 +401,7 @@ class PayloadDataManager internal constructor(
                 account
             )
         }.subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
 
     /**
      * Allows you to generate a receive address at an arbitrary number of positions on the chain
@@ -416,7 +460,7 @@ class PayloadDataManager internal constructor(
                 account
             )
         }.subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
 
     /**
      * Returns an [SigningKey] for a given [ImportedAddress], optionally with a second password
@@ -559,9 +603,9 @@ class PayloadDataManager internal constructor(
 
     fun getAccountTransactions(xpub: XPubs, limit: Int, offset: Int):
         Single<List<TransactionSummary>> =
-            Single.fromCallable {
-                payloadManager.getAccountTransactions(xpub, limit, offset)
-            }
+        Single.fromCallable {
+            payloadManager.getAccountTransactions(xpub, limit, offset)
+        }
 
     /**
      * Returns the transaction notes for a given transaction hash. May return null if not found.

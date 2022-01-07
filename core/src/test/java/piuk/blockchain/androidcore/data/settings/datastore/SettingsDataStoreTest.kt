@@ -1,13 +1,13 @@
 package piuk.blockchain.androidcore.data.settings.datastore
 
+import com.blockchain.utils.Optional
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import piuk.blockchain.android.testutils.RxTest
-import com.blockchain.utils.Optional
 
 class SettingsDataStoreTest : RxTest() {
 

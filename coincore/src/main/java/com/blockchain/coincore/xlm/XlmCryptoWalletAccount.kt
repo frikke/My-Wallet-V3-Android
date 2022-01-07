@@ -1,5 +1,11 @@
 package com.blockchain.coincore.xlm
 
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TxEngine
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -15,16 +21,10 @@ import info.blockchain.balance.Money.Companion.max
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.ActivitySummaryList
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.TxEngine
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.extensions.mapList
-import java.util.concurrent.atomic.AtomicBoolean
 
 internal class XlmCryptoWalletAccount(
     payloadManager: PayloadDataManager,
@@ -67,8 +67,8 @@ internal class XlmCryptoWalletAccount(
 
     override fun getOnChainBalance(): Observable<Money> =
         getMinBalance()
-        .doOnNext { hasFunds.set(it.balance.isPositive) }
-        .map { it.balance as Money }
+            .doOnNext { hasFunds.set(it.balance.isPositive) }
+            .map { it.balance as Money }
 
     private fun getMinBalance(): Observable<BalanceAndMin> =
         xlmManager.getBalanceAndMin()

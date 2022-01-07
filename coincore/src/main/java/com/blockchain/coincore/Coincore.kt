@@ -1,17 +1,19 @@
 package com.blockchain.coincore
 
-import com.blockchain.logging.CrashLogger
-import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.logging.CrashLogger
+import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -30,8 +32,13 @@ class Coincore internal constructor(
     private val txProcessorFactory: TxProcessorFactory,
     private val defaultLabels: DefaultLabels,
     private val fiatAsset: Asset,
-    private val crashLogger: CrashLogger
+    private val crashLogger: CrashLogger,
+    private val paymentsDataManager: PaymentsDataManager
 ) {
+
+    fun getWithdrawalLocks(localCurrency: String): Single<FundsLocks> {
+        return paymentsDataManager.getWithdrawalLocks(localCurrency)
+    }
 
     operator fun get(asset: AssetInfo): CryptoAsset =
         assetLoader[asset]
@@ -44,6 +51,8 @@ class Coincore internal constructor(
             .doOnError {
                 crashLogger.logEvent("Coincore initialisation failed! $it")
             }
+
+    fun initialiseAssetCatalogue() = assetCatalogue.initialise()
 
     val fiatAssets: Asset
         get() = fiatAsset
@@ -215,7 +224,8 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.loadedAssets.toList()
+    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets.toList()
+
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
 
     fun supportedFiatAssets(): List<String> = assetCatalogue.supportedFiatAssets

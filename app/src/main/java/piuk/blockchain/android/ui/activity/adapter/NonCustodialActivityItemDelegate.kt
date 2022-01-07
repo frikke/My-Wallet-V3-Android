@@ -7,21 +7,21 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.util.Date
 import piuk.blockchain.android.R
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
-import java.util.Date
 
 class NonCustodialActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,

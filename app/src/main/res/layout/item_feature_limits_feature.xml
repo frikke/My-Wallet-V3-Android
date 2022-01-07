@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="80dp">
+
+    <ImageView
+        android:id="@+id/icon_feature"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="@dimen/standard_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/grey_800"
+        tools:srcCompat="@drawable/ic_vector_toolbar_swap" />
+
+    <TextView
+        android:id="@+id/text_feature"
+        style="@style/Text.Semibold.16"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginEnd="@dimen/small_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        app:layout_goneMarginBottom="@dimen/standard_margin"
+        android:ellipsize="end"
+        android:maxLines="2"
+        app:layout_constraintBottom_toTopOf="@id/text_feature_description"
+        app:layout_constraintEnd_toStartOf="@+id/text_limit"
+        app:layout_constraintStart_toEndOf="@id/icon_feature"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="@string/feature_limits_send_crypto" />
+
+    <TextView
+        android:id="@+id/text_feature_description"
+        style="@style/Text.Standard.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/small_margin"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:layout_marginBottom="@dimen/medium_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/text_limit"
+        app:layout_constraintStart_toStartOf="@id/text_feature"
+        app:layout_constraintTop_toBottomOf="@id/text_feature"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="@string/feature_limits_from_trading_accounts" />
+
+    <TextView
+        android:id="@+id/text_limit"
+        style="@style/Text.Semibold.16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:textColor="@color/feature_limits_light_grey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="$2,000 a Year" />
+
+    <View
+        style="@style/Divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

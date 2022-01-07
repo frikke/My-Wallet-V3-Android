@@ -84,7 +84,8 @@ class BankAuthModelTest {
         test.assertValueAt(0, defaultState)
 
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 errorState = ErrorState.GenericError
             )
         )
@@ -113,13 +114,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 linkBankTransfer = linkBankTransfer,
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
 
-        verify(interactor).pollForLinkedBankState(intent.linkingBankId)
+        verify(interactor).pollForLinkedBankState(intent.linkingBankId, BankPartner.YAPILY)
     }
 
     @Test
@@ -145,13 +147,15 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 linkBankTransfer = linkBankTransfer,
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 linkBankTransfer = linkBankTransfer,
                 bankLinkingProcessState = BankLinkingProcessState.NONE,
                 errorState = ErrorState.BankLinkingUpdateFailed
@@ -187,12 +191,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING_SUCCESS,
                 linkedBank = expectedBank,
                 selectedPaymentMethod = SelectedPaymentMethod(
@@ -233,12 +239,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.IN_EXTERNAL_FLOW
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING_SUCCESS,
                 linkedBank = expectedBank,
                 selectedPaymentMethod = SelectedPaymentMethod(
@@ -279,12 +287,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankAlreadyLinked,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -319,12 +329,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -358,12 +370,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankAccountUnsupported,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -398,12 +412,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankNamesMismatched,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -438,12 +454,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankRejected,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -478,12 +496,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankExpired,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -518,12 +538,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankFailure,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -558,12 +580,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -598,7 +622,8 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
@@ -632,13 +657,15 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
 
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingTimeout,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -655,13 +682,15 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.ACTIVATING
             )
         )
 
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -691,7 +720,7 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
@@ -699,12 +728,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING_SUCCESS,
                 linkedBank = expectedBank,
                 selectedPaymentMethod = SelectedPaymentMethod(
@@ -741,7 +772,7 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
@@ -749,12 +780,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankAlreadyLinked,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -785,7 +818,7 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
@@ -793,12 +826,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -806,7 +841,7 @@ class BankAuthModelTest {
     }
 
     @Test
-    fun pollLinkStatus_blocked_unsupported_account() {
+    fun pollLinkStatus_not_info_account() {
         setupModelWithBankPartner()
 
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
@@ -817,7 +852,7 @@ class BankAuthModelTest {
             accountName = "name", bankName = "bankName",
             accountNumber = "123",
             state = LinkedBankState.BLOCKED,
-            errorStatus = LinkedBankErrorState.ACCOUNT_TYPE_UNSUPPORTED,
+            errorStatus = LinkedBankErrorState.NOT_INFO_FOUND,
             accountType = "",
             authorisationUrl = "url",
             sortCode = "123",
@@ -828,7 +863,7 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
@@ -836,13 +871,105 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
-                errorState = ErrorState.LinkedBankAccountUnsupported,
+            2,
+            defaultState.copy(
+                errorState = ErrorState.LinkedBankInfoNotFound,
+                bankLinkingProcessState = BankLinkingProcessState.NONE
+            )
+        )
+    }
+
+    @Test
+    fun pollLinkStatus_fraud_account() {
+        setupModelWithBankPartner()
+
+        val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
+        val expectedBank = LinkedBank(
+            id = linkingBankId,
+            currency = "GBP",
+            partner = BankPartner.YAPILY,
+            accountName = "name", bankName = "bankName",
+            accountNumber = "123",
+            state = LinkedBankState.BLOCKED,
+            errorStatus = LinkedBankErrorState.FRAUD,
+            accountType = "",
+            authorisationUrl = "url",
+            sortCode = "123",
+            accountIban = "123",
+            bic = "123",
+            entity = "entity",
+            iconUrl = "iconUrl",
+            callbackPath = ""
+        )
+
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
+        )
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+        )
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                errorState = ErrorState.LinkedBankFraud,
+                bankLinkingProcessState = BankLinkingProcessState.NONE
+            )
+        )
+    }
+
+    @Test
+    fun pollLinkStatus_internal_failure_account() {
+        setupModelWithBankPartner()
+
+        val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
+        val expectedBank = LinkedBank(
+            id = linkingBankId,
+            currency = "GBP",
+            partner = BankPartner.YAPILY,
+            accountName = "name", bankName = "bankName",
+            accountNumber = "123",
+            state = LinkedBankState.BLOCKED,
+            errorStatus = LinkedBankErrorState.INTERNAL_FAILURE,
+            accountType = "",
+            authorisationUrl = "url",
+            sortCode = "123",
+            accountIban = "123",
+            bic = "123",
+            entity = "entity",
+            iconUrl = "iconUrl",
+            callbackPath = ""
+        )
+
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
+        )
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+        )
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                errorState = ErrorState.LinkedBankInternalFailure,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
         )
@@ -872,7 +999,7 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
@@ -880,12 +1007,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankNamesMismatched,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -916,7 +1045,7 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
@@ -924,12 +1053,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankRejected,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -960,7 +1091,7 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
@@ -968,12 +1099,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankExpired,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -1004,7 +1137,7 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
@@ -1012,12 +1145,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.LinkedBankFailure,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
@@ -1030,7 +1165,7 @@ class BankAuthModelTest {
 
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
             Single.error(Exception())
         )
         val test = model.state.test()
@@ -1038,12 +1173,14 @@ class BankAuthModelTest {
 
         test.assertValueAt(0, defaultState)
         test.assertValueAt(
-            1, defaultState.copy(
+            1,
+            defaultState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.LINKING
             )
         )
         test.assertValueAt(
-            2, defaultState.copy(
+            2,
+            defaultState.copy(
                 errorState = ErrorState.BankLinkingFailed,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )

@@ -1,12 +1,11 @@
 package piuk.blockchain.android.campaign
 
+import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.UserState
-import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
@@ -14,6 +13,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
+import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 
 class SunriverCampaignRegistration(
     private val nabuDataManager: NabuDataManager,

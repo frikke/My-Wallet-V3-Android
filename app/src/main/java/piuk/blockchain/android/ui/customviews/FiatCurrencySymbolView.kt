@@ -14,12 +14,14 @@ class FiatCurrencySymbolView @JvmOverloads constructor(
 
     fun setIcon(fiat: String) =
         setImageDrawable(
-            ContextCompat.getDrawable(context,
+            ContextCompat.getDrawable(
+                context,
                 when (fiat) {
                     "EUR" -> R.drawable.ic_funds_euro
                     "GBP" -> R.drawable.ic_funds_gbp
                     "USD" -> R.drawable.ic_funds_usd
                     else -> R.drawable.ic_funds_usd // show dollar if currency isn't selected
                 }
-            ))
+            )
+        )
 }

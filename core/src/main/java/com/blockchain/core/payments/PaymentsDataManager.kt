@@ -1,47 +1,58 @@
 package com.blockchain.core.payments
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.core.payments.model.WithdrawalLock
-import com.blockchain.core.payments.model.Withdrawals
+import com.blockchain.core.payments.model.FundsLock
+import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.core.payments.model.PaymentMethodDetailsError
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.mapLeft
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.await
 
 interface PaymentsDataManager {
-    fun getPaymentMethodDetailsForId(paymentId: String): Single<PaymentMethodDetails>
+    suspend fun getPaymentMethodDetailsForId(
+        paymentId: String
+    ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails>
 
-    fun getWithdrawalLocks(localCurrency: String): Single<Withdrawals>
+    fun getWithdrawalLocks(localCurrency: String): Single<FundsLocks>
 }
-
 class PaymentsDataManagerImpl(
     private val paymentsService: PaymentsService,
     private val authenticator: AuthHeaderProvider
 ) : PaymentsDataManager {
 
-    override fun getPaymentMethodDetailsForId(paymentId: String): Single<PaymentMethodDetails> =
-        authenticator.getAuthHeader().flatMap {
-            paymentsService.getPaymentMethodDetailsForId(
-                it,
-                paymentId
-            )
-        }
-
-    override fun getWithdrawalLocks(localCurrency: String): Single<Withdrawals> =
-        authenticator.getAuthHeader().flatMap {
-            paymentsService.getWithdrawalLocks(it, localCurrency).map {
-                Withdrawals(
-                    onHoldTotalAmount = it.totalAmount.let {
-                        FiatValue.fromMinor(it.currency, it.value.toLong())
-                    },
-                    locks = it.locks.map { lock ->
-                        WithdrawalLock(
-                            amount = FiatValue.fromMinor(lock.amount.currency, lock.amount.value.toLong()),
-                            date = lock.date.toZonedDateTime()
-                        )
-                    }
-                )
+    override suspend fun getPaymentMethodDetailsForId(
+        paymentId: String
+    ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails> {
+        // TODO Turn getAuthHeader() into a suspension function
+        val auth = authenticator.getAuthHeader().await()
+        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId).mapLeft { apiError: ApiError ->
+            when (apiError) {
+                is ApiError.HttpError -> PaymentMethodDetailsError.REQUEST_FAILED
+                is ApiError.NetworkError -> PaymentMethodDetailsError.SERVICE_UNAVAILABLE
+                is ApiError.UnknownApiError -> PaymentMethodDetailsError.UNKNOWN
             }
+        }
+    }
+
+    override fun getWithdrawalLocks(localCurrency: String): Single<FundsLocks> =
+        authenticator.getAuthHeader().flatMap {
+            paymentsService.getWithdrawalLocks(it, localCurrency)
+                .map { locks ->
+                    FundsLocks(
+                        onHoldTotalAmount = FiatValue.fromMinor(locks.currency, locks.value.toLong()),
+                        locks = locks.locks.map { lock ->
+                            FundsLock(
+                                amount = FiatValue.fromMinor(lock.currency, lock.value.toLong()),
+                                date = lock.date.toZonedDateTime()
+                            )
+                        }
+                    )
+                }
         }
 }

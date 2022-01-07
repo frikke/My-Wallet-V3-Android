@@ -7,9 +7,9 @@ import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
-import piuk.blockchain.android.R
 import java.text.NumberFormat
 import java.util.Locale
+import piuk.blockchain.android.R
 
 class ValueMarker(
     context: Context,

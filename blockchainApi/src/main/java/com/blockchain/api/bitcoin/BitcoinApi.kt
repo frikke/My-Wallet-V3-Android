@@ -8,14 +8,12 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-// TODO: Should be internal, but required for payload integration tests.
-// Once those are re-written, this can be changed back
-/*internal*/ interface BitcoinApi {
+internal interface BitcoinApi {
     @FormUrlEncoded
     @POST("{coin}/multiaddr")
     fun getMultiAddress(
@@ -25,7 +23,7 @@ import retrofit2.http.Query
         @Field("n") limit: Int?,
         @Field("offset") offset: Int?,
         @Field("filter") filter: Int?,
-        @Field("onlyShow") context: String?,
+        @Field("onlyShow") onlyShow: String?,
         @Field("api_code") apiCode: String
     ): Call<MultiAddress>
 

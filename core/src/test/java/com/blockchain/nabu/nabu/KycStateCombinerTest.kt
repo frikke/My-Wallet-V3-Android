@@ -2,11 +2,11 @@ package com.blockchain.nabu.nabu
 
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
+import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.TierResponse
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import org.junit.Test
 import kotlin.test.assertTrue
+import org.junit.Test
 
 class KycStateCombinerTest {
 

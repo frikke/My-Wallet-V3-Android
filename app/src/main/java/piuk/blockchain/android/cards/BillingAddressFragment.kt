@@ -14,18 +14,18 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.US
 import piuk.blockchain.android.util.visibleIf
-import java.util.Locale
 
-class BillingAddressFragment : MviFragment<CardModel, CardIntent, CardState, FragmentBillingAddressBinding>(),
+class BillingAddressFragment :
+    MviFragment<CardModel, CardIntent, CardState, FragmentBillingAddressBinding>(),
     PickerItemListener,
     AddCardFlowFragment,
     SlidingModalBottomDialog.Host {
@@ -58,8 +58,10 @@ class BillingAddressFragment : MviFragment<CardModel, CardIntent, CardState, Fra
         binding.fullName.text.isNullOrBlank().not() &&
             binding.addressLine1.text.isNullOrBlank().not() &&
             binding.city.text.isNullOrBlank().not() &&
-            (if (usSelected) binding.zipUsa.text.isNullOrBlank().not() && binding.state.text.isNullOrBlank().not()
-            else binding.postcode.text.isNullOrBlank().not())
+            (
+                if (usSelected) binding.zipUsa.text.isNullOrBlank().not() && binding.state.text.isNullOrBlank().not()
+                else binding.postcode.text.isNullOrBlank().not()
+                )
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentBillingAddressBinding =
         FragmentBillingAddressBinding.inflate(inflater, container, false)
@@ -69,9 +71,11 @@ class BillingAddressFragment : MviFragment<CardModel, CardIntent, CardState, Fra
         with(binding) {
             billingHeader.setOnClickListener {
                 showBottomSheet(
-                    SearchPickerItemBottomSheet.newInstance(Locale.getISOCountries().toList().map {
-                        CountryPickerItem(it)
-                    })
+                    SearchPickerItemBottomSheet.newInstance(
+                        Locale.getISOCountries().toList().map {
+                            CountryPickerItem(it)
+                        }
+                    )
                 )
             }
             state.setOnClickListener {
@@ -119,7 +123,7 @@ class BillingAddressFragment : MviFragment<CardModel, CardIntent, CardState, Fra
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
             }
         }
-        activity.setupToolbar(R.string.add_card_address_title)
+        activity.updateTitleToolbar(getString(R.string.add_card_address_title))
     }
 
     private fun setupUserDetails(user: NabuUser) {

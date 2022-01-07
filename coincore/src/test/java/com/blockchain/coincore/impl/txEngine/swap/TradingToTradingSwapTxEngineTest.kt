@@ -1,28 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.datamanagers.CurrencyPair
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.TransferQuote
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import org.junit.Before
-import org.junit.Test
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
@@ -34,20 +11,63 @@ import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.TransferLimits
+import com.blockchain.nabu.datamanagers.TransferQuote
+import com.blockchain.nabu.models.responses.nabu.NabuApiException
+import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
+import com.blockchain.testutils.bitcoin
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
+import org.junit.Before
+import org.junit.Test
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(MIN_GOLD_LIMIT_ASSET),
+                    max = TxLimit.Limited(MAX_GOLD_LIMIT_ASSET),
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
+
     private val environmentConfig: EnvironmentConfig = mock()
 
     private val subject = TradingToTradingSwapTxEngine(
         walletManager = walletManager,
         quotesEngine = quotesEngine,
+        limitsDataManager = limitsDataManager,
         userIdentity = userIdentity
     )
 
@@ -223,14 +243,13 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.amount == CryptoValue.zero(SRC_ASSET) &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == totalBalance &&
-                it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
-                it.selectedFiat == TEST_USER_FIAT &&
-                it.confirmations.isEmpty() &&
-                it.minLimit == expectedMinLimit &&
-                it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
-                it.validationState == ValidationState.UNINITIALISED
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == totalBalance &&
+                    it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
+                    it.selectedFiat == TEST_USER_FIAT &&
+                    it.confirmations.isEmpty() &&
+                    it.limits == TxLimits.fromAmounts(min = expectedMinLimit, max = MAX_GOLD_LIMIT_ASSET) &&
+                    it.validationState == ValidationState.UNINITIALISED
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
@@ -243,7 +262,6 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
-        verify(exchangeRates).getLastCryptoToUserFiatRate(SRC_ASSET)
 
         noMoreInteractions(txTarget)
     }
@@ -277,16 +295,15 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.amount == CryptoValue.zero(SRC_ASSET) &&
-                it.totalBalance == CryptoValue.zero(SRC_ASSET) &&
-                it.availableBalance == CryptoValue.zero(SRC_ASSET) &&
-                it.feeForFullAvailable == CryptoValue.zero(SRC_ASSET) &&
-                it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
-                it.selectedFiat == TEST_USER_FIAT &&
-                it.confirmations.isEmpty() &&
-                it.minLimit == null &&
-                it.maxLimit == null &&
-                it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
-                it.engineState.isEmpty()
+                    it.totalBalance == CryptoValue.zero(SRC_ASSET) &&
+                    it.availableBalance == CryptoValue.zero(SRC_ASSET) &&
+                    it.feeForFullAvailable == CryptoValue.zero(SRC_ASSET) &&
+                    it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
+                    it.selectedFiat == TEST_USER_FIAT &&
+                    it.confirmations.isEmpty() &&
+                    it.limits == null &&
+                    it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
+                    it.engineState.isEmpty()
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
@@ -545,6 +562,14 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
 
     private fun verifyLimitsFetched() {
         verify(walletManager).getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.INTERNAL)
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(SRC_ASSET.networkTicker),
+            sourceCurrency = eq(SRC_ASSET.networkTicker),
+            targetCurrency = eq(TGT_ASSET.networkTicker),
+            sourceAccountType = eq(AssetCategory.CUSTODIAL),
+            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     private fun verifyQuotesEngineStarted() {

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.launcher
 
+import com.blockchain.coincore.Coincore
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.CrashLogger
 import com.blockchain.operations.AppStartUpFlushable
@@ -9,7 +10,6 @@ import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
@@ -70,7 +70,7 @@ class Prerequisites(
         settingsDataManager.initSettings(
             guid,
             sharedKey
-        ).singleOrError()
+        ).firstOrError()
 
     fun decryptAndSetupMetadata(secondPassword: String) = metadataManager.decryptAndSetupMetadata(
         secondPassword

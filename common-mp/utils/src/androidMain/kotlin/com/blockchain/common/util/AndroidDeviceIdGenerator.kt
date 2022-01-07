@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.provider.Settings
-import timber.log.Timber
 import java.net.NetworkInterface
 import java.security.MessageDigest
 import java.util.UUID
+import timber.log.Timber
 
 class AndroidDeviceIdGenerator(
     private val ctx: Context

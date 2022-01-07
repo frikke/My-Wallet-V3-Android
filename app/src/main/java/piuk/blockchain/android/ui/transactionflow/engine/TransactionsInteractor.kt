@@ -5,9 +5,18 @@ import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
@@ -21,23 +30,16 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
-import com.blockchain.coincore.AddressParseError
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
-import com.blockchain.coincore.NonCustodialAccount
-import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.SingleAccountList
-import com.blockchain.coincore.TxConfirmationValue
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
@@ -75,13 +77,6 @@ class TransactionInteractor(
                     TxValidationFailure(ValidationState.INVALID_ADDRESS)
                 )
             )
-            .onErrorResumeNext { e ->
-                if (e.isUnexpectedContractError) {
-                    Single.error(TxValidationFailure(ValidationState.ADDRESS_IS_CONTRACT))
-                } else {
-                    Single.error(e)
-                }
-            }
 
     fun initialiseTransaction(
         sourceAccount: BlockchainAccount,
@@ -129,14 +124,8 @@ class TransactionInteractor(
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
             availableFiats
         ) { supportedPairs, fiats ->
-                supportedPairs.pairs.filter { fiats.contains(it.fiatCurrency) }
-                    .map {
-                        CurrencyPair.CryptoToFiatCurrencyPair(
-                            it.cryptoCurrency,
-                            it.fiatCurrency
-                        )
-                    }
-            }
+            supportedPairs.filter { fiats.contains(it.destination) }
+        }
 
         return Singles.zip(
             coincore.getTransactionTargets(sourceAccount, AssetAction.Sell),
@@ -232,10 +221,25 @@ class TransactionInteractor(
         val sanitisedUrl = bankPaymentData.linkedBank.callbackPath.removePrefix("nabu-gateway/")
         bankLinkingPrefs.setDynamicOneTimeTokenUrl(sanitisedUrl)
     }
+
+    fun loadWithdrawalLocks(model: TransactionModel, available: Money): Disposable =
+        coincore.getWithdrawalLocks(showLocksInFiat(available)).subscribeBy(
+            onSuccess = { locks ->
+                model.process(TransactionIntent.FundsLocksLoaded(locks))
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
+
+    private fun showLocksInFiat(available: Money): String {
+        return if (available is FiatValue) {
+            available.currencyCode
+        } else {
+            currencyPrefs.selectedFiatCurrency
+        }
+    }
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair.CryptoCurrencyPair>): Boolean =
     pairs.any { it.source == this.asset }
-
-private val Throwable.isUnexpectedContractError
-    get() = (this is AddressParseError && this.error == AddressParseError.Error.ETH_UNEXPECTED_CONTRACT_ADDRESS)

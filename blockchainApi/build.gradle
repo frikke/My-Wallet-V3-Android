@@ -13,6 +13,7 @@ compileKotlin {
     }
 }
 dependencies {
+    implementation project(':common:interface')
     implementation project(':common:network')
 
     implementation Libraries.kotlin

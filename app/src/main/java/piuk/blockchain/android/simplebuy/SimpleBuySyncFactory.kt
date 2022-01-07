@@ -49,27 +49,9 @@ class SimpleBuySyncFactory(
             Timber.d("SB Sync: state == $this")
         }
 
-    // If we have a local state in awaiting funds, check the server and clear it if the backend has transitioned
-    // to any completed state (pending, cancelled, finished, failed)
-    fun lightweightSync(): Completable =
-        maybeInflateLocalState()
-            .flatMapBy(
-                onSuccess = { localState ->
-                    if (localState.orderState == OrderState.AWAITING_FUNDS) {
-                        updateWithRemote(localState)
-                            .doOnComplete { serializer.clear() }
-                            .doOnSuccess { state -> serializer.update(state) }
-                    } else {
-                        Maybe.empty()
-                    }
-                },
-                onError = { Maybe.empty() }, // Do nothing
-                onComplete = {
-                    serializer.clear()
-                    Maybe.empty()
-                } // No local state. Do nothing
-            )
-            .ignoreElement()
+    fun clear() {
+        serializer.clear()
+    }
 
     private fun syncStates(): Maybe<SimpleBuyState> {
         return maybeInflateLocalState()
@@ -169,8 +151,8 @@ class SimpleBuySyncFactory(
                     OrderState.UNINITIALISED,
                     OrderState.INITIALISED,
                     OrderState.PENDING_EXECUTION,
-                    OrderState.PENDING_CONFIRMATION,
-                    OrderState.AWAITING_FUNDS -> Maybe.just(state)
+                    OrderState.PENDING_CONFIRMATION -> Maybe.just(state)
+                    OrderState.AWAITING_FUNDS,
                     OrderState.FINISHED,
                     OrderState.CANCELED,
                     OrderState.FAILED,
@@ -198,15 +180,12 @@ fun BuySellOrder.toSimpleBuyState(): SimpleBuyState =
         fiatCurrency = fiat.currencyCode,
         selectedCryptoAsset = crypto.currency,
         orderState = state,
-        fee = fee,
         orderValue = orderValue as? CryptoValue,
-        orderExchangePrice = price,
         selectedPaymentMethod = SelectedPaymentMethod(
             id = paymentMethodId,
             paymentMethodType = paymentMethodType,
             isEligible = true
         ),
-        expirationDate = expires,
         currentScreen = configureCurrentScreen(state)
     )
 

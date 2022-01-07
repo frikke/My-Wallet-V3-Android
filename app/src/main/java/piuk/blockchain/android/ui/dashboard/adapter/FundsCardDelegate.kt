@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import piuk.blockchain.android.R
 import com.blockchain.coincore.FiatAccount
 import info.blockchain.balance.FiatValue
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsBorderedBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsParentBinding
@@ -134,7 +134,7 @@ private class MultipleFundsAdapter(
                 borderedFundsTitle.setStringFromTicker(context, ticker)
                 borderedFundsFiatTicker.text = ticker
                 borderedFundsBalance.text = if (selectedFiat == ticker) {
-                    assetInfo.balance?.toStringWithSymbol()
+                    assetInfo.balance.toStringWithSymbol()
                 } else {
                     assetInfo.userFiat?.toStringWithSymbol()
                 }

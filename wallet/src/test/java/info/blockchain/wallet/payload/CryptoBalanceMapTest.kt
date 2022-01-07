@@ -9,12 +9,11 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
-
+import java.math.BigInteger
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.`with message`
 import org.junit.Test
-import java.math.BigInteger
 
 class CryptoBalanceMapTest {
 
@@ -131,13 +130,15 @@ class CryptoBalanceMapTest {
 
         calculateCryptoBalanceMap(
             CryptoCurrency.BCH,
-            { mapOf(
-                "A" to 100L,
-                "B" to 200L,
-                "C" to 300L,
-                "D" to 400L,
-                "Not listed" to 500L
-            ) }.toBalanceQuery(),
+            {
+                mapOf(
+                    "A" to 100L,
+                    "B" to 200L,
+                    "C" to 300L,
+                    "D" to 400L,
+                    "Not listed" to 500L
+                )
+            }.toBalanceQuery(),
             xpubs = xpubs,
             imported = listOf("B")
         ).apply {
@@ -240,7 +241,7 @@ class CryptoBalanceMapTest {
             {
                 subtractAmountFromAddress("Missing", 500L.satoshi())
             } `should throw` Exception::class `with message`
-                    "No info for this address. updateAllBalances should be called first."
+                "No info for this address. updateAllBalances should be called first."
         }
     }
 }

@@ -1,12 +1,12 @@
 package com.blockchain.coincore.impl
 
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.SingleAccountList
 import com.blockchain.extensions.exhaustive
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
-import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.AccountGroup
-import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.SingleAccountList
 
 fun SingleAccountList.makeAccountGroup(
     asset: AssetInfo,

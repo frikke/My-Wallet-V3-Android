@@ -1,7 +1,7 @@
 package info.blockchain.wallet.multiaddress
 
-import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.MultiAddress
+import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.data.legacyXpubAddresses
 import retrofit2.Call
@@ -12,14 +12,14 @@ class MultiAddressFactoryBch(bitcoinApi: NonCustodialBitcoinService) : MultiAddr
         xpubs: List<XPubs>,
         limit: Int,
         offset: Int,
-        context: List<String>?
+        onlyShow: List<String>?
     ): Call<MultiAddress> =
         bitcoinApi.getMultiAddress(
             NonCustodialBitcoinService.BITCOIN_CASH,
             xpubs.legacyXpubAddresses(),
             emptyList(),
-            context?.joinToString("|"),
-            NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable,
+            onlyShow?.joinToString("|"),
+            NonCustodialBitcoinService.BalanceFilter.DoNotFilter,
             limit,
             offset
         )

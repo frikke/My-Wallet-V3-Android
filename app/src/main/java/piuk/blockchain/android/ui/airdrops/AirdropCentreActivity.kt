@@ -9,21 +9,22 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.koin.scopedInject
+import java.text.DateFormat
+import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.databinding.ActivityAirdropsBinding
 import piuk.blockchain.android.databinding.ItemAirdropHeaderBinding
 import piuk.blockchain.android.databinding.ItemAirdropStatusBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.setOnClickListenerDebounced
-import java.text.DateFormat
-import kotlin.math.max
 
-class AirdropCentreActivity : MvpActivity<AirdropCentreView, AirdropCentrePresenter>(),
+class AirdropCentreActivity :
+    MvpActivity<AirdropCentreView, AirdropCentrePresenter>(),
     AirdropCentreView,
     SlidingModalBottomDialog.Host {
 
@@ -35,13 +36,16 @@ class AirdropCentreActivity : MvpActivity<AirdropCentreView, AirdropCentrePresen
         ActivityAirdropsBinding.inflate(layoutInflater)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.airdrop_activity_title)
-
-        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral.setNavigationOnClickListener { finish() }
-
+        loadToolbar(
+            titleToolbar = getString(R.string.airdrop_activity_title),
+            backAction = { onBackPressed() }
+        )
         binding.airdropList.layoutManager = LinearLayoutManager(this)
     }
 

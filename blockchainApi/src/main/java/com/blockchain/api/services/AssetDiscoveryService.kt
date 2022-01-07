@@ -2,10 +2,10 @@ package com.blockchain.api.services
 
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
 import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
+import com.blockchain.api.assetdiscovery.data.CoinAsset
 import com.blockchain.api.assetdiscovery.data.DynamicCurrency
 import com.blockchain.api.assetdiscovery.data.Erc20Asset
 import com.blockchain.api.assetdiscovery.data.FiatAsset
-import com.blockchain.api.assetdiscovery.data.CoinAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException

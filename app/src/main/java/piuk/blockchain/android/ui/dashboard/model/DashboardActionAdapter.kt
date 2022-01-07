@@ -25,6 +25,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -35,6 +36,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
@@ -42,7 +44,6 @@ import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 class DashboardBalanceLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -58,49 +59,51 @@ class DashboardActionAdapter(
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val featureFlag: FeatureFlag
+    private val dashboardBuyButtonFlag: FeatureFlag
 ) {
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        Singles.zip(
-            featureFlag.enabled.map { enabled ->
-                if (enabled) {
-                    coincore.activeCryptoAssets().map { it.asset }
-                } else {
-                    coincore.availableCryptoAssets()
-                }
-            },
-            coincore.fiatAssets.accountGroup()
-                .map { g -> g.accounts }
-                .switchIfEmpty(Maybe.just(emptyList()))
-                .toSingle()
-        ).subscribeBy(
-            onSuccess = { (cryptoAssets, fiatAssets) ->
-                model.process(
-                    DashboardIntent.UpdateAllAssetsAndBalances(
-                        cryptoAssets,
-                        fiatAssets.filterIsInstance<FiatAccount>()
+        coincore.fiatAssets.accountGroup()
+            .map { g -> g.accounts }
+            .switchIfEmpty(Maybe.just(emptyList()))
+            .toSingle()
+            .subscribeBy(
+                onSuccess = { fiatAssets ->
+                    val cryptoAssets = coincore.activeCryptoAssets().map { it.asset }
+                    model.process(
+                        DashboardIntent.UpdateAllAssetsAndBalances(
+                            cryptoAssets,
+                            fiatAssets.filterIsInstance<FiatAccount>()
+                        )
                     )
-                )
-            },
-            onError = {
-                Timber.e("Error getting ordering - $it")
-            }
-        )
+                },
+                onError = {
+                    Timber.e("Error fetching active assets - $it")
+                }
+            )
 
     fun fetchAvailableAssets(model: DashboardModel): Disposable =
         Single.fromCallable {
             coincore.availableCryptoAssets()
         }.subscribeBy(
             onSuccess = { assets ->
+                // Load the balances for the active assets for sorting based on balance
+                model.process(
+                    DashboardIntent.UpdateAllAssetsAndBalances(
+                        assetList = coincore.activeCryptoAssets().map { it.asset },
+                        fiatAssetList = emptyList()
+                    )
+                )
                 model.process(DashboardIntent.AssetListUpdate(assets))
             },
             onError = {
-                Timber.e("Error getting ordering - $it")
+                Timber.e("Error fetching available assets - $it")
             }
         )
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(asset)
+            // If prices are coming in too fast, be sure not to miss any
+            .toFlowable(BackpressureStrategy.BUFFER)
             .subscribeBy(
                 onNext = {
                     model.process(
@@ -109,6 +112,9 @@ class DashboardActionAdapter(
                             prices24HrWithDelta = it
                         )
                     )
+                },
+                onError = { throwable ->
+                    Timber.e(throwable)
                 }
             )
 
@@ -222,7 +228,11 @@ class DashboardActionAdapter(
             .subscribeBy(
                 onSuccess = { balances ->
                     model.process(
-                        DashboardIntent.FiatBalanceUpdate(balances.total, balances.totalFiat)
+                        DashboardIntent.FiatBalanceUpdate(
+                            balance = balances.total,
+                            fiatBalance = balances.totalFiat,
+                            balanceAvailable = balances.actionable
+                        )
                     )
                 },
                 onError = {
@@ -235,7 +245,9 @@ class DashboardActionAdapter(
             .map { pricesWithDelta -> DashboardIntent.AssetPriceUpdate(crypto, pricesWithDelta) }
             .subscribeBy(
                 onSuccess = { model.process(it) },
-                onError = { Timber.e(it) }
+                onError = {
+                    model.process(DashboardIntent.BalanceUpdateError(crypto))
+                }
             )
 
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
@@ -252,6 +264,7 @@ class DashboardActionAdapter(
     fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
         return coincore[crypto].accountGroup(AssetFilter.Custodial)
             .flatMapObservable { it.balance }
+            .toFlowable(BackpressureStrategy.BUFFER)
             .subscribeBy(
                 onNext = {
                     model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, !it.total.isZero))
@@ -542,6 +555,24 @@ class DashboardActionAdapter(
                 // TODO Add error state to Dashboard
             }
         )
+    }
+
+    fun loadWithdrawalLocks(model: DashboardModel): Disposable =
+        coincore.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).subscribeBy(
+            onSuccess = {
+                model.process(DashboardIntent.FundsLocksLoaded(it))
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
+
+    fun userCanBuy(model: DashboardModel): Disposable {
+        return userIdentity.userAccessForFeature(Feature.SimpleBuy)
+            .zipWith(dashboardBuyButtonFlag.enabled)
+            .subscribeBy { (buyState, flagEnabled) ->
+                model.process(DashboardIntent.UserBuyAccessStateUpdated(!flagEnabled, buyState))
+            }
     }
 
     companion object {

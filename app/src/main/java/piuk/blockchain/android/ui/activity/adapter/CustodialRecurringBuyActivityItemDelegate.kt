@@ -6,13 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
+import java.util.Date
 import piuk.blockchain.android.R
-import com.blockchain.coincore.ActivitySummaryItem
-import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -20,7 +21,6 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.visible
-import java.util.Date
 
 class CustodialRecurringBuyActivityItemDelegate(
     private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit

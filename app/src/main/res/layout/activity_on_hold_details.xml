@@ -1,102 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar_general" />
-
-    <androidx.core.widget.NestedScrollView
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_above="@+id/learn_more"
+        android:orientation="vertical">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar_general" />
+
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:fillViewport="true">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/text"
-                style="@style/TextAppearance.Blockchain.Paragraph1"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/standard_margin"
-                android:text="@string/withdrawal_details_text"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="wrap_content">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/title_date"
-                style="@style/TextAppearance.Blockchain.Overline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginTop="@dimen/standard_margin"
-                android:text="@string/withdrawal_details_title_date"
-                android:textColor="@color/grey_400"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/title_amount"
+                    style="@style/TextAppearance.Blockchain.Title3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/standard_margin"
+                    android:layout_marginTop="@dimen/standard_margin"
+                    android:layout_marginEnd="@dimen/standard_margin"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="£100 On Hold" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/title_amount"
-                style="@style/TextAppearance.Blockchain.Overline"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_marginTop="@dimen/standard_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
-                android:text="@string/withdrawal_details_title_amount"
-                android:textColor="@color/grey_400"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/text"
+                    style="@style/TextAppearance.Blockchain.Paragraph1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/standard_margin"
+                    android:layout_marginTop="@dimen/tiny_margin"
+                    android:layout_marginEnd="@dimen/standard_margin"
+                    android:layout_marginBottom="@dimen/standard_margin"
+                    android:text="@string/funds_locked_details_text"
+                    app:layout_constraintTop_toBottomOf="@+id/title_amount" />
 
-            <View
-                android:id="@+id/sep1"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="@dimen/tiny_margin"
-                android:background="@color/grey_000"
-                app:layout_constraintBottom_toTopOf="@+id/recycler_view_locks" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/contact_support"
+                    style="@style/TextAppearance.Blockchain.Paragraph1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/standard_margin"
+                    android:layout_marginTop="@dimen/tiny_margin"
+                    android:layout_marginEnd="@dimen/standard_margin"
+                    android:layout_marginBottom="@dimen/standard_margin"
+                    android:text="@string/funds_locked_details_contact_support"
+                    app:layout_constraintTop_toBottomOf="@+id/text" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_locks"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_margin"
-                android:nestedScrollingEnabled="false"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@id/title_date" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/title_date"
+                    style="@style/TextAppearance.Blockchain.Overline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/standard_margin"
+                    android:layout_marginTop="@dimen/standard_margin"
+                    android:text="@string/funds_locked__details_title_date"
+                    android:textColor="@color/grey_400"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/contact_support" />
 
-            <View
-                android:id="@+id/sep2"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/grey_000"
-                android:paddingTop="@dimen/standard_margin"
-                app:layout_constraintTop_toBottomOf="@+id/recycler_view_locks" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/amount"
+                    style="@style/TextAppearance.Blockchain.Overline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/standard_margin"
+                    android:layout_marginEnd="@dimen/standard_margin"
+                    android:text="@string/funds_locked_details_title_amount"
+                    android:textColor="@color/grey_400"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/contact_support" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/total_title"
-                style="@style/TextAppearance.Blockchain.Paragraph2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/standard_margin"
-                android:text="@string/withdrawal_details_total"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recycler_view_locks" />
+                <View
+                    android:id="@+id/sep1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="@dimen/tiny_margin"
+                    android:background="@color/grey_000"
+                    app:layout_constraintBottom_toTopOf="@+id/recycler_view_locks" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/total_amount"
-                style="@style/TextAppearance.Blockchain.Paragraph2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/standard_margin"
-                android:paddingBottom="@dimen/standard_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recycler_view_locks"
-                tools:text="£200" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view_locks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/small_margin"
+                    android:nestedScrollingEnabled="false"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintTop_toBottomOf="@id/title_date" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
-</androidx.appcompat.widget.LinearLayoutCompat>
+                <View
+                    android:id="@+id/sep2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/grey_000"
+                    android:paddingTop="@dimen/standard_margin"
+                    app:layout_constraintTop_toBottomOf="@+id/recycler_view_locks" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/total_title"
+                    style="@style/TextAppearance.Blockchain.Paragraph2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/standard_margin"
+                    android:text="@string/funds_locked_details_total"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_view_locks" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/total_amount"
+                    style="@style/TextAppearance.Blockchain.Paragraph2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/standard_margin"
+                    android:paddingBottom="@dimen/standard_margin"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_view_locks"
+                    tools:text="£200" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/learn_more"
+        style="@style/CtaButton.Blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginBottom="@dimen/tiny_margin"
+        android:text="@string/funds_locked_details_learn_more"
+        android:textAlignment="center" />
+</RelativeLayout>

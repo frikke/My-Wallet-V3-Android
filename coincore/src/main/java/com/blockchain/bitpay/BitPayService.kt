@@ -31,15 +31,19 @@ class BitPayService constructor(
         body: BitPaymentRequest,
         invoiceId: String
     ): Completable =
-        service.paymentRequest(path = "$path/$invoiceId",
+        service.paymentRequest(
+            path = "$path/$invoiceId",
             body = body,
-            contentType = "application/payment-verification")
+            contentType = "application/payment-verification"
+        )
 
     internal fun getPaymentSubmitRequest(
         path: String = "$baseUrl$PATH_BITPAY_INVOICE",
         body: BitPaymentRequest,
         invoiceId: String
-    ): Completable = service.paymentRequest(path = "$path/$invoiceId",
-            body = body,
-            contentType = "application/payment")
+    ): Completable = service.paymentRequest(
+        path = "$path/$invoiceId",
+        body = body,
+        contentType = "application/payment"
+    )
 }

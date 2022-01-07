@@ -1,16 +1,17 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
-import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.core.price.HistoricalRateList
-import com.blockchain.core.price.HistoricalTimeSpan
-import info.blockchain.balance.AssetInfo
-import com.blockchain.nabu.models.data.RecurringBuy
-import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
-import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
+import com.blockchain.nabu.models.data.RecurringBuyState
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class AssetDetailsIntent : MviIntent<AssetDetailsState>
@@ -42,6 +43,16 @@ class LoadAsset(
             asset = asset,
             assetDisplayMap = mapOf()
         )
+}
+
+object CheckUserBuyStatus : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState
+}
+
+class UserBuyAccessUpdated(private val userBuyAccess: FeatureAccess) : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState.copy(userBuyAccess = userBuyAccess)
 }
 
 class UpdateTimeSpan(

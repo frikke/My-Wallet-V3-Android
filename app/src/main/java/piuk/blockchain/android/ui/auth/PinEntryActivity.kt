@@ -3,16 +3,12 @@ package piuk.blockchain.android.ui.auth
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.Window
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
-import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class PinEntryActivity : BlockchainActivity() {
-    private val loginState: PinRepository by inject()
-
     private val binding: ActivityPinEntryBinding by lazy {
         ActivityPinEntryBinding.inflate(layoutInflater)
     }
@@ -27,9 +23,11 @@ class PinEntryActivity : BlockchainActivity() {
 
     override val alwaysDisableScreenshots: Boolean = true
 
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(binding.root)
 
         supportFragmentManager.beginTransaction()

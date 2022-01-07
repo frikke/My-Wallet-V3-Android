@@ -1,10 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
 import com.blockchain.banking.BankPaymentApproval
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
@@ -16,9 +12,15 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
-import piuk.blockchain.android.ui.base.mvi.MviIntent
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.models.data.LinkBankTransfer
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Money
 import java.util.Stack
+import piuk.blockchain.android.ui.base.mvi.MviIntent
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent.UpdateTransactionComplete.updateBackstack
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
 
@@ -466,6 +468,21 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             ).updateBackstack(oldState)
     }
 
+    object TransactionApprovalDenied : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                nextEnabled = true,
+                executionStatus = TxExecutionStatus.Error(IllegalStateException("Authorisation required"))
+            )
+    }
+
+    object ApprovalTriggered : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                executionStatus = TxExecutionStatus.InProgress
+            )
+    }
+
     // This fn pops the backstack, thus no need to update the backstack here
     object ReturnToPreviousStep : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState {
@@ -517,6 +534,22 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         } else {
             this
         }
+
+    object LoadFundsLocked : TransactionIntent() {
+
+        override fun isValidFor(oldState: TransactionState): Boolean = oldState.locks == null
+
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    class FundsLocksLoaded(
+        private val fundsLocks: FundsLocks
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                locks = fundsLocks
+            )
+    }
 }
 
 private fun ValidationState.mapToTransactionError() =
@@ -535,6 +568,7 @@ private fun ValidationState.mapToTransactionError() =
         ValidationState.MEMO_INVALID -> TransactionErrorState.TX_OPTION_INVALID
         ValidationState.OVER_SILVER_TIER_LIMIT -> TransactionErrorState.OVER_SILVER_TIER_LIMIT
         ValidationState.OVER_GOLD_TIER_LIMIT -> TransactionErrorState.OVER_GOLD_TIER_LIMIT
+        ValidationState.ABOVE_PAYMENT_METHOD_LIMIT -> TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT
         ValidationState.INVOICE_EXPIRED, // We shouldn't see this here
         ValidationState.UNKNOWN_ERROR -> TransactionErrorState.UNKNOWN_ERROR
     }

@@ -1,17 +1,6 @@
 package com.blockchain.coincore.impl.txEngine
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.FiatValue
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
-import org.junit.Before
-import org.junit.Test
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -21,18 +10,49 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.FiatValue
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import org.junit.Before
+import org.junit.Test
 
 class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
+    private val userIdentity: UserIdentity = mock()
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(FiatValue.fromMinor(TEST_API_FIAT, 100L)),
+                    max = TxLimit.Unlimited,
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private lateinit var subject: FiatWithdrawalTxEngine
 
     @Before
     fun setup() {
         initMocks()
-        subject = FiatWithdrawalTxEngine(walletManager)
+        subject = FiatWithdrawalTxEngine(walletManager, limitsDataManager, userIdentity)
     }
 
     @Test
@@ -123,14 +143,23 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == expectedMinAmountAndFee.fee &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == expectedMinAmountAndFee.minLimit &&
-                    it.maxLimit == null &&
+                    it.limits == TxLimits.withMinAndUnlimitedMax(min = expectedMinAmountAndFee.minLimit) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertNoErrors()
             .assertComplete()
+
+        verify(txTarget).getWithdrawalFeeAndMinLimit()
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(TEST_API_FIAT),
+            sourceCurrency = eq(TEST_API_FIAT),
+            targetCurrency = eq(TEST_API_FIAT),
+            sourceAccountType = eq(AssetCategory.CUSTODIAL),
+            targetAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     @Test
@@ -236,8 +265,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TEST_API_FIAT,
             feeSelection = FeeSelection(),
-            minLimit = null,
-            maxLimit = null
+            limits = null
         )
 
         subject.doValidateAmount(
@@ -275,8 +303,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TEST_API_FIAT,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         subject.doValidateAmount(
@@ -315,7 +342,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TEST_API_FIAT,
             feeSelection = FeeSelection(),
-            minLimit = minLimit
+            limits = TxLimits.withMinAndUnlimitedMax(min = minLimit)
         )
 
         subject.doValidateAmount(
@@ -353,8 +380,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TEST_API_FIAT,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         subject.doValidateAmount(
@@ -393,8 +419,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TEST_API_FIAT,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         subject.doValidateAmount(
@@ -404,9 +429,8 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == pendingTx.amount &&
-                    it.minLimit == pendingTx.minLimit &&
-                    it.maxLimit == pendingTx.maxLimit &&
-                    it.validationState == ValidationState.CAN_EXECUTE
+                    it.limits == pendingTx.limits
+                it.validationState == ValidationState.CAN_EXECUTE
             }
     }
 
@@ -439,8 +463,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TEST_API_FIAT,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         whenever(walletManager.createWithdrawOrder(amount, bankAccountAddress.address)).thenReturn(
@@ -489,8 +512,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             feeAmount = zeroFiat,
             selectedFiat = TEST_API_FIAT,
             feeSelection = FeeSelection(),
-            minLimit = minLimit,
-            maxLimit = maxLimit
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
         val exception = IllegalStateException("")

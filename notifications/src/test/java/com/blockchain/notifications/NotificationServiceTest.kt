@@ -2,7 +2,6 @@ package com.blockchain.notifications
 
 import com.blockchain.android.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
-
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever

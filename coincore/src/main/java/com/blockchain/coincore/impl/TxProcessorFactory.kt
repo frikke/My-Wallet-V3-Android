@@ -4,12 +4,6 @@ import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.bitpay.BitPayDataManager
 import com.blockchain.bitpay.BitPayInvoiceTarget
 import com.blockchain.bitpay.BitpayTxEngine
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.preferences.WalletStatus
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
@@ -35,13 +29,21 @@ import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.preferences.WalletStatus
+import io.reactivex.rxjava3.core.Single
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletManager: CustodialWalletManager,
+    private val limitsDataManager: LimitsDataManager,
     private val interestBalances: InterestBalanceDataManager,
     private val walletPrefs: WalletStatus,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
@@ -57,7 +59,7 @@ class TxProcessorFactory(
     ): Single<TransactionProcessor> =
         when (source) {
             is CryptoNonCustodialAccount -> createOnChainProcessor(source, target, action)
-            is CustodialTradingAccount -> createTradingProcessor(source, target, action)
+            is CustodialTradingAccount -> createTradingProcessor(source, target)
             is CryptoInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
             is BankAccount -> createFiatDepositProcessor(source, target, action)
             is FiatAccount -> createFiatWithdrawalProcessor(source, target, action)
@@ -115,6 +117,7 @@ class TxProcessorFactory(
                             walletManager = walletManager,
                             userIdentity = userIdentity,
                             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
+                            limitsDataManager = limitsDataManager,
                             withdrawLocksRepository = withdrawLocksRepository
                         )
                     )
@@ -138,7 +141,9 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = FiatWithdrawalTxEngine(
-                            walletManager = walletManager
+                            walletManager = walletManager,
+                            limitsDataManager = limitsDataManager,
+                            userIdentity = userIdentity
                         )
                     )
                 )
@@ -210,6 +215,7 @@ class TxProcessorFactory(
                             engine = OnChainSwapTxEngine(
                                 quotesEngine = quotesEngine,
                                 walletManager = walletManager,
+                                limitsDataManager = limitsDataManager,
                                 userIdentity = userIdentity,
                                 engine = engine
                             )
@@ -224,6 +230,7 @@ class TxProcessorFactory(
                     engine = OnChainSellTxEngine(
                         quotesEngine = quotesEngine,
                         walletManager = walletManager,
+                        limitsDataManager = limitsDataManager,
                         userIdentity = userIdentity,
                         engine = engine
                     )
@@ -235,8 +242,7 @@ class TxProcessorFactory(
 
     private fun createTradingProcessor(
         source: CustodialTradingAccount,
-        target: TransactionTarget,
-        action: AssetAction
+        target: TransactionTarget
     ) = when (target) {
         is CryptoAddress ->
             Single.just(
@@ -246,6 +252,8 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = TradingToOnChainTxEngine(
                         walletManager = walletManager,
+                        userIdentity = userIdentity,
+                        limitsDataManager = limitsDataManager,
                         isNoteSupported = source.isNoteSupported
                     )
                 )
@@ -270,6 +278,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = TradingSellTxEngine(
                         walletManager = walletManager,
+                        limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
                         userIdentity = userIdentity
                     )
@@ -283,23 +292,27 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = TradingToTradingSwapTxEngine(
                         walletManager = walletManager,
+                        limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
                         userIdentity = userIdentity
                     )
                 )
             )
-        is CryptoAccount -> target.receiveAddress
-            .map {
-                TransactionProcessor(
-                    exchangeRates = exchangeRates,
-                    sourceAccount = source,
-                    txTarget = it,
-                    engine = TradingToOnChainTxEngine(
-                        walletManager = walletManager,
-                        isNoteSupported = source.isNoteSupported
+        is CryptoAccount ->
+            target.receiveAddress
+                .map {
+                    TransactionProcessor(
+                        exchangeRates = exchangeRates,
+                        sourceAccount = source,
+                        txTarget = it,
+                        engine = TradingToOnChainTxEngine(
+                            walletManager = walletManager,
+                            limitsDataManager = limitsDataManager,
+                            userIdentity = userIdentity,
+                            isNoteSupported = source.isNoteSupported
+                        )
                     )
-                )
-            }
+                }
         else -> Single.error(TransferError("Cannot send custodial crypto to a non-crypto target"))
     }
 }

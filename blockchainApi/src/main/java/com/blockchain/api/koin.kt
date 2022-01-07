@@ -1,5 +1,6 @@
 package com.blockchain.api
 
+import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
@@ -7,17 +8,18 @@ import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
-import com.blockchain.api.nabu.NabuUserApi
-import com.blockchain.api.wallet.WalletApiInterface
-import com.blockchain.api.ethereum.EthereumApiInterface
+import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
+import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.interest.InterestApiInterface
+import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
+import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.NabuUserService
@@ -25,8 +27,11 @@ import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.TradeService
+import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.trade.TradeApi
+import com.blockchain.api.txlimits.TxLimitsApi
+import com.blockchain.api.wallet.WalletApiInterface
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -53,6 +58,8 @@ val blockchainApiModule = module {
 
     single { RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()) }
 
+    single { OutcomeCallAdapterFactory() }
+
     single(blockchainApi) {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("blockchain-api"))
@@ -76,6 +83,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("nabu-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .addConverterFactory(jsonConverter)
             .build()
     }
@@ -97,7 +105,6 @@ val blockchainApiModule = module {
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())
             )
-
             .build()
     }
 
@@ -186,6 +193,13 @@ val blockchainApiModule = module {
     }
 
     factory {
+        val api = get<Retrofit>(nabuApi).create(BrokerageApi::class.java)
+        BrokerageService(
+            api = api
+        )
+    }
+
+    factory {
         val api = get<Retrofit>(nabuApi).create(InterestApiInterface::class.java)
         InterestService(
             api = api
@@ -195,6 +209,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(TradeApi::class.java)
         TradeService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(TxLimitsApi::class.java)
+        TxLimitsService(
             api = api
         )
     }

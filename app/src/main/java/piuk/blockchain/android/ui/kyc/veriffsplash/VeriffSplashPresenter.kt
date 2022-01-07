@@ -1,10 +1,9 @@
 package piuk.blockchain.android.ui.kyc.veriffsplash
 
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
-import com.blockchain.nabu.NabuToken
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.veriff.VeriffApplicantAndToken
@@ -14,9 +13,9 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.kyc.BaseKycPresenter
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-
 import timber.log.Timber
 
 class VeriffSplashPresenter(
@@ -141,7 +140,7 @@ class VeriffSplashPresenter(
             analytics.logEvent(object : AnalyticsEvent {
                 override val event = "kyc_splash_request_gold_preIDV"
                 override val params = it
-                }
+            }
             )
         }
     }

@@ -16,7 +16,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyNavigator
 import piuk.blockchain.android.simplebuy.SimpleBuyScreen
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 
 class RecurringBuyFirstTimeBuyerFragment :
@@ -31,7 +30,7 @@ class RecurringBuyFirstTimeBuyerFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.setupToolbar(R.string.recurring_buy_first_time_toolbar, false)
+        activity.loadToolbar(getString(R.string.recurring_buy_first_time_toolbar))
 
         binding.apply {
             skipBtn.setOnClickListener {

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.auth.newlogin
 
-import piuk.blockchain.android.R
 import java.text.SimpleDateFormat
 import java.util.Locale
+import piuk.blockchain.android.R
 
 interface AuthNewLoginDetailsType {
     val headerTextRes: Int

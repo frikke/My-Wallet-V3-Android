@@ -12,37 +12,45 @@ class LimitsJsonFiatValuesTest {
 
     @Test
     fun `null daily fiat`() {
-        Limits(LimitsJson(
-            currency = "USD",
-            daily = null,
-            annual = 100.toBigDecimal()
-        )).dailyFiat `should be` null
+        Limits(
+            LimitsJson(
+                currency = "USD",
+                daily = null,
+                annual = 100.toBigDecimal()
+            )
+        ).dailyFiat `should be` null
     }
 
     @Test
     fun `null annual fiat`() {
-        Limits(LimitsJson(
-            currency = "USD",
-            daily = 100.toBigDecimal(),
-            annual = null
-        )).annualFiat `should be` null
+        Limits(
+            LimitsJson(
+                currency = "USD",
+                daily = 100.toBigDecimal(),
+                annual = null
+            )
+        ).annualFiat `should be` null
     }
 
     @Test
     fun `can get daily fiat`() {
-        Limits(LimitsJson(
-            currency = "USD",
-            daily = 100.toBigDecimal(),
-            annual = null
-        )).dailyFiat `should be equal to` 100.usd()
+        Limits(
+            LimitsJson(
+                currency = "USD",
+                daily = 100.toBigDecimal(),
+                annual = null
+            )
+        ).dailyFiat `should be equal to` 100.usd()
     }
 
     @Test
     fun `can get annual fiat`() {
-        Limits(LimitsJson(
-            currency = "GBP",
-            daily = 100.toBigDecimal(),
-            annual = 50.12.toBigDecimal()
-        )).annualFiat `should be equal to` 50.12.gbp()
+        Limits(
+            LimitsJson(
+                currency = "GBP",
+                daily = 100.toBigDecimal(),
+                annual = 50.12.toBigDecimal()
+            )
+        ).annualFiat `should be equal to` 50.12.gbp()
     }
 }

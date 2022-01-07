@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <include
+        android:id="@+id/toolbar"
         layout="@layout/toolbar_general"
         android:fitsSystemWindows="true" />
 

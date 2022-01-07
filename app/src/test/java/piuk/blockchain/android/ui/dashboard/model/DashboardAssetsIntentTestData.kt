@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.model
 
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.nhaarman.mockitokotlin2.mock
@@ -7,7 +8,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import org.mockito.Mock
-import com.blockchain.coincore.FiatAccount
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 
@@ -103,7 +103,7 @@ val fiatAssetState_2 = FiatAssetState(
                 balance = testFiatBalance,
                 userFiat = testFiatBalance
             )
-        )
+    )
 )
 
 val initialState = DashboardState(

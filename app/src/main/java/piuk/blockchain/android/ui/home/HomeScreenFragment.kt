@@ -2,12 +2,12 @@ package piuk.blockchain.android.ui.home
 
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -21,8 +21,6 @@ interface HomeScreenFragment {
 }
 
 interface HomeNavigator {
-    fun launchDashboard()
-
     fun launchSwap(
         sourceAccount: CryptoAccount? = null,
         targetAccount: CryptoAccount? = null
@@ -39,7 +37,8 @@ interface HomeNavigator {
     fun launchSend()
     fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        asset: AssetInfo? = null
+        asset: AssetInfo? = null,
+        reload: Boolean = false
     )
     fun launchSimpleBuy(asset: AssetInfo)
     fun launchInterestDashboard(origin: LaunchOrigin)
@@ -49,7 +48,7 @@ interface HomeNavigator {
     fun launchSimpleBuyFromDeepLinkApproval()
     fun launchPendingVerificationScreen(campaignType: CampaignType)
 
-    fun performAssetActionFor(action: AssetAction, account: BlockchainAccount)
+    fun performAssetActionFor(action: AssetAction, account: BlockchainAccount? = null)
     fun resumeSimpleBuyKyc()
 }
 

@@ -1,7 +1,7 @@
 package com.blockchain.nabu.models.responses.nabu
 
-import com.blockchain.serialization.JsonSerializable
 import com.blockchain.nabu.datamanagers.BillingAddress
+import com.blockchain.serialization.JsonSerializable
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonDataException
@@ -34,7 +34,6 @@ data class NabuUser(
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val walletGuid: String? = null
-    // val depositAddresses":{  },  // Not sure what format these have yet. TODO: Find out
 ) : JsonSerializable {
     val tierInProgress
         get() =

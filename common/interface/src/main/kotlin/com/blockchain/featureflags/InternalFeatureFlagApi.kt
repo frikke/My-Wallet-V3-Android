@@ -13,9 +13,6 @@ enum class GatedFeature(
     val enabledForCompanyInternalBuild: Boolean = false
 ) {
     ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets"),
-    NEW_ONBOARDING("New onboarding design"),
-    NEW_TRANSACTION_FLOW_ERRORS("New transaction flow errors", true),
-    ENABLE_DYNAMIC_ASSETS("Enable dynamic assets and split dashboard", true),
-    AUTOCOMPLETE_ADDRESS("Enable autocomplete address kyc flow"),
-    WITHDRAWAL_LOCKS("Enable Withdrawal locks warning")
+    NEW_PRICING_BROKERAGE_QUOTE("New pricing quote api", true),
+    FAB_SHEET_CTAS("Show Buy on RHS and Sell on LHS in the FAB bottom sheet", true)
 }

@@ -9,12 +9,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -22,6 +16,15 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.core.payments.model.FundsLocks
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
+import java.io.Serializable
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAccountSelectBankBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectCryptoBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectFiatBinding
@@ -37,10 +40,16 @@ import piuk.blockchain.android.util.trackProgress
 
 typealias StatusDecorator = (BlockchainAccount) -> CellDecorator
 
+interface AccountsListItem
+
+data class AccountLocks(
+    val fundsLocks: FundsLocks? = null
+) : Serializable, AccountsListItem
+
 internal data class SelectableAccountItem(
     val account: BlockchainAccount,
     var isSelected: Boolean
-)
+) : AccountsListItem
 
 class AccountList @JvmOverloads constructor(
     ctx: Context,
@@ -70,9 +79,8 @@ class AccountList @JvmOverloads constructor(
 
     fun initialise(
         source: Single<List<BlockchainAccount>>,
-        status: StatusDecorator = {
-            DefaultCellDecorator()
-        },
+        status: StatusDecorator = { DefaultCellDecorator() },
+        accountsLocks: Single<List<AccountLocks>> = Single.just(emptyList()),
         introView: IntroHeaderView? = null,
         shouldShowSelectionStatus: Boolean = false,
         assetAction: AssetAction? = null
@@ -93,26 +101,31 @@ class AccountList @JvmOverloads constructor(
                 statusDecorator = status,
                 onAccountClicked = { onAccountSelected(it) },
                 showSelectionStatus = shouldShowSelectionStatus,
-                assetAction = assetAction
+                assetAction = assetAction,
+                onLockItemSelected = { onLockItemSelected(it) }
             )
         }
-        loadItems(source)
+        loadItems(accountsSource = source, accountsLocksSource = accountsLocks)
     }
 
-    fun loadItems(source: Single<List<BlockchainAccount>>, showLoader: Boolean = true) {
+    fun loadItems(
+        accountsSource: Single<List<BlockchainAccount>>,
+        accountsLocksSource: Single<List<AccountLocks>>,
+        showLoader: Boolean = true
+    ) {
         val loader = if (showLoader) activityIndicator else null
-        disposables += source
+        disposables += accountsSource.zipWith(accountsLocksSource.onErrorReturn { emptyList() })
             .observeOn(uiScheduler)
             .doOnSubscribe {
                 onListLoading()
             }
             .trackProgress(loader)
             .subscribeBy(
-                onSuccess = {
-                    (adapter as? AccountsDelegateAdapter)?.items = it.map { account ->
+                onSuccess = { (accounts, extraInfos) ->
+                    (adapter as? AccountsDelegateAdapter)?.items = extraInfos + accounts.map { account ->
                         SelectableAccountItem(account, false)
                     }
-                    onListLoaded(it.isEmpty())
+                    onListLoaded(accounts.isEmpty())
 
                     lastSelectedAccount?.let { account ->
                         updatedSelectedAccount(account)
@@ -128,19 +141,20 @@ class AccountList @JvmOverloads constructor(
     fun updatedSelectedAccount(selectedAccount: BlockchainAccount) {
         with(adapter as AccountsDelegateAdapter) {
             if (items.isNotEmpty()) {
-                val previouslySelectedPosition = items.indexOfFirst { account ->
-                    account.isSelected
-                }
+                val previouslySelectedPosition =
+                    items.filterIsInstance<SelectableAccountItem>().indexOfFirst { account ->
+                        account.isSelected
+                    }
                 if (previouslySelectedPosition != -1) {
-                    items[previouslySelectedPosition].isSelected = false
+                    (items[previouslySelectedPosition] as? SelectableAccountItem)?.isSelected = false
                     notifyItemChanged(previouslySelectedPosition)
                 }
 
-                val positionToSelect = items.indexOfFirst { account ->
+                val positionToSelect = items.filterIsInstance<SelectableAccountItem>().indexOfFirst { account ->
                     account.account == selectedAccount
                 }
                 if (positionToSelect != -1) {
-                    items[positionToSelect].isSelected = true
+                    (items[positionToSelect] as? SelectableAccountItem)?.isSelected = true
                     notifyItemChanged(positionToSelect)
                 }
             } else {
@@ -153,13 +167,18 @@ class AccountList @JvmOverloads constructor(
 
     fun clearSelectedAccount() {
         (adapter as AccountsDelegateAdapter).items =
-            (adapter as AccountsDelegateAdapter).items.map {
-                SelectableAccountItem(it.account, false)
+            (adapter as AccountsDelegateAdapter).items.map { item ->
+                (item as? SelectableAccountItem)?.let { selectableAccountItem ->
+                    SelectableAccountItem(
+                        selectableAccountItem.account, false
+                    )
+                } ?: item
             }
     }
 
     var onLoadError: (Throwable) -> Unit = {}
     var onAccountSelected: (BlockchainAccount) -> Unit = {}
+    var onLockItemSelected: (AccountLocks) -> Unit = {}
     var onListLoaded: (isEmpty: Boolean) -> Unit = {}
     var onListLoading: () -> Unit = {}
 
@@ -172,11 +191,12 @@ class AccountList @JvmOverloads constructor(
 private class AccountsDelegateAdapter(
     statusDecorator: StatusDecorator,
     onAccountClicked: (BlockchainAccount) -> Unit,
+    onLockItemSelected: (AccountLocks) -> Unit,
     showSelectionStatus: Boolean,
     assetAction: AssetAction? = null
-) : DelegationAdapter<SelectableAccountItem>(AdapterDelegatesManager(), emptyList()) {
+) : DelegationAdapter<AccountsListItem>(AdapterDelegatesManager(), emptyList()) {
 
-    override var items: List<SelectableAccountItem> = emptyList()
+    override var items: List<AccountsListItem> = emptyList()
         set(value) {
             val diffResult =
                 DiffUtil.calculateDiff(AccountsDiffUtil(this.items, value))
@@ -214,6 +234,12 @@ private class AccountsDelegateAdapter(
                     assetAction
                 )
             )
+
+            addAdapterDelegate(
+                AccountLocksDelegate(
+                    onLockItemSelected
+                )
+            )
         }
     }
 
@@ -227,10 +253,10 @@ private class CryptoAccountDelegate(
     private val statusDecorator: StatusDecorator,
     private val onAccountClicked: (CryptoAccount) -> Unit,
     private val showSelectionStatus: Boolean
-) : AdapterDelegate<SelectableAccountItem> {
+) : AdapterDelegate<AccountsListItem> {
 
-    override fun isForViewType(items: List<SelectableAccountItem>, position: Int): Boolean =
-        items[position].account is CryptoAccount
+    override fun isForViewType(items: List<AccountsListItem>, position: Int): Boolean =
+        (items[position] as? SelectableAccountItem)?.account is CryptoAccount
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         CryptoSingleAccountViewHolder(
@@ -241,11 +267,11 @@ private class CryptoAccountDelegate(
         )
 
     override fun onBindViewHolder(
-        items: List<SelectableAccountItem>,
+        items: List<AccountsListItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as CryptoSingleAccountViewHolder).bind(
-        items[position],
+        items[position] as SelectableAccountItem,
         statusDecorator,
         onAccountClicked
     )
@@ -286,9 +312,9 @@ private class FiatAccountDelegate(
     private val statusDecorator: StatusDecorator,
     private val onAccountClicked: (FiatAccount) -> Unit,
     private val showSelectionStatus: Boolean
-) : AdapterDelegate<SelectableAccountItem> {
-    override fun isForViewType(items: List<SelectableAccountItem>, position: Int): Boolean =
-        items[position].account is FiatCustodialAccount
+) : AdapterDelegate<AccountsListItem> {
+    override fun isForViewType(items: List<AccountsListItem>, position: Int): Boolean =
+        (items[position] as? SelectableAccountItem)?.account is FiatCustodialAccount
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         FiatAccountViewHolder(
@@ -298,9 +324,9 @@ private class FiatAccountDelegate(
             )
         )
 
-    override fun onBindViewHolder(items: List<SelectableAccountItem>, position: Int, holder: RecyclerView.ViewHolder) =
+    override fun onBindViewHolder(items: List<AccountsListItem>, position: Int, holder: RecyclerView.ViewHolder) =
         (holder as FiatAccountViewHolder).bind(
-            items[position],
+            items[position] as SelectableAccountItem,
             statusDecorator,
             onAccountClicked
         )
@@ -342,10 +368,10 @@ private class BankAccountDelegate(
     private val onAccountClicked: (LinkedBankAccount) -> Unit,
     private val showSelectionStatus: Boolean,
     private val assetAction: AssetAction?
-) : AdapterDelegate<SelectableAccountItem> {
+) : AdapterDelegate<AccountsListItem> {
 
-    override fun isForViewType(items: List<SelectableAccountItem>, position: Int): Boolean =
-        items[position].account is LinkedBankAccount
+    override fun isForViewType(items: List<AccountsListItem>, position: Int): Boolean =
+        (items[position] as? SelectableAccountItem)?.account is LinkedBankAccount
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         BankAccountViewHolder(
@@ -356,11 +382,11 @@ private class BankAccountDelegate(
         )
 
     override fun onBindViewHolder(
-        items: List<SelectableAccountItem>,
+        items: List<AccountsListItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as BankAccountViewHolder).bind(
-        items[position],
+        items[position] as SelectableAccountItem,
         onAccountClicked,
         assetAction
     )
@@ -402,10 +428,10 @@ private class AllWalletsAccountDelegate(
     private val statusDecorator: StatusDecorator,
     private val onAccountClicked: (BlockchainAccount) -> Unit,
     private val compositeDisposable: CompositeDisposable
-) : AdapterDelegate<SelectableAccountItem> {
+) : AdapterDelegate<AccountsListItem> {
 
-    override fun isForViewType(items: List<SelectableAccountItem>, position: Int): Boolean =
-        items[position].account is AllWalletsAccount
+    override fun isForViewType(items: List<AccountsListItem>, position: Int): Boolean =
+        (items[position] as? SelectableAccountItem)?.account is AllWalletsAccount
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         AllWalletsAccountViewHolder(
@@ -416,11 +442,11 @@ private class AllWalletsAccountDelegate(
         )
 
     override fun onBindViewHolder(
-        items: List<SelectableAccountItem>,
+        items: List<AccountsListItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as AllWalletsAccountViewHolder).bind(
-        items[position],
+        items[position] as SelectableAccountItem,
         statusDecorator,
         onAccountClicked
     )

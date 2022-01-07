@@ -3,7 +3,9 @@ package piuk.blockchain.android.simplebuy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -18,8 +20,7 @@ import piuk.blockchain.android.databinding.FragmentActivityBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.base.setupToolbar
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -28,6 +29,7 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
+import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -40,9 +42,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override val enableLogoutTimer: Boolean = false
     private val compositeDisposable = CompositeDisposable()
-    private val simpleBuyFlowNavigator: SimpleBuyFlowNavigator by scopedInject()
+    private val buyFlowNavigator: BuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
+    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
 
     private val startedFromDashboard: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_NAVIGATION_KEY, false)
@@ -66,6 +69,9 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         }
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     private val binding: FragmentActivityBinding by lazy {
         FragmentActivityBinding.inflate(layoutInflater)
     }
@@ -73,8 +79,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-        setupToolbar("")
+        loadToolbar { super.onBackPressed() }
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
                 val currentState = bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()
@@ -82,34 +87,36 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
                     currentState.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE).toPreferencesValue()
                 )
             }
-            analytics.logEvent(BuySellViewedEvent(BuySellType.BUY))
+            analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_BUY))
             subscribeForNavigation()
         }
     }
 
-    override fun onSheetClosed() = subscribeForNavigation()
+    override fun onSheetClosed() = subscribeForNavigation(true)
 
-    private fun subscribeForNavigation() {
-        compositeDisposable += simpleBuyFlowNavigator.navigateTo(
+    private fun subscribeForNavigation(failOnUnavailableCurrency: Boolean = false) {
+        compositeDisposable += buyFlowNavigator.navigateTo(
             startedFromKycResume,
             startedFromDashboard,
             startedFromApprovalDeepLink,
-            asset
+            asset,
+            failOnUnavailableCurrency
         )
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
                 when (it) {
-                    is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies)
+                    is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies, it.selectedCurrency)
                     is BuyNavigation.FlowScreenWithCurrency -> startFlow(it)
-                    BuyNavigation.PendingOrderScreen -> goToPendingOrderScreen()
+                    is BuyNavigation.BlockBuy -> blockBuy(it.access)
                     BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(false, startedFromApprovalDeepLink)
-                }
+                    BuyNavigation.CurrencyNotAvailable -> finish()
+                }.exhaustive
             }
     }
 
-    private fun launchCurrencySelector(currencies: List<String>) {
+    private fun launchCurrencySelector(currencies: List<String>, selectedCurrency: String) {
         compositeDisposable.clear()
-        showBottomSheet(SimpleBuySelectCurrencyFragment.newInstance(currencies))
+        showBottomSheet(SimpleBuySelectCurrencyFragment.newInstance(currencies, selectedCurrency))
     }
 
     private fun startFlow(screenWithCurrency: BuyNavigation.FlowScreenWithCurrency) {
@@ -130,10 +137,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun exitSimpleBuyFlow() {
         if (!startedFromDashboard) {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(intent)
+            mainScreenLauncher.startMainActivity(this, compositeDisposable)
         } else {
             finish()
         }
@@ -172,6 +176,17 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             .commitAllowingStateLoss()
     }
 
+    override fun goToPendingOrderScreen() {
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(
+                R.id.content_frame,
+                SimpleBuyCheckoutFragment.newInstance(true),
+                SimpleBuyCheckoutFragment::class.simpleName
+            )
+            .commitAllowingStateLoss()
+    }
+
     override fun goToKycVerificationScreen(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
@@ -184,13 +199,12 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             .commitAllowingStateLoss()
     }
 
-    override fun goToPendingOrderScreen() {
+    private fun blockBuy(accessState: FeatureAccess.Blocked) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyCheckoutFragment.newInstance(true),
-                SimpleBuyCheckoutFragment::class.simpleName
+                SimpleBuyBlockedFragment.newInstance(accessState, resources),
+                SimpleBuyBlockedFragment::class.simpleName
             )
             .commitAllowingStateLoss()
     }
@@ -263,7 +277,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         private const val PRESELECTED_PAYMENT_METHOD = "preselected_payment_method_key"
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
 
-        fun newInstance(
+        fun newIntent(
             context: Context,
             asset: AssetInfo? = null,
             launchFromNavigationBar: Boolean = false,

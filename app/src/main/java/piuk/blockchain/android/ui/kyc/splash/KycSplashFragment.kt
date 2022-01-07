@@ -11,7 +11,6 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
-import piuk.blockchain.android.util.throttledClicks
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -19,15 +18,16 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycSplashBinding
+import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
+import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.throttledClicks
+import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import timber.log.Timber
 
 class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), KycSplashView {

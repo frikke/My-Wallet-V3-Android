@@ -9,7 +9,6 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import piuk.blockchain.android.util.throttledClicks
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -19,6 +18,7 @@ import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
+import piuk.blockchain.android.util.throttledClicks
 import timber.log.Timber
 
 class KycResubmissionSplashFragment : Fragment() {

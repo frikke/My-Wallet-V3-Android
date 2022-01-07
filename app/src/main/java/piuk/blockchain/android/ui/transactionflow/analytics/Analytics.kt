@@ -1,14 +1,5 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
-import com.blockchain.extensions.withoutNullValues
-import com.blockchain.logging.CrashLogger
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
-import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
@@ -27,13 +18,22 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.swap.OUTGOING_FEE
 import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
+import com.blockchain.extensions.withoutNullValues
+import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.notifications.analytics.AnalyticsNames
+import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import java.io.Serializable
+import java.math.BigDecimal
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import timber.log.Timber
-import java.io.Serializable
-import java.math.BigDecimal
 
 const val WALLET_TYPE_NON_CUSTODIAL = "non_custodial"
 const val WALLET_TYPE_CUSTODIAL = "custodial"

@@ -15,7 +15,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.urllinks.INTEREST_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.INTEREST_TERMS_OF_SERVICE
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.setThrottledCheckedChange
 
 class ConfirmAgreementWithTAndCsItemDelegate<in T>(
     private val model: TransactionModel
@@ -62,7 +61,7 @@ private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreem
 
             confirmDetailsCheckboxText.movementMethod = LinkMovementMethod.getInstance()
 
-            confirmDetailsCheckbox.setThrottledCheckedChange { isChecked ->
+            confirmDetailsCheckbox.setOnCheckedChangeListener { _, isChecked ->
                 model.process(TransactionIntent.ModifyTxOption(item.copy(value = isChecked)))
             }
         }

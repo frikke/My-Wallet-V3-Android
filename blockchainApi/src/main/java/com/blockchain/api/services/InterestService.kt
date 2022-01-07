@@ -6,8 +6,8 @@ import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.wrapErrorMessage
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import retrofit2.HttpException
 import java.math.BigInteger
+import retrofit2.HttpException
 
 data class InterestBalanceDetails(
     val assetTicker: String,
@@ -34,8 +34,8 @@ class InterestService internal constructor(
         ).flatMapMaybe { response ->
             when (response.code()) {
                 HttpStatus.OK -> response.body()?.toBalanceDetails(assetTicker)?.let {
-                        Maybe.just(it)
-                    } ?: Maybe.empty()
+                    Maybe.just(it)
+                } ?: Maybe.empty()
                 HttpStatus.NO_CONTENT -> Maybe.empty()
                 else -> Maybe.error(HttpException(response))
             }

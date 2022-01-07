@@ -1,10 +1,10 @@
 package info.blockchain.balance
 
+import java.util.Locale
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be equal to`
 import org.junit.Before
 import org.junit.Test
-import java.util.Locale
 
 class FiatValueFromStringTest {
 

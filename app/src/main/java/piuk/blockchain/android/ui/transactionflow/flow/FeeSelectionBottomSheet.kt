@@ -9,15 +9,14 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.annotation.IdRes
-import com.blockchain.core.price.ExchangeRates
-import org.koin.android.ext.android.inject
-import org.koin.core.scope.Scope
-import org.koin.java.KoinJavaComponent
-import piuk.blockchain.android.R
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.FeeState
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.core.price.ExchangeRates
+import org.koin.android.ext.android.inject
+import org.koin.core.scope.Scope
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetFeeSelectionBinding
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -33,14 +32,16 @@ class FeeSelectionBottomSheet :
     MviBottomSheet<TransactionModel, TransactionIntent, TransactionState, DialogSheetFeeSelectionBinding>() {
 
     private val scope: Scope by lazy {
-        KoinJavaComponent.getKoin().getScope(TransactionFlowActivity.TX_SCOPE_ID)
+        (requireContext() as TransactionFlowActivity).scope
     }
 
     private val imm: InputMethodManager by lazy {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
-    override val model: TransactionModel by scope.inject()
+    override val model: TransactionModel
+        get() = scope.get()
+
     private val exchangeRates: ExchangeRates by inject()
     private val txAnalytics: TxFlowAnalytics by inject()
 

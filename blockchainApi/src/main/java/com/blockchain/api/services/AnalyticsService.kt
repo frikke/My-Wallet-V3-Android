@@ -7,9 +7,9 @@ import com.blockchain.api.analytics.AnalyticsContext
 import com.blockchain.api.analytics.AnalyticsRequestBody
 import com.blockchain.api.serializers.BigDecimalSerializer
 import io.reactivex.rxjava3.core.Completable
+import java.math.BigDecimal
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import java.math.BigDecimal
 
 class AnalyticsService internal constructor(
     private val api: AnalyticsApiInterface

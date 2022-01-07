@@ -6,18 +6,26 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NeedsApprovalException
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.canConvert
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -26,12 +34,12 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
-import java.util.Stack
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
     ZERO,
@@ -53,6 +61,8 @@ enum class TransactionErrorState {
     INSUFFICIENT_FUNDS,
     INVALID_AMOUNT,
     BELOW_MIN_LIMIT,
+    BELOW_MIN_PAYMENT_METHOD_LIMIT,
+    ABOVE_MAX_PAYMENT_METHOD_LIMIT,
     PENDING_ORDERS_LIMIT_REACHED,
     OVER_SILVER_TIER_LIMIT,
     OVER_GOLD_TIER_LIMIT,
@@ -90,7 +100,7 @@ data class TransactionState(
     val currentStep: TransactionStep = TransactionStep.ZERO,
     val sendingAccount: BlockchainAccount = NullCryptoAccount(),
     val selectedTarget: TransactionTarget = NullAddress,
-    val fiatRate: ExchangeRate? = null,
+    override val fiatRate: ExchangeRate? = null,
     val targetRate: ExchangeRate? = null,
     val passwordRequired: Boolean = false,
     val secondPassword: String = "",
@@ -104,7 +114,8 @@ data class TransactionState(
     val availableTargets: List<TransactionTarget> = emptyList(),
     val currencyType: CurrencyType? = null,
     val availableSources: List<BlockchainAccount> = emptyList(),
-    val linkBankState: BankLinkingState = BankLinkingState.NotStarted
+    val linkBankState: BankLinkingState = BankLinkingState.NotStarted,
+    val locks: FundsLocks? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -112,11 +123,23 @@ data class TransactionState(
         get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
-    override val minLimit: Money?
-        get() = pendingTx?.minLimit
 
-    override val maxLimit: Money?
-        get() = pendingTx?.maxLimit
+    override val receivingCurrency: String
+        get() = (selectedTarget as? CryptoAccount)?.asset?.networkTicker
+            ?: (selectedTarget as? FiatAccount)?.fiatCurrency ?: throw IllegalStateException(
+            "Missing receiving currency"
+        )
+
+    override val limits: TxLimits
+        get() = pendingTx?.limits ?: throw IllegalStateException("Limits are not define")
+
+    override val sourceAccountType: AssetCategory
+        get() = when (sendingAccount) {
+            is TradingAccount -> AssetCategory.CUSTODIAL
+            is InterestAccount -> AssetCategory.CUSTODIAL
+            is CryptoNonCustodialAccount -> AssetCategory.NON_CUSTODIAL
+            else -> throw IllegalStateException("$sendingAccount not supported")
+        }
 
     override val amount: Money
         get() = pendingTx?.amount ?: sendingAccount.getZeroAmountForAccount()
@@ -136,7 +159,7 @@ data class TransactionState(
                 val available = availableToAmountCurrency(it.availableBalance, amount)
                 Money.min(
                     available,
-                    it.maxLimit ?: available
+                    (it.limits?.max as? TxLimit.Limited)?.amount ?: available
                 )
             } ?: sendingAccount.getZeroAmountForAccount()
         }
@@ -164,6 +187,17 @@ data class TransactionState(
             null
         }
     }
+
+    fun availableBalanceInFiat(availableBalance: Money, fiatRate: ExchangeRate?): Money {
+        return if (availableBalance is CryptoValue &&
+            fiatRate != null &&
+            fiatRate.canConvert(availableBalance)
+        ) {
+            fiatRate.convert(availableBalance)
+        } else {
+            availableBalance
+        }
+    }
 }
 
 class TransactionModel(
@@ -179,6 +213,7 @@ class TransactionModel(
     environmentConfig,
     crashLogger
 ) {
+
     override fun performAction(previousState: TransactionState, intent: TransactionIntent): Disposable? {
         Timber.v("!TRANSACTION!> Transaction Model: performAction: %s", intent.javaClass.simpleName)
 
@@ -262,11 +297,18 @@ class TransactionModel(
             is TransactionIntent.NavigateBackFromEnterAmount ->
                 processTransactionInvalidation(previousState.action)
             is TransactionIntent.StartLinkABank -> processLinkABank(previousState)
-            is TransactionIntent.LinkBankInfoSuccess -> null
-            is TransactionIntent.LinkBankFailed -> null
-            is TransactionIntent.ClearBackStack -> null
-            is TransactionIntent.ApprovalRequired -> null
-            is TransactionIntent.ClearSelectedTarget -> null
+            is TransactionIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(
+                model = this,
+                available = previousState.availableBalance
+            )
+            is TransactionIntent.LinkBankInfoSuccess,
+            is TransactionIntent.LinkBankFailed,
+            is TransactionIntent.ClearBackStack,
+            is TransactionIntent.ApprovalRequired,
+            is TransactionIntent.ClearSelectedTarget,
+            TransactionIntent.TransactionApprovalDenied,
+            TransactionIntent.ApprovalTriggered,
+            is TransactionIntent.FundsLocksLoaded -> null
         }
     }
 

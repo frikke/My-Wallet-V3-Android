@@ -3,7 +3,6 @@ package com.blockchain.sunriver
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.stroops
 import com.nhaarman.mockitokotlin2.mock
-
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 

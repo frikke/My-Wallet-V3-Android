@@ -32,9 +32,11 @@ class BankAuthModel(
     override fun performAction(previousState: BankAuthState, intent: BankAuthIntent): Disposable? =
         when (intent) {
             is BankAuthIntent.CancelOrder,
-            is BankAuthIntent.CancelOrderAndResetAuthorisation -> (previousState.id?.let {
-                interactor.cancelOrder(it)
-            } ?: Completable.complete())
+            is BankAuthIntent.CancelOrderAndResetAuthorisation -> (
+                previousState.id?.let {
+                    interactor.cancelOrder(it)
+                } ?: Completable.complete()
+                )
                 .subscribeBy(
                     onComplete = {
                         process(BankAuthIntent.OrderCanceled)
@@ -96,7 +98,8 @@ class BankAuthModel(
         intent: BankAuthIntent.StartPollingForLinkStatus,
         partner: BankPartner?
     ) = interactor.pollForLinkedBankState(
-        intent.bankId
+        intent.bankId,
+        partner
     ).subscribeBy(
         onSuccess = {
             when (it) {
@@ -104,7 +107,8 @@ class BankAuthModel(
                     interactor.updateOneTimeTokenPath(it.value.callbackPath)
                     updateIntentForLinkedBankState(it, partner)
                 }
-                is PollResult.Cancel -> { }
+                is PollResult.Cancel -> {
+                }
                 is PollResult.TimeOut -> process(
                     BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
                 )
@@ -150,6 +154,9 @@ class BankAuthModel(
                 BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankAlreadyLinked)
             )
             LinkedBankErrorState.UNKNOWN -> process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
+            LinkedBankErrorState.NOT_INFO_FOUND -> process(
+                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInfoNotFound)
+            )
             LinkedBankErrorState.ACCOUNT_TYPE_UNSUPPORTED -> process(
                 BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankAccountUnsupported)
             )
@@ -165,8 +172,14 @@ class BankAuthModel(
             LinkedBankErrorState.FAILURE -> process(
                 BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankFailure)
             )
+            LinkedBankErrorState.INTERNAL_FAILURE -> process(
+                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInternalFailure)
+            )
             LinkedBankErrorState.INVALID -> process(
                 BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInvalid)
+            )
+            LinkedBankErrorState.FRAUD -> process(
+                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankFraud)
             )
             LinkedBankErrorState.NONE -> {
                 // check the state is not a linking final state

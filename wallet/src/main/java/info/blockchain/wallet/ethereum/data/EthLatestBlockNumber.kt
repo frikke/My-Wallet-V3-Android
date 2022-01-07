@@ -8,11 +8,13 @@ import java.math.BigInteger
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE,
+@JsonAutoDetect(
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
     getterVisibility = JsonAutoDetect.Visibility.NONE,
     setterVisibility = JsonAutoDetect.Visibility.NONE,
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
-    isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 class EthLatestBlockNumber {
     @JsonProperty("number")
     var number: BigInteger = 0.toBigInteger()

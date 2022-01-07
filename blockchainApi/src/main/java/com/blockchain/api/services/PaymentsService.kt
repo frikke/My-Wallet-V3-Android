@@ -1,27 +1,30 @@
 package com.blockchain.api.services
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_ACCOUNT
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_TRANSFER
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.PAYMENT_CARD
 import com.blockchain.api.payments.data.WithdrawalLocksResponse
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import io.reactivex.rxjava3.core.Single
 
 class PaymentsService internal constructor(
     private val api: PaymentsApi
 ) {
-    fun getPaymentMethodDetailsForId(
+    suspend fun getPaymentMethodDetailsForId(
         authHeader: String,
         paymentId: String
-    ): Single<PaymentMethodDetails> =
+    ): Outcome<ApiError, PaymentMethodDetails> =
         api.getPaymentMethodDetailsForId(authHeader, paymentId)
             .map { it.toPaymentDetails() }
 
     fun getWithdrawalLocks(
         authHeader: String,
         localCurrency: String
-    ): Single<WithdrawalsApi> =
+    ): Single<CollateralLocks> =
         api.getWithdrawalLocks(authHeader, localCurrency)
             .map { it.toWithdrawalLocks() }
 }
@@ -62,34 +65,26 @@ data class PaymentMethodDetails(
 )
 
 private fun WithdrawalLocksResponse.toWithdrawalLocks() =
-    WithdrawalsApi(
-        totalAmount =
-        LocalAmountApi(
-            currency = this.totalLocked.currency,
-            value = this.totalLocked.amount
-        ),
+    CollateralLocks(
+        currency = this.totalLocked.currency,
+        value = this.totalLocked.amount,
         locks = this.locks.map { lockPeriod ->
-            WithdrawalLockApi(
-                amount = LocalAmountApi(
-                    currency = lockPeriod.localCurrencyAmount.currency,
-                    value = lockPeriod.localCurrencyAmount.amount
-                ),
+            CollateralLock(
+                currency = lockPeriod.localCurrencyAmount.currency,
+                value = lockPeriod.localCurrencyAmount.amount,
                 date = lockPeriod.expiresAt
             )
         }
     )
 
-data class WithdrawalsApi(
-    val totalAmount: LocalAmountApi,
-    val locks: List<WithdrawalLockApi>
-)
-
-data class WithdrawalLockApi(
-    val amount: LocalAmountApi,
-    val date: String
-)
-
-data class LocalAmountApi(
+data class CollateralLocks(
     val currency: String,
-    val value: String
+    val value: String,
+    val locks: List<CollateralLock>
+)
+
+data class CollateralLock(
+    val currency: String,
+    val value: String,
+    val date: String
 )

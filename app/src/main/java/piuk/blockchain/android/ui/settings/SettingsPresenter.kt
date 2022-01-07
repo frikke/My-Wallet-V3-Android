@@ -13,18 +13,18 @@ import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.preferences.RatingPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.settings.SettingsManager
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.io.Serializable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.scan.QrScanError
@@ -46,7 +46,6 @@ import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import thepit.PitLinking
 import thepit.PitLinkingState
 import timber.log.Timber
-import java.io.Serializable
 
 class SettingsPresenter(
     private val authDataManager: AuthDataManager,
@@ -77,12 +76,10 @@ class SettingsPresenter(
         view?.showProgress()
         compositeDisposable += settingsDataManager.fetchSettings()
             .singleOrError()
-            .zipWith(kycStatusHelper.getSettingsKycStateTier())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onSuccess = { (settings, tiers) ->
+                onSuccess = { settings ->
                     handleUpdate(settings)
-                    view?.setKycState(tiers)
                 },
                 onError = {
                     handleUpdate(Settings())
@@ -156,7 +153,8 @@ class SettingsPresenter(
                     },
                     onError = {
                         Timber.e(it)
-                    })
+                    }
+                )
     }
 
     private fun onCardsUpdated(cards: List<PaymentMethod.Card>) {
@@ -196,10 +194,6 @@ class SettingsPresenter(
             banks.toSet()
         }
 
-    fun onKycStatusClicked() {
-        view?.launchKycFlow()
-    }
-
     private fun handleUpdate(settings: Settings) {
         view?.hideProgress()
         view?.setUpUi()
@@ -216,15 +210,12 @@ class SettingsPresenter(
 
             setEmailNotificationPref(false)
             setPushNotificationPref(arePushNotificationEnabled())
-            if (settings.isNotificationsOn && settings.notificationsType.isNotEmpty()) {
-                for (type in settings.notificationsType) {
-                    if (type in setOf(Settings.NOTIFICATION_TYPE_EMAIL, Settings.NOTIFICATION_TYPE_ALL)) {
-                        setEmailNotificationPref(true)
-                        break
-                    }
-                }
-            }
 
+            val emailNotificationsEnabled = settings.notificationsType.any {
+                it == Settings.NOTIFICATION_TYPE_EMAIL ||
+                    it == Settings.NOTIFICATION_TYPE_ALL
+            }
+            setEmailNotificationPref(emailNotificationsEnabled)
             setFingerprintVisibility(isFingerprintHardwareAvailable)
             updateFingerprintPreferenceStatus()
             setTwoFaPreference(settings.authType != Settings.AUTH_TYPE_OFF)
@@ -272,19 +263,6 @@ class SettingsPresenter(
                 throw IllegalStateException("PIN code not found in AccessState")
             }
         }
-    }
-
-    fun updateKyc() {
-        compositeDisposable += kycStatusHelper.getSettingsKycStateTier()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onSuccess = { tiers ->
-                    view?.setKycState(tiers)
-                },
-                onError = {
-                    view?.showError(R.string.settings_error_updating)
-                }
-            )
     }
 
     private fun String?.isInvalid(): Boolean =
@@ -481,14 +459,18 @@ class SettingsPresenter(
     }
 
     private fun Settings.isNotificationTypeEnabled(type: Int): Boolean {
-        return isNotificationsOn && (notificationsType.contains(type) ||
-            notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_ALL))
+        return isNotificationsOn && (
+            notificationsType.contains(type) ||
+                notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_ALL)
+            )
     }
 
     private fun Settings.isNotificationTypeDisabled(type: Int): Boolean {
         return notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_NONE) ||
-            (!notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_ALL) &&
-                !notificationsType.contains(type))
+            (
+                !notificationsType.contains(SettingsManager.NOTIFICATION_TYPE_ALL) &&
+                    !notificationsType.contains(type)
+                )
     }
 
     /**
@@ -521,7 +503,8 @@ class SettingsPresenter(
                     analytics.logEvent(SettingsAnalytics.PasswordChanged_Old)
                     analytics.logEvent(SettingsAnalytics.PasswordChanged(TxFlowAnalyticsAccountType.USERKEY))
                 },
-                onError = { showUpdatePasswordFailed(fallbackPassword) })
+                onError = { showUpdatePasswordFailed(fallbackPassword) }
+            )
     }
 
     private fun showUpdatePasswordFailed(fallbackPassword: String) {
@@ -536,13 +519,8 @@ class SettingsPresenter(
     fun updateFiatUnit(fiatUnit: String) {
         compositeDisposable += settingsDataManager.updateFiatUnit(fiatUnit)
             .map { settings ->
-                if (prefs.selectedFiatCurrency != fiatUnit) {
-                    analytics.logEvent(AnalyticsEvents.ChangeFiatCurrency)
-                    prefs.selectedFiatCurrency = fiatUnit
-                }
                 prefs.clearBuyState()
                 analytics.logEvent(SettingsAnalytics.CurrencyChanged)
-
                 settings
             }.observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(

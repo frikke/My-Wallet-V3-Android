@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.transactionflow.flow.customisations
 import android.content.Context
 import android.widget.FrameLayout
 import android.widget.ImageView
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget

@@ -13,6 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.StringRes
+import androidx.appcompat.widget.AppCompatButton
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -20,14 +22,14 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.YapilyAttributes
-import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
-import org.koin.android.ext.android.inject
+import com.blockchain.nabu.models.data.YodleeAttributes
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
+import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
@@ -37,7 +39,6 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthState, FragmentLinkABankBinding>() {
 
     override val model: BankAuthModel by scopedInject()
-    private val stringUtils: StringUtils by inject()
 
     private val isFromDeepLink: Boolean by lazy {
         arguments?.getBoolean(FROM_DEEP_LINK, false) ?: false
@@ -48,11 +49,11 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     }
 
     private val accountProviderId: String by lazy {
-        arguments?.getString(ACCOUNT_PROVIDER_ID) ?: ""
+        arguments?.getString(ACCOUNT_PROVIDER_ID).orEmpty()
     }
 
     private val accountId: String by lazy {
-        arguments?.getString(ACCOUNT_ID) ?: ""
+        arguments?.getString(ACCOUNT_ID).orEmpty()
     }
 
     private val approvalData: BankPaymentApproval? by unsafeLazy {
@@ -60,7 +61,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     }
 
     private val linkingBankId: String by lazy {
-        arguments?.getString(LINKING_BANK_ID) ?: ""
+        arguments?.getString(LINKING_BANK_ID).orEmpty()
     }
 
     private val errorState: ErrorState? by unsafeLazy {
@@ -80,12 +81,12 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.setupToolbar(
+        activity.loadToolbar(
             if (isForApproval) {
-                R.string.approve_payment
+                getString(R.string.approve_payment)
             } else {
-                R.string.link_a_bank
-            }, false
+                getString(R.string.link_a_bank)
+            },
         )
 
         activity.onBackPressedDispatcher.addCallback(
@@ -114,10 +115,10 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
 
         with(binding) {
-            linkBankRetry.setOnClickListener {
+            mainCta.setOnClickListener {
                 logRetryLaunchAnalytics()
-                linkBankRetry.gone()
-                linkBankCancel.gone()
+                mainCta.gone()
+                secondaryCta.gone()
                 startBankAuthentication()
             }
         }
@@ -163,8 +164,12 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
 
         val error = newState.errorState ?: errorState
-        error?.let { e ->
-            showErrorState(e, newState.linkBankTransfer?.partner)
+        error?.let {
+            showErrorState(
+                errorState = it,
+                partner = newState.linkBankTransfer?.partner,
+                bankId = newState.linkBankTransfer?.id.orEmpty()
+            )
         }
     }
 
@@ -197,7 +202,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
     private fun showAppOpeningRetry() {
         with(binding) {
-            linkBankRetry.visible()
+            mainCta.visible()
             linkBankProgress.gone()
             linkBankStateIndicator.visible()
             linkBankTitle.text = getString(R.string.yapily_bank_link_choice_error_title)
@@ -252,23 +257,13 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             getString(R.string.yapily_approval_in_progress_subtitle)
         )
 
-        with(binding) {
-            linkBankRetry.visible()
-            linkBankCancel.apply {
-                visible()
-                background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_no_bkgd_red_selection_selector)
-                setTextColor(resources.getColorStateList(R.color.button_red_text_states, null))
-                text = getString(R.string.cancel_order)
-                setOnClickListener {
-                    model.process(BankAuthIntent.CancelOrder)
-                }
-                analytics.logEvent(bankAuthEvent(BankAuthAnalytics.PIS_EXTERNAL_FLOW_CANCEL, authSource))
-            }
-        }
+        binding.mainCta.visible()
+        showCancelButton(R.string.cancel_order)
     }
 
     private fun showActivationInProgress() {
         showLoading()
+        binding.linkBankIcon.setImageResource(R.drawable.ic_blockchain_blue_circle)
         setTitleAndSubtitle(
             getString(R.string.yapily_activating_title),
             getString(R.string.yapily_activating_subtitle)
@@ -286,6 +281,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
     private fun showExternalFlow(attrs: YapilyAttributes) {
         showLoading()
+        showCancelButton(R.string.common_cancel)
         hasChosenExternalApp = false
         setTitleAndSubtitle(
             getString(
@@ -312,134 +308,247 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
     }
 
-    private fun showErrorState(state: ErrorState, partner: BankPartner?) {
-        showErrorUI(state, partner)
+    private fun setButtonsForErrors(
+        errorState: ErrorState,
+        partner: BankPartner?,
+        linkBankTransferId: String
+    ) {
+        when (errorState) {
+            ErrorState.LinkedBankAlreadyLinked -> {
+                showGoBackButton(binding.mainCta) {
+                    logRetryAnalytics(errorState, partner)
+                    if (partner == BankPartner.YAPILY) {
+                        navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+                    } else {
+                        navigator().launchYodleeSplash(
+                            attributes = linkBankTransfer?.attributes as YodleeAttributes,
+                            bankId = linkBankTransferId
+                        )
+                    }
+                }
+            }
+            ErrorState.LinkedBankInvalid,
+            ErrorState.LinkedBankAccountUnsupported -> {
+                showGoBackButton(binding.mainCta) {
+                    if (partner == BankPartner.YAPILY) {
+                        navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+                    } else {
+                        navigator().launchYodleeSplash(
+                            attributes = linkBankTransfer?.attributes as YodleeAttributes,
+                            bankId = linkBankTransferId
+                        )
+                    }
+                }
+            }
+            ErrorState.LinkedBankInfoNotFound,
+            ErrorState.LinkedBankInternalFailure,
+            ErrorState.LinkedBankFailure,
+            ErrorState.LinkedBankFraud,
+            ErrorState.LinkedBankRejected -> {
+                binding.mainCta.apply {
+                    text = getString(R.string.bank_linking_try_again)
+                    visible()
+                    setOnClickListener {
+                        logRetryAnalytics(errorState, partner)
+                        if (partner == BankPartner.YAPILY) {
+                            navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+                        } else {
+                            navigator().launchYodleeSplash(
+                                attributes = linkBankTransfer?.attributes as YodleeAttributes,
+                                bankId = linkBankTransferId
+                            )
+                        }
+                    }
+                }
+                showGoBackButton(binding.secondaryCta) {
+                    logCancelAnalytics(errorState, partner)
+                    navigator().bankAuthCancelled()
+                }
+            }
+            ErrorState.LinkedBankExpired -> {
+                binding.mainCta.apply {
+                    text = getString(R.string.bank_linking_try_another_method)
+                    visible()
+                    setOnClickListener {
+                        logRetryAnalytics(errorState, partner)
+                        if (partner == BankPartner.YAPILY) {
+                            navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+                        } else {
+                            navigator().launchYodleeSplash(
+                                attributes = linkBankTransfer?.attributes as YodleeAttributes,
+                                bankId = linkBankTransferId
+                            )
+                        }
+                    }
+                }
+                showGoBackButton(binding.secondaryCta) {
+                    logCancelAnalytics(errorState, partner)
+                    navigator().bankAuthCancelled()
+                }
+            }
+            ErrorState.LinkedBankNamesMismatched -> {
+                binding.mainCta.apply {
+                    text = getString(R.string.bank_linking_try_different_account)
+                    visible()
+                    setOnClickListener {
+                        logRetryAnalytics(errorState, partner)
+                        if (partner == BankPartner.YAPILY) {
+                            navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+                        } else {
+                            navigator().launchYodleeSplash(
+                                attributes = linkBankTransfer?.attributes as YodleeAttributes,
+                                bankId = linkBankTransferId
+                            )
+                        }
+                    }
+                }
+                showGoBackButton(binding.secondaryCta) {
+                    logCancelAnalytics(errorState, partner)
+                    navigator().bankAuthCancelled()
+                }
+            }
+            else -> {
+                showGoBackButton(binding.mainCta) {
+                    navigator().bankAuthCancelled()
+                }
+            }
+        }
+    }
 
-        when (state) {
+    private fun showErrorState(
+        errorState: ErrorState,
+        partner: BankPartner?,
+        bankId: String
+    ) {
+        setErrorIcons(errorState)
+        setButtonsForErrors(errorState, partner, bankId)
+
+        when (errorState) {
             ErrorState.BankLinkingTimeout -> {
-                logAnalytics(BankAuthAnalytics.GENERIC_ERROR, partner)
                 setTitleAndSubtitle(
-                    getString(R.string.bank_linking_generic_error_title),
+                    getString(R.string.bank_linking_timeout_error_title),
                     getString(R.string.bank_linking_timeout_error_subtitle)
                 )
-
-                with(binding) {
-                    linkBankCancel.gone()
-                    linkBankRetry.gone()
+            }
+            ErrorState.LinkedBankInvalid,
+            ErrorState.LinkedBankAccountUnsupported -> {
+                logAnalytics(BankAuthAnalytics.INCORRECT_ACCOUNT, partner)
+                if (partner == BankPartner.YODLEE) {
+                    setTitleAndSubtitle(
+                        getString(R.string.bank_linking_account_ach_error_title),
+                        getString(R.string.bank_linking_account_ach_error_subtitle)
+                    )
+                } else {
+                    setTitleAndSubtitle(
+                        getString(R.string.bank_linking_account_ob_error_title),
+                        getString(R.string.bank_linking_account_ob_error_subtitle)
+                    )
+                }
+            }
+            ErrorState.LinkedBankInfoNotFound,
+            ErrorState.LinkedBankInternalFailure,
+            ErrorState.LinkedBankFailure,
+            ErrorState.LinkedBankFraud -> {
+                if (partner == BankPartner.YODLEE) {
+                    setTitleAndSubtitle(
+                        getString(R.string.bank_linking_failed_ob_title),
+                        getString(R.string.bank_linking_failed_subtitle)
+                    )
+                } else {
+                    setTitleAndSubtitle(
+                        getString(R.string.bank_linking_failed_ach_title),
+                        getString(R.string.bank_linking_failed_subtitle)
+                    )
                 }
             }
             ErrorState.LinkedBankAlreadyLinked -> {
                 logAnalytics(BankAuthAnalytics.ALREADY_LINKED, partner)
                 setTitleAndSubtitle(
-                    getString(R.string.bank_linking_generic_error_title),
+                    getString(R.string.bank_linking_already_linked_error_title),
                     getString(R.string.bank_linking_already_linked_error_subtitle)
                 )
-
-                binding.linkBankBtn.text = getString(R.string.bank_linking_try_different_account)
-            }
-            ErrorState.LinkedBankAccountUnsupported -> {
-                logAnalytics(BankAuthAnalytics.INCORRECT_ACCOUNT, partner)
-                setTitleAndSubtitle(
-                    getString(R.string.bank_linking_checking_error_title),
-                    getString(R.string.bank_linking_checking_error_subtitle)
-                )
-
-                binding.linkBankBtn.text = getString(R.string.bank_linking_try_different_bank)
             }
             ErrorState.LinkedBankNamesMismatched -> {
                 logAnalytics(BankAuthAnalytics.ACCOUNT_MISMATCH, partner)
-
                 with(binding) {
-                    linkBankBtn.text = getString(R.string.bank_linking_try_different_bank)
-                    linkBankTitle.text = getString(R.string.bank_linking_is_this_your_bank)
+                    linkBankTitle.text = getString(R.string.bank_linking_mismatched_title)
 
                     val linksMap = mapOf<String, Uri>(
-                        "yodlee_names_dont_match_learn_more" to Uri.parse(URL_YODLEE_SUPPORT_LEARN_MORE)
+                        "learn_more" to Uri.parse(URL_YODLEE_SUPPORT_LEARN_MORE)
                     )
 
-                    val text = stringUtils.getStringWithMappedAnnotations(
-                        R.string.bank_linking_already_linked_error_subtitle,
-                        linksMap,
-                        activity
+                    val text = StringUtils.getStringWithMappedAnnotations(
+                        requireContext(),
+                        R.string.bank_linking_mismatched_subtitle,
+                        linksMap
+                    )
+                    linkBankSubtitle.text = text
+                    linkBankSubtitle.movementMethod = LinkMovementMethod.getInstance()
+                }
+            }
+            ErrorState.LinkedBankExpired -> {
+                if (partner == BankPartner.YODLEE) {
+                    setTitleAndSubtitle(
+                        getString(R.string.bank_linking_expired_ach_title),
+                        getString(R.string.bank_linking_expired_subtitle)
+                    )
+                } else {
+                    setTitleAndSubtitle(
+                        getString(R.string.bank_linking_expired_ob_title),
+                        getString(R.string.bank_linking_expired_subtitle)
+                    )
+                }
+            }
+            ErrorState.LinkedBankRejected -> {
+                with(binding) {
+                    linkBankTitle.text = getString(R.string.bank_linking_rejected_title)
+
+                    val linksMap = mapOf<String, Uri>(
+                        "contact_support" to Uri.parse(URL_CONTACT_SUPPORT)
+                    )
+
+                    val text = StringUtils.getStringWithMappedAnnotations(
+                        requireContext(),
+                        R.string.bank_linking_rejected_subtitle,
+                        linksMap
                     )
 
                     linkBankSubtitle.text = text
                     linkBankSubtitle.movementMethod = LinkMovementMethod.getInstance()
                 }
             }
-            ErrorState.LinkedBankRejected -> {
-                setTitleAndSubtitle(
-                    getString(R.string.bank_linking_rejected_title),
-                    getString(R.string.bank_linking_rejected_subtitle)
-                )
-                binding.linkBankBtn.text = getString(R.string.common_try_again)
-            }
-            ErrorState.LinkedBankExpired -> {
-                setTitleAndSubtitle(
-                    getString(R.string.bank_linking_expired_title),
-                    getString(R.string.bank_linking_expired_subtitle)
-                )
-                binding.linkBankBtn.text = getString(R.string.common_try_again)
-            }
-            ErrorState.LinkedBankFailure -> {
-                setTitleAndSubtitle(
-                    getString(R.string.bank_linking_failure_title),
-                    getString(R.string.bank_linking_failure_subtitle)
-                )
-                binding.linkBankBtn.text = getString(R.string.common_try_again)
-            }
-            ErrorState.LinkedBankInvalid -> {
-                setTitleAndSubtitle(
-                    getString(R.string.bank_linking_invalid_title),
-                    getString(R.string.bank_linking_invalid_subtitle)
-                )
-                binding.linkBankBtn.text = getString(R.string.common_try_again)
-            }
             else -> {
                 logAnalytics(BankAuthAnalytics.GENERIC_ERROR, partner)
-                setTitleAndSubtitle(
-                    getString(R.string.bank_linking_generic_error_title),
-                    getString(R.string.bank_linking_generic_error_subtitle)
-                )
-
-                binding.linkBankBtn.text = getString(R.string.common_try_again)
+                if (partner == BankPartner.YODLEE) {
+                    setTitleAndSubtitle(
+                        getString(R.string.bank_linking_failed_ob_title),
+                        getString(R.string.bank_linking_failed_subtitle)
+                    )
+                } else {
+                    setTitleAndSubtitle(
+                        getString(R.string.bank_linking_failed_ach_title),
+                        getString(R.string.bank_linking_failed_subtitle)
+                    )
+                }
             }
         }
     }
 
-    private fun showErrorUI(
-        state: ErrorState,
-        partner: BankPartner?
+    private fun setErrorIcons(
+        state: ErrorState
     ) {
         with(binding) {
-            linkBankIcon.setImageResource(
-                if (state == ErrorState.LinkedBankNamesMismatched) {
-                    R.drawable.ic_bank_user
-                } else {
-                    R.drawable.ic_bank_details_big
-                }
-            )
             linkBankProgress.gone()
-            linkBankStateIndicator.setImageResource(R.drawable.ic_alert_white_bkgd)
-            linkBankStateIndicator.visible()
-            linkBankBtn.visible()
-            linkBankBtn.setOnClickListener {
-                logRetryAnalytics(state, partner)
-                when {
-                    isForApproval -> {
-                        approvalData?.let {
-                            model.process(BankAuthIntent.UpdateForApproval(it.authorisationUrl))
-                        } ?: navigator().retry()
+            linkBankIcon.setImageResource(R.drawable.ic_bank_details_big)
+            linkBankStateIndicator.apply {
+                setImageResource(
+                    when (state) {
+                        ErrorState.LinkedBankAlreadyLinked -> R.drawable.ic_question_mark_white_bkgd
+                        ErrorState.LinkedBankRejected -> R.drawable.ic_cross_white_bckg
+                        else -> R.drawable.ic_alert_white_bkgd
                     }
-                    else -> {
-                        navigator().retry()
-                    }
-                }
-            }
-            linkBankCancel.visible()
-            linkBankCancel.setOnClickListener {
-                logCancelAnalytics(state, partner)
-                navigator().bankAuthCancelled()
+                )
+                visible()
             }
         }
     }
@@ -448,20 +557,22 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         logAnalytics(
             when (state) {
                 ErrorState.LinkedBankAlreadyLinked -> BankAuthAnalytics.ALREADY_LINKED_RETRY
-                ErrorState.LinkedBankAccountUnsupported -> BankAuthAnalytics.INCORRECT_ACCOUNT_RETRY
+                ErrorState.LinkedBankInfoNotFound -> BankAuthAnalytics.INCORRECT_ACCOUNT_RETRY
                 ErrorState.LinkedBankNamesMismatched -> BankAuthAnalytics.ACCOUNT_MISMATCH_RETRY
                 else -> BankAuthAnalytics.GENERIC_ERROR_RETRY
-            }, partner
+            },
+            partner
         )
 
     private fun logCancelAnalytics(state: ErrorState, partner: BankPartner?) =
         logAnalytics(
             when (state) {
                 ErrorState.LinkedBankAlreadyLinked -> BankAuthAnalytics.ALREADY_LINKED_CANCEL
-                ErrorState.LinkedBankAccountUnsupported -> BankAuthAnalytics.INCORRECT_ACCOUNT_CANCEL
+                ErrorState.LinkedBankInfoNotFound -> BankAuthAnalytics.INCORRECT_ACCOUNT_CANCEL
                 ErrorState.LinkedBankNamesMismatched -> BankAuthAnalytics.ACCOUNT_MISMATCH_CANCEL
                 else -> BankAuthAnalytics.GENERIC_ERROR_CANCEL
-            }, partner
+            },
+            partner
         )
 
     private fun logAnalytics(event: BankAuthAnalytics, partner: BankPartner?) {
@@ -475,7 +586,6 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             linkBankIcon.setImageResource(R.drawable.ic_blockchain_blue_circle)
             linkBankProgress.visible()
             linkBankStateIndicator.gone()
-            linkBankBtn.gone()
             linkBank?.partner?.let {
                 when (it) {
                     BankPartner.YAPILY -> {
@@ -500,6 +610,31 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
     }
 
+    private fun showCancelButton(@StringRes resId: Int) {
+        with(binding) {
+            secondaryCta.apply {
+                visible()
+                background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_no_bkgd_red_selection_selector)
+                setTextColor(resources.getColorStateList(R.color.button_red_text_states, null))
+                text = getString(resId)
+                setOnClickListener {
+                    model.process(BankAuthIntent.CancelOrder)
+                }
+                analytics.logEvent(bankAuthEvent(BankAuthAnalytics.PIS_EXTERNAL_FLOW_CANCEL, authSource))
+            }
+        }
+    }
+
+    private fun showGoBackButton(button: AppCompatButton, onClick: () -> Unit) {
+        button.apply {
+            text = getString(R.string.common_go_back)
+            visible()
+            setOnClickListener {
+                onClick()
+            }
+        }
+    }
+
     private fun showLinkingSuccess(label: String, id: String, partner: BankPartner?, currency: String) {
         logAnalytics(BankAuthAnalytics.SUCCESS, partner)
 
@@ -508,8 +643,9 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             linkBankProgress.gone()
             linkBankStateIndicator.setImageResource(R.drawable.ic_check_circle)
             linkBankStateIndicator.visible()
-            linkBankBtn.visible()
-            linkBankBtn.setOnClickListener {
+            mainCta.text = getString(R.string.common_continue)
+            mainCta.visible()
+            mainCta.setOnClickListener {
                 navigator().bankLinkingFinished(id, currency)
             }
             setTitleAndSubtitle(
@@ -526,7 +662,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     BankAuthAnalytics.PIS_EXTERNAL_FLOW_RETRY
                 } else {
                     BankAuthAnalytics.AIS_EXTERNAL_FLOW_RETRY
-                }, authSource
+                },
+                authSource
             )
         )
 

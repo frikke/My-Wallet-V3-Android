@@ -1,38 +1,31 @@
 package piuk.blockchain.android.simplebuy
 
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import kotlinx.parcelize.Parcelize
-import org.koin.android.ext.android.inject
-import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBinding
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
-import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.trackProgress
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.util.Locale
 import java.util.Currency
+import java.util.Locale
+import org.koin.android.ext.android.inject
+import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBinding
+import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuySelectCurrencyFragment :
-    MviBottomSheet<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyCurrencySelectionBinding>(),
+    SlidingModalBottomDialog<FragmentSimpleBuyCurrencySelectionBinding>(),
     ChangeCurrencyOptionHost {
 
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val settingsDataManager: SettingsDataManager by scopedInject()
-    private val appUtil: AppUtil by inject()
-    private val compositeDisposable = CompositeDisposable()
 
     private val currencies: List<String> by unsafeLazy {
         arguments?.getStringArrayList(CURRENCIES_KEY) ?: emptyList()
+    }
+
+    private val selectedCurrency: String by unsafeLazy {
+        arguments?.getString(SELECTED_CURRENCY).orEmpty()
     }
 
     // show all currencies if passed list is empty
@@ -41,6 +34,11 @@ class SimpleBuySelectCurrencyFragment :
 
     private val adapter = CurrenciesAdapter(true) {
         updateFiat(it)
+    }
+
+    private fun updateFiat(it: CurrencyItem) {
+        currencyPrefs.tradingCurrency = it.symbol
+        dismiss()
     }
 
     override fun initBinding(
@@ -52,56 +50,21 @@ class SimpleBuySelectCurrencyFragment :
     override fun initControls(binding: FragmentSimpleBuyCurrencySelectionBinding) {
         analytics.logEvent(SimpleBuyAnalytics.SELECT_YOUR_CURRENCY_SHOWN)
         with(binding) {
+            introHeaderDescription.text = getString(
+                R.string.currency_not_available, Currency.getInstance(selectedCurrency).getDisplayName(locale)
+            )
             recycler.layoutManager = LinearLayoutManager(activity)
             recycler.adapter = adapter
         }
-        model.process(SimpleBuyIntent.FetchSupportedFiatCurrencies)
-    }
-
-    private fun updateFiat(item: CurrencyItem) {
-        compositeDisposable += settingsDataManager.updateFiatUnit(item.symbol)
-            .trackProgress(appUtil.activityIndicator)
-            .doOnSubscribe {
-                adapter.canSelect = false
-            }
-            .doAfterTerminate {
-                adapter.canSelect = true
-            }
-            .subscribeBy(onNext = {
-                if (item.isAvailable) {
-                    dismiss()
-                } else {
-                    showCurrencyNotAvailableBottomSheet(item)
-                }
-                analytics.logEvent(CurrencySelected(item.symbol))
-            }, onError = {})
-    }
-
-    override fun onResume() {
-        super.onResume()
-        adapter.canSelect = true
-    }
-
-    private fun showCurrencyNotAvailableBottomSheet(item: CurrencyItem) {
-        CurrencyNotSupportedBottomSheet.newInstance(item).show(childFragmentManager, "BOTTOM_SHEET")
-    }
-
-    override val model: SimpleBuyModel by scopedInject()
-    private val locale = Locale.getDefault()
-
-    override fun render(newState: SimpleBuyState) {
-        // we need to show the supported currencies only when supported are fetched so we avoid list flickering
-        if (newState.supportedFiatCurrencies.isEmpty() && newState.buyErrorState == null)
-            return
-        adapter.items = UNIT_FIAT.map {
+        adapter.items = UNIT_FIAT.map { symbol ->
             CurrencyItem(
-                name = Currency.getInstance(it).getDisplayName(locale),
-                symbol = it,
-                isAvailable = newState.supportedFiatCurrencies.contains(it),
-                isChecked = currencyPrefs.selectedFiatCurrency == it
+                name = Currency.getInstance(symbol).getDisplayName(locale),
+                symbol = symbol
             )
-        }.sortedWith(compareBy<CurrencyItem> { !it.isAvailable }.thenBy { it.name }).filter(filter)
+        }.sortedWith(compareBy { it.name }).filter(filter)
     }
+
+    private val locale = Locale.getDefault()
 
     override fun navigator(): SimpleBuyNavigator = (activity as? SimpleBuyNavigator)
         ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
@@ -110,7 +73,6 @@ class SimpleBuySelectCurrencyFragment :
 
     override fun needsToChange() {
         analytics.logEvent(SimpleBuyAnalytics.CURRENCY_NOT_SUPPORTED_CHANGE)
-        filter = { it.isAvailable || it.isChecked }
         adapter.items = adapter.items.filter(filter)
     }
 
@@ -121,23 +83,25 @@ class SimpleBuySelectCurrencyFragment :
 
     companion object {
         private const val CURRENCIES_KEY = "CURRENCIES_KEY"
-        fun newInstance(currencies: List<String> = emptyList()): SimpleBuySelectCurrencyFragment {
+        private const val SELECTED_CURRENCY = "SELECTED_CURRENCY"
+        fun newInstance(
+            currencies: List<String> = emptyList(),
+            selectedCurrency: String
+        ): SimpleBuySelectCurrencyFragment {
             return SimpleBuySelectCurrencyFragment().apply {
                 arguments = Bundle().apply {
                     putStringArrayList(CURRENCIES_KEY, ArrayList(currencies))
+                    putString(SELECTED_CURRENCY, selectedCurrency)
                 }
             }
         }
     }
 }
 
-@Parcelize
 data class CurrencyItem(
     val name: String,
-    val symbol: String,
-    val isAvailable: Boolean,
-    var isChecked: Boolean = false
-) : Parcelable
+    val symbol: String
+)
 
 interface ChangeCurrencyOptionHost : SimpleBuyScreen {
     fun needsToChange()

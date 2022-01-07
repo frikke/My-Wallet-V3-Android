@@ -6,6 +6,10 @@ import android.util.AttributeSet
 import android.view.View
 import android.webkit.WebView
 import com.blockchain.common_view.BuildConfig
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -16,6 +20,13 @@ class UnifiedSignInWebView @JvmOverloads constructor(
 ) : WebView(context, attrs, defStyleAttr) {
 
     private lateinit var listener: UnifiedSignInEventListener
+    private var payload: String = ""
+    private val jsonBuilder: Json by lazy {
+        Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
+    }
 
     init {
         settings.apply {
@@ -38,9 +49,13 @@ class UnifiedSignInWebView @JvmOverloads constructor(
                 }
             }
 
-            override fun onError(error: String) {
+            override fun onError(error: Throwable) {
                 if (::listener.isInitialized) {
-                    listener.onError(error)
+                    if (error is UnifiedSignInClient.Companion.PageLoadTimeoutException) {
+                        listener.onTimeout()
+                    } else {
+                        listener.onFatalError(error)
+                    }
                 } else {
                     Timber.e("Listener for webview not initialised")
                 }
@@ -48,36 +63,99 @@ class UnifiedSignInWebView @JvmOverloads constructor(
         })
 
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        addJavascriptInterface(UnifiedSignInInterfaceHandler(), WEB_INTERFACE_NAME)
+        addJavascriptInterface(
+            UnifiedSignInInterfaceHandler(
+                object : WebViewComms {
+                    override fun onMessageReceived(data: String?) {
+                        data?.let {
+                            parsePayload(it)
+                        }
+                    }
+                }
+            ),
+            WEB_INTERFACE_NAME
+        )
     }
 
-    fun initWebView(listener: UnifiedSignInEventListener) {
+    private fun parsePayload(data: String) {
+        val webResponse = jsonBuilder.runCatching {
+            decodeFromString<WebViewMessaging.Handshake>(data)
+        }.getOrElse {
+            jsonBuilder.runCatching {
+                decodeFromString<WebViewMessaging.MergeResponse>(data)
+            }.getOrNull()
+        }
+
+        when (webResponse) {
+            is WebViewMessaging.Handshake -> {
+                sendMessage(payload)
+            }
+            is WebViewMessaging.MergeResponse -> {
+            }
+            null -> {
+                Timber.e("Web response was neither handshake nor a merge response")
+            }
+            else -> {
+                Timber.e("something weird happened here")
+            }
+        }
+    }
+
+    fun initWebView(listener: UnifiedSignInEventListener, url: String, payload: String) {
         this.listener = listener
-        // TODO should this URL be configurable?
-        loadUrl(BuildConfig.WEB_WALLET_URL)
+        this.payload = payload
+        this.post {
+            loadUrl(url)
+        }
     }
 
-    // FIXME is this needed?
-    fun sendMessage() {
-        sendMessage("ping")
-    }
-
-    // TODO JSON or String? contract is not finalised
-    private fun WebView.sendMessage(json: String) {
-        evaluateJavascript(WEB_SEND_MESSAGE_CALL.replace(REPLACEABLE_CONTENT, json)) { responseMessage ->
-            // TODO only print for now
-            Timber.e("Call back from sending web message: $responseMessage")
+    private fun WebView.sendMessage(base64String: String) {
+        post {
+            evaluateJavascript(WEB_SEND_MESSAGE_CALL.replace(REPLACEABLE_CONTENT, base64String)) { responseMessage ->
+                // TODO only print for now
+                Timber.e("Call back from sending web message: $responseMessage")
+            }
         }
     }
 
     companion object {
         private const val WEB_INTERFACE_NAME = "BCAndroidSSI"
         private const val REPLACEABLE_CONTENT = "$$$"
-        private const val WEB_SEND_MESSAGE_CALL = "javascript: receiveMessage(\"$REPLACEABLE_CONTENT\")"
+        private const val WEB_SEND_MESSAGE_CALL = "javascript: receiveMessageFromMobile(\"$REPLACEABLE_CONTENT\")"
     }
+}
+
+internal sealed class WebViewMessaging {
+    @Serializable
+    data class Handshake(
+        @SerialName("status")
+        val status: String
+    ) : WebViewMessaging()
+
+    @Serializable
+    data class MergeResponse(
+        @SerialName("status")
+        val status: String,
+        @SerialName("error")
+        val error: String?,
+        @SerialName("data")
+        val data: MergeData?
+    )
+
+    @Serializable
+    data class MergeData(
+        @SerialName("guid")
+        val guid: String,
+        @SerialName("password")
+        val password: String,
+        @SerialName("sessionId")
+        val sessionId: String
+    ) : WebViewMessaging()
 }
 
 interface UnifiedSignInEventListener {
     fun onLoaded()
-    fun onError(error: String)
+    fun onFatalError(error: Throwable)
+    fun onTimeout()
+    fun onAuthComplete() // TODO we will receive a password and sessionId here
 }

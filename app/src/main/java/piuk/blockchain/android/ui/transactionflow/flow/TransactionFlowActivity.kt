@@ -10,6 +10,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -45,15 +46,22 @@ class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
     SlidingModalBottomDialog.Host {
 
-    private val scope: Scope by lazy {
+    private val scopeId: String by lazy {
+        "${TX_SCOPE_ID}_${this@TransactionFlowActivity.hashCode()}"
+    }
+
+    val scope: Scope by lazy {
         openScope()
-        KoinJavaComponent.getKoin().getScope(TX_SCOPE_ID)
+        KoinJavaComponent.getKoin().getScope(scopeId)
     }
 
     override val model: TransactionModel by scope.inject()
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     private val analyticsHooks: TxFlowAnalytics by inject()
     private val customiser: TransactionFlowCustomisations by inject()
@@ -81,15 +89,13 @@ class TransactionFlowActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-
-        supportActionBar?.run {
-            title = ""
-            setDisplayHomeAsUpEnabled(true)
-        }
-
+        loadToolbar(
+            menuItems = listOf(
+                NavigationBarButton.Icon(R.drawable.ic_close) { finish() }
+            ),
+            backAction = { onBackPressed() }
+        )
         binding.txProgress.visible()
-
         startModel()
     }
 
@@ -147,8 +153,8 @@ class TransactionFlowActivity :
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
             showFlowStep(step)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
-                supportActionBar?.title = it
-            } ?: supportActionBar?.hide()
+                updateTitleToolbar(it)
+            } ?: loadToolbar()
 
             currentStep = step
         }
@@ -157,9 +163,7 @@ class TransactionFlowActivity :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                navigateOnBackPressed {
-                    finish()
-                }
+                navigateOnBackPressed { finish() }
                 true
             }
             R.id.action_close -> {
@@ -173,9 +177,7 @@ class TransactionFlowActivity :
     }
 
     override fun onBackPressed() {
-        navigateOnBackPressed {
-            finish()
-        }
+        navigateOnBackPressed { finish() }
     }
 
     private fun navigateOnBackPressed(finalAction: () -> Unit) {
@@ -235,6 +237,16 @@ class TransactionFlowActivity :
         }
     }
 
+    private fun openScope() =
+        try {
+            KoinJavaComponent.getKoin().getOrCreateScope(
+                scopeId,
+                transactionFlowActivityScope
+            )
+        } catch (e: Throwable) {
+            Timber.wtf("Error opening scope for id $scopeId - $e")
+        }
+
     override fun onSheetClosed() {
         // do nothing
     }
@@ -243,7 +255,7 @@ class TransactionFlowActivity :
         private const val SOURCE = "SOURCE_ACCOUNT"
         private const val TARGET = "TARGET_ACCOUNT"
         private const val ACTION = "ASSET_ACTION"
-        const val TX_SCOPE_ID = "TRANSACTION_ACTIVITY_SCOPE_ID"
+        private const val TX_SCOPE_ID = "TRANSACTION_ACTIVITY_SCOPE_ID"
 
         fun newInstance(
             context: Context,
@@ -261,15 +273,5 @@ class TransactionFlowActivity :
                 putExtras(bundle)
             }
         }
-
-        private fun openScope() =
-            try {
-                KoinJavaComponent.getKoin().getOrCreateScope(
-                    TX_SCOPE_ID,
-                    transactionFlowActivityScope
-                )
-            } catch (e: Throwable) {
-                Timber.wtf("$e")
-            }
     }
 }

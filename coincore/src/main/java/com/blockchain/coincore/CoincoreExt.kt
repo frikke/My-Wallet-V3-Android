@@ -17,10 +17,11 @@ fun SingleAccountList.filterByAction(
 fun BlockchainAccount?.selectFirstAccount(): CryptoAccount {
     val selectedAccount = when (this) {
         is SingleAccount -> this
-        is AccountGroup -> this.accounts
-            .firstOrNull { a -> a.isDefault }
-            ?: this.accounts.firstOrNull()
-            ?: throw IllegalStateException("No SingleAccount found")
+        is AccountGroup ->
+            this.accounts
+                .firstOrNull { a -> a.isDefault }
+                ?: this.accounts.firstOrNull()
+                ?: throw IllegalStateException("No SingleAccount found")
         else -> throw IllegalStateException("Unknown account base")
     }
 

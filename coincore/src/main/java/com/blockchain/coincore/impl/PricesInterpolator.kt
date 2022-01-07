@@ -44,8 +44,12 @@ class PricesInterpolator(
                             is CurrencyPair.CryptoCurrencyPair -> pair.destination.precisionDp
                             is CurrencyPair.CryptoToFiatCurrencyPair ->
                                 Currency.getInstance(pair.destination).defaultFractionDigits
+                            is CurrencyPair.FiatToCryptoCurrencyPair -> throw IllegalArgumentException(
+                                "Quote is not supported from fiat->crypto"
+                            )
                         }
-                    ))
+                    )
+                )
             }
         }
         return pair.toDestinationMoney(BigInteger.ZERO)

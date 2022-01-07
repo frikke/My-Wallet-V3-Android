@@ -1,14 +1,14 @@
 package com.blockchain.nabu.datamanagers.repositories
 
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.PriceTier
+import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferQuote
-import com.blockchain.utils.fromIso8601ToUtc
-import com.blockchain.utils.toLocalTime
 import com.blockchain.nabu.models.responses.swap.QuoteRequest
 import com.blockchain.nabu.service.NabuService
+import com.blockchain.utils.fromIso8601ToUtc
+import com.blockchain.utils.toLocalTime
 import java.util.Date
 
 class QuotesProvider(
@@ -18,12 +18,14 @@ class QuotesProvider(
 
     fun fetchQuote(product: String = "BROKERAGE", direction: TransferDirection, pair: CurrencyPair) =
         authenticator.authenticate { sessionToken ->
-            nabuService.fetchQuote(sessionToken,
+            nabuService.fetchQuote(
+                sessionToken,
                 QuoteRequest(
                     product = product,
                     direction = direction.toString(),
                     pair = pair.rawValue
-                )).map {
+                )
+            ).map {
                 TransferQuote(
                     id = it.id,
                     prices = it.quote.priceTiers.map { price ->

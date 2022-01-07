@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import piuk.blockchain.android.util.throttledClicks
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.parcelize.Parcelize
@@ -15,6 +14,7 @@ import piuk.blockchain.android.databinding.DialogSheetWalletMercuryLinkingBindin
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.goneIf
+import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.util.visible
 
 class PitStateBottomDialog : ErrorBottomDialog<DialogSheetWalletMercuryLinkingBinding>() {

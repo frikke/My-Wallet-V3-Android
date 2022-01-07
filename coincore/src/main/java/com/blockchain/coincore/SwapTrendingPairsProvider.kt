@@ -1,13 +1,13 @@
 package com.blockchain.coincore
 
+import com.blockchain.coincore.loader.PAX
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.loader.PAX
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.l1chain
+import io.reactivex.rxjava3.core.Single
 
 data class TrendingPair(
     val sourceAccount: CryptoAccount,
@@ -72,17 +72,17 @@ internal class SwapTrendingPairsProvider(
 
             if (source != null && target != null) {
                 val chain = pair.first.l1chain(assetCatalogue)?.let { asset ->
-                        accountMap[asset]
-                    }
+                    accountMap[asset]
+                }
 
-            val isFunded = source.isFunded &&
-                (source.isCustodial() || chain == null || chain.isFunded)
+                val isFunded = source.isFunded &&
+                    (source.isCustodial() || chain == null || chain.isFunded)
 
-            TrendingPair(source, target, isFunded)
-        } else {
-            null
+                TrendingPair(source, target, isFunded)
+            } else {
+                null
+            }
         }
-    }
 
     companion object {
         private val DEFAULT_SWAP_PAIRS = listOf(

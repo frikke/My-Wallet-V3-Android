@@ -14,12 +14,12 @@ import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.notifications.analytics.Analytics
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -59,7 +59,7 @@ class KycNavHostPresenterTest {
             sunriverCampaign = sunriverCampaign,
             reentryDecision = reentryDecision,
             kycNavigator = ReentryDecisionKycNavigator(
-                nabuToken, nabuDataManager, reentryDecision, analytics, internalFlags
+                nabuToken, nabuDataManager, reentryDecision, analytics
             ),
             tierUpdater = tierUpdater,
             analytics = mock()
@@ -337,7 +337,7 @@ class KycNavHostPresenterTest {
         // Assert
         verify(view).displayLoading(true)
         verify(view).navigate(
-            KycNavXmlDirections.actionStartAddressEntry(nabuUser.toProfileModel())
+            KycNavXmlDirections.actionStartAutocompleteAddressEntry(nabuUser.toProfileModel())
         )
         verify(view).displayLoading(false)
     }

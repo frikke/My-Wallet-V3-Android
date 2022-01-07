@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.addresses.adapter
 
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
-import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import piuk.blockchain.android.util.autoNotify
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import kotlin.properties.Delegates
+import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
+import piuk.blockchain.android.ui.adapters.DelegationAdapter
+import piuk.blockchain.android.util.autoNotify
 
 sealed class AccountListItem {
 

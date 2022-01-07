@@ -11,7 +11,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import io.reactivex.rxjava3.core.Single
-
 import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test

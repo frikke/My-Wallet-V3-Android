@@ -4,9 +4,10 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.core.payments.model.Withdrawals
+import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -68,6 +69,24 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                     )
                 ),
                 fiatAssets = fiatState
+            )
+        }
+    }
+
+    object GetUserCanBuy : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            return oldState
+        }
+    }
+
+    class UserBuyAccessStateUpdated(
+        private val buyButtonShouldBeHidden: Boolean,
+        private val buyAccess: FeatureAccess
+    ) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            return oldState.copy(
+                buyButtonShouldBeHidden = buyButtonShouldBeHidden,
+                buyAccess = buyAccess
             )
         }
     }
@@ -143,7 +162,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class FiatBalanceUpdate(
         private val balance: Money,
-        private val fiatBalance: Money
+        private val fiatBalance: Money,
+        private val balanceAvailable: Money
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldFiatValues = oldState.fiatAssets
@@ -151,7 +171,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                 fiatAssets = oldFiatValues.updateWith(
                     balance.currencyCode,
                     balance as FiatValue,
-                    fiatBalance as FiatValue
+                    fiatBalance as FiatValue,
+                    balanceAvailable
                 )
             )
         }
@@ -164,7 +185,15 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
-    object RefreshAllBalancesIntent : DashboardIntent() {
+    class RefreshAllBalancesIntent(private val loadSilently: Boolean) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            val activeAssets = if (loadSilently) oldState.activeAssets else oldState.activeAssets.reset()
+            val fiatAssets = if (loadSilently) oldState.fiatAssets else oldState.fiatAssets.reset()
+            return oldState.copy(activeAssets = activeAssets, fiatAssets = fiatAssets)
+        }
+    }
+
+    object ResetDashboardAssets : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(activeAssets = oldState.activeAssets.reset(), fiatAssets = oldState.fiatAssets.reset())
         }
@@ -415,20 +444,16 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
-    object LoadWithdrawalLocks : DashboardIntent() {
+    object LoadFundsLocked : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
-    class WithdrawalLocksLoaded(
-        private val withdrawals: Withdrawals,
-        private val available: Money
+    class FundsLocksLoaded(
+        private val fundsLocks: FundsLocks
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
-                lock = Locks(
-                    available,
-                    withdrawals
-                )
+                locks = Locks(fundsLocks)
             )
     }
 }

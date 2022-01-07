@@ -6,17 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.BuySellPairs
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -24,28 +28,29 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
+import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
-import piuk.blockchain.android.ui.customviews.account.removeAllHeaderDecorations
+import piuk.blockchain.android.ui.home.HomeNavigator
+import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 
-class BuyIntroFragment : ViewPagerFragment() {
+class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, HomeScreenFragment {
 
     private var _binding: BuyIntroFragmentBinding? = null
     private val binding: BuyIntroFragmentBinding
         get() = _binding!!
 
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
-    private val currencyPrefs: CurrencyPrefs by inject()
     private val compositeDisposable = CompositeDisposable()
     private val coincore: Coincore by scopedInject()
-    private val simpleBuyPrefs: SimpleBuyPrefs by scopedInject()
     private val assetResources: AssetResources by inject()
+    private val userIdentity: UserIdentity by scopedInject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,90 +64,114 @@ class BuyIntroFragment : ViewPagerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadBuyDetails()
+        val introHeaderView = IntroHeaderView(requireContext())
+        introHeaderView.setDetails(
+            icon = R.drawable.ic_cart,
+            label = R.string.select_crypto_you_want,
+            title = R.string.buy_with_cash
+        )
+        binding.rvCryptos.addItemDecoration(
+            HeaderDecoration.with(requireContext())
+                .parallax(0.5f)
+                .setView(introHeaderView)
+                .build()
+        )
+        binding.rvCryptos.layoutManager = LinearLayoutManager(activity)
+        binding.rvCryptos.adapter = adapter
     }
 
-    private fun loadBuyDetails() {
-        compositeDisposable +=
-            custodialWalletManager.getSupportedBuySellCryptoCurrencies(
-                currencyPrefs.selectedFiatCurrency
-            ).flatMap { pairs ->
-                Single.zip(
-                    pairs.pairs.map {
-                        coincore[it.cryptoCurrency].getPricesWith24hDelta()
-                            .map { priceDelta ->
-                                PriceHistory(
-                                    currentExchangeRate = priceDelta.currentRate as ExchangeRate.CryptoToFiat,
-                                    priceDelta = priceDelta.delta24h
-                                )
-                            }
-                    }
-                ) { t: Array<Any> ->
-                    t.map { it as PriceHistory } to pairs.copy(pairs = pairs.pairs)
+    override fun onResume() {
+        loadBuyDetails(false)
+        super.onResume()
+    }
+
+    private fun loadBuyDetails(showLoading: Boolean = true) {
+
+        custodialWalletManager.getSupportedBuySellCryptoCurrencies().map { pairs ->
+            pairs.map { it.source }.distinct()
+        }.flatMapObservable { assets ->
+            Observable.fromIterable(assets).flatMapMaybe { asset ->
+                coincore[asset].getPricesWith24hDelta().map { priceDelta ->
+                    PricedAsset(
+                        asset = asset,
+                        priceHistory = PriceHistory(
+                            currentExchangeRate = priceDelta.currentRate as ExchangeRate.CryptoToFiat,
+                            priceDelta = priceDelta.delta24h
+                        )
+                    )
+                }.toMaybe().onErrorResumeNext {
+                    Maybe.empty()
                 }
-            }.subscribeOn(Schedulers.io())
+            }
+        }.toList()
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .trackProgress(activityIndicator.takeIf { showLoading })
             .doOnSubscribe {
                 binding.buyEmpty.gone()
+                adapter.items = emptyList()
             }
-            .trackProgress(activityIndicator)
             .subscribeBy(
-                onSuccess = { (exchangeRates, buyPairs) ->
-                    renderBuyIntro(buyPairs, exchangeRates)
+                onSuccess = { items ->
+                    renderBuyIntro(
+                        items
+                    )
                 },
-                onError = {
-                    renderErrorState()
-                }
+                onError = { renderErrorState() },
             )
     }
 
+    private val adapter = BuyCryptoCurrenciesAdapter(
+        assetResources = assetResources,
+        onItemClick = ::onItemClick
+    )
+
+    private fun onItemClick(item: BuyCryptoItem) {
+        compositeDisposable += userIdentity.userAccessForFeature(Feature.SimpleBuy).subscribeBy { accessState ->
+            val blockedState = accessState as? FeatureAccess.Blocked
+            blockedState?.let {
+                when (val reason = it.reason) {
+                    is BlockedReason.TooManyInFlightTransactions -> showPendingOrdersBottomSheet(
+                        reason.maxTransactions
+                    )
+                    BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
+                }.exhaustive
+            } ?: run {
+                startActivity(
+                    SimpleBuyActivity.newIntent(
+                        activity as Context,
+                        item.asset,
+                        launchFromNavigationBar = true,
+                        launchKycResume = false
+                    )
+                )
+            }
+        }
+    }
+
+    private fun showPendingOrdersBottomSheet(maxTransactions: Int) {
+        BuyPendingOrdersBottomSheet.newInstance(maxTransactions).show(
+            childFragmentManager,
+            BuyPendingOrdersBottomSheet.TAG
+        )
+    }
+
     private fun renderBuyIntro(
-        buyPairs: BuySellPairs,
-        pricesHistory: List<PriceHistory>
+        pricesAssets: List<PricedAsset>
     ) {
         with(binding) {
             rvCryptos.visible()
             buyEmpty.gone()
-
-            val introHeaderView = IntroHeaderView(requireContext())
-            introHeaderView.setDetails(
-                icon = R.drawable.ic_cart,
-                label = R.string.select_crypto_you_want,
-                title = R.string.buy_with_cash
-            )
-
-            rvCryptos.removeAllHeaderDecorations()
-            rvCryptos.addItemDecoration(
-                HeaderDecoration.with(requireContext())
-                    .parallax(0.5f)
-                    .setView(introHeaderView)
-                    .build()
-            )
-
-            rvCryptos.layoutManager = LinearLayoutManager(activity)
-            rvCryptos.adapter = BuyCryptoCurrenciesAdapter(
-                buyPairs.pairs.map { pair ->
+            adapter.items =
+                pricesAssets.map { pricedAsset ->
                     BuyCryptoItem(
-                        asset = pair.cryptoCurrency,
-                        price = pricesHistory.first { it.cryptoCurrency == pair.cryptoCurrency }
+                        asset = pricedAsset.asset,
+                        price = pricedAsset.priceHistory
                             .currentExchangeRate
                             .price(),
-                        percentageDelta = pricesHistory.first {
-                            it.cryptoCurrency == pair.cryptoCurrency
-                        }.percentageDelta
-                    ) {
-                        simpleBuyPrefs.clearBuyState()
-                        startActivity(
-                            SimpleBuyActivity.newInstance(
-                                activity as Context,
-                                pair.cryptoCurrency,
-                                launchFromNavigationBar = true,
-                                launchKycResume = false
-                            )
-                        )
-                    }
-                },
-                assetResources
-            )
+                        percentageDelta = pricedAsset.priceHistory.percentageDelta
+                    )
+                }
         }
     }
 
@@ -165,6 +194,19 @@ class BuyIntroFragment : ViewPagerFragment() {
     companion object {
         fun newInstance() = BuyIntroFragment()
     }
+
+    override fun startActivityRequested() {
+        navigator().performAssetActionFor(AssetAction.ViewActivity)
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
+    }
+
+    override fun navigator(): HomeNavigator =
+        (activity as? HomeNavigator) ?: throw IllegalStateException("Parent must implement HomeNavigator")
+
+    override fun onBackPressed(): Boolean = false
 }
 
 data class PriceHistory(
@@ -181,6 +223,10 @@ data class PriceHistory(
 data class BuyCryptoItem(
     val asset: AssetInfo,
     val price: Money,
-    val percentageDelta: Double,
-    val click: () -> Unit
+    val percentageDelta: Double
+)
+
+private data class PricedAsset(
+    val asset: AssetInfo,
+    val priceHistory: PriceHistory
 )

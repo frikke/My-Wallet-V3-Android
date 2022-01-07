@@ -11,11 +11,13 @@ import java.io.IOException
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(fieldVisibility = Visibility.ANY,
+@JsonAutoDetect(
+    fieldVisibility = Visibility.ANY,
     getterVisibility = Visibility.NONE,
     setterVisibility = Visibility.NONE,
     creatorVisibility = Visibility.NONE,
-    isGetterVisibility = Visibility.NONE)
+    isGetterVisibility = Visibility.NONE
+)
 data class AddressLabel(
 
     @JsonProperty("index")

@@ -1,20 +1,6 @@
 package com.blockchain.coincore.xlm
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.fees.FeeType
-import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.preferences.WalletStatus
-import com.blockchain.sunriver.Memo
-import com.blockchain.sunriver.SendDetails
-import com.blockchain.sunriver.XlmAccountReference
-import com.blockchain.sunriver.XlmDataManager
-import com.blockchain.sunriver.XlmFeesFetcher
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeInfo
@@ -30,6 +16,20 @@ import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.fees.FeeType
+import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.preferences.WalletStatus
+import com.blockchain.sunriver.Memo
+import com.blockchain.sunriver.SendDetails
+import com.blockchain.sunriver.XlmAccountReference
+import com.blockchain.sunriver.XlmDataManager
+import com.blockchain.sunriver.XlmFeesFetcher
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 
@@ -72,7 +72,7 @@ class XlmOnChainTxEngine(
                         id = null
                     )
                 )
-            }
+            } ?: px
         }
     }
 
@@ -103,15 +103,16 @@ class XlmOnChainTxEngine(
         require(amount is CryptoValue)
         require(amount.currency == CryptoCurrency.XLM)
 
-        return Singles.zip(
-            sourceAccount.accountBalance.map { it as CryptoValue },
-            sourceAccount.actionableBalance.map { it as CryptoValue },
+        return Single.zip(
+            sourceAccount.balance.firstOrError(),
             absoluteFee()
-        ) { total, available, fees ->
+        ) { balance, fees ->
             pendingTx.copy(
                 amount = amount,
-                totalBalance = total,
-                availableBalance = Money.max(available - fees, CryptoValue.zero(CryptoCurrency.XLM)) as CryptoValue,
+                totalBalance = balance.total,
+                availableBalance = Money.max(
+                    balance.actionable - fees, CryptoValue.zero(CryptoCurrency.XLM)
+                ) as CryptoValue,
                 feeForFullAvailable = fees,
                 feeAmount = fees,
                 feeSelection = pendingTx.feeSelection.copy(

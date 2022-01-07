@@ -1,11 +1,10 @@
 package piuk.blockchain.android.ui.kyc.status
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.NabuToken
-import com.blockchain.notifications.NotificationTokenManager
+import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTierState
-import piuk.blockchain.android.ui.validOfflineToken
+import com.blockchain.notifications.NotificationTokenManager
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -17,6 +16,7 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.tiers
+import piuk.blockchain.android.ui.validOfflineToken
 
 class KycStatusPresenterTest {
 

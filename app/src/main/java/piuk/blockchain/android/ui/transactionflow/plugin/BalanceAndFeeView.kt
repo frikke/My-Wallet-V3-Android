@@ -10,7 +10,7 @@ import com.blockchain.core.price.canConvert
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTxFullscreenFeeAndBalanceBinding
-import piuk.blockchain.android.ui.customviews.CurrencyType
+import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -86,11 +86,13 @@ class BalanceAndFeeView @JvmOverloads constructor(
     private fun makeAmountString(value: Money, state: TransactionState): String =
         if ((value.isPositive || value.isZero) && state.fiatRate != null) {
             showFiatOrCryptoValues(
-                currencyType = state.currencyType ?: (state.pendingTx?.selectedFiat?.let {
-                    val defaultMode = customiser.defInputType(state, it)
-                    model.process(TransactionIntent.DisplayModeChanged(defaultMode))
-                    defaultMode
-                } ?: CurrencyType.Crypto(state.sendingAsset)),
+                currencyType = state.currencyType ?: (
+                    state.pendingTx?.selectedFiat?.let {
+                        val defaultMode = customiser.defInputType(state, it)
+                        model.process(TransactionIntent.DisplayModeChanged(defaultMode))
+                        defaultMode
+                    } ?: CurrencyType.Crypto(state.sendingAsset)
+                    ),
                 state.fiatRate,
                 value
             )

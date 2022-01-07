@@ -1,27 +1,26 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.core.custodial.models.BrokerageQuote
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.BuySellOrder
-import com.blockchain.nabu.datamanagers.BuySellPairs
-import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
-import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
-import piuk.blockchain.android.cards.EverypayAuthOptions
+import java.math.BigInteger
+import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import java.math.BigInteger
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
@@ -31,18 +30,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
         oldState
-
-    class NewCryptoCurrencySelected(val asset: AssetInfo) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            if (oldState.selectedCryptoAsset == asset)
-                oldState
-            else
-                oldState.copy(
-                    selectedCryptoAsset = asset,
-                    amount = FiatValue.zero(oldState.fiatCurrency),
-                    exchangePriceWithDelta = null
-                )
-    }
 
     class AmountUpdated(val amount: FiatValue) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
@@ -54,19 +41,14 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(linkBankTransfer = null, newPaymentMethodToBeAdded = null)
     }
 
-    class OrderPriceUpdated(private val price: FiatValue?) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(orderExchangePrice = price, isLoading = false)
-    }
-
     class UpdateErrorState(private val errorState: TransactionErrorState) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(errorState = errorState)
     }
 
-    class Open3dsAuth(private val paymentLink: String, private val exitLink: String) : SimpleBuyIntent() {
+    class Open3dsAuth(private val cardAcquirerCredentials: CardAcquirerCredentials) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(everypayAuthOptions = EverypayAuthOptions(paymentLink, exitLink))
+            oldState.copy(cardAcquirerCredentials = cardAcquirerCredentials)
     }
 
     class AuthorisePaymentExternalUrl(private val url: String, private val linkedBank: LinkedBank) : SimpleBuyIntent() {
@@ -87,66 +69,20 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class FetchPaymentDetails(val fiatCurrency: String, val selectedPaymentMethodId: String) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState.copy(isLoading = true)
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
     }
 
     class PaymentMethodsUpdated(
-        val availablePaymentMethods: List<PaymentMethod>,
-        private val canAddCard: Boolean,
-        private val canLinkFunds: Boolean,
-        private val canLinkBank: Boolean,
-        private val preselectedId: String? // pass this value if you want to preselect one
+        private val paymentOptions: PaymentOptions,
+        val selectedPaymentMethod: SelectedPaymentMethod?
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
-            val selectedPaymentMethodId = selectedMethodId(oldState.selectedPaymentMethod?.id)
-            val selectedPaymentMethod = availablePaymentMethods.firstOrNull {
-                it.id == selectedPaymentMethodId
-            }
-
-            val type = when (selectedPaymentMethod) {
-                is PaymentMethod.Card -> PaymentMethodType.PAYMENT_CARD
-                is PaymentMethod.Funds -> PaymentMethodType.FUNDS
-                is PaymentMethod.Bank -> PaymentMethodType.BANK_TRANSFER
-                is UndefinedPaymentMethod -> selectedPaymentMethod.paymentMethodType
-                else -> PaymentMethodType.UNKNOWN
-            }
-
             return oldState.copy(
                 isLoading = false,
-                selectedPaymentMethod = selectedPaymentMethod?.let {
-                    SelectedPaymentMethod(
-                        selectedPaymentMethod.id,
-                        (selectedPaymentMethod as? PaymentMethod.Card)?.partner,
-                        selectedPaymentMethod.detailedLabel(),
-                        type,
-                        selectedPaymentMethod.isEligible
-                    )
-                },
-                paymentOptions = PaymentOptions(
-                    availablePaymentMethods = availablePaymentMethods,
-                    canAddCard = canAddCard,
-                    canLinkFunds = canLinkFunds,
-                    canLinkBank = canLinkBank
-                )
+                selectedPaymentMethod = selectedPaymentMethod,
+                paymentOptions = paymentOptions
             )
         }
-
-        // If no preselected Id, we want the first eligible, if none present, check if available is only 1 and
-        // preselect it. Otherwise, don't preselect anything
-        private fun selectedMethodId(oldStateId: String?): String? =
-            when {
-                preselectedId != null -> availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id
-                oldStateId != null -> availablePaymentMethods.firstOrNull { it.id == oldStateId }?.id
-                else -> {
-                    // we skip undefined funds cause this payment method should trigger a bottom sheet
-                    // and it should always be actioned before
-                    val paymentMethodsThatCanBePreselected =
-                        availablePaymentMethods.filter { it !is PaymentMethod.UndefinedBankAccount }
-                    paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible && it.canUsedForPaying() }?.id
-                        ?: paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible }?.id
-                        ?: paymentMethodsThatCanBePreselected.firstOrNull()?.id
-                }
-            }
     }
 
     class SelectedPaymentMethodUpdate(
@@ -196,23 +132,14 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    data class UpdatedBuyLimitsAndSupportedCryptoCurrencies(
-        val buySellPairs: BuySellPairs,
-        private val cryptoAsset: AssetInfo?,
-        private val transferLimits: TransferLimits?
+    object ValidateAmount : SimpleBuyIntent()
+
+    data class UpdatedBuyLimits(
+        val limits: TxLimits
     ) : SimpleBuyIntent() {
-
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
-            val supportedPairsAndLimits = buySellPairs.pairs.filter { it.fiatCurrency == oldState.fiatCurrency }
-
-            if (supportedPairsAndLimits.isEmpty()) {
-                return oldState.copy(buyErrorState = ErrorState.NoAvailableCurrenciesToTrade)
-            }
-
             return oldState.copy(
-                supportedPairsAndLimits = supportedPairsAndLimits,
-                selectedCryptoAsset = cryptoAsset,
-                transferLimits = transferLimits
+                transferLimits = limits
             )
         }
     }
@@ -228,15 +155,19 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
-    data class QuoteUpdated(private val custodialQuote: CustodialQuote) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
-            return oldState.copy(custodialQuote = custodialQuote)
-        }
+    data class InitialiseSelectedCryptoAndFiat(val asset: AssetInfo, val fiatCurrency: String) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(selectedCryptoAsset = asset, fiatCurrency = fiatCurrency)
     }
 
-    data class FetchBuyLimits(val fiatCurrency: String, val asset: AssetInfo) : SimpleBuyIntent() {
+    data class UpdateExchangeRate(val fiatCurrency: String, val asset: AssetInfo) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(fiatCurrency = fiatCurrency, selectedCryptoAsset = asset)
+            oldState
+    }
+
+    data class ExchangeRateUpdated(private val exchangeRate: ExchangeRate) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(fiatRate = exchangeRate)
     }
 
     data class FlowCurrentScreen(val flowScreen: FlowScreen) : SimpleBuyIntent() {
@@ -326,8 +257,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(kycVerificationState = KycState.PENDING)
     }
 
-    object FetchQuote : SimpleBuyIntent()
-
     class KycStateUpdated(val kycState: KycState) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(kycVerificationState = kycState)
@@ -358,18 +287,34 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class OrderCreated(
         private val buyOrder: BuySellOrder,
+        private val quote: BrokerageQuote
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                orderState = buyOrder.state,
+                id = buyOrder.id,
+                quote = BuyQuote.fromBrokerageQuote(quote, buyOrder.fiat.currencyCode, buyOrder.fee),
+                orderValue = buyOrder.orderValue as CryptoValue,
+                paymentSucceeded = buyOrder.state == OrderState.FINISHED,
+                isLoading = false,
+                recurringBuyState = if (buyOrder.recurringBuyId.isNullOrBlank()) {
+                    RecurringBuyState.UNINITIALISED
+                } else {
+                    RecurringBuyState.ACTIVE
+                }
+            )
+    }
+
+    class OrderConfirmed(
+        private val buyOrder: BuySellOrder,
         private val showInAppRating: Boolean = false
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 orderState = buyOrder.state,
-                expirationDate = buyOrder.expires,
-                id = buyOrder.id,
-                fee = buyOrder.fee,
-                orderValue = buyOrder.orderValue as CryptoValue,
-                orderExchangePrice = buyOrder.price,
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,
+                orderValue = buyOrder.orderValue as CryptoValue,
                 showRating = showInAppRating,
                 recurringBuyState = if (buyOrder.recurringBuyId.isNullOrBlank()) {
                     RecurringBuyState.UNINITIALISED
@@ -407,9 +352,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
-    object ResetEveryPayAuth : SimpleBuyIntent() {
+    object ResetCardPaymentAuth : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(everypayAuthOptions = null)
+            oldState.copy(cardAcquirerCredentials = null)
     }
 
     object CancelOrderIfAnyAndCreatePendingOne : SimpleBuyIntent() {
@@ -495,6 +440,13 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 eligibleAndNextPaymentRecurringBuy = eligibilityNextPaymentList
+            )
+    }
+
+    class TxLimitsUpdated(private val limits: TxLimits) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                transferLimits = limits
             )
     }
 }

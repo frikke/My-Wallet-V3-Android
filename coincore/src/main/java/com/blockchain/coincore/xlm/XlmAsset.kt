@@ -1,8 +1,14 @@
 package com.blockchain.coincore.xlm
 
-import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.TxResult
+import com.blockchain.coincore.impl.CryptoAssetBase
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
@@ -22,17 +28,11 @@ import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.SingleAccountList
-import com.blockchain.coincore.TxResult
-import com.blockchain.coincore.impl.CryptoAssetBase
-import com.blockchain.coincore.impl.CustodialTradingAccount
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import thepit.PitLinking
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 internal class XlmAsset(
     payloadManager: PayloadDataManager,

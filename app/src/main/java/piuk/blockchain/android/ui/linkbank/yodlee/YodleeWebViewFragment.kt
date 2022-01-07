@@ -19,6 +19,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.notifications.analytics.Analytics
 import com.google.gson.Gson
+import java.net.URLEncoder
 import org.json.JSONException
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
@@ -29,7 +30,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.yodlee.FastLinkMessage
 import piuk.blockchain.android.simplebuy.yodlee.MessageData
 import piuk.blockchain.android.simplebuy.yodlee.SiteData
-import piuk.blockchain.android.ui.base.setupToolbar
+import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
@@ -37,9 +38,10 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
-import java.net.URLEncoder
 
-class YodleeWebViewFragment : Fragment(), FastLinkInterfaceHandler.FastLinkListener,
+class YodleeWebViewFragment :
+    Fragment(),
+    FastLinkInterfaceHandler.FastLinkListener,
     YodleeWebClient.YodleeWebClientInterface {
 
     private var _binding: FragmentYodleeWebviewBinding? = null
@@ -79,8 +81,7 @@ class YodleeWebViewFragment : Fragment(), FastLinkInterfaceHandler.FastLinkListe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.setupToolbar(R.string.link_a_bank)
-
+        updateTitleToolbar(getString(R.string.link_a_bank))
         setupWebView()
         binding.yodleeRetry.setOnClickListener {
             loadYodlee()

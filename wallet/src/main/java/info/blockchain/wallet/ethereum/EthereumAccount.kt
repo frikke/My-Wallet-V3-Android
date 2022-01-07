@@ -6,12 +6,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-
 import info.blockchain.wallet.ethereum.util.HashUtil
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.keys.SigningKeyImpl
-
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
@@ -23,11 +21,13 @@ import org.web3j.crypto.TransactionEncoder
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(fieldVisibility = Visibility.NONE,
+@JsonAutoDetect(
+    fieldVisibility = Visibility.NONE,
     getterVisibility = Visibility.NONE,
     setterVisibility = Visibility.NONE,
     creatorVisibility = Visibility.NONE,
-    isGetterVisibility = Visibility.NONE)
+    isGetterVisibility = Visibility.NONE
+)
 class EthereumAccount : JsonSerializableAccount {
 
     @JsonProperty("archived")
@@ -49,7 +49,9 @@ class EthereumAccount : JsonSerializableAccount {
     constructor(addressKey: ECKey) {
         this.address = Keys.toChecksumAddress(
             HashUtil.toHexString(
-                computeAddress(addressKey.pubKeyPoint.getEncoded(false))))
+                computeAddress(addressKey.pubKeyPoint.getEncoded(false))
+            )
+        )
     }
 
     /**

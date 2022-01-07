@@ -8,10 +8,17 @@ import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
-import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
@@ -27,13 +34,15 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
+import java.math.RoundingMode
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Currency
+import java.util.Date
+import java.util.Locale
+import kotlin.properties.Delegates
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAsset
 import piuk.blockchain.android.databinding.DialogSheetDashboardAssetDetailsBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
@@ -44,17 +53,12 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAd
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
+import piuk.blockchain.android.util.configureWithPinnedButton
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.setOnTabSelectedListener
 import piuk.blockchain.android.util.visible
-import java.math.RoundingMode
-import java.text.NumberFormat
-import java.text.SimpleDateFormat
-import java.util.Currency
-import java.util.Date
-import java.util.Locale
 
 class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     AssetDetailsIntent, AssetDetailsState, DialogSheetDashboardAssetDetailsBinding>() {
@@ -89,8 +93,6 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
     }
 
-    private var state = AssetDetailsState()
-
     override val model: AssetDetailsModel by scopedInject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetDashboardAssetDetailsBinding =
@@ -110,6 +112,8 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
         renderRecurringBuys(newState.recurringBuys, newState.assetDisplayMap ?: emptyMap())
 
+        configureBuyButton(newState.assetDisplayMap ?: emptyMap(), newState.userBuyAccess)
+
         configureTimespanSelectionUI(binding, newState.timeSpan)
 
         if (newState.chartLoading) {
@@ -118,23 +122,39 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             chartToDataState()
         }
 
-        binding.chart.apply {
-            if (newState.chartData != state.chartData) {
-                updateChart(this, newState.chartData)
-            }
-        }
+        chartData = newState.chartData
 
-        state.prices24HrWithDelta?.let {
+        newState.prices24HrWithDelta?.let {
             val price = it.currentRate.price().toStringWithSymbol()
             binding.currentPrice.text = price
             updatePriceChange(it, binding.priceChange, newState.chartData)
         }
+    }
 
-        state = newState
+    private var chartData: HistoricalRateList by Delegates.observable(emptyList()) { _, oldList, newList ->
+        if (newList != oldList) {
+            updateChart(newList)
+        }
+    }
+
+    private fun configureBuyButton(assetDisplayMap: Map<AssetFilter, AssetDisplayInfo>, buyAccess: FeatureAccess) {
+        with(binding) {
+            assetList.configureWithPinnedButton(
+                buyCryptoBottomButton,
+                assetDisplayMap.containsKey(
+                    AssetFilter.Custodial
+                ) && !buyAccess.isBlockedDueToEligibility()
+            )
+            buyCryptoBottomButton.text = resources.getString(R.string.tx_title_buy, token.asset.displayTicker)
+            buyCryptoBottomButton.setOnClickListener {
+                model.process(HandleActionIntent(AssetAction.Buy))
+            }
+        }
     }
 
     override fun initControls(binding: DialogSheetDashboardAssetDetailsBinding) {
         model.process(LoadAsset(token))
+        model.process(CheckUserBuyStatus)
 
         with(binding) {
             configureChart(
@@ -142,7 +162,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 getFiatSymbol(currencyPrefs.selectedFiatCurrency),
                 numOfDecimalsForChart(asset)
             )
-
+            buyCryptoBottomButton.gone()
             configureTabs(chartPricePeriods)
 
             currentPriceTitle.text =
@@ -197,6 +217,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     private fun renderRecurringBuys(recurringBuys: Map<String, RecurringBuy>, assetDisplayMap: AssetDisplayMap) {
+
         if (recurringBuys.keys.isNotEmpty()) {
             val recurringBuysItems = recurringBuys.values.map {
                 AssetDetailsItem.RecurringBuyInfo(
@@ -204,10 +225,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 )
             }
             listItems.addAll(recurringBuysItems)
-        } else if (assetDisplayMap.containsKey(AssetFilter.Custodial)) {
-            listItems.add(AssetDetailsItem.RecurringBuyBanner)
         }
-
         updateList()
     }
 
@@ -264,15 +282,13 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             analytics.logEvent(CustodialBalanceClicked(account.asset))
         }
 
-        state.assetDisplayMap?.get(assetFilter)?.let {
-            model.process(
-                ShowAssetActionsIntent(account)
-            )
-        }
+        model.process(
+            ShowAssetActionsIntent(account)
+        )
     }
 
-    private fun updateChart(chart: LineChart, data: HistoricalRateList) {
-        chart.apply {
+    private fun updateChart(data: HistoricalRateList) {
+        binding.chart.apply {
             visible()
             clear()
             if (data.isEmpty()) {
@@ -287,21 +303,23 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                     )
                 }
 
-            this.data = LineData(LineDataSet(entries, null).apply {
-                color = ContextCompat.getColor(context, getDataRepresentationColor(data))
-                lineWidth = 2f
-                mode = LineDataSet.Mode.LINEAR
-                setDrawValues(false)
-                setDrawCircles(false)
-                isHighlightEnabled = true
-                setDrawHighlightIndicators(false)
-                marker = ValueMarker(
-                    context,
-                    R.layout.price_chart_marker,
-                    getFiatSymbol(currencyPrefs.selectedFiatCurrency),
-                    numOfDecimalsForChart(asset)
-                )
-            })
+            this.data = LineData(
+                LineDataSet(entries, null).apply {
+                    color = ContextCompat.getColor(context, getDataRepresentationColor(data))
+                    lineWidth = 2f
+                    mode = LineDataSet.Mode.LINEAR
+                    setDrawValues(false)
+                    setDrawCircles(false)
+                    isHighlightEnabled = true
+                    setDrawHighlightIndicators(false)
+                    marker = ValueMarker(
+                        context,
+                        R.layout.price_chart_marker,
+                        getFiatSymbol(currencyPrefs.selectedFiatCurrency),
+                        numOfDecimalsForChart(asset)
+                    )
+                }
+            )
             animateX(500)
         }
     }
@@ -390,9 +408,9 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
         percentageView.text =
             FiatValue.fromMajor(
-                currencyPrefs.selectedFiatCurrency,
-                difference.toBigDecimal()
-            ).toStringWithSymbol() + " ($percentChangeTxt%)"
+            currencyPrefs.selectedFiatCurrency,
+            difference.toBigDecimal()
+        ).toStringWithSymbol() + " ($percentChangeTxt%)"
 
         percentageView.setDeltaColour(
             delta = difference,

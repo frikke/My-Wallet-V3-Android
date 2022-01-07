@@ -4,8 +4,9 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.core.payments.model.Withdrawals
+import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -13,13 +14,13 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
+import java.io.Serializable
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.io.Serializable
 
 data class AssetPriceState(
     val assetInfo: AssetInfo,
@@ -81,7 +82,8 @@ interface BalanceState : DashboardItem {
 data class FiatBalanceInfo(
     val account: FiatAccount,
     val balance: Money = FiatValue.zero(account.fiatCurrency),
-    val userFiat: Money? = null
+    val userFiat: Money? = null,
+    val availableBalance: Money? = null
 )
 
 data class FiatAssetState(
@@ -91,11 +93,13 @@ data class FiatAssetState(
     fun updateWith(
         currencyCode: String,
         balance: FiatValue,
-        userFiatBalance: FiatValue
+        userFiatBalance: FiatValue,
+        availableBalance: Money
     ): FiatAssetState {
         val newBalanceInfo = fiatAccounts[currencyCode]?.copy(
             balance = balance,
-            userFiat = userFiatBalance
+            userFiat = userFiatBalance,
+            availableBalance = availableBalance
         )
 
         return newBalanceInfo?.let {
@@ -108,8 +112,8 @@ data class FiatAssetState(
     fun reset(): FiatAssetState =
         FiatAssetState(fiatAccounts.mapValues { old -> FiatBalanceInfo(old.value.account) })
 
-    val totalBalance: Money? by lazy {
-        if (fiatAccounts.isEmpty()) {
+    val totalBalance: Money?
+        get() = if (fiatAccounts.isEmpty()) {
             null
         } else {
             val fiatList = fiatAccounts.values.mapNotNull { it.userFiat }
@@ -119,7 +123,6 @@ data class FiatAssetState(
                 null
             }
         }
-    }
 }
 
 data class CryptoAssetState(
@@ -150,8 +153,7 @@ data class CryptoAssetState(
 }
 
 data class Locks(
-    val available: Money? = null,
-    val locks: Withdrawals? = null
+    val fundsLocks: FundsLocks? = null
 ) : DashboardItem, Serializable
 
 data class DashboardState(
@@ -169,7 +171,9 @@ data class DashboardState(
     val linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction? = null,
     val hasLongCallInProgress: Boolean = false,
     val isLoadingAssets: Boolean = true,
-    val lock: Locks = Locks()
+    val locks: Locks = Locks(),
+    val buyAccess: FeatureAccess = FeatureAccess.Unknown,
+    val buyButtonShouldBeHidden: Boolean = true
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

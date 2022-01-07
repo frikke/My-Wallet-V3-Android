@@ -1,12 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
@@ -19,6 +13,13 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -59,7 +60,9 @@ class InterestDepositOnChainTxEngine(
                     .map {
                         val cryptoAsset = it.cryptoCurrency
                         pendingTx.copy(
-                            minLimit = it.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset),
+                            limits = TxLimits.withMinAndUnlimitedMax(
+                                it.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset)
+                            ),
                             feeSelection = pendingTx.feeSelection.copy(
                                 selectedLevel = FeeLevel.Regular,
                                 availableLevels = AVAILABLE_FEE_LEVELS
@@ -83,13 +86,13 @@ class InterestDepositOnChainTxEngine(
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
         onChainEngine.doBuildConfirmations(pendingTx).map { pTx ->
             modifyEngineConfirmations(pTx)
-        }.flatMap {
-            if (it.hasOption(TxConfirmation.MEMO)) {
-                it.getOption<TxConfirmationValue.Memo>(TxConfirmation.MEMO)?.let { memo ->
-                    onChainEngine.doOptionUpdateRequest(it, memo.copy(editable = false))
-                }
+        }.flatMap { px ->
+            if (px.hasOption(TxConfirmation.MEMO)) {
+                px.getOption<TxConfirmationValue.Memo>(TxConfirmation.MEMO)?.let { memo ->
+                    onChainEngine.doOptionUpdateRequest(px, memo.copy(editable = false))
+                } ?: Single.just(px)
             } else {
-                Single.just(it)
+                Single.just(px)
             }
         }
 
@@ -112,7 +115,7 @@ class InterestDepositOnChainTxEngine(
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
         onChainEngine.doValidateAmount(pendingTx)
             .map {
-                if (it.amount.isPositive && it.amount < it.minLimit!!) {
+                if (it.amount.isPositive && it.isMinLimitViolated()) {
                     it.copy(validationState = ValidationState.UNDER_MIN_LIMIT)
                 } else {
                     it
@@ -135,7 +138,8 @@ class InterestDepositOnChainTxEngine(
                 interestBalances.flushCaches(sourceAsset)
             }
 
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable = txTarget.onTxCompleted(txResult)
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
+        onChainEngine.doPostExecute(pendingTx, txResult)
 
     companion object {
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)

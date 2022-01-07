@@ -1,15 +1,15 @@
 package piuk.blockchain.android.ui.activity.adapter
 
 import android.widget.TextView
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.CryptoActivitySummaryItem
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import com.blockchain.coincore.ActivitySummaryItem
-import com.blockchain.coincore.CryptoActivitySummaryItem
-import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter

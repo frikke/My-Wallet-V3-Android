@@ -17,7 +17,7 @@ class ActivityIndicator {
         .replay(1)
         .refCount()
 
-    fun <T> Observable<T>.trackProgress(): Observable<T> {
+    fun <T : Any> Observable<T>.trackProgress(): Observable<T> {
         return this.doOnSubscribe {
             increment()
         }.doFinally {
@@ -25,7 +25,7 @@ class ActivityIndicator {
         }
     }
 
-    fun <T> Single<T>.trackProgress(): Single<T> {
+    fun <T : Any> Single<T>.trackProgress(): Single<T> {
         return this.doOnSubscribe {
             increment()
         }.doFinally {
@@ -62,21 +62,21 @@ class ActivityIndicator {
     }
 }
 
-fun <T> Observable<T>.trackProgress(activityIndicator: ActivityIndicator?): Observable<T> =
+fun <T : Any> Observable<T>.trackProgress(activityIndicator: ActivityIndicator?): Observable<T> =
     activityIndicator?.let {
         with(it) {
             this@trackProgress.trackProgress()
         }
     } ?: this
 
-fun <T> Maybe<T>.trackProgress(activityIndicator: ActivityIndicator?): Maybe<T> =
+fun <T : Any> Maybe<T>.trackProgress(activityIndicator: ActivityIndicator?): Maybe<T> =
     activityIndicator?.let {
         with(it) {
             this@trackProgress.trackProgress()
         }
     } ?: this
 
-fun <T> Single<T>.trackProgress(activityIndicator: ActivityIndicator?): Single<T> =
+fun <T : Any> Single<T>.trackProgress(activityIndicator: ActivityIndicator?): Single<T> =
     activityIndicator?.let {
         with(it) {
             trackProgress()

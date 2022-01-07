@@ -26,8 +26,8 @@ class WalletCredentialsMetadataUpdater(
         ).filter {
             it.guid == guid && it.password == password && it.sharedKey == sharedKey
         }.isEmpty
-        .flatMapCompletable {
-            if (it) updateMetadata(guid, password, sharedKey) else Completable.complete()
-        }
+            .flatMapCompletable {
+                if (it) updateMetadata(guid, password, sharedKey) else Completable.complete()
+            }
     }
 }

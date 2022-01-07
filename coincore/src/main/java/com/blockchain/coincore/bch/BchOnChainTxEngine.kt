@@ -1,6 +1,20 @@
 package com.blockchain.coincore.bch
 
 import com.blockchain.bitpay.BitPayClientEngine
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.EngineTransaction
+import com.blockchain.coincore.FeeInfo
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxResult
+import com.blockchain.coincore.TxValidationFailure
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.copyAndPut
+import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
+import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -20,29 +34,15 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
+import java.math.BigInteger
 import org.bitcoinj.core.Transaction
 import org.spongycastle.util.encoders.Hex
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.EngineTransaction
-import com.blockchain.coincore.FeeInfo
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.coincore.TxResult
-import com.blockchain.coincore.TxValidationFailure
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.copyAndPut
-import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
-import com.blockchain.coincore.updateTxValidity
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.math.BigInteger
 
 private const val STATE_UTXO = "bch_utxo"
 
@@ -59,7 +59,8 @@ class BchOnChainTxEngine(
 ) : OnChainTxEngineBase(
     requireSecondPassword,
     walletPreferences
-), BitPayClientEngine {
+),
+    BitPayClientEngine {
 
     private val bchSource: BchCryptoWalletAccount by unsafeLazy {
         sourceAccount as BchCryptoWalletAccount

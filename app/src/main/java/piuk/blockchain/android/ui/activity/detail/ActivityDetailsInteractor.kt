@@ -1,23 +1,5 @@
 package piuk.blockchain.android.ui.activity.detail
 
-import com.blockchain.nabu.datamanagers.CurrencyPair
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.RecurringBuy
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.R
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
@@ -36,10 +18,28 @@ import com.blockchain.coincore.eth.EthActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.coincore.xlm.XlmActivitySummaryItem
 import com.blockchain.core.price.historic.HistoricRateFetcher
-import piuk.blockchain.android.domain.repositories.AssetActivityRepository
-import piuk.blockchain.android.util.StringUtils
+import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import info.blockchain.wallet.multiaddress.TransactionSummary
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.text.ParseException
 import java.util.Date
+import piuk.blockchain.android.R
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
+import piuk.blockchain.android.util.StringUtils
 
 class ActivityDetailsInteractor(
     private val currencyPrefs: CurrencyPrefs,
@@ -60,7 +60,8 @@ class ActivityDetailsInteractor(
             TransactionId(summaryItem.txId),
             Created(Date(summaryItem.timeStampMs)),
             HistoricCryptoPrice(
-                summaryItem.price, if (currentTransactionType == OrderType.BUY) {
+                summaryItem.price,
+                if (currentTransactionType == OrderType.BUY) {
                     summaryItem.asset.displayTicker
                 } else {
                     summaryItem.fundedFiat.currencyCode
@@ -509,8 +510,8 @@ class ActivityDetailsInteractor(
     ) = listOfNotNull(
         TransactionId(item.txId),
         HistoricValue(fiatValue, item.transactionType),
-        addSingleOrMultipleFromAddresses(transactionInOutDetails),
         addSingleOrMultipleToAddresses(transactionInOutDetails),
+        addSingleOrMultipleFromAddresses(transactionInOutDetails),
         checkIfShouldAddMemo(item),
         Action()
     )
@@ -627,8 +628,10 @@ class ActivityDetailsInteractor(
         asset: AssetInfo,
         description: String
     ): Completable {
-        return when (val activityItem =
-            assetActivityRepository.findCachedItem(asset, txId)) {
+        return when (
+            val activityItem =
+                assetActivityRepository.findCachedItem(asset, txId)
+        ) {
             is BtcActivitySummaryItem -> activityItem.updateDescription(description)
             is BchActivitySummaryItem -> activityItem.updateDescription(description)
             is EthActivitySummaryItem -> activityItem.updateDescription(description)

@@ -1,15 +1,13 @@
 package piuk.blockchain.android.ui.kyc.address
 
 import com.blockchain.android.testutils.rxInit
-import piuk.blockchain.android.ui.getBlankNabuUser
+import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.Scope
-import piuk.blockchain.android.ui.validOfflineToken
-import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -18,16 +16,14 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be equal to`
-
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.ui.getBlankNabuUser
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
+import piuk.blockchain.android.ui.validOfflineToken
 
 class KycHomeAddressPresenterTest {
 

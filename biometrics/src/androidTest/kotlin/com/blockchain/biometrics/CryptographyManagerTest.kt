@@ -1,12 +1,12 @@
 package com.blockchain.biometrics
 
+import java.nio.charset.Charset
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.nio.charset.Charset
 
 // NOTE: roboelectric runner needed for Base64 Android implementations
 @Suppress("PrivatePropertyName")

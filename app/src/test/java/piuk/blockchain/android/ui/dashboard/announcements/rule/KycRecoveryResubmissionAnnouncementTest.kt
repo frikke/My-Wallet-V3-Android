@@ -22,9 +22,9 @@ class KycRecoveryResubmissionAnnouncementTest {
         whenever(dismissEntry.prefsKey).thenReturn(VerifyEmailAnnouncement.DISMISS_KEY)
 
         subject = KycRecoveryResubmissionAnnouncement(
-                dismissRecorder = dismissRecorder,
-                userIdentity = userIdentity
-            )
+            dismissRecorder = dismissRecorder,
+            userIdentity = userIdentity
+        )
     }
 
     @Test

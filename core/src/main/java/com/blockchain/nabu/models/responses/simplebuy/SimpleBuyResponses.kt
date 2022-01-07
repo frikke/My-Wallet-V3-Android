@@ -17,7 +17,12 @@ data class SimpleBuyPairResp(
     val sellMax: Long
 )
 
-data class SimpleBuyEligibility(val simpleBuyTradingEligible: Boolean)
+data class SimpleBuyEligibility(
+    val eligible: Boolean,
+    val simpleBuyTradingEligible: Boolean,
+    val pendingDepositSimpleBuyTrades: Int,
+    val maxPendingDepositSimpleBuyTrades: Int
+)
 
 data class SimpleBuyCurrency(val currency: String)
 
@@ -41,6 +46,8 @@ data class BankAgentResponse(
     val name: String?,
     val recipient: String?,
     val routingNumber: String?,
+    val recipientAddress: String?,
+    val accountType: String?,
     val swiftCode: String?
 )
 
@@ -64,6 +71,7 @@ data class CurrencyFeeResponse(
 )
 
 data class CustodialWalletOrder(
+    private val quoteId: String?,
     private val pair: String,
     private val action: String,
     private val input: OrderInput,
@@ -86,13 +94,15 @@ data class BuySellOrderResponse(
     val insertedAt: String,
     val price: String?,
     val fee: String?,
-    val attributes: PaymentAttributes?,
+    val attributes: PaymentAttributesResponse?,
     val expiresAt: String,
     val updatedAt: String,
     val side: String,
     val depositPaymentId: String?,
+    val processingErrorType: String?,
     val recurringBuyId: String?,
-    val failureReason: String?
+    val failureReason: String?,
+    val paymentError: String
 ) {
     companion object {
         const val PENDING_DEPOSIT = "PENDING_DEPOSIT"
@@ -113,6 +123,7 @@ data class BuySellOrderResponse(
         const val FAILED_INTERNAL_ERROR = "FAILED_INTERNAL_ERROR"
         const val FAILED_BENEFICIARY_BLOCKED = "FAILED_BENEFICIARY_BLOCKED"
         const val FAILED_BAD_FILL = "FAILED_BAD_FILL"
+        const val ISSUER_PROCESSING_ERROR = "ISSUER"
     }
 }
 
@@ -122,7 +133,11 @@ data class TransferRequest(
     val amount: String
 )
 
-data class AddNewCardBodyRequest(private val currency: String, private val address: Address)
+data class AddNewCardBodyRequest(
+    private val currency: String,
+    private val address: Address,
+    private val paymentMethodTokens: Map<String, String>?
+)
 
 data class AddNewCardResponse(
     val id: String,
@@ -137,7 +152,8 @@ class ProductTransferRequestBody(
 )
 
 data class ActivateCardResponse(
-    val everypay: EveryPayCardCredentialsResponse?
+    val everypay: EveryPayCardCredentialsResponse?,
+    val cardProvider: CardProviderResponse?
 )
 
 data class EveryPayCardCredentialsResponse(
@@ -146,24 +162,41 @@ data class EveryPayCardCredentialsResponse(
     val paymentLink: String
 )
 
-data class PaymentAttributes(
-    val everypay: EverypayPaymentAttrs?,
+// cardAcquirerName and cardAcquirerAccountCode are mandatory
+data class CardProviderResponse(
+    val cardAcquirerName: String, // "STRIPE"
+    val cardAcquirerAccountCode: String,
+    val apiUserID: String?, // is the old apiUserName
+    val apiToken: String?, // is the old mobile token and will be fill with bearer token most of the time
+    val paymentLink: String?, // link should be followed background and if an action is required we should abort
+    val paymentState: String?,
+    val paymentReference: String?,
+    val orderReference: String?,
+    val clientSecret: String?, // use when client secret is needed (stripe)
+    val publishableApiKey: String?
+)
+
+data class PaymentAttributesResponse(
+    val everypay: EverypayPaymentAttributesResponse?,
     val authorisationUrl: String?,
-    val status: String?
+    val status: String?,
+    val cardProvider: CardProviderPaymentAttributesResponse?
 )
 
-class PaymentAuthorisationAttrs(
-    val authorisationUrl: String
+// cardAcquirerName and cardAcquirerAccountCode are mandatory
+data class CardProviderPaymentAttributesResponse(
+    val cardAcquirerName: String,
+    val cardAcquirerAccountCode: String,
+    val paymentLink: String?,
+    val paymentState: String?,
+    val clientSecret: String?,
+    val publishableApiKey: String?
 )
 
-data class EverypayPaymentAttrs(
+data class EverypayPaymentAttributesResponse(
     val paymentLink: String,
     val paymentState: String
-) {
-    companion object {
-        const val WAITING_3DS = "WAITING_FOR_3DS_RESPONSE"
-    }
-}
+)
 
 data class ConfirmOrderRequestBody(
     private val action: String = "confirm",
@@ -212,6 +245,7 @@ data class TransactionResponse(
     val type: String,
     val state: String,
     val beneficiaryId: String? = null,
+    val error: String? = null,
     val extraAttributes: TransactionAttributesResponse,
     val txHash: String?
 ) {
@@ -229,6 +263,11 @@ data class TransactionResponse(
 
         const val DEPOSIT = "DEPOSIT"
         const val CHARGE = "CHARGE"
+        const val CARD_PAYMENT_FAILED = "CARD_PAYMENT_FAILED"
+        const val CARD_PAYMENT_ABANDONED = "CARD_PAYMENT_ABANDONED"
+        const val CARD_PAYMENT_EXPIRED = "CARD_PAYMENT_EXPIRED"
+        const val BANK_TRANSFER_PAYMENT_REJECTED = "BANK_TRANSFER_PAYMENT_REJECTED"
+        const val BANK_TRANSFER_PAYMENT_EXPIRED = "BANK_TRANSFER_PAYMENT_EXPIRED"
         const val WITHDRAWAL = "WITHDRAWAL"
     }
 }
@@ -247,7 +286,8 @@ data class AmountResponse(
 
 data class SimpleBuyConfirmationAttributes(
     private val everypay: EveryPayAttrs? = null,
-    private val callback: String? = null
+    private val callback: String? = null,
+    private val redirectURL: String?
 )
 
 data class EveryPayAttrs(private val customerUrl: String)

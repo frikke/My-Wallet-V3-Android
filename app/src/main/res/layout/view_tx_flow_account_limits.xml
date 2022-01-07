@@ -3,13 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="?selectableItemBackground"
+    android:paddingBottom="@dimen/small_margin"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/amount_sheet_limit_title"
         style="@style/Text.Light.12"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/standard_margin"
@@ -17,10 +19,22 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/deposit_enter_amount_limit_title"
-        app:layout_constraintEnd_toStartOf="@id/amount_sheet_limits_icon"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/info_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/minuscule_margin"
+        android:contentDescription="Info"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:src="@drawable/ic_question"
+        app:layout_constraintBottom_toBottomOf="@+id/amount_sheet_limit_title"
+        app:layout_constraintStart_toEndOf="@id/amount_sheet_limit_title"
+        app:layout_constraintTop_toTopOf="@+id/amount_sheet_limit_title" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/amount_sheet_limit"

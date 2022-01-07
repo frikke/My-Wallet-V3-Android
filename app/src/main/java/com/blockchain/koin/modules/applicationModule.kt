@@ -12,8 +12,11 @@ import com.blockchain.core.Database
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.usd
+import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
@@ -23,21 +26,29 @@ import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
 import com.blockchain.operations.AppStartUpFlushable
+import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
+import com.blockchain.payments.checkoutcom.CheckoutFactory
+import com.blockchain.payments.core.CardProcessor
+import com.blockchain.payments.stripe.StripeCardProcessor
+import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
+import info.blockchain.wallet.api.Environment
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import java.io.File
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.binds
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.cards.CardModel
-import piuk.blockchain.android.cards.partners.EverypayCardActivator
+import piuk.blockchain.android.cards.partners.CardActivator
+import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.Mapper
@@ -59,15 +70,16 @@ import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.everypay.service.EveryPayCardService
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
+import piuk.blockchain.android.simplebuy.BuyFlowNavigator
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.GBPPaymentAccountMapper
-import piuk.blockchain.android.simplebuy.SimpleBuyFlowNavigator
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializer
@@ -94,6 +106,7 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.home.MainPresenter
+import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVeriffModel
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerifyInteractor
@@ -129,10 +142,10 @@ import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 import thepit.PitLinking
-import java.io.File
 
 val applicationModule = module {
 
@@ -246,15 +259,15 @@ val applicationModule = module {
         }
 
         factory(gbp) {
-            GBPPaymentAccountMapper(stringUtils = get())
+            GBPPaymentAccountMapper(resources = get())
         }.bind(PaymentAccountMapper::class)
 
         factory(eur) {
-            EURPaymentAccountMapper(stringUtils = get())
+            EURPaymentAccountMapper(resources = get())
         }.bind(PaymentAccountMapper::class)
 
         factory(usd) {
-            USDPaymentAccountMapper(stringUtils = get())
+            USDPaymentAccountMapper(resources = get())
         }.bind(PaymentAccountMapper::class)
 
         scoped {
@@ -432,22 +445,20 @@ val applicationModule = module {
         }
 
         factory {
-            DeepLinkPersistence(
-                prefs = get()
-            )
-        }
-
-        factory {
             SimpleBuyInteractor(
                 withdrawLocksRepository = get(),
                 tierService = get(),
                 custodialWalletManager = get(),
-                appUtil = get(),
+                limitsDataManager = get(),
                 coincore = get(),
                 eligibilityProvider = get(),
                 bankLinkingPrefs = get(),
                 analytics = get(),
-                bankPartnerCallbackProvider = get()
+                exchangeRatesDataManager = get(),
+                bankPartnerCallbackProvider = get(),
+                stripeAndCheckoutPaymentsFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
+                brokerageDataManager = get(),
+                cardProcessors = getCardProcessors().associateBy { it.acquirer }
             )
         }
 
@@ -456,13 +467,12 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
-                currencyPrefs = get(),
                 ratingPrefs = get(),
                 prefs = get(),
+                simpleBuyPrefs = get(),
                 serializer = get(),
-                cardActivators = listOf(
-                    EverypayCardActivator(get(), get())
-                ),
+                cardActivator = get(),
+                _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
                 crashLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
@@ -535,9 +545,7 @@ val applicationModule = module {
                 interactor = get(),
                 currencyPrefs = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
-                cardActivators = listOf(
-                    EverypayCardActivator(get(), get())
-                ),
+                cardActivator = get(),
                 gson = get(),
                 prefs = get(),
                 environmentConfig = get(),
@@ -546,22 +554,19 @@ val applicationModule = module {
         }
 
         factory {
-            SimpleBuyFlowNavigator(
-                simpleBuyModel = get(),
-                tierService = get(),
+            BuyFlowNavigator(
+                simpleBuySyncFactory = get(),
+                userIdentity = get(),
                 currencyPrefs = get(),
-                custodialWalletManager = get(),
-                exchangeRates = get()
+                custodialWalletManager = get()
             )
         }
 
         factory {
             BuySellFlowNavigator(
-                simpleBuyModel = get(),
                 custodialWalletManager = get(),
-                currencyPrefs = get(),
-                tierService = get(),
-                eligibilityProvider = get()
+                userIdentity = get(),
+                simpleBuySyncFactory = get()
             )
         }
 
@@ -664,16 +669,6 @@ val applicationModule = module {
         }
 
         factory {
-            LauncherPresenter(
-                appUtil = get(),
-                prefs = get(),
-                deepLinkPersistence = get(),
-                envSettings = get(),
-                authPrefs = get()
-            )
-        }
-
-        factory {
             Prerequisites(
                 metadataManager = get(),
                 settingsDataManager = get(),
@@ -745,7 +740,10 @@ val applicationModule = module {
         }
 
         factory {
-            EmailVerifyInteractor(emailUpdater = get())
+            EmailVerifyInteractor(
+                emailUpdater = get(),
+                isRedesignEnabled = get(walletRedesignFeatureFlag)
+            )
         }
 
         scoped {
@@ -759,6 +757,26 @@ val applicationModule = module {
                 context = get()
             )
         }
+
+        factory {
+            MainScreenLauncher(
+                walletRedesignFeatureFlag = get(walletRedesignFeatureFlag),
+                crashLogger = get()
+            )
+        }
+
+        factory {
+            EveryPayCardService(
+                everyPayService = get()
+            )
+        }
+
+        factory {
+            CardProviderActivator(
+                custodialWalletManager = get(),
+                submitEveryPayCardService = get()
+            )
+        }.bind(CardActivator::class)
     }
 
     factory {
@@ -816,4 +834,52 @@ val applicationModule = module {
             name = "cache.db"
         )
     }
+
+    factory {
+        LauncherPresenter(
+            appUtil = get(),
+            prefs = get(),
+            deepLinkPersistence = get(),
+            envSettings = get(),
+            authPrefs = get()
+        )
+    }
+
+    factory {
+        DeepLinkPersistence(
+            prefs = get()
+        )
+    }
+
+    single {
+        StripeFactory(
+            context = get(),
+            stripeAccountId = null,
+            enableLogging = true
+        )
+    }
+
+    factory {
+        StripeCardProcessor(
+            stripeFactory = get()
+        )
+    }.bind(CardProcessor::class)
+
+    single {
+        val env: EnvironmentConfig = get()
+        CheckoutFactory(
+            context = get(),
+            isProd = env.environment == Environment.PRODUCTION
+        )
+    }
+
+    factory {
+        CheckoutCardProcessor(
+            checkoutFactory = get()
+        )
+    }.bind(CardProcessor::class)
+}
+
+fun getCardProcessors(): List<CardProcessor> {
+    return payloadScope.getAll()
 }

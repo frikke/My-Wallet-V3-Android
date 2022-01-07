@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -96,7 +97,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
-    <piuk.blockchain.android.ui.customviews.FiatCryptoInputView
+    <piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
         android:id="@+id/input_amount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -156,17 +157,24 @@
         app:layout_constraintStart_toStartOf="@+id/payment_method"
         app:layout_constraintTop_toBottomOf="@+id/payment_method">
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.elyeproj.loaderviewlibrary.LoaderImageView
             android:id="@+id/payment_method_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/small_margin"
+            android:minWidth="25dp"
+            android:minHeight="25dp"
+            android:scaleType="center"
+            app:corners="8"
+            app:height_weight="0.8"
             app:layout_constraintBottom_toBottomOf="@id/payment_method_limit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/payment_method_title"
-            app:srcCompat="@drawable/ic_add_payment_method" />
+            app:use_gradient="true"
+            app:width_weight="0.9"
+            tools:srcCompat="@drawable/ic_add_payment_method" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.elyeproj.loaderviewlibrary.LoaderTextView
             android:id="@+id/payment_method_title"
             style="@style/Text.Semibold.16"
             android:layout_width="0dp"
@@ -175,9 +183,13 @@
             android:layout_marginEnd="@dimen/standard_margin"
             android:ellipsize="end"
             android:singleLine="true"
+            app:corners="8"
+            app:height_weight="0.8"
             app:layout_constraintBottom_toTopOf="@+id/payment_method_bank_info"
             app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
+            app:use_gradient="true"
+            app:width_weight="0.9"
             tools:text="Chase Saphire 8291" />
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -191,26 +203,37 @@
             app:srcCompat="@drawable/ic_arrow_down"
             app:tint="@color/grey_600" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.elyeproj.loaderviewlibrary.LoaderTextView
             android:id="@+id/payment_method_bank_info"
             style="@style/Text.Light.14"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/small_margin"
-            android:visibility="gone"
+            android:layout_marginEnd="@dimen/small_margin"
+            app:corners="8"
+            app:height_weight="0.8"
+            app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
             app:layout_constraintTop_toBottomOf="@+id/payment_method_title"
+            app:use_gradient="true"
+            app:width_weight="0.9"
             tools:text="Checking account 0123"
             tools:visibility="visible" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.elyeproj.loaderviewlibrary.LoaderTextView
             android:id="@+id/payment_method_limit"
             style="@style/Text.Light.14"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/small_margin"
+            app:corners="8"
+            app:height_weight="0.8"
+            app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
             app:layout_constraintTop_toBottomOf="@+id/payment_method_bank_info"
+            app:use_gradient="true"
+            app:width_weight="0.9"
             tools:text="$5,000 USD Limit" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -236,6 +259,7 @@
         android:layout_marginEnd="@dimen/standard_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root" />
+        app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root"
+        tools:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

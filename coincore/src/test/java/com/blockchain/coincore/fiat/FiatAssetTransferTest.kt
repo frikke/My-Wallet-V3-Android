@@ -1,8 +1,11 @@
 package com.blockchain.coincore.fiat
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -12,9 +15,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
-import com.blockchain.coincore.impl.CryptoInterestAccount
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 
 class FiatAssetTransferTest {
 

@@ -1,17 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import androidx.fragment.app.FragmentManager
-import com.blockchain.koin.scopedInject
-import info.blockchain.balance.AssetInfo
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.LaunchOrigin
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
@@ -23,6 +12,18 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoAccountCustodialGroup
 import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import com.blockchain.coincore.selectFirstAccount
+import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.dashboard.sheets.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
@@ -49,7 +50,7 @@ class AssetDetailsFlow(
         fun goToInterestWithdraw(fromAccount: InterestAccount) {}
         fun goToInterestDashboard() {}
         fun goToSummary(account: SingleAccount, asset: AssetInfo) {}
-        fun goToBuy(asset: AssetInfo) {}
+        fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess)
     }
 
     private var currentStep: AssetDetailsStep = AssetDetailsStep.ZERO
@@ -207,7 +208,7 @@ class AssetDetailsFlow(
             }
             AssetAction.Buy -> {
                 newState.asset?.let {
-                    assetFlowHost.goToBuy(it.asset)
+                    assetFlowHost.tryToLaunchBuy(it.asset, newState.userBuyAccess)
                     finishFlow()
                 }
             }

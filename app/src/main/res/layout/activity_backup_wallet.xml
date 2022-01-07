@@ -5,6 +5,7 @@
     android:orientation="vertical">
 
     <include
+        android:id="@+id/toolbar"
         layout="@layout/toolbar_general" />
 
     <FrameLayout

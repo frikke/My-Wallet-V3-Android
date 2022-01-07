@@ -8,18 +8,21 @@ import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.wallet.api.data.Settings
+import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import java.io.Serializable
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import java.io.Serializable
+import piuk.blockchain.androidcore.utils.extensions.then
 
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,
@@ -34,84 +37,98 @@ class LoaderInteractor(
     private val analytics: Analytics,
     private val ioScheduler: Scheduler
 ) {
-    fun initSettings(isAfterWalletCreation: Boolean): Observable<LoaderIntents> {
-        return Observable.create { emitter ->
-            val settings = Single.defer {
-                Single.just(payloadDataManager.wallet!!)
-            }.flatMap { wallet ->
-                prerequisites.initSettings(
-                    wallet.guid,
-                    wallet.sharedKey
-                ).doOnSuccess {
-                    // If the account is new, we need to check if we should launch Simple buy flow
-                    // (in that case, currency will be selected by user manually)
-                    // or select the default from device Locale
-                    if (prefs.isNewlyCreated)
-                        setCurrencyUnits(it)
-                }
-            }
 
-            val metadata = Completable.defer { prerequisites.initMetadataAndRelatedPrerequisites() }
+    private val wallet: Wallet
+        get() = payloadDataManager.wallet!!
 
-            emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.START))
-            settings.zipWith(
-                metadata.toSingleDefault(true)
-            ).map {
-                if (!shouldCheckForEmailVerification())
-                    false
-                else {
-                    isAfterWalletCreation
+    private val metadata
+        get() = Completable.defer { prerequisites.initMetadataAndRelatedPrerequisites() }
+
+    private val settings: Single<Settings>
+        get() = Single.defer {
+            prerequisites.initSettings(
+                wallet.guid,
+                wallet.sharedKey
+            )
+        }
+
+    private val warmCaches: Completable
+        get() = prerequisites.warmCaches().subscribeOn(ioScheduler)
+
+    private val emitter =
+        BehaviorSubject.createDefault<LoaderIntents>(LoaderIntents.UpdateProgressStep(ProgressStep.START))
+
+    val loaderIntents: Observable<LoaderIntents>
+        get() = emitter
+
+    private val notificationTokenUpdate: Completable
+        get() = notificationTokenManager.resendNotificationToken().onErrorComplete()
+
+    fun initSettings(isAfterWalletCreation: Boolean): Disposable {
+        return settings
+            .flatMapCompletable {
+                syncFiatCurrency(it)
+            }.then {
+                metadata
+            }.then {
+                saveInitialCountry()
+            }.then {
+                updateUserFiatIfNotSet()
+            }.then {
+                notificationTokenUpdate
+            }.then {
+                warmCaches.doOnSubscribe {
+                    emitter.onNext(
+                        LoaderIntents.UpdateProgressStep(ProgressStep.LOADING_PRICES)
+                    )
                 }
-            }.flatMap { _isAfterWalletCreation ->
-                saveInitialCountry(_isAfterWalletCreation)
-            }.flatMap { emailVerifShouldLaunched ->
-                if (noCurrencySet())
-                    settingsDataManager.setDefaultUserFiat()
-                        .map { emailVerifShouldLaunched }
-                else {
-                    Single.just(emailVerifShouldLaunched)
-                }
-            }.doOnSuccess {
-                walletPrefs.isAppUnlocked = true
-                analytics.logEvent(LoginAnalyticsEvent)
-            }.flatMap { emailVerifShouldLaunched ->
-                notificationTokenManager.resendNotificationToken()
-                    .onErrorComplete()
-                    .toSingle { emailVerifShouldLaunched }
-            }.flatMap { emailVerifShouldLaunched ->
-                emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.LOADING_PRICES))
-                prerequisites.warmCaches()
-                    .toSingle { emailVerifShouldLaunched }
-                    .subscribeOn(ioScheduler)
             }.doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(
-                onSuccess = { emailVerifShouldLaunched ->
-                    if (emailVerifShouldLaunched) {
-                        emitter.onNext(LoaderIntents.UpdateLoaderStep(LoaderStep.EmailVerification))
-                        emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
-                    } else {
-                        emitter.onNext(
-                            LoaderIntents.UpdateLoaderStep(
-                                LoaderStep.Main(deepLinkPersistence.popDataFromSharedPrefs(), false)
-                            )
-                        )
-                    }
-                    emitter.onComplete()
+                onComplete = {
+                    onInitSettingsSuccess(isAfterWalletCreation && shouldCheckForEmailVerification())
                 }, onError = { throwable ->
-                    emitter.onError(throwable)
-                }
+                emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.Error(throwable)))
+            }
             )
-        }
     }
 
-    private fun setCurrencyUnits(settings: Settings) {
-        prefs.selectedFiatCurrency = settings.currency
+    private fun syncFiatCurrency(settings: Settings): Completable =
+        when {
+            prefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
+            settings.currency != currencyPrefs.selectedFiatCurrency -> Completable.fromAction {
+                currencyPrefs.selectedFiatCurrency = settings.currency
+            }
+            else -> Completable.complete()
+        }
+
+    private fun onInitSettingsSuccess(shouldLaunchEmailVerification: Boolean) {
+        if (shouldLaunchEmailVerification) {
+            emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.EmailVerification))
+            emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
+        } else {
+            emitter.onNext(
+                LoaderIntents.UpdateLoadingStep(
+                    LoadingStep.Main(deepLinkPersistence.popDataFromSharedPrefs(), false)
+                )
+            )
+        }
+        emitter.onComplete()
+        walletPrefs.isAppUnlocked = true
+        analytics.logEvent(LoginAnalyticsEvent)
+    }
+
+    private fun updateUserFiatIfNotSet(): Completable {
+        return if (noCurrencySet())
+            settingsDataManager.setDefaultUserFiat().ignoreElement()
+        else {
+            Completable.complete()
+        }
     }
 
     private fun shouldCheckForEmailVerification() = prefs.isNewlyCreated && !prefs.isRestored
 
-    private fun saveInitialCountry(isWalletJustCreated: Boolean): Single<Boolean> {
+    private fun saveInitialCountry(): Completable {
         val countrySelected = walletPrefs.countrySelectedOnSignUp
         return if (countrySelected.isNotEmpty()) {
             val stateSelected = walletPrefs.stateSelectedOnSignUp
@@ -120,10 +137,8 @@ class LoaderInteractor(
                 stateSelected.takeIf { it.isNotEmpty() }
             ).doOnComplete {
                 prefs.clearGeolocationPreferences()
-            }.onErrorComplete().toSingleDefault(isWalletJustCreated)
-        } else {
-            Single.just(isWalletJustCreated)
-        }
+            }.onErrorComplete()
+        } else Completable.complete()
     }
 
     private fun noCurrencySet() =

@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import org.koin.core.component.KoinComponent
 import com.blockchain.coincore.NullAddress
+import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.databinding.ViewTxFlowAccountLimitsBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -19,7 +19,8 @@ class AccountLimitsView @JvmOverloads constructor(
     attr: AttributeSet? = null,
     defStyle: Int = 0
 ) : ConstraintLayout(ctx, attr, defStyle),
-    EnterAmountWidget, KoinComponent {
+    EnterAmountWidget,
+    KoinComponent {
 
     private lateinit var model: TransactionModel
     private lateinit var customiser: EnterAmountCustomisations

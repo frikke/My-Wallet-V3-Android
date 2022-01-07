@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.data.payments
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.ApiException
 import com.blockchain.testutils.`should be assignable from`
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -8,7 +9,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import com.blockchain.api.ApiException
 import info.blockchain.wallet.api.dust.DustService
 import info.blockchain.wallet.api.dust.data.DustInput
 import info.blockchain.wallet.exceptions.TransactionHashApiException
@@ -19,11 +19,11 @@ import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
-import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.`should be equal to`
-
+import org.amshove.kluent.`should be instance of`
 import org.bitcoinj.core.Sha256Hash
 import org.bitcoinj.core.Transaction
 import org.junit.Assert.assertEquals
@@ -32,7 +32,6 @@ import org.junit.Rule
 import org.junit.Test
 import retrofit2.Call
 import retrofit2.Response
-import java.math.BigInteger
 
 class PaymentServiceTest {
 

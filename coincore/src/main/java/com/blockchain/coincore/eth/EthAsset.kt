@@ -1,38 +1,36 @@
 package com.blockchain.coincore.eth
 
-import com.blockchain.annotations.CommonCode
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.logging.CrashLogger
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.isCustodialOnly
-import info.blockchain.wallet.util.FormatsUtil
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.AddressParseError
-import com.blockchain.coincore.AddressParseError.Error.ETH_UNEXPECTED_CONTRACT_ADDRESS
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
+import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
+import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.impl.NotificationAddresses
+import com.blockchain.coincore.wrap.FormatUtilities
+import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.WalletStatus
+import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.isCustodialOnly
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import com.blockchain.coincore.impl.BackendNotificationUpdater
-import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.impl.NotificationAddresses
 import thepit.PitLinking
 
 internal class EthAsset(
@@ -51,7 +49,8 @@ internal class EthAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi
+    features: InternalFeatureFlagApi,
+    private val formatUtils: FormatUtilities
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -64,7 +63,8 @@ internal class EthAsset(
     crashLogger,
     identity,
     features
-), NonCustodialSupport {
+),
+    NonCustodialSupport {
     override val asset: AssetInfo
         get() = CryptoCurrency.ETHER
 
@@ -120,30 +120,52 @@ internal class EthAsset(
         return notificationUpdater.updateNotificationBackend(notify)
     }
 
-    @CommonCode("Exists in UsdtAsset and PaxAsset")
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
-        Single.just(isValidAddress(address)).flatMapMaybe { isValid ->
-            if (isValid) {
-                ethDataManager.isContractAddress(address).flatMapMaybe { isContract ->
-                    if (isContract) {
-                        throw AddressParseError(ETH_UNEXPECTED_CONTRACT_ADDRESS)
-                    } else {
-                        Maybe.just(EthAddress(address, label ?: address))
-                    }
-                }
-            } else {
-                Maybe.empty()
-            }
+    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> {
+        val normalisedAddress = address.removePrefix(FormatUtilities.ETHEREUM_PREFIX)
+        val segments = normalisedAddress.split("?")
+        val addressSegment = segments.getOrNull(0) ?: return Maybe.empty()
+
+        if (!isValidAddress(addressSegment)) return Maybe.empty()
+
+        val params = if (segments.size > 1) {
+            segments[1].split("&")
+        } else {
+            emptyList()
         }
 
+        val amountParam = params.find {
+            it.startsWith(ETH_ADDRESS_AMOUNT_PART, true)
+        }?.let { param ->
+            CryptoValue.fromMinor(
+                CryptoCurrency.ETHER, param.removePrefix(ETH_ADDRESS_AMOUNT_PART).toBigDecimal()
+            )
+        }
+
+        return ethDataManager.isContractAddress(addressSegment)
+            .map { isContract ->
+                EthAddress(
+                    address = addressSegment,
+                    label = label ?: address,
+                    amount = amountParam,
+                    isContract = isContract
+                ) as ReceiveAddress
+            }.toMaybe()
+    }
+
     override fun isValidAddress(address: String): Boolean =
-        FormatsUtil.isValidEthereumAddress(address)
+        formatUtils.isValidEthereumAddress(address)
+
+    companion object {
+        private const val ETH_ADDRESS_AMOUNT_PART = "value="
+    }
 }
 
 internal class EthAddress(
     override val address: String,
     override val label: String = address,
-    override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() }
+    override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
+    override val amount: CryptoValue? = null,
+    val isContract: Boolean = false
 ) : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.ETHER
 }

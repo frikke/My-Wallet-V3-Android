@@ -47,19 +47,30 @@ class EmailVeriffModelTest {
         whenever(interactor.cancelPolling()).thenReturn(Completable.complete())
         whenever(interactor.fetchEmail()).thenReturn(Single.just(Email("address@example.com", false)))
         whenever(interactor.pollForEmailStatus()).thenReturn(Single.just(Email("address@example.com", true)))
+        whenever(interactor.isRedesignEnabled()).thenReturn(Single.just(true))
 
         val statesTest = model.state.test()
         model.process(EmailVeriffIntent.StartEmailVerification)
 
         statesTest.assertValueAt(0, EmailVeriffState())
         statesTest.assertValueAt(
-            1, EmailVeriffState(
-                email = Email("address@example.com", false)
+            1,
+            EmailVeriffState(
+                isRedesignEnabled = true
             )
         )
         statesTest.assertValueAt(
-            2, EmailVeriffState(
-                email = Email("address@example.com", true)
+            2,
+            EmailVeriffState(
+                email = Email("address@example.com", false),
+                isRedesignEnabled = true
+            )
+        )
+        statesTest.assertValueAt(
+            3,
+            EmailVeriffState(
+                email = Email("address@example.com", true),
+                isRedesignEnabled = true
             )
         )
     }

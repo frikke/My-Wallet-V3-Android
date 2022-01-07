@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
-import piuk.blockchain.android.util.scopedInjectActivity
 import com.blockchain.ui.password.SecondPasswordHandler
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupStartBinding
@@ -16,16 +15,19 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.auth.REQUEST_CODE_VALIDATE_PIN
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment
 import piuk.blockchain.android.ui.base.mvi.MviFragment
+import piuk.blockchain.android.util.scopedInjectActivity
 
 class BackupWalletStartingFragment :
     MviFragment<BackupWalletStartingModel,
-                BackupWalletStartingIntents,
-                BackupWalletStartingState,
-                FragmentBackupStartBinding>() {
+        BackupWalletStartingIntents,
+        BackupWalletStartingState,
+        FragmentBackupStartBinding>() {
 
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
 
     override val model: BackupWalletStartingModel by scopedInject()
+
+    private var latestStatus: BackupWalletStartingStatus? = null
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentBackupStartBinding =
         FragmentBackupStartBinding.inflate(inflater, container, false)
@@ -43,17 +45,20 @@ class BackupWalletStartingFragment :
     }
 
     override fun render(newState: BackupWalletStartingState) {
-        when (newState.status) {
-            BackupWalletStartingStatus.REQUEST_PIN -> showPinForVerification()
-            else -> {}
+        if (latestStatus != newState.status) {
+            when (newState.status) {
+                BackupWalletStartingStatus.REQUEST_PIN -> showPinForVerification()
+                else -> {}
+            }
+            latestStatus = newState.status
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
-            when (requestCode) {
-                REQUEST_CODE_VALIDATE_PIN -> {
+        when (requestCode) {
+            REQUEST_CODE_VALIDATE_PIN -> {
+                if (resultCode == RESULT_OK) {
                     model.process(BackupWalletStartingIntents.TriggerEmailAlert)
                     secondPasswordHandler.validate(
                         requireContext(),
@@ -67,6 +72,8 @@ class BackupWalletStartingFragment :
                             }
                         }
                     )
+                } else {
+                    model.process(BackupWalletStartingIntents.UpdateStatus(BackupWalletStartingStatus.INIT))
                 }
             }
         }

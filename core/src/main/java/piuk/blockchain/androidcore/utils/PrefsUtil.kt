@@ -13,8 +13,11 @@ import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
 import info.blockchain.balance.AssetInfo
-import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
+import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.crypto.AESUtil
+import java.util.Currency
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -23,9 +26,6 @@ import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
-import java.util.Currency
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 interface UUIDGenerator {
     fun generateUUID(): String
@@ -107,6 +107,10 @@ class PrefsUtil(
             setValue(KEY_DASHBOARD_ORDER, Json.encodeToString(value))
         }
 
+    override var hasTappedFabButton: Boolean
+        get() = getValue(KEY_TAPPED_FAB, false)
+        set(seen) = setValue(KEY_TAPPED_FAB, seen)
+
     override var qaRandomiseDeviceId: Boolean
         get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
         set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
@@ -133,9 +137,12 @@ class PrefsUtil(
             // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
             // So we'll try and catch them when it's written and find the root cause on a future iteration
             // Check the currency is supported and throw a meaningful exception message if it's not
+            // Everytime that local currency changes (either from settings or from a different platform)
+            // we need to align the tradingCurrency accordingly.
             try {
                 Currency.getInstance(fiat)
                 setValue(KEY_SELECTED_FIAT, fiat)
+                tradingCurrency = fiat
             } catch (e: IllegalArgumentException) {
                 crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
             }
@@ -144,7 +151,7 @@ class PrefsUtil(
     override val defaultFiatCurrency: String
         get() = try {
             val localeFiat = Currency.getInstance(Locale.getDefault()).currencyCode
-            if (UNIT_FIAT.contains(localeFiat)) localeFiat else DEFAULT_FIAT_CURRENCY
+            if (Settings.UNIT_FIAT.contains(localeFiat)) localeFiat else DEFAULT_FIAT_CURRENCY
         } catch (e: Exception) {
             DEFAULT_FIAT_CURRENCY
         }
@@ -220,6 +227,12 @@ class PrefsUtil(
             setValue(KEY_FIRST_TIME_BUYER, value)
         }
 
+    override var tradingCurrency: String
+        get() = getValue(KEY_SIMPLE_BUY_CURRENCY, selectedFiatCurrency)
+        set(value) {
+            setValue(KEY_SIMPLE_BUY_CURRENCY, value)
+        }
+
     override var hasCompletedAtLeastOneBuy: Boolean
         get() = getValue(KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY, false)
         set(value) {
@@ -233,11 +246,6 @@ class PrefsUtil(
     override var preRatingActionCompletedTimes: Int
         get() = getValue(PRE_RATING_ACTION_COMPLETED_TIMES, 0)
         set(value) = setValue(PRE_RATING_ACTION_COMPLETED_TIMES, value)
-
-    // From Onboarding
-    override var swapIntroCompleted: Boolean
-        get() = getValue(KEY_SWAP_INTRO_COMPLETED, false)
-        set(v) = setValue(KEY_SWAP_INTRO_COMPLETED, v)
 
     // Wallet Status
     override var lastBackupTime: Long
@@ -621,16 +629,17 @@ class PrefsUtil(
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_ADD_CARD_INFO = "key_add_card_info"
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
+        private const val KEY_SIMPLE_BUY_CURRENCY = "key_trading_urrency_currency"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
 
         private const val KEY_SUPPORTED_CARDS_STATE = "key_supported_cards"
         private const val KEY_BANK_LINKING = "KEY_BANK_LINKING"
         private const val KEY_ONE_TIME_TOKEN_PATH = "KEY_ONE_TIME_TOKEN_PATH"
 
-        private const val KEY_SWAP_INTRO_COMPLETED = "key_swap_intro_completed"
         private const val KEY_CUSTODIAL_INTRO_SEEN = "key_custodial_balance_intro_seen"
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
+        private const val KEY_TAPPED_FAB = "key_tapped_fab"
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"

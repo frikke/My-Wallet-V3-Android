@@ -1,11 +1,13 @@
 package com.blockchain.nabu.models.data
 
+import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.banktransfer.LinkBankAttrsResponse
 import com.blockchain.nabu.models.responses.banktransfer.YapilyMediaResponse
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
 import java.net.MalformedURLException
@@ -64,7 +66,8 @@ enum class BankPartner {
 
 interface LinkBankAttributes
 
-data class YodleeAttributes(val fastlinkUrl: String, val token: String, val configName: String) : LinkBankAttributes,
+data class YodleeAttributes(val fastlinkUrl: String, val token: String, val configName: String) :
+    LinkBankAttributes,
     Serializable
 
 data class YapilyAttributes(
@@ -126,10 +129,13 @@ enum class LinkedBankErrorState {
     ACCOUNT_ALREADY_LINKED,
     NAMES_MISMATCHED,
     ACCOUNT_TYPE_UNSUPPORTED,
+    NOT_INFO_FOUND,
     REJECTED,
     EXPIRED,
     FAILURE,
+    INTERNAL_FAILURE,
     INVALID,
+    FRAUD,
     UNKNOWN,
     NONE
 }
@@ -145,7 +151,12 @@ enum class LinkedBankState {
 data class FiatWithdrawalFeeAndLimit(
     val minLimit: FiatValue,
     val fee: FiatValue
-)
+) : LegacyLimits {
+    override val min: Money
+        get() = minLimit
+    override val max: Money?
+        get() = null
+}
 
 data class CryptoWithdrawalFeeAndLimit(
     val minLimit: BigInteger,

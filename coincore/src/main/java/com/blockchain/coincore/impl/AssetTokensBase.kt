@@ -1,14 +1,24 @@
 package com.blockchain.coincore.impl
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NonCustodialAccount
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
@@ -20,21 +30,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
-import com.blockchain.coincore.AccountGroup
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.InterestAccount
-import com.blockchain.coincore.NonCustodialAccount
-import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.SingleAccountList
-import com.blockchain.coincore.TradingAccount
+import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import thepit.PitLinking
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicBoolean
 
 interface AccountRefreshTrigger {
     fun forceAccountsRefresh()
@@ -293,14 +293,7 @@ internal class ActiveAccountList(
     ): List<CryptoAccount> {
         val newActives = mutableSetOf<CryptoAccount>()
         accounts.filterIsInstance<CryptoAccount>()
-            .forEach { a ->
-                val existing = activeList.find { it.matches(a) }
-                if (existing != null) {
-                    newActives.add(existing)
-                } else {
-                    newActives.add(a)
-                }
-            }
+            .forEach { a -> newActives.add(a) }
         activeList.clear()
         activeList.addAll(newActives)
 

@@ -1,11 +1,11 @@
 package com.blockchain.nabu.datamanagers.repositories
 
+import com.blockchain.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.caching.ParameteredSingleTimedCacheRequest
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 import java.math.BigInteger
+import timber.log.Timber
 
 class WithdrawLocksRepository(custodialWalletManager: CustodialWalletManager) {
 

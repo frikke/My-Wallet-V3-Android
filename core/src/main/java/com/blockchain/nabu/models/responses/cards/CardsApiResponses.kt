@@ -59,3 +59,9 @@ data class CardDetailsResponse(
     val type: CardType,
     val label: String
 )
+
+data class PaymentCardAcquirerResponse(
+    val cardAcquirerName: String,
+    val cardAcquirerAccountCodes: List<String>,
+    val apiKey: String
+)

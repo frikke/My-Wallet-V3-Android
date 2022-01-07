@@ -31,7 +31,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.Surface
 import android.view.WindowManager
-import androidx.appcompat.widget.Toolbar
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -46,9 +45,17 @@ import com.google.zxing.DecodeHintType
 import com.google.zxing.Result
 import com.karumi.dexter.Dexter
 import info.blockchain.balance.AssetInfo
+import java.util.EnumMap
+import java.util.EnumSet
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
@@ -57,13 +64,6 @@ import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.android.util.windowRect
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.util.EnumMap
-import java.util.EnumSet
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * This activity opens the camera and does the actual scanning on a background thread. It draws a viewfinder to help the
@@ -143,6 +143,9 @@ class QrScanActivity : BlockchainActivity() {
 
     override val alwaysDisableScreenshots: Boolean = true
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = currentOrientation
@@ -151,14 +154,10 @@ class QrScanActivity : BlockchainActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         binding = ActivityScanBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar_general)
-        setupToolbar(toolbar, R.string.scan_qr)
-        supportActionBar?.let {
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setHomeButtonEnabled(true)
-        }
-
+        loadToolbar(
+            titleToolbar = getString(R.string.scan_qr),
+            backAction = { onBackPressed() }
+        )
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
@@ -344,18 +343,21 @@ class QrScanActivity : BlockchainActivity() {
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
             .build()
             .also {
-                it.setAnalyzer(cameraExecutor, QrCodeAnalyzer(
-                    targetRect = targetWindowRect,
-                    framingViewSize = framingViewSize,
-                    screenResolution = screenResolution,
-                    hints = buildsHintsMap(),
-                    orientation = resources.configuration.orientation
-                ) { qrResult ->
-                    handleDecode(qrResult)
-                    binding.previewView.post {
-                        finish()
+                it.setAnalyzer(
+                    cameraExecutor,
+                    QrCodeAnalyzer(
+                        targetRect = targetWindowRect,
+                        framingViewSize = framingViewSize,
+                        screenResolution = screenResolution,
+                        hints = buildsHintsMap(),
+                        orientation = resources.configuration.orientation
+                    ) { qrResult ->
+                        handleDecode(qrResult)
+                        binding.previewView.post {
+                            finish()
+                        }
                     }
-                })
+                )
             }
 
         // Must unbind the use-cases before rebinding them

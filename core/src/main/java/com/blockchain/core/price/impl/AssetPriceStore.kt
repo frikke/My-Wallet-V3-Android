@@ -10,11 +10,12 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
+import timber.log.Timber
 
 internal data class AssetPriceRecord(
     val base: String,
@@ -133,9 +134,18 @@ internal class AssetPriceStore(
 
     @Synchronized
     private fun updatePriceMapCache(tempMap: AssetPricesMap) {
-        pricesCache.value?.let {
-            it.putAll(tempMap)
-            pricesCache.accept(it)
+        pricesCache.value?.let { currentMap ->
+            if (currentMap.isNotEmpty()) {
+                // Update as usual
+                currentMap.putAll(tempMap)
+                pricesCache.accept(currentMap)
+            } else {
+                // Accept the new data as is if the existing one is empty
+                pricesCache.accept(tempMap)
+            }
+        } ?: kotlin.run {
+            // Accept the new data as is if the existing one is null
+            pricesCache.accept(tempMap)
         }
     }
 
@@ -154,8 +164,8 @@ internal class AssetPriceStore(
         }
     }
 
-    internal fun getPriceForAsset(base: String, quote: String): Observable<AssetPriceRecord> =
-        pricesCache.map {
+    internal fun getPriceForAsset(base: String, quote: String): Observable<AssetPriceRecord> {
+        return pricesCache.map {
             lookupCachedPrice(
                 AssetPair(base, quote),
                 it
@@ -167,16 +177,29 @@ internal class AssetPriceStore(
         }.doOnDispose {
             checkStopRefreshTimer()
         }.retryWhen { errors ->
-            errors.flatMap { t ->
-                if (t is AssetPriceNotCached) {
-                    Observable.timer(RETRY_BATCH_DELAY_MILLIS, TimeUnit.MILLISECONDS)
-                        .flatMap { fetchNewPrices(base) }
+            errors.zipWith(
+                Observable.range(0, PRICES_RETRIES_COUNT)
+            ).flatMap { (error, attemp) ->
+                if (error is AssetPriceNotCached && attemp < PRICES_RETRIES_COUNT - 2) {
+                    Observable.timer(
+                        RETRY_BATCH_DELAY_MILLIS + extraAttemptDelay(attemp), TimeUnit.MILLISECONDS
+                    ).flatMap { fetchNewPrices(base) }
                 } else {
-                    Timber.e("Unable to get prices: $t")
-                    Observable.error(t)
+                    Observable.error(error)
                 }
             }
+        }.doOnError {
+            requestBuffer.removeAnyExecuting(base)
+        }.doOnDispose {
+            requestBuffer.removeAnyExecuting(base)
         }.distinctUntilChanged()
+    }
+
+    private fun extraAttemptDelay(attempt: Int): Int =
+        when (attempt) {
+            in 0..PRICES_RETRIES_COUNT / 2 -> 0
+            else -> 1000
+        }
 
     private val requestBuffer = PendingRequestBuffer()
 
@@ -189,7 +212,7 @@ internal class AssetPriceStore(
             loadAndCachePrices(
                 baseTickerSet = nextReq,
                 quoteTickerSet = targetQuoteList().toSet()
-            ).doOnSuccess {
+            ).doFinally {
                 requestBuffer.requestComplete()
             }.map { FETCH_REQUIRED_VALUE_IGNORED }
                 .toObservable()
@@ -239,9 +262,12 @@ internal class AssetPriceStore(
     @Synchronized
     private fun refreshStalePrices() {
         val stale = getStalePriceBases()
-        pricesCache.value?.filterKeys { k -> k.base !in stale }?.toMutableMap()?.let {
+        pricesCache.value?.filterKeys { k -> k.base !in stale }?.toMutableMap()?.let { filteredMap ->
             requestBuffer.addPendingBatch(stale)
-            pricesCache.accept(it)
+            if (filteredMap.isNotEmpty()) {
+                // Do not replace the existing data with the new one if it's empty
+                pricesCache.accept(filteredMap)
+            }
         }
     }
 
@@ -265,6 +291,7 @@ internal class AssetPriceStore(
         internal const val CACHE_REFRESH_DELAY_MILLIS = 30 * 1000L
 
         private const val RETRY_BATCH_DELAY_MILLIS = 200L
+        private const val PRICES_RETRIES_COUNT = 12
         private const val SECONDS_PER_DAY = 24 * 60 * 60
 
         private const val FETCH_NOT_REQUIRED_VALUE_IGNORED = 0
@@ -310,6 +337,12 @@ private class PendingRequestBuffer {
     @Synchronized
     fun addPendingBatch(bases: Set<String>) {
         pendingRequest.addAll(bases)
+    }
+
+    @Synchronized
+    fun removeAnyExecuting(base: String) {
+        Timber.d("Clearing $base")
+        executingRequest.remove(base)
     }
 
     @Synchronized

@@ -24,7 +24,10 @@ import info.blockchain.wallet.payload.model.Balance
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
+import java.math.BigInteger
 import junit.framework.Assert
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -32,9 +35,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import java.math.BigInteger
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class BchDataManagerTest {
 

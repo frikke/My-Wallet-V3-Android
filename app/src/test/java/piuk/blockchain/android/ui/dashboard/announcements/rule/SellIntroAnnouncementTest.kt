@@ -1,18 +1,18 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
+import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 
 class SellIntroAnnouncementTest {

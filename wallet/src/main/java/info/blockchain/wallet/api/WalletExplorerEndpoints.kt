@@ -1,13 +1,10 @@
 package info.blockchain.wallet.api
 
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
-import retrofit2.http.GET
-import info.blockchain.wallet.api.data.WalletOptions
-import info.blockchain.wallet.api.data.SignedToken
 import info.blockchain.wallet.api.WalletApi.IPResponse
 import info.blockchain.wallet.api.data.Settings
+import info.blockchain.wallet.api.data.SignedToken
 import info.blockchain.wallet.api.data.Status
+import info.blockchain.wallet.api.data.WalletOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -15,8 +12,11 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.HeaderMap
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -221,4 +221,19 @@ interface WalletExplorerEndpoints {
         @Field("has_cloud_backup") isMobileSetup: Boolean,
         @Field("mobile_device_type") deviceType: Int
     ): Single<ResponseBody>
+
+    // TODO move these to the blockchainApi module
+    @GET("wallet/poll-for-wallet-info")
+    fun getDeeplinkPayload(
+        @Header("Authorization") sessionId: String
+    ): Single<ResponseBody>
+
+    @FormUrlEncoded
+    @POST("wallet")
+    fun updateDeeplinkApprovalStatus(
+        @Field("method") method: String,
+        @Field("fromSessionId") sessionId: String,
+        @Field("payload") payload: String,
+        @Field("confirm_device") confirmDevice: Boolean
+    ): Completable
 }

@@ -35,6 +35,8 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
+import java.math.BigDecimal
+import java.math.BigInteger
 import org.bitcoinj.core.Transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -45,8 +47,6 @@ import piuk.blockchain.androidcore.data.payments.SendDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.math.BigDecimal
-import java.math.BigInteger
 
 private const val STATE_UTXO = "btc_utxo"
 private const val FEE_OPTIONS = "fee_options"
@@ -75,7 +75,9 @@ class BtcOnChainTxEngine(
 ) : OnChainTxEngineBase(
     requireSecondPassword,
     walletPreferences
-), BitPayClientEngine, KoinComponent {
+),
+    BitPayClientEngine,
+    KoinComponent {
 
     override fun assertInputsValid() {
         check(sourceAccount is BtcCryptoWalletAccount)
@@ -150,7 +152,8 @@ class BtcOnChainTxEngine(
         feeManager.btcFeeOptions
             .map { feeOptions ->
                 Pair(
-                    feeOptions, mapOf(
+                    feeOptions,
+                    mapOf(
                         FeeLevel.None to CryptoValue.zero(sourceAsset),
                         FeeLevel.Regular to feeToCrypto(feeOptions.regularFee),
                         FeeLevel.Priority to feeToCrypto(feeOptions.priorityFee),

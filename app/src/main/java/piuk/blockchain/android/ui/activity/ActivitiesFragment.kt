@@ -6,9 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.annotations.CommonCode
+import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -21,10 +26,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import com.blockchain.coincore.ActivitySummaryItem
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.core.price.historic.HistoricRateFetcher
 import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
@@ -40,6 +41,7 @@ import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
@@ -50,7 +52,8 @@ import timber.log.Timber
 
 class ActivitiesFragment :
     HomeScreenMviFragment<ActivitiesModel, ActivitiesIntent, ActivitiesState, FragmentActivitiesBinding>(),
-    AccountSelectSheet.SelectionHost, CryptoActivityDetailsBottomSheet.Host {
+    AccountSelectSheet.SelectionHost,
+    CryptoActivityDetailsBottomSheet.Host {
 
     override val model: ActivitiesModel by scopedInject()
 
@@ -189,6 +192,15 @@ class ActivitiesFragment :
                 }
             } ?: accountIndicator.gone()
 
+            // TODO kill this - temporary update to the current design to support Redesign Phase I
+            if (newState.redesignEnabled) {
+                accountSelectBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+                accountName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                fiatBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.grey_800))
+                showAccounts.setColorFilter(ContextCompat.getColor(requireContext(), R.color.grey_400))
+                accountSelectFilter.invisible()
+            }
+
             accountName.text = account.label
             fiatBalance.text = ""
             selectedFiatCurrency = currencyPrefs.selectedFiatCurrency
@@ -207,6 +219,8 @@ class ActivitiesFragment :
                         Timber.e("Unable to get balance for ${account.label}")
                     }
                 )
+
+            accountSelectBtn.visible()
         }
     }
 
@@ -227,7 +241,7 @@ class ActivitiesFragment :
     }
 
     private fun renderLoader(newState: ActivitiesState) {
-        val blockchainActivity = activity as? BlockchainActivity ?: return
+        val blockchainActivity = (activity as? BlockchainActivity) ?: return
 
         if (newState.isLoading) {
             binding.swipe.isRefreshing = newState.isRefreshRequested
@@ -337,7 +351,7 @@ class ActivitiesFragment :
     companion object {
         private const val PARAM_ACCOUNT = "PARAM_ACCOUNT"
 
-        fun newInstance(account: BlockchainAccount?): ActivitiesFragment {
+        fun newInstance(account: BlockchainAccount? = null): ActivitiesFragment {
             return ActivitiesFragment().apply {
                 arguments = Bundle().apply {
                     account?.let { putAccount(PARAM_ACCOUNT, it) }

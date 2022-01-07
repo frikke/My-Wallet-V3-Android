@@ -9,6 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewbinding.ViewBinding
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.TrendingPair
+import com.blockchain.coincore.TrendingPairsProvider
+import com.blockchain.coincore.toUserFiat
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialOrder
@@ -30,11 +35,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.TrendingPair
-import com.blockchain.coincore.TrendingPairsProvider
-import com.blockchain.coincore.toUserFiat
 import piuk.blockchain.android.databinding.FragmentSwapBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ButtonOptions
@@ -80,8 +80,13 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
     private val assetResources: AssetResources by inject()
     private val appUtil: AppUtil by inject()
     private val compositeDisposable = CompositeDisposable()
+
     private val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        loadSwapOrKyc(showLoading = false)
+        loadSwapOrKyc(showLoading = true)
+    }
+
+    private val startKycForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        loadSwapOrKyc(showLoading = true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -144,11 +149,12 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
                 walletManager.getProductTransferLimits(currencyPrefs.selectedFiatCurrency, Product.TRADE),
                 walletManager.getSwapTrades().onErrorReturn { emptyList() },
                 coincore.allWalletsWithActions(setOf(AssetAction.Swap))
-                    .map { it.isNotEmpty() }) { tiers: KycTiers,
-                                                pairs: List<TrendingPair>,
-                                                limits: TransferLimits,
-                                                orders: List<CustodialOrder>,
-                                                hasAtLeastOneAccountToSwapFrom ->
+                    .map { it.isNotEmpty() }
+            ) { tiers: KycTiers,
+                pairs: List<TrendingPair>,
+                limits: TransferLimits,
+                orders: List<CustodialOrder>,
+                hasAtLeastOneAccountToSwapFrom ->
                 SwapComposite(
                     tiers,
                     pairs,
@@ -194,7 +200,8 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
                         )
 
                         Timber.e("Error loading swap kyc service $it")
-                    })
+                    }
+                )
     }
 
     private fun showKycUpsellIfEligible(limits: TransferLimits) {
@@ -272,7 +279,7 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
             R.drawable.ic_swap_blue_circle,
             ButtonOptions(visible = true, text = getString(R.string.swap_kyc_cta)) {
                 analytics.logEvent(SwapAnalyticsEvents.VerifyNowClicked)
-                KycNavHostActivity.start(requireActivity(), CampaignType.Swap)
+                startKycForResult.launch(KycNavHostActivity.newIntent(requireActivity(), CampaignType.Swap))
             },
             ButtonOptions(visible = false),
             showSheetIndicator = false

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fee_waiver_promo"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="1"
+    tools:background="@drawable/bkgd_green_100_rounded">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/label"
+        style="@style/Text.Standard.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/green_600" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/after_promo_fee"
+        style="@style/Text.Standard.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/smallest_margin"
+        android:textColor="@color/green_600"
+        tools:text="Free" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/before_promo_fee"
+        style="@style/Text.Light.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/grey_600"
+        tools:text="$10" />
+</LinearLayout>

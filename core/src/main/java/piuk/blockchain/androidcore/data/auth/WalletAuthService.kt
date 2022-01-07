@@ -179,4 +179,14 @@ class WalletAuthService(private val walletApi: WalletApi) {
         deviceType: Int
     ): Single<ResponseBody> =
         walletApi.verifyCloudBackup(guid, sharedKey, hasCloudBackup, deviceType)
+
+    fun getDeeplinkPayload(
+        sessionId: String
+    ): Single<ResponseBody> = walletApi.getDeeplinkPayload(sessionId)
+
+    fun updateLoginApprovalStatus(
+        sessionId: String,
+        payload: String,
+        confirmDevice: Boolean
+    ): Completable = walletApi.updateLoginApprovalStatus(sessionId, payload, confirmDevice)
 }

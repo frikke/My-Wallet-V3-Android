@@ -1,16 +1,16 @@
 package piuk.blockchain.androidcore.utils.extensions
 
+import io.reactivex.rxjava3.annotations.CheckReturnValue
+import io.reactivex.rxjava3.annotations.SchedulerSupport
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.MaybeSource
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.annotations.CheckReturnValue
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.annotations.SchedulerSupport
-import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.internal.functions.Functions
 import io.reactivex.rxjava3.exceptions.OnErrorNotImplementedException
+import io.reactivex.rxjava3.internal.functions.Functions
 
 /**
  * Subscribes to a [Maybe] and silently consumes any emitted values. Any exceptions thrown won't

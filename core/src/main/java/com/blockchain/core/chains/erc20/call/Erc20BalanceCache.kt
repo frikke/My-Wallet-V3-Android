@@ -2,8 +2,8 @@ package com.blockchain.core.chains.erc20.call
 
 import com.blockchain.api.services.Erc20TokenBalance
 import com.blockchain.api.services.NonCustodialErc20Service
-import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.caching.TimedCacheRequest
+import com.blockchain.core.chains.erc20.model.Erc20Balance
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency

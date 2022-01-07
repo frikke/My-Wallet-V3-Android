@@ -1,6 +1,10 @@
 package piuk.blockchain.android.ui.addresses
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.bch.BchAsset
+import com.blockchain.coincore.btc.BtcAsset
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.notifications.analytics.AddressAnalytics
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.WalletAnalytics
@@ -15,19 +19,13 @@ import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.util.PrivateKeyFactory
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-
-import com.nhaarman.mockitokotlin2.mock
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.verifyNoMoreInteractions
 import piuk.blockchain.android.R
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.bch.BchAsset
-import com.blockchain.coincore.btc.BtcAsset
-import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class AccountPresenterTest {
 

@@ -5,7 +5,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.schedulers.Schedulers
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -159,16 +158,20 @@ class AccountRecoveryModelTest {
             AccountRecoveryState(),
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
-                status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE),
+                status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
+            ),
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
-                status = AccountRecoveryStatus.RECOVERING_CREDENTIALS),
+                status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
+            ),
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
-                status = AccountRecoveryStatus.RESETTING_KYC),
+                status = AccountRecoveryStatus.RESETTING_KYC
+            ),
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
-                status = AccountRecoveryStatus.RECOVERY_SUCCESSFUL)
+                status = AccountRecoveryStatus.RECOVERY_SUCCESSFUL
+            )
         )
     }
 
@@ -188,13 +191,16 @@ class AccountRecoveryModelTest {
             AccountRecoveryState(),
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
-                status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE),
+                status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
+            ),
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
-                status = AccountRecoveryStatus.RECOVERING_CREDENTIALS),
+                status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
+            ),
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
-                status = AccountRecoveryStatus.RECOVERY_FAILED)
+                status = AccountRecoveryStatus.RECOVERY_FAILED
+            )
         )
     }
 }

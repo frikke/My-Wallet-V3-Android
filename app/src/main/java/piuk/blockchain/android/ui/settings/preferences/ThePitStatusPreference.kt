@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.settings.preferences
 
 import android.content.Context
-import androidx.core.content.ContextCompat
 import android.util.AttributeSet
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import piuk.blockchain.android.R
 
 class ThePitStatusPreference @JvmOverloads constructor(

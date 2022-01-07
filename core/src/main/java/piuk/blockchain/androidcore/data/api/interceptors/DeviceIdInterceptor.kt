@@ -13,9 +13,12 @@ class DeviceIdInterceptor(private val prefs: Lazy<PersistentPrefs>, private val 
         val originalRequest = chain.request()
         if (chain.request().url.toUrl().toString().contains(environmentConfig.nabuApi)) {
             val requestWithUserAgent = originalRequest.newBuilder()
-                .header("X-DEVICE-ID", deviceId ?: prefs.value.deviceId.also {
-                    deviceId = it
-                }).build()
+                .header(
+                    "X-DEVICE-ID",
+                    deviceId ?: prefs.value.deviceId.also {
+                        deviceId = it
+                    }
+                ).build()
             return chain.proceed(requestWithUserAgent)
         }
         return chain.proceed(originalRequest)

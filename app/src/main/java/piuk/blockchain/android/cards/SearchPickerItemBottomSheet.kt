@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import java.io.Serializable
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.PickerLayoutBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.io.Serializable
-import java.util.Locale
 
 class SearchPickerItemBottomSheet : SlidingModalBottomDialog<PickerLayoutBinding>() {
 
@@ -23,10 +23,10 @@ class SearchPickerItemBottomSheet : SlidingModalBottomDialog<PickerLayoutBinding
     private val adapter by unsafeLazy {
         PickerItemsAdapter {
             (parentFragment as? PickerItemListener)?.onItemPicked(it)
-            ?: (activity as? PickerItemListener)?.onItemPicked(it)
-            ?: throw IllegalStateException(
-                "Host should implement PickerItemListener"
-            )
+                ?: (activity as? PickerItemListener)?.onItemPicked(it)
+                ?: throw IllegalStateException(
+                    "Host should implement PickerItemListener"
+                )
             dismiss()
         }
     }

@@ -27,9 +27,20 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        useIR = true
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion Versions.compose
+        kotlinCompilerVersion Versions.kotlin
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
     }
 }
 
@@ -40,5 +51,15 @@ dependencies {
     implementation Libraries.constraintLayout
 
     implementation Libraries.lifecycleViewModel
-    implementation Libraries.lifecycleExtensions
+
+    implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeActivity
+    implementation Libraries.composeCoil
+    implementation Libraries.composeCoilSvg
+    implementation Libraries.accompanistSystemUi
+
+    androidTestImplementation Libraries.composeUiTest
+    debugImplementation Libraries.composeUiTooling
 }

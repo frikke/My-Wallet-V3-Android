@@ -50,8 +50,10 @@ class HeaderDecoration(
                     mView.draw(c)
                     if (mShadowSize > 0) {
                         c.translate(view.left - left - mShadowSize, 0f)
-                        c.drawRect(parent.left.toFloat(), parent.top.toFloat(), mShadowSize,
-                            parent.bottom.toFloat(), mShadowPaint)
+                        c.drawRect(
+                            parent.left.toFloat(), parent.top.toFloat(), mShadowSize,
+                            parent.bottom.toFloat(), mShadowPaint
+                        )
                     }
                 } else {
                     c.clipRect(parent.left, parent.top, parent.right, view.top)
@@ -61,8 +63,10 @@ class HeaderDecoration(
                     mView.draw(c)
                     if (mShadowSize > 0) {
                         c.translate(0f, view.top - top - mShadowSize)
-                        c.drawRect(parent.left.toFloat(), parent.top.toFloat(), parent.right.toFloat(),
-                            mShadowSize, mShadowPaint)
+                        c.drawRect(
+                            parent.left.toFloat(), parent.top.toFloat(), parent.right.toFloat(),
+                            mShadowSize, mShadowPaint
+                        )
                     }
                 }
                 c.restore()
@@ -82,16 +86,22 @@ class HeaderDecoration(
                 if (mView.measuredWidth <= 0) {
                     mView.measure(
                         View.MeasureSpec.makeMeasureSpec(parent.measuredWidth, View.MeasureSpec.AT_MOST),
-                        View.MeasureSpec.makeMeasureSpec(parent.measuredHeight,
-                            View.MeasureSpec.AT_MOST))
+                        View.MeasureSpec.makeMeasureSpec(
+                            parent.measuredHeight,
+                            View.MeasureSpec.AT_MOST
+                        )
+                    )
                 }
                 outRect[mView.measuredWidth, 0, 0] = 0
             } else {
                 if (mView.measuredHeight <= 0) {
                     mView.measure(
                         View.MeasureSpec.makeMeasureSpec(parent.measuredWidth, View.MeasureSpec.AT_MOST),
-                        View.MeasureSpec.makeMeasureSpec(parent.measuredHeight,
-                            View.MeasureSpec.AT_MOST))
+                        View.MeasureSpec.makeMeasureSpec(
+                            parent.measuredHeight,
+                            View.MeasureSpec.AT_MOST
+                        )
+                    )
                 }
                 outRect[0, mView.measuredHeight, 0] = 0
             }
@@ -177,16 +187,22 @@ class HeaderDecoration(
         fun with(recyclerView: RecyclerView): Builder {
             return when (val layoutManager = recyclerView.layoutManager) {
                 is GridLayoutManager -> {
-                    Builder(recyclerView.context,
-                        layoutManager.spanCount)
+                    Builder(
+                        recyclerView.context,
+                        layoutManager.spanCount
+                    )
                 }
                 is LinearLayoutManager -> {
-                    Builder(recyclerView.context,
-                        layoutManager.orientation == LinearLayoutManager.HORIZONTAL)
+                    Builder(
+                        recyclerView.context,
+                        layoutManager.orientation == LinearLayoutManager.HORIZONTAL
+                    )
                 }
                 is StaggeredGridLayoutManager -> {
-                    Builder(recyclerView.context,
-                        layoutManager.spanCount)
+                    Builder(
+                        recyclerView.context,
+                        layoutManager.spanCount
+                    )
                 }
                 else -> {
                     Builder(recyclerView.context)
@@ -198,15 +214,23 @@ class HeaderDecoration(
     init {
         if (mShadowSize > 0) {
             mShadowPaint.shader = if (mHorizontal) {
-                LinearGradient(mShadowSize, 0f, 0f, 0f, intArrayOf(
-                    Color.argb(55, 0, 0, 0), Color.argb(55, 0, 0, 0), Color.argb(3, 0, 0, 0)),
+                LinearGradient(
+                    mShadowSize, 0f, 0f, 0f,
+                    intArrayOf(
+                        Color.argb(55, 0, 0, 0), Color.argb(55, 0, 0, 0), Color.argb(3, 0, 0, 0)
+                    ),
                     floatArrayOf(0f, .5f, 1f),
-                    Shader.TileMode.CLAMP)
+                    Shader.TileMode.CLAMP
+                )
             } else {
-                LinearGradient(0f, mShadowSize, 0f, 0f, intArrayOf(
-                    Color.argb(55, 0, 0, 0), Color.argb(55, 0, 0, 0), Color.argb(3, 0, 0, 0)),
+                LinearGradient(
+                    0f, mShadowSize, 0f, 0f,
+                    intArrayOf(
+                        Color.argb(55, 0, 0, 0), Color.argb(55, 0, 0, 0), Color.argb(3, 0, 0, 0)
+                    ),
                     floatArrayOf(0f, .5f, 1f),
-                    Shader.TileMode.CLAMP)
+                    Shader.TileMode.CLAMP
+                )
             }
         }
     }

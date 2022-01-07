@@ -15,15 +15,15 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isErc20
 import info.blockchain.wallet.util.FormatsUtil
-import org.bitcoinj.uri.BitcoinURI
-import piuk.blockchain.android.R
-import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.ArrayList
 import java.util.HashMap
+import org.bitcoinj.uri.BitcoinURI
+import piuk.blockchain.android.R
+import timber.log.Timber
 
 class ReceiveDetailIntentHelper(
     private val context: Context,

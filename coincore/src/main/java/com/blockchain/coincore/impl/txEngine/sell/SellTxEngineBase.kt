@@ -1,20 +1,7 @@
 package com.blockchain.coincore.impl.txEngine.sell
 
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.datamanagers.CustodialOrder
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.TransferLimits
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import info.blockchain.balance.isErc20
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.PendingTx
@@ -24,33 +11,39 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
-import java.math.RoundingMode
+import com.blockchain.nabu.datamanagers.CustodialOrder
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransferDirection
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 
 abstract class SellTxEngineBase(
     private val walletManager: CustodialWalletManager,
+    limitsDataManager: LimitsDataManager,
     userIdentity: UserIdentity,
     quotesEngine: TransferQuotesEngine
-) : QuotedEngine(quotesEngine, userIdentity, walletManager, Product.SELL) {
+) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.SELL) {
 
     val target: FiatAccount
         get() = txTarget as FiatAccount
 
     override fun onLimitsForTierFetched(
-        limits: TransferLimits,
+        limits: TxLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
-    ): PendingTx {
-        val exchangeRate = exchangeRates.getLastCryptoToFiatRate(sourceAsset, target.fiatCurrency)
-
-        return pendingTx.copy(
-            minLimit = (exchangeRate.inverse().convert(limits.minLimit) as CryptoValue)
-                .withUserDpRounding(RoundingMode.CEILING),
-            maxLimit = (exchangeRate.inverse().convert(limits.maxLimit) as CryptoValue)
-                .withUserDpRounding(RoundingMode.FLOOR)
-        )
-    }
+    ): PendingTx = pendingTx.copy(
+        limits = limits
+    )
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
         validateAmount(pendingTx).updateTxValidity(pendingTx)
@@ -58,23 +51,29 @@ abstract class SellTxEngineBase(
     private fun validateAmount(pendingTx: PendingTx): Completable {
         return availableBalance.flatMapCompletable { balance ->
             if (pendingTx.amount <= balance) {
-                if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
+                if (pendingTx.limits != null) {
                     when {
-                        pendingTx.amount + feeInSourceCurrency(
-                            pendingTx
-                        ) < pendingTx.minLimit -> throw TxValidationFailure(
-                            ValidationState.UNDER_MIN_LIMIT
+                        pendingTx.isMinLimitViolated() -> Completable.error(
+                            TxValidationFailure(
+                                ValidationState.UNDER_MIN_LIMIT
+                            )
                         )
-                        pendingTx.amount - feeInSourceCurrency(
-                            pendingTx
-                        ) > pendingTx.maxLimit -> validationFailureForTier()
+                        pendingTx.isMaxLimitViolated() -> validationFailureForTier()
                         else -> Completable.complete()
                     }
                 } else {
-                    throw TxValidationFailure(ValidationState.UNKNOWN_ERROR)
+                    Completable.error(
+                        TxValidationFailure(
+                            ValidationState.UNKNOWN_ERROR
+                        )
+                    )
                 }
             } else {
-                throw TxValidationFailure(ValidationState.INSUFFICIENT_FUNDS)
+                Completable.error(
+                    TxValidationFailure(
+                        ValidationState.INSUFFICIENT_FUNDS
+                    )
+                )
             }
         }
     }
@@ -83,19 +82,18 @@ abstract class SellTxEngineBase(
     // The fee for those transactions is paid in ETH and the tx validation happens in the Erc20OnChainEngine
     abstract fun feeInSourceCurrency(pendingTx: PendingTx): Money
 
-    private fun buildNewFee(feeAmount: Money, exchangeAmount: Money): TxConfirmationValue? {
-        return if (!feeAmount.isZero) {
-            TxConfirmationValue.NetworkFee(
-                feeAmount = feeAmount as CryptoValue,
-                exchange = exchangeAmount,
-                asset = sourceAsset.disambiguateERC20()
-            )
-        } else null
+    private fun buildNewFee(pendingTx: PendingTx): TxConfirmationValue {
+        return TxConfirmationValue.CompoundNetworkFee(
+            if (pendingTx.feeAmount.isZero) {
+                null
+            } else
+                FeeInfo(
+                    pendingTx.feeAmount,
+                    pendingTx.feeAmount.toUserFiat(exchangeRates),
+                    sourceAsset
+                )
+        )
     }
-
-    private fun AssetInfo.disambiguateERC20() = if (this.isErc20()) {
-        CryptoCurrency.ETHER
-    } else this
 
     private fun buildConfirmation(
         pendingTx: PendingTx,
@@ -113,13 +111,15 @@ abstract class SellTxEngineBase(
                     amount = pendingTx.amount,
                     exchange = latestQuoteExchangeRate.convert(pendingTx.amount)
                 ),
-                buildNewFee(pendingTx.feeAmount, latestQuoteExchangeRate.convert(pendingTx.feeAmount)),
+                buildNewFee(pendingTx),
+                // In case of  PK ERC20s token, Total is displayed without the fee. As the fee is in ETH
+                // we need a different design to present here both the selling amount and the applied fee
                 TxConfirmationValue.Total(
                     totalWithFee = (pendingTx.amount as CryptoValue).plus(
-                        pendingTx.feeAmount as CryptoValue
+                        feeInSourceCurrency(pendingTx)
                     ),
                     exchange = latestQuoteExchangeRate.convert(
-                        pendingTx.amount.plus(pendingTx.feeAmount)
+                        pendingTx.amount.plus(feeInSourceCurrency(pendingTx))
                     )
                 )
             )
@@ -149,10 +149,10 @@ abstract class SellTxEngineBase(
             addOrReplaceOption(
                 TxConfirmationValue.Total(
                     totalWithFee = (pendingTx.amount as CryptoValue).plus(
-                        pendingTx.feeAmount as CryptoValue
+                        feeInSourceCurrency(pendingTx)
                     ),
                     exchange = latestQuoteExchangeRate.convert(
-                        pendingTx.amount.plus(pendingTx.feeAmount)
+                        pendingTx.amount.plus(feeInSourceCurrency(pendingTx))
                     )
                 )
             )

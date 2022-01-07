@@ -4,10 +4,10 @@ import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import com.blockchain.notifications.analytics.Analytics
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.lang.IllegalStateException
 
 abstract class MvpFragment<V : MvpView, P : MvpPresenter<V>> : Fragment() {

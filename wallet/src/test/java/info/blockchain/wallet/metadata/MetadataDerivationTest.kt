@@ -13,15 +13,19 @@ class MetadataDerivationTest {
 
     @Test
     fun `derive metadata node from determenistic key`() {
-        Assert.assertEquals("xprv9v8qUhWNur6b9if9MZhw1hvxnsWgonfw" +
+        Assert.assertEquals(
+            "xprv9v8qUhWNur6b9if9MZhw1hvxnsWgonfw" +
                 "9dv1hzVAoCeVpSAWrXd7woo27QqegYXnmYYTDgYjFJTYXTvAu6ZZnS6P7SSkTZTurJ5STEb7952",
-            metadataDerivation.deriveMetadataNode(MasterKeyImpl(key)))
+            metadataDerivation.deriveMetadataNode(MasterKeyImpl(key))
+        )
     }
 
     @Test
     fun `derive shared metadata node from determenistic key`() {
-        Assert.assertEquals("xprv9v8qUhWTVjGx3vstKw6J8HV4CNmZB1oTPJGzoyYz9ZK2Y" +
+        Assert.assertEquals(
+            "xprv9v8qUhWTVjGx3vstKw6J8HV4CNmZB1oTPJGzoyYz9ZK2Y" +
                 "cNviZesiy4KhmgyPF635czS66bL8iANAoJbheDbMV7V41Lc9TYg43AE6vF2pFT",
-            metadataDerivation.deriveSharedMetadataNode(MasterKeyImpl(key)))
+            metadataDerivation.deriveSharedMetadataNode(MasterKeyImpl(key))
+        )
     }
 }

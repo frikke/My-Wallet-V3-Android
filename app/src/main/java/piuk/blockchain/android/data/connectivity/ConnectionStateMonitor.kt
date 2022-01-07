@@ -5,9 +5,8 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.events.SpottyNetworkConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
@@ -45,7 +44,7 @@ internal class ConnectionStateMonitor(
         return Completable.fromAction {
             rxBus.emitEvent(ActionEvent::class.java, SpottyNetworkConnectionEvent())
         }
-        .subscribeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(AndroidSchedulers.mainThread())
     }
 
     companion object {

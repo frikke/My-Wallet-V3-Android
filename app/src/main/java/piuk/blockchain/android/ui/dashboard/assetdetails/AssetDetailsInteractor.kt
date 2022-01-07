@@ -10,6 +10,9 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.FundsAccount
@@ -53,6 +56,7 @@ data class AssetDisplayInfo(
 class AssetDetailsInteractor(
     private val dashboardPrefs: DashboardPrefs,
     private val coincore: Coincore,
+    private val userIdentity: UserIdentity,
     private val custodialWalletManager: CustodialWalletManager
 ) {
 
@@ -188,4 +192,7 @@ class AssetDetailsInteractor(
 
     fun loadRecurringBuysForAsset(assetTicker: AssetInfo) =
         custodialWalletManager.getRecurringBuysForAsset(assetTicker)
+
+    fun userCanBuy(): Single<FeatureAccess> =
+        userIdentity.userAccessForFeature(Feature.SimpleBuy)
 }

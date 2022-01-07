@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow.flow
 
+import android.app.Activity.RESULT_CANCELED
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +11,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxFlowInProgressBinding
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
@@ -25,9 +28,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.txProgressView.onCtaClick {
-            activity.finish()
-        }
+        binding.txProgressView.onCtaClick { activity.finish() }
     }
 
     override fun render(newState: TransactionState) {
@@ -53,7 +54,8 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 analyticsHooks.onTransactionSuccess(newState)
                 binding.txProgressView.showTxSuccess(
                     customiser.transactionCompleteTitle(newState),
-                    customiser.transactionCompleteMessage(newState)
+                    customiser.transactionCompleteMessage(newState),
+                    customiser.transactionCompleteIcon(newState)
                 )
             }
             is TxExecutionStatus.ApprovalRequired -> {
@@ -61,10 +63,12 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                     customiser.transactionProgressTitle(newState),
                     customiser.transactionProgressMessage(newState)
                 )
-                startActivity(
+                model.process(TransactionIntent.ApprovalTriggered)
+                startActivityForResult(
                     BankAuthActivity.newInstance(
                         newState.executionStatus.approvalData, BankAuthSource.DEPOSIT, requireContext()
-                    )
+                    ),
+                    PAYMENT_APPROVAL
                 )
                 // dismiss()
             }
@@ -83,6 +87,15 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PAYMENT_APPROVAL && resultCode == RESULT_CANCELED) {
+            model.process(
+                TransactionIntent.TransactionApprovalDenied
+            )
+        }
+    }
+
     private fun collectStackTraceString(e: Throwable): String {
         var stackTraceString = ""
         var index = 0
@@ -96,5 +109,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
     companion object {
         fun newInstance(): TransactionProgressFragment = TransactionProgressFragment()
+        private const val PAYMENT_APPROVAL = 3974
     }
 }

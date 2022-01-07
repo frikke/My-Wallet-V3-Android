@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
 import android.graphics.Typeface
 import android.net.Uri
+import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.SpannableStringBuilder
@@ -11,7 +12,6 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -27,6 +27,7 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.urllinks.URL_XLM_MIN_BALANCE
+import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.visible
@@ -94,7 +95,7 @@ private class XlmMemoItemViewHolder(
                         requestFocus()
                         setSelection(confirmDetailsMemoInput.text?.length ?: 0)
                     }
-                    setupOnDoneListener(model, item)
+                    updateModelOnTextChange(model, item)
                 }
             } else {
                 confirmDetailsMemoSpinner.isEnabled = false
@@ -104,43 +105,29 @@ private class XlmMemoItemViewHolder(
         }
     }
 
-        private fun AppCompatEditText.setupOnDoneListener(
-            model: TransactionModel,
-            item: TxConfirmationValue.Memo
-        ) {
-            inputType = INPUT_FIELD_FLAGS
-            filters = arrayOf(InputFilter.LengthFilter(maxCharacters))
+    private fun AppCompatEditText.updateModelOnTextChange(
+        model: TransactionModel,
+        item: TxConfirmationValue.Memo
+    ) {
+        inputType = INPUT_FIELD_FLAGS
+        filters = arrayOf(InputFilter.LengthFilter(maxCharacters))
 
-            setOnEditorActionListener { v, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
-                    if (binding.confirmDetailsMemoSpinner.selectedItemPosition == TEXT_INDEX) {
-                        if (haveContentsChanged(v.text.toString(), item.text)) {
-                            model.process(
-                                TransactionIntent.ModifyTxOption(
-                                    item.copy(
-                                        id = null,
-                                        text = v.text.toString()
-                                    )
-                                )
-                            )
-                        }
-                    } else {
-                        if (haveContentsChanged(v.text.toString(), item.text)) {
-                            model.process(
-                                TransactionIntent.ModifyTxOption(
-                                    item.copy(
-                                        id = v.text.toString().toLong(),
-                                        text = null
-                                    )
-                                )
-                            )
-                        }
-                    }
-                    clearFocus()
-                }
-                true
+        addTextChangedListener(object : AfterTextChangedWatcher() {
+            override fun afterTextChanged(s: Editable?) {
+                val selectedOptionIsText = binding.confirmDetailsMemoSpinner.selectedItemPosition == TEXT_INDEX
+                val id = if (selectedOptionIsText) null else s.toString().toLongOrNull()
+                val text = if (!selectedOptionIsText) null else s.toString()
+                model.process(
+                    TransactionIntent.ModifyTxOption(
+                        item.copy(
+                            id = id,
+                            text = text
+                        )
+                    )
+                )
             }
-        }
+        })
+    }
 
     private fun AppCompatSpinner.setupSpinner() {
         val spinnerArrayAdapter: ArrayAdapter<String> =

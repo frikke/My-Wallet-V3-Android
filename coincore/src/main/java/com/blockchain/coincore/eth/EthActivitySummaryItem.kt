@@ -1,5 +1,6 @@
 package com.blockchain.coincore.eth
 
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -8,10 +9,9 @@ import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import java.util.Locale
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.util.Locale
 
 /*internal*/ class EthActivitySummaryItem(
     private val ethDataManager: EthDataManager,
@@ -39,7 +39,8 @@ import java.util.Locale
     override val timeStampMs: Long = ethTransaction.timestamp * 1000
 
     override val value: CryptoValue by unsafeLazy {
-        CryptoValue.fromMinor(CryptoCurrency.ETHER,
+        CryptoValue.fromMinor(
+            CryptoCurrency.ETHER,
             when (transactionType) {
                 TransactionSummary.TransactionType.RECEIVED -> ethTransaction.value
                 else -> ethTransaction.value.plus(ethTransaction.gasUsed.multiply(ethTransaction.gasPrice))

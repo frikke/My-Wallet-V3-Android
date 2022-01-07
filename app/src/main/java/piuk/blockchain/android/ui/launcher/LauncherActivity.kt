@@ -1,18 +1,16 @@
 package piuk.blockchain.android.ui.launcher
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.start.LandingActivity
@@ -21,19 +19,17 @@ import timber.log.Timber
 
 class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), LauncherView {
 
-    private val internalFlags: InternalFeatureFlagApi by inject()
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ONBOARDING)) {
-            setTheme(R.style.AppTheme_Splash)
-        }
         super.onCreate(savedInstanceState)
-        if (intent.hasExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION) &&
-            intent.getBooleanExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION, false)
+        if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
+            intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
         }
     }
+
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
 
     override fun getViewIntentData(): ViewIntentData =
         ViewIntentData(
@@ -79,11 +75,17 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         startActivity(intent)
     }
 
-    override val presenter: LauncherPresenter by scopedInject()
+    override val presenter: LauncherPresenter by inject()
     override val view: LauncherView
         get() = this
 
     companion object {
         const val INTENT_AUTOMATION_TEST = "IS_AUTOMATION_TESTING"
+        private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
+
+        fun newInstance(context: Context, intentFromNotification: Boolean): Intent =
+            Intent(context, LauncherActivity::class.java).apply {
+                putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
+            }
     }
 }

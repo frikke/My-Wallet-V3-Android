@@ -3,17 +3,17 @@ package piuk.blockchain.android.ui.interest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import info.blockchain.balance.AssetInfo
-import com.blockchain.notifications.analytics.LaunchOrigin
-import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import piuk.blockchain.android.R
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
@@ -24,7 +24,8 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
-class InterestDashboardActivity : BlockchainActivity(),
+class InterestDashboardActivity :
+    BlockchainActivity(),
     InterestSummarySheet.Host,
     InterestDashboardFragment.InterestDashboardHost {
 
@@ -39,11 +40,16 @@ class InterestDashboardActivity : BlockchainActivity(),
 
     private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral)
-        setTitle(R.string.rewards_dashboard_title)
+        loadToolbar(
+            titleToolbar = getString(R.string.rewards_dashboard_title),
+            backAction = { onSupportNavigateUp() }
+        )
         analytics.logEvent(InterestAnalytics.InterestViewed)
 
         supportFragmentManager.beginTransaction()
@@ -58,9 +64,12 @@ class InterestDashboardActivity : BlockchainActivity(),
     override fun goToActivityFor(account: BlockchainAccount) {
         val b = Bundle()
         b.putAccount(ACTIVITY_ACCOUNT, account)
-        setResult(RESULT_FIRST_USER, Intent().apply {
-            putExtras(b)
-        })
+        setResult(
+            RESULT_FIRST_USER,
+            Intent().apply {
+                putExtras(b)
+            }
+        )
         finish()
     }
 
@@ -77,7 +86,9 @@ class InterestDashboardActivity : BlockchainActivity(),
                 context = this,
                 target = toAccount,
                 action = AssetAction.InterestDeposit
-            ), TX_FLOW_REQUEST)
+            ),
+            TX_FLOW_REQUEST
+        )
     }
 
     override fun goToInterestWithdraw(fromAccount: InterestAccount) {
@@ -88,7 +99,9 @@ class InterestDashboardActivity : BlockchainActivity(),
                 context = this,
                 sourceAccount = fromAccount,
                 action = AssetAction.InterestWithdraw
-            ), TX_FLOW_REQUEST)
+            ),
+            TX_FLOW_REQUEST
+        )
     }
 
     override fun onSheetClosed() {
@@ -109,21 +122,24 @@ class InterestDashboardActivity : BlockchainActivity(),
         toAccount: SingleAccount
     ) {
         showBottomSheet(
-            AccountSelectSheet.newInstance(object : AccountSelectSheet.SelectionHost {
-                override fun onAccountSelected(account: BlockchainAccount) {
-                    startDeposit(account as SingleAccount, toAccount)
-                    analytics.logEvent(
-                        InterestAnalytics.InterestDepositClicked(
-                            currency = (toAccount as CryptoAccount).asset.networkTicker,
-                            origin = LaunchOrigin.SAVINGS_PAGE
+            AccountSelectSheet.newInstance(
+                object : AccountSelectSheet.SelectionHost {
+                    override fun onAccountSelected(account: BlockchainAccount) {
+                        startDeposit(account as SingleAccount, toAccount)
+                        analytics.logEvent(
+                            InterestAnalytics.InterestDepositClicked(
+                                currency = (toAccount as CryptoAccount).asset.networkTicker,
+                                origin = LaunchOrigin.SAVINGS_PAGE
+                            )
                         )
-                    )
-                }
+                    }
 
-                override fun onSheetClosed() {
-                    // do nothing
-                }
-            }, filter, R.string.select_deposit_source_title)
+                    override fun onSheetClosed() {
+                        // do nothing
+                    }
+                },
+                filter, R.string.select_deposit_source_title
+            )
         )
     }
 
@@ -131,12 +147,14 @@ class InterestDashboardActivity : BlockchainActivity(),
         fromAccount: SingleAccount,
         toAccount: SingleAccount
     ) = startActivityForResult(
-            TransactionFlowActivity.newInstance(
-                context = this,
-                sourceAccount = fromAccount as CryptoAccount,
-                target = toAccount,
-                action = AssetAction.InterestDeposit
-            ), TX_FLOW_REQUEST)
+        TransactionFlowActivity.newInstance(
+            context = this,
+            sourceAccount = fromAccount as CryptoAccount,
+            target = toAccount,
+            action = AssetAction.InterestDeposit
+        ),
+        TX_FLOW_REQUEST
+    )
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == TX_FLOW_REQUEST) {

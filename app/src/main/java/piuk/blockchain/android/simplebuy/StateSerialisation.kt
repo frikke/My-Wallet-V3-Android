@@ -11,8 +11,8 @@ import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import java.lang.reflect.Type
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 
 interface SimpleBuyPrefsSerializer {
     fun fetch(): SimpleBuyState?

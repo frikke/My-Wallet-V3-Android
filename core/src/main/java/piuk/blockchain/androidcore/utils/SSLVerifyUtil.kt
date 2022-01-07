@@ -2,9 +2,9 @@ package piuk.blockchain.androidcore.utils
 
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.net.ssl.SSLPeerUnverifiedException
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import timber.log.Timber
-import javax.net.ssl.SSLPeerUnverifiedException
 
 /**
  * Certificates to be pinned are derived via `openssl s_client -connect api.blockchain.info:443

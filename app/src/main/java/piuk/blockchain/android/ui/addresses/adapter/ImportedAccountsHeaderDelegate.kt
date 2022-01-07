@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.addresses.adapter
 
 import android.view.LayoutInflater
-import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAccountsRowHeaderBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate

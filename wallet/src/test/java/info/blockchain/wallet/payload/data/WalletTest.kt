@@ -1,5 +1,6 @@
 package info.blockchain.wallet.payload.data
 
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.wallet.ImportedAddressHelper.getImportedAddress
 import info.blockchain.wallet.WalletApiMockedResponseTest
 import info.blockchain.wallet.crypto.AESUtil
@@ -11,20 +12,19 @@ import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.parseUnspentOutputsAsUtxoList
-import com.nhaarman.mockitokotlin2.mock
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import java.io.IOException
+import java.math.BigInteger
 import org.bitcoinj.core.Base58
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.crypto.DeterministicKey
 import org.json.JSONObject
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.spongycastle.util.encoders.Hex
-import java.io.IOException
-import java.math.BigInteger
 
 /*
 WalletBase

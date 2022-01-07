@@ -47,6 +47,7 @@ class CredentialsWiper(
                 onComplete = {
                     appUtil.logout()
                     appUtil.restartApp()
-                })
+                }
+            )
     }
 }

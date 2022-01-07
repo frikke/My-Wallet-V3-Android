@@ -7,23 +7,26 @@ object Versions {
     const val targetSdk = 30
     const val compileSdk = 30
 
-    const val versionCode = 16835
-    const val versionName = "8.15.0"
+    const val versionCode = 17886
+    const val versionName = "8.18.1"
 
     const val buildTools = "30.0.2"
 
     // Build tools and languages
     const val androidPlugin = "7.0.2"
-    const val kotlin = "1.5.20"
+    const val kotlin = "1.5.31"
+
+    // Coroutines
+    const val coroutines = "1.5.2"
 
     const val googleServicesPlugin = "4.3.3"
     const val buildProperties = "0.4"
-    const val ktlint = "0.27.0"
+    const val ktlint = "0.43.0"
     const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
 
     // Androidx Libraries
-    const val appCompat = "1.2.0"
+    const val appCompat = "1.3.1"
     const val recyclerview = "1.1.0"
     const val cardview = "1.0.0"
     const val gridlayout = "1.0.0"
@@ -36,7 +39,7 @@ object Versions {
     const val desugaring = "1.1.5"
     const val installReferrer = "2.2"
     const val navigation = "2.3.5"
-    const val lifecycle = "2.1.0"
+    const val lifecycle = "2.3.1"
     const val camera = "1.0.0-rc04"
     const val cameraView = "1.0.0-alpha23"
 
@@ -49,6 +52,7 @@ object Versions {
     const val firebaseBom = "28.4.0"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
+    const val adsIdentifier = "17.0.0"
 
     // Networking, RxJava
     const val chucker = "3.4.0"
@@ -95,6 +99,14 @@ object Versions {
     const val circleIndicator = "2.1.6"
     const val countryPicker = "2.0.4"
 
+    // Compose
+    const val compose = "1.0.4"
+    const val coil = "1.4.0"
+    const val composeActivity = "1.3.1"
+
+    // Accompanist
+    const val systemUi = "0.20.2"
+
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
     // List.sort() is not available on Android SDK < 24 so DO NOT UPGRADE until project target min is 24
@@ -103,13 +115,15 @@ object Versions {
     const val sparkline = "1.2.0"
 
     // Third Party SDKs
-    const val veriff = "3.15.0"
+    const val veriff = "3.23.0"
     const val sift = "0.11.1"
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
     const val lottieVersion = "3.5.0"
     const val zendeskChatVersion = "3.3.0"
     const val zendeskMessagingVersion = "5.2.0"
+    const val checkoutComVersion = "3.0.1"
+    const val stripeVersion = "18.2.0"
 
     // Logging
     const val timber = "4.7.1"
@@ -140,9 +154,12 @@ object Libraries {
     const val kotlinSerializationPlugin = "org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}"
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
+    const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+    const val androidCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val buildProperties = "com.novoda:gradle-build-properties-plugin:${Versions.buildProperties}"
-    const val ktlint = "com.github.shyiko:ktlint:${Versions.ktlint}"
+    const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
 
     // Support Libraries
     const val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
@@ -162,7 +179,8 @@ object Libraries {
     const val navigationControllerSafeArgsPlugin =
         "androidx.navigation:navigation-safe-args-gradle-plugin:${Versions.navigation}"
     const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel:${Versions.lifecycle}"
-    const val lifecycleExtensions = "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
+    const val lifecycleViewModelExtensions = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+    const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
     const val camera = "androidx.camera:camera-camera2:${Versions.camera}"
     const val cameraView = "androidx.camera:camera-view:${Versions.cameraView}"
     const val cameraLifecycle = "androidx.camera:camera-lifecycle:${Versions.camera}"
@@ -182,7 +200,7 @@ object Libraries {
         "com.google.android.gms:play-services-recaptcha:${Versions.googleServicesReCaptcha}"
     const val googlePlayCore = "com.google.android.play:core:${Versions.googlePlayCore}"
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
-
+    const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitJacksonConverter = "com.squareup.retrofit2:converter-jackson:${Versions.retrofit}"
@@ -250,6 +268,19 @@ object Libraries {
     const val materialDatePicker = "com.wdullaer:materialdatetimepicker:${Versions.materialDatePicker}"
     const val sparkline = "com.robinhood.spark:spark:${Versions.sparkline}"
 
+    // Compose
+    const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"
+    const val composeMaterial = "androidx.compose.material:material:${Versions.compose}"
+    const val composePreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
+    const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
+    const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
+    const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
+    const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
+
+    // Accompanist
+    const val accompanistSystemUi = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemUi}"
+
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
     const val sift = "com.siftscience:sift-android:${Versions.sift}"
@@ -258,6 +289,8 @@ object Libraries {
     const val lottie = "com.airbnb.android:lottie:${Versions.lottieVersion}"
     const val zendeskChat = "com.zendesk:chat:${Versions.zendeskChatVersion}"
     const val zendeskMessaging = "com.zendesk:messaging:${Versions.zendeskMessagingVersion}"
+    const val checkoutCom = "com.github.checkout:frames-android:${Versions.checkoutComVersion}"
+    const val stripe = "com.stripe:stripe-android:${Versions.stripeVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

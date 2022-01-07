@@ -1,6 +1,25 @@
 package com.blockchain.coincore.impl.txEngine.sell
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.btc.BtcAddress
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
+import com.blockchain.coincore.impl.txEngine.PricedQuote
+import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -19,6 +38,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -29,28 +49,25 @@ import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.btc.BtcAddress
-import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
-import com.blockchain.coincore.impl.txEngine.PricedQuote
-import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
-import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.nabu.UserIdentity
 
 class OnChainSellTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
+
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(MIN_GOLD_LIMIT_ASSET),
+                    max = TxLimit.Limited(MAX_GOLD_LIMIT_ASSET),
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private val onChainEngine: OnChainTxEngineBase = mock {
         on { sourceAsset }.thenReturn(SRC_ASSET)
@@ -60,7 +77,8 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         engine = onChainEngine,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
-        userIdentity = userIdentity
+        userIdentity = userIdentity,
+        limitsDataManager = limitsDataManager
     )
 
     @Before
@@ -230,8 +248,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_GOLD_LIMIT_ASSET &&
-                    it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
+                    it.limits == TxLimits.fromAmounts(min = MIN_GOLD_LIMIT_ASSET, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -245,7 +262,6 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
-        verify(exchangeRates).getLastCryptoToFiatRate(SRC_ASSET, TEST_API_FIAT)
         verify(onChainEngine).doInitialiseTx()
         // todo fix once start engine returns completable
         // verify(onChainEngine).assertInputsValid()
@@ -292,8 +308,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_GOLD_LIMIT_ASSET &&
-                    it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
+                    it.limits == TxLimits.fromAmounts(min = MIN_GOLD_LIMIT_ASSET, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -307,7 +322,6 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
-        verify(exchangeRates).getLastCryptoToFiatRate(SRC_ASSET, TEST_API_FIAT)
         verify(onChainEngine).doInitialiseTx()
         // todo fix once start engine returns completable
         // verify(onChainEngine).assertInputsValid()
@@ -346,8 +360,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == null &&
-                    it.maxLimit == null &&
+                    it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()
             }
@@ -562,6 +575,14 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
             currency = TEST_API_FIAT,
             product = Product.SELL,
             orderDirection = TransferDirection.FROM_USERKEY
+        )
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(SRC_ASSET.networkTicker),
+            sourceCurrency = eq(SRC_ASSET.networkTicker),
+            targetCurrency = eq(TEST_API_FIAT),
+            sourceAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            legacyLimits = any()
         )
     }
 

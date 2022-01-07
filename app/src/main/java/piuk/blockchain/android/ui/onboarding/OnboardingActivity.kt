@@ -10,16 +10,18 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockoutPermanen
 import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
+import com.blockchain.biometrics.BiometricsType
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import com.blockchain.biometrics.BiometricsType
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 
-internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPresenter>(),
+internal class OnboardingActivity :
+    BaseMvpActivity<OnboardingView, OnboardingPresenter>(),
     OnboardingView,
     BiometricsPromptFragment.OnFragmentInteractionListener,
     EmailPromptFragment.OnFragmentInteractionListener {
@@ -29,6 +31,9 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
     private var emailLaunched = false
 
     private var progressDialog: MaterialProgressDialog? = null
+
+    override val toolbarBinding: ToolbarGeneralBinding?
+        get() = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +92,8 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
     override fun showFingerprintDialog(pincode: String) {
         if (!isFinishing) {
             biometricsController.authenticate(
-                this, BiometricsType.TYPE_REGISTER, object : BiometricsCallback<WalletBiometricData> {
+                this, BiometricsType.TYPE_REGISTER,
+                object : BiometricsCallback<WalletBiometricData> {
                     override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
                         if (showEmail) {
                             showEmailPrompt()
@@ -119,7 +125,8 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
                     override fun onAuthCancelled() {
                         presenter?.setFingerprintUnlockDisabled()
                     }
-                })
+                }
+            )
         }
     }
 

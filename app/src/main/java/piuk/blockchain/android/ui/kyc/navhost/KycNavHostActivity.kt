@@ -24,6 +24,7 @@ import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
@@ -44,8 +45,10 @@ internal class KycStarter : StartKyc {
     }
 }
 
-class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
-    KycProgressListener, KycNavHostView {
+class KycNavHostActivity :
+    BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
+    KycProgressListener,
+    KycNavHostView {
 
     private val binding: ActivityKycNavHostBinding by lazy {
         ActivityKycNavHostBinding.inflate(layoutInflater)
@@ -69,16 +72,21 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
         intent.getBooleanExtra(EXTRA_SHOW_TIERS_LIMITS_SPLASH, false)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        val title = R.string.identity_verification
-        setupToolbar(binding.toolbarKyc, title)
+        loadToolbar(
+            titleToolbar = getString(R.string.identity_verification),
+            backAction = { onBackPressed() }
+        )
         if (!showTiersLimitsSplash) {
             analytics.logEvent(
                 KYCAnalyticsEvents.UpgradeKycVeriffClicked(
                     campaignType.toLaunchOrigin(),
-                    Tier.GOLD
+                    Tier.GOLD.ordinal
                 )
             )
         }
@@ -88,7 +96,7 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     }
 
     override fun setHostTitle(title: Int) {
-        binding.toolbarKyc.title = getString(title)
+        updateTitleToolbar(getString(title))
     }
 
     override fun displayLoading(loading: Boolean) {
@@ -117,11 +125,19 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     }
 
     override fun hideBackButton() {
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        updateTitleToolbar(
+            titleToolbar = getString(R.string.identity_verification)
+        )
     }
 
     override fun onEmailEntryFragmentShown() {
-        binding.toolbarKyc.title = getString(R.string.kyc_email_title)
+        updateTitleToolbar(
+            titleToolbar = getString(R.string.kyc_email_title)
+        )
+    }
+
+    override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+        // do nothing for redesign
     }
 
     override fun onEmailVerified() {
@@ -166,7 +182,6 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
-
         if (flowShouldBeClosedAfterBackAction() || !navController.navigateUp()) {
             finish()
         }
@@ -191,8 +206,6 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
     override fun getView(): KycNavHostView = this
 
     companion object {
-
-        //        const val RESULT_KYC_STX_COMPLETE = 5
         const val RESULT_KYC_FOR_SDD_COMPLETE = 35432
         const val RESULT_KYC_FOR_TIER_COMPLETE = 8954234
         private const val EXTRA_CAMPAIGN_TYPE = "piuk.blockchain.android.EXTRA_CAMPAIGN_TYPE"
@@ -200,19 +213,19 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
 
         @JvmStatic
         fun start(context: Context, campaignType: CampaignType) {
-            intentArgs(context, campaignType)
+            newIntent(context, campaignType)
                 .run { context.startActivity(this) }
         }
 
         @JvmStatic
         fun start(context: Context, campaignType: CampaignType, showLimits: Boolean) {
-            intentArgs(context, campaignType, showLimits)
+            newIntent(context, campaignType, showLimits)
                 .run { context.startActivity(this) }
         }
 
         @JvmStatic
         fun startForResult(activity: Activity, campaignType: CampaignType, requestCode: Int) {
-            intentArgs(activity, campaignType)
+            newIntent(activity, campaignType)
                 .run { activity.startActivityForResult(this, requestCode) }
         }
 
@@ -223,12 +236,12 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
             requestCode: Int,
             showTiersLimitsSplash: Boolean = false
         ) {
-            intentArgs(fragment.requireContext(), campaignType, showTiersLimitsSplash)
+            newIntent(fragment.requireContext(), campaignType, showTiersLimitsSplash)
                 .run { fragment.startActivityForResult(this, requestCode) }
         }
 
         @JvmStatic
-        private fun intentArgs(
+        fun newIntent(
             context: Context,
             campaignType: CampaignType,
             showTiersLimitsSplash: Boolean = false

@@ -5,10 +5,10 @@ import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.ether
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
-import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import org.junit.Test
 
 class BalanceUpdateTest {
 

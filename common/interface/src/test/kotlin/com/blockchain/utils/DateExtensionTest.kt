@@ -1,8 +1,8 @@
 package com.blockchain.utils
 
+import java.time.ZonedDateTime
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import java.time.ZonedDateTime
 
 class DateExtensionTest {
 

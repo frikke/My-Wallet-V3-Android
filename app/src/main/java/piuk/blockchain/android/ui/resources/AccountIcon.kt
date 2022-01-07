@@ -2,8 +2,6 @@ package piuk.blockchain.android.ui.resources
 
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
-import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -16,6 +14,8 @@ import com.blockchain.coincore.impl.CryptoAccountCustodialGroup
 import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import com.blockchain.coincore.impl.CryptoExchangeAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import info.blockchain.balance.AssetInfo
+import piuk.blockchain.android.R
 
 class AccountIcon(
     private val account: BlockchainAccount,

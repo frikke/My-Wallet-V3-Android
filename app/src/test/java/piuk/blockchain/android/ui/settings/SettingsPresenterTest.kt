@@ -5,7 +5,6 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException.Companion.fromResponseBody
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
@@ -35,7 +34,6 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
-import piuk.blockchain.android.ui.tiers
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -132,8 +130,6 @@ class SettingsPresenterTest {
         whenever(settingsDataManager.fetchSettings()).thenReturn(Observable.just(mockSettings))
         whenever(prefsUtil.selectedFiatCurrency).thenReturn("USD")
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(mockSettings))
-        whenever(kycStatusHelper.getSettingsKycStateTier())
-            .thenReturn(Single.just(tiers(KycTierState.None, KycTierState.None)))
         whenever(pitLinkState.isLinked).thenReturn(false)
         whenever(custodialWalletManager.fetchUnawareLimitsCards(ArgumentMatchers.anyList()))
             .thenReturn(Single.just(emptyList()))
@@ -169,8 +165,6 @@ class SettingsPresenterTest {
             settingsDataManager.fetchSettings()
         ).thenReturn(Observable.error(Throwable()))
         whenever(pitLinkState.isLinked).thenReturn(false)
-        whenever(kycStatusHelper.getSettingsKycStateTier())
-            .thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
         whenever(pitLinking.state).thenReturn(Observable.just(pitLinkState))
         whenever(featureFlag.enabled).thenReturn(Single.just(false))
         whenever(prefsUtil.selectedFiatCurrency).thenReturn("USD")
@@ -197,41 +191,6 @@ class SettingsPresenterTest {
         verify(activity).hideProgress()
         verify(activity).setUpUi()
         verify(activity, times(2)).updateCards(emptyList())
-    }
-
-    @Test
-    fun onKycStatusClicked_should_launch_homebrew_tier1() {
-        assertClickLaunchesKyc(KycTierState.Verified, KycTierState.None)
-    }
-
-    @Test
-    fun onKycStatusClicked_should_launch_homebrew_tier2() {
-        assertClickLaunchesKyc(KycTierState.Verified, KycTierState.Verified)
-    }
-
-    @Test
-    fun onKycStatusClicked_should_launch_kyc_flow_locked() {
-        assertClickLaunchesKyc(KycTierState.None, KycTierState.None)
-    }
-
-    @Test
-    fun onKycStatusClicked_should_launch_kyc_status_tier1_review() {
-        assertClickLaunchesKyc(KycTierState.Pending, KycTierState.None)
-    }
-
-    @Test
-    fun onKycStatusClicked_should_launch_kyc_status_tier2_review() {
-        assertClickLaunchesKyc(KycTierState.Verified, KycTierState.Pending)
-    }
-
-    @Test
-    fun onKycStatusClicked_should_launch_kyc_status_tier1_rejected() {
-        assertClickLaunchesKyc(KycTierState.Rejected, KycTierState.None)
-    }
-
-    @Test
-    fun onKycStatusClicked_should_launch_kyc_status_tier2_rejected() {
-        assertClickLaunchesKyc(KycTierState.Verified, KycTierState.Rejected)
     }
 
     @Test
@@ -451,7 +410,8 @@ class SettingsPresenterTest {
 
         whenever(
             settingsDataManager.enableNotification(
-                SettingsManager.NOTIFICATION_TYPE_EMAIL, listOf(
+                SettingsManager.NOTIFICATION_TYPE_EMAIL,
+                listOf(
                     SettingsManager.NOTIFICATION_TYPE_NONE
                 )
             )
@@ -462,7 +422,8 @@ class SettingsPresenterTest {
         // Assert
         verify(settingsDataManager)
             .enableNotification(
-                SettingsManager.NOTIFICATION_TYPE_EMAIL, listOf(
+                SettingsManager.NOTIFICATION_TYPE_EMAIL,
+                listOf(
                     SettingsManager.NOTIFICATION_TYPE_NONE
                 )
             )
@@ -650,17 +611,5 @@ class SettingsPresenterTest {
         verify(activity).setPushNotificationPref(false)
         verify(notificationTokenManager).disableNotifications()
         verifyNoMoreInteractions(notificationTokenManager)
-    }
-
-    private fun assertClickLaunchesKyc(status1: KycTierState, status2: KycTierState) {
-        // Arrange
-        whenever(kycStatusHelper.getKycTierStatus())
-            .thenReturn(Single.just(tiers(status1, status2)))
-
-        // Act
-        subject.onKycStatusClicked()
-
-        // Assert
-        verify(activity).launchKycFlow()
     }
 }

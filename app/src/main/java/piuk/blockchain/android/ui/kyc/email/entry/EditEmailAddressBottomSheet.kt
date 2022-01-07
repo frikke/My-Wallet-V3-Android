@@ -24,7 +24,7 @@ class EditEmailAddressBottomSheet :
     override fun render(newState: EmailVeriffState) {
         binding.save.isEnabled =
             newState.canUpdateEmail &&
-                !newState.isLoading
+            !newState.isLoading
 
         if (newState.emailChanged) {
             dismiss()

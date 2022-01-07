@@ -2,7 +2,6 @@ package com.blockchain.sunriver
 
 import com.blockchain.testutils.lumens
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should throw`
 import org.junit.Test
 
@@ -15,14 +14,18 @@ class XlmAddressValidationKtTest {
 
     @Test
     fun `valid uri is valid address`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&amount" +
-            "=120.1234567&memo=skdjfasf&msg=pay%20me%20with%20lumens").isValidXlmQr() `should be equal to` true
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&amount" +
+                "=120.1234567&memo=skdjfasf&msg=pay%20me%20with%20lumens"
+            ).isValidXlmQr() `should be equal to` true
     }
 
     @Test
     fun `valid uri with invalid address`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOP&amount" +
-            "=120.1234567&memo=skdjfasf&msg=pay%20me%20with%20lumens").isValidXlmQr() `should be equal to` false
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOP&amount" +
+                "=120.1234567&memo=skdjfasf&msg=pay%20me%20with%20lumens"
+            ).isValidXlmQr() `should be equal to` false
     }
 
     @Test
@@ -36,8 +39,10 @@ class XlmAddressValidationKtTest {
 
     @Test
     fun `parses valid uri scheme and returns amount`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO" +
-            "&amount=120.1234567&memo=skdjfasf&msg=pay%20me%20with%20lumens")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO" +
+                "&amount=120.1234567&memo=skdjfasf&msg=pay%20me%20with%20lumens"
+            )
             .fromStellarUri()
             .apply {
                 this.value `should be equal to` 120.1234567.lumens()
@@ -48,8 +53,10 @@ class XlmAddressValidationKtTest {
 
     @Test
     fun `parses valid uri scheme with no amount, returns zero value`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO" +
-            "&memo=skdjfasf&msg=pay%20me%20with%20lumens")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO" +
+                "&memo=skdjfasf&msg=pay%20me%20with%20lumens"
+            )
             .fromStellarUri()
             .apply {
                 this.value `should be equal to` 0.lumens()
@@ -79,71 +86,87 @@ class XlmAddressValidationKtTest {
 
     @Test
     fun `uri with memo, but no type, returns text Memo`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
-            "memo=Hello")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
+                "memo=Hello"
+            )
             .fromStellarUri()
             .memo `should be equal to` Memo(value = "Hello", type = "text")
     }
 
     @Test
     fun `uri with memo, text type, returns text Memo`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
-            "memo=Hello&" +
-            "memo_type=MEMO_TEXT")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
+                "memo=Hello&" +
+                "memo_type=MEMO_TEXT"
+            )
             .fromStellarUri()
             .memo `should be equal to` Memo(value = "Hello", type = "text")
     }
 
     @Test
     fun `uri with memo, id type, returns id Memo`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
-            "memo=1234&" +
-            "memo_type=MEMO_ID")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
+                "memo=1234&" +
+                "memo_type=MEMO_ID"
+            )
             .fromStellarUri()
             .memo `should be equal to` Memo(value = "1234", type = "id")
     }
 
     @Test
     fun `uri with memo, hash type, returns hash Memo`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
-            "memo=abcd1234&" +
-            "memo_type=MEMO_HASH")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
+                "memo=abcd1234&" +
+                "memo_type=MEMO_HASH"
+            )
             .fromStellarUri()
             .memo `should be equal to` Memo(value = "abcd1234", type = "hash")
     }
 
     @Test
     fun `uri with memo, return type, returns return Memo`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
-            "memo=abcd1234&" +
-            "memo_type=MEMO_RETURN")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
+                "memo=abcd1234&" +
+                "memo_type=MEMO_RETURN"
+            )
             .fromStellarUri()
             .memo `should be equal to` Memo(value = "abcd1234", type = "return")
     }
 
     @Test
     fun `uri with blank memo, hash type, returns no Memo`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
-            "memo=%20%20&" +
-            "memo_type=MEMO_HASH")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
+                "memo=%20%20&" +
+                "memo_type=MEMO_HASH"
+            )
             .fromStellarUri()
             .memo `should be equal to` Memo.None
     }
 
     @Test
     fun `uri with encoded memo text is decoded`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
-            "memo=Hello%20this%20is%20url%20encoded&" +
-            "memo_type=MEMO_TEXT")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
+                "memo=Hello%20this%20is%20url%20encoded&" +
+                "memo_type=MEMO_TEXT"
+            )
             .fromStellarUri()
             .memo `should be equal to` Memo(value = "Hello this is url encoded", type = "text")
     }
 
     @Test
     fun `uri with unknown memo type is still returned`() {
-        ("web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
-            "memo=Memo%20text&" +
-            "memo_type=MEMO_NEW_TYPE")
+        (
+            "web+stellar:pay?destination=GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO&" +
+                "memo=Memo%20text&" +
+                "memo_type=MEMO_NEW_TYPE"
+            )
             .fromStellarUri()
             .memo `should be equal to` Memo(value = "Memo text", type = "MEMO_NEW_TYPE")
     }

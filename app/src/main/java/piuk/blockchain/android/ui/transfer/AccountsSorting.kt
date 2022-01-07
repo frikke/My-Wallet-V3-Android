@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.transfer
 import com.blockchain.coincore.AccountsSorter
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialAccount
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Single
 
 interface AccountsSorting {
     fun sorter(): AccountsSorter
@@ -33,7 +33,7 @@ class DashboardAccountsSorting(
                 )
                 sortedList
             }
-        }
+    }
 
     private fun getOrdering(): List<AssetInfo> =
         dashboardPrefs.dashboardAssetOrder

@@ -2,10 +2,10 @@ package info.blockchain.wallet.metadata
 
 import com.google.common.annotations.VisibleForTesting
 import info.blockchain.wallet.util.MetadataUtil
+import java.util.Arrays
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.bitcoinj.crypto.DeterministicKey
-import java.util.Arrays
 
 class Metadata(
     @VisibleForTesting

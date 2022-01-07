@@ -4,12 +4,16 @@ import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.BuildConfig
 import com.blockchain.core.Database
+import com.blockchain.core.buy.BuyOrdersCache
+import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.custodial.BrokerageDataManager
+import com.blockchain.core.custodial.BrokerageQuoteFeatureFlag
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
@@ -18,6 +22,8 @@ import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.PaymentsDataManagerImpl
 import com.blockchain.core.user.NabuUserDataManager
@@ -49,6 +55,7 @@ import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
+import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -63,8 +70,6 @@ import piuk.blockchain.androidcore.data.metadata.MoshiMetadataRepositoryAdapter
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManagerSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payload.PayloadService
-import piuk.blockchain.androidcore.data.payload.PayloadVersionController
-import piuk.blockchain.androidcore.data.payload.PayloadVersionControllerImpl
 import piuk.blockchain.androidcore.data.payload.PromptingSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payments.PaymentService
 import piuk.blockchain.androidcore.data.payments.SendDataManager
@@ -90,7 +95,6 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
-import java.util.UUID
 
 val coreModule = module {
 
@@ -122,12 +126,38 @@ val coreModule = module {
             )
         }.bind(TradingBalanceDataManager::class)
 
+        scoped {
+            BrokerageDataManager(
+                brokerageService = get(),
+                authenticator = get(),
+                nabuService = get(),
+                featureFlag = get()
+            )
+        }
+
+        scoped {
+            LimitsDataManagerImpl(
+                limitsService = get(),
+                exchangeRatesDataManager = get(),
+                assetCatalogue = get(),
+                authenticator = get()
+            )
+        }.bind(LimitsDataManager::class)
+
         factory {
             InterestBalanceCallCache(
                 balanceService = get(),
                 assetCatalogue = get(),
                 authHeaderProvider = get()
             )
+        }
+
+        scoped {
+            BuyPairsCache(nabuService = get())
+        }
+
+        scoped {
+            BuyOrdersCache(authenticator = get(), nabuService = get())
         }
 
         scoped {
@@ -183,9 +213,7 @@ val coreModule = module {
 
         factory {
             PayloadService(
-                payloadManager = get(),
-                versionController = get(),
-                crashLogger = get()
+                payloadManager = get()
             )
         }
 
@@ -198,12 +226,6 @@ val coreModule = module {
                 crashLogger = get()
             )
         }
-
-        factory {
-            PayloadVersionControllerImpl(
-                settingsApi = get()
-            )
-        }.bind(PayloadVersionController::class)
 
         factory {
             DataManagerPayloadDecrypt(
@@ -377,6 +399,13 @@ val coreModule = module {
     }.bind(PinRepository::class)
 
     factory { AESUtilWrapper() }
+
+    single {
+        BrokerageQuoteFeatureFlag(
+            localApi = get(),
+            remoteConfig = get(pricingQuoteFeatureFlag)
+        )
+    }
 
     single {
         Database(driver = get())

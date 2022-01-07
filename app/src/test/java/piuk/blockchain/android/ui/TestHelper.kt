@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui
 
+import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTierState
+import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.TierResponse
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 
 fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
@@ -27,8 +27,10 @@ fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
 
 val validOfflineTokenMetadata get() = NabuCredentialsMetadata("userId", "lifetimeToken")
 val validOfflineToken
-    get() = NabuOfflineTokenResponse("userId",
-        "lifetimeToken")
+    get() = NabuOfflineTokenResponse(
+        "userId",
+        "lifetimeToken"
+    )
 
 fun tiers(tier1State: KycTierState, tier2State: KycTierState): KycTiers {
     return KycTiers(

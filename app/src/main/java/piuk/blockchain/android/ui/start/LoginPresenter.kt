@@ -4,14 +4,14 @@ import androidx.annotation.StringRes
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import io.reactivex.rxjava3.kotlin.plusAssign
+import javax.net.ssl.SSLPeerUnverifiedException
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.android.util.AppUtil
-import javax.net.ssl.SSLPeerUnverifiedException
 
 interface LoginView : MvpView {
     fun showToast(@StringRes message: Int, @ToastCustom.ToastType toastType: String)

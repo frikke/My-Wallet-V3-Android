@@ -7,11 +7,11 @@ import info.blockchain.wallet.api.data.WalletOptions
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Locale
 import piuk.blockchain.androidcore.data.appversion.SemanticVersion
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.util.Locale
 
 class WalletOptionsDataManager(
     authService: WalletAuthService,
@@ -56,8 +56,10 @@ class WalletOptionsDataManager(
 
     fun getBuyWebviewWalletLink(): String {
         initWalletOptionsReplaySubjects()
-        return (walletOptionsState.walletOptionsSource.value!!.buyWebviewWalletLink
-            ?: "${explorerUrl}wallet") + "/#/intermediate"
+        return (
+            walletOptionsState.walletOptionsSource.value!!.buyWebviewWalletLink
+                ?: "${explorerUrl}wallet"
+            ) + "/#/intermediate"
     }
 
     private fun xlmExchangeAddresses(): List<String> {

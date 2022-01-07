@@ -1,10 +1,9 @@
 package com.blockchain.nabu.util
 
 import com.blockchain.testutils.date
-import org.amshove.kluent.`should be equal to`
+import java.util.Locale
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import java.util.Locale
 
 class CalendarExtensionsKtTest {
 

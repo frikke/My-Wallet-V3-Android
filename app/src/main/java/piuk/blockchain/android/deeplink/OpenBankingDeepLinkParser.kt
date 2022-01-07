@@ -19,7 +19,8 @@ class OpenBankingDeepLinkParser {
                 else -> {
                     OpenBankingLinkType.UNKNOWN
                 }
-            }, consentToken
+            },
+            consentToken
         )
     }
 

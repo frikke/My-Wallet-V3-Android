@@ -3,15 +3,14 @@ package piuk.blockchain.android.ui.settings
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import java.io.Serializable
+import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 
 sealed class SettingsAnalytics(override val event: String, override val params: Map<String, Serializable> = mapOf()) :
     AnalyticsEvent {
 
     object EmailClicked : SettingsAnalytics("settings_email_clicked")
     object PhoneClicked : SettingsAnalytics("settings_phone_clicked")
-    object SwapLimitChecked : SettingsAnalytics("settings_swap_limit_clicked")
     object CloudBackupSwitch : SettingsAnalytics("settings_cloud_backup_switch")
     object WalletIdCopyClicked : SettingsAnalytics("settings_wallet_id_copy_click")
     object WalletIdCopyCopied : SettingsAnalytics("settings_wallet_id_copied")
@@ -79,7 +78,8 @@ sealed class SettingsAnalytics(override val event: String, override val params: 
 
     class SettingsHyperlinkClicked(private val destination: AnalyticsHyperlinkDestination) :
         SettingsAnalytics(
-            AnalyticsNames.SETTINGS_HYPERLINK_DESTINATION.eventName, mapOf(
+            AnalyticsNames.SETTINGS_HYPERLINK_DESTINATION.eventName,
+            mapOf(
                 "destination" to destination.name
             )
         )

@@ -16,13 +16,13 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.lang.IllegalStateException
+import java.util.Date
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import timber.log.Timber
-import java.lang.IllegalStateException
-import java.util.Date
 
 interface AirdropCentreView : MvpView {
     fun renderList(statusList: List<Airdrop>)

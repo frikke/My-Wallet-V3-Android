@@ -1,16 +1,16 @@
 package piuk.blockchain.android.ui.upsell
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.nabu.UserIdentity
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
-import com.nhaarman.mockitokotlin2.any
-import io.reactivex.rxjava3.core.Single
-import org.junit.Rule
-import org.junit.Test
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.nabu.UserIdentity
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+import org.junit.Rule
+import org.junit.Test
 
 class KycUpgradePromptManagerTest {
 

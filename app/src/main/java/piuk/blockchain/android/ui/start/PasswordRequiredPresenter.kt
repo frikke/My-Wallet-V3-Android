@@ -2,11 +2,11 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.logging.CrashLogger
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.android.ui.customviews.ToastCustom
 
 interface PasswordRequiredView : PasswordAuthView {
     fun restartPage()

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".abstract_compose_view.TypographyActivity">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Display"
+            android:textAppearance="@style/TextAppearance.Blockchain.Display" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Title 1"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Title 2"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Title 3"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/sub_heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Sub heading"
+            android:textAppearance="@style/TextAppearance.Blockchain.Subheading" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/body_mono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Body mono"
+            android:textAppearance="@style/TextAppearance.Blockchain.BodyMono" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Body 1"
+            android:textAppearance="@style/TextAppearance.Blockchain.Body1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/body2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Body 2"
+            android:textAppearance="@style/TextAppearance.Blockchain.Body2" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/paragraph_mono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Paragraph mono"
+            android:textAppearance="@style/TextAppearance.Blockchain.ParagraphMono" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/paragraph1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Paragraph 1"
+            android:textAppearance="@style/TextAppearance.Blockchain.Paragraph1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/paragraph2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Paragraph 2"
+            android:textAppearance="@style/TextAppearance.Blockchain.Paragraph2" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/caption1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Caption 1"
+            android:textAppearance="@style/TextAppearance.Blockchain.Caption1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/caption2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Caption 2"
+            android:textAppearance="@style/TextAppearance.Blockchain.Caption2" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/overline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Overline"
+            android:textAppearance="@style/TextAppearance.Blockchain.Overline" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/micro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:text="Micro (Tab bar text)"
+            android:textAppearance="@style/TextAppearance.Blockchain.Micro" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</ScrollView>

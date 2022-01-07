@@ -1,5 +1,8 @@
 package piuk.blockchain.android.ui.activity.detail
 
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.sunriver.XlmDataManager
 import info.blockchain.balance.AssetInfo
@@ -11,9 +14,6 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAccount
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -34,7 +34,7 @@ class TransactionInOutMapper(
             item.asset == CryptoCurrency.BCH -> handleBchToAndFrom(item)
             item.asset == CryptoCurrency.XLM -> handleXlmToAndFrom(item)
             item.asset == CryptoCurrency.ETHER ||
-            item.asset.isErc20() -> handleEthAndErc20ToAndFrom(item)
+                item.asset.isErc20() -> handleEthAndErc20ToAndFrom(item)
             else -> throw IllegalArgumentException("${item.asset} is not currently supported")
         }
 
@@ -95,7 +95,8 @@ class TransactionInOutMapper(
     private fun handleBtcToAndFrom(activitySummaryItem: NonCustodialActivitySummaryItem) =
         Single.fromCallable {
             val (inputs, outputs) = transactionHelper.filterNonChangeBtcAddresses(
-                activitySummaryItem)
+                activitySummaryItem
+            )
             setToAndFrom(CryptoCurrency.BTC, inputs, outputs)
         }
 

@@ -7,6 +7,7 @@ interface TransactionProgressCustomisations {
     fun transactionProgressMessage(state: TransactionState): String
     fun transactionCompleteTitle(state: TransactionState): String
     fun transactionCompleteMessage(state: TransactionState): String
+    fun transactionCompleteIcon(state: TransactionState): Int
     fun transactionProgressStandardIcon(state: TransactionState): Int? // Return null to use asset icon
     fun transactionProgressExceptionMessage(state: TransactionState): String
 }

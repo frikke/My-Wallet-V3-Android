@@ -11,16 +11,16 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import java.nio.charset.Charset
+import java.security.Signature
+import javax.crypto.Cipher
+import kotlin.test.assertEquals
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.nio.charset.Charset
-import java.security.Signature
-import javax.crypto.Cipher
-import kotlin.test.assertEquals
 
 // NOTE: roboelectric runner needed for Base64 Android implementations
 @Suppress("PrivatePropertyName")

@@ -1,11 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.TransferDirection
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -17,19 +12,26 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.TransferDirection
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class OnChainSwapTxEngine(
     quotesEngine: TransferQuotesEngine,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
+    private val limitsDataManager: LimitsDataManager,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val engine: OnChainTxEngineBase
 ) : SwapTxEngineBase(
-    quotesEngine, userIdentity, walletManager
+    quotesEngine, userIdentity, walletManager, limitsDataManager
 ) {
     override val direction: TransferDirection by unsafeLazy {
         when (txTarget) {

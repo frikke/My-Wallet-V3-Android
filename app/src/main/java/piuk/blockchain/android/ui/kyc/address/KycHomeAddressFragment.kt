@@ -23,6 +23,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.PublishSubject
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
@@ -48,10 +50,9 @@ import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 
-class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddressPresenter>(),
+class KycHomeAddressFragment :
+    BaseMvpFragment<KycHomeAddressView, KycHomeAddressPresenter>(),
     KycHomeAddressView {
 
     private var _binding: FragmentKycHomeAddressBinding? = null

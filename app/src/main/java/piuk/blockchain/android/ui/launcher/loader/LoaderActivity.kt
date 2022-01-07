@@ -1,15 +1,15 @@
 package piuk.blockchain.android.ui.launcher.loader
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
-import androidx.appcompat.widget.Toolbar
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
@@ -17,7 +17,7 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
@@ -35,17 +35,13 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
 
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
-    private val toolbar: Toolbar by lazy {
-        ToolbarGeneralBinding.bind(binding.root).toolbarGeneral
-    }
-
     private var state: LoaderState? = null
+    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(toolbar)
-        toolbar.gone()
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
@@ -54,13 +50,17 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun render(newState: LoaderState) {
-        when (val loaderStep = newState.nextLoaderStep) {
-            is LoaderStep.Main -> {
+        when (val loaderStep = newState.nextLoadingStep) {
+            is LoadingStep.Main -> {
                 onStartMainActivity(loaderStep.data, loaderStep.launchBuySellIntro)
             }
-            is LoaderStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
-            is LoaderStep.EmailVerification -> launchEmailVerification()
+            is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
+            is LoadingStep.EmailVerification -> launchEmailVerification()
+            is LoadingStep.RequestPin -> onRequestPin()
             null -> {
             }
         }
@@ -108,13 +108,23 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         }
     }
 
-    override fun onEmailEntryFragmentShown() {
-        with(toolbar) {
-            setupToolbar(this, R.string.security_check)
-            navigationIcon = null
-            visible()
-        }
-    }
+    override fun onEmailEntryFragmentShown() = loadToolbar(getString(R.string.security_check))
+
+    override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) =
+        loadToolbar(
+            getString(R.string.security_check),
+            if (shouldShowButton) {
+                listOf(
+                    NavigationBarButton.TextWithColorInt(
+                        getString(R.string.common_skip),
+                        R.color.blue_600,
+                        buttonAction
+                    )
+                )
+            } else {
+                emptyList()
+            }
+        )
 
     override fun onEmailVerified() {
         model.process(LoaderIntents.OnEmailVerificationFinished)
@@ -125,23 +135,26 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
+
     private fun onRequestPin() {
         startSingleActivity(PinEntryActivity::class.java)
     }
 
     private fun onStartMainActivity(mainData: String?, launchBuySellIntro: Boolean) {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            mainData?.let {
-                data = Uri.parse(it)
-            }
-            putExtra(MainActivity.START_BUY_SELL_INTRO_KEY, launchBuySellIntro)
-        }
-        startActivity(intent)
+        mainScreenLauncher.startMainActivity(
+            context = this,
+            intentData = mainData,
+            shouldLaunchBuySellIntro = launchBuySellIntro,
+            shouldBeNewTask = true,
+            compositeDisposable = compositeDisposable
+        )
     }
 
     private fun launchEmailVerification() {
-        window.statusBarColor = getColor(R.color.primary_blue_dark)
         binding.progress.gone()
         binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
@@ -175,8 +188,8 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         editText.setHint(R.string.password)
         editText.inputType =
             InputType.TYPE_CLASS_TEXT or
-                InputType.TYPE_TEXT_VARIATION_PASSWORD or
-                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            InputType.TYPE_TEXT_VARIATION_PASSWORD or
+            InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 
         val frameLayout = ViewUtils.getAlertDialogPaddedView(this, editText)
 

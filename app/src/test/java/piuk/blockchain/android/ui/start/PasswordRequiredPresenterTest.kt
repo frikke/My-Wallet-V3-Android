@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.logging.CrashLogger
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.Wallet
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyInt

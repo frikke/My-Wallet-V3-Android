@@ -1,8 +1,8 @@
 package info.blockchain.wallet.api
 
-import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.blockchain.testutils.FakeHttpExceptionFactory
 import com.blockchain.testutils.getStringFromResource
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.ApiCode
@@ -12,6 +12,7 @@ import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.payload.data.WalletBase
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.security.SecureRandom
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -20,7 +21,6 @@ import org.junit.Test
 import org.spongycastle.util.encoders.Hex
 import retrofit2.Call
 import retrofit2.Response
-import java.security.SecureRandom
 
 class WalletApiTest {
     private val walletExplorerEndpoints: WalletExplorerEndpoints = mock()

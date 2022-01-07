@@ -26,5 +26,6 @@ private class MaybeValueCache<T>(maybe: Maybe<T>) {
         .switchIfEmpty(
             maybe.doOnSuccess {
                 cachedValue.set(it)
-            })
+            }
+        )
 }

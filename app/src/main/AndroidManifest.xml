@@ -5,6 +5,7 @@
     package="piuk.blockchain.android"
     android:installLocation="auto">
 
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -23,8 +24,8 @@
     <application
         android:name=".BlockchainApplication"
         android:allowBackup="true"
-        android:hardwareAccelerated="true"
         android:backupAgent="piuk.blockchain.androidcore.utils.CloudBackupAgent"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="${APP_NAME}"
         android:launchMode="singleTask"
@@ -32,8 +33,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         tools:replace="android:label, android:allowBackup">
-        <activity android:name=".ui.launcher.LauncherActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+        <activity
+            android:name=".ui.launcher.LauncherActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.Splash">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
@@ -78,23 +81,26 @@
         </activity>
         <activity
             android:name=".ui.launcher.loader.LoaderActivity"
-            android:theme="@style/AppTheme.Loader"
-            android:noHistory="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.Loader" />
         <activity
             android:name=".ui.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
-            android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"
-            android:theme="@style/AppTheme" />
+            android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity" />
         <activity
             android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
             android:clearTaskOnLaunch="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.home.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.MainActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ui.home.v2.RedesignMainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
@@ -103,6 +109,9 @@
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.settings.SettingsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name=".ui.kyc.limits.KycLimitsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.auth.PinEntryActivity"
@@ -132,11 +141,8 @@
         <activity
             android:name=".ui.start.LandingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.Splash"
             android:windowSoftInputMode="adjustPan" />
-        <activity
-            android:name=".ui.start.LoginActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.createwallet.CreateWalletActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -152,7 +158,8 @@
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.start.ManualPairingActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.login.LoginActivity" />
         <activity
             android:name=".ui.auth.LogoutActivity"
             android:excludeFromRecents="true"
@@ -215,6 +222,8 @@
         <activity
             android:name=".ui.locks.LocksDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity android:name=".ui.home.v2.ActionActivity" />
+        <activity android:name=".ui.settings.v2.RedesignSettingsActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

@@ -4,7 +4,6 @@ import android.content.res.Resources
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
 import org.amshove.kluent.`should be equal to`
-
 import org.junit.Test
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.resources.AssetResources

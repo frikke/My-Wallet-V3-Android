@@ -28,8 +28,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
-import piuk.blockchain.androidcore.utils.extensions.mapList
 import java.util.concurrent.atomic.AtomicBoolean
+import piuk.blockchain.androidcore.utils.extensions.mapList
 
 class CryptoInterestAccount(
     override val asset: AssetInfo,
@@ -84,7 +84,6 @@ class CryptoInterestAccount(
             interestBalance.getBalanceForAsset(asset),
             exchangeRates.cryptoToUserFiatRate(asset)
         ) { balance, rate ->
-            setHasTransactions(balance.hasTransactions)
             AccountBalance.from(balance, rate)
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 

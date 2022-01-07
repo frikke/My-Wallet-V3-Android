@@ -26,6 +26,7 @@ import com.blockchain.notifications.analytics.AppLaunchEvent
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AppInfoPrefs.Companion.DEFAULT_APP_VERSION_CODE
 import com.facebook.stetho.Stetho
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
@@ -34,8 +35,10 @@ import info.blockchain.wallet.BlockchainFramework
 import info.blockchain.wallet.FrameworkInterface
 import info.blockchain.wallet.api.Environment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
@@ -73,7 +76,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
     private lateinit var logoutPendingIntent: PendingIntent
 
     private val lifecycleListener: AppLifecycleListener by lazy {
-        AppLifecycleListener(lifeCycleInterestedComponent)
+        AppLifecycleListener(lifeCycleInterestedComponent, crashLogger)
     }
 
     override fun onCreate() {
@@ -85,6 +88,9 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
         super.onCreate()
 
+        // TODO disable dark mode for now, re-enable once we're further into the redesign
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
         // Init Timber
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
@@ -92,9 +98,9 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
         // Build the DI graphs:
         KoinStarter.start(this)
-        initLifecycleListener()
         crashLogger.init(this)
         crashLogger.userLanguageLocale(resources.configuration.locale.language)
+        initLifecycleListener()
 
         if (environmentSettings.isRunningInDebugMode()) {
             Stetho.initializeWithDefaults(this)
@@ -128,7 +134,11 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         AppVersioningChecks(
             context = this,
             appInfoPrefs = appInfoPrefs,
-            onAppInstalled = { code, name -> onAppInstalled(code, name) },
+            onAppInstalled = { code, name, installReferrer, installTimestampSeconds, adId ->
+                onAppInstalled(
+                    code, name, installReferrer, installTimestampSeconds, adId
+                )
+            },
             onAppAppUpdated = { appUpdated -> onAppUpdated(appUpdated) }
         ).checkForPotentialNewInstallOrUpdate()
     }
@@ -144,10 +154,20 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         )
     }
 
-    private fun onAppInstalled(versionCode: Int, versionName: String) {
+    private fun onAppInstalled(
+        versionCode: Int,
+        versionName: String,
+        installReferrer: String,
+        installTimestampSeconds: Long,
+        adId: String
+    ) {
         analytics.logEvent(
             AppAnalytics.AppInstalled(
-                versionCode = versionCode, versionName = versionName
+                versionCode = versionCode,
+                versionName = versionName,
+                installReferrer = installReferrer,
+                installBeginSeconds = installTimestampSeconds,
+                adId = adId
             )
         )
     }
@@ -274,7 +294,8 @@ open class BlockchainApplication : Application(), FrameworkInterface {
                         onProviderInstallerNotAvailable()
                     }
                 }
-            })
+            }
+        )
     }
 
     /**
@@ -350,7 +371,13 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 private class AppVersioningChecks(
     private val context: Context,
     private val appInfoPrefs: AppInfoPrefs,
-    private val onAppInstalled: (versionCode: Int, versionName: String) -> Unit,
+    private val onAppInstalled: (
+        versionCode: Int,
+        versionName: String,
+        installReferrer: String,
+        installTimestampSeconds: Long,
+        adId: String
+    ) -> Unit,
     private val onAppAppUpdated: (appUpdated: AppUpdateInfo) -> Unit
 ) {
 
@@ -365,38 +392,55 @@ private class AppVersioningChecks(
     }
 
     private fun checkForInstalledVersion() {
-        val referrerClient = InstallReferrerClient.newBuilder(context).build()
-        referrerClient.startConnection(object : InstallReferrerStateListener {
-            override fun onInstallReferrerSetupFinished(responseCode: Int) {
-                when (responseCode) {
-                    InstallReferrerClient.InstallReferrerResponse.OK -> {
-                        try {
-                            referrerClient.installReferrer?.installVersion?.let {
-                                appInfoPrefs.installationVersionName = it
-                                val runningVersionIsTheInstalled = it == BuildConfig.VERSION_NAME
-                                if (runningVersionIsTheInstalled) {
-                                    onAppInstalled(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
-                                } else {
-                                    checkForPotentialUpdate(it)
+        getAdvertisingId(context)
+            .subscribeBy { adId ->
+                val referrerClient = InstallReferrerClient.newBuilder(context).build()
+                referrerClient.startConnection(object : InstallReferrerStateListener {
+                    override fun onInstallReferrerSetupFinished(responseCode: Int) {
+                        when (responseCode) {
+                            InstallReferrerClient.InstallReferrerResponse.OK -> {
+                                try {
+                                    referrerClient.installReferrer?.installVersion?.let {
+                                        appInfoPrefs.installationVersionName = it
+                                        val runningVersionIsTheInstalled = it == BuildConfig.VERSION_NAME
+                                        if (runningVersionIsTheInstalled) {
+                                            onAppInstalled(
+                                                BuildConfig.VERSION_CODE,
+                                                BuildConfig.VERSION_NAME,
+                                                referrerClient.installReferrer.installReferrer,
+                                                referrerClient.installReferrer.installBeginTimestampSeconds,
+                                                adId
+                                            )
+                                        } else {
+                                            checkForPotentialUpdate(it)
+                                        }
+                                    }
+                                } catch (e: RemoteException) {
+                                    Timber.e(e)
+                                } finally {
+                                    referrerClient.endConnection()
                                 }
                             }
-                        } catch (e: RemoteException) {
-                            Timber.e(e)
-                        } finally {
-                            referrerClient.endConnection()
+                            InstallReferrerClient.InstallReferrerResponse.FEATURE_NOT_SUPPORTED -> {
+                                referrerClient.endConnection()
+                            }
+                            InstallReferrerClient.InstallReferrerResponse.SERVICE_UNAVAILABLE -> {
+                                referrerClient.endConnection()
+                            }
                         }
                     }
-                    InstallReferrerClient.InstallReferrerResponse.FEATURE_NOT_SUPPORTED -> {
-                        referrerClient.endConnection()
-                    }
-                    InstallReferrerClient.InstallReferrerResponse.SERVICE_UNAVAILABLE -> {
-                        referrerClient.endConnection()
-                    }
-                }
-            }
 
-            override fun onInstallReferrerServiceDisconnected() {}
-        })
+                    override fun onInstallReferrerServiceDisconnected() {}
+                })
+            }
+    }
+
+    private fun getAdvertisingId(context: Context): Single<String> {
+        return Single.fromCallable {
+            AdvertisingIdClient.getAdvertisingIdInfo(context).id.orEmpty()
+        }.onErrorReturn {
+            ""
+        }.subscribeOn(Schedulers.io())
     }
 
     private fun checkForPotentialUpdate(installedVersion: String) {

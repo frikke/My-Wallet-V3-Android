@@ -1,18 +1,18 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.SingleAccountList
-import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 
 class ActiveAccountListTest {
 

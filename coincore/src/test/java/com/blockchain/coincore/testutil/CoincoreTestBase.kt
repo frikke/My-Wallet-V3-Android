@@ -1,9 +1,10 @@
 package com.blockchain.coincore.testutil
 
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCategory
@@ -13,6 +14,7 @@ import org.junit.Rule
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 private fun injectMocks(module: Module) {
@@ -37,6 +39,8 @@ open class CoincoreTestBase {
     protected open val currencyPrefs: CurrencyPrefs = mock {
         on { selectedFiatCurrency }.thenReturn(TEST_USER_FIAT)
     }
+
+    private val mockedCrashLogger: CrashLogger = mock()
 
     private val userFiatToUserFiat = ExchangeRate.FiatToFiat(
         from = TEST_USER_FIAT,
@@ -63,6 +67,9 @@ open class CoincoreTestBase {
                         currencyPrefs
                     }
                 }
+                factory {
+                    mockedCrashLogger
+                }.bind(CrashLogger::class)
             }
         )
     }
@@ -75,6 +82,7 @@ open class CoincoreTestBase {
     companion object {
         @JvmStatic
         protected val TEST_USER_FIAT = "EUR"
+
         @JvmStatic
         protected val TEST_API_FIAT = "USD"
 

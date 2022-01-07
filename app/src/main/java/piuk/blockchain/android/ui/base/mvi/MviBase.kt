@@ -12,7 +12,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.ReplaySubject
-
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 

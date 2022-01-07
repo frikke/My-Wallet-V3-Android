@@ -44,7 +44,7 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
     override fun update(state: TransactionState) {
         check(::model.isInitialized) { "Control not initialised" }
         cachedState = state
-            with(binding) {
+        with(binding) {
             state.pendingTx?.amount?.let { amnt ->
                 headerTitle.text = amnt.toStringWithSymbol()
 

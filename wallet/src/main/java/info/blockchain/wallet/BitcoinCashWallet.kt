@@ -15,9 +15,9 @@ import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Utxo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.bitcoinj.core.NetworkParameters
 import java.math.BigInteger
 import java.util.ArrayList
+import org.bitcoinj.core.NetworkParameters
 
 open class BitcoinCashWallet : DeterministicWallet {
 
@@ -257,7 +257,7 @@ open class BitcoinCashWallet : DeterministicWallet {
             for (unspentOutput in unspentOutputs) {
                 unspentOutput.xpub?.derivationPath?.let { path ->
                     val split = path.split("/".toRegex()).dropLastWhile { it.isEmpty() }
-                            .toTypedArray()
+                        .toTypedArray()
                     val chain = Integer.parseInt(split[1])
                     val addressIndex = Integer.parseInt(split[2])
                     val address = account.chains[chain]!!.getAddressAt(addressIndex)

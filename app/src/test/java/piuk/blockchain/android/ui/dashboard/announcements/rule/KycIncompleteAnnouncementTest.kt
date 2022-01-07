@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import com.blockchain.nabu.UserIdentity
-import piuk.blockchain.android.campaign.SunriverCampaignRegistration
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 
 class KycIncompleteAnnouncementTest {

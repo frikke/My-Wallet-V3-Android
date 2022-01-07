@@ -1,27 +1,23 @@
 package com.blockchain.coincore.erc20
 
-import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.preferences.WalletStatus
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
-import info.blockchain.balance.isErc20
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TxEngine
-import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.WalletStatus
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import java.util.concurrent.atomic.AtomicBoolean
 
 class Erc20NonCustodialAccount(
     payloadManager: PayloadDataManager,
@@ -92,7 +88,7 @@ class Erc20NonCustodialAccount(
                         state
                     }
                 }
-            }
+        }
 
     override fun createTxEngine(): TxEngine =
         Erc20OnChainTxEngine(
@@ -101,15 +97,4 @@ class Erc20NonCustodialAccount(
             requireSecondPassword = erc20DataManager.requireSecondPassword,
             walletPreferences = walletPreferences
         )
-}
-
-internal open class Erc20Address(
-    final override val asset: AssetInfo,
-    override val address: String,
-    override val label: String = address,
-    override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() }
-) : CryptoAddress {
-    init {
-        require(asset.isErc20())
-    }
 }

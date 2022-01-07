@@ -5,6 +5,7 @@ package piuk.blockchain.android.ui.kyc.koin
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.nabu.CurrentTier
 import com.blockchain.nabu.EthEligibility
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.kyc.address.CurrentTierAdapter
@@ -14,6 +15,8 @@ import piuk.blockchain.android.ui.kyc.address.KycNextStepDecision
 import piuk.blockchain.android.ui.kyc.address.KycNextStepDecisionAdapter
 import piuk.blockchain.android.ui.kyc.countryselection.KycCountrySelectionPresenter
 import piuk.blockchain.android.ui.kyc.invalidcountry.KycInvalidCountryPresenter
+import piuk.blockchain.android.ui.kyc.limits.KycLimitsInteractor
+import piuk.blockchain.android.ui.kyc.limits.KycLimitsModel
 import piuk.blockchain.android.ui.kyc.mobile.entry.KycMobileEntryPresenter
 import piuk.blockchain.android.ui.kyc.mobile.validation.KycMobileValidationPresenter
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostPresenter
@@ -41,8 +44,7 @@ val kycUiModule = module {
                 token = get(),
                 dataManager = get(),
                 reentryDecision = get(),
-                analytics = get(),
-                internalFlags = get()
+                analytics = get()
             )
         }.bind(KycNavigator::class)
 
@@ -127,6 +129,22 @@ val kycUiModule = module {
             KycInvalidCountryPresenter(
                 nabuDataManager = get(),
                 metadataRepository = get()
+            )
+        }
+
+        factory {
+            KycLimitsModel(
+                interactor = get(),
+                uiScheduler = AndroidSchedulers.mainThread(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+
+        factory {
+            KycLimitsInteractor(
+                limitsDataManager = get(),
+                userIdentity = get()
             )
         }
     }

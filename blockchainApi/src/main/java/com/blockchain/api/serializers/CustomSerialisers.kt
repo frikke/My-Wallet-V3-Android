@@ -1,13 +1,13 @@
 package com.blockchain.api.serializers
 
+import java.math.BigDecimal
+import java.math.BigInteger
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import java.math.BigDecimal
-import java.math.BigInteger
 
 object BigIntSerializer : KSerializer<BigInteger> {
     override val descriptor: SerialDescriptor =

@@ -9,6 +9,7 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
@@ -21,21 +22,16 @@ import piuk.blockchain.android.ui.launcher.loader.LoaderIntents
 import piuk.blockchain.android.ui.launcher.loader.LoaderInteractor
 import piuk.blockchain.android.ui.launcher.loader.LoaderModel
 import piuk.blockchain.android.ui.launcher.loader.LoaderState
-import piuk.blockchain.android.ui.launcher.loader.LoaderStep
+import piuk.blockchain.android.ui.launcher.loader.LoadingStep
 import piuk.blockchain.android.ui.launcher.loader.ProgressStep
 import piuk.blockchain.android.ui.launcher.loader.ToastType
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 @RunWith(MockitoJUnitRunner::class)
 class LoaderModelTest {
     private lateinit var model: LoaderModel
-
-    private val environmentConfig: EnvironmentConfig = mock {
-        on { isRunningInDebugMode() }.thenReturn(false)
-    }
 
     private val interactor: LoaderInteractor = mock()
     private val appUtil: AppUtil = mock()
@@ -57,7 +53,7 @@ class LoaderModelTest {
         model = LoaderModel(
             initialState = LoaderState(),
             mainScheduler = Schedulers.io(),
-            environmentConfig = environmentConfig,
+            environmentConfig = mock(),
             crashLogger = mock(),
             interactor = interactor,
             analytics = mock(),
@@ -77,6 +73,9 @@ class LoaderModelTest {
         val isAfterWalletCreation = false
         whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
         whenever(prefs.pinId).thenReturn(PIN_ID)
+        whenever(interactor.loaderIntents).thenReturn(
+            Observable.just(LoaderIntents.UpdateProgressStep(ProgressStep.START))
+        )
 
         model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
 
@@ -99,7 +98,7 @@ class LoaderModelTest {
         testState
             .assertValues(
                 LoaderState(),
-                LoaderState(nextLoaderStep = LoaderStep.Launcher)
+                LoaderState(nextLoadingStep = LoadingStep.Launcher)
             )
     }
 
@@ -117,7 +116,7 @@ class LoaderModelTest {
         testState
             .assertValues(
                 LoaderState(),
-                LoaderState(nextLoaderStep = LoaderStep.Main(null, isUserEligible))
+                LoaderState(nextLoadingStep = LoadingStep.Main(null, isUserEligible))
             )
     }
 
@@ -135,7 +134,7 @@ class LoaderModelTest {
         testState
             .assertValues(
                 LoaderState(),
-                LoaderState(nextLoaderStep = LoaderStep.Main(null, isUserEligible))
+                LoaderState(nextLoadingStep = LoadingStep.Main(null, isUserEligible))
             )
     }
 

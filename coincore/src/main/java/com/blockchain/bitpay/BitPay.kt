@@ -6,9 +6,9 @@ import com.blockchain.bitpay.models.RawPaymentRequest
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
-import retrofit2.http.POST
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.POST
 import retrofit2.http.Url
 
 interface BitPay {

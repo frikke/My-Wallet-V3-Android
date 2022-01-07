@@ -9,12 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.koin.scopedInject
-import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.AssetInfo
-import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -22,12 +16,22 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPricesBinding
+import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
@@ -38,6 +42,8 @@ import piuk.blockchain.android.ui.dashboard.adapter.PricesDelegateAdapter
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
+import piuk.blockchain.android.ui.dashboard.model.AssetPriceState
+import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
@@ -76,8 +82,10 @@ internal class PricesFragment :
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
     DialogFlow.FlowHost,
+    DashboardScreen,
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
+    BuyPendingOrdersBottomSheet.Host,
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
@@ -96,8 +104,6 @@ internal class PricesFragment :
     private val theLayoutManager: RecyclerView.LayoutManager by unsafeLazy {
         SafeLayoutManager(requireContext())
     }
-
-    private val displayList = mutableListOf<PricesItem>()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -150,27 +156,31 @@ internal class PricesFragment :
     }
 
     private fun updateDisplayList(newState: DashboardState) {
-        val newList = newState.availablePrices.filter { assetInfo ->
+        // Get the active assets sorted by balance
+        val activeAssets = newState.activeAssets.values.sortedWith(
+            compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
+                .thenBy { it.currency.name }
+        ).map { it.toAssetPriceState() }
+        // Get all the available assets
+        val availableAssets = newState.availablePrices.values
+        // Merge active and available, maintaining the order - active assets with biggest balances first
+        val sortedAssets = activeAssets.toSet().plus(availableAssets).filter { assetPriceState ->
             newState.filterBy.isBlank() ||
-                assetInfo.key.name.contains(newState.filterBy, ignoreCase = true) ||
-                assetInfo.key.displayTicker.contains(newState.filterBy, ignoreCase = true)
-        }.values.map {
+                assetPriceState.assetInfo.name.contains(newState.filterBy, ignoreCase = true) ||
+                assetPriceState.assetInfo.displayTicker.contains(newState.filterBy, ignoreCase = true)
+        }
+
+        binding.searchBoxLayout.apply {
+            updateResults(resultCount = availableAssets.size.toString(), shouldShow = newState.filterBy.isNotEmpty())
+            updateLayoutState()
+        }
+
+        theAdapter.items = sortedAssets.toList().map {
             PricesItem(
                 asset = it.assetInfo,
                 priceWithDelta = it.prices
             )
         }
-
-        binding.searchBoxLayout.apply {
-            updateResults(resultCount = newList.size.toString(), shouldShow = newState.filterBy.isNotEmpty())
-            updateLayoutState()
-        }
-
-        with(displayList) {
-            clear()
-            addAll(newList.sortedBy { it.assetName })
-        }
-        theAdapter.notifyDataSetChanged()
     }
 
     override fun onBackPressed(): Boolean = false
@@ -193,7 +203,6 @@ internal class PricesFragment :
 
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
         }
-        theAdapter.items = displayList
     }
 
     private fun setupSwipeRefresh() {
@@ -230,7 +239,6 @@ internal class PricesFragment :
     override fun onResume() {
         super.onResume()
         if (isHidden) return
-
         initOrUpdateAssets()
     }
 
@@ -387,6 +395,10 @@ internal class PricesFragment :
         )
     }
 
+    override fun startActivityRequested() {
+        navigator().performAssetActionFor(AssetAction.ViewActivity)
+    }
+
     // DialogBottomSheet.Host
     override fun onSheetClosed() {
         model.process(DashboardIntent.ClearBottomSheet)
@@ -424,9 +436,9 @@ internal class PricesFragment :
     override fun goToSellFrom(account: CryptoAccount) =
         startActivity(
             TransactionFlowActivity.newInstance(
-            context = requireActivity(),
-            sourceAccount = account,
-            action = AssetAction.Sell
+                context = requireActivity(),
+                sourceAccount = account,
+                action = AssetAction.Sell
             )
         )
 
@@ -477,8 +489,24 @@ internal class PricesFragment :
         )
     }
 
-    override fun goToBuy(asset: AssetInfo) {
-        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+    override fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess) {
+        val blockedState = buyAccess as? FeatureAccess.Blocked
+
+        blockedState?.let {
+            when (val reason = it.reason) {
+                is BlockedReason.TooManyInFlightTransactions -> showPendingBuysBottomSheet(reason.maxTransactions)
+                BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
+            }.exhaustive
+        } ?: run {
+            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+        }
+    }
+
+    private fun showPendingBuysBottomSheet(pendingBuys: Int) {
+        BuyPendingOrdersBottomSheet.newInstance(pendingBuys).show(
+            childFragmentManager,
+            BuyPendingOrdersBottomSheet.TAG
+        )
     }
 
     // BankLinkingHost
@@ -540,4 +568,13 @@ internal class PricesFragment :
     companion object {
         fun newInstance() = PricesFragment()
     }
+
+    override fun onBecameVisible() {
+    }
+
+    private fun CryptoAssetState.toAssetPriceState() =
+        AssetPriceState(
+            assetInfo = currency,
+            prices = prices24HrWithDelta
+        )
 }

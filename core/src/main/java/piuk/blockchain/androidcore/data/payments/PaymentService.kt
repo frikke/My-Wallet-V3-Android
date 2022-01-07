@@ -138,20 +138,20 @@ class PaymentService(
         bigIntFee: BigInteger,
         bigIntAmount: BigInteger
     ): Observable<Pair<Transaction, DustInput?>> =
-    dustService.getDust()
-        .flatMapObservable {
-            val receivers = HashMap<String, BigInteger>()
-            receivers[toAddress] = bigIntAmount
+        dustService.getDust()
+            .flatMapObservable {
+                val receivers = HashMap<String, BigInteger>()
+                receivers[toAddress] = bigIntAmount
 
-            val tx = payment.makeBchNonReplayableTransaction(
-                unspentOutputBundle.spendableOutputs,
-                receivers,
-                bigIntFee,
-                changeAddress,
-                it
-            )
-            Observable.fromCallable { tx to it }
-        }
+                val tx = payment.makeBchNonReplayableTransaction(
+                    unspentOutputBundle.spendableOutputs,
+                    receivers,
+                    bigIntFee,
+                    changeAddress,
+                    it
+                )
+                Observable.fromCallable { tx to it }
+            }
 
     /**
      * Returns an [Utxo] object containing all the unspent outputs for a given

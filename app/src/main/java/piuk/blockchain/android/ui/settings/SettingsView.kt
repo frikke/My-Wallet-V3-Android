@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.ui.base.View
 
@@ -27,8 +26,6 @@ interface SettingsView : View {
     fun showError(@StringRes message: Int)
 
     fun setGuidSummary(summary: String)
-
-    fun setKycState(kycTiers: KycTiers)
 
     fun setEmailSummary(email: String, isVerified: Boolean)
     fun setEmailUnknown()
@@ -85,8 +82,6 @@ interface SettingsView : View {
     fun setLauncherShortcutVisibility(visible: Boolean)
 
     fun showWarningDialog(@StringRes message: Int)
-
-    fun launchKycFlow()
 
     fun linkBankWithPartner(linkBankTransfer: LinkBankTransfer)
 

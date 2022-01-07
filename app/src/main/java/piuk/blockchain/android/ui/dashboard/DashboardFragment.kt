@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentDashboardBinding
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -40,29 +40,42 @@ class DashboardFragment : Fragment() {
         arguments?.getString(PortfolioFragment.FLOW_FIAT_CURRENCY)
     }
 
+    private val adapter by lazy {
+        DashboardPagerAdapter(
+            listOf(getString(R.string.portfolio), getString(R.string.prices)),
+            childFragmentManager,
+            flowToLaunch,
+            flowCurrency
+        )
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
             dashboardTabs.setupWithViewPager(dashboardPager)
-            dashboardPager.adapter = DashboardPagerAdapter(
-                listOf(getString(R.string.portfolio), getString(R.string.prices)),
-                childFragmentManager,
-                flowToLaunch,
-                flowCurrency
-            )
+            dashboardPager.adapter = adapter
 
             dashboardPager.setCurrentItem(
                 when (startingView) {
                     DashboardViewType.TYPE_PORTFOLIO -> DashboardViewType.TYPE_PORTFOLIO.ordinal
                     DashboardViewType.TYPE_PRICES -> DashboardViewType.TYPE_PRICES.ordinal
-                }, true
+                },
+                true
             )
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!isHidden) {
+            adapter.onDashboardVisible()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        adapter.clearFragments()
         _binding = null
     }
 
@@ -97,12 +110,20 @@ class DashboardFragment : Fragment() {
     }
 }
 
+/*
+TODO: this FragmentPagerAdapter is deprecated. We need to update to FragmentStateAdapter for viewpager2.
+ If we update then onResume of every fragment gets called every time that each fragment becomes visible, but that's
+ not the case with the current implementation and that's why we have to use the interface DashboardScreen to update
+ the fragments
+*/
 class DashboardPagerAdapter(
     private val titlesList: List<String>,
     fragmentManager: FragmentManager,
     private val flowToLaunch: AssetAction? = null,
     private val flowCurrency: String? = null
 ) : FragmentPagerAdapter(fragmentManager) {
+
+    private val fragments = mutableMapOf<Int, Fragment>()
 
     private val dashboardFragment: Fragment by unsafeLazy {
         if (flowToLaunch != null && flowCurrency != null) {
@@ -112,8 +133,18 @@ class DashboardPagerAdapter(
         }
     }
 
+    fun clearFragments() {
+        fragments.clear()
+    }
+
     private val pricesFragment: Fragment by unsafeLazy {
         PricesFragment.newInstance()
+    }
+
+    fun onDashboardVisible() {
+        fragments.values.filterIsInstance<DashboardScreen>().forEach {
+            it.onBecameVisible()
+        }
     }
 
     override fun getCount(): Int = titlesList.size
@@ -124,5 +155,11 @@ class DashboardPagerAdapter(
         when (position) {
             0 -> dashboardFragment
             else -> pricesFragment
+        }.also {
+            fragments[position] = it
         }
+}
+
+interface DashboardScreen {
+    fun onBecameVisible()
 }

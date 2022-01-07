@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
 import com.blockchain.notifications.analytics.AnalyticsEvent
-import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsNames
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.constructMap
 import java.io.Serializable
+import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.constructMap
 
 class SellAnalyticsEvent(
     override val event: String,
@@ -13,7 +13,8 @@ class SellAnalyticsEvent(
 ) : AnalyticsEvent {
 
     constructor(event: SellAnalytics, asset: AssetInfo, source: String) : this(
-        event.value, constructMap(
+        event.value,
+        constructMap(
             asset = asset, source = source, target = WALLET_TYPE_CUSTODIAL
         )
     )

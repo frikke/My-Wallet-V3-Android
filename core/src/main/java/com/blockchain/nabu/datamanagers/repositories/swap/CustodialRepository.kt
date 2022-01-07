@@ -32,10 +32,15 @@ class CustodialRepository(pairsProvider: TradingPairsProvider, activityProvider:
         swapActivityCache.getCachedSingle().map { list ->
             list.filter {
                 when (it.currencyPair) {
-                    is CurrencyPair.CryptoCurrencyPair -> it.currencyPair.source == cryptoCurrency &&
+                    is CurrencyPair.CryptoCurrencyPair ->
+                        it.currencyPair.source == cryptoCurrency &&
                             directions.contains(it.direction)
-                    is CurrencyPair.CryptoToFiatCurrencyPair -> it.currencyPair.source == cryptoCurrency &&
+                    is CurrencyPair.CryptoToFiatCurrencyPair ->
+                        it.currencyPair.source == cryptoCurrency &&
                             directions.contains(it.direction)
+                    is CurrencyPair.FiatToCryptoCurrencyPair -> throw IllegalArgumentException(
+                        "No swap allowed from fiat->crypto"
+                    )
                 }
             }
         }

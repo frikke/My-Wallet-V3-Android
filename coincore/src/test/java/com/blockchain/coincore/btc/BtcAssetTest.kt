@@ -1,19 +1,24 @@
 package com.blockchain.coincore.btc
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.websocket.CoinsWebSocketInterface
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
@@ -22,15 +27,9 @@ import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.util.PrivateKeyFactory
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-
 import org.bitcoinj.crypto.BIP38PrivateKey.BadPassphraseException
 import org.junit.Rule
 import org.junit.Test
-import com.blockchain.coincore.impl.BackendNotificationUpdater
-import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.websocket.CoinsWebSocketInterface
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
@@ -96,8 +95,8 @@ class BtcAssetTest {
             .test()
             .assertValue {
                 it.isHDAccount &&
-                !it.isArchived &&
-                it.xpubAddress == NEW_XPUB
+                    !it.isArchived &&
+                    it.xpubAddress == NEW_XPUB
             }.assertComplete()
 
         verify(coinsWebsocket).subscribeToXpubBtc(NEW_XPUB)
@@ -135,8 +134,8 @@ class BtcAssetTest {
             .test()
             .assertValue {
                 !it.isHDAccount &&
-                !it.isArchived &&
-                it.xpubAddress == IMPORTED_ADDRESS
+                    !it.isArchived &&
+                    it.xpubAddress == IMPORTED_ADDRESS
             }.assertComplete()
 
         verify(coinsWebsocket).subscribeToExtraBtcAddress(IMPORTED_ADDRESS)
@@ -189,8 +188,8 @@ class BtcAssetTest {
             .test()
             .assertValue {
                 !it.isHDAccount &&
-                !it.isArchived &&
-                it.xpubAddress == IMPORTED_ADDRESS
+                    !it.isArchived &&
+                    it.xpubAddress == IMPORTED_ADDRESS
             }.assertComplete()
 
         verify(coinsWebsocket).subscribeToExtraBtcAddress(IMPORTED_ADDRESS)

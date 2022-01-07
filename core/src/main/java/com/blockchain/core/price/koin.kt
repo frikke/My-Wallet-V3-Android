@@ -1,13 +1,13 @@
 package com.blockchain.core.price
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import com.blockchain.core.price.impl.AssetPriceStore
-import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
-import com.blockchain.core.price.impl.SparklineCallCache
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.core.price.historic.HistoricRateLocalSource
 import com.blockchain.core.price.historic.HistoricRateRemoteSource
+import com.blockchain.core.price.impl.AssetPriceStore
+import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
+import com.blockchain.core.price.impl.SparklineCallCache
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
 val pricesModule = module {
 

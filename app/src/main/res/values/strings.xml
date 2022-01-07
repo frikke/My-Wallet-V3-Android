@@ -13,7 +13,10 @@
     <string name="common_spaced_strings" translatable="false">%1$s&#160;%2$s</string>
     <string name="common_send">Send</string>
     <string name="common_receive">Receive</string>
+    <string name="common_rewards">Rewards</string>
     <string name="common_swap">Swap</string>
+    <string name="common_add_cash">Add Cash</string>
+    <string name="common_cash_out">Cash Out</string>
     <string name="common_withdraw">Withdraw</string>
     <string name="common_activity">Activity</string>
     <string name="common_summary">Summary</string>
@@ -108,6 +111,7 @@
     <string name="invalid_email">Invalid email address</string>
     <string name="invalid_mobile">Invalid mobile phone number</string>
     <string name="invalid_password">Invalid password</string>
+    <string name="try_again">Try again later</string>
     <string name="invalid_password_too_short">Please enter more than 3 characters</string>
     <string name="country_not_selected">Please select your Country of Residence</string>
     <string name="state_not_selected">Please select your State</string>
@@ -245,7 +249,6 @@
     <string name="confirm_details">Confirm Payment</string>
 
     <string name="fee">Fee</string>
-    <string name="card_fee">Card fee</string>
     <string name="purchase">Purchase</string>
     <string name="exit_confirm">Press back button again to exit</string>
 
@@ -481,6 +484,8 @@
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
     <string name="setting_the_exchange">Exchange</string>
+    <string name="setting_limits_title">Trading Accounts</string>
+    <string name="setting_limits_description">Limits &amp; Features</string>
     <string name="settings_pair_wallet">Pair my wallet</string>
     <string name="web_login">Web Log In</string>
 
@@ -536,7 +541,7 @@
         the link to verify your email address.
     </string>
     <string name="email_notifications">Email Notifications</string>
-    <string name="email_notifications_summary">Get notified when you receive bitcoin.</string>
+    <string name="email_notifications_summary">Get notified when you receive crypto.</string>
     <string name="current_password">Current Password</string>
     <string name="new_password">New Password</string>
     <string name="sms_verified">Mobile number verified</string>
@@ -1409,8 +1414,11 @@
     <string name="recipient_name">Recipient</string>
     <string name="sort_code">Sort Code</string>
     <string name="bank_name">Bank Name</string>
+    <string name="account_type">Account Type</string>
     <string name="routing_number">Routing Number</string>
     <string name="bank_country">Bank Country</string>
+    <string name="bank_address">Bank Address</string>
+    <string name="recipient_address">Recipient Address</string>
     <string name="iban">IBAN</string>
     <string name="estonia">Estonia</string>
     <string name="lets_setup_wallet">Let’s get your wallet set up. You can quickly buy crypto now or do this later.</string>
@@ -1435,7 +1443,6 @@
     <string name="select_send_source_title">Send from</string>
     <string name="activity_state_initialised">Initialised</string>
     <string name="activity_state_uninitialised">Uninitialised</string>
-    <string name="activity_state_awaiting_funds">Waiting On Funds</string>
     <string name="activity_state_pending">Pending</string>
     <string name="activity_state_canceled">Cancelled</string>
     <string name="activity_state_unknown">Unknown</string>
@@ -1450,6 +1457,7 @@
     <string name="name_on_card">Name on Card</string>
     <string name="expiry_date">Expiry Date</string>
     <string name="card_cvv">CVV2</string>
+    <string name="card_cvc">CVC</string>
     <string name="card_not_supported">Card Not Supported</string>
     <string name="privacy_protected_ssl">Privacy protected with 256-Bit SSL encryption.</string>
     <string name="add_card_title">Add a Card</string>
@@ -1466,8 +1474,8 @@
     <string name="we_will_notify_order_complete">We’ll notify you when your order is complete.</string>
     <string name="bank_transfer_in_progress_title">%1$s Buy Started</string>
     <string name="bank_transfer_in_progress_blurb">We are completing your purchase now. Expect the funds to be withdrawn from your bank by %1$s. Check the status of your order at anytime in Activity.</string>
-    <string name="bank_transfer_in_progress_ob_blurb">Your order is being processed, we will let you know when its done. You can safely close this screen while we update the order in the background.</string>
-    <string name="completing_card_buy_1">The initial %1$s order of %2$s is being processed, we will let you know when its done.</string>
+    <string name="bank_transfer_in_progress_ob_blurb">Your order is being processed. You can safely close this screen while we update the order in the background.</string>
+    <string name="completing_card_buy_1">The initial %1$s order of %2$s is being processed.</string>
     <string name="completing_card_buy_rb">Your %1$s buy of %2$s of %3$s has been set up.</string>
     <string name="completing_card_buy">We’re completing your purchase now.</string>
     <string name="card_purchased">%1s Purchased</string>
@@ -1475,6 +1483,7 @@
     <string name="card_info_title">Virtual Cards Not Accepted</string>
     <string name="card_info_description">At this time, we don’t support buying crypto with virtual credit and debit cards. You must use a physical card’s number, date and security code.</string>
     <string name="invalid_cvv">Invalid CVV</string>
+    <string name="invalid_cvc">Invalid CVC</string>
     <string name="card_verification">Card Verification</string>
     <string name="invalid_date">Invalid Date</string>
     <string name="invalid_card_number">Invalid Card Number</string>
@@ -1574,13 +1583,15 @@
     <string name="bank_transfer_only">Bank Transfer Only</string>
     <string name="bank_transfer_only_subtitle">Only send funds from a bank account in your name. If not, your deposit could be delayed or rejected.</string>
     <string name="processing_time">Processing Time</string>
-    <string name="processing_time_subtitle_eur">Funds will be credited to your EUR wallet as soon as we receive them. SEPA transfers usually take around 1 business day to reach us.</string>
-    <string name="processing_time_subtitle_gbp">Funds will be credited to your GBP wallet as soon as we receive them. In the UK Faster Payments Network, this can take a couple of hours.</string>
+    <string name="processing_time_subtitle_eur">Funds will be credited to your EUR Account as soon as we receive them. SEPA transfers usually take around 1 business day to reach us.</string>
+    <string name="processing_time_subtitle_gbp">Funds will be credited to your GBP Account as soon as we receive them. In the UK Faster Payments Network, this can take a couple of hours.</string>
+    <string name="processing_time_subtitle_usd">Funds will be credited to your USD Account as soon as we receive them. Funds are generally available within one business day.</string>
     <string name="unable_to_load_bank_details">We were unable to load our bank deposit details.</string>
     <string name="most_popular">Most Popular</string>
 
     <!-- Fiat Funds -->
     <string name="fiat_funds_detail_withdraw_title">Withdrawn</string>
+    <string name="fiat_funds_detail_withdraw_option">Withdraw</string>
     <string name="fiat_funds_detail_deposit_details">Add Cash from Your Bank</string>
     <string name="fiat_funds_detail_withdraw_details">Cash Out to Your Bank</string>
     <string name="fiat_funds_detail_pending_withdrawal">You already have a Withdrawal in progress, please wait until that completes before starting a new one.</string>
@@ -1640,6 +1651,29 @@
     <string name="send_enter_amount_deposit_max">Transfer Max</string>
     <string name="send_enter_amount_min_deposit">Minimum transfer of %1$s required</string>
     <string name="send_enter_amount_min_send">Minimum send of %1$s required</string>
+    <string name="send_enter_amount_max_limit_from_custodial_info">Sending from Trade Accounts cannot exceed %1$s %2$s. You have %3$s remaining.</string>
+    <string name="withdrawal_max_limit_info">Withdrawing from Cash Accounts cannot exceed %1$s %2$s. You have %3$s remaining.</string>
+    <string name="max_swap_amount_description">The max amount of %1$s you can swap for %2$s is %3$s.</string>
+    <string name="max_sell_amount_description">The max amount of %1$s you can sell for %2$s is %3$s.</string>
+    <string name="swap_enter_amount_max_limit_from_custodial_info">Swapping from Trade Accounts cannot exceed %1$s %2$s. You have %3$s remaining.</string>
+    <string name="swap_enter_amount_max_limit_from_noncustodial_info">Swapping from Private Key Wallets cannot exceed %1$s %2$s. You have %3$s remaining.</string>
+    <string name="sell_enter_amount_max_limit_from_custodial_info">Selling from Trade Accounts cannot exceed %1$s %2$s. You have %3$s remaining.</string>
+    <string name="sell_enter_amount_max_limit_from_noncustodial_info">Selling from Private Key Wallets cannot exceed %1$s %2$s. You have %3$s remaining.</string>
+    <string name="buy_enter_amount_max_limit_info">You can only buy %1$s %2$s. You have %3$s remaining.</string>
+    <string name="buy_enter_amount_max_limit_suggested_tier_upgrade_info">You can only buy %1$s %2$s. You have %3$s remaining. Upgrade to Gold to buy more.</string>
+    <string name="buy_enter_amount_max_limit_without_upgrade_info">You can only buy %1$s %2$s. You have %3$s remaining</string>
+    <string name="buy_above_payment_method_error_message">You can buy up to %1$s per transaction. Upgrade to Gold &amp; buy larger amounts with your bank or card.</string>
+    <string name="buy_above_payment_method_error_message_without_upgrade">You can buy up to %1$s per transaction. To buy %2$s split your buy into multiple transactions.</string>
+    <string name="deposit_above_payment_method_error_message">You can deposit up to %1$s per transaction. Upgrade to Gold &amp; to deposit larger amounts.</string>
+    <string name="deposit_above_payment_method_error_message_without_upgrade">You can deposit up to %1$s per transaction. To deposit %2$s split your deposit into multiple transactions.</string>
+    <string name="send_enter_amount_max_limit_info_action_title">Get Unlimited Sends</string>
+    <string name="swap_enter_amount_max_limit_info_action_title">Swap More Crypto</string>
+    <string name="buy_enter_amount_max_limit_info_action_title">Buy More Crypto</string>
+    <string name="tx_tier_suggested_upgrade_info_action_description">Upgrade Your Wallet</string>
+    <string name="tx_tier_suggested_upgrade_info_action_cta_button">GO</string>
+    <string name="tx_periodic_limit_daily">a day</string>
+    <string name="tx_periodic_limit_monthly">a month</string>
+    <string name="tx_periodic_limit_yearly">a year</string>
     <string name="send_enter_amount_network_fees">Network Fees</string>
     <string name="send_enter_amount_total">Total</string>
     <string name="send_enter_amount_max_fee">Max Network Fee</string>
@@ -1678,7 +1712,10 @@
     <string name="sell_confirmation_progress_title">Selling %1$s</string>
     <string name="sell_confirmation_progress_message">We’re completing your sell now.</string>
     <string name="swap_confirmation_progress_message">We’re completing your swap now.</string>
+    <string name="sell_confirmation_awaiting_success_message">Your sell is being verified now by the %s. You can check the progress of this transaction in the Activity section.</string>
     <string name="sell_confirmation_success_message">Your cash is now available in your %1$s Wallet.</string>
+    <string name="swap_confirmation_awaiting_nc_sending_success_message">Your swap is being verified now by the %s network. You can check the progress of this transaction in the Activity section.</string>
+    <string name="swap_confirmation_awaiting_nc_receiving_success_message">Your swap is being verified now by the %1$s &amp; the %2$s networks. You can check the progress of this transaction in the Activity section.</string>
     <string name="swap_confirmation_success_message">Your %1$s is now available in your Wallet.</string>
     <string name="send_confirmation_deposit_cta_button">Transfer Now</string>
     <string name="send_confirmation_rewards_tos_pp">I have read and agree to the <annotation link="interest_tos">Terms of Service</annotation> &amp; <annotation link="interest_pp">Privacy Policy</annotation>.</string>
@@ -1687,6 +1724,8 @@
     <string name="send_confirmation_progress_title">Transferring %1$s</string>
     <string name="send_confirmation_progress_message">We’re transferring your %1$s now.</string>
     <string name="send_confirmation_success_title">%1$s Transferred</string>
+    <string name="transfer_confirmation_awaiting_success_title">Transfer In Progress</string>
+    <string name="transfer_confirmation_awaiting_success_message">Your transfer is being verified now by the %s network. You can check the progress of this transaction in the Activity section.</string>
     <string name="send_confirmation_success_message">Your %1$s has been transferred successfully.</string>
     <string name="send_state_no_funds">No funds</string>
     <string name="send_state_not_supported">Send not supported on this account</string>
@@ -1697,14 +1736,19 @@
     <string name="swap_progress_title">Swapping %1$s for %2$s</string>
     <string name="send_progress_sending_subtitle">We’re sending your transaction now.</string>
     <string name="send_progress_complete_title">%1$s Sent</string>
+    <string name="sell_progress_awaiting_complete_title">Sell In Progress</string>
+    <string name="send_progress_awaiting_complete_title">Send In Progress</string>
     <string name="sell_progress_complete_title">%1$s Sold</string>
+    <string name="swap_progress_awaiting_complete_title">Swap In Progress</string>
     <string name="swap_progress_complete_title">Swap Complete</string>
     <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Not enough %1$s in your wallet to transfer with current network fees.</string>
     <string name="send_progress_complete_subtitle">Your %1$s has been successfully sent.</string>
+    <string name="send_progress_awaiting_subtitle">Your send is being verified now by the %s network. You can check the progress of this transaction in the Activity section.</string>
     <string name="send_progress_error_title">Oops! Something Went Wrong. Please try again.</string>
     <string name="send_progress_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Support Team for help.</string>
     <string name="send_enter_asset_address_hint">%1s Address</string>
     <string name="send_warn_internal_send_only">Internal Send Only</string>
+    <string name="send_view_transaction">View Transaction</string>
     <string name="send_scan_qr_code">Scan QR Code</string>
     <string name="send_error_not_valid_asset_address">Not a valid %1s address</string>
     <string name="send_error_address_is_eth_contract">Address is not a user address</string>
@@ -1750,7 +1794,7 @@
     <string name="common_actions_not_enough_funds">The maximum amount of %1$s you can %2$s from this account is %3$s.</string>
     <string name="minimum_withdraw_error_message">To offset fees, the minimum amount for any withdrawal is %1$s.</string>
     <string name="over_your_limit">Over Your Limit</string>
-    <string name="minimum_swap_error_message">To avoid uncesssary fees and network slippage, the minimum amount for this pair is %1$s.</string>
+    <string name="minimum_swap_error_message">To avoid unnecessary fees and network slippage, the minimum amount for this pair is %1$s.</string>
     <string name="minimum_buy_error_message">To offset fees and market volatility, the minimum amount for any buy is %1$s.</string>
     <string name="minimum_sell_error_message">The minimum amount for you can sell is %1$s.</string>
     <string name="minimum_deposit_error_message">The minimum amount for you can deposit is %1$s. </string>
@@ -2066,21 +2110,33 @@
 
     <!-- Bank Linking Errors -->
     <string name="bank_linking_generic_error_title">Oops! Something went wrong</string>
-    <string name="bank_linking_is_this_your_bank">Is this your bank?</string>
     <string name="bank_linking_generic_error_subtitle">Please try linking your bank again. If this keeps happening please contact support.</string>
+    <string name="bank_linking_mismatched_title">Is this your bank account?</string>
+    <string name="bank_linking_mismatched_subtitle">We noticed the <b>names don’t match</b>. The bank you link must have a matching legal first &amp;  last name as your Blockchain.com Account.\n<annotation link="learn_more">Learn more →</annotation></string>
     <string name="bank_linking_timeout_error_title">Oops! It’s taking too long</string>
     <string name="bank_linking_timeout_error_subtitle">Linking your bank is taking longer than expected, please close this screen and check the status in Settings.</string>
-    <string name="bank_linking_already_linked_error_subtitle">We noticed <annotation font="bold">the names don’t match.</annotation> The bank you link must have a matching legal first &amp; last name as your Blockchain.com Account. <annotation link="yodlee_names_dont_match_learn_more">Learn more →</annotation></string>
-    <string name="bank_linking_checking_error_title">Please link a Checking Account.</string>
-    <string name="bank_linking_checking_error_subtitle">Your bank may charge you extra fees if you buy crypto without a checking account.</string>
-    <string name="bank_linking_success_title">Bank Linked!</string>
-    <string name="bank_linking_success_subtitle">Your %1$s account is now linked to your Blockchain.com Wallet.</string>
-    <string name="bank_linking_try_different_bank">Try a Different Bank</string>
-    <string name="bank_linking_try_different_account">Try a Different Account</string>
+    <string name="bank_linking_already_linked_error_title">This account is already linked.</string>
+    <string name="bank_linking_already_linked_error_subtitle">We noticed this account is already linked to your Blockchain account.</string>
+    <string name="bank_linking_account_ob_error_title">Please link a Current Account.</string>
+    <string name="bank_linking_account_ob_error_subtitle">Your bank may charge you extra fees if you buy crypto without a current account.</string>
+    <string name="bank_linking_account_ach_error_title">Please link a Checking Account.</string>
+    <string name="bank_linking_account_ach_error_subtitle">Your bank may charge you extra fees if you buy crypto without a checking account.</string>
+    <string name="bank_linking_invalid_error_subtitle">Your bank may charge you extra fees if you buy crypto without a %s account.</string>
     <string name="bank_linking_expired_title">Expired Account Access</string>
-    <string name="bank_linking_expired_subtitle">Please try linking your bank again. If this keeps happening, please contact support.</string>
+    <string name="bank_linking_try_again">Try again</string>
+    <string name="bank_linking_try_another_method">Try another method</string>
+    <string name="bank_linking_try_different_account">Try a Different Bank</string>
+    <string name="bank_linking_failed_ob_title">There was a problem linking your current account. Please try again.</string>
+    <string name="bank_linking_failed_ach_title">There was a problem linking your checking account. Please try again.</string>
+    <string name="bank_linking_failed_subtitle">Please try again or select a different payment method.</string>
+    <string name="bank_linking_success_title">Bank Linked!</string>
+    <string name="bank_linking_success_subtitle">Your %s account is now linked to your Blockchain.com Wallet.</string>
+    <string name="bank_linking_try_different_bank">Try a Different Bank</string>
+    <string name="bank_linking_expired_ach_title">We were unable to link your checking account. Please try again.</string>
+    <string name="bank_linking_expired_ob_title">We were unable to link your current account. Please try again.</string>
+    <string name="bank_linking_expired_subtitle">Please try connecting that bank account again or link any Visa or Mastercard</string>
     <string name="bank_linking_rejected_title">Connection Rejected</string>
-    <string name="bank_linking_rejected_subtitle">Please try linking your bank again and approve the connection. If this keeps happening, please contact support.</string>
+    <string name="bank_linking_rejected_subtitle">We believe you have declined linking your account. If this isn’t correct, please\n<annotation link="contact_support">contact support</annotation></string>
     <string name="bank_linking_invalid_title">Invalid bank</string>
     <string name="bank_linking_invalid_subtitle">You’ve tried to link an account which is not valid. Please check again or contact support.</string>
     <string name="bank_linking_failure_title">Failed Connection Request</string>
@@ -2107,8 +2163,9 @@
     <string name="kyc_upsell_custodial_dlg_cta">Verify Now</string>
 
     <!-- New checkout items -->
-    <string name="checkout_item_price_blurb">Blockchain.com provides the best market price we receive and applies a spread. <annotation link="learn_more">Learn more</annotation></string>
-    <string name="checkout_item_price_fee">Blockchain.com requires a fee when paying with a card. <annotation link="learn_more">Learn more</annotation></string>
+    <string name="checkout_item_price_blurb">Blockchain.com provides the best market price we receive and applies a spread.</string>
+    <string name="checkout_item_price_blurb_zero_margin">Blockchain.com does not include additional spread in the price for the sale of %1$s.</string>
+    <string name="checkout_item_price_fee">This fee is based on trade size, payment method and asset being purchased on Blockchain.com</string>
     <string name="checkout_item_private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
     <string name="checkout_item_private_key_wallet_explanation_1">%s Private Key wallets are not supported at this time.&#160;</string>
     <string name="checkout_item_deposit_to">Deposit To</string>
@@ -2135,6 +2192,7 @@
     <string name="checkout_one_erc_20_one_not_fee_note">%1$s is an ERC-20 token. Network fees are set by the %2$s and %3$s networks.</string>
     <string name="checkout_both_erc_20_fee_note">%1$s and %2$s are ERC-20 tokens. Network fees are set by the Ethereum network.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Learn more about fees.</annotation></string>
+    <string name="learn_more_annotated"><annotation link="learn_more_link">Learn more.</annotation></string>
     <string name="checkout_fee_free">When using Trading Accounts, there are no network fees</string>
     <string name="private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
     <string name="checkout_rewards_confirmation_disclaimer">After confirming this withdrawal, you will not continue to earn rewards on the amount withdrawn.\n\nYour %1$s will be available in your \"%2$s\" Account within 2 days.</string>
@@ -2177,6 +2235,12 @@
     <string name="tap_hardware_key_label">Tap |HARDWARE KEY| to verify</string>
     <string name="second_password_hint">Second password</string>
     <string name="second_password_notice">We’re moving away from 2nd passwords. Enable 2FA under security settings. <annotation link="learn_more">Learn more</annotation></string>
+    <string name="login_polling_timeout">Device verification session expired</string>
+    <string name="login_polling_denied">Device verification session denied on another device</string>
+    <string name="login_approval_dialog_title">Log In Request</string>
+    <string name="login_approval_dialog_message">We noticed a login attempt from a new device. If this was you, approve the device below.</string>
+    <string name="login_approved_toast">Login Approved! Return to your other device to continue logging in</string>
+    <string name="login_denied_toast">Login Denied! If this wasn\'t you trying to log in please contact support</string>
 
     <!-- Account Recovery -->
     <string name="account_recover_title">Verify your account</string>
@@ -2317,19 +2381,100 @@
     <string name="unification_sheet_item_three_title">Free Blockchain.com Wallet</string>
     <string name="unification_sheet_item_three_blurb">Create a free Wallet account to do even more with your crypto.</string>
 
-    <!-- Withdrawal locks !-->
-    <string name="withdrawal_summary_cta">Got it</string>
-    <string name="withdrawal_summary_available">Available</string>
-    <string name="withdrawal_summary_on_hold">On Hold</string>
-    <string name="withdrawal_summary_details">See Details</string>
+    <!-- Funds locks !-->
+    <string name="funds_locked_warning_title">On Hold</string>
 
-    <string name="withdrawal_details_text">Newly added funds are subject to a holding period. You can transfer funds between your Trading, Rewards, and Exchange accounts now and withdraw them once the hold ends. <annotation link="learn_more">Learn more</annotation></string>
-    <string name="withdrawal_details_title_date">HELD UNTIL</string>
-    <string name="withdrawal_details_title_amount">AMOUNT</string>
-    <string name="withdrawal_details_total">Total</string>
-    <string name="withdrawal_details_toolbar">On Hold</string>
+    <!-- LocksInfo bottomsheet -->
+    <string name="funds_locked_summary_cta">I understand</string>
+    <string name="funds_locked_summary_available_send">Available to Send</string>
+    <string name="funds_locked_summary_available_withdraw">Available to Withdraw</string>
+    <string name="funds_locked_summary_on_hold">%s On Hold</string>
+    <string name="funds_locked_summary_details">See Details</string>
+    <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime. <annotation link="learn_more">Learn more →</annotation></string>
 
-    <string name="withdrawal_lock_warning">For security purposes, buy orders with a Bank Account are subject to a %s holding period. You can Swap or Sell during this time. We will notify you once the funds are available to be withdrawn.</string>
-    <string name="withdrawal_lock_warning_days">%s days</string>
+    <!-- LocksInfo activity details -->
+    <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
+    <string name="funds_locked_details_contact_support">See something that doesn\'t look right? <annotation link="contact_support">Contact support</annotation></string>
+    <string name="funds_locked__details_title_date">HELD UNTIL</string>
+    <string name="funds_locked_details_title_amount">AMOUNT</string>
+    <string name="funds_locked_details_total">Total</string>
+    <string name="funds_locked_details_toolbar">On Hold</string>
+    <string name="funds_locked_details_title">%s On Hold</string>
+    <string name="funds_locked_details_learn_more">Learn More</string>
 
+    <!-- LocksInfo deposit checkout -->
+    <string name="funds_locked_warning">For security purposes, buy orders with a Bank Account are subject to a %s holding period. You can Swap or Sell during this time. We will notify you once the funds are available to be withdrawn.</string>
+    <string name="funds_locked_warning_days">%s days</string>
+    <string name="reference_id_required">Reference ID (Required)</string>
+
+    <!-- Actions bottom sheet -->
+    <string name="action_sheet_swap_description">Exchange for Another Crypto</string>
+    <string name="action_sheet_send_description">Send to Any Wallet</string>
+    <string name="action_sheet_receive_description">Copy Your Addresses &amp; QR Codes</string>
+    <string name="action_sheet_rewards_description">Earn Rewards on Your Crypto</string>
+    <string name="action_sheet_deposit_description">Add Cash from Your Bank</string>
+    <string name="action_sheet_withdraw_description">Cash Out to Your Bank</string>
+
+    <!-- Toolbar titles -->
+    <string name="main_toolbar_home">Home</string>
+    <string name="main_toolbar_prices">Prices</string>
+    <string name="main_toolbar_buy_sell">Buy &amp; Sell</string>
+    <string name="main_toolbar_activity">Activity</string>
+    <string name="toolbar_swap">Swap</string>
+    <string name="toolbar_send">Send</string>
+    <string name="toolbar_receive">Receive</string>
+    <string name="toolbar_settings">Settings</string>
+
+    <string name="select_a_trading_currency">Select a Trading Currency.</string>
+    <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
+    <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
+
+    <!-- Pending buys -->
+    <string name="pending_buys_description">Right now, we only allow up to %d buys pending at a time.</string>
+    <string name="pending_transaction_limit">Too Many Buys Pending</string>
+    <string name="view_activity">View Activity</string>
+
+    <!-- Kyc Limits -->
+    <string name="feature_limits_send_crypto">Send Crypto</string>
+    <string name="feature_limits_receive_crypto">Receive Crypto</string>
+    <string name="feature_limits_swap_crypto">Swap Crypto</string>
+    <string name="feature_limits_buy_sell">Buy &amp; Sell</string>
+    <string name="feature_limits_card_purchases">Card Purchases</string>
+    <string name="feature_limits_deposits">Bank Buys / Deposits</string>
+    <string name="feature_limits_withdrawals">Bank Withdrawals</string>
+    <string name="feature_limits_earn_rewards">Earn Rewards</string>
+    <string name="feature_limits_from_trading_accounts">from Trading Accounts</string>
+    <string name="feature_limits_to_trading_accounts">to Trading Accounts</string>
+    <string name="feature_limits_daily_limit">%1$s a Day</string>
+    <string name="feature_limits_monthly_limit">%1$s a Month</string>
+    <string name="feature_limits_yearly_limit">%1$s a Year</string>
+    <string name="feature_limits_disabled">Disabled</string>
+    <string name="feature_limits_enabled">Enabled</string>
+    <string name="feature_limits_no_limit">No Limit</string>
+    <string name="feature_limits_your_limits_and_features">Your Limits &amp; Features</string>
+    <string name="feature_limits_toolbar">Limits &amp; Features</string>
+    <string name="feature_limits_header_bronze_title">Upgrade Your Wallet</string>
+    <string name="feature_limits_header_bronze_description">Blockchain.com offers two types of Account Limits, each designed to suit your crypto goals and needs.</string>
+    <string name="feature_limits_header_bronze_cta">Get Started</string>
+    <string name="feature_limits_header_silver_title">Upgrade to Gold Limits</string>
+    <string name="feature_limits_header_silver_description">Verify your ID and link your bank to Buy &amp; Sell Crypto straight from your wallet.</string>
+    <string name="feature_limits_header_silver_cta">Apply Now</string>
+    <string name="feature_limits_header_denied_description">You currently have the highest level of Account Limits and features available.</string>
+    <string name="feature_limits_footer">Transaction limits may apply to certain banks and card issuers.\n\nPurchase or deposit limits are determined by many factors, including verification completed on your account, your purchase history, your payment type, and more.\n\nLearn more about Trading Accounts, Limits, and features by visiting our <annotation link="support_center_link">Support Center</annotation>.</string>
+    <string name="feature_limits_silver_limits">Silver Limits</string>
+    <string name="feature_limits_gold_limits">Gold Limits</string>
+    <string name="feature_limits_gold_limits_description">Includes Silver Features</string>
+    <string name="feature_limits_tier_state_approved">Approved</string>
+    <string name="feature_limits_error">There was a problem retrieving your limits information.</string>
+    <string name="kyc_upgrade_now_title">Upgrade Now</string>
+    <string name="kyc_upgrade_now_gold_title">Gold Limits</string>
+    <string name="kyc_upgrade_now_gold_description">Buy &amp; Sell. Earn Rewards.</string>
+    <string name="kyc_upgrade_now_gold_info_1">Connect your bank or card to your Wallet. Hold cash in your wallet. Earn crypto with Rewards.</string>
+    <string name="kyc_upgrade_now_gold_info_2">Includes all Silver limits and features.</string>
+    <string name="kyc_upgrade_now_silver_title">Silver Limits</string>
+    <string name="kyc_upgrade_now_silver_description">Unlock Trade Accounts and Swap.</string>
+    <string name="kyc_upgrade_now_silver_info">Unlock Swap - our in-app exchange. </string>
+    <string name="kyc_upgrade_now_tier_state_under_review">In Manual Review</string>
+    <string name="blockchain_fee">Blockchain.com Fee</string>
+    <string name="new_user_fee_waiver">New User Fee Waiver</string>
 </resources>

@@ -9,17 +9,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
-import org.koin.android.ext.android.inject
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.SingleAccount
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAddressBinding
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.customviews.EditTextUpdateThrottle
@@ -83,6 +83,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressFragment")
 
         with(binding) {
+
             if (sourceSlot == null) {
                 sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
 
@@ -110,9 +111,10 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             } ?: hideErrorState()
 
             ctaButton.isEnabled = newState.nextEnabled
-            ctaButton.setOnClickListener { onCtaClick(newState) }
+            ctaButton.setOnClickListener {
+                onCtaClick(newState)
+            }
         }
-
         state = newState
     }
 

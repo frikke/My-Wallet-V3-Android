@@ -1,11 +1,15 @@
 package piuk.blockchain.android.ui.addresses
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.MotionEvent
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
@@ -16,9 +20,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.databinding.ActivityAccountsBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.addresses.adapter.AccountAdapter
@@ -37,7 +38,8 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
-class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
+class AccountActivity :
+    MvpActivity<AccountView, AccountPresenter>(),
     AccountView,
     AccountAdapter.Listener,
     AccountEditSheet.Host {
@@ -55,12 +57,16 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
         AccountAdapter(this, features)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.drawer_addresses)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.drawer_addresses),
+            backAction = { onBackPressed() }
+        )
         with(binding.currencyHeader) {
             setCurrentlySelectedCurrency(CryptoCurrency.BTC)
             setSelectionListener { presenter.refresh(it) }
@@ -242,10 +248,12 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
     private fun launchFlow(sourceAccount: CryptoAccount) {
         startActivityForResult(
             TransactionFlowActivity.newInstance(
-            context = this,
-            sourceAccount = sourceAccount,
-            action = AssetAction.Send
-        ), TX_FLOW_REQUEST)
+                context = this,
+                sourceAccount = sourceAccount,
+                action = AssetAction.Send
+            ),
+            TX_FLOW_REQUEST
+        )
     }
 
     override fun onDestroy() {
@@ -259,5 +267,8 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
 
     companion object {
         private const val TX_FLOW_REQUEST = 567
+
+        fun newIntent(context: Context): Intent =
+            Intent(context, AccountActivity::class.java)
     }
 }

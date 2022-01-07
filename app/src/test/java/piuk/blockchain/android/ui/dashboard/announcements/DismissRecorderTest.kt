@@ -6,13 +6,13 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import java.lang.ClassCastException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import java.lang.ClassCastException
 
 class DismissRecorderTest {
 

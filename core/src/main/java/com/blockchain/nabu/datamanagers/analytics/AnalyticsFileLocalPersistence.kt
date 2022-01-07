@@ -1,16 +1,16 @@
 package com.blockchain.nabu.datamanagers.analytics
 
 import android.content.Context
-import com.blockchain.nabu.filesystem.QueueFile
 import com.blockchain.api.services.NabuAnalyticsEvent
+import com.blockchain.nabu.filesystem.QueueFile
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
 import java.lang.IllegalStateException
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 interface AnalyticsLocalPersistence {
     fun size(): Single<Long>

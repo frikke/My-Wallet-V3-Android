@@ -6,12 +6,11 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.rxjava3.core.Observable
-
+import java.util.Calendar
 import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.androidcore.data.settings.SettingsService
-import java.util.Calendar
 
 class LastTxUpdateDateOnSettingsServiceTest {
 

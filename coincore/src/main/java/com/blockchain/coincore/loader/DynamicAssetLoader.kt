@@ -1,7 +1,14 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CoincoreInitFailure
+import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NonCustodialSupport
+import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
+import com.blockchain.coincore.erc20.Erc20Asset
+import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -15,20 +22,15 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
+import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
-import com.blockchain.coincore.erc20.Erc20Asset
+import io.reactivex.rxjava3.core.Single
+import java.lang.IllegalStateException
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.CoincoreInitFailure
-import com.blockchain.coincore.NonCustodialSupport
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import thepit.PitLinking
 import timber.log.Timber
-import java.lang.IllegalStateException
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
 private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
@@ -49,9 +51,11 @@ internal class DynamicAssetLoader(
     private val pitLinking: PitLinking,
     private val crashLogger: CrashLogger,
     private val identity: UserIdentity,
-    private val features: InternalFeatureFlagApi
+    private val features: InternalFeatureFlagApi,
+    private val formatUtils: FormatUtilities
 ) : AssetLoader {
 
+    private val activeAssetMap = mutableMapOf<AssetInfo, CryptoAsset>()
     private val assetMap = mutableMapOf<AssetInfo, CryptoAsset>()
 
     override operator fun get(asset: AssetInfo): CryptoAsset =
@@ -68,11 +72,12 @@ internal class DynamicAssetLoader(
         }
 
     override fun initAndPreload(): Completable =
-        assetCatalogue.initialise(nonCustodialAssets.map { it.asset }.toSet())
+        assetCatalogue.initialise()
             .doOnSubscribe { crashLogger.logEvent("Coincore init started") }
             .flatMap { supportedAssets ->
                 // We need to make sure than any l1 assets - notably ETH - is initialised before
                 // create any l2s. So that things like balance calls will work
+                activeAssetMap.putAll(nonCustodialAssets.associateBy { it.asset })
                 initNonCustodialAssets(nonCustodialAssets)
                     // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
                     // and the non-custodial accounts won't show up.
@@ -91,25 +96,28 @@ internal class DynamicAssetLoader(
                         .doOnError {
                             crashLogger.logException(
                                 CoincoreInitFailure("Failed init: ${(asset as CryptoAsset).asset.networkTicker}", it)
-                        )
-                    }
-            }.toList()
+                            )
+                        }
+                }.toList()
         )
 
     private fun doLoadAssets(
         dynamicAssets: Set<AssetInfo>
     ): Single<List<CryptoAsset>> {
         val erc20assets = dynamicAssets.filter { it.isErc20() }
-        val custodialAssets = dynamicAssets.filter { it.isCustodial && !erc20assets.contains(it) }
 
-        // Those two sets should NOT overlap
-        check(erc20assets.intersect(custodialAssets).isEmpty())
-
-        return Single.zip(
-            loadErc20Assets(erc20assets),
-            loadCustodialOnlyAssets(custodialAssets)
-        ) { erc20List, custodialList ->
-            erc20List + custodialList
+        return loadErc20Assets(erc20assets).flatMap { loadedErc20 ->
+            // Loading Custodial ERC20s even without a balance is necessary so they show up for swap
+            val custodialAssets = dynamicAssets.filter { dynamicAsset ->
+                dynamicAsset.isCustodial &&
+                    loadedErc20.find { erc20 -> erc20.asset == dynamicAsset } == null
+            }
+            // Those two sets should NOT overlap
+            check(loadedErc20.intersect(custodialAssets).isEmpty())
+            activeAssetMap.putAll(loadedErc20.associateBy { it.asset })
+            loadCustodialOnlyAssets(custodialAssets).map { custodialList ->
+                loadedErc20 + custodialList
+            }
         }
     }
 
@@ -122,10 +130,12 @@ internal class DynamicAssetLoader(
         ) { activeTrading, activeInterest ->
             activeInterest + activeTrading
         }.map { activeAssets ->
-            custodialAssets.filter { activeAssets.contains(it) }
-        }.map { activeSupportedAssets ->
-            activeSupportedAssets.map { asset ->
-                loadCustodialOnlyAsset(asset)
+            custodialAssets.map { asset ->
+                val loadedAsset = loadCustodialOnlyAsset(asset)
+                if (activeAssets.contains(asset)) {
+                    activeAssetMap[asset] = loadedAsset
+                }
+                loadedAsset
             }
         }
 
@@ -137,7 +147,12 @@ internal class DynamicAssetLoader(
             interestBalances.getActiveAssets(),
             erc20DataManager.getActiveAssets()
         ) { activeTrading, activeInterest, activeNoncustodial ->
-            activeInterest + activeTrading + activeNoncustodial
+            // Always load the fully supported ERC20s
+            val erc20WithFullSupport = erc20Assets.filter { dynamicAsset ->
+                dynamicAsset.isNonCustodial &&
+                    dynamicAsset.isCustodial
+            }
+            activeInterest + activeTrading + activeNoncustodial + erc20WithFullSupport
         }.map { activeAssets ->
             erc20Assets.filter { activeAssets.contains(it) }
         }.map { activeSupportedAssets ->
@@ -184,9 +199,13 @@ internal class DynamicAssetLoader(
             identity = identity,
             features = features,
             availableCustodialActions = assetActions,
-            availableNonCustodialActions = assetActions
+            availableNonCustodialActions = assetActions,
+            formatUtils = formatUtils
         )
     }
+
+    override val activeAssets: List<CryptoAsset>
+        get() = activeAssetMap.values.toList()
 
     override val loadedAssets: List<CryptoAsset>
         get() = assetMap.values.toList()

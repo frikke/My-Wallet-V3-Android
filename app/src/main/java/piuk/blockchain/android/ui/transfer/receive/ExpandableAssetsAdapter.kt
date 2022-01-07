@@ -68,7 +68,7 @@ class ExpandableAssetViewHolder(
     private val binding: ItemAssetExpandableBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    private val accountsAdapter = ExpandedAccountsAdapter(compositeDisposable, assetResources)
+    private val accountsAdapter = ExpandedAccountsAdapter(compositeDisposable)
 
     fun bind(
         expandableItem: ExpandableCryptoItem,

@@ -25,15 +25,15 @@ class AssetRenameAnnouncement(
         get() = "asset_rename"
 
     override fun shouldShow(): Single<Boolean> =
-            announcementQueries.getRenamedAssetFromCatalogue()
-                .doOnSuccess {
-                    oldAssetTicker = it.first
-                    renamedAsset = it.second
-                }
-                .toSingle()
-                .map {
-                    !dismissEntry.isDismissed
-                }.onErrorReturn { false }
+        announcementQueries.getRenamedAssetFromCatalogue()
+            .doOnSuccess {
+                oldAssetTicker = it.first
+                renamedAsset = it.second
+            }
+            .toSingle()
+            .map {
+                !dismissEntry.isDismissed
+            }.onErrorReturn { false }
 
     override fun show(host: AnnouncementHost) {
         renamedAsset?.let { assetInfo ->

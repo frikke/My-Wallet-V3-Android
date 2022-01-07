@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.pairingcode
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.PairingEvent
+import com.blockchain.notifications.analytics.PairingMethod
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -12,7 +13,6 @@ import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import com.blockchain.notifications.analytics.PairingMethod
 
 class PairingModel(
     initialState: PairingState,
@@ -52,7 +52,8 @@ class PairingModel(
                     process(PairingIntents.CompleteQrImageLoading(bitmap))
                     analytics.logEvent(PairingEvent(PairingMethod.REVERSE))
                 },
-                { process(PairingIntents.ShowQrError) })
+                { process(PairingIntents.ShowQrError) }
+            )
 
     private val pairingEncryptionPasswordObservable: Single<ResponseBody>
         get() = payloadDataManager.wallet?.let { wallet ->

@@ -6,21 +6,22 @@ import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
-import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.selectFirstAccount
 import piuk.blockchain.android.databinding.DialogAssetActionsSheetBinding
 import piuk.blockchain.android.databinding.ItemAssetActionBinding
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
@@ -36,6 +37,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
+import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class AssetActionsSheet :
@@ -55,10 +57,16 @@ class AssetActionsSheet :
 
     override fun render(newState: AssetDetailsState) {
         if (this.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-
-            newState.selectedAccount?.let {
+            newState.selectedAccount?.let { accounts ->
                 showAssetBalances(newState)
-                itemAdapter.itemList = mapActions(it, newState.actions)
+                val firstAccount = accounts.selectFirstAccount()
+                itemAdapter.itemList = newState.actions.map { action ->
+                    mapAction(
+                        action,
+                        action.hasWarning(newState),
+                        firstAccount
+                    )
+                }
             }
 
             if (newState.errorState != AssetDetailsError.NONE) {
@@ -117,40 +125,38 @@ class AssetActionsSheet :
         }
     }
 
-    // we want to display Interest deposit only for Interest accounts and not for the accounts that
-    // have the InterestDeposit as an available action (can be used as source account for interest deposit)
-    private fun mapActions(
-        account: BlockchainAccount,
-        actions: AvailableActions
-    ): List<AssetActionItem> {
-        val firstAccount = account.selectFirstAccount()
-        return actions.map { mapAction(it, firstAccount.asset, firstAccount) }
-    }
-
     private fun mapAction(
         action: AssetAction,
-        asset: AssetInfo,
-        account: BlockchainAccount
-    ): AssetActionItem =
-        when (action) {
+        hasWarning: Boolean,
+        account: CryptoAccount
+    ): AssetActionItem {
+        val asset: AssetInfo = account.asset
+        return when (action) {
             // using the secondary ctor ensures the action is always enabled if it is present
             AssetAction.ViewActivity ->
                 AssetActionItem(
-                    getString(R.string.activities_title),
-                    R.drawable.ic_tx_activity_clock,
-                    getString(R.string.fiat_funds_detail_activity_details), asset,
-                    action
+                    title = getString(R.string.activities_title),
+                    icon = R.drawable.ic_tx_activity_clock,
+                    hasWarning = hasWarning,
+                    description = getString(R.string.fiat_funds_detail_activity_details),
+                    asset = asset,
+                    action = action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.ACTIVITY_CLICKED, asset)
                     processAction(AssetAction.ViewActivity)
                 }
             AssetAction.Send ->
                 AssetActionItem(
-                    account, getString(R.string.common_send), R.drawable.ic_tx_sent,
-                    getString(
+                    account = account,
+                    title = getString(R.string.common_send),
+                    icon = R.drawable.ic_tx_sent,
+                    hasWarning = hasWarning,
+                    description = getString(
                         R.string.dashboard_asset_actions_send_dsc,
                         asset.displayTicker
-                    ), asset, action
+                    ),
+                    asset = asset,
+                    action = action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.SEND_CLICKED, asset)
                     processAction(AssetAction.Send)
@@ -163,11 +169,15 @@ class AssetActionsSheet :
                 }
             AssetAction.Receive ->
                 AssetActionItem(
-                    getString(R.string.common_receive), R.drawable.ic_tx_receive,
-                    getString(
+                    title = getString(R.string.common_receive),
+                    icon = R.drawable.ic_tx_receive,
+                    hasWarning = hasWarning,
+                    description = getString(
                         R.string.dashboard_asset_actions_receive_dsc,
                         asset.displayTicker
-                    ), asset, action
+                    ),
+                    asset = asset,
+                    action = action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.RECEIVE_CLICKED, asset)
                     processAction(AssetAction.Receive)
@@ -179,27 +189,34 @@ class AssetActionsSheet :
                     )
                 }
             AssetAction.Swap -> AssetActionItem(
-                account, getString(R.string.common_swap),
-                R.drawable.ic_tx_swap,
-                getString(R.string.dashboard_asset_actions_swap_dsc, asset.displayTicker),
-                asset, action
+                account = account,
+                title = getString(R.string.common_swap),
+                icon = R.drawable.ic_tx_swap,
+                hasWarning = hasWarning,
+                description = getString(
+                    R.string.dashboard_asset_actions_swap_dsc, asset.displayTicker
+                ),
+                asset = asset, action = action
             ) {
                 logActionEvent(AssetDetailsAnalytics.SWAP_CLICKED, asset)
                 processAction(AssetAction.Swap)
             }
             AssetAction.ViewStatement -> AssetActionItem(
-                getString(R.string.dashboard_asset_actions_summary_title_1),
-                R.drawable.ic_tx_interest,
-                getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker),
-                asset, action
+                title = getString(R.string.dashboard_asset_actions_summary_title_1),
+                icon = R.drawable.ic_tx_interest,
+                hasWarning = hasWarning,
+                description = getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker),
+                asset = asset, action = action
             ) {
                 goToSummary()
             }
             AssetAction.InterestDeposit -> AssetActionItem(
-                getString(R.string.common_transfer),
-                R.drawable.ic_tx_deposit_arrow,
-                getString(R.string.dashboard_asset_actions_deposit_dsc_1, asset.displayTicker),
-                asset, action
+                title = getString(R.string.common_transfer),
+                icon = R.drawable.ic_tx_deposit_arrow,
+                hasWarning = hasWarning,
+                description = getString(R.string.dashboard_asset_actions_deposit_dsc_1, asset.displayTicker),
+                asset = asset,
+                action = action
             ) {
                 processAction(AssetAction.InterestDeposit)
                 analytics.logEvent(
@@ -210,10 +227,12 @@ class AssetActionsSheet :
                 )
             }
             AssetAction.InterestWithdraw -> AssetActionItem(
-                getString(R.string.common_withdraw),
-                R.drawable.ic_tx_withdraw,
-                getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
-                asset, action
+                title = getString(R.string.common_withdraw),
+                icon = R.drawable.ic_tx_withdraw,
+                hasWarning = hasWarning,
+                description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
+                asset = asset,
+                action = action
             ) {
                 processAction(AssetAction.InterestWithdraw)
                 analytics.logEvent(
@@ -224,19 +243,22 @@ class AssetActionsSheet :
                 )
             }
             AssetAction.Sell -> AssetActionItem(
-                getString(R.string.common_sell),
-                R.drawable.ic_tx_sell,
-                getString(R.string.convert_your_crypto_to_cash),
-                asset, action
+                title = getString(R.string.common_sell),
+                icon = R.drawable.ic_tx_sell,
+                hasWarning = hasWarning,
+                description = getString(R.string.convert_your_crypto_to_cash),
+                asset = asset, action = action
             ) {
                 logActionEvent(AssetDetailsAnalytics.SELL_CLICKED, asset)
                 processAction(AssetAction.Sell)
             }
             AssetAction.Buy -> AssetActionItem(
-                getString(R.string.common_buy),
-                R.drawable.ic_tx_buy,
-                getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
-                asset, action
+                title = getString(R.string.common_buy),
+                icon = R.drawable.ic_tx_buy,
+                hasWarning = hasWarning,
+                description = getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
+                asset = asset,
+                action = action
             ) {
                 processAction(AssetAction.Buy)
                 dismiss()
@@ -244,6 +266,7 @@ class AssetActionsSheet :
             AssetAction.Withdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
         }
+    }
 
     private fun logActionEvent(event: AssetDetailsAnalytics, asset: AssetInfo) {
         analytics.logEvent(assetActionEvent(event, asset))
@@ -283,6 +306,13 @@ class AssetActionsSheet :
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogAssetActionsSheetBinding =
         DialogAssetActionsSheetBinding.inflate(inflater, container, false)
 }
+
+private fun AssetAction.hasWarning(newState: AssetDetailsState): Boolean =
+    when (this) {
+        AssetAction.Buy ->
+            (newState.userBuyAccess as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions
+        else -> false
+    }
 
 private class AssetActionAdapter(
     val disposable: CompositeDisposable,
@@ -326,6 +356,7 @@ private class AssetActionAdapter(
                 itemActionIcon.setAssetIconColoursWithTint(item.asset)
                 itemActionTitle.text = item.title
                 itemActionLabel.text = item.description
+                itemActionWarning.visibleIf { item.hasWarning }
             }
         }
 
@@ -354,7 +385,6 @@ private class AssetActionAdapter(
                             Timber.e("Error getting decorator info $it")
                         }
                     )
-
                 binding.itemActionHolder.removePossibleBottomView()
                 compositeDisposable += statusDecorator(account).view(context)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -380,11 +410,13 @@ private data class AssetActionItem(
     val description: String,
     val asset: AssetInfo,
     val action: AssetAction,
+    val hasWarning: Boolean,
     val actionCta: () -> Unit
 ) {
     constructor(
         title: String,
         icon: Int,
+        hasWarning: Boolean,
         description: String,
         asset: AssetInfo,
         action: AssetAction,
@@ -396,6 +428,7 @@ private data class AssetActionItem(
         description,
         asset,
         action,
+        hasWarning,
         actionCta
     )
 }

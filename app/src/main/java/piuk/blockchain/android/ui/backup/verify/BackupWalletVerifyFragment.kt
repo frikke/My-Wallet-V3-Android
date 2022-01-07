@@ -13,11 +13,12 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupWalletVerifyBinding
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedFragment
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
 
-class BackupWalletVerifyFragment : BaseFragment<BackupVerifyView, BackupVerifyPresenter>(),
+class BackupWalletVerifyFragment :
+    BaseFragment<BackupVerifyView, BackupVerifyPresenter>(),
     BackupVerifyView {
 
     private val backupVerifyPresenter: BackupVerifyPresenter by scopedInject()

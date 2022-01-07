@@ -28,10 +28,10 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.MaybeSubject
 import io.reactivex.rxjava3.subjects.SingleSubject
+import java.security.KeyPair
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
-import java.security.KeyPair
 
 sealed class ScanResult(
     val isDeeplinked: Boolean

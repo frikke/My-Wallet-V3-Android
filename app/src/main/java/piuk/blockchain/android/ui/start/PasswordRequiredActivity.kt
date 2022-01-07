@@ -6,13 +6,13 @@ import android.os.CountDownTimer
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -23,7 +23,8 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STE
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.util.ViewUtils
 
-class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),
+class PasswordRequiredActivity :
+    MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),
     PasswordRequiredView {
     private val binding: ActivityPasswordRequiredBinding by lazy {
         ActivityPasswordRequiredBinding.inflate(layoutInflater)
@@ -47,15 +48,16 @@ class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequi
         }
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(binding.root)
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar_general)
-        setupToolbar(toolbar, R.string.confirm_password)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.confirm_password),
+            backAction = { onBackPressed() }
+        )
         with(binding) {
             buttonContinue.setOnClickListener { presenter.onContinueClicked(binding.fieldPassword.text.toString()) }
             buttonForget.setOnClickListener { presenter.onForgetWalletClicked() }
@@ -117,7 +119,8 @@ class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequi
     ) {
         ViewUtils.hideKeyboard(this)
 
-        val dialog = getTwoFactorDialog(this, authType,
+        val dialog = getTwoFactorDialog(
+            this, authType,
             walletPrefs,
             positiveAction = {
                 presenter.submitTwoFactorCode(
@@ -128,18 +131,19 @@ class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequi
                     it
                 )
             }, resendAction = { limitReached ->
-                if (!limitReached) {
-                    presenter.requestNew2FaCode(password, guid)
-                } else {
-                    ToastCustom.makeText(
-                        this, getString(R.string.two_factor_retries_exceeded),
-                        Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
-                    )
-                    if (!isTwoFATimerRunning) {
-                        twoFATimer.start()
-                    }
+            if (!limitReached) {
+                presenter.requestNew2FaCode(password, guid)
+            } else {
+                ToastCustom.makeText(
+                    this, getString(R.string.two_factor_retries_exceeded),
+                    Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
+                )
+                if (!isTwoFATimerRunning) {
+                    twoFATimer.start()
                 }
-            })
+            }
+        }
+        )
 
         showAlert(dialog)
     }

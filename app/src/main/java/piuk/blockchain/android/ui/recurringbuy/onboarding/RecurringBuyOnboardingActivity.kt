@@ -97,7 +97,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     private fun goToRecurringSetUpScreen() {
         startActivity(
-            SimpleBuyActivity.newInstance(
+            SimpleBuyActivity.newIntent(
                 context = this,
                 asset = asset
             )

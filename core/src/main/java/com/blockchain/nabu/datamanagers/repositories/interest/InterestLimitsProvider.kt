@@ -7,9 +7,9 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
+import timber.log.Timber
 
 interface InterestLimitsProvider {
     fun getLimitsForAllAssets(): Single<InterestLimitsList>

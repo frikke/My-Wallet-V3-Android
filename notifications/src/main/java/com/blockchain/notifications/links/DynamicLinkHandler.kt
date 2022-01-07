@@ -32,17 +32,17 @@ internal class DynamicLinkHandler internal constructor(
             uri.isOpenBankingLink() -> {
                 Uri.parse(
                     "$uri$OPEN_BANKING_CONSENT_QUERY${
-                        originalIntent.data?.getQueryParameter(
-                            OPEN_BANKING_CONSENT_VALUE
-                        )
+                    originalIntent.data?.getQueryParameter(
+                        OPEN_BANKING_CONSENT_VALUE
+                    )
                     }"
                 )
             }
             uri.isTickerQueryParamSupportedUri() -> Uri.parse(
                 "$uri$DEEPLINK_TICKER_QUERY${
-                    originalIntent.data?.getQueryParameter(
-                        TICKER_QUERY_PARAM
-                    ) ?: CryptoCurrency.BTC.networkTicker
+                originalIntent.data?.getQueryParameter(
+                    TICKER_QUERY_PARAM
+                ) ?: CryptoCurrency.BTC.networkTicker
                 }"
             )
             uri.isCampaignTypeQueryParamSupportedUri() -> Uri.parse(

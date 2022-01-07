@@ -1,11 +1,13 @@
 package com.blockchain.nabu.api.status
 
 import com.blockchain.nabu.models.responses.status.ApiIncidentsResponse
+import com.blockchain.network.interceptor.DoNotLogResponseBody
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 
 interface ApiStatusService {
     @GET(INCIDENTS_PATH)
+    @DoNotLogResponseBody
     fun apiIncidents(): Single<ApiIncidentsResponse>
 }
 

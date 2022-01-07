@@ -78,7 +78,7 @@
             android:textAppearance="@style/TextAppearance.Blockchain.Body2"
             tools:ignore="HardcodedText" />
 
-        <com.blockchain.componentlib.price.DummyPriceListView
+        <com.blockchain.componentlib.price.PriceListView
             android:id="@+id/priceList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

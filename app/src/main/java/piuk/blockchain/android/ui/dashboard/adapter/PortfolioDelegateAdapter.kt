@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.adapter
 
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import com.blockchain.coincore.FiatAccount
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.dashboard.announcements.MiniAnnouncementDelegate
@@ -24,7 +24,7 @@ class PortfolioDelegateAdapter(
         // Add all necessary AdapterDelegate objects here
         with(delegatesManager) {
             addAdapterDelegate(StdAnnouncementDelegate(analytics))
-            addAdapterDelegate(WithdrawalLocksDelegate(onHoldAmountClicked))
+            addAdapterDelegate(FundsLockedDelegate(onHoldAmountClicked))
             addAdapterDelegate(MiniAnnouncementDelegate(analytics))
             addAdapterDelegate(BalanceCardDelegate(prefs.selectedFiatCurrency, assetResources))
             addAdapterDelegate(

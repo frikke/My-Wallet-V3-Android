@@ -1,18 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.datamanagers.CustodialOrder
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.TransferLimits
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.NullAddress
@@ -26,7 +14,21 @@ import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialOrder
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransferDirection
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -37,8 +39,9 @@ const val OUTGOING_FEE = "OUTGOING_FEE"
 abstract class SwapTxEngineBase(
     quotesEngine: TransferQuotesEngine,
     userIdentity: UserIdentity,
-    private val walletManager: CustodialWalletManager
-) : QuotedEngine(quotesEngine, userIdentity, walletManager, Product.TRADE) {
+    private val walletManager: CustodialWalletManager,
+    limitsDataManager: LimitsDataManager
+) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.TRADE) {
 
     private lateinit var minApiLimit: Money
 
@@ -55,19 +58,16 @@ abstract class SwapTxEngineBase(
         }
 
     override fun onLimitsForTierFetched(
-        limits: TransferLimits,
+        limits: TxLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): PendingTx {
-        val exchangeRate = exchangeRates.getLastCryptoToUserFiatRate(sourceAsset)
-
-        minApiLimit = exchangeRate.inverse()
-            .convert(limits.minLimit) as CryptoValue
+        minApiLimit = limits.min.amount
 
         return pendingTx.copy(
-            minLimit = minLimit(pricedQuote.price),
-            maxLimit = (exchangeRate.inverse().convert(limits.maxLimit) as CryptoValue)
-                .withUserDpRounding(RoundingMode.FLOOR)
+            limits = limits.copy(
+                min = TxLimit.Limited(minLimit(pricedQuote.price))
+            )
         )
     }
 
@@ -77,19 +77,21 @@ abstract class SwapTxEngineBase(
     private fun validateAmount(pendingTx: PendingTx): Completable {
         return availableBalance.flatMapCompletable { balance ->
             if (pendingTx.amount <= balance) {
-                if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
+                if (pendingTx.limits != null) {
                     when {
-                        pendingTx.amount < pendingTx.minLimit -> throw TxValidationFailure(
-                            ValidationState.UNDER_MIN_LIMIT
+                        pendingTx.isMinLimitViolated() -> Completable.error(
+                            TxValidationFailure(
+                                ValidationState.UNDER_MIN_LIMIT
+                            )
                         )
-                        pendingTx.amount > pendingTx.maxLimit -> validationFailureForTier()
+                        pendingTx.isMaxLimitViolated() -> validationFailureForTier()
                         else -> Completable.complete()
                     }
                 } else {
-                    throw TxValidationFailure(ValidationState.UNKNOWN_ERROR)
+                    Completable.error(TxValidationFailure(ValidationState.UNINITIALISED))
                 }
             } else {
-                throw TxValidationFailure(ValidationState.INSUFFICIENT_FUNDS)
+                Completable.error(TxValidationFailure(ValidationState.INSUFFICIENT_FUNDS))
             }
         }
     }
@@ -145,7 +147,7 @@ abstract class SwapTxEngineBase(
 
     private fun addOrReplaceConfirmations(pendingTx: PendingTx, pricedQuote: PricedQuote): PendingTx =
         pendingTx.copy(
-            minLimit = minLimit(pricedQuote.price)
+            limits = pendingTx.limits?.copy(min = TxLimit.Limited(minLimit(pricedQuote.price)))
         ).apply {
             addOrReplaceOption(
                 TxConfirmationValue.SwapExchange(

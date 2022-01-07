@@ -4,6 +4,7 @@ import com.blockchain.api.assetprice.data.AssetPriceDto
 import com.blockchain.api.assetprice.data.AvailableSymbolsDto
 import com.blockchain.api.assetprice.data.PriceRequestPairDto
 import com.blockchain.api.assetprice.data.PriceResponseMapDto
+import com.blockchain.network.interceptor.DoNotLogResponseBody
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -34,6 +35,7 @@ internal interface AssetPriceApiInterface {
 
     // Get a series of historical price index which covers a range of time represents in specific scale
     @GET("price/index-series")
+    @DoNotLogResponseBody
     fun getHistoricPriceSince(
         @Query("base") base: String,
         @Query("quote") quote: String,

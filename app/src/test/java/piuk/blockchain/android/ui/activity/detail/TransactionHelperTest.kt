@@ -15,9 +15,9 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Observable
+import kotlin.test.assertEquals
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import kotlin.test.assertEquals
 
 @Suppress("PrivatePropertyName")
 class TransactionHelperTest {

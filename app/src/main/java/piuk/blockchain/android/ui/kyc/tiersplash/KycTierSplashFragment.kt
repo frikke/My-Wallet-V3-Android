@@ -48,7 +48,8 @@ import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
-class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPresenter>(),
+class KycTierSplashFragment :
+    BaseFragment<KycTierSplashView, KycTierSplashPresenter>(),
     KycTierSplashView {
 
     private val presenter: KycTierSplashPresenter by scopedInject()
@@ -319,7 +320,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
         navigate(directions)
         analytics.logEvent(
             KYCAnalyticsEvents.UpgradeKycVeriffClicked(
-                LaunchOrigin.SETTINGS, tier = com.blockchain.nabu.Tier.values()[tier]
+                LaunchOrigin.SETTINGS, tierIndex = tier
             )
         )
     }

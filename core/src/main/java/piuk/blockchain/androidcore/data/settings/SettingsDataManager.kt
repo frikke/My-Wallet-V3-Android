@@ -124,10 +124,12 @@ class SettingsDataManager(
                 .flatMap { updateNotifications(notificationType) }
                 .applySchedulers()
         } else if (notifications.size == 1 &&
-            (notifications.contains(SettingsManager.NOTIFICATION_TYPE_EMAIL) &&
+            (
+                notifications.contains(SettingsManager.NOTIFICATION_TYPE_EMAIL) &&
                     notificationType == SettingsManager.NOTIFICATION_TYPE_SMS ||
                     notifications.contains(SettingsManager.NOTIFICATION_TYPE_SMS) &&
-                    notificationType == SettingsManager.NOTIFICATION_TYPE_EMAIL)
+                    notificationType == SettingsManager.NOTIFICATION_TYPE_EMAIL
+                )
         ) {
             // Contains another type already, send "All"
             settingsService.enableNotifications(true)
@@ -135,7 +137,7 @@ class SettingsDataManager(
                 .applySchedulers()
         } else {
             settingsService.enableNotifications(true)
-                .flatMap { fetchSettings() }
+                .flatMap { updateNotifications(notificationType) }
                 .applySchedulers()
         }
     }
@@ -218,10 +220,10 @@ class SettingsDataManager(
     fun setDefaultUserFiat(): Single<String> {
         val userFiat = currencyPrefs.defaultFiatCurrency
         return settingsService.updateFiatUnit(userFiat)
-            .doOnSubscribe { currencyPrefs.selectedFiatCurrency = userFiat }
             .flatMap { fetchSettings() }
             .singleOrError()
             .map { it.currency }
+            .doFinally { currencyPrefs.selectedFiatCurrency = userFiat }
     }
 
     fun triggerEmailAlert(guid: String, sharedKey: String) =

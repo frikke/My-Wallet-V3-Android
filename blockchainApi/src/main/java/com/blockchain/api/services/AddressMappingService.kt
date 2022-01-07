@@ -5,8 +5,8 @@ import com.blockchain.api.HttpStatus
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.addressmapping.data.AddressMapRequest
 import io.reactivex.rxjava3.core.Single
-import retrofit2.HttpException
 import java.util.Locale
+import retrofit2.HttpException
 
 class DomainAddressNotFound : Exception()
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/feature_limits_header"
+    android:paddingTop="@dimen/tiny_margin"
+    android:paddingBottom="@dimen/tiny_margin">
+
+    <TextView
+        style="@style/Text.Semibold.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:text="@string/feature_limits_your_limits_and_features"
+        />
+
+</FrameLayout>

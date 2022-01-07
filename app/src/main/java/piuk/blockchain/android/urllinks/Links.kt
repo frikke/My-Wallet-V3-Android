@@ -77,3 +77,5 @@ const val FUNDS_RECOVERY_INFO = "https://support.blockchain.com/hc/en-us/article
 
 const val URL_BLOCKCHAIN_CEUR_LEARN_MORE =
     "http://why.blockchain.com/celo"
+
+const val LIMITS_SUPPORT_CENTER = "https://support.blockchain.com/hc/en-us/articles/4410561005844"

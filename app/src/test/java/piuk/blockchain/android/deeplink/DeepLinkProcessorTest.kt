@@ -7,7 +7,6 @@ import com.blockchain.notifications.links.PendingLink
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import io.reactivex.rxjava3.core.Maybe
-
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -41,7 +40,8 @@ class DeepLinkProcessorTest {
     @Test
     fun `kyc resubmit uri`() {
         givenUriExpect(
-            "https://login.blockchain.com/login?deep_link_path=verification", LinkState.KycDeepLink(
+            "https://login.blockchain.com/login?deep_link_path=verification",
+            LinkState.KycDeepLink(
                 KycLinkState.Resubmit
             )
         )
@@ -50,7 +50,8 @@ class DeepLinkProcessorTest {
     @Test
     fun `kyc email verified uri`() {
         givenUriExpect(
-            "https://login.blockchain.com/login?deep_link_path=email_verified&context=kyc", LinkState.KycDeepLink(
+            "https://login.blockchain.com/login?deep_link_path=email_verified&context=kyc",
+            LinkState.KycDeepLink(
                 KycLinkState.EmailVerified
             )
         )
@@ -67,7 +68,9 @@ class DeepLinkProcessorTest {
     @Test
     fun `general kyc uri with campaign`() {
         val url = "https://login.blockchain.com/#/open/kyc?tier=2&deep_link_path=kyc&campaign=sunriver"
-        givenUriExpect(url, LinkState.KycDeepLink(
+        givenUriExpect(
+            url,
+            LinkState.KycDeepLink(
                 KycLinkState.General(CampaignData("sunriver", false))
             )
         )
@@ -77,7 +80,8 @@ class DeepLinkProcessorTest {
     fun `general kyc uri without campaign`() {
         givenUriExpect(
             "https://login.blockchain.com/#/open/kyc?tier=2&deep_link_path=kyc",
-            LinkState.KycDeepLink(KycLinkState.General(null)
+            LinkState.KycDeepLink(
+                KycLinkState.General(null)
             )
         )
     }

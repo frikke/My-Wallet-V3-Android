@@ -8,6 +8,7 @@ import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import java.util.Arrays
 import okhttp3.ResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -17,7 +18,6 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
-import java.util.Arrays
 
 class SettingsDataManagerTest : RxTest() {
 
@@ -250,13 +250,16 @@ class SettingsDataManagerTest : RxTest() {
         val mockSettings = mock(Settings::class.java)
         whenever(settingsService.enableNotifications(true))
             .thenReturn(Observable.just(mockResponse))
+        whenever(settingsService.updateNotifications(SettingsManager.NOTIFICATION_TYPE_EMAIL))
+            .thenReturn(Observable.just(mockResponse))
         whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
         // Act
         val testObserver = subject.enableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).enableNotifications(true)
-        verifyNoMoreInteractions(settingsService)
         verify(settingsDataStore).fetchSettings()
+        verify(settingsService).updateNotifications(SettingsManager.NOTIFICATION_TYPE_EMAIL)
+        verifyNoMoreInteractions(settingsService)
         verifyNoMoreInteractions(settingsDataStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()

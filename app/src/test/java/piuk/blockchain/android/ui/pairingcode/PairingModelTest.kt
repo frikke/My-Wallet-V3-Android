@@ -9,7 +9,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

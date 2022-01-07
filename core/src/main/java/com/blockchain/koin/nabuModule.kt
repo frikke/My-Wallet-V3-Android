@@ -31,8 +31,6 @@ import com.blockchain.nabu.datamanagers.analytics.AnalyticsFileLocalPersistence
 import com.blockchain.nabu.datamanagers.analytics.AnalyticsLocalPersistence
 import com.blockchain.nabu.datamanagers.analytics.NabuAnalytics
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
-import com.blockchain.nabu.datamanagers.featureflags.BankLinkingEnabledProvider
-import com.blockchain.nabu.datamanagers.featureflags.BankLinkingEnabledProviderImpl
 import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
 import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
 import com.blockchain.nabu.datamanagers.repositories.NabuUserRepository
@@ -108,27 +106,21 @@ val nabuModule = module {
                 paymentAccountMapperMappers = mapOf(
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
                 ),
-                achDepositWithdrawFeatureFlag = get(achDepositWithdrawFeatureFlag),
-                sddFeatureFlag = get(sddFeatureFlag),
                 kycFeatureEligibility = get(),
                 tradingBalanceDataManager = get(),
                 interestRepository = get(),
                 custodialRepository = get(),
-                bankLinkingEnabledProvider = get(),
                 transactionErrorMapper = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                buyOrdersCache = get(),
+                pairsCache = get(),
+                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag)
             )
         }.bind(CustodialWalletManager::class)
 
         factory {
             TransactionErrorMapper()
         }
-
-        factory {
-            BankLinkingEnabledProviderImpl(
-                obFF = get(obFeatureFlag)
-            )
-        }.bind(BankLinkingEnabledProvider::class)
 
         scoped {
             NabuUserIdentity(
@@ -143,8 +135,7 @@ val nabuModule = module {
         factory {
             NabuCachedEligibilityProvider(
                 nabuService = get(),
-                authenticator = get(),
-                currencyPrefs = get()
+                authenticator = get()
             )
         }.bind(SimpleBuyEligibilityProvider::class)
 

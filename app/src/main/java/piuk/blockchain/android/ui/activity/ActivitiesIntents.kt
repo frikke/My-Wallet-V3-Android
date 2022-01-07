@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.activity
 
-import info.blockchain.balance.AssetInfo
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class ActivitiesIntent : MviIntent<ActivitiesState>
@@ -37,13 +37,25 @@ object SelectDefaultAccountIntent : ActivitiesIntent() {
 }
 
 class ActivityListUpdatedIntent(
+    private val redesignEnabled: Boolean,
     private val activityList: ActivitySummaryList
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
         return oldState.copy(
             isError = false,
             isLoading = false,
-            activityList = activityList
+            activityList = activityList,
+            redesignEnabled = redesignEnabled
+        )
+    }
+}
+class RedesignEnabledIntent(
+    private val redesignEnabled: Boolean
+) : ActivitiesIntent() {
+    override fun reduce(oldState: ActivitiesState): ActivitiesState {
+        return oldState.copy(
+            isLoading = true,
+            redesignEnabled = redesignEnabled
         )
     }
 }
@@ -100,7 +112,8 @@ class ShowFiatActivityDetailsIntent(
 
 object ClearBottomSheetIntent : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState =
-        oldState.copy(bottomSheet = null,
+        oldState.copy(
+            bottomSheet = null,
             selectedCryptoCurrency = null,
             selectedTxId = "",
             activityType = CryptoActivityType.UNKNOWN

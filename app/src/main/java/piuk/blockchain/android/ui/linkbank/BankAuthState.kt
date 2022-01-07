@@ -4,10 +4,10 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.google.gson.Gson
+import java.io.Serializable
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 import piuk.blockchain.android.ui.base.mvi.MviState
-import java.io.Serializable
 
 data class BankAuthState(
     val id: String? = null,

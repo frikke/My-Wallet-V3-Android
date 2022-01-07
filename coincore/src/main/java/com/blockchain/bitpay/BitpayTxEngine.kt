@@ -4,18 +4,6 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.bitpay.analytics.BitPayEvent
 import com.blockchain.bitpay.models.BitPayTransaction
 import com.blockchain.bitpay.models.BitPaymentRequest
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.preferences.WalletStatus
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import info.blockchain.wallet.api.dust.data.DustInput
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.Disposable
-import org.bitcoinj.core.Transaction
-import org.spongycastle.util.encoders.Hex
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.EngineTransaction
 import com.blockchain.coincore.FeeLevel
@@ -30,10 +18,22 @@ import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.preferences.WalletStatus
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import info.blockchain.wallet.api.dust.data.DustInput
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
+import java.util.concurrent.TimeUnit
+import org.bitcoinj.core.Transaction
+import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import rx.Subscription
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 const val BITPAY_TIMER_SUB = "bitpay_timer"
 private val PendingTx.bitpayTimer: Subscription?

@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import java.lang.IllegalStateException
+import kotlin.jvm.Throws
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -19,7 +21,6 @@ class LoginInteractorTest {
     private val payloadDataManager: PayloadDataManager = mock()
     private val prefs: PersistentPrefs = mock()
     private val appUtil: AppUtil = mock()
-    private val persistentPrefs: PersistentPrefs = mock()
 
     private val action = Intent.ACTION_VIEW
     private val data: Uri = mock()
@@ -30,42 +31,110 @@ class LoginInteractorTest {
             authDataManager = authDataManager,
             payloadDataManager = payloadDataManager,
             prefs = prefs,
-            appUtil = appUtil,
-            persistentPrefs = persistentPrefs
+            appUtil = appUtil
         )
     }
 
     @Test
-    fun `check session when pin exists sends PIN intent`() {
-        whenever(persistentPrefs.pinId).thenReturn("12343")
+    fun `check login intent when pin exists and no deeplink data sends PIN intent`() {
+        whenever(prefs.pinId).thenReturn("12343")
 
-        val result = subject.checkSessionDetails(action, data)
-        Assert.assertEquals(LoginIntents.UserIsLoggedIn, result)
+        val result = subject.checkSessionDetails(action, data, true)
+        Assert.assertEquals(LoginIntents.UserLoggedInWithoutDeeplinkData, result)
     }
 
     @Test
-    fun `check session when intent exists sends deeplink intent`() {
-        whenever(persistentPrefs.pinId).thenReturn("")
+    fun `check login intent when pin exists and intent data exists and session id empty`() {
+        whenever(prefs.pinId).thenReturn("1234")
+        whenever(prefs.sessionId).thenReturn("")
+        whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
-        val uri: Uri = mock {
-            on { fragment }.thenReturn("/login/abcd")
-        }
+        val result = subject.checkSessionDetails(action, data, true)
+        Assert.assertTrue(result is LoginIntents.ReceivedExternalLoginApprovalRequest)
+    }
 
-        val intent: Intent = mock {
-            on { data }.thenReturn(uri)
-            on { this.action }.thenReturn(action)
-        }
+    @Test
+    fun `check login intent when pin exists and intent data exists and session ids mismatch`() {
+        whenever(prefs.pinId).thenReturn("1234")
+        whenever(prefs.sessionId).thenReturn("12345")
+        whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
-        val result = subject.checkSessionDetails(intent.action!!, intent.data!!)
-        val expectedResult = LoginIntents.UserAuthenticationRequired(action, uri)
+        val result = subject.checkSessionDetails(action, data, true)
+        Assert.assertTrue(result is LoginIntents.ReceivedExternalLoginApprovalRequest)
+    }
+
+    @Test
+    fun `check login intent when pin exists and intent data exists and session ids match`() {
+        whenever(prefs.pinId).thenReturn("1234")
+        whenever(prefs.sessionId).thenReturn("1234")
+        whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
+
+        val result = subject.checkSessionDetails(action, data, true)
+        val expectedResult = LoginIntents.UserAuthenticationRequired(action, data)
+
         Assert.assertTrue(result is LoginIntents.UserAuthenticationRequired)
         Assert.assertEquals(expectedResult.action, (result as LoginIntents.UserAuthenticationRequired).action)
         Assert.assertEquals(expectedResult.uri, result.uri)
     }
 
     @Test
-    fun `check session when no intent delimiter exists sends error intent`() {
-        whenever(persistentPrefs.pinId).thenReturn("")
+    fun `check login intent when intent data exists and session id empty`() {
+        whenever(prefs.pinId).thenReturn("")
+        whenever(prefs.sessionId).thenReturn("")
+        whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
+
+        val result = subject.checkSessionDetails(action, data, true)
+        Assert.assertTrue(result is LoginIntents.ReceivedExternalLoginApprovalRequest)
+    }
+
+    @Test
+    fun `check login intent when intent data exists and session ids mismatch`() {
+        whenever(prefs.pinId).thenReturn("")
+        whenever(prefs.sessionId).thenReturn("12345")
+        whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
+
+        val result = subject.checkSessionDetails(action, data, true)
+        Assert.assertTrue(result is LoginIntents.ReceivedExternalLoginApprovalRequest)
+    }
+
+    @Test
+    fun `check login intent when intent data exists and session ids match`() {
+        whenever(prefs.pinId).thenReturn("")
+        whenever(prefs.sessionId).thenReturn("1234")
+        whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
+
+        val result = subject.checkSessionDetails(action, data, true)
+        val expectedResult = LoginIntents.UserAuthenticationRequired(action, data)
+
+        Assert.assertTrue(result is LoginIntents.UserAuthenticationRequired)
+        Assert.assertEquals(expectedResult.action, (result as LoginIntents.UserAuthenticationRequired).action)
+        Assert.assertEquals(expectedResult.uri, result.uri)
+    }
+
+    @Test
+    @Throws(IllegalStateException::class)
+    fun `check login intent when exception is thrown`() {
+        whenever(prefs.pinId).thenReturn("")
+        whenever(prefs.sessionId).thenThrow(IllegalStateException())
+        whenever(data.fragment).thenReturn("/login/abcd")
+
+        val result = subject.checkSessionDetails(action, data, true)
+        Assert.assertTrue(result is LoginIntents.UnknownError)
+    }
+
+    @Test
+    fun `check login intent when intent data corrupt`() {
+        whenever(prefs.pinId).thenReturn("")
+        whenever(data.fragment).thenReturn("/login/$BASE_64_CORRUPT_PAYLOAD")
+        whenever(prefs.sessionId).thenReturn("1234")
+
+        val result = subject.checkSessionDetails(action, data, true)
+        Assert.assertTrue(result is LoginIntents.UnknownError)
+    }
+
+    @Test
+    fun `check login intent when no intent delimiter exists sends error intent`() {
+        whenever(prefs.pinId).thenReturn("")
 
         val uri: Uri = mock {
             on { fragment }.thenReturn("abcd")
@@ -75,7 +144,22 @@ class LoginInteractorTest {
             on { data }.thenReturn(uri)
         }
 
-        val result = subject.checkSessionDetails(action, intent.data!!)
+        val result = subject.checkSessionDetails(action, intent.data!!, true)
         Assert.assertEquals(LoginIntents.UnknownError, result)
+    }
+
+    companion object {
+        private const val BASE_64_FULL_PAYLOAD = "ewogICAgIndhbGxldCI6IHsKICAgICAgICAiZ3VpZCI6ICI5OTE5ZWY0YS0wMjA2L" +
+            "TQ5OTMtYTAzZC01ODI5YTgxYjBhMzYiLAogICAgICAgICJlbWFpbCI6ICJmb29AZXhhbXBsZS5jb20iLAoJICJzZXNzaW9uX2lkIjo" +
+            "gIjEyMzQiLAogICAgICAgICJlbWFpbF9jb2RlIjogIjEyMzQiLAogICAgICAgICJpc19tb2JpbGVfc2V0dXAiOiB0cnVlLAogICAgI" +
+            "CAgICJtb2JpbGVfZGV2aWNlX3R5cGUiOiAwLAogICAgICAgICJsYXN0X21uZW1vbmljX2JhY2t1cCI6IDE2MjE5NTQ3ODAsCiAgICA" +
+            "gICAgImhhc19jbG91ZF9iYWNrdXAiOiB0cnVlLAogICAgICAgICJ0d29fZmFfdHlwZSI6IDQsCiAgICAgICAgIm5hYnUiOiB7CiAgI" +
+            "CAgICAgICAgICJ1c2VyX2lkIjogImQ5N2ExYzQyLTg5MjgtNDE1OS05MDUzLTM5Y2QyYzMzZjk5NyIsCgkJCQkJCSJyZWNvdmVyeV9" +
+            "0b2tlbiI6ICIwM2ZjODZiMi00ZGNiLTRmYWItOGE1NC1lMGM5NjFhM2IxODMiCiAgICAgICAgfSwKICAgICAgICAiZXhjaGFuZ2UiO" +
+            "iB7CiAgICAgICAgICAgICJ1c2VyX2NyZWRlbnRpYWxzX2lkIjogImIzMTVhOTVjLTMyZWEtNDM4ZC1iY2IxLWYzMTM1ZGViOGM5YiI" +
+            "sCiAgICAgICAgICAgICJ0d29fZmFfbW9kZSI6IHRydWUKICAgICAgICB9CiAgICB9LAogICAgInVuaWZpZWQiOiBmYWxzZSwKICAgI" +
+            "CJ1cGdyYWRlYWJsZSI6IGZhbHNlLAogICAgIm1lcmdlYWJsZSI6IGZhbHNlLAogICAgInVzZXJfdHlwZSI6ICJXQUxMRVRfRVhDSEF" +
+            "OR0VfTElOS0VEIgp9"
+        private const val BASE_64_CORRUPT_PAYLOAD = "ewogICBHQVJCQUdFCn0="
     }
 }

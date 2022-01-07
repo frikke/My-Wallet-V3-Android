@@ -1,19 +1,5 @@
 package com.blockchain.coincore.fiat
 
-import com.blockchain.core.price.ExchangeRates
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransactionState
-import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import info.blockchain.balance.total
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActivitySummaryItem
@@ -28,6 +14,20 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toFiat
+import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransactionState
+import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import info.blockchain.balance.total
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.atomic.AtomicBoolean
 
 /*internal*/ class FiatCustodialAccount internal constructor(

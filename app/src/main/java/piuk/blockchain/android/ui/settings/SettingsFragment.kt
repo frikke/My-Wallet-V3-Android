@@ -46,7 +46,6 @@ import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -62,11 +61,13 @@ import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.util.Calendar
+import java.util.Locale
+import kotlin.math.roundToInt
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.R.string.success
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.RemoveCardBottomSheet
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
@@ -90,7 +91,7 @@ import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
-import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.pairingcode.PairingBottomSheet
@@ -99,7 +100,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
 import piuk.blockchain.android.ui.settings.preferences.BankPreference
 import piuk.blockchain.android.ui.settings.preferences.CardPreference
-import piuk.blockchain.android.ui.settings.preferences.KycStatusPreference
 import piuk.blockchain.android.ui.settings.preferences.ThePitStatusPreference
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
@@ -117,19 +117,14 @@ import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Locale
-import kotlin.math.roundToInt
 
-class SettingsFragment : PreferenceFragmentCompat(),
+class SettingsFragment :
+    PreferenceFragmentCompat(),
     SettingsView,
     RemovePaymentMethodBottomSheetHost,
     BankLinkingHost {
 
     // Profile
-    private val kycStatusPref by lazy {
-        findPreference<KycStatusPreference>("identity_verification")
-    }
     private val guidPref by lazy {
         findPreference<Preference>("guid")
     }
@@ -141,6 +136,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
     private val thePit by lazy {
         findPreference<ThePitStatusPreference>("the_pit")
+    }
+    private val limitsPref by lazy {
+        findPreference<Preference>("limits")
     }
     private val qrConnectPref by lazy {
         findPreference<Preference>("qr_connect")
@@ -223,12 +221,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     override fun setUpUi() {
         // Profile
-        kycStatusPref.onClick {
-            settingsPresenter.onKycStatusClicked()
-            analytics.logEvent(SettingsAnalytics.SwapLimitChecked)
-        }
-        kycStatusPref?.isVisible = false
-
         guidPref.onClick {
             showDialogGuid()
             analytics.logEvent(SettingsAnalytics.WalletIdCopyClicked)
@@ -245,6 +237,10 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
         thePit.onClick { settingsPresenter.onThePitClicked() }
         thePit?.isVisible = true
+
+        limitsPref.onClick {
+            startActivity(Intent(requireContext(), KycLimitsActivity::class.java))
+        }
 
         qrConnectPref?.isVisible = environmentConfig.isRunningInDebugMode() &&
             environmentConfig.environment != Environment.PRODUCTION
@@ -455,11 +451,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
     override fun onCreatePreferences(bundle: Bundle?, s: String?) {
         preferenceScreen?.removeAll()
         addPreferencesFromResource(R.xml.settings)
-    }
-
-    override fun setKycState(kycTiers: KycTiers) {
-        kycStatusPref?.setValue(kycTiers)
-        kycStatusPref?.isVisible = kycTiers.isInitialised()
     }
 
     override fun setGuidSummary(summary: String) {
@@ -705,7 +696,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     override fun showFingerprintDialog(pincode: String) {
         biometricsController.authenticate(
-            this, BiometricsType.TYPE_REGISTER, object : BiometricsCallback<WalletBiometricData> {
+            this, BiometricsType.TYPE_REGISTER,
+            object : BiometricsCallback<WalletBiometricData> {
                 override fun onAuthSuccess(data: WalletBiometricData) {
                     updateFingerprintPreferenceStatus()
                 }
@@ -718,12 +710,14 @@ class SettingsFragment : PreferenceFragmentCompat(),
                     settingsPresenter.setFingerprintUnlockDisabled()
                     updateFingerprintPreferenceStatus()
                 }
-            })
+            }
+        )
     }
 
     private fun handleAuthFailed(error: BiometricAuthError) {
         when (error) {
-            is BiometricKeysInvalidated -> BiometricPromptUtil.showActionableInvalidatedKeysDialog(requireContext(),
+            is BiometricKeysInvalidated -> BiometricPromptUtil.showActionableInvalidatedKeysDialog(
+                requireContext(),
                 positiveActionCallback = {
                     settingsPresenter.onFingerprintClicked()
                 },
@@ -738,7 +732,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
                         ),
                         REQUEST_CODE_BIOMETRIC_ENROLLMENT
                     )
-                })
+                }
+            )
             is BiometricsNoSuitableMethods -> showNoFingerprintsAddedDialog()
             is BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(requireContext())
             is BiometricAuthLockoutPermanent -> BiometricPromptUtil.showPermanentAuthLockoutDialog(requireContext())
@@ -1004,8 +999,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
             if (requestCode == REQUEST_CODE_BIOMETRIC_ENROLLMENT) {
                 settingsPresenter.onFingerprintClicked()
             }
-        } else if (KycNavHostActivity.kycStatusUpdated(resultCode)) {
-            settingsPresenter.updateKyc()
         }
     }
 
@@ -1209,10 +1202,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
         }
     }
 
-    override fun launchKycFlow() {
-        KycNavHostActivity.startForResult(this, CampaignType.None, KYC_START, true)
-    }
-
     private fun setCountryFlag(tvCountry: TextView, dialCode: String, flagResourceId: Int) {
         tvCountry.text = dialCode
         val drawable = ContextCompat.getDrawable(settingsActivity, flagResourceId)
@@ -1228,12 +1217,13 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     companion object {
         const val URL_LOGIN = "<a href=\"https://login.blockchain.com/\">login.blockchain.com</a>"
-        private const val KYC_START = 32542
         internal const val EXTRA_SHOW_ADD_EMAIL_DIALOG = "show_add_email_dialog"
         internal const val EXTRA_SHOW_TWO_FA_DIALOG = "show_two_fa_dialog"
         private const val ADD_CARD_KEY = "ADD_CARD_KEY"
         private const val LINK_BANK_KEY = "ADD_BANK_KEY"
         private const val REQUEST_CODE_BIOMETRIC_ENROLLMENT = 666
+
+        fun newInstance(): SettingsFragment = SettingsFragment()
     }
 
     override fun onCardRemoved(cardId: String) {

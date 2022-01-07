@@ -6,6 +6,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ActivityLoaderBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -21,9 +23,16 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
         intent.getIntExtra(EXTRA_WARNING, R.string.unexpected_error)
     }
 
+    private val binding: ActivityLoaderBinding by lazy {
+        ActivityLoaderBinding.inflate(layoutInflater)
+    }
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_loader)
+        setContentView(binding.root)
 
         onViewReady()
     }

@@ -1,11 +1,11 @@
 package info.blockchain.wallet.bip44
 
-import org.apache.commons.codec.binary.Hex
-import org.bitcoinj.crypto.MnemonicException.MnemonicWordException
-import org.bitcoinj.crypto.MnemonicCode
-import org.bitcoinj.params.MainNetParams
 import java.io.InputStream
 import java.util.Locale
+import org.apache.commons.codec.binary.Hex
+import org.bitcoinj.crypto.MnemonicCode
+import org.bitcoinj.crypto.MnemonicException.MnemonicWordException
+import org.bitcoinj.params.MainNetParams
 
 /**
  * WalletFactory.java : Class for creating/restoring/reading BIP44 HD wallet

@@ -1,17 +1,18 @@
 package piuk.blockchain.android.ui.activity
 
-import com.blockchain.notifications.analytics.Analytics
-import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import com.blockchain.coincore.ActivitySummaryList
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
+import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import timber.log.Timber
 
 class ActivitiesInteractor(
@@ -19,7 +20,8 @@ class ActivitiesInteractor(
     private val activityRepository: AssetActivityRepository,
     private val custodialWalletManager: CustodialWalletManager,
     private val simpleBuyPrefs: SimpleBuyPrefs,
-    private val analytics: Analytics
+    private val analytics: Analytics,
+    private val redesignEnabledFeatureFlag: FeatureFlag
 ) {
     fun getActivityForAccount(
         account: BlockchainAccount,
@@ -30,14 +32,16 @@ class ActivitiesInteractor(
     fun getDefaultAccount(): Single<BlockchainAccount> =
         coincore.allWallets().map { it }
 
+    fun getRedesignEnabled(): Single<Boolean> = redesignEnabledFeatureFlag.enabled
+
     fun cancelSimpleBuyOrder(orderId: String): Disposable? {
         return custodialWalletManager.deleteBuyOrder(orderId)
-                .subscribeBy(
-                    onComplete = { simpleBuyPrefs.clearBuyState() },
-                    onError = { error ->
-                        analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_ERROR)
-                        Timber.e(error)
-                    }
-                )
+            .subscribeBy(
+                onComplete = { simpleBuyPrefs.clearBuyState() },
+                onError = { error ->
+                    analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_ERROR)
+                    Timber.e(error)
+                }
+            )
     }
 }

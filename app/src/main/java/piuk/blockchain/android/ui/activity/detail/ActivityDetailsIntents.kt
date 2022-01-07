@@ -1,19 +1,19 @@
 package piuk.blockchain.android.ui.activity.detail
 
-import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import info.blockchain.balance.AssetInfo
-import info.blockchain.wallet.multiaddress.TransactionSummary
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import info.blockchain.balance.AssetInfo
+import info.blockchain.wallet.multiaddress.TransactionSummary
+import java.util.Date
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.base.mvi.MviIntent
-import java.util.Date
 
 sealed class ActivityDetailsIntents : MviIntent<ActivityDetailState>
 

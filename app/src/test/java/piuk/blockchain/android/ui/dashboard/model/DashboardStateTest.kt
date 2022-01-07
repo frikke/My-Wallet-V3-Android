@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.dashboard.model
 
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
-import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import org.junit.Test
 
 class DashboardStateTest {
 
@@ -83,10 +83,16 @@ class DashboardStateTest {
             announcement = null
         )
 
-        assertEquals(Pair(FiatValue.fromMajor(
-            FIAT_CURRENCY,
-            (-1000).toBigDecimal()
-        ), -25.0), subject.delta)
+        assertEquals(
+            Pair(
+                FiatValue.fromMajor(
+                    FIAT_CURRENCY,
+                    (-1000).toBigDecimal()
+                ),
+                -25.0
+            ),
+            subject.delta
+        )
     }
 
     @Test
@@ -101,9 +107,15 @@ class DashboardStateTest {
             announcement = null
         )
 
-        assertEquals(Pair(FiatValue.fromMajor(
-            FIAT_CURRENCY,
-            (-1000).toBigDecimal()
-        ), -20.0), subject.delta)
+        assertEquals(
+            Pair(
+                FiatValue.fromMajor(
+                    FIAT_CURRENCY,
+                    (-1000).toBigDecimal()
+                ),
+                -20.0
+            ),
+            subject.delta
+        )
     }
 }

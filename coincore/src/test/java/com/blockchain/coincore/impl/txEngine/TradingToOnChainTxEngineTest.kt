@@ -1,21 +1,6 @@
 package com.blockchain.coincore.impl.txEngine
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
-import com.blockchain.testutils.lumens
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Single
-import org.junit.Before
-import org.junit.Test
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeLevel
@@ -26,19 +11,57 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.erc20.Erc20NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoAccountCompoundGroupTest.Companion.testValue
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
+import com.blockchain.testutils.lumens
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import kotlin.test.assertEquals
+import org.junit.Before
+import org.junit.Test
 
 class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
     private val isNoteSupported = false
+    private val userIdentity: UserIdentity = mock()
     private val walletManager: CustodialWalletManager = mock()
+    private val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit)),
+                    max = TxLimit.Unlimited,
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private val subject = TradingToOnChainTxEngine(
         walletManager = walletManager,
-        isNoteSupported = isNoteSupported
+        isNoteSupported = isNoteSupported,
+        limitsDataManager = limitsDataManager,
+        userIdentity = userIdentity
     )
 
     @Before
@@ -129,7 +152,6 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             on { asset }.thenReturn(ASSET)
         }
 
-        val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
         whenever(walletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY))
             .thenReturn(Single.just(feesAndLimits))
 
@@ -151,8 +173,9 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit) &&
-                    it.maxLimit == null &&
+                    it.limits == TxLimits.withMinAndUnlimitedMax(
+                    CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit)
+                ) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -161,6 +184,15 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             .assertComplete()
 
         verify(sourceAccount, atLeastOnce()).asset
+        verify(walletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY)
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(ASSET.networkTicker),
+            sourceCurrency = eq(ASSET.networkTicker),
+            targetCurrency = eq(ASSET.networkTicker),
+            sourceAccountType = eq(AssetCategory.CUSTODIAL),
+            targetAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     @Test

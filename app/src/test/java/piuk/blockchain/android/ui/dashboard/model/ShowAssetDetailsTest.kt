@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import info.blockchain.balance.CryptoCurrency
+import kotlin.test.assertEquals
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
-import kotlin.test.assertEquals
 
 class ShowAssetDetailsTest {
 

@@ -1,9 +1,9 @@
 package com.blockchain.nabu.service
 
+import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.models.responses.banktransfer.BankTransferPaymentBody
 import com.blockchain.nabu.models.responses.banktransfer.CreateLinkBankRequestBody
 import com.blockchain.nabu.models.responses.banktransfer.OpenBankingTokenBody
@@ -61,7 +61,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 
-class NabuService internal constructor (
+class NabuService internal constructor(
     private val nabu: Nabu
 ) {
     internal fun getAuthToken(
@@ -363,7 +363,7 @@ class NabuService internal constructor (
 
     internal fun isEligibleForSimpleBuy(
         sessionToken: NabuSessionTokenResponse,
-        fiatCurrency: String
+        fiatCurrency: String? = null
     ): Single<SimpleBuyEligibility> = nabu.isEligibleForSimpleBuy(
         sessionToken.authHeader,
         fiatCurrency
@@ -558,6 +558,10 @@ class NabuService internal constructor (
         eligibleOnly = eligibleOnly
     ).wrapErrorMessage()
 
+    fun cardAcquirers(
+        sessionToken: NabuSessionTokenResponse
+    ) = nabu.getCardAcquirers(sessionToken.authHeader).wrapErrorMessage()
+
     fun getBeneficiaries(sessionToken: NabuSessionTokenResponse) =
         nabu.getLinkedBeneficiaries(sessionToken.authHeader).wrapErrorMessage()
 
@@ -581,10 +585,18 @@ class NabuService internal constructor (
         body
     ).wrapErrorMessage()
 
+    /**
+     * cardProvidersSupported is signalling to the backend if they can list
+     * cards created by the new providers for payment. The purpose is to avoid listing
+     * cards which were tokenised with the new providers on other platforms if
+     * the feature flag is off.
+     */
     fun getCards(
-        sessionToken: NabuSessionTokenResponse
+        sessionToken: NabuSessionTokenResponse,
+        cardProvidersSupported: Boolean
     ) = nabu.getCards(
-        authorization = sessionToken.authHeader
+        authorization = sessionToken.authHeader,
+        cardProvidersSupported = cardProvidersSupported
     ).wrapErrorMessage()
 
     /**

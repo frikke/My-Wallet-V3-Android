@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.coincore.Coincore
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
@@ -11,14 +12,13 @@ import com.blockchain.nabu.models.responses.nabu.TierResponse
 import com.blockchain.nabu.service.TierService
 import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
-import io.reactivex.rxjava3.core.Single
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
+import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries.Companion.NEW_ASSET_TICKER

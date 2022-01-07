@@ -1,5 +1,12 @@
 package com.blockchain.coincore.fiat
 
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AvailableActions
+import com.blockchain.coincore.BankAccount
+import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -11,13 +18,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.ActivitySummaryList
-import com.blockchain.coincore.AvailableActions
-import com.blockchain.coincore.BankAccount
-import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.TxSourceState
 
 class LinkedBankAccount(
     override val label: String,

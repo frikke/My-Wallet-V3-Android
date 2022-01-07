@@ -16,9 +16,9 @@ import com.google.zxing.NotFoundException
 import com.google.zxing.PlanarYUVLuminanceSource
 import com.google.zxing.Result
 import com.google.zxing.common.HybridBinarizer
-import timber.log.Timber
 import java.nio.ByteBuffer
 import kotlin.Exception
+import timber.log.Timber
 
 class QrCodeAnalyzer(
     private val targetRect: Rect,
@@ -98,7 +98,7 @@ class QrCodeAnalyzer(
                     targetRect.right * imageResolution.y / framingViewSize.x,
                     targetRect.bottom * imageResolution.x / framingViewSize.y
                 )
-            }
+        }
 
     private fun ByteBuffer.toByteArray(): ByteArray {
         rewind()

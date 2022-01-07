@@ -28,4 +28,8 @@
         <item name="android:lines">1</item>
         <item name="android:ellipsize">end</item>
     </style>
+
+    <style name="CalenderViewCustom" parent="android:Widget.CalendarView">
+        <item name="colorAccent">@color/calendarAccent</item>
+    </style>
 </resources>

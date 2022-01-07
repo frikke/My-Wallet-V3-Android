@@ -14,6 +14,7 @@ import com.blockchain.api.services.Geolocation
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
+import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CountryPickerItem
@@ -43,9 +44,9 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.util.Locale
 
-class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPresenter>(),
+class CreateWalletActivity :
+    BaseMvpActivity<CreateWalletView, CreateWalletPresenter>(),
     CreateWalletView,
     PickerItemListener,
     SlidingModalBottomDialog.Host,
@@ -73,23 +74,27 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         ViewPasswordStrengthBinding.inflate(layoutInflater, binding.root, false)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        setupCta()
+        loadToolbar(
+            titleToolbar = if (recoveryPhrase.isNotEmpty()) {
+                getString(R.string.recover_funds)
+            } else {
+                getString(R.string.new_account_title_1)
+            },
+            backAction = { onBackPressed() }
+        )
         applyConstraintSet.clone(binding.mainConstraintLayout)
 
         createWalletPresenter.getUserGeolocation()
 
         initializeCountrySpinner()
         initializeStatesSpinner()
-
-        if (recoveryPhrase.isNotEmpty()) {
-            setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.recover_funds)
-            binding.commandNext.setText(R.string.dialog_continue)
-        } else {
-            setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.new_account_title_1)
-            binding.commandNext.setText(R.string.new_account_cta_text)
-        }
 
         with(binding) {
             passwordStrengthBinding.passStrengthBar.max = 100 * 10
@@ -141,13 +146,22 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         }
     }
 
+    private fun setupCta() {
+        if (recoveryPhrase.isNotEmpty()) {
+            binding.commandNext.setText(R.string.dialog_continue)
+        } else {
+            binding.commandNext.setText(R.string.new_account_cta_text)
+        }
+    }
+
     private fun initializeCountrySpinner() {
         binding.country.setOnClickListener {
-            SearchPickerItemBottomSheet.newInstance(Locale.getISOCountries()
-                .toList()
-                .map { countryCode ->
-                    CountryPickerItem(countryCode)
-                }
+            SearchPickerItemBottomSheet.newInstance(
+                Locale.getISOCountries()
+                    .toList()
+                    .map { countryCode ->
+                        CountryPickerItem(countryCode)
+                    }
             ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
         }
     }

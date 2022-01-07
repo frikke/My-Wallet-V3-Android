@@ -23,6 +23,7 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockoutPermanen
 import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
+import com.blockchain.biometrics.BiometricsType
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -43,7 +44,6 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import com.blockchain.biometrics.BiometricsType
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.FragmentPinEntryBinding
@@ -67,8 +67,10 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
-class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
-    PinEntryView, BiometricsEnrollmentBottomSheet.Host {
+class PinEntryFragment :
+    BaseFragment<PinEntryView, PinEntryPresenter>(),
+    PinEntryView,
+    BiometricsEnrollmentBottomSheet.Host {
 
     private var _binding: FragmentPinEntryBinding? = null
     private val binding: FragmentPinEntryBinding
@@ -194,7 +196,8 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
                     override fun onAuthCancelled() {
                         showKeyboard()
                     }
-                })
+                }
+            )
 
             hideKeyboard()
         }
@@ -259,7 +262,8 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
                 override fun onAuthCancelled() {
                     // do nothing, the sheet is not dismissed when the user starts the flow
                 }
-            })
+            }
+        )
     }
 
     override fun cancel() {
@@ -555,27 +559,31 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         if (context == null) return
         val appUpdateManager = AppUpdateManagerFactory.create(context)
         if (isForced) {
-            compositeDisposable.add(updateInfo(appUpdateManager).subscribe { appUpdateInfoTask ->
-                if (canTriggerAnUpdateOfType(
-                        AppUpdateType.IMMEDIATE,
-                        appUpdateInfoTask
-                    ) && activity != null
-                ) {
-                    updateForcedNatively(appUpdateManager, appUpdateInfoTask.result)
-                } else {
-                    handleForcedUpdateFromStore()
+            compositeDisposable.add(
+                updateInfo(appUpdateManager).subscribe { appUpdateInfoTask ->
+                    if (canTriggerAnUpdateOfType(
+                            AppUpdateType.IMMEDIATE,
+                            appUpdateInfoTask
+                        ) && activity != null
+                    ) {
+                        updateForcedNatively(appUpdateManager, appUpdateInfoTask.result)
+                    } else {
+                        handleForcedUpdateFromStore()
+                    }
                 }
-            })
+            )
         } else {
-            compositeDisposable.add(updateInfo(appUpdateManager).subscribe { appUpdateInfoTask ->
-                if (canTriggerAnUpdateOfType(
-                        AppUpdateType.FLEXIBLE,
-                        appUpdateInfoTask
-                    ) && activity != null
-                ) {
-                    updateFlexibleNatively(appUpdateManager, appUpdateInfoTask.result)
+            compositeDisposable.add(
+                updateInfo(appUpdateManager).subscribe { appUpdateInfoTask ->
+                    if (canTriggerAnUpdateOfType(
+                            AppUpdateType.FLEXIBLE,
+                            appUpdateInfoTask
+                        ) && activity != null
+                    ) {
+                        updateFlexibleNatively(appUpdateManager, appUpdateInfoTask.result)
+                    }
                 }
-            })
+            )
         }
     }
 
@@ -589,10 +597,12 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         updateAvailabilityType: Int,
         appUpdateInfoTask: Task<AppUpdateInfo>
     ): Boolean {
-        return (appUpdateInfoTask.result.updateAvailability() ==
-            UpdateAvailability.UPDATE_AVAILABLE ||
+        return (
             appUpdateInfoTask.result.updateAvailability() ==
-            UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) &&
+                UpdateAvailability.UPDATE_AVAILABLE ||
+                appUpdateInfoTask.result.updateAvailability() ==
+                UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
+            ) &&
             appUpdateInfoTask.result.isUpdateTypeAllowed(updateAvailabilityType)
     }
 

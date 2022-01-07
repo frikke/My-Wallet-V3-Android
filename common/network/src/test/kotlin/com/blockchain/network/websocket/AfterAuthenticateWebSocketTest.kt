@@ -1,10 +1,10 @@
 package com.blockchain.network.websocket
 
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.rxjava3.disposables.Disposable
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 
 class AfterAuthenticateWebSocketTest {

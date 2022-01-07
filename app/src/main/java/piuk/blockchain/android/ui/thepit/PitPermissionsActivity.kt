@@ -4,19 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.koin.scopedInject
-import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.android.urllinks.URL_THE_PIT_LANDING_LEARN_MORE
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.android.ext.android.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPitKycPromoLayoutBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.thepit.PitAnalyticsEvent
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
+import piuk.blockchain.android.urllinks.URL_THE_PIT_LANDING_LEARN_MORE
 import piuk.blockchain.android.util.launchUrlInBrowser
+import piuk.blockchain.android.util.throttledClicks
 
 class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermissionsView, PitPermissionsPresenter>() {
 
@@ -35,13 +34,16 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
         PitVerifyEmailActivity.start(this, email, REQUEST_VERIFY_EMAIL)
     }
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        setupToolbar(ToolbarGeneralBinding.bind(binding.root).toolbarGeneral, R.string.the_exchange_title)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        loadToolbar(
+            titleToolbar = getString(R.string.the_exchange_title),
+            backAction = { onBackPressed() }
+        )
         binding.connectNow.setOnClickListener {
             doLinkClickHandler()
         }
@@ -83,8 +85,11 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
                     description = getString(R.string.the_exchange_connection_error_description),
                     ctaButtonText = R.string.common_try_again,
                     dismissText = 0,
-                    icon = R.drawable.vector_pit_request_failure), false
-            )).apply {
+                    icon = R.drawable.vector_pit_request_failure
+                ),
+                false
+            )
+        ).apply {
             onCtaClick = {
                 doLinkClickHandler()
                 dismiss()
@@ -102,8 +107,11 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
                     description = getString(R.string.the_exchange_connection_success_description),
                     ctaButtonText = R.string.btn_close,
                     dismissText = 0,
-                    icon = R.drawable.vector_pit_request_ok), false
-            )).apply {
+                    icon = R.drawable.vector_pit_request_ok
+                ),
+                false
+            )
+        ).apply {
             onCtaClick = {
                 dismiss()
             }
@@ -124,7 +132,8 @@ class PitPermissionsActivity : PitPermissionsView, BaseMvpActivity<PitPermission
                         icon = 0
                     ),
                     true
-                ))
+                )
+            )
             loadingDialog?.show(supportFragmentManager, "LoadingBottomDialog")
         }
     }

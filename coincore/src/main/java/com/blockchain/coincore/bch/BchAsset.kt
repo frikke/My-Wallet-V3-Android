@@ -1,15 +1,25 @@
 package com.blockchain.coincore.bch
 
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.NonCustodialSupport
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.TxResult
+import com.blockchain.coincore.impl.BackendNotificationUpdater
+import com.blockchain.coincore.impl.CryptoAssetBase
+import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.core.chains.bitcoincash.BchDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -19,16 +29,6 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.NonCustodialSupport
-import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.SingleAccountList
-import com.blockchain.coincore.TxResult
-import com.blockchain.coincore.impl.CryptoAssetBase
-import com.blockchain.coincore.impl.BackendNotificationUpdater
-import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.impl.NotificationAddresses
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
@@ -66,7 +66,8 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     crashLogger,
     identity,
     features
-), NonCustodialSupport {
+),
+    NonCustodialSupport {
     override val asset: AssetInfo
         get() = CryptoCurrency.BCH
 

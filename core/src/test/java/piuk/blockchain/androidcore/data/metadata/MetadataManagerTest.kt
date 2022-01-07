@@ -12,7 +12,7 @@ import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.metadata.data.RemoteMetadataNodes
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
-
+import java.lang.IllegalStateException
 import org.bitcoinj.crypto.HDKeyDerivation
 import org.junit.Before
 import org.junit.Rule
@@ -21,7 +21,6 @@ import org.mockito.Mockito
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 import piuk.blockchain.androidcore.utils.extensions.thenMaybe
-import java.lang.IllegalStateException
 
 class MetadataManagerTest {
 
@@ -38,10 +37,10 @@ class MetadataManagerTest {
     private val fakeRemoteMetadata = RemoteMetadataNodes().apply {
         mdid =
             "xprv9vM7oGsyw3AdQdzPjRvPAHCC7hEzUhENoeq59qPxjxL5XsMos78qEd3P6dkPpNt8xgvQTiUXcTjbU" +
-                    "nHtKShbGu7X3o7bdbw5yLFGhiaXkVk"
+            "nHtKShbGu7X3o7bdbw5yLFGhiaXkVk"
         metadata =
             "xprv9vM7oGsuM9zGW2tneNriS8NJF6DNrZEKvYMXSwP8SJNJRUuX6iXjZLQCCy52cXJKKb6XwWF3vr6mQCyy9d5msL9" +
-                    "TrycrBmbPibKd2LhzjDW"
+            "TrycrBmbPibKd2LhzjDW"
     }.toJson()
 
     @Suppress("unused")
@@ -59,10 +58,14 @@ class MetadataManagerTest {
             metadataDerivation,
             mock()
         )
-        whenever(payloadDataManager.metadataCredentials).thenReturn(MetadataCredentials("8cdf0e8e-c7b1-4a6" +
-                "f-acb7-f1681d3abf97",
-            "sharedKey",
-            "1234"))
+        whenever(payloadDataManager.metadataCredentials).thenReturn(
+            MetadataCredentials(
+                "8cdf0e8e-c7b1-4a6" +
+                    "f-acb7-f1681d3abf97",
+                "sharedKey",
+                "1234"
+            )
+        )
     }
 
     @Test
@@ -91,10 +94,15 @@ class MetadataManagerTest {
         testObserver.assertNoErrors()
         Mockito.verify(payloadDataManager).isDoubleEncrypted
         Mockito.verify(metadataInteractor)
-            .putMetadata(eq("{\"metadata\":\"xprv9v8qUhWNur6b9if9MZhw1hvxnsWgonfw9dv1hzVAoCeVpSAWrXd7woo" +
-                    "27QqegYXnmYYTDgYjFJTYXTvAu6ZZnS6P7SSkTZTurJ5STEb7952\",\"mdid\":\"xprv9v8qUhWTVjGx3v" +
-                    "stKw6J8HV4CNmZB1oTPJGzoyYz9ZK2YcNviZesiy4KhmgyPF635czS66bL8iANAoJbheDbMV7V41Lc9TYg43AE6vF2pFT\"}"),
-                any())
+            .putMetadata(
+                eq(
+                    "{\"metadata\":\"xprv9v8qUhWNur6b9if9MZhw1hvxnsWgonfw9dv1hzVAoCeVpSAWrXd7woo" +
+                        "27QqegYXnmYYTDgYjFJTYXTvAu6ZZnS6P7SSkTZTurJ5STEb7952\",\"mdid\":\"xprv9v8qUhWTVjGx3v" +
+                        "stKw6J8HV4CNmZB1oTPJGzoyYz9ZK2YcNviZesiy4KhmgyPF635czS66bL8iANAoJbheDbMV7V41Lc9TYg43AE6vF2pF" +
+                        "T\"}"
+                ),
+                any()
+            )
     }
 
     @Test
@@ -133,10 +141,12 @@ class MetadataManagerTest {
         val test = subject.attemptMetadataSetup()
             .thenMaybe { subject.fetchMetadata(0) }.test()
 
-        test.assertValueAt(0,
+        test.assertValueAt(
+            0,
             "{\"metadata\":\"xprv9vM7oGsuM9zGW2tneNriS8NJF6DNrZEKvYMXSwP8SJNJRUuX6iXjZLQCCy52cXJKKb6XwWF3vr6mQC" +
-                    "yy9d5msL9TrycrBmbPibKd2LhzjDW\",\"mdid\":\"xprv9vM7oGsyw3AdQdzPjRvPAHCC7hEzUhENoeq59qPxjxL5XsMos" +
-                    "78qEd3P6dkPpNt8xgvQTiUXcTjbUnHtKShbGu7X3o7bdbw5yLFGhiaXkVk\"}")
+                "yy9d5msL9TrycrBmbPibKd2LhzjDW\",\"mdid\":\"xprv9vM7oGsyw3AdQdzPjRvPAHCC7hEzUhENoeq59qPxjxL5XsMos" +
+                "78qEd3P6dkPpNt8xgvQTiUXcTjbUnHtKShbGu7X3o7bdbw5yLFGhiaXkVk\"}"
+        )
         test.assertComplete()
     }
 

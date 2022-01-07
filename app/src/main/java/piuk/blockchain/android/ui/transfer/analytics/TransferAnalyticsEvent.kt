@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.transfer.analytics
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
 import info.blockchain.balance.AssetInfo
+import java.io.Serializable
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.analytics.toCategory
-import java.io.Serializable
 
 sealed class TransferAnalyticsEvent(
     override val event: String,

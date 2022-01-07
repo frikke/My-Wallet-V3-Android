@@ -10,10 +10,11 @@ import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.util.Date
 import piuk.blockchain.android.R
-import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -21,7 +22,6 @@ import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
-import java.util.Date
 
 class CustodialTradingActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,
@@ -133,8 +133,8 @@ private fun TextView.setTxStatus(tx: CustodialTradingActivitySummaryItem) {
         OrderState.FINISHED -> Date(tx.timeStampMs).toFormattedDate()
         OrderState.UNINITIALISED -> context.getString(R.string.activity_state_uninitialised)
         OrderState.INITIALISED -> context.getString(R.string.activity_state_initialised)
-        OrderState.AWAITING_FUNDS -> context.getString(R.string.activity_state_awaiting_funds)
-        OrderState.PENDING_EXECUTION -> context.getString(R.string.activity_state_pending)
+        OrderState.AWAITING_FUNDS,
+        OrderState.PENDING_EXECUTION,
         OrderState.PENDING_CONFIRMATION -> context.getString(R.string.activity_state_pending)
         OrderState.UNKNOWN -> context.getString(R.string.activity_state_unknown)
         OrderState.CANCELED -> context.getString(R.string.activity_state_canceled)

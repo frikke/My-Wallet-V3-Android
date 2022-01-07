@@ -8,23 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
+import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.DashboardPrefs
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import org.koin.android.ext.android.get
-import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.campaign.blockstackCampaignName
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -32,12 +18,26 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import info.blockchain.balance.FiatValue
+import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DashboardPrefs
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
+import piuk.blockchain.android.R
+import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
+import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.BuySellClicked
-import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
@@ -70,7 +70,7 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
-import piuk.blockchain.android.ui.locks.LocksInfoBottomSheet
+import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -80,7 +80,10 @@ import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
+import piuk.blockchain.android.util.configureWithPinnedButton
+import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.launchUrlInBrowser
+import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
@@ -90,18 +93,15 @@ import timber.log.Timber
 class EmptyDashboardItem : DashboardItem
 
 class PortfolioFragment :
-    HomeScreenMviFragment<
-        DashboardModel,
-        DashboardIntent,
-        DashboardState,
-        FragmentPortfolioBinding
-        >(),
+    HomeScreenMviFragment<DashboardModel, DashboardIntent, DashboardState, FragmentPortfolioBinding>(),
     ForceBackupForSendSheet.Host,
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
     DialogFlow.FlowHost,
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
+    BuyPendingOrdersBottomSheet.Host,
+    DashboardScreen,
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
@@ -110,7 +110,7 @@ class PortfolioFragment :
     private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val gatedFeatures: InternalFeatureFlagApi by inject()
+    private var activeFiat = currencyPrefs.selectedFiatCurrency
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
@@ -199,67 +199,109 @@ class PortfolioFragment :
 
         updateAnalytics(this.state, newState)
 
-        binding.dashboardProgress.visibleIf { newState.hasLongCallInProgress }
-
         this.state = newState
     }
 
     private fun updateDisplayList(newState: DashboardState) {
         with(displayList) {
-            val withdrawalLockEnabled = gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)
-            val isDisplayListEmpty = isEmpty()
-            val newMap = when {
-                withdrawalLockEnabled && isDisplayListEmpty ->
-                    mapOf(
-                        IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
-                        IDX_CARD_BALANCE to newState,
-                        IDX_WITHDRAWAL_LOCKS to newState.lock,
-                        IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
-                    )
-                !withdrawalLockEnabled && isDisplayListEmpty ->
-                    mapOf(
-                        IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
-                        IDX_CARD_BALANCE to newState,
-                        IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
-                    )
-                withdrawalLockEnabled && !isDisplayListEmpty ->
-                    mapOf(
-                        IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
-                        IDX_CARD_BALANCE to newState,
-                        IDX_WITHDRAWAL_LOCKS to newState.lock,
-                        IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
-                            newState.fiatAssets
-                        } else {
-                            get(IDX_FUNDS_BALANCE)
-                        }
-                    )
-                else -> // WITHDRAWAL_LOCKS disabled AND NOT displayList.isEmpty()
-                    mapOf(
-                        IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
-                        IDX_CARD_BALANCE to newState,
-                        IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
-                            newState.fiatAssets
-                        } else {
-                            get(IDX_FUNDS_BALANCE - 1) // TODO: Clean up once WITHDRAWAL_LOCKS is released
-                        }
-                    )
+            val newMap = if (isEmpty()) {
+                mapOf(
+                    IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
+                    IDX_CARD_BALANCE to newState,
+                    IDX_WITHDRAWAL_LOCKS to newState.locks,
+                    IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
+                )
+            } else {
+                mapOf(
+                    IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
+                    IDX_CARD_BALANCE to newState,
+                    IDX_WITHDRAWAL_LOCKS to newState.locks,
+                    IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
+                        newState.fiatAssets
+                    } else {
+                        get(IDX_FUNDS_BALANCE)
+                    }
+                )
             }
 
             // Add assets, sorted by fiat balance then alphabetically
-            val assets = newState.activeAssets.values.sortedWith(
+            val cryptoAssets = newState.activeAssets.values.sortedWith(
                 compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
                     .thenBy { it.currency.name }
             )
+            val fiatAssets = newState.fiatAssets.fiatAccounts
+
             if (useDynamicAssets) {
-                val hasBalanceOrIsLoading = newState.isLoadingAssets ||
-                    assets.any { it.fiatBalance?.isPositive == true }
-                binding.portfolioLayoutGroup.visibleIf { hasBalanceOrIsLoading }
-                binding.emptyPortfolioGroup.visibleIf { !hasBalanceOrIsLoading }
+                val dashboardLoading = newState.isLoadingAssets
+                val atLeastOneAssetIsLoading = cryptoAssets.any { it.isLoading }
+                val isLoading = dashboardLoading || atLeastOneAssetIsLoading
+
+                val atLeastOneCryptoAssetHasBalancePositive =
+                    cryptoAssets.any { it.accountBalance?.total?.isPositive == true }
+
+                val atLeastOneFiatAssetHasBalancePositive =
+                    fiatAssets.any { it.value.availableBalance?.isPositive == true }
+
+                val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
+
+                manageLoadingState(isLoading, showPortfolio)
+
+                val showBuyBottomButton = showPortfolio &&
+                    !isLoading &&
+                    !newState.buyButtonShouldBeHidden &&
+                    !newState.buyAccess.isBlockedDueToEligibility()
+
+                binding.buyCryptoBottomButton.configure(newState.buyAccess)
+
+                configureListAndBuyButton(showBuyBottomButton)
             }
             clear()
-            addAll(newMap.values + assets)
+            addAll(newMap.values + cryptoAssets)
         }
         theAdapter.notifyDataSetChanged()
+    }
+
+    private fun manageLoadingState(isLoading: Boolean, showPortfolio: Boolean) {
+        with(binding) {
+            when {
+                isLoading && showPortfolio -> {
+                    portfolioRecyclerView.visible()
+                    dashboardProgress.gone()
+                }
+                isLoading -> {
+                    portfolioRecyclerView.gone()
+                    emptyPortfolioGroup.gone()
+                    dashboardProgress.visible()
+                }
+                else -> {
+                    portfolioRecyclerView.visibleIf { showPortfolio }
+                    emptyPortfolioGroup.visibleIf { !showPortfolio }
+                    dashboardProgress.gone()
+                }
+            }
+        }
+    }
+
+    private fun configureListAndBuyButton(showBuyBottomButton: Boolean) {
+        with(binding) {
+            portfolioRecyclerView.configureWithPinnedButton(buyCryptoBottomButton, showBuyBottomButton)
+        }
+    }
+
+    private fun AppCompatButton.configure(buyAccess: FeatureAccess) {
+        when (buyAccess) {
+            is FeatureAccess.Unknown,
+            is FeatureAccess.NotRequested,
+            FeatureAccess.Granted -> {
+                setOnClickListener { navigator().launchBuySell() }
+            }
+            is FeatureAccess.Blocked -> {
+                val reason = buyAccess.reason
+                if (reason is BlockedReason.TooManyInFlightTransactions) {
+                    setOnClickListener { showPendingBuysBottomSheet(reason.maxTransactions) }
+                } else throw IllegalStateException("Button should not be accessible")
+            }
+        }
     }
 
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
@@ -339,7 +381,6 @@ class PortfolioFragment :
             "GBP" -> R.drawable.ic_funds_gbp
             else -> R.drawable.ic_funds_usd // show dollar if currency isn't selected
         }
-
         return KycBenefitsBottomSheet.newInstance(
             KycBenefitsBottomSheet.BenefitsDetails(
                 title = getString(R.string.fiat_funds_no_kyc_announcement_title),
@@ -366,6 +407,9 @@ class PortfolioFragment :
     private fun showAnnouncement(card: AnnouncementCard?) {
         displayList[IDX_CARD_ANNOUNCE] = card ?: EmptyDashboardItem()
         theAdapter.notifyItemChanged(IDX_CARD_ANNOUNCE)
+        card?.let {
+            binding.portfolioRecyclerView.smoothScrollToPosition(IDX_CARD_ANNOUNCE)
+        }
     }
 
     private fun updateAnalytics(oldState: DashboardState?, newState: DashboardState) {
@@ -394,9 +438,7 @@ class PortfolioFragment :
         setupRecycler()
         setupCtaButtons()
 
-        if (gatedFeatures.isFeatureEnabled(GatedFeature.WITHDRAWAL_LOCKS)) {
-            model.process(DashboardIntent.LoadWithdrawalLocks)
-        }
+        model.process(DashboardIntent.LoadFundsLocked)
 
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
@@ -424,7 +466,7 @@ class PortfolioFragment :
     }
 
     private fun setupRecycler() {
-        binding.recyclerView.apply {
+        binding.portfolioRecyclerView.apply {
             layoutManager = theLayoutManager
             adapter = theAdapter
 
@@ -435,7 +477,11 @@ class PortfolioFragment :
 
     private fun setupSwipeRefresh() {
         with(binding) {
-            swipe.setOnRefreshListener { model.process(DashboardIntent.RefreshAllBalancesIntent) }
+            swipe.setOnRefreshListener {
+                model.process(DashboardIntent.RefreshAllBalancesIntent(false))
+                model.process(DashboardIntent.GetUserCanBuy)
+                model.process(DashboardIntent.LoadFundsLocked)
+            }
 
             // Configure the refreshing colors
             swipe.setColorSchemeResources(
@@ -447,31 +493,34 @@ class PortfolioFragment :
         }
     }
 
+    // For the split dashboard, this onResume is called only once. When the fragment is created.
+    // To fix that we need to use a different PagerAdapter (FragmentStateAdapter) with the corresponding behavior
     override fun onResume() {
         super.onResume()
+        if (activeFiat != currencyPrefs.selectedFiatCurrency) {
+            activeFiat = currencyPrefs.selectedFiatCurrency
+            model.process(DashboardIntent.ResetDashboardAssets)
+        }
         if (isHidden) return
         compositeDisposable += actionEvent.subscribe {
             initOrUpdateAssets()
         }
 
-        (activity as? MainActivity)?.let {
-            compositeDisposable += it.refreshAnnouncements.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (announcements.enable()) {
-                        announcements.checkLatest(announcementHost, compositeDisposable)
-                    }
-                }
-        }
-
         announcements.checkLatest(announcementHost, compositeDisposable)
-
+        model.process(DashboardIntent.GetUserCanBuy)
         initOrUpdateAssets()
     }
 
+    // This method doesn't get called when we use the split portfolio/prices dashboard.
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) {
-            model.process(DashboardIntent.RefreshAllBalancesIntent)
+            model.process(
+                DashboardIntent.RefreshAllBalancesIntent(
+                    loadSilently = activeFiat == currencyPrefs.selectedFiatCurrency
+                )
+            )
+            activeFiat = currencyPrefs.selectedFiatCurrency
         }
     }
 
@@ -479,7 +528,7 @@ class PortfolioFragment :
         if (displayList.isEmpty()) {
             model.process(DashboardIntent.GetActiveAssets)
         } else {
-            model.process(DashboardIntent.RefreshAllBalancesIntent)
+            model.process(DashboardIntent.RefreshAllBalancesIntent(false))
         }
     }
 
@@ -501,7 +550,7 @@ class PortfolioFragment :
 
         when (requestCode) {
             MainActivity.SETTINGS_EDIT,
-            MainActivity.ACCOUNT_EDIT -> model.process(DashboardIntent.RefreshAllBalancesIntent)
+            MainActivity.ACCOUNT_EDIT -> model.process(DashboardIntent.RefreshAllBalancesIntent(false))
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
                     model.process(DashboardIntent.CheckBackupStatus(it.account, it.action))
@@ -542,11 +591,8 @@ class PortfolioFragment :
     }
 
     private fun onHoldAmountClicked(locks: Locks) {
-        require(locks.locks != null) { "Locks are null" }
-        val available = locks.available ?: FiatValue.zero(currencyPrefs.selectedFiatCurrency)
-        showBottomSheet(
-            LocksInfoBottomSheet.newInstance(available.toStringWithSymbol(), locks.locks)
-        )
+        require(locks.fundsLocks != null) { "funds are null" }
+        LocksDetailsActivity.start(requireContext(), locks.fundsLocks)
     }
 
     private val announcementHost = object : AnnouncementHost {
@@ -602,7 +648,8 @@ class PortfolioFragment :
         override fun startBuy() {
             analytics.logEvent(
                 BuySellClicked(
-                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellType.BUY
+                    origin = LaunchOrigin.DASHBOARD_PROMO,
+                    type = BuySellFragment.BuySellViewType.TYPE_BUY
                 )
             )
             navigator().launchBuySell()
@@ -611,7 +658,7 @@ class PortfolioFragment :
         override fun startSell() {
             analytics.logEvent(
                 BuySellClicked(
-                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellType.SELL
+                    origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellFragment.BuySellViewType.TYPE_SELL
                 )
             )
             navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
@@ -773,8 +820,27 @@ class PortfolioFragment :
         )
     }
 
-    override fun goToBuy(asset: AssetInfo) {
-        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+    override fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess) {
+        val blockedState = buyAccess as? FeatureAccess.Blocked
+        blockedState?.let {
+            when (val reason = it.reason) {
+                is BlockedReason.TooManyInFlightTransactions -> showPendingBuysBottomSheet(reason.maxTransactions)
+                BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
+            }.exhaustive
+        } ?: run {
+            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+        }
+    }
+
+    private fun showPendingBuysBottomSheet(pendingBuys: Int) {
+        BuyPendingOrdersBottomSheet.newInstance(pendingBuys).show(
+            childFragmentManager,
+            BuyPendingOrdersBottomSheet.TAG
+        )
+    }
+
+    override fun startActivityRequested() {
+        navigator().performAssetActionFor(AssetAction.ViewActivity)
     }
 
     // ForceBackupForSendSheet.Host
@@ -801,14 +867,14 @@ class PortfolioFragment :
             flowToLaunch: AssetAction? = null,
             fiatCurrency: String? = null
         ) = PortfolioFragment().apply {
-                arguments = Bundle().apply {
-                    putBoolean(USE_DYNAMIC_ASSETS, useDynamicAssets)
-                    if (flowToLaunch != null && fiatCurrency != null) {
-                        putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
-                        putString(FLOW_FIAT_CURRENCY, fiatCurrency)
-                    }
+            arguments = Bundle().apply {
+                putBoolean(USE_DYNAMIC_ASSETS, useDynamicAssets)
+                if (flowToLaunch != null && fiatCurrency != null) {
+                    putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
+                    putString(FLOW_FIAT_CURRENCY, fiatCurrency)
                 }
             }
+        }
 
         internal const val USE_DYNAMIC_ASSETS = "USE_DYNAMIC_ASSETS"
         internal const val FLOW_TO_LAUNCH = "FLOW_TO_LAUNCH"
@@ -821,11 +887,17 @@ class PortfolioFragment :
 
         const val BACKUP_FUNDS_REQUEST_CODE = 8265
     }
+
+    override fun onBecameVisible() {
+        /*
+        TODO: We need to update the balances also (Refresh Intent) but we need to find a way so we do that silently
+         and without making every rendered cell to be in a loading state again.
+        */
+        model.process(DashboardIntent.GetUserCanBuy)
+        model.process(DashboardIntent.LoadFundsLocked)
+    }
 }
 
-/**
- * supportsPredictiveItemAnimations = false to avoid crashes when computing changes.
- */
 internal class SafeLayoutManager(context: Context) : LinearLayoutManager(context) {
     override fun supportsPredictiveItemAnimations() = false
 }

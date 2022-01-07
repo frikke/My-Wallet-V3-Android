@@ -9,8 +9,8 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.schedulers.TestScheduler
-import org.junit.Test
 import kotlin.test.assertEquals
+import org.junit.Test
 
 class AnnouncementListTest {
 

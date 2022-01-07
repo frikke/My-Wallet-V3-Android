@@ -1,9 +1,8 @@
 package com.blockchain.sunriver
 
-import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should throw`
+import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.`with message`
 import org.junit.Test

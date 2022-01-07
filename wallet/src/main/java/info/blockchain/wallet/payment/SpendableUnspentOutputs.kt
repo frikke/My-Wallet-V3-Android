@@ -1,7 +1,6 @@
 package info.blockchain.wallet.payment
 
 import info.blockchain.wallet.payload.model.Utxo
-
 import java.math.BigInteger
 
 class SpendableUnspentOutputs(

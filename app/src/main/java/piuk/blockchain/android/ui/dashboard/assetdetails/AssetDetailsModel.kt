@@ -10,6 +10,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import info.blockchain.balance.Money
@@ -17,11 +18,11 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.Stack
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
-import java.util.Stack
 
 data class AssetDetailsState(
     val asset: CryptoAsset? = null,
@@ -40,6 +41,7 @@ data class AssetDetailsState(
     val navigateToInterestDashboard: Boolean = false,
     val selectedRecurringBuy: RecurringBuy? = null,
     val paymentId: String? = null,
+    val userBuyAccess: FeatureAccess = FeatureAccess.Unknown,
     val stepsBackStack: Stack<AssetDetailsStep> = Stack(),
     val prices24HrWithDelta: Prices24HrWithDelta? = null
 ) : MviState
@@ -87,6 +89,15 @@ class AssetDetailsModel(
                 )
             is ShowAssetActionsIntent -> accountActions(intent.account)
             is UpdateTimeSpan -> previousState.asset?.let { updateChartData(it, intent.updatedTimeSpan) }
+            is CheckUserBuyStatus -> interactor.userCanBuy().subscribeBy(
+                onSuccess = {
+                    process(UserBuyAccessUpdated(it))
+                },
+                onError = {
+                    // lets not block the user if check fails.
+                    process(UserBuyAccessUpdated(FeatureAccess.Granted))
+                }
+            )
             is LoadAsset -> {
                 updateChartData(intent.asset, previousState.timeSpan)
                 load24hPriceDelta(intent.asset)
@@ -127,6 +138,7 @@ class AssetDetailsModel(
             is UpdateRecurringBuyError,
             is UpdatePaymentDetails,
             is UpdatePriceDeltaDetails,
+            is UserBuyAccessUpdated,
             is UpdatePriceDeltaFailed -> null
         }
     }
@@ -177,7 +189,8 @@ class AssetDetailsModel(
                 },
                 onError = {
                     process(AssetDisplayDetailsFailed)
-                })
+                }
+            )
 
     private fun loadRecurringBuysForAsset(asset: CryptoAsset): Disposable =
         interactor.loadRecurringBuysForAsset(asset.asset)

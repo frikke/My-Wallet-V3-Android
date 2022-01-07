@@ -18,7 +18,8 @@ class CardNumberEditText : CardEditText, KoinComponent {
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
         context,
         attrs,
-        defStyle) {
+        defStyle
+    ) {
     }
 
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
@@ -44,11 +45,13 @@ class CardNumberEditText : CardEditText, KoinComponent {
     }
 
     private fun updateIcon(frontResource: Int) {
-        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(this,
+        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            this,
             0,
             0,
             frontResource,
-            0)
+            0
+        )
     }
 
     override fun isValid(): Boolean {

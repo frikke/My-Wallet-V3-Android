@@ -1,33 +1,36 @@
 package piuk.blockchain.android.ui.login.auth
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
 import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.text.method.LinkMovementMethod
-import android.util.Base64
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.signin.UnifiedSignInEventListener
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
+import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.login.LoginAnalytics
+import piuk.blockchain.android.ui.login.PayloadHandler
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
@@ -45,7 +48,6 @@ import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicBoolean
 
 class LoginAuthActivity :
     MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>(),
@@ -56,13 +58,23 @@ class LoginAuthActivity :
 
     override val model: LoginAuthModel by scopedInject()
 
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
+
     private val crashLogger: CrashLogger by inject()
     private val walletPrefs: WalletStatus by inject()
 
     private lateinit var currentState: LoginAuthState
 
+    private val pollingPayload: LoginAuthInfo.ExtendedAccountInfo? by lazy {
+        intent.getSerializableExtra(POLLING_PAYLOAD) as? LoginAuthInfo.ExtendedAccountInfo
+    }
+
+    private val base64EncodedPayload: String by lazy {
+        intent.getStringExtra(BASE_64_ENCODED_PAYLOAD).orEmpty()
+    }
+
     private var willUnifyAccount: Boolean = false
-    private var isAccountRecoveryEnabled: Boolean = false
     private var email: String = ""
     private var userId: String = ""
     private var recoveryToken: String = ""
@@ -88,6 +100,10 @@ class LoginAuthActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        loadToolbar(
+            titleToolbar = getString(R.string.login_title),
+            backAction = { clearKeyboardAndFinish() }
+        )
         initControls()
     }
 
@@ -105,36 +121,32 @@ class LoginAuthActivity :
     private fun processIntentData() {
         analytics.logEvent(LoginAnalytics.DeviceVerified(analyticsInfo))
 
-        val fragment = intent.data?.fragment ?: kotlin.run {
-            model.process(LoginAuthIntents.ShowAuthRequired)
-            return
-        }
+        val payload = pollingPayload
+        val data = PayloadHandler.getDataFromIntent(intent)
 
-        // Two possible cases here, string is either a GUID or a base64 that we need to decode.
-        val data = fragment.substringAfterLast(LINK_DELIMITER)
-        if (data.isValidGuid()) {
-            model.process(LoginAuthIntents.ShowManualPairing(data))
-        } else {
-            decodeBase64Payload(data)
+        // data from the intent is either a GUID or a base64 from deep-linking that we need to decode.
+        val loginAuthIntent = when {
+            payload != null -> LoginAuthIntents.GetSessionId(payload)
+            data == null -> LoginAuthIntents.ShowAuthRequired
+            data.isValidGuid() -> LoginAuthIntents.ShowManualPairing(data)
+            else -> decodeBase64PayloadToIntent(data)
         }
+        model.process(loginAuthIntent)
     }
 
-    private fun decodeBase64Payload(data: String) {
-        val json: String = try {
-            decodeToJsonString(data)
+    private fun decodeBase64PayloadToIntent(data: String) =
+        try {
+            val json = PayloadHandler.decodeToJsonString(data)
+            LoginAuthIntents.InitLoginAuthInfo(json)
         } catch (ex: Exception) {
             Timber.e(ex)
             crashLogger.logException(ex)
             // Fall back to legacy manual pairing
-            model.process(LoginAuthIntents.ShowManualPairing(null))
-            return
+            LoginAuthIntents.ShowManualPairing(null)
         }
-        model.process(LoginAuthIntents.InitLoginAuthInfo(json))
-    }
 
     private fun initControls() {
         with(binding) {
-            backButton.setOnClickListener { clearKeyboardAndFinish() }
             passwordText.addTextChangedListener(object : AfterTextChangedWatcher() {
                 override fun afterTextChanged(s: Editable) {
                     passwordTextLayout.clearErrorState()
@@ -299,15 +311,28 @@ class LoginAuthActivity :
 
     private fun showUnificationUI() {
         with(binding) {
-            unifiedSignInWebview.initWebView(object : UnifiedSignInEventListener {
-                override fun onLoaded() {
-                    progressBar.gone()
-                }
+            unifiedSignInWebview.initWebView(
+                object : UnifiedSignInEventListener {
+                    override fun onLoaded() {
+                        progressBar.gone()
+                    }
 
-                override fun onError(error: String) {
-                    // TODO nothing for now
-                }
-            })
+                    override fun onFatalError(error: Throwable) {
+                        // TODO nothing for now
+                    }
+
+                    override fun onTimeout() {
+                        // TODO show timeout message?
+                    }
+
+                    override fun onAuthComplete() {
+                        progressBar.visible()
+                        unifiedSignInWebview.gone()
+                        model.process(LoginAuthIntents.ShowAuthComplete)
+                    }
+                },
+                UNIFICATION_WALLET_URL, base64EncodedPayload
+            )
 
             unifiedSignInWebview.visible()
             progressBar.visible()
@@ -434,46 +459,26 @@ class LoginAuthActivity :
         startActivity(intent)
     }
 
-    private fun decodeToJsonString(payload: String): String {
-        val urlSafeEncodedData = payload.apply {
-            unEscapedCharactersMap.map { entry ->
-                replace(entry.key, entry.value)
-            }
-        }
-        val decodedData = tryDecode(urlSafeEncodedData.toByteArray(Charsets.UTF_8))
-        return String(decodedData)
-    }
-
-    private fun tryDecode(urlSafeEncodedData: ByteArray): ByteArray {
-        return try {
-            Base64.decode(
-                urlSafeEncodedData,
-                Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
-            )
-        } catch (ex: Exception) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // The getUrlDecoder() returns the URL_SAFE Base64 decoder
-                java.util.Base64.getUrlDecoder().decode(urlSafeEncodedData)
-            } else {
-                throw ex
-            }
-        }
-    }
-
     companion object {
+        fun newInstance(
+            context: Activity,
+            pollingPayload: LoginAuthInfo.ExtendedAccountInfo,
+            base64EncodedPayload: String
+        ): Intent =
+            Intent(context, LoginAuthActivity::class.java).apply {
+                putExtra(POLLING_PAYLOAD, pollingPayload)
+                putExtra(BASE_64_ENCODED_PAYLOAD, base64EncodedPayload)
+            }
+
         const val LINK_DELIMITER = "/login/"
+        private const val POLLING_PAYLOAD = "POLLING_PAYLOAD"
+        private const val BASE_64_ENCODED_PAYLOAD = "BASE_64_ENCODED_PAYLOAD"
         private const val EMAIL = "email"
         private const val USER_ID = "user_id"
         private const val RECOVERY_TOKEN = "recovery_token"
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
-
-        private val unEscapedCharactersMap = mapOf(
-            "%2B" to "+",
-            "%2F" to "/",
-            "%2b" to "+",
-            "%2f" to "/"
-        )
+        private const val UNIFICATION_WALLET_URL = "${BuildConfig.WEB_WALLET_URL}?product=wallet&platform=android"
     }
 }

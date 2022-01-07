@@ -39,7 +39,6 @@ class KycEmailEntryFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        emailEntryHost.onEmailEntryFragmentShown()
 
         if (emailMustBeValidated && savedInstanceState == null) {
             model.process(EmailVeriffIntent.ResendEmail)
@@ -60,32 +59,51 @@ class KycEmailEntryFragment :
     override val model: EmailVeriffModel by scopedInject()
 
     override fun render(newState: EmailVeriffState) {
+        if (newState.isRedesignEnabled) {
+            emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = true) {
+                emailEntryHost.onEmailVerificationSkipped()
+                emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = false)
+            }
+            binding.skip.gone()
+        } else {
+            emailEntryHost.onEmailEntryFragmentShown()
+            binding.skip.visible()
+        }
+
         when {
-            !newState.email.isVerified -> drawUnVerifiedEmailUi(newState.email)
-            newState.email.isVerified -> drawVerifiedEmailUi()
-            newState.emailChanged -> drawUnVerifiedEmailUi(newState.email)
-            newState.hasError -> drawErrorMessage()
+            !newState.email.isVerified -> drawUnVerifiedEmailUi(newState.email, newState.isRedesignEnabled)
+            newState.email.isVerified -> drawVerifiedEmailUi(newState.isRedesignEnabled)
+            newState.emailChanged -> drawUnVerifiedEmailUi(newState.email, newState.isRedesignEnabled)
+            newState.hasError -> drawErrorMessage(newState.isRedesignEnabled)
             else -> throw IllegalStateException("Not a valid state")
         }
     }
 
-    private fun drawErrorMessage() {
+    private fun drawErrorMessage(isRedesignEnabled: Boolean) {
         with(binding) {
             txStateIndicator.setImageResource(R.drawable.ic_alert_white_bkgd)
             emailStatusText.text = getString(R.string.error_email_veriff_title)
             emailInstructions.text = getString(R.string.error_email_veriff)
-            skip.gone()
+            if (isRedesignEnabled) {
+                emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = false)
+            } else {
+                skip.gone()
+            }
         }
         setUpPrimaryCta()
         setUpSecondaryCta()
         model.process(EmailVeriffIntent.StartEmailVerification)
     }
 
-    private fun drawVerifiedEmailUi() {
+    private fun drawVerifiedEmailUi(isRedesignEnabled: Boolean) {
         with(binding) {
             emailInstructions.text = getString(R.string.success_email_veriff)
             emailStatusText.text = getString(R.string.email_verified)
-            skip.gone()
+            if (isRedesignEnabled) {
+                emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = false)
+            } else {
+                skip.gone()
+            }
             txStateIndicator.setImageResource(R.drawable.ic_check_circle)
             txStateIndicator.visible()
             ctaPrimary.apply {
@@ -99,7 +117,7 @@ class KycEmailEntryFragment :
         }
     }
 
-    private fun drawUnVerifiedEmailUi(email: Email) {
+    private fun drawUnVerifiedEmailUi(email: Email, isRedesignEnabled: Boolean) {
         val boldText = email.address.takeIf { it.isNotEmpty() } ?: return
         val partOne = getString(R.string.email_verification_part_1)
         val partTwo = getString(R.string.email_verification_part_2)
@@ -117,7 +135,14 @@ class KycEmailEntryFragment :
         with(binding) {
             emailInstructions.setText(sb, TextView.BufferType.SPANNABLE)
             emailStatusText.text = getString(R.string.email_verify)
-            skip.visibleIf { !emailMustBeValidated }
+            if (isRedesignEnabled) {
+                if (emailMustBeValidated) {
+                    emailEntryHost.onRedesignEmailEntryFragmentUpdated(shouldShowButton = false)
+                }
+                skip.gone()
+            } else {
+                skip.visibleIf { !emailMustBeValidated }
+            }
             txStateIndicator.gone()
         }
         setUpPrimaryCta()
@@ -171,6 +196,7 @@ class KycEmailEntryFragment :
 
 interface EmailEntryHost {
     fun onEmailEntryFragmentShown()
+    fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit = {})
     fun onEmailVerified()
     fun onEmailVerificationSkipped()
 }

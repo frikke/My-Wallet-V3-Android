@@ -1,11 +1,11 @@
 package com.blockchain.utils
 
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should throw`
-import org.junit.Test
 import java.math.BigDecimal
 import java.text.ParseException
 import java.util.Locale
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should throw`
+import org.junit.Test
 
 class BigDecimalParsingTest {
 

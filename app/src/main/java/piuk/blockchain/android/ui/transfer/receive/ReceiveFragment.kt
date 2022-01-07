@@ -110,7 +110,8 @@ class ReceiveFragment : MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, F
                 if (type == KycUpgradePromptManager.Type.NONE) {
                     ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
                 } else {
-                    KycUpgradePromptManager.getUpsellSheet(type).show(childFragmentManager,
+                    KycUpgradePromptManager.getUpsellSheet(type).show(
+                        childFragmentManager,
                         BOTTOM_SHEET
                     )
                 }

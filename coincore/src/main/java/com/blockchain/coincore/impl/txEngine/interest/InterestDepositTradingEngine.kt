@@ -1,13 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
@@ -22,6 +15,14 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 class InterestDepositTradingEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -48,7 +49,9 @@ class InterestDepositTradingEngine(
             val cryptoAsset = limits.cryptoCurrency
             PendingTx(
                 amount = CryptoValue.zero(sourceAsset),
-                minLimit = limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset),
+                limits = TxLimits.withMinAndUnlimitedMax(
+                    limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset)
+                ),
                 feeSelection = FeeSelection(),
                 selectedFiat = userFiat,
                 availableBalance = balance,
@@ -120,10 +123,12 @@ class InterestDepositTradingEngine(
 
     private fun checkIfAmountIsBelowMinLimit(pendingTx: PendingTx) =
         when {
-            pendingTx.minLimit == null -> {
+            pendingTx.limits == null -> {
                 throw TxValidationFailure(ValidationState.UNINITIALISED)
             }
-            pendingTx.amount < pendingTx.minLimit -> throw TxValidationFailure(ValidationState.UNDER_MIN_LIMIT)
+            pendingTx.isMinLimitViolated() -> throw TxValidationFailure(
+                ValidationState.UNDER_MIN_LIMIT
+            )
             else -> Completable.complete()
         }
 

@@ -1,29 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.sell
 
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.datamanagers.CurrencyPair
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import org.amshove.kluent.shouldBeEqualTo
-
-import org.junit.Before
-import org.junit.Test
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -36,7 +12,36 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.TransferLimits
+import com.blockchain.nabu.models.responses.nabu.NabuApiException
+import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
+import com.blockchain.testutils.bitcoin
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import org.amshove.kluent.shouldBeEqualTo
+import org.junit.Before
+import org.junit.Test
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class TradingSellTxEngineTest : CoincoreTestBase() {
@@ -45,11 +50,24 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
     private val quotesEngine: TransferQuotesEngine = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val userIdentity: UserIdentity = mock()
+    private val limitsDataManager: LimitsDataManager = mock {
+        on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
+            Single.just(
+                TxLimits(
+                    min = TxLimit.Limited(MIN_GOLD_LIMIT_ASSET),
+                    max = TxLimit.Limited(MAX_GOLD_LIMIT_ASSET),
+                    periodicLimits = emptyList(),
+                    suggestedUpgrade = null
+                )
+            )
+        )
+    }
 
     private val subject = TradingSellTxEngine(
         walletManager = walletManager,
         quotesEngine = quotesEngine,
-        userIdentity = userIdentity
+        userIdentity = userIdentity,
+        limitsDataManager = limitsDataManager
     )
 
     @Before
@@ -196,8 +214,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_GOLD_LIMIT_ASSET &&
-                    it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
+                    it.limits == TxLimits.fromAmounts(min = MIN_GOLD_LIMIT_ASSET, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -211,7 +228,6 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
         verifyQuotesEngineStarted()
         verify(quotesEngine).pricedQuote
         verifyLimitsFetched()
-        verify(exchangeRates).getLastCryptoToFiatRate(SRC_ASSET, TEST_API_FIAT)
 
         noMoreInteractions(txTarget)
     }
@@ -250,8 +266,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == null &&
-                    it.maxLimit == null &&
+                    it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()
             }
@@ -507,6 +522,14 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
 
     private fun verifyLimitsFetched() {
         verify(walletManager).getProductTransferLimits(TEST_API_FIAT, Product.SELL, TransferDirection.INTERNAL)
+        verify(limitsDataManager).getLimits(
+            outputCurrency = eq(SRC_ASSET.networkTicker),
+            sourceCurrency = eq(SRC_ASSET.networkTicker),
+            targetCurrency = eq(TEST_API_FIAT),
+            sourceAccountType = eq(AssetCategory.CUSTODIAL),
+            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            legacyLimits = any()
+        )
     }
 
     private fun verifyQuotesEngineStarted() {

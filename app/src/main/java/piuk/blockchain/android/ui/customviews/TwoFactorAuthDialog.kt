@@ -44,7 +44,8 @@ fun getTwoFactorDialog(
 
     if (authType == Settings.AUTH_TYPE_SMS) {
         builder.setNeutralButton(
-            context.getString(R.string.two_factor_resend_sms, walletPrefs.resendSmsRetries)) { _, _ ->
+            context.getString(R.string.two_factor_resend_sms, walletPrefs.resendSmsRetries)
+        ) { _, _ ->
             if (walletPrefs.resendSmsRetries > 0) {
                 walletPrefs.setResendSmsRetries(walletPrefs.resendSmsRetries - 1)
             }

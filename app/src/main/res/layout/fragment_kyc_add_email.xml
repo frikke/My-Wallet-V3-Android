@@ -30,6 +30,7 @@
         android:focusable="true"
         android:text="@string/common_skip"
         android:textAllCaps="true"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -74,10 +75,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/small_margin"
-        tools:text="@string/edit_email_address"
         app:layout_constraintBottom_toTopOf="@+id/cta_secondary"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="@string/edit_email_address" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/cta_secondary"
@@ -85,8 +86,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
-        tools:text="@string/edit_email_address"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="@string/edit_email_address" />
 </androidx.constraintlayout.widget.ConstraintLayout>

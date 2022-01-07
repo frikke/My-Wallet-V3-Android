@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.home.analytics
 
-import piuk.blockchain.android.R
 import com.blockchain.notifications.analytics.AnalyticsEvent
+import piuk.blockchain.android.R
 
 data class SideNavEvent(private val menuItemId: Int) : AnalyticsEvent {
     override val event: String

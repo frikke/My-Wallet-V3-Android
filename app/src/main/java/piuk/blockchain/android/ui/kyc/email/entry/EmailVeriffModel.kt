@@ -5,6 +5,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
@@ -23,22 +24,31 @@ class EmailVeriffModel(
                 onSuccess = {
                     process(EmailVeriffIntent.EmailUpdated(it))
                 }, onError = {
-                    process(EmailVeriffIntent.ErrorEmailVerification)
-                }
+                process(EmailVeriffIntent.ErrorEmailVerification)
+            }
             )
             EmailVeriffIntent.CancelEmailVerification -> interactor.cancelPolling().subscribeBy(
                 onComplete = {},
                 onError = {}
             )
-            EmailVeriffIntent.StartEmailVerification -> interactor.fetchEmail().flatMapObservable {
-                if (!it.isVerified) {
-                    interactor.pollForEmailStatus().toObservable().startWithItem(it)
-                } else Observable.just(it)
-            }.subscribeBy(onNext = {
-                process(EmailVeriffIntent.EmailUpdated(it))
-            }, onError = {
-                process(EmailVeriffIntent.ErrorEmailVerification)
-            })
+            EmailVeriffIntent.StartEmailVerification ->
+                interactor.fetchEmail().zipWith(
+                    interactor.isRedesignEnabled()
+                ).doOnSuccess { (_, enabled) ->
+                    process(EmailVeriffIntent.UpdateRedesignState(enabled))
+                }.flatMapObservable { (email, _) ->
+                    if (!email.isVerified) {
+                        interactor.pollForEmailStatus().toObservable().startWithItem(email)
+                    } else {
+                        Observable.just(email)
+                    }
+                }.subscribeBy(
+                    onNext = {
+                        process(EmailVeriffIntent.EmailUpdated(it))
+                    }, onError = {
+                    process(EmailVeriffIntent.ErrorEmailVerification)
+                }
+                )
 
             EmailVeriffIntent.ResendEmail -> interactor.fetchEmail().flatMap { interactor.resendEmail(it.address) }
                 .subscribeBy(onSuccess = {

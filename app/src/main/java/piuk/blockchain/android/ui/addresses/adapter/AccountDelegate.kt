@@ -5,10 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.CryptoAccount
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
-import com.blockchain.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.ItemAccountsRowBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
@@ -84,7 +84,7 @@ class DefaultAccountCellDecorator(private val account: CryptoAccount) : CellDeco
         Maybe.just(
             LayoutInflater.from(context)
                 .inflate(R.layout.decorator_account_default, null, false)
-            )
+        )
 
     override fun isEnabled(): Single<Boolean> = Single.just(true)
 }

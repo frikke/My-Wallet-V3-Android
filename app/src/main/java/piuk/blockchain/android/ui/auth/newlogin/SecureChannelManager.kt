@@ -10,14 +10,14 @@ import info.blockchain.wallet.payload.PayloadManager
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.nio.charset.Charset
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import piuk.blockchain.androidcore.utils.pubKeyHash
 import timber.log.Timber
-import java.nio.charset.Charset
-import java.util.concurrent.TimeUnit
 
 class SecureChannelManager(
     private val secureChannelPrefs: SecureChannelPrefs,

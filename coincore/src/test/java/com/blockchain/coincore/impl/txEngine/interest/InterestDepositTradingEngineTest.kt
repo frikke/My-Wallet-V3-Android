@@ -1,6 +1,13 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
+import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
@@ -17,12 +24,6 @@ import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
-import com.blockchain.coincore.testutil.CoincoreTestBase
 
 class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
@@ -132,8 +133,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_DEPOSIT_AMOUNT_CRYPTO &&
-                    it.maxLimit == null &&
+                    it.limits == TxLimits.withMinAndUnlimitedMax(MIN_DEPOSIT_AMOUNT_CRYPTO) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }

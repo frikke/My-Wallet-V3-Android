@@ -1,6 +1,17 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxResult
+import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
+import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -16,19 +27,10 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.TxConfirmationValue
-import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
-import com.blockchain.coincore.testutil.CoincoreTestBase
-import java.math.BigInteger
 
 class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
@@ -40,6 +42,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
     private val interestBalances: InterestBalanceDataManager = mock()
 
     private lateinit var subject: InterestWithdrawOnChainTxEngine
+    val txResult: TxResult = mock()
 
     @Before
     fun setUp() {
@@ -145,8 +148,8 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == CryptoValue.fromMinor(ASSET, fees.minLimit) &&
-                    it.maxLimit == MAX_WITHDRAW_AMOUNT_CRYPTO &&
+                    it.limits ==
+                    TxLimits.fromAmounts(CryptoValue.fromMinor(ASSET, fees.minLimit), MAX_WITHDRAW_AMOUNT_CRYPTO) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
@@ -240,7 +243,18 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
         val money = CryptoValue.fromMajor(ASSET, 10.toBigDecimal())
         val mockPendingTx =
-            PendingTx(money, money, money, money, money, FeeSelection(), "USD", listOf(), money, money)
+            PendingTx(
+                txResult,
+                money,
+                money,
+                money,
+                money,
+                money,
+                FeeSelection(),
+                "USD",
+                listOf(),
+                TxLimits.fromAmounts(money, money)
+            )
 
         // Act
         subject.doBuildConfirmations(mockPendingTx)

@@ -1,6 +1,7 @@
 package info.blockchain.wallet.api
 
 import com.blockchain.api.ApiException
+import com.blockchain.utils.withBearerPrefix
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -12,11 +13,11 @@ import info.blockchain.wallet.api.data.WalletOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.net.URLEncoder
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
 import retrofit2.Call
 import retrofit2.Response
-import java.net.URLEncoder
 
 class WalletApi(
     private val explorerInstance: WalletExplorerEndpoints,
@@ -307,10 +308,24 @@ class WalletApi(
         )
     }
 
+    fun getDeeplinkPayload(
+        sessionId: String
+    ): Single<ResponseBody> = explorerInstance.getDeeplinkPayload(
+        sessionId = sessionId.withBearerPrefix()
+    )
+
+    fun updateLoginApprovalStatus(
+        sessionId: String,
+        payload: String,
+        confirmDevice: Boolean
+    ): Completable = explorerInstance.updateDeeplinkApprovalStatus(
+        method = "authorize-verify-device",
+        sessionId = sessionId,
+        payload = payload,
+        confirmDevice = confirmDevice
+    )
+
     private fun getApiCode(): String {
         return apiCode.apiCode
     }
-
-    private fun String.withBearerPrefix() =
-        "Bearer $this"
 }

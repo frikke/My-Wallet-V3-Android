@@ -59,8 +59,8 @@ class SmallBalanceView @JvmOverloads constructor(
             state.fiatRate?.let { rate ->
                 binding.maxAvailableValue.text =
                     "${rate.convert(availableBalance).toStringWithSymbol()} " +
-                        "(${availableBalance.toStringWithSymbol()})"
-                }
+                    "(${availableBalance.toStringWithSymbol()})"
+            }
         }
     }
 

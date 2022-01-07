@@ -2,20 +2,21 @@ package piuk.blockchain.android.ui.transfer.send
 
 import android.os.Bundle
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContracts
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.LaunchOrigin
-import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.BuySellClicked
-import piuk.blockchain.android.simplebuy.BuySellType
+import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
+import piuk.blockchain.android.ui.locks.LocksDetailsActivity
+import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.transactionflow.analytics.SendAnalyticsEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -26,9 +27,6 @@ class TransferSendFragment : AccountSelectorFragment() {
 
     private val analytics: Analytics by inject()
     private val compositeDisposable = CompositeDisposable()
-    private val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        refreshItems(showLoader = false)
-    }
 
     override val fragmentAction: AssetAction
         get() = AssetAction.Send
@@ -50,7 +48,12 @@ class TransferSendFragment : AccountSelectorFragment() {
             R.string.transfer_wallet_buy_crypto
         ) {
             analytics.logEvent(TransferAnalyticsEvent.NoBalanceCtaClicked)
-            analytics.logEvent(BuySellClicked(origin = LaunchOrigin.SEND, type = BuySellType.BUY))
+            analytics.logEvent(
+                BuySellClicked(
+                    origin = LaunchOrigin.SEND,
+                    type = BuySellFragment.BuySellViewType.TYPE_BUY
+                )
+            )
             (activity as? HomeNavigator)?.launchBuySell()
         }
 
@@ -59,7 +62,8 @@ class TransferSendFragment : AccountSelectorFragment() {
             onAccountSelected = ::doOnAccountSelected,
             title = R.string.transfer_send_crypto_title,
             label = R.string.transfer_send_crypto_label,
-            icon = R.drawable.ic_send_blue_circle
+            icon = R.drawable.ic_send_blue_circle,
+            onExtraAccountInfoClicked = ::onExtraAccountInfoClicked
         )
     }
 
@@ -85,8 +89,13 @@ class TransferSendFragment : AccountSelectorFragment() {
         startTransactionFlow(account)
     }
 
+    private fun onExtraAccountInfoClicked(accountLocks: AccountLocks) {
+        require(accountLocks.fundsLocks != null) { "fundsLocks are null" }
+        LocksDetailsActivity.start(requireContext(), accountLocks.fundsLocks)
+    }
+
     private fun startTransactionFlow(fromAccount: CryptoAccount) {
-        startActivityForResult.launch(
+        startActivity(
             TransactionFlowActivity.newInstance(
                 context = requireActivity(),
                 sourceAccount = fromAccount,

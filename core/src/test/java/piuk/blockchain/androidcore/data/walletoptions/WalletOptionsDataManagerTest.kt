@@ -7,13 +7,13 @@ import info.blockchain.wallet.api.data.AndroidUpgrade
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.api.data.WalletOptions
 import io.reactivex.rxjava3.core.Observable
+import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import kotlin.test.assertEquals
 
 class WalletOptionsDataManagerTest {
 

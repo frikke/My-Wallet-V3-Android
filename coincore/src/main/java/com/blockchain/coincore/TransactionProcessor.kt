@@ -3,6 +3,7 @@ package com.blockchain.coincore
 import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.replace
@@ -41,6 +42,7 @@ enum class ValidationState {
     PENDING_ORDERS_LIMIT_REACHED,
     OVER_SILVER_TIER_LIMIT,
     OVER_GOLD_TIER_LIMIT,
+    ABOVE_PAYMENT_METHOD_LIMIT,
     INVOICE_EXPIRED,
     UNKNOWN_ERROR
 }
@@ -71,6 +73,7 @@ data class FeeSelection(
 )
 
 data class PendingTx(
+    val txResult: TxResult? = null,
     val amount: Money,
     val totalBalance: Money,
     val availableBalance: Money,
@@ -79,8 +82,7 @@ data class PendingTx(
     val feeSelection: FeeSelection,
     val selectedFiat: String,
     val confirmations: List<TxConfirmationValue> = emptyList(),
-    val minLimit: Money? = null,
-    val maxLimit: Money? = null,
+    val limits: TxLimits? = null,
     val validationState: ValidationState = ValidationState.UNINITIALISED,
     val engineState: Map<String, Any> = emptyMap()
 ) {
@@ -114,6 +116,12 @@ data class PendingTx(
                 opts.toList()
             }
         )
+
+    internal fun isMinLimitViolated(): Boolean =
+        limits?.isMinViolatedByAmount(amount) ?: throw IllegalStateException("Limits are undefined")
+
+    internal fun isMaxLimitViolated() =
+        limits?.isMaxViolatedByAmount(amount) ?: throw IllegalStateException("Limits are undefined")
 }
 
 enum class TxConfirmation {
@@ -436,7 +444,9 @@ class TransactionProcessor(
         when (this) {
             ValidationState.CAN_EXECUTE -> {
                 engine.doExecute(pendingTx, secondPassword).flatMapCompletable { result ->
-                    engine.doPostExecute(pendingTx, result)
+                    val updatedPendingTransaction = pendingTx.copy(txResult = result)
+                    updatePendingTx(updatedPendingTransaction)
+                    engine.doPostExecute(updatedPendingTransaction, result)
                 }
             }
             ValidationState.UNINITIALISED -> Completable.error(TransactionError.UnexpectedError)
@@ -451,6 +461,7 @@ class TransactionProcessor(
             ValidationState.UNDER_MIN_LIMIT -> Completable.error(TransactionError.OrderBelowMin)
             ValidationState.PENDING_ORDERS_LIMIT_REACHED ->
                 Completable.error(TransactionError.OrderLimitReached)
+            ValidationState.ABOVE_PAYMENT_METHOD_LIMIT,
             ValidationState.OVER_SILVER_TIER_LIMIT,
             ValidationState.OVER_GOLD_TIER_LIMIT -> Completable.error(TransactionError.OrderAboveMax)
             ValidationState.INVOICE_EXPIRED -> Completable.error(TransactionError.UnexpectedError)
@@ -517,7 +528,9 @@ private fun updateOptionsWithValidityWarning(pendingTx: PendingTx): PendingTx =
         pendingTx.addOrReplaceOption(
             TxConfirmationValue.ErrorNotice(
                 status = pendingTx.validationState,
-                money = if (pendingTx.validationState == ValidationState.UNDER_MIN_LIMIT) pendingTx.minLimit else null
+                money = if (pendingTx.validationState == ValidationState.UNDER_MIN_LIMIT)
+                    pendingTx.limits?.minAmount
+                else null
             )
         )
     } else {

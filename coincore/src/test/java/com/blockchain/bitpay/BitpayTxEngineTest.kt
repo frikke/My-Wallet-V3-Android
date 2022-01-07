@@ -1,5 +1,17 @@
 package com.blockchain.bitpay
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.FeeSelection
+import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.btc.BtcCryptoWalletAccount
+import com.blockchain.coincore.btc.BtcOnChainTxEngine
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoin
@@ -18,18 +30,6 @@ import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.FeeLevel
-import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.btc.BtcOnChainTxEngine
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.testutil.CoincoreTestBase
 
 @Suppress("SameParameterValue")
 class BitpayTxEngineTest : CoincoreTestBase() {

@@ -7,6 +7,7 @@ include ':app',
         ':common:network',
         ':coincore',
         ':core',
+        ':payments',
         ':sunriver',
         ':testutils',
         ':testutils-android',
@@ -16,3 +17,5 @@ include ':app',
         ':common-mp:interface',
         ':biometrics',
         ':common-view'
+include ':blockchain-component-library-catalog',
+        ':componentlib'

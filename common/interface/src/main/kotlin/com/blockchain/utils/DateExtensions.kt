@@ -1,6 +1,5 @@
 package com.blockchain.utils
 
-import org.apache.commons.lang3.time.DateUtils
 import java.math.BigInteger
 import java.text.DateFormat
 import java.text.ParseException
@@ -15,6 +14,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.ceil
+import org.apache.commons.lang3.time.DateUtils
 
 /**
  * Converts a [String] from an ISO 8601 date to a [Date] object. The receiving [String] can specify
@@ -71,10 +71,10 @@ fun ZonedDateTime.isLastDayOfTheMonth(): Boolean {
 fun Date.toFormattedDateWithoutYear(): String {
     val zonedDateTime = ZonedDateTime.ofInstant(this.toInstant(), ZoneId.systemDefault())
     return "${
-        zonedDateTime.dayOfWeek.getDisplayName(
-            TextStyle.SHORT,
-            Locale.getDefault()
-        ).toString().capitalizeFirstChar()
+    zonedDateTime.dayOfWeek.getDisplayName(
+        TextStyle.SHORT,
+        Locale.getDefault()
+    ).toString().capitalizeFirstChar()
     }, " +
         "${zonedDateTime.month.toString().capitalizeFirstChar()} " +
         "${zonedDateTime.dayOfMonth}"

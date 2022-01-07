@@ -1,27 +1,27 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.testutils.rxInit
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
-import com.nhaarman.mockitokotlin2.mock
-import info.blockchain.balance.AssetCategory
-import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import java.util.Locale
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.AccountGroup
-import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.CryptoAsset
-import java.util.Locale
 
 class AssetDetailsInteractorTest {
 
@@ -44,7 +44,7 @@ class AssetDetailsInteractorTest {
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
     }
 
-    private val subject = AssetDetailsInteractor(mock(), mock(), mock())
+    private val subject = AssetDetailsInteractor(mock(), mock(), mock(), mock())
 
     @Before
     fun setUp() {

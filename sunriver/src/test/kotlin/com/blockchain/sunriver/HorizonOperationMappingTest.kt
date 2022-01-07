@@ -4,17 +4,15 @@ import com.blockchain.testutils.lumens
 import com.blockchain.testutils.stroops
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-
+import java.util.Locale
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should throw`
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import org.stellar.sdk.responses.TransactionResponse
 import org.stellar.sdk.responses.operations.CreateAccountOperationResponse
 import org.stellar.sdk.responses.operations.ManageDataOperationResponse
 import org.stellar.sdk.responses.operations.PaymentOperationResponse
-import java.util.Locale
 
 class HorizonOperationMappingTest {
 
@@ -35,13 +33,16 @@ class HorizonOperationMappingTest {
     fun `map payment operation where account is the receiver`() {
         val myAccount = "GDCERC7BR5N6NFK5B74XTTTA5OLC3YPWODQ5CHKRCRU6IVXFYP364JG7"
         val otherAccount = "GBPF72LVHGENTAC6JCBDU6KG6GNTQIHTTIYZGURQQL3CWXEBVNSUVFPL"
-        mapOperationResponse(mock<PaymentOperationResponse> {
-            on { from }.thenReturn(otherAccount)
-            on { to }.thenReturn(myAccount)
-            on { transactionHash }.thenReturn("ABCD")
-            on { createdAt }.thenReturn("TIME")
-            on { amount }.thenReturn(50.lumens().toStringWithoutSymbol())
-        }, myAccount, givenHorizonProxy(100))
+        mapOperationResponse(
+            mock<PaymentOperationResponse> {
+                on { from }.thenReturn(otherAccount)
+                on { to }.thenReturn(myAccount)
+                on { transactionHash }.thenReturn("ABCD")
+                on { createdAt }.thenReturn("TIME")
+                on { amount }.thenReturn(50.lumens().toStringWithoutSymbol())
+            },
+            myAccount, givenHorizonProxy(100)
+        )
             .apply {
                 hash `should be equal to` "ABCD"
                 timeStamp `should be equal to` "TIME"
@@ -56,13 +57,16 @@ class HorizonOperationMappingTest {
     fun `map payment operation where account is the sender`() {
         val myAccount = "GDCERC7BR5N6NFK5B74XTTTA5OLC3YPWODQ5CHKRCRU6IVXFYP364JG7"
         val otherAccount = "GBPF72LVHGENTAC6JCBDU6KG6GNTQIHTTIYZGURQQL3CWXEBVNSUVFPL"
-        mapOperationResponse(mock<PaymentOperationResponse> {
-            on { from }.thenReturn(myAccount)
-            on { to }.thenReturn(otherAccount)
-            on { transactionHash }.thenReturn("ABCD")
-            on { createdAt }.thenReturn("TIME")
-            on { amount }.thenReturn(50.lumens().toStringWithoutSymbol())
-        }, myAccount, givenHorizonProxy(100))
+        mapOperationResponse(
+            mock<PaymentOperationResponse> {
+                on { from }.thenReturn(myAccount)
+                on { to }.thenReturn(otherAccount)
+                on { transactionHash }.thenReturn("ABCD")
+                on { createdAt }.thenReturn("TIME")
+                on { amount }.thenReturn(50.lumens().toStringWithoutSymbol())
+            },
+            myAccount, givenHorizonProxy(100)
+        )
             .apply {
                 hash `should be equal to` "ABCD"
                 timeStamp `should be equal to` "TIME"
@@ -77,13 +81,16 @@ class HorizonOperationMappingTest {
     fun `map create operation where account is the receiver`() {
         val myAccount = "GDCERC7BR5N6NFK5B74XTTTA5OLC3YPWODQ5CHKRCRU6IVXFYP364JG7"
         val otherAccount = "GBPF72LVHGENTAC6JCBDU6KG6GNTQIHTTIYZGURQQL3CWXEBVNSUVFPL"
-        mapOperationResponse(mock<CreateAccountOperationResponse> {
-            on { funder }.thenReturn(otherAccount)
-            on { account }.thenReturn(myAccount)
-            on { transactionHash }.thenReturn("ABCD")
-            on { createdAt }.thenReturn("TIME")
-            on { startingBalance }.thenReturn(100.lumens().toStringWithoutSymbol())
-        }, myAccount, givenHorizonProxy(100))
+        mapOperationResponse(
+            mock<CreateAccountOperationResponse> {
+                on { funder }.thenReturn(otherAccount)
+                on { account }.thenReturn(myAccount)
+                on { transactionHash }.thenReturn("ABCD")
+                on { createdAt }.thenReturn("TIME")
+                on { startingBalance }.thenReturn(100.lumens().toStringWithoutSymbol())
+            },
+            myAccount, givenHorizonProxy(100)
+        )
             .apply {
                 hash `should be equal to` "ABCD"
                 timeStamp `should be equal to` "TIME"
@@ -98,13 +105,16 @@ class HorizonOperationMappingTest {
     fun `map create operation where account is the sender`() {
         val myAccount = "GDCERC7BR5N6NFK5B74XTTTA5OLC3YPWODQ5CHKRCRU6IVXFYP364JG7"
         val otherAccount = "GBPF72LVHGENTAC6JCBDU6KG6GNTQIHTTIYZGURQQL3CWXEBVNSUVFPL"
-        mapOperationResponse(mock<CreateAccountOperationResponse> {
-            on { funder }.thenReturn(myAccount)
-            on { account }.thenReturn(otherAccount)
-            on { transactionHash }.thenReturn("ABCD")
-            on { createdAt }.thenReturn("TIME")
-            on { startingBalance }.thenReturn(100.lumens().toStringWithoutSymbol())
-        }, myAccount, givenHorizonProxy(100))
+        mapOperationResponse(
+            mock<CreateAccountOperationResponse> {
+                on { funder }.thenReturn(myAccount)
+                on { account }.thenReturn(otherAccount)
+                on { transactionHash }.thenReturn("ABCD")
+                on { createdAt }.thenReturn("TIME")
+                on { startingBalance }.thenReturn(100.lumens().toStringWithoutSymbol())
+            },
+            myAccount, givenHorizonProxy(100)
+        )
             .apply {
                 hash `should be equal to` "ABCD"
                 timeStamp `should be equal to` "TIME"

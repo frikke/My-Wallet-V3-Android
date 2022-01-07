@@ -1,13 +1,15 @@
 package com.blockchain.coincore.erc20
 
+import com.blockchain.coincore.impl.CryptoAccountBase
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
-import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -20,8 +22,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import com.blockchain.coincore.impl.CryptoAccountBase
-import com.blockchain.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class Erc20AccountActivityTest : CoincoreTestBase() {

@@ -4,16 +4,16 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
-import org.koin.core.component.KoinComponent
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import com.blockchain.coincore.FiatAccount
+import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.databinding.ViewAccountFiatOverviewBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -48,6 +48,7 @@ class AccountInfoFiat @JvmOverloads constructor(
         onAccountClicked: (FiatAccount) -> Unit
     ) {
         with(binding) {
+            contentDescription = "$ACCOUNT_INFO_FIAT_VIEW_ID${account.fiatCurrency}_${account.label}"
             val userFiat = currencyPrefs.selectedFiatCurrency
 
             walletName.text = account.label
@@ -107,5 +108,9 @@ class AccountInfoFiat @JvmOverloads constructor(
 
     override fun setVisible(isVisible: Boolean) {
         binding.root.visibleIf { isVisible }
+    }
+
+    companion object {
+        private const val ACCOUNT_INFO_FIAT_VIEW_ID = "FiatAccountView_"
     }
 }
