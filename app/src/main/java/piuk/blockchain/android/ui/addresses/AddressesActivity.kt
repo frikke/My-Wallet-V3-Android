@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import info.blockchain.balance.AssetInfo
@@ -46,7 +45,6 @@ class AddressesActivity :
 
     private val rxBus: RxBus by inject()
     private val secondPasswordHandler: SecondPasswordHandler by scopedInject()
-    private val features: InternalFeatureFlagApi by inject()
     private val compositeDisposable = CompositeDisposable()
 
     private val binding: ActivityAddressesBinding by lazy {
@@ -54,7 +52,7 @@ class AddressesActivity :
     }
 
     private val accountsAdapter: AccountAdapter by unsafeLazy {
-        AccountAdapter(this, features)
+        AccountAdapter(this)
     }
 
     override val toolbarBinding: ToolbarGeneralBinding

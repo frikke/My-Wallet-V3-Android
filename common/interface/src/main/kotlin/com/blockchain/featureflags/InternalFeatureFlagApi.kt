@@ -13,6 +13,5 @@ enum class GatedFeature(
     val readableName: String,
     val enabledForCompanyInternalBuild: Boolean = false
 ) {
-    ADD_SUB_WALLET_ADDRESSES("Create BTC sub-wallets"),
-    LANDING_CTA("Enable Landing CTA Screen"),
+    LANDING_CTA("Enable Landing CTA Screen")
 }
