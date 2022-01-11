@@ -25,7 +25,6 @@ import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 /**
@@ -111,7 +110,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
     override fun onResume() {
         super.onResume()
         (application as BlockchainApplication).stopLogoutTimer()
-        ApplicationLifeCycle.getInstance().onActivityResumed()
 
         if (enableScreenshots) {
             enableScreenshots()
@@ -140,7 +138,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
         if (enableLogoutTimer) {
             (application as BlockchainApplication).startLogoutTimer()
         }
-        ApplicationLifeCycle.getInstance().onActivityPaused()
         compositeDisposable.clear()
     }
 
