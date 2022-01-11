@@ -49,7 +49,7 @@ class PaymentsDataManagerImpl(
                         onHoldTotalAmount = Money.fromMinor(localCurrency, locks.value.toBigInteger()),
                         locks = locks.locks.map { lock ->
                             FundsLock(
-                                amount = Money.fromMinor(localCurrency, locks.value.toBigInteger()),
+                                amount = Money.fromMinor(localCurrency, lock.value.toBigInteger()),
                                 date = lock.date.toZonedDateTime()
                             )
                         }
