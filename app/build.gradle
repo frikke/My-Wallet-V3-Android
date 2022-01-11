@@ -400,22 +400,15 @@ dependencies {
     // Custom Views
     implementation Libraries.materialDatePicker
 
-    // Stripe
-    implementation(Libraries.stripe) {
-        exclude group: 'com.github.stephenc.jcip', module: 'jcip-annotations'
-    }
-
     // Logging
     implementation Libraries.timber
-
-    implementation Libraries.checkoutCom
 
     // Zendesk
     implementation Libraries.zendeskChat
     implementation Libraries.zendeskMessaging
 
     // Checkout.com
-//    implementation Libraries.checkoutCom
+    implementation Libraries.checkoutCom
 
     // Compose
     implementation Libraries.composeUi

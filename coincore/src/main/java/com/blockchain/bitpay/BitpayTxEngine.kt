@@ -32,12 +32,11 @@ import java.util.concurrent.TimeUnit
 import org.bitcoinj.core.Transaction
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import rx.Subscription
 import timber.log.Timber
 
 const val BITPAY_TIMER_SUB = "bitpay_timer"
-private val PendingTx.bitpayTimer: Subscription?
-    get() = (this.engineState[BITPAY_TIMER_SUB] as? Subscription)
+private val PendingTx.bitpayTimer: Disposable?
+    get() = (this.engineState[BITPAY_TIMER_SUB] as? Disposable)
 
 interface BitPayClientEngine {
     fun doPrepareTransaction(pendingTx: PendingTx): Single<Pair<Transaction, DustInput?>>

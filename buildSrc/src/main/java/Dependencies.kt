@@ -78,7 +78,7 @@ object Versions {
 
     // Utils, BTC, Ethereum
     const val bitcoinj = "0.15.10"
-    const val web3j = "3.3.1-android"
+    const val web3j = "4.8.7-android"
     const val spongycastle = "1.54.0.0"
     const val jjwt = "0.9.0"
     const val lambdaWorks = "1.0.0"

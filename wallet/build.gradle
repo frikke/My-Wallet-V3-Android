@@ -32,8 +32,11 @@ dependencies {
     implementation Libraries.kotlin
     // bitcoinj and web3j should both be 'implementation' but there remain a few upstack dependencies
     api (Libraries.bitcoinj) { exclude module: 'protobuf-java' }
-    api (Libraries.web3j) { exclude module: 'jackson' }
-    implementation Libraries.spongyCastle
+    api (Libraries.web3j) {
+        exclude module: 'jackson'
+        exclude group: 'org.bouncycastle'
+    }
+    api Libraries.spongyCastle
     implementation Libraries.json
 
     // Networking
