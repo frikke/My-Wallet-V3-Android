@@ -89,6 +89,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class SelectedPaymentMethodUpdate(
         private val paymentMethod: PaymentMethod
     ) : SimpleBuyIntent() {
+        // UndefinedBankAccount has no visual representation in the UI, it just opens WireTransferDetails,
+        // hence why we're ignoring it and keeping the current selectedPaymentMethod
+        override fun isValidFor(oldState: SimpleBuyState): Boolean =
+            paymentMethod !is PaymentMethod.UndefinedBankAccount
+
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 selectedPaymentMethod = SelectedPaymentMethod(
