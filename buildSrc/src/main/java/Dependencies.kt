@@ -77,7 +77,7 @@ object Versions {
     const val glide = "4.12.0"
 
     // Utils, BTC, Ethereum
-    const val bitcoinj = "0.15.10"
+    const val bitcoinj = "0.16"
     const val web3j = "4.8.7-android"
     const val spongycastle = "1.54.0.0"
     const val jjwt = "0.9.0"
@@ -89,7 +89,7 @@ object Versions {
     const val commonsIo = "2.6"
     const val urlBuilder = "2.0.9"
     const val yearclass = "2.0.0"
-    const val protobuf = "3.0.1"
+    const val protobuf = "3.18.0"
     const val findbugs = "3.0.2"
     const val guava = "28.0-android"
     const val dexter = "6.2.1"
@@ -256,7 +256,7 @@ object Libraries {
     const val commonsIo = "commons-io:commons-io:${Versions.commonsIo}"
     const val urlBuilder = "io.mikael:urlbuilder:${Versions.urlBuilder}"
     const val yearclass = "com.facebook.device.yearclass:yearclass:${Versions.yearclass}"
-    const val protobuf = "com.google.protobuf:protobuf-lite:${Versions.protobuf}"
+    const val protobuf = "com.google.protobuf:protobuf-javalite:${Versions.protobuf}"
     const val findbugs = "com.google.code.findbugs:jsr305:${Versions.findbugs}"
     const val guava = "com.google.guava:guava:${Versions.guava}"
     const val dexter = "com.karumi:dexter:${Versions.dexter}"

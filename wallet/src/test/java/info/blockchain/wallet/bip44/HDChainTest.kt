@@ -31,6 +31,6 @@ class HDChainTest {
     @Test
     fun getPath() {
         val chain = HDChain.receiveChain(MainNetParams.get(), key)
-        Assert.assertEquals("M/0", chain.path)
+        Assert.assertEquals("m/0", chain.path)
     }
 }
