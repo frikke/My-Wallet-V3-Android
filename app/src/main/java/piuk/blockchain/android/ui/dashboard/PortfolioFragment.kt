@@ -114,6 +114,12 @@ class PortfolioFragment :
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
+
+    override fun onBackPressed(): Boolean = false
+
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPortfolioBinding =
+        FragmentPortfolioBinding.inflate(inflater, container, false)
+
     private val announcements: AnnouncementList by scopedInject()
     private val analyticsReporter: BalanceAnalyticsReporter by scopedInject()
     private val dashboardPrefs: DashboardPrefs by inject()
@@ -162,6 +168,41 @@ class PortfolioFragment :
     private var state: DashboardState? =
         null // Hold the 'current' display state, to enable optimising of state updates
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        analytics.logEvent(AnalyticsEvents.Dashboard)
+
+        setupSwipeRefresh()
+        setupRecycler()
+        setupCtaButtons()
+
+        model.process(DashboardIntent.LoadFundsLocked)
+
+        if (flowToLaunch != null && flowCurrency != null) {
+            when (flowToLaunch) {
+                AssetAction.FiatDeposit,
+                AssetAction.Withdraw -> model.process(
+                    DashboardIntent.StartBankTransferFlow(
+                        action = AssetAction.Withdraw
+                    )
+                )
+                else -> throw IllegalStateException("Unsupported flow launch for action $flowToLaunch")
+            }
+        } else if (startOnboarding) {
+            compositeDisposable += onboardingFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
+                onSuccess = { isEnabled ->
+                    if (isEnabled) {
+                        val steps = DashboardOnboardingStep.values().map { step ->
+                            CompletableDashboardOnboardingStep(step, false)
+                        }
+                        launchDashboardOnboarding(steps, showCloseButton = true)
+                    }
+                }
+            )
+        }
+    }
+
     @UiThread
     override fun render(newState: DashboardState) {
         try {
@@ -173,7 +214,6 @@ class PortfolioFragment :
 
     @UiThread
     private fun doRender(newState: DashboardState) {
-
         binding.swipe.isRefreshing = false
         updateDisplayList(newState)
 
@@ -425,46 +465,6 @@ class PortfolioFragment :
         }
     }
 
-    override fun onBackPressed(): Boolean = false
-
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPortfolioBinding =
-        FragmentPortfolioBinding.inflate(inflater, container, false)
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        analytics.logEvent(AnalyticsEvents.Dashboard)
-
-        setupSwipeRefresh()
-        setupRecycler()
-        setupCtaButtons()
-
-        model.process(DashboardIntent.LoadFundsLocked)
-
-        if (flowToLaunch != null && flowCurrency != null) {
-            when (flowToLaunch) {
-                AssetAction.FiatDeposit,
-                AssetAction.Withdraw -> model.process(
-                    DashboardIntent.StartBankTransferFlow(
-                        action = AssetAction.Withdraw
-                    )
-                )
-                else -> throw IllegalStateException("Unsupported flow launch for action $flowToLaunch")
-            }
-        } else if (startOnboarding) {
-            compositeDisposable += onboardingFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
-                onSuccess = { isEnabled ->
-                    if (isEnabled) {
-                        val steps = DashboardOnboardingStep.values().map { step ->
-                            CompletableDashboardOnboardingStep(step, false)
-                        }
-                        launchDashboardOnboarding(steps, showCloseButton = true)
-                    }
-                }
-            )
-        }
-    }
-
     private fun setupCtaButtons() {
         with(binding) {
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
@@ -541,6 +541,12 @@ class PortfolioFragment :
             model.process(DashboardIntent.GetActiveAssets)
         } else {
             model.process(DashboardIntent.RefreshAllBalancesIntent(false))
+        }
+    }
+
+    fun refreshFiatAssets() {
+        state?.fiatAssets?.let {
+            model.process(DashboardIntent.RefreshFiatBalances(it.fiatAccounts))
         }
     }
 

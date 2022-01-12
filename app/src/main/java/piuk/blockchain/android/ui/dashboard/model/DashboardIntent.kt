@@ -11,6 +11,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
@@ -456,5 +457,9 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
             dashboardNavigationAction = DashboardNavigationAction.DashboardOnboarding(initialSteps)
         )
+    }
+
+    class RefreshFiatBalances(val fiatAccounts: Map<Currency, FiatBalanceInfo>) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 }
