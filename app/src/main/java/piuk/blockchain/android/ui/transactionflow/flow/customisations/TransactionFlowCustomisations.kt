@@ -9,6 +9,7 @@ interface TransactionFlowCustomisations {
 
 sealed class BackNavigationState {
     object ResetPendingTransaction : BackNavigationState()
+    object ResetPendingTransactionKeepingTarget : BackNavigationState()
     object ClearTransactionTarget : BackNavigationState()
     object NavigateToPreviousScreen : BackNavigationState()
 }

@@ -13,6 +13,7 @@ import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
 import com.blockchain.core.limits.TxLimit
@@ -987,7 +988,13 @@ class TransactionFlowCustomiserImpl(
     override fun getBackNavigationAction(state: TransactionState): BackNavigationState =
         when (state.currentStep) {
             TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
-            TransactionStep.ENTER_AMOUNT -> BackNavigationState.ResetPendingTransaction
+            TransactionStep.ENTER_AMOUNT -> {
+                if (state.sendingAccount is LinkedBankAccount) {
+                    BackNavigationState.ResetPendingTransactionKeepingTarget
+                } else {
+                    BackNavigationState.ResetPendingTransaction
+                }
+            }
             else -> BackNavigationState.NavigateToPreviousScreen
         }
 
