@@ -480,8 +480,9 @@
     <string name="app">App</string>
     <string name="verify">Verify</string>
     <string name="resend">Resend</string>
-    <string name="verified">verified</string>
+    <string name="verified">Verified</string>
     <string name="unverified">unverified</string>
+    <string name="not_verified">Not Verified</string>
     <string name="security">Security</string>
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
@@ -2548,7 +2549,17 @@
     <string name="profile_label_name">Name</string>
     <string name="profile_label_surname">Surname</string>
     <string name="profile_label_email">Email</string>
-    <string name="profile_label_mobile">Mobile</string>
+    <string name="profile_label_mobile">Phone Number</string>
+    <string name="profile_mobile_empty">Add your phone number</string>
+    <string name="profile_update_error">Oops! Updates not saved.</string>
+    <string name="profile_update_success">Updates saved.</string>
+    <string name="profile_label_support">Need to update your name? <annotation link="contact_support">Contact support</annotation></string>
+    <string name="profile_verify_email_msg">Your email is used to verify when you log in on new devices and send you alerts.</string>
+    <string name="profile_verify_phone_msg">Your phone number can be used to enable 2FA.</string>
+    <string name="profile_disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
+    <string name="profile_verify_email">Verify Email</string>
+    <string name="profile_verify_phone">Send Text</string>
+    <string name="profile_hint_phone">Enter Phone Number</string>
 
     <!-- Notifications screen -->
     <string name="notifications_toolbar">Notifications</string>
@@ -2562,9 +2573,12 @@
     <string name="about_app_rate_app">Rate Our App</string>
     <string name="about_app_terms_service">Terms of Service</string>
     <string name="about_app_privacy_policy">Privacy Policy</string>
+    <string name="profile_label_dial_code">Dial code</string>
     <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
     <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
     <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
     <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

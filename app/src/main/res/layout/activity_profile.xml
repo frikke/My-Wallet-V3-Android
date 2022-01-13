@@ -1,101 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar_general"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_alignParentTop="true" />
 
-    <com.blockchain.componentlib.controls.TextInputView
-        android:id="@+id/name"
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        tools:text="Paco" />
+        android:layout_height="wrap_content" />
 
-    <com.blockchain.componentlib.controls.TextInputView
-        android:id="@+id/surname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        app:layout_constraintTop_toBottomOf="@+id/name"
-        tools:text="Martinez" />
-
-    <com.blockchain.componentlib.controls.TextInputView
-        android:id="@+id/email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        app:layout_constraintTop_toBottomOf="@id/surname"
-        tools:text="paco@gmail.com" />
-
-    <com.blockchain.componentlib.tag.TagsRowView
-        android:id="@+id/tag_email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginTop="@dimen/small_margin"
-        app:layout_constraintTop_toBottomOf="@id/email" />
-
-    <com.blockchain.componentlib.controls.TextInputView
-        android:id="@+id/phone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        app:layout_constraintTop_toBottomOf="@id/tag_email" />
-
-    <com.blockchain.componentlib.tag.TagsRowView
-        android:id="@+id/tag_mobile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginTop="@dimen/small_margin"
-        app:layout_constraintTop_toBottomOf="@+id/phone" />
-
-    <com.blockchain.componentlib.button.PrimaryButtonView
-        android:id="@+id/edit_profile"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/very_small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tag_mobile"
-        app:layout_constraintVertical_bias="1" />
-
-    <com.blockchain.componentlib.button.SplitButtonView
-        android:id="@+id/split_buttons"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/very_small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tag_mobile"
-        app:layout_constraintVertical_bias="1" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-
+</androidx.appcompat.widget.LinearLayoutCompat>

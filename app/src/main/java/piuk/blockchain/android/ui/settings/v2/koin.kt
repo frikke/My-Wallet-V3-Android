@@ -50,7 +50,8 @@ val redesignSettingsModule = module {
             ProfileInteractor(
                 emailUpdater = get(),
                 settingsDataManager = get(),
-                prefs = get()
+                prefs = get(),
+                nabuUserSync = get()
             )
         }
 

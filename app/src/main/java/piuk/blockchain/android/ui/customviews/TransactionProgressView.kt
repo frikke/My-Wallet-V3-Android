@@ -99,7 +99,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
 
     fun showTxError(title: String, subtitle: String) {
         with(binding) {
-            txIcon.setImageResource(R.drawable.ic_alert)
+            txIcon.setImageResource(R.drawable.ic_alert_logo)
             txStateIndicator.gone()
         }
         showEndStateUi()
@@ -124,7 +124,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showFiatTxError(title: String, subtitle: String, currency: String) {
         setFiatAssetIcon(currency)
         with(binding) {
-            txIcon.setImageResource(R.drawable.ic_alert)
+            txIcon.setImageResource(R.drawable.ic_alert_logo)
             txStateIndicator.gone()
         }
         showEndStateUi()

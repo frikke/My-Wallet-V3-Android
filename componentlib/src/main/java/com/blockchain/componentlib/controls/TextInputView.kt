@@ -2,11 +2,13 @@ package com.blockchain.componentlib.controls
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -24,6 +26,8 @@ class TextInputView @JvmOverloads constructor(
     var placeholderText by mutableStateOf("")
     var trailingIconResource: ImageResource by mutableStateOf(ImageResource.None)
     var leadingIconResource: ImageResource by mutableStateOf(ImageResource.None)
+    var singleLine by mutableStateOf(false)
+    var inputType by mutableStateOf(KeyboardType.Text)
 
     @Composable
     override fun Content() {
@@ -36,7 +40,9 @@ class TextInputView @JvmOverloads constructor(
                     placeholder = placeholderText,
                     label = labelText,
                     trailingIcon = trailingIconResource,
-                    leadingIcon = leadingIconResource
+                    leadingIcon = leadingIconResource,
+                    singleLine = singleLine,
+                    keyboardOptions = KeyboardOptions(keyboardType = inputType)
                 )
             }
         }

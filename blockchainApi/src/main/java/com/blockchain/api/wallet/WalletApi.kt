@@ -19,6 +19,8 @@ internal interface WalletApi {
         @Field("format") format: String = "plain"
     ): Single<WalletSettingsDto>
 
+    // TODO move save email and save phone to blockchainApi
+
     @FormUrlEncoded
     @POST("wallet")
     fun triggerAlert(
@@ -41,6 +43,7 @@ internal interface WalletApi {
 
     companion object {
         internal const val METHOD_GET_INFO = "get-info"
+        internal const val SAVE_INFO = "get-info"
         internal const val METHOD_TRIGGER_ALERT = "trigger-alert"
         internal const val METHOD_TRIGGER_EMAIL = "trigger-sent-tx-email"
     }

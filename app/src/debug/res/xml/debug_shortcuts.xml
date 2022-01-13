@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_alert"
+        android:icon="@drawable/ic_alert_logo"
         android:shortcutDisabledMessage="@string/common_error"
         android:shortcutId="debug_options"
         android:shortcutLongLabel="@string/debug_app_shortcut"

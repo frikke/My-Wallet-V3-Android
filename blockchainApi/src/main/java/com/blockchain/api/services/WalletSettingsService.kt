@@ -36,16 +36,23 @@ class WalletSettingsService internal constructor(
     }
 
     private fun WalletSettingsDto.toUserInfoSettings() = UserInfoSettings(
-        this.email,
-        this.emailVerified != 0,
-        this.smsNumber,
-        this.smsVerified != 0
+        email = this.email,
+        emailVerified = this.emailVerified != 0,
+        mobileWithPrefix = this.smsNumber,
+        mobileVerified = this.smsVerified != 0,
+        authType = this.authType,
+        dialCode = this.dialCode
     )
 
     data class UserInfoSettings(
         val email: String? = null,
         val emailVerified: Boolean = false,
-        val mobile: String? = null,
-        val mobileVerified: Boolean = false
-    )
+        val mobileWithPrefix: String? = null,
+        val mobileVerified: Boolean = false,
+        val authType: Int = 0,
+        val dialCode: String = "+1"
+    ) {
+        val mobileNoPrefix: String
+            get() = mobileWithPrefix?.drop(dialCode.length.plus(1))?.filterNot { it.isWhitespace() }.orEmpty()
+    }
 }

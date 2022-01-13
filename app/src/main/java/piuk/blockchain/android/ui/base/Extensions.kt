@@ -38,7 +38,7 @@ fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =
 
 fun FragmentManager.showFragment(
     fragment: Fragment,
-    loadingView: LottieAnimationView,
+    loadingView: LottieAnimationView? = null,
     reloadFragment: Boolean = false
 ) {
     val transaction = this.beginTransaction()
@@ -66,7 +66,7 @@ fun FragmentManager.showFragment(
     transaction.commitNowAllowingStateLoss()
 }
 
-private fun hideLoading(loadingView: LottieAnimationView) {
-    loadingView.gone()
-    loadingView.pauseAnimation()
+private fun hideLoading(loadingView: LottieAnimationView?) {
+    loadingView?.gone()
+    loadingView?.pauseAnimation()
 }

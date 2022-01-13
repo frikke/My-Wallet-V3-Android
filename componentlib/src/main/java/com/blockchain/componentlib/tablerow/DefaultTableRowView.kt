@@ -26,7 +26,7 @@ class DefaultTableRowView @JvmOverloads constructor(
     var tags by mutableStateOf(null as? List<TagViewState>?)
     var endTag by mutableStateOf(null as? TagViewState?)
     var startImageResource: ImageResource by mutableStateOf(ImageResource.None)
-    var endImageResource by mutableStateOf(
+    var endImageResource: ImageResource by mutableStateOf(
         ImageResource.Local(
             id = R.drawable.ic_chevron_end,
             contentDescription = null,

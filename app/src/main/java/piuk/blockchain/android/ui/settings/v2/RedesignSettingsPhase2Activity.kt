@@ -105,8 +105,7 @@ class RedesignSettingsPhase2Activity :
     }
 
     override fun render(newState: SettingsState) {
-        setupMenuItems(newState.basicProfileInfo)
-
+        setupMenuItems(newState.basicProfileInfo, newState.tier)
         newState.basicProfileInfo?.let { userInfo ->
             if (newState.tier.isSupportChatEnabled()) {
                 setupActiveSupportButton(userInfo)
@@ -165,7 +164,7 @@ class RedesignSettingsPhase2Activity :
         when (newState.viewToLaunch) {
             ViewToLaunch.Profile -> startActivity(
                 newState.basicProfileInfo?.let {
-                    ProfileActivity.newIntent(this, it)
+                    ProfileActivity.newIntent(this, it, newState.tier)
                 }
             )
             is ViewToLaunch.BankAccount -> {
@@ -345,19 +344,21 @@ class RedesignSettingsPhase2Activity :
     private fun showUserTierIcon(tier: Tier) {
         binding.iconUser.setImageResource(
             when (tier) {
-                Tier.GOLD -> R.drawable.ic_icon_gold
-                Tier.SILVER -> R.drawable.ic_icon_silver
+                Tier.GOLD -> R.drawable.bkgd_profile_icon_gold
+                Tier.SILVER -> R.drawable.bkgd_profile_icon_silver
                 else -> 0
             }
         )
     }
 
-    private fun setupMenuItems(basicProfileInfo: BasicProfileInfo?) {
+    private fun setupMenuItems(basicProfileInfo: BasicProfileInfo?, userTier: Tier) {
         with(binding) {
             seeProfile.apply {
                 text = context.getString(R.string.settings_see_profile)
                 onClick = {
-                    startActivity(ProfileActivity.newIntent(context, basicProfileInfo))
+                    basicProfileInfo?.let {
+                        startActivity(ProfileActivity.newIntent(context, it, userTier))
+                    }
                 }
             }
 
@@ -553,6 +554,7 @@ class RedesignSettingsPhase2Activity :
     companion object {
         private const val LOTTIE_LOADER_PATH = "lottie/loader.json"
         const val BASIC_INFO = "basic_info_user"
+        const val USER_TIER = "user_tier"
 
         fun newIntent(context: Context): Intent =
             Intent(context, RedesignSettingsPhase2Activity::class.java)

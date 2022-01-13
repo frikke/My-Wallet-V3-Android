@@ -27,7 +27,7 @@
         app:layout_constraintCircleRadius="47dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_alert" />
+        app:srcCompat="@drawable/ic_alert_logo" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/title"

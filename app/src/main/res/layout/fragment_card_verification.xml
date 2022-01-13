@@ -23,7 +23,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline"
-        app:srcCompat="@drawable/ic_alert" />
+        app:srcCompat="@drawable/ic_alert_logo" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
