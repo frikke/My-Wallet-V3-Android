@@ -126,7 +126,6 @@ import java.lang.IllegalArgumentException
 import java.math.BigInteger
 import java.util.Calendar
 import java.util.Date
-import okhttp3.internal.toLongOrDefault
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
@@ -1582,7 +1581,7 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         fee = fee?.let {
             Money.fromMinor(
                 assetCatalogue.fromNetworkTicker(inputCurrency)!!,
-                it.toLongOrDefault(0).toBigInteger()
+                it.toBigInteger()
             )
         },
         paymentMethodId = paymentMethodId ?: (
@@ -1598,7 +1597,7 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         },
         orderValue = Money.fromMinor(
             assetCatalogue.fromNetworkTicker(outputCurrency)!!,
-            outputQuantity.toLongOrDefault(0).toBigInteger()
+            outputQuantity.toBigInteger()
         ),
         attributes = attributes?.toPaymentAttributes(),
         type = type(),
