@@ -110,7 +110,6 @@ class PortfolioFragment :
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
     BuyPendingOrdersBottomSheet.Host,
-    DashboardScreen,
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
@@ -921,15 +920,6 @@ class PortfolioFragment :
         private const val IDX_FUNDS_BALANCE = 3
 
         const val BACKUP_FUNDS_REQUEST_CODE = 8265
-    }
-
-    override fun onBecameVisible() {
-        /*
-        TODO: We need to update the balances also (Refresh Intent) but we need to find a way so we do that silently
-         and without making every rendered cell to be in a loading state again.
-        */
-        model.process(DashboardIntent.LoadFundsLocked)
-        model.process(DashboardIntent.FetchOnboardingSteps)
     }
 }
 
