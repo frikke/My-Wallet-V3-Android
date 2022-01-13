@@ -179,4 +179,5 @@
 
     <color name="svg_icon_white_system_background">#F3F6F9</color>
 
+    <color name="mtrl_textinput_default_box_stroke_color">#DFE3EB</color>
 </resources>

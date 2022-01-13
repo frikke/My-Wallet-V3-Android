@@ -306,6 +306,24 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <style name="PasswordRequiredLabel">
+        <item name="fontFamily">@font/inter_semi_bold</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/grey_900</item>
+    </style>
+
+    <style name="WalletIdentifierLabel">
+        <item name="fontFamily">@font/inter_semi_bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/grey_900</item>
+    </style>
+
+    <style name="LoggedOutLabel">
+        <item name="fontFamily">@font/inter_medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/grey_600</item>
+    </style>
+
     <style name="Separator">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
