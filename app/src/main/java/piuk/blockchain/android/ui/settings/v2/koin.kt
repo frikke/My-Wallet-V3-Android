@@ -12,6 +12,7 @@ import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsState
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
+import piuk.blockchain.android.util.AppUtil
 
 val redesignSettingsModule = module {
 
@@ -36,17 +37,18 @@ val redesignSettingsModule = module {
             )
         }
 
-        factory {
+        scoped {
             ProfileModel(
                 initialState = ProfileState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
+                _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
                 crashLogger = get()
             )
         }
 
-        factory {
+        scoped {
             ProfileInteractor(
                 emailUpdater = get(),
                 settingsDataManager = get(),

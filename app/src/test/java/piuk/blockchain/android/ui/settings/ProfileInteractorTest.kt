@@ -40,24 +40,36 @@ class ProfileInteractorTest {
     }
 
     @Test
-    fun `Save email and phone`() {
+    fun `Save email`() {
         val settings = mock<Settings>()
-        val email = mock<Email>()
-
         val emailAddress = "paco@gmail.com"
-        val phone = "+34655819515"
 
-        whenever(emailSyncUpdater.updateEmailAndSync(emailAddress)).thenReturn(Single.just(email))
-        whenever(settingsDataManager.updateSms(phone)).thenReturn(Observable.just(settings))
-        val observer = interactor.saveProfile(emailAddress, phone).test()
+        whenever(settingsDataManager.updateEmail(emailAddress)).thenReturn(Observable.just(settings))
+
+        val observer = interactor.saveEmail(emailAddress).test()
         observer.assertValueAt(0) {
-            it.first == email && it.second == settings
+            it == settings
         }
 
-        verify(emailSyncUpdater).updateEmailAndSync(emailAddress)
+        verify(settingsDataManager).updateEmail(emailAddress)
+
+        verifyNoMoreInteractions(settingsDataManager)
+    }
+
+    // Next ticket update sms
+    @Test
+    fun `Save phone`() {
+        val settings = mock<Settings>()
+        val phone = "+34655819515"
+
+        whenever(settingsDataManager.updateSms(phone)).thenReturn(Observable.just(settings))
+        val observer = interactor.savePhoneNumber(phone).test()
+        observer.assertValueAt(0) {
+            it == settings
+        }
+
         verify(settingsDataManager).updateSms(phone)
 
-        verifyNoMoreInteractions(emailSyncUpdater)
         verifyNoMoreInteractions(settingsDataManager)
     }
 
@@ -79,15 +91,15 @@ class ProfileInteractorTest {
     }
 
     @Test
-    fun `Save and send email to verify`() {
+    fun `Resend email to verify`() {
         val email = mock<Email>()
         val emailAddress = "paco@gmail.com"
 
-        whenever(emailSyncUpdater.updateEmailAndSync(emailAddress)).thenReturn(Single.just(email))
+        whenever(emailSyncUpdater.resendEmail(emailAddress)).thenReturn(Single.just(email))
 
-        interactor.saveAndSendEmail(emailAddress).test()
+        interactor.resendEmail(emailAddress).test()
 
-        verify(emailSyncUpdater).updateEmailAndSync(emailAddress)
+        verify(emailSyncUpdater).resendEmail(emailAddress)
 
         verifyNoMoreInteractions(emailSyncUpdater)
     }
@@ -101,7 +113,7 @@ class ProfileInteractorTest {
         whenever(settingsDataManager.updateSms(phoneNumber)).thenReturn(Observable.just(settings))
         whenever(nabuUserSync.syncUser()).thenReturn(Completable.complete())
 
-        interactor.saveAndSendSMS(phoneNumber).test()
+        interactor.resendCodeSMS(phoneNumber).test()
 
         verify(settingsDataManager).updateSms(phoneNumber)
 

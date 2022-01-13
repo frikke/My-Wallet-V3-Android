@@ -5,7 +5,6 @@ import com.blockchain.nabu.NabuUserSync
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
@@ -18,23 +17,21 @@ class ProfileInteractor internal constructor(
     private val nabuUserSync: NabuUserSync
 ) {
 
-    fun saveProfile(email: String, mobileWithPrefix: String): Single<Pair<Email, Settings>> =
-        Singles.zip(
-            emailUpdater.updateEmailAndSync(email),
-            settingsDataManager.updateSms(mobileWithPrefix).singleOrError()
-        )
-
     fun fetchProfileSettings(): Single<WalletSettingsService.UserInfoSettings> =
         settingsDataManager.fetchWalletSettings(
             guid = prefs.walletGuid,
             sharedKey = prefs.sharedKey
         )
 
-    fun saveAndSendEmail(email: String): Single<Email> {
-        return emailUpdater.updateEmailAndSync(email)
-    }
+    fun saveEmail(email: String): Single<Settings> =
+        settingsDataManager.updateEmail(email).firstOrError()
 
-    fun saveAndSendSMS(mobileWithPrefix: String): Single<Settings> {
+    fun resendEmail(email: String): Single<Email> = emailUpdater.resendEmail(email)
+
+    fun savePhoneNumber(mobileWithPrefix: String): Single<Settings> =
+        settingsDataManager.updateSms(mobileWithPrefix).firstOrError()
+
+    fun resendCodeSMS(mobileWithPrefix: String): Single<Settings> {
         return settingsDataManager.updateSms(mobileWithPrefix).singleOrError()
     }
 

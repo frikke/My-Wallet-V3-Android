@@ -3,10 +3,8 @@ package piuk.blockchain.android.ui.base
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import com.airbnb.lottie.LottieAnimationView
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import piuk.blockchain.android.R
-import piuk.blockchain.android.util.gone
 
 fun Fragment.updateToolbar(
     titleToolbar: String = "",
@@ -38,7 +36,6 @@ fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =
 
 fun FragmentManager.showFragment(
     fragment: Fragment,
-    loadingView: LottieAnimationView? = null,
     reloadFragment: Boolean = false
 ) {
     val transaction = this.beginTransaction()
@@ -46,7 +43,6 @@ fun FragmentManager.showFragment(
     primaryFragment?.let {
         transaction.hide(it)
     }
-
     val tag = fragment.javaClass.simpleName
     var tempFragment = this.findFragmentByTag(tag)
 
@@ -61,12 +57,6 @@ fun FragmentManager.showFragment(
     } else {
         transaction.show(tempFragment)
     }
-    hideLoading(loadingView)
     transaction.setPrimaryNavigationFragment(tempFragment)
     transaction.commitNowAllowingStateLoss()
-}
-
-private fun hideLoading(loadingView: LottieAnimationView?) {
-    loadingView?.gone()
-    loadingView?.pauseAnimation()
 }

@@ -569,7 +569,6 @@ class MainActivity :
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
         supportFragmentManager.showFragment(
             fragment = ActivitiesFragment.newInstance(account),
-            loadingView = binding.progress,
             reloadFragment = reload
         )
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
@@ -607,7 +606,6 @@ class MainActivity :
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
             fragment = PortfolioFragment.newInstance(action, fiatCurrency, startOnboarding),
-            loadingView = binding.progress,
             reloadFragment = reload
         )
     }
@@ -713,7 +711,6 @@ class MainActivity :
 
         supportFragmentManager.showFragment(
             fragment = buySellFragment,
-            loadingView = binding.progress,
             reloadFragment = reload
         )
     }
@@ -722,7 +719,6 @@ class MainActivity :
         updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
         supportFragmentManager.showFragment(
             fragment = PricesFragment.newInstance(),
-            loadingView = binding.progress,
             reloadFragment = reload
         )
     }

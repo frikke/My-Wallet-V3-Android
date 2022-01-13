@@ -2516,7 +2516,7 @@
     <string name="settings_title_about_app">About App</string>
     <string name="settings_subtitle_about_app">Support, Airdrops and Policies</string>
     <string name="settings_sign_out">Sign Out</string>
-    <string name="settings_initials">%1$s%2$s</string>
+    <string name="settings_initials">%1s%2s</string>
     <string name="settings_add_payment_method">Add Payment Method</string>
     <string name="settings_bank_transfer_blurb">Send funds directly from your bank to your Blockchain Wallet. Once we receive the wire transfer, we’ll complete your purchase.</string>
     <string name="settings_logout_error">There was an issue while logging you out, please try again!</string>
@@ -2549,17 +2549,22 @@
     <string name="profile_label_name">Name</string>
     <string name="profile_label_surname">Surname</string>
     <string name="profile_label_email">Email</string>
+    <string name="profile_toolbar_email">Email</string>
     <string name="profile_label_mobile">Phone Number</string>
     <string name="profile_mobile_empty">Add your phone number</string>
-    <string name="profile_update_error">Oops! Updates not saved.</string>
+    <string name="profile_update_error_email">Email failed to save</string>
+    <string name="profile_update_email">Email saved</string>
+    <string name="profile_update_error_phone">Phone number failed to save</string>
+    <string name="profile_update_phone">Phone number saved</string>
     <string name="profile_update_success">Updates saved.</string>
     <string name="profile_label_support">Need to update your name? <annotation link="contact_support">Contact support</annotation></string>
-    <string name="profile_verify_email_msg">Your email is used to verify when you log in on new devices and send you alerts.</string>
+    <string name="profile_verify_email_msg">Your verified email address is used to send payment alerts, ID reminders, and login codes.</string>
     <string name="profile_verify_phone_msg">Your phone number can be used to enable 2FA.</string>
     <string name="profile_disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
     <string name="profile_verify_email">Verify Email</string>
     <string name="profile_verify_phone">Send Text</string>
     <string name="profile_hint_phone">Enter Phone Number</string>
+    <string name="profile_update">Update</string>
 
     <!-- Notifications screen -->
     <string name="notifications_toolbar">Notifications</string>
@@ -2578,7 +2583,5 @@
     <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
     <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
     <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,220 +7,73 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar_general"
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/user_initials"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/xlarge_margin"
+        android:background="@drawable/bkgd_profile_circle_empty"
+        android:gravity="center"
+        android:textColor="@color/purple_700"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="LM" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/div_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" />
+        android:layout_marginTop="@dimen/huge_margin"
+        app:layout_constraintTop_toBottomOf="@+id/user_initials" />
 
-    <ScrollView
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/name_row"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"
-        android:fadingEdge="vertical"
-        android:fadingEdgeLength="@dimen/very_small_margin"
-        android:fillViewport="true"
-        android:requiresFadingEdge="vertical">
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/div_1" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/user_initials"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/xlarge_margin"
-                android:background="@drawable/bkgd_profile_circle_empty"
-                android:gravity="center"
-                android:textColor="@color/purple_700"
-                android:textSize="40sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="LM" />
-
-            <com.blockchain.componentlib.divider.HorizontalDividerView
-                android:id="@+id/div_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/huge_margin"
-                app:layout_constraintTop_toBottomOf="@+id/user_initials" />
-
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/name_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@+id/div_1" />
-
-            <TextView
-                android:id="@+id/contact_support"
-                style="@style/TextAppearance.Blockchain.Caption1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginTop="@dimen/tiny_margin"
-                app:layout_constraintTop_toBottomOf="@id/name_row"
-                tools:text="Need to update your name? Contact support" />
-
-            <com.blockchain.componentlib.divider.HorizontalDividerView
-                android:id="@+id/div_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_margin"
-                app:layout_constraintTop_toBottomOf="@+id/contact_support" />
-
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/email_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/div_2" />
-
-            <com.blockchain.componentlib.divider.HorizontalDividerView
-                android:id="@+id/div_3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/email_row" />
-
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/mobile_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/div_3" />
-
-            <com.blockchain.componentlib.divider.HorizontalDividerView
-                android:id="@+id/div_4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/mobile_row" />
-
-            <!-- to the new EMAIL ADDRESS SCREEN-->
-            <!--            <com.blockchain.componentlib.controls.TextInputView-->
-            <!--                android:id="@+id/email"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="@dimen/standard_margin"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/contact_support"-->
-            <!--                tools:text="paco@gmail.com" />-->
-
-            <!--            <TextView-->
-            <!--                android:id="@+id/verify_email_msg"-->
-            <!--                style="@style/TextAppearance.Blockchain.Caption1"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginStart="@dimen/small_margin"-->
-            <!--                android:layout_marginTop="@dimen/tiny_margin"-->
-            <!--                android:text="@string/profile_verify_email_msg"-->
-            <!--                android:visibility="gone"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/email"-->
-            <!--                tools:text="@string/profile_verify_email_msg" />-->
-
-            <!--            <com.blockchain.componentlib.button.SmallPrimaryButtonView-->
-            <!--                android:id="@+id/verify_email_btn"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="@dimen/small_margin"-->
-            <!--                app:layout_constraintStart_toStartOf="@id/verify_email_msg"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/verify_email_msg" />-->
-
-            <!--            <com.blockchain.componentlib.tag.TagsRowView-->
-            <!--                android:id="@+id/tag_email"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginStart="@dimen/small_margin"-->
-            <!--                android:layout_marginTop="@dimen/small_margin"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/verify_email_btn" />-->
-
-            <!-- to the new PHONE NUMBER SCREEN-->
-            <!--            <com.blockchain.componentlib.controls.TextInputView-->
-            <!--                android:id="@+id/dial_code"-->
-            <!--                android:layout_width="160dp"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="@dimen/standard_margin"-->
-            <!--                app:layout_constraintStart_toStartOf="parent"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/tag_email" />-->
-
-            <!--            <androidx.appcompat.widget.AppCompatImageView-->
-            <!--                android:id="@+id/flag"-->
-            <!--                android:layout_width="40dp"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginEnd="@dimen/small_margin"-->
-            <!--                android:background="@drawable/flag_us"-->
-            <!--                app:layout_constraintBottom_toBottomOf="@+id/dial_code"-->
-            <!--                app:layout_constraintEnd_toEndOf="@+id/dial_code"-->
-            <!--                app:layout_constraintTop_toTopOf="@+id/dial_code" />-->
-
-            <!--            <FrameLayout-->
-            <!--                android:id="@+id/open_country_picker"-->
-            <!--                android:layout_width="0dp"-->
-            <!--                android:layout_height="0dp"-->
-            <!--                app:layout_constraintBottom_toBottomOf="@+id/dial_code"-->
-            <!--                app:layout_constraintEnd_toEndOf="@id/dial_code"-->
-            <!--                app:layout_constraintStart_toStartOf="@+id/dial_code"-->
-            <!--                app:layout_constraintTop_toTopOf="@+id/dial_code" />-->
-
-            <!--            <com.blockchain.componentlib.controls.TextInputView-->
-            <!--                android:id="@+id/phone"-->
-            <!--                android:layout_width="0dp"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginStart="@dimen/small_margin"-->
-            <!--                android:layout_marginTop="@dimen/standard_margin"-->
-            <!--                app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                app:layout_constraintStart_toEndOf="@id/dial_code"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/tag_email" />-->
-
-            <!--            <TextView-->
-            <!--                android:id="@+id/verify_phone_msg"-->
-            <!--                style="@style/TextAppearance.Blockchain.Caption1"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginStart="@dimen/small_margin"-->
-            <!--                android:layout_marginTop="@dimen/tiny_margin"-->
-            <!--                android:text="@string/profile_verify_phone_msg"-->
-            <!--                android:visibility="gone"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/phone"-->
-            <!--                tools:text="@string/profile_verify_phone_msg" />-->
-
-            <!--            <com.blockchain.componentlib.button.SmallPrimaryButtonView-->
-            <!--                android:id="@+id/verify_phone_btn"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="@dimen/small_margin"-->
-            <!--                app:layout_constraintStart_toStartOf="@id/verify_phone_msg"-->
-            <!--                app:layout_constraintTop_toBottomOf="@id/verify_phone_msg" />-->
-
-            <!--            <com.blockchain.componentlib.tag.TagsRowView-->
-            <!--                android:id="@+id/tag_mobile"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginStart="@dimen/small_margin"-->
-            <!--                android:layout_marginTop="@dimen/small_margin"-->
-            <!--                app:layout_constraintTop_toBottomOf="@+id/verify_phone_btn" />-->
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </ScrollView>
-
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/progress"
+    <TextView
+        android:id="@+id/contact_support"
+        style="@style/TextAppearance.Blockchain.Caption1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/tiny_margin"
+        app:layout_constraintTop_toBottomOf="@id/name_row"
+        tools:text="Need to update your name? Contact support" />
 
-        <ProgressBar
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="@dimen/large_margin"
-            tools:visibility="visible" />
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/div_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/small_margin"
+        app:layout_constraintTop_toBottomOf="@+id/contact_support" />
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/email_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/div_2" />
 
-</RelativeLayout>
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/div_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/email_row" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/mobile_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/div_3" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/div_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/mobile_row" />
+</androidx.constraintlayout.widget.ConstraintLayout>

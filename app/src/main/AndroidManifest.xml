@@ -141,8 +141,8 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.start.LandingCtaActivity"
-            android:theme="@style/AppTheme.Splash"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.Splash"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.createwallet.CreateWalletActivity"
@@ -226,7 +226,9 @@
         <activity android:name=".ui.home.ActionActivity" />
         <activity android:name=".ui.settings.v2.SettingsActivity" />
         <activity android:name=".ui.settings.v2.RedesignSettingsPhase2Activity" />
-        <activity android:name=".ui.settings.v2.profile.ProfileActivity" />
+        <activity
+            android:name=".ui.settings.v2.profile.ProfileActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.settings.v2.AboutAppActivity" />
         <activity android:name=".ui.settings.v2.account.AccountActivity" />
         <activity android:name=".ui.settings.v2.notifications.NotificationsActivity" />

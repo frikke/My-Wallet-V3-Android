@@ -45,8 +45,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         }
 
         supportFragmentManager.showFragment(
-            fragment = loadFragment(),
-            loadingView = binding.progress
+            fragment = loadFragment()
         )
     }
 

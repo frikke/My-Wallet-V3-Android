@@ -5,13 +5,17 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.mvi.MviModel
+import piuk.blockchain.android.util.ActivityIndicator
+import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class ProfileModel(
     initialState: ProfileState,
     mainScheduler: Scheduler,
     private val interactor: ProfileInteractor,
+    private val _activityIndicator: Lazy<ActivityIndicator?>,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<ProfileState, ProfileIntent>(
@@ -20,27 +24,48 @@ class ProfileModel(
     environmentConfig,
     crashLogger
 ) {
+
+    private val activityIndicator: ActivityIndicator? by unsafeLazy {
+        _activityIndicator.value
+    }
+
     override fun performAction(
         previousState: ProfileState,
         intent: ProfileIntent
     ): Disposable? =
         when (intent) {
-            is ProfileIntent.SaveProfile -> {
-                interactor.saveProfile(
-                    email = intent.userInfoSettings.email.orEmpty(),
-                    mobileWithPrefix = intent.userInfoSettings.mobileWithPrefix.orEmpty()
-                ).subscribeBy(
-                    onSuccess = { (email, settings) ->
-                        process(ProfileIntent.SaveProfileSucceeded(email, settings))
-                    },
-                    onError = {
-                        Timber.e("SaveProfile failure " + it)
-                        process(ProfileIntent.SaveProfileFailed)
-                    }
-                )
+            is ProfileIntent.SaveEmail -> {
+                interactor.saveEmail(
+                    email = intent.email
+                ).trackProgress(activityIndicator)
+                    .subscribeBy(
+                        onSuccess = {
+                            process(ProfileIntent.SaveEmailSucceeded(it))
+                            process(ProfileIntent.ResendEmail(it.email))
+                        },
+                        onError = {
+                            Timber.e("SaveEmail failure " + it)
+                            process(ProfileIntent.SaveEmailFailed)
+                        }
+                    )
+            }
+            is ProfileIntent.SavePhoneNumber -> {
+                interactor.savePhoneNumber(
+                    mobileWithPrefix = intent.phoneNumber
+                ).trackProgress(activityIndicator)
+                    .subscribeBy(
+                        onSuccess = { mobileNumber ->
+                            process(ProfileIntent.SavePhoneNumberSucceeded(mobileNumber))
+                        },
+                        onError = {
+                            Timber.e("SaveEmail failure " + it)
+                            process(ProfileIntent.SavePhoneNumberFailed)
+                        }
+                    )
             }
             is ProfileIntent.LoadProfile -> {
                 interactor.fetchProfileSettings()
+                    .trackProgress(activityIndicator)
                     .subscribeBy(
                         onSuccess = { userInfo ->
                             process(
@@ -54,56 +79,60 @@ class ProfileModel(
                     }
                     )
             }
-            is ProfileIntent.SaveAndSendEmail -> {
-                interactor.saveAndSendEmail(
+            is ProfileIntent.ResendEmail -> {
+                interactor.resendEmail(
                     email = intent.email
-                ).subscribeBy(
-                    onSuccess = {
-                        process(ProfileIntent.SaveAndSendEmailSucceeded)
-                    },
-                    onError = {
-                        Timber.e("SaveAndSendEmail failure " + it)
-                        process(ProfileIntent.SaveAndSendEmailFailed)
-                    }
-                )
+                ).trackProgress(activityIndicator)
+                    .subscribeBy(
+                        onSuccess = {
+                            process(ProfileIntent.ResendEmailSucceeded(it))
+                        },
+                        onError = {
+                            Timber.e("ResendEmail failure " + it)
+                            process(ProfileIntent.ResendEmailFailed)
+                        }
+                    )
             }
-            is ProfileIntent.SaveAndSendSMS -> {
-                interactor.saveAndSendSMS(
+            is ProfileIntent.ResendCodeSMS -> {
+                interactor.resendCodeSMS(
                     mobileWithPrefix = intent.mobileWithPrefix
-                ).subscribeBy(
-                    onSuccess = {
-                        process(ProfileIntent.SaveAndSendSMSSucceeded)
-                    },
-                    onError = {
-                        Timber.e("SaveAndSendSMS failure " + it)
-                        process(ProfileIntent.SaveAndSendSMSFailed)
-                    }
-                )
+                ).trackProgress(activityIndicator)
+                    .subscribeBy(
+                        onSuccess = {
+                            process(ProfileIntent.ResendCodeSMSSucceeded)
+                        },
+                        onError = {
+                            Timber.e("SaveAndSendSMS failure " + it)
+                            process(ProfileIntent.ResendCodeSMSFailed)
+                        }
+                    )
             }
             is ProfileIntent.VerifyPhoneNumber -> {
                 interactor.verifyPhoneNumber(
                     code = intent.code
-                ).subscribeBy(
-                    onComplete = {
-                        process(ProfileIntent.LoadProfile)
-                    },
-                    onError = {
-                        Timber.e("VerifyPhoneNumber failure " + it)
-                        process(ProfileIntent.VerifyPhoneNumberFailed)
-                    }
-                )
+                ).trackProgress(activityIndicator)
+                    .subscribeBy(
+                        onComplete = {
+                            process(ProfileIntent.LoadProfile)
+                        },
+                        onError = {
+                            Timber.e("VerifyPhoneNumber failure " + it)
+                            process(ProfileIntent.VerifyPhoneNumberFailed)
+                        }
+                    )
             }
+            is ProfileIntent.SaveEmailFailed,
+            is ProfileIntent.SaveEmailSucceeded,
+            is ProfileIntent.SavePhoneNumberSucceeded,
+            is ProfileIntent.SavePhoneNumberFailed,
             is ProfileIntent.ResetEmailSentVerification,
             is ProfileIntent.ResetCodeSentVerification,
-            is ProfileIntent.SaveAndSendEmailSucceeded,
-            is ProfileIntent.SaveAndSendEmailFailed,
-            is ProfileIntent.SaveAndSendSMSSucceeded,
-            is ProfileIntent.SaveAndSendSMSFailed,
+            is ProfileIntent.ResendEmailSucceeded,
+            is ProfileIntent.ResendEmailFailed,
+            is ProfileIntent.ResendCodeSMSSucceeded,
+            is ProfileIntent.ResendCodeSMSFailed,
             is ProfileIntent.VerifyPhoneNumberFailed,
             is ProfileIntent.LoadProfileSucceeded,
-            is ProfileIntent.LoadProfileFailed,
-            is ProfileIntent.SaveProfileFailed,
-            is ProfileIntent.SaveProfileSucceeded,
-            is ProfileIntent.UpdateProfileView -> null
+            is ProfileIntent.LoadProfileFailed -> null
         }
 }
