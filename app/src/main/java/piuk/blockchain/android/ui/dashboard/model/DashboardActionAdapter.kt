@@ -24,6 +24,7 @@ import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -150,6 +151,18 @@ class DashboardActionAdapter(
             }
 
         return cd
+    }
+
+    fun refreshFiatBalances(
+        fiatAccounts: Map<Currency, FiatBalanceInfo>,
+        model: DashboardModel
+    ): Disposable {
+        val disposable = CompositeDisposable()
+        fiatAccounts
+            .values.forEach {
+                disposable += refreshFiatAssetBalance(it.account, model)
+            }
+        return disposable
     }
 
     private fun Maybe<AccountGroup>.logGroupLoadError(asset: AssetInfo, filter: AssetFilter) =

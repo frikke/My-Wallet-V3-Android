@@ -82,7 +82,6 @@ internal class PricesFragment :
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
     DialogFlow.FlowHost,
-    DashboardScreen,
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
     BuyPendingOrdersBottomSheet.Host,
@@ -557,9 +556,6 @@ internal class PricesFragment :
 
     companion object {
         fun newInstance() = PricesFragment()
-    }
-
-    override fun onBecameVisible() {
     }
 
     private fun CryptoAssetState.toAssetPriceState() =

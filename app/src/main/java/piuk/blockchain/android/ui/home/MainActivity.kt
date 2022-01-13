@@ -425,6 +425,11 @@ class MainActivity :
             is ViewToLaunch.LaunchOpenBankingApprovalDepositComplete -> {
                 val currencyCode = view.amount.currencyCode
                 val amountWithSymbol = view.amount.toStringWithSymbol()
+                supportFragmentManager.findFragmentByTag(PortfolioFragment.javaClass.simpleName)
+                    ?.let { portfolioFragment ->
+                        (portfolioFragment as PortfolioFragment).refreshFiatAssets()
+                    }
+
                 replaceBottomSheet(
                     FiatTransactionBottomSheet.newInstance(
                         currencyCode,
@@ -483,7 +488,6 @@ class MainActivity :
                 launchOpenBankingLinking(view.bankLinkingInfo)
             }
             is ViewToLaunch.LaunchPaymentForCancelledOrder -> {
-
                 replaceBottomSheet(
                     FiatTransactionBottomSheet.newInstance(
                         view.state.fiatCurrency.displayTicker,

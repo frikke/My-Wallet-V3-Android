@@ -59,7 +59,8 @@ class DashboardModel(
             is DashboardIntent.StartBankTransferFlow ->
                 interactor.launchBankTransferFlow(this, intent.currency, intent.action)
             is DashboardIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(this)
-            DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
+            is DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
+            is DashboardIntent.RefreshFiatBalances -> interactor.refreshFiatBalances(intent.fiatAccounts, this)
             is DashboardIntent.FiatBalanceUpdate,
             is DashboardIntent.BalanceUpdateError,
             is DashboardIntent.PriceHistoryUpdate,
@@ -83,7 +84,7 @@ class DashboardModel(
             is DashboardIntent.FundsLocksLoaded,
             is DashboardIntent.FetchOnboardingStepsSuccess,
             is DashboardIntent.LaunchDashboardOnboarding,
-            DashboardIntent.ResetDashboardAssets -> null
+            is DashboardIntent.ResetDashboardAssets -> null
         }
     }
 

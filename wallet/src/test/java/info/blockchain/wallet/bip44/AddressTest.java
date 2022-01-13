@@ -42,7 +42,7 @@ public class AddressTest {
 
     @Test
     public void getPath() {
-        Assert.assertEquals("M/0", address.getPath());
+        Assert.assertEquals("m/0", address.getPath());
     }
 
     @Test

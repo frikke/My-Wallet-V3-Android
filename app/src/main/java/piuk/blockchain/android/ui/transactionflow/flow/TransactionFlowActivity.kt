@@ -35,6 +35,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.BackNavigationState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
 import piuk.blockchain.android.ui.transactionflow.transactionFlowActivityScope
+import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getTarget
 import piuk.blockchain.android.util.gone
@@ -188,7 +189,14 @@ class TransactionFlowActivity :
                     model.process(TransactionIntent.ClearSelectedTarget)
                     model.process(TransactionIntent.ReturnToPreviousStep)
                 }
-                BackNavigationState.ResetPendingTransaction -> model.process(TransactionIntent.InvalidateTransaction)
+                BackNavigationState.ResetPendingTransaction -> {
+                    ViewUtils.hideKeyboard(this)
+                    model.process(TransactionIntent.InvalidateTransaction)
+                }
+                BackNavigationState.ResetPendingTransactionKeepingTarget -> {
+                    ViewUtils.hideKeyboard(this)
+                    model.process(TransactionIntent.InvalidateTransactionKeepingTarget)
+                }
                 BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)
             }
         } else {

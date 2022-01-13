@@ -42,13 +42,10 @@ class CurrenciesAdapter(
         with(holder) {
             val item = items[position]
 
-            rootView.setOnClickListener {
-                onChecked(item)
-            }
-
             currencyInfo.apply {
                 primaryText = item.name
                 secondaryText = item.symbol
+                onClick = { onChecked(item) }
             }
 
             when {
