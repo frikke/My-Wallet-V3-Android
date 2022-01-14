@@ -7,12 +7,12 @@ import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TxSourceState
+import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
-import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable

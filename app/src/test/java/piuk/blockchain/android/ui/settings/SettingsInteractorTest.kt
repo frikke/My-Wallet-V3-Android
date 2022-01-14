@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.core.Database
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -15,6 +15,7 @@ import exchangerate.HistoricRateQueries
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.settings.v2.SettingsInteractor
 
@@ -24,7 +25,8 @@ class SettingsInteractorTest {
     private val userIdentity: UserIdentity = mock()
     private val database: Database = mock()
     private val credentialsWiper: CredentialsWiper = mock()
-    private val custodialWalletManager: CustodialWalletManager = mock()
+    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
 
     @Before
@@ -33,7 +35,8 @@ class SettingsInteractorTest {
             userIdentity = userIdentity,
             database = database,
             credentialsWiper = credentialsWiper,
-            custodialWalletManager = custodialWalletManager,
+            paymentsDataManager = paymentsDataManager,
+            getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
             currencyPrefs = currencyPrefs
         )
     }

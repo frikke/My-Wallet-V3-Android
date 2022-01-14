@@ -61,7 +61,7 @@ object Versions {
     const val moshi = "1.8.0"
     const val gson = "2.8.5"
     const val jacksonCore = "2.12.3"
-    const val kotlinJson = "1.2.1"
+    const val kotlinJson = "1.3.2"
     const val kotlinJsonConverter = "0.8.0"
 
     // SqlDelight

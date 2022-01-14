@@ -1,8 +1,12 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.BankState
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Feature
@@ -16,13 +20,12 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.network.PollResult
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
@@ -43,6 +46,7 @@ import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.util.ActivityIndicator
@@ -163,7 +167,7 @@ class SimpleBuyModel(
                 )
             is SimpleBuyIntent.TryToLinkABankTransfer -> {
                 interactor.eligiblePaymentMethodsTypes(previousState.fiatCurrency).map {
-                    it.any { paymentMethod -> paymentMethod.paymentMethodType == PaymentMethodType.BANK_TRANSFER }
+                    it.any { paymentMethod -> paymentMethod.type == PaymentMethodType.BANK_TRANSFER }
                 }.subscribeBy(
                     onSuccess = { isEligibleToLinkABank ->
                         if (isEligibleToLinkABank) {
@@ -256,7 +260,7 @@ class SimpleBuyModel(
                             process(SimpleBuyIntent.ErrorIntent())
                         }
                     )
-            is SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible -> interactor.eligiblePaymentMethods(
+            is SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible -> fetchEligiblePaymentMethods(
                 intent.fiatCurrency
             ).trackProgress(activityIndicator).subscribeBy(
                 onSuccess = {
@@ -499,13 +503,12 @@ class SimpleBuyModel(
         preselectedId: String?,
         previousSelectedId: String?
     ) =
-        interactor.eligiblePaymentMethods(
-            fiatCurrency
-        ).flatMap { paymentMethods ->
-            getEligibilityAndNextPaymentDateUseCase(Unit)
-                .map { paymentMethods to it }
-                .onErrorReturn { paymentMethods to emptyList() }
-        }
+        fetchEligiblePaymentMethods(fiatCurrency)
+            .flatMap { paymentMethods ->
+                getEligibilityAndNextPaymentDateUseCase(Unit)
+                    .map { paymentMethods to it }
+                    .onErrorReturn { paymentMethods to emptyList() }
+            }
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
@@ -514,7 +517,7 @@ class SimpleBuyModel(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
                             preselectedId = preselectedId,
                             previousSelectedId = previousSelectedId,
-                            availablePaymentMethods
+                            availablePaymentMethods = availablePaymentMethods
                         )
                     )
                 },
@@ -522,6 +525,12 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.ErrorIntent())
                 }
             )
+
+    private fun fetchEligiblePaymentMethods(fiatCurrency: FiatCurrency) = interactor.paymentMethods(
+        fiatCurrency
+    ).map {
+        it.toPaymentMethods(fiatCurrency)
+    }
 
     private fun updateSelectedAndAvailablePaymentMethodMethodsIntent(
         preselectedId: String?,
@@ -539,7 +548,8 @@ class SimpleBuyModel(
         )
 
         val selectedPaymentMethodId = selectedMethodId(
-            preselectedId = preselectedId, previousSelectedId = previousSelectedId,
+            preselectedId = preselectedId,
+            previousSelectedId = previousSelectedId,
             availablePaymentMethods = availablePaymentMethods
         )
         val selectedPaymentMethod = availablePaymentMethods.firstOrNull {
@@ -567,19 +577,15 @@ class SimpleBuyModel(
         previousSelectedId: String?,
         availablePaymentMethods: List<PaymentMethod>
     ): String? =
-        when {
-            preselectedId != null -> availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id
-            previousSelectedId != null -> availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id
-            else -> {
-                // we skip undefined funds cause this payment method should trigger a bottom sheet
-                // and it should always be actioned before
+        preselectedId?.let { availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id }
+            ?: previousSelectedId?.let { availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id }
+            ?: let {
                 val paymentMethodsThatCanBePreselected =
                     availablePaymentMethods.filter { it !is PaymentMethod.UndefinedBankAccount }
                 paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible && it.canBeUsedForPaying() }?.id
                     ?: paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible }?.id
                     ?: paymentMethodsThatCanBePreselected.firstOrNull()?.id
             }
-        }
 
     private fun handleOrderAttrs(order: BuySellOrder) {
         when {
@@ -824,6 +830,86 @@ class SimpleBuyModel(
 
     override fun onStateUpdate(s: SimpleBuyState) {
         serializer.update(s)
+    }
+
+    private fun SimpleBuyInteractor.PaymentMethods.toPaymentMethods(
+        fiatCurrency: FiatCurrency
+    ): List<PaymentMethod> {
+        val availableMap = available.associateBy { it.type }
+        val limitsMap = available.associate { it.type to it.limits }
+
+        val availableForBuyLinkedMethods = linked
+            .filter { availableMap[it.type]?.canBeUsedForPayment == true }
+            .filter {
+                when (it) {
+                    is LinkedPaymentMethod.Card -> it.status == CardStatus.ACTIVE
+                    is LinkedPaymentMethod.Funds -> it.currency == fiatCurrency
+                    is LinkedPaymentMethod.Bank -> it.isBankTransferAccount && it.state == BankState.ACTIVE
+                }
+            }
+            .filterNot { it.type == PaymentMethodType.FUNDS && it.currency != fiatCurrency }
+            .mapNotNull {
+                val limits = limitsMap[it.type] ?: return@mapNotNull null
+
+                when (it) {
+                    is LinkedPaymentMethod.Card -> PaymentMethod.Card(
+                        cardId = it.cardId,
+                        limits = limits,
+                        label = it.label,
+                        endDigits = it.endDigits,
+                        partner = it.partner,
+                        expireDate = it.expireDate,
+                        cardType = it.cardType,
+                        status = it.status,
+                        isEligible = true
+                    )
+                    is LinkedPaymentMethod.Funds -> it.balance.takeIf { balance ->
+                        balance > limits.min
+                    }?.let { balance ->
+                        val fundsLimits = limits.copy(max = Money.min(limits.max, balance))
+                        PaymentMethod.Funds(
+                            balance,
+                            fiatCurrency,
+                            fundsLimits,
+                            true
+                        )
+                    }
+                    is LinkedPaymentMethod.Bank -> PaymentMethod.Bank(
+                        bankId = it.id,
+                        limits = limits,
+                        bankName = it.name,
+                        accountEnding = it.accountEnding,
+                        accountType = it.accountType,
+                        iconUrl = it.iconUrl,
+                        isEligible = true
+                    )
+                }
+            }
+
+        val canBeLinkedMethods = available
+            .filter { it.linkAccess != LinkAccess.BLOCKED }
+            .mapNotNull { method ->
+                when (method.type) {
+                    PaymentMethodType.PAYMENT_CARD ->
+                        PaymentMethod.UndefinedCard(method.limits, method.canBeUsedForPayment)
+                    PaymentMethodType.BANK_TRANSFER ->
+                        PaymentMethod.UndefinedBankTransfer(method.limits, method.canBeUsedForPayment)
+                    PaymentMethodType.BANK_ACCOUNT ->
+                        if (method.canBeUsedForPayment && method.currency == fiatCurrency) {
+                            PaymentMethod.UndefinedBankAccount(
+                                method.currency,
+                                method.limits,
+                                method.canBeUsedForPayment
+                            )
+                        } else null
+                    PaymentMethodType.FUNDS,
+                    PaymentMethodType.UNKNOWN -> null
+                }
+            }
+
+        val availablePaymentMethods = (availableForBuyLinkedMethods + canBeLinkedMethods)
+
+        return availablePaymentMethods.sortedBy { paymentMethod -> paymentMethod.order }.toList()
     }
 
     companion object {

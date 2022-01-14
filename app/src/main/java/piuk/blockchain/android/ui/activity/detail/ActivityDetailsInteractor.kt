@@ -16,6 +16,7 @@ import com.blockchain.coincore.erc20.Erc20ActivitySummaryItem
 import com.blockchain.coincore.eth.EthActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.coincore.xlm.XlmActivitySummaryItem
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -46,6 +47,7 @@ class ActivityDetailsInteractor(
     private val transactionInputOutputMapper: TransactionInOutMapper,
     private val assetActivityRepository: AssetActivityRepository,
     private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val stringUtils: StringUtils,
     private val coincore: Coincore,
     private val historicRateFetcher: HistoricRateFetcher,
@@ -79,7 +81,7 @@ class ActivityDetailsInteractor(
         )
 
         return when (summaryItem.paymentMethodType) {
-            PaymentMethodType.PAYMENT_CARD -> custodialWalletManager.getCardDetails(
+            PaymentMethodType.PAYMENT_CARD -> paymentsDataManager.getCardDetails(
                 summaryItem.paymentMethodId
             )
                 .map { paymentMethod ->
@@ -89,7 +91,7 @@ class ActivityDetailsInteractor(
                     addPaymentDetailsToList(list, null, summaryItem)
                     list.toList()
                 }
-            PaymentMethodType.BANK_TRANSFER -> custodialWalletManager.getLinkedBank(
+            PaymentMethodType.BANK_TRANSFER -> paymentsDataManager.getLinkedBank(
                 summaryItem.paymentMethodId
             ).map {
                 it.toPaymentMethod()
@@ -130,7 +132,7 @@ class ActivityDetailsInteractor(
             NextPayment(recurringBuy.nextPaymentDate)
         )
         return when (cacheTransaction.paymentMethodType) {
-            PaymentMethodType.PAYMENT_CARD -> custodialWalletManager.getCardDetails(cacheTransaction.paymentMethodId)
+            PaymentMethodType.PAYMENT_CARD -> paymentsDataManager.getCardDetails(cacheTransaction.paymentMethodId)
                 .map { paymentMethod ->
                     addPaymentDetailsToList(list, paymentMethod, cacheTransaction)
                     list.toList()
@@ -138,7 +140,7 @@ class ActivityDetailsInteractor(
                     addPaymentDetailsToList(list, null, cacheTransaction)
                     list.toList()
                 }
-            PaymentMethodType.BANK_TRANSFER -> custodialWalletManager.getLinkedBank(cacheTransaction.paymentMethodId)
+            PaymentMethodType.BANK_TRANSFER -> paymentsDataManager.getLinkedBank(cacheTransaction.paymentMethodId)
                 .map {
                     it.toPaymentMethod()
                 }.map { paymentMethod ->

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.linkbank
 
 import com.blockchain.banking.BankPaymentApproval
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.LinkedBank
 import com.google.gson.Gson
 import java.io.Serializable
 import piuk.blockchain.android.simplebuy.ErrorState

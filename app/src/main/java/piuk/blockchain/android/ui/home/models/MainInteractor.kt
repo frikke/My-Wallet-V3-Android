@@ -6,11 +6,12 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.core.Database
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankTransferDetails
+import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.data.BankTransferDetails
-import com.blockchain.nabu.models.data.BankTransferStatus
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.network.PollResult
@@ -55,6 +56,7 @@ class MainInteractor internal constructor(
     private val kycStatusHelper: KycStatusHelper,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val simpleBuySync: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
     private val upsellManager: KycUpgradePromptManager,
@@ -109,7 +111,7 @@ class MainInteractor internal constructor(
         bankLinkingPrefs.setBankLinkingState(bankLinkingState.toPreferencesValue())
 
     fun updateOpenBankingConsent(consentToken: String): Completable =
-        custodialWalletManager.updateOpenBankingConsent(
+        paymentsDataManager.updateOpenBankingConsent(
             bankLinkingPrefs.getDynamicOneTimeTokenUrl(), consentToken
         ).doOnError {
             resetLocalBankAuthState()
@@ -117,7 +119,7 @@ class MainInteractor internal constructor(
 
     fun pollForBankTransferCharge(paymentData: BankPaymentApproval): Single<PollResult<BankTransferDetails>> =
         PollService(
-            custodialWalletManager.getBankTransferCharge(paymentData.paymentId)
+            paymentsDataManager.getBankTransferCharge(paymentData.paymentId)
         ) { transferDetails ->
             transferDetails.status != BankTransferStatus.PENDING
         }.start()

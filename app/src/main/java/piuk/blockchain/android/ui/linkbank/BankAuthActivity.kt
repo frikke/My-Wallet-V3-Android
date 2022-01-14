@@ -5,12 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.YapilyAttributes
+import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.core.payments.model.YodleeAttributes
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.YapilyAttributes
-import com.blockchain.nabu.models.data.YapilyInstitution
-import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R

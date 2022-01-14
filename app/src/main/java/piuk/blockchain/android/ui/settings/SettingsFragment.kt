@@ -41,11 +41,11 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricAuthError.BiometricsNoSuitableMethods
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -77,7 +77,6 @@ import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ModalChangePasswordBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.RemoveLinkedBankBottomSheet
-import piuk.blockchain.android.simplebuy.RemovePaymentMethodBottomSheetHost
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.ui.auth.KEY_VALIDATING_PIN_FOR_RESULT
@@ -122,7 +121,8 @@ import timber.log.Timber
 class SettingsFragment :
     PreferenceFragmentCompat(),
     SettingsView,
-    RemovePaymentMethodBottomSheetHost,
+    RemoveCardBottomSheet.Host,
+    RemoveLinkedBankBottomSheet.Host,
     BankLinkingHost {
 
     // Profile
@@ -515,41 +515,46 @@ class SettingsFragment :
         thePit?.setValue(isLinked)
     }
 
-    override fun updateLinkableBanks(linkablePaymentMethods: Set<LinkablePaymentMethods>, linkedBanksCount: Int) {
-        linkablePaymentMethods.forEach { linkableBank ->
-            banksPref?.findPreference<BankPreference>(LINK_BANK_KEY.plus(linkableBank.hashCode()))?.let {
-                it.order = it.order + linkedBanksCount + linkablePaymentMethods.indexOf(linkableBank)
-            } ?: banksPref?.addPreference(
-                BankPreference(context = requireContext(), fiatCurrency = linkableBank.currency.displayTicker).apply {
-                    onClick {
-                        linkBank(linkableBank)
-                    }
-                    key = LINK_BANK_KEY.plus(linkableBank.hashCode())
-                }
-            )
-        }
-    }
-
-    override fun updateLinkedBanks(banks: Set<Bank>) {
-        val existingBanks = prefsExistingBanks()
-
-        val newBanks = banks.filterNot { existingBanks.contains(it.id) }
-
-        newBanks.forEach { bank ->
+    override fun updateLinkNewBank(linkablePaymentMethods: LinkablePaymentMethods) {
+        val enabled = linkablePaymentMethods.linkMethods.isNotEmpty()
+        val addBankPref = banksPref?.findPreference<BankPreference>(LINK_BANK_KEY)
+        if (enabled && addBankPref == null) {
             banksPref?.addPreference(
                 BankPreference(
-                    context = requireContext(), bank = bank, fiatCurrency = bank.currency.displayTicker
+                    context = requireContext(),
+                    fiatCurrency = linkablePaymentMethods.currency.displayTicker
                 ).apply {
                     onClick {
-                        removeBank(bank)
+                        linkBank(linkablePaymentMethods)
                     }
-                    key = bank.id
+                    key = LINK_BANK_KEY
+                }
+            )
+        } else if (!enabled && addBankPref != null) {
+            banksPref?.removePreference(addBankPref)
+        }
+    }
+
+    override fun updateLinkedBanks(bankItems: List<BankItem>) {
+        val existingBanks = prefsExistingBanks()
+
+        val newBankItems = bankItems.filterNot { existingBanks.contains(it.bank.id) }
+
+        newBankItems.forEach { bankItem ->
+            banksPref?.addPreference(
+                BankPreference(
+                    context = requireContext(), bankItem = bankItem, fiatCurrency = bankItem.bank.currency.displayTicker
+                ).apply {
+                    onClick {
+                        removeBank(bankItem.bank)
+                    }
+                    key = bankItem.bank.id
                 }
             )
         }
     }
 
-    private fun removeBank(bank: Bank) {
+    private fun removeBank(bank: LinkedPaymentMethod.Bank) {
         RemoveLinkedBankBottomSheet.newInstance(bank).show(childFragmentManager, BOTTOM_SHEET)
     }
 
@@ -588,7 +593,6 @@ class SettingsFragment :
     }
 
     override fun updateCards(cards: List<PaymentMethod.Card>) {
-
         val existingCards = prefsExistingCards()
 
         val newCards = cards.filterNot { existingCards.contains(it.cardId) }
@@ -606,15 +610,7 @@ class SettingsFragment :
 
         cardsPref?.findPreference<CardPreference>(ADD_CARD_KEY)?.let {
             it.order = it.order + newCards.size + 1
-        } ?: cardsPref?.addPreference(
-            CardPreference(context = requireContext()).apply {
-                onClick {
-                    addNewCard()
-                    analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.SETTINGS))
-                }
-                key = ADD_CARD_KEY
-            }
-        )
+        }
     }
 
     private fun prefsExistingCards(): List<String> {
@@ -985,6 +981,7 @@ class SettingsFragment :
                                 ?: return
                         )
                     )
+                    settingsPresenter.updateCanAddNewCard()
                 }
                 BankAuthActivity.LINK_BANK_REQUEST_CODE -> {
                     settingsPresenter.updateBanks()
@@ -1233,6 +1230,7 @@ class SettingsFragment :
         cardsPref?.findPreference<CardPreference>(cardId)?.let {
             cardsPref?.removePreference(it)
         }
+        settingsPresenter.updateCanAddNewCard()
     }
 
     override fun onLinkedBankRemoved(bankId: String) {
@@ -1245,6 +1243,23 @@ class SettingsFragment :
 
     override fun cardsEnabled(enabled: Boolean) {
         cardsPref?.isVisible = enabled
+    }
+
+    override fun addCardEnabled(enabled: Boolean) {
+        val addCardPref = cardsPref?.findPreference<CardPreference>(ADD_CARD_KEY)
+        if (enabled && addCardPref == null) {
+            cardsPref?.addPreference(
+                CardPreference(context = requireContext()).apply {
+                    onClick {
+                        addNewCard()
+                        analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.SETTINGS))
+                    }
+                    key = ADD_CARD_KEY
+                }
+            )
+        } else if (!enabled && addCardPref != null) {
+            cardsPref?.removePreference(addCardPref)
+        }
     }
 
     override fun banksEnabled(enabled: Boolean) {

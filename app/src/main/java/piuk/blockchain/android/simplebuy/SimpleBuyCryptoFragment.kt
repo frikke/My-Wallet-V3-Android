@@ -161,7 +161,8 @@ class SimpleBuyCryptoFragment :
                                 method.canBeUsedForPaying() ||
                                     method is PaymentMethod.UndefinedBankAccount
                             },
-                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHODS
+                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHODS,
+                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() }
                     )
                 PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
                     PaymentMethodChooserBottomSheet.newInstance(
@@ -169,7 +170,8 @@ class SimpleBuyCryptoFragment :
                             .filter { method ->
                                 method.canBeAdded()
                             },
-                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES
+                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
+                        canAddNewPayment = true
                     )
             }
         )

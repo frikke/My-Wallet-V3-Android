@@ -107,14 +107,12 @@ val nabuModule = module {
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
                 ),
                 kycFeatureEligibility = get(),
-                tradingBalanceDataManager = get(),
                 interestRepository = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
                 buyOrdersCache = get(),
-                pairsCache = get(),
-                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag)
+                pairsCache = get()
             )
         }.bind(CustodialWalletManager::class)
 

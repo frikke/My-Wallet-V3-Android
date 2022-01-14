@@ -35,7 +35,6 @@ internal const val NABU_WITHDRAW_LOCKS_CHECK = "payments/withdrawals/locks/check
 internal const val NABU_SIMPLE_BUY_BALANCE_TRANSFER = "payments/withdrawals"
 internal const val NABU_ELIGIBLE_PAYMENT_METHODS = "eligible/payment-methods"
 internal const val NABU_CARD_ACQUIRERS = "payments/card-acquirers"
-internal const val NABU_BENEFICIARIES = "payments/beneficiaries"
 internal const val NABU_BANKS = "payments/banks"
 internal const val NABU_CARDS = "payments/cards"
 internal const val NABU_SIMPLE_BUY_TRANSACTIONS = "payments/transactions"

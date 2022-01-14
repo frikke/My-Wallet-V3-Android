@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -29,6 +30,7 @@ import timber.log.Timber
 
 class SimpleBuySyncFactory(
     private val custodialWallet: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val serializer: SimpleBuyPrefsSerializer
 ) {
 
@@ -106,7 +108,7 @@ class SimpleBuySyncFactory(
 
     private fun BuySellOrder.toSimpleBuyStateMaybe(): Maybe<SimpleBuyState> = when {
         isDefinedCardPayment() -> {
-            custodialWallet.getCardDetails(paymentMethodId).flatMapMaybe {
+            paymentsDataManager.getCardDetails(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     this.toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(
@@ -121,7 +123,7 @@ class SimpleBuySyncFactory(
             }
         }
         isDefinedBankTransferPayment() -> {
-            custodialWallet.getLinkedBank(paymentMethodId).flatMapMaybe {
+            paymentsDataManager.getLinkedBank(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(

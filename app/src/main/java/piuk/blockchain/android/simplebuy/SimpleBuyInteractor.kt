@@ -1,5 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.api.paymentmethods.models.ProviderAccountAttrs
+import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
@@ -8,34 +10,33 @@ import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.EligiblePaymentMethodType
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.CardToBeActivated
+import com.blockchain.core.payments.model.LinkedBank
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.BuySellOrder
-import com.blockchain.nabu.datamanagers.CardToBeActivated
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.nabu.models.responses.banktransfer.ProviderAccountAttrs
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.service.TierService
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
@@ -60,7 +61,9 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.cards.CardIntent
+import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
+import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -84,7 +87,9 @@ class SimpleBuyInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val stripeAndCheckoutPaymentsFeatureFlag: IntegratedFeatureFlag,
     private val cardProcessors: Map<CardAcquirer, CardProcessor>,
-    private val cancelOrderUseCase: CancelOrderUseCase
+    private val cancelOrderUseCase: CancelOrderUseCase,
+    private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
+    private val paymentsDataManager: PaymentsDataManager
 ) {
 
     // Hack until we have a proper limits api.
@@ -256,7 +261,7 @@ class SimpleBuyInteractor(
             ).toPreferencesValue()
         )
 
-        return custodialWalletManager.updateSelectedBankAccount(
+        return paymentsDataManager.updateSelectedBankAccount(
             linkingId = linkingId,
             providerAccountId = providerAccountId,
             accountId = accountId,
@@ -289,7 +294,7 @@ class SimpleBuyInteractor(
         }
 
     fun pollForBankLinkingCompleted(id: String): Single<LinkedBank> = PollService(
-        custodialWalletManager.getLinkedBank(id)
+        paymentsDataManager.getLinkedBank(id)
     ) {
         it.isLinkingInFinishedState()
     }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT).map {
@@ -297,7 +302,7 @@ class SimpleBuyInteractor(
     }
 
     fun pollForLinkedBankState(id: String, partner: BankPartner?): Single<PollResult<LinkedBank>> = PollService(
-        custodialWalletManager.getLinkedBank(id)
+        paymentsDataManager.getLinkedBank(id)
     ) {
         if (partner == BankPartner.YAPILY) {
             it.authorisationUrl.isNotEmpty() && it.callbackPath.isNotEmpty()
@@ -326,7 +331,7 @@ class SimpleBuyInteractor(
     }
 
     fun linkNewBank(fiatCurrency: FiatCurrency): Single<SimpleBuyIntent.BankLinkProcessStarted> {
-        return custodialWalletManager.linkToABank(fiatCurrency).map { linkBankTransfer ->
+        return paymentsDataManager.linkBank(fiatCurrency).map { linkBankTransfer ->
             SimpleBuyIntent.BankLinkProcessStarted(linkBankTransfer)
         }
     }
@@ -345,8 +350,7 @@ class SimpleBuyInteractor(
                 SimpleBuyIntent.ExchangePriceWithDeltaUpdated(exchangePriceWithDelta = exchangePriceWithDelta)
             }
 
-    fun eligiblePaymentMethods(fiatCurrency: FiatCurrency):
-        Single<List<PaymentMethod>> =
+    fun paymentMethods(fiatCurrency: FiatCurrency): Single<PaymentMethods> =
         tierService.tiers()
             .zipWith(
                 custodialWalletManager.isSimplifiedDueDiligenceEligible().onErrorReturn { false }
@@ -355,13 +359,21 @@ class SimpleBuyInteractor(
                             analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE)
                         }
                     }
-            )
-            .flatMap { (tier, sddEligible) ->
-                custodialWalletManager.fetchSuggestedPaymentMethod(
-                    fiatCurrency = fiatCurrency,
-                    fetchSddLimits = sddEligible && tier.isInInitialState(),
-                    onlyEligible = tier.isInitialisedFor(KycTierLevel.GOLD)
-                )
+            ).flatMap { (tier, sddEligible) ->
+                Single.zip(
+                    getAvailablePaymentMethodsTypesUseCase(
+                        GetAvailablePaymentMethodsTypesUseCase.Request(
+                            currency = fiatCurrency,
+                            onlyEligible = tier.isInitialisedFor(KycTierLevel.GOLD),
+                            fetchSddLimits = sddEligible && tier.isInInitialState()
+                        )
+                    ),
+                    paymentsDataManager.getLinkedPaymentMethods(
+                        currency = fiatCurrency
+                    )
+                ) { available, linked ->
+                    PaymentMethods(available, linked)
+                }
             }
 
     // attributes are null in case of bank
@@ -395,7 +407,7 @@ class SimpleBuyInteractor(
 
     fun pollForCardStatus(cardId: String): Single<CardIntent.CardUpdated> =
         PollService(
-            custodialWalletManager.getCardDetails(cardId)
+            paymentsDataManager.getCardDetails(cardId)
         ) {
             it.status == CardStatus.BLOCKED ||
                 it.status == CardStatus.EXPIRED ||
@@ -407,12 +419,10 @@ class SimpleBuyInteractor(
             }
 
     fun eligiblePaymentMethodsTypes(fiatCurrency: FiatCurrency): Single<List<EligiblePaymentMethodType>> =
-        custodialWalletManager.getEligiblePaymentMethodTypes(
-            fiatCurrency = fiatCurrency
-        )
+        paymentsDataManager.getEligiblePaymentMethodTypes(fiatCurrency = fiatCurrency)
 
     fun getLinkedBankInfo(paymentMethodId: String) =
-        custodialWalletManager.getLinkedBank(paymentMethodId)
+        paymentsDataManager.getLinkedBank(paymentMethodId)
 
     fun fetchOrder(orderId: String) = custodialWalletManager.getBuyOrder(orderId)
 
@@ -425,7 +435,7 @@ class SimpleBuyInteractor(
             if (enabled) {
                 addCardWithPaymentTokens(cardData, fiatCurrency, billingAddress)
             } else {
-                custodialWalletManager.addNewCard(fiatCurrency, billingAddress)
+                paymentsDataManager.addNewCard(fiatCurrency, billingAddress)
             }
         }
 
@@ -451,7 +461,7 @@ class SimpleBuyInteractor(
                 .associate { (accountCode, paymentToken) ->
                     accountCode to paymentToken
                 }
-            custodialWalletManager.addNewCard(fiatCurrency, billingAddress, acquirerAccountCodeTokensMap)
+            paymentsDataManager.addNewCard(fiatCurrency, billingAddress, acquirerAccountCodeTokensMap)
         }
     }
 
@@ -492,6 +502,11 @@ class SimpleBuyInteractor(
     fun updateExchangeRate(fiat: FiatCurrency, asset: AssetInfo): Single<ExchangeRate> {
         return exchangeRatesDataManager.exchangeRate(asset, fiat).firstOrError()
     }
+
+    data class PaymentMethods(
+        val available: List<AvailablePaymentMethodType>,
+        val linked: List<LinkedPaymentMethod>
+    )
 
     private fun CardData.toCardDetails() =
         CardDetails(

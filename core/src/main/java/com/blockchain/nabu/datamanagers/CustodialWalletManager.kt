@@ -1,27 +1,23 @@
 package com.blockchain.nabu.datamanagers
 
-import android.annotation.SuppressLint
+import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
+import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
+import com.blockchain.core.payments.model.Partner
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.nabu.models.data.BankTransferDetails
-import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
-import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.nabu.models.responses.banktransfer.ProviderAccountAttrs
 import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
 import com.blockchain.nabu.models.responses.interest.InterestAttributes
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -131,35 +127,10 @@ interface CustodialWalletManager {
 
     fun deleteBuyOrder(orderId: String): Completable
 
-    fun deleteCard(cardId: String): Completable
-
-    fun removeBank(bank: Bank): Completable
-
     fun transferFundsToWallet(amount: CryptoValue, walletAddress: String): Single<String>
 
     // For test/dev
     fun cancelAllPendingOrders(): Completable
-
-    fun updateSupportedCardTypes(currency: FiatCurrency): Completable
-
-    fun linkToABank(currency: FiatCurrency): Single<LinkBankTransfer>
-
-    fun updateSelectedBankAccount(
-        linkingId: String,
-        providerAccountId: String = "",
-        accountId: String = "",
-        attributes: ProviderAccountAttrs
-    ): Completable
-
-    fun fetchSuggestedPaymentMethod(
-        fiatCurrency: FiatCurrency,
-        fetchSddLimits: Boolean,
-        onlyEligible: Boolean
-    ): Single<List<PaymentMethod>>
-
-    fun getEligiblePaymentMethodTypes(
-        fiatCurrency: FiatCurrency
-    ): Single<List<EligiblePaymentMethodType>>
 
     fun getCardAcquirers(): Single<List<PaymentCardAcquirer>>
 
@@ -167,20 +138,6 @@ interface CustodialWalletManager {
         fiatCurrency: FiatCurrency,
         onlyEligible: Boolean
     ): Single<PaymentLimits>
-
-    fun addNewCard(
-        fiatCurrency: FiatCurrency,
-        billingAddress: BillingAddress,
-        paymentMethodTokens: Map<String, String>? = null
-    ): Single<CardToBeActivated>
-
-    fun activateCard(cardId: String, attributes: SimpleBuyConfirmationAttributes): Single<PartnerCredentials>
-
-    fun getCardDetails(cardId: String): Single<PaymentMethod.Card>
-
-    fun fetchUnawareLimitsCards(
-        states: List<CardStatus>
-    ): Single<List<PaymentMethod.Card>> // fetches the available
 
     fun confirmOrder(
         orderId: String,
@@ -206,8 +163,6 @@ interface CustodialWalletManager {
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
     fun getSupportedFundsFiats(fiatCurrency: FiatCurrency = defaultFiatCurrency): Single<List<FiatCurrency>>
-
-    fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
@@ -249,21 +204,9 @@ interface CustodialWalletManager {
         success: Boolean
     ): Completable
 
-    fun getLinkedBank(
-        id: String
-    ): Single<LinkedBank>
-
-    fun getBanks(): Single<List<Bank>>
-
     fun isFiatCurrencySupported(destination: String): Boolean
 
-    fun startBankTransfer(id: String, amount: Money, currency: String, callback: String? = null): Single<String>
-
-    fun getBankTransferCharge(paymentId: String): Single<BankTransferDetails>
-
     fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable
-
-    fun updateOpenBankingConsent(url: String, token: String): Completable
 
     val defaultFiatCurrency: FiatCurrency
 
@@ -404,31 +347,6 @@ typealias BuyOrderList = List<BuySellOrder>
 data class OrderInput(private val symbol: String, private val amount: String? = null)
 
 data class OrderOutput(private val symbol: String, private val amount: String? = null)
-
-data class Bank(
-    val id: String,
-    val name: String,
-    val account: String,
-    val state: BankState,
-    val currency: FiatCurrency,
-    val accountType: String,
-    val paymentMethodType: PaymentMethodType,
-    val iconUrl: String,
-    val canBeUsedToTransact: Boolean = true
-) : Serializable {
-
-    @SuppressLint("DefaultLocale") // Yes, lint is broken
-    fun toHumanReadableAccount(): String {
-        return accountType.toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
-    }
-}
-
-enum class BankState {
-    PENDING,
-    BLOCKED,
-    ACTIVE,
-    UNKNOWN
-}
 
 data class FiatTransaction(
     val amount: FiatValue,
@@ -599,7 +517,7 @@ sealed class PaymentMethod(
     ) : PaymentMethod(FUNDS_PAYMENT_ID, PaymentMethodType.FUNDS, limits, FUNDS_PAYMENT_METHOD_ORDER, isEligible)
 
     data class UndefinedBankAccount(
-        val fiatCurrency: String,
+        val fiatCurrency: FiatCurrency,
         override val limits: PaymentLimits,
         override val isEligible: Boolean
     ) :
@@ -611,7 +529,7 @@ sealed class PaymentMethod(
             get() = currenciesRequiringAvailabilityLabel.contains(fiatCurrency)
 
         companion object {
-            private val currenciesRequiringAvailabilityLabel = listOf("USD")
+            private val currenciesRequiringAvailabilityLabel = listOf(FiatCurrency.Dollars)
         }
     }
 
@@ -752,40 +670,6 @@ data class BillingAddress(
     val state: String?
 )
 
-data class CardToBeActivated(val partner: Partner, val cardId: String)
-
-sealed class PartnerCredentials {
-    object Unknown : PartnerCredentials()
-    data class EverypayPartner(val everyPay: EveryPayCredentials) : PartnerCredentials()
-    data class CardProviderPartner(val cardProvider: CardProvider) : PartnerCredentials()
-}
-
-data class EveryPayCredentials(
-    val apiUsername: String,
-    val mobileToken: String,
-    val paymentLink: String
-)
-
-// Very similar to CardAttributes.Provider, used for card activation
-data class CardProvider(
-    val cardAcquirerName: String,
-    val cardAcquirerAccountCode: String,
-    val apiUserID: String,
-    val apiToken: String,
-    val paymentLink: String,
-    val paymentState: String,
-    val paymentReference: String,
-    val orderReference: String,
-    val clientSecret: String,
-    val publishableApiKey: String
-)
-
-enum class Partner {
-    EVERYPAY, // The old flow with EveryPay
-    CARDPROVIDER, // The new flow for CardAcquirers, which can be Checkout, Stripe and EveryPay
-    UNKNOWN
-}
-
 data class TransferQuote(
     val id: String = "",
     val prices: List<PriceTier> = emptyList(),
@@ -843,11 +727,6 @@ data class CustodialOrder(
     val createdAt: Date,
     val inputMoney: Money,
     val outputMoney: Money
-)
-
-data class EligiblePaymentMethodType(
-    val paymentMethodType: PaymentMethodType,
-    val currency: FiatCurrency
 )
 
 data class SimplifiedDueDiligenceUserState(

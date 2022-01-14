@@ -136,15 +136,13 @@ private class CurrentTierItemViewHolder(
         with(binding) {
             iconTier.invisibleIf { item.tier == Tier.BRONZE }
             iconTier.imageTintList = when (item.tier) {
-                Tier.BRONZE,
-                Tier.SILVER_PLUS -> null
+                Tier.BRONZE -> null
                 Tier.SILVER -> ColorStateList.valueOf(ContextCompat.getColor(context, R.color.tier_silver))
                 Tier.GOLD -> ColorStateList.valueOf(ContextCompat.getColor(context, R.color.tier_gold))
             }
 
             textTier.text = when (item.tier) {
-                Tier.BRONZE,
-                Tier.SILVER_PLUS -> ""
+                Tier.BRONZE -> ""
                 Tier.SILVER -> context.getString(R.string.feature_limits_silver_limits)
                 Tier.GOLD -> context.getString(R.string.feature_limits_gold_limits)
             }

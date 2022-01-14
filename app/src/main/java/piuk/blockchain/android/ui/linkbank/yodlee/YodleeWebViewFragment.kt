@@ -15,8 +15,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import com.blockchain.core.payments.model.YodleeAttributes
 import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.notifications.analytics.Analytics
 import com.google.gson.Gson
 import java.net.URLEncoder

@@ -1,9 +1,8 @@
 package piuk.blockchain.android.ui.settings
 
 import androidx.annotation.StringRes
-import com.blockchain.nabu.datamanagers.Bank
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.ui.base.View
 
@@ -55,11 +54,13 @@ interface SettingsView : View {
 
     fun updateCards(cards: List<PaymentMethod.Card>)
 
-    fun updateLinkableBanks(linkablePaymentMethods: Set<LinkablePaymentMethods>, linkedBanksCount: Int)
+    fun updateLinkNewBank(linkablePaymentMethods: LinkablePaymentMethods)
 
-    fun updateLinkedBanks(banks: Set<Bank>)
+    fun updateLinkedBanks(banks: List<BankItem>)
 
     fun cardsEnabled(enabled: Boolean)
+
+    fun addCardEnabled(enabled: Boolean)
 
     fun banksEnabled(enabled: Boolean)
 

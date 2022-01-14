@@ -114,6 +114,7 @@ val coincoreModule = module {
                 tradingBalanceDataManager = get(),
                 exchangeRateDataManager = get(),
                 custodialWalletManager = get(),
+                paymentsDataManager = get(),
                 currencyPrefs = get()
             )
         }
@@ -163,6 +164,7 @@ val coincoreModule = module {
                 exchangeRates = get(),
                 interestBalances = get(),
                 walletManager = get(),
+                paymentsDataManager = get(),
                 limitsDataManager = get(),
                 walletPrefs = get(),
                 quotesEngine = get(),
@@ -194,7 +196,8 @@ val coincoreModule = module {
 
         factory {
             LinkedBanksFactory(
-                custodialWalletManager = get()
+                custodialWalletManager = get(),
+                paymentsDataManager = get()
             )
         }
 

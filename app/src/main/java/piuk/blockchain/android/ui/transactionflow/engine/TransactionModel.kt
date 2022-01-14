@@ -22,10 +22,10 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
 import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

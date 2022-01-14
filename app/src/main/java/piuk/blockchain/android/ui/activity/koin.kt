@@ -51,6 +51,7 @@ val activitiesModule = module {
                 transactionInputOutputMapper = get(),
                 assetActivityRepository = get(),
                 custodialWalletManager = get(),
+                paymentsDataManager = get(),
                 stringUtils = get(),
                 coincore = get(),
                 defaultLabels = get(),

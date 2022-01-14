@@ -6,14 +6,14 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.LinkedBank
+import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.AssetCategory

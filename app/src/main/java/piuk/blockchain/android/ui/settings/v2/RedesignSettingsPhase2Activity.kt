@@ -37,8 +37,8 @@ import piuk.blockchain.android.cards.RemoveCardBottomSheet
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.ActivityRedesignPhase2SettingsBinding
 import piuk.blockchain.android.databinding.ToolbarGeneralBinding
+import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.RemoveLinkedBankBottomSheet
-import piuk.blockchain.android.simplebuy.RemovePaymentMethodBottomSheetHost
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.ui.base.mvi.MviActivity
@@ -58,6 +58,7 @@ import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.goneIf
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -65,7 +66,8 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 class RedesignSettingsPhase2Activity :
     MviActivity<SettingsModel, SettingsIntent, SettingsState, ActivityRedesignPhase2SettingsBinding>(),
     AddPaymentMethodsBottomSheet.Host,
-    RemovePaymentMethodBottomSheetHost {
+    RemoveCardBottomSheet.Host,
+    RemoveLinkedBankBottomSheet.Host {
 
     override val model: SettingsModel by scopedInject()
 
@@ -214,34 +216,46 @@ class RedesignSettingsPhase2Activity :
         totalLinkedPaymentMethods: Int,
         isUserGold: Boolean
     ) {
+        val availablePaymentMethodTypes = paymentMethodInfo.availablePaymentMethodTypes
+        val linkAccessMap = availablePaymentMethodTypes.associate { it.type to it.linkAccess }
+
+        val hidePaymentsSection = totalLinkedPaymentMethods == 0 &&
+            availablePaymentMethodTypes.none { it.linkAccess == LinkAccess.GRANTED }
+        binding.headerPayments.goneIf(hidePaymentsSection)
+        binding.paymentsContainer.goneIf(hidePaymentsSection)
+        if (hidePaymentsSection) return
+
         when {
-            paymentMethodInfo.canLinkPaymentMethods() -> {
+            availablePaymentMethodTypes.isNotEmpty() -> {
                 with(binding.paymentsContainer) {
                     if (totalLinkedPaymentMethods > 0) {
                         addBanks(paymentMethodInfo)
                         addCards(paymentMethodInfo)
-                        addView(
-                            MinimalButtonView(this@RedesignSettingsPhase2Activity).apply {
-                                text = getString(R.string.add_payment_method)
-                                onClick = {
-                                    showPaymentMethodsBottomSheet(
-                                        canAddCard = paymentMethodInfo.eligiblePaymentMethods
-                                            .getPaymentMethodEligibility(PaymentMethodType.PAYMENT_CARD),
-                                        canAddBankTransfer = paymentMethodInfo.eligiblePaymentMethods
-                                            .getPaymentMethodEligibility(PaymentMethodType.BANK_TRANSFER),
-                                        canAddBankAccount = paymentMethodInfo.eligiblePaymentMethods
-                                            .getPaymentMethodEligibility(PaymentMethodType.BANK_ACCOUNT)
-                                    )
+                        val canLinkNewMethods = availablePaymentMethodTypes.any { it.linkAccess == LinkAccess.GRANTED }
+                        if (canLinkNewMethods) {
+                            addView(
+                                MinimalButtonView(this@RedesignSettingsPhase2Activity).apply {
+                                    text = getString(R.string.add_payment_method)
+                                    onClick = {
+                                        showPaymentMethodsBottomSheet(
+                                            canAddCard =
+                                            linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
+                                            canAddBankTransfer =
+                                            linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
+                                            canAddBankAccount =
+                                            linkAccessMap[PaymentMethodType.BANK_ACCOUNT] == LinkAccess.GRANTED
+                                        )
+                                    }
+                                },
+                                LinearLayoutCompat.LayoutParams(
+                                    MATCH_PARENT,
+                                    WRAP_CONTENT,
+                                ).apply {
+                                    marginStart = resources.getDimensionPixelOffset(R.dimen.standard_margin)
+                                    marginEnd = resources.getDimensionPixelOffset(R.dimen.standard_margin)
                                 }
-                            },
-                            LinearLayoutCompat.LayoutParams(
-                                MATCH_PARENT,
-                                WRAP_CONTENT,
-                            ).apply {
-                                marginStart = resources.getDimensionPixelOffset(R.dimen.standard_margin)
-                                marginEnd = resources.getDimensionPixelOffset(R.dimen.standard_margin)
-                            }
-                        )
+                            )
+                        }
                     } else {
                         addView(
                             DefaultTableRowView(this@RedesignSettingsPhase2Activity).apply {
@@ -249,12 +263,12 @@ class RedesignSettingsPhase2Activity :
                                 secondaryText = getString(R.string.settings_subtitle_no_payments)
                                 onClick = {
                                     showPaymentMethodsBottomSheet(
-                                        canAddCard = paymentMethodInfo.eligiblePaymentMethods
-                                            .getPaymentMethodEligibility(PaymentMethodType.PAYMENT_CARD),
-                                        canAddBankTransfer = paymentMethodInfo.eligiblePaymentMethods
-                                            .getPaymentMethodEligibility(PaymentMethodType.BANK_TRANSFER),
-                                        canAddBankAccount = paymentMethodInfo.eligiblePaymentMethods
-                                            .getPaymentMethodEligibility(PaymentMethodType.BANK_ACCOUNT)
+                                        canAddCard =
+                                        linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
+                                        canAddBankTransfer =
+                                        linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
+                                        canAddBankAccount =
+                                        linkAccessMap[PaymentMethodType.BANK_ACCOUNT] == LinkAccess.GRANTED
                                     )
                                 }
                                 startImageResource = ImageResource.Local(R.drawable.ic_payment_card, null)
@@ -282,9 +296,6 @@ class RedesignSettingsPhase2Activity :
             }
         }
     }
-
-    private fun Map<PaymentMethodType, Boolean>.getPaymentMethodEligibility(key: PaymentMethodType): Boolean =
-        this[key] ?: false
 
     private fun LinearLayoutCompat.addCards(paymentMethodInfo: PaymentMethods) {
         paymentMethodInfo.linkedCards.forEach { card ->
@@ -321,14 +332,15 @@ class RedesignSettingsPhase2Activity :
     }
 
     private fun LinearLayoutCompat.addBanks(paymentMethodInfo: PaymentMethods) {
-        paymentMethodInfo.linkedBanks.forEach { bank ->
+        paymentMethodInfo.linkedBanks.forEach { bankItem ->
+            val bank = bankItem.bank
             addView(
                 DefaultTableRowView(this@RedesignSettingsPhase2Activity).apply {
                     alpha = 0f
                     primaryText = bank.name
                     startImageResource = ImageResource.Remote(url = bank.iconUrl, null)
-                    secondaryText = bank.account
-                    endTag = if (bank.canBeUsedToTransact) null else
+                    secondaryText = bank.accountEnding
+                    endTag = if (bankItem.canBeUsedToTransact) null else
                         TagViewState(
                             getString(R.string.common_unavailable), TagType.Error()
                         )

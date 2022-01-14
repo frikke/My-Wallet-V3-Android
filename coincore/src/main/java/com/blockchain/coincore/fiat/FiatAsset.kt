@@ -8,6 +8,7 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -21,6 +22,7 @@ class FiatAsset(
     private val exchangeRateDataManager: ExchangeRatesDataManager,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val currencyPrefs: CurrencyPrefs
 ) : Asset {
 
@@ -71,7 +73,8 @@ class FiatAsset(
                 currency = fiatCurrency,
                 tradingBalanceDataManager = tradingBalanceDataManager,
                 exchangesRates = exchangeRateDataManager,
-                custodialWalletManager = custodialWalletManager
+                custodialWalletManager = custodialWalletManager,
+                paymentsDataManager = paymentsDataManager
             )
         }
 

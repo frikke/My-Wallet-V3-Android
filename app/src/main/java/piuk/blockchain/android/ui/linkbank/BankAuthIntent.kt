@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.linkbank
 
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.LinkedBank
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 import piuk.blockchain.android.ui.base.mvi.MviIntent

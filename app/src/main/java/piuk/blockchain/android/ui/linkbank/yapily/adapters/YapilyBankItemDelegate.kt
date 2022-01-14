@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.linkbank.yapily.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.nabu.models.data.YapilyInstitution
+import com.blockchain.core.payments.model.YapilyInstitution
 import com.bumptech.glide.Glide
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemBankDetailsBinding

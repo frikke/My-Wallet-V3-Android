@@ -14,6 +14,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean
     override val isDefault: Boolean = false,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val exchangesRates: ExchangeRatesDataManager
 ) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)
@@ -76,7 +78,7 @@ import java.util.concurrent.atomic.AtomicBoolean
         }
 
     override val actions: Single<AvailableActions> =
-        custodialWalletManager.canTransactWithBankMethods(currency)
+        paymentsDataManager.canTransactWithBankMethods(currency)
             .zipWith(balance.firstOrError().map { it.withdrawable.isPositive })
             .map { (canTransactWithBanks, hasActionableBalance) ->
                 if (canTransactWithBanks) {

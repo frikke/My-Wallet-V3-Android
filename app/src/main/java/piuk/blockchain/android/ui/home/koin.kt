@@ -35,6 +35,7 @@ val mainModule = module {
                 kycStatusHelper = get(),
                 bankLinkingPrefs = get(),
                 custodialWalletManager = get(),
+                paymentsDataManager = get(),
                 simpleBuySync = get(),
                 userIdentity = get(),
                 upsellManager = get(),

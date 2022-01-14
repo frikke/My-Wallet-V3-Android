@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.FiatCurrency
+import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.ui.base.mvi.MviState
+import piuk.blockchain.android.ui.settings.BankItem
 
 data class SettingsState(
     val basicProfileInfo: BasicProfileInfo? = null,
@@ -33,13 +33,10 @@ enum class SettingsError {
 }
 
 data class PaymentMethods(
-    val eligiblePaymentMethods: Map<PaymentMethodType, Boolean>,
+    val availablePaymentMethodTypes: List<AvailablePaymentMethodType>,
     val linkedCards: List<PaymentMethod.Card>,
-    val linkedBanks: Set<Bank>
-) {
-    fun canLinkPaymentMethods(): Boolean =
-        eligiblePaymentMethods.values.any()
-}
+    val linkedBanks: List<BankItem>
+)
 
 data class UserDetails(
     val userTier: Tier,

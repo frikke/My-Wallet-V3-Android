@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.linkbank
 
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkedBank
+import com.blockchain.core.payments.model.LinkedBankErrorState
+import com.blockchain.core.payments.model.LinkedBankState
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkedBank
-import com.blockchain.nabu.models.data.LinkedBankErrorState
-import com.blockchain.nabu.models.data.LinkedBankState
 import com.blockchain.network.PollResult
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler

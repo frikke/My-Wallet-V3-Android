@@ -32,7 +32,8 @@ val redesignSettingsModule = module {
                 userIdentity = get(),
                 database = get(),
                 credentialsWiper = get(),
-                custodialWalletManager = get(),
+                paymentsDataManager = get(),
+                getAvailablePaymentMethodsTypesUseCase = get(),
                 currencyPrefs = get()
             )
         }

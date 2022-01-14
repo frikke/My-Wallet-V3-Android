@@ -39,8 +39,7 @@ class KycLimitsModel(
                 if (isKycDenied) Header.MAX_TIER_REACHED
                 else when (highestApprovedTier) {
                     Tier.BRONZE -> Header.NEW_KYC
-                    Tier.SILVER,
-                    Tier.SILVER_PLUS -> Header.UPGRADE_TO_GOLD
+                    Tier.SILVER -> Header.UPGRADE_TO_GOLD
                     Tier.GOLD -> Header.MAX_TIER_REACHED
                 }
 
@@ -48,8 +47,7 @@ class KycLimitsModel(
                 if (isKycDenied) CurrentKycTierRow.HIDDEN
                 else when (highestApprovedTier) {
                     Tier.BRONZE -> CurrentKycTierRow.HIDDEN
-                    Tier.SILVER,
-                    Tier.SILVER_PLUS -> CurrentKycTierRow.SILVER
+                    Tier.SILVER -> CurrentKycTierRow.SILVER
                     Tier.GOLD -> CurrentKycTierRow.GOLD
                 }
             process(KycLimitsIntent.LimitsAndTiersFetched(limits, header, currentKycTierRow))

@@ -188,6 +188,8 @@
             app:layout_constraintBottom_toTopOf="@+id/payment_method_bank_info"
             app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
             app:use_gradient="true"
             app:width_weight="0.9"
             tools:text="Chase Saphire 8291" />
@@ -215,6 +217,8 @@
             app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
             app:layout_constraintTop_toBottomOf="@+id/payment_method_title"
+            app:layout_constraintBottom_toTopOf="@+id/payment_method_limit"
+            app:layout_constraintVertical_chainStyle="packed"
             app:use_gradient="true"
             app:width_weight="0.9"
             tools:text="Checking account 0123"
@@ -232,6 +236,8 @@
             app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
             app:layout_constraintTop_toBottomOf="@+id/payment_method_bank_info"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
             app:use_gradient="true"
             app:width_weight="0.9"
             tools:text="$5,000 USD Limit" />

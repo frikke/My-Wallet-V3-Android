@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep

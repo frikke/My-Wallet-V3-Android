@@ -29,6 +29,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
             ?: emptyList()
     }
 
+    private val canAddNewPayment: Boolean by unsafeLazy {
+        arguments?.getBoolean(CAN_ADD_NEW_PAYMENT) ?: false
+    }
+
     private val displayedMode: DisplayMode by unsafeLazy {
         arguments?.getSerializable(DISPLAY_MODE) as DisplayMode
     }
@@ -53,7 +57,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         }
         val isShowingPaymentMethods = displayedMode == DisplayMode.PAYMENT_METHODS
 
-        binding.addPaymentMethod.visibleIf { isShowingPaymentMethods }
+        binding.addPaymentMethod.visibleIf { isShowingPaymentMethods && canAddNewPayment }
         binding.title.text =
             if (isShowingPaymentMethods) getString(R.string.pay_with_my_dotted) else getString(R.string.payment_methods)
         binding.addPaymentMethod.setOnClickListener {
@@ -79,15 +83,18 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
 
     companion object {
         private const val SUPPORTED_PAYMENT_METHODS = "supported_payment_methods_key"
+        private const val CAN_ADD_NEW_PAYMENT = "CAN_ADD_NEW_PAYMENT"
         private const val DISPLAY_MODE = "DISPLAY_MODE"
 
         fun newInstance(
             paymentMethods: List<PaymentMethod>,
-            mode: DisplayMode
+            mode: DisplayMode,
+            canAddNewPayment: Boolean
         ): PaymentMethodChooserBottomSheet {
             val bundle = Bundle()
             bundle.putSerializable(SUPPORTED_PAYMENT_METHODS, paymentMethods as Serializable)
             bundle.putSerializable(DISPLAY_MODE, mode)
+            bundle.putBoolean(CAN_ADD_NEW_PAYMENT, canAddNewPayment)
             return PaymentMethodChooserBottomSheet().apply {
                 arguments = bundle
             }

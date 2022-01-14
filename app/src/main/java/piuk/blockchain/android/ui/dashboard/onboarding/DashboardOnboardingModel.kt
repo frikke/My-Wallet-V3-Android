@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
+import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
@@ -9,8 +9,10 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
+import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
@@ -82,9 +84,11 @@ class DashboardOnboardingModel(
 
     private fun fetchEligiblePaymentMethodsAndNavigateToAddPaymentMethod(
         tradingCurrency: FiatCurrency
-    ): Single<DashboardOnboardingIntent> = interactor.getEligiblePaymentMethods(tradingCurrency)
-        .map {
-            val paymentMethods = it.filter { method -> method is UndefinedPaymentMethod }
+    ): Single<DashboardOnboardingIntent> = interactor.getAvailablePaymentMethodTypes(tradingCurrency)
+        .map { available ->
+            val paymentMethods = available
+                .filter { method -> method.linkAccess == LinkAccess.GRANTED }
+                .mapNotNull { method -> method.toPaymentMethod() }
             if (paymentMethods.isNotEmpty()) {
                 DashboardOnboardingIntent.NavigateTo(
                     DashboardOnboardingNavigationAction.AddPaymentMethod(paymentMethods)
@@ -140,5 +144,23 @@ class DashboardOnboardingModel(
                     }
                     .onErrorReturn { DashboardOnboardingIntent.FetchFailed(it) }
             else -> throw IllegalStateException()
+        }
+
+    private fun AvailablePaymentMethodType.toPaymentMethod(): PaymentMethod? =
+        when (type) {
+            PaymentMethodType.PAYMENT_CARD ->
+                PaymentMethod.UndefinedCard(limits, canBeUsedForPayment)
+            PaymentMethodType.BANK_TRANSFER ->
+                PaymentMethod.UndefinedBankTransfer(limits, canBeUsedForPayment)
+            PaymentMethodType.BANK_ACCOUNT ->
+                if (canBeUsedForPayment) {
+                    PaymentMethod.UndefinedBankAccount(
+                        currency,
+                        limits,
+                        canBeUsedForPayment
+                    )
+                } else null
+            PaymentMethodType.FUNDS,
+            PaymentMethodType.UNKNOWN -> null
         }
 }

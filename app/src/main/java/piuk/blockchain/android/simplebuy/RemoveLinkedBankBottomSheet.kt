@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.Bank
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -26,11 +26,15 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomSheetBinding>() {
 
-    private val compositeDisposable = CompositeDisposable()
-    private val custodialWalletManager: CustodialWalletManager by scopedInject()
+    interface Host : SlidingModalBottomDialog.Host {
+        fun onLinkedBankRemoved(bankId: String)
+    }
 
-    private val bank: Bank by unsafeLazy {
-        arguments?.getSerializable(BANK_KEY) as Bank
+    private val compositeDisposable = CompositeDisposable()
+    private val paymentsDataManager: PaymentsDataManager by scopedInject()
+
+    private val bank: LinkedPaymentMethod.Bank by unsafeLazy {
+        arguments?.getSerializable(BANK_KEY) as LinkedPaymentMethod.Bank
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): RemoveBankBottomSheetBinding =
@@ -45,7 +49,7 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
 
         with(binding) {
             title.text = resources.getString(R.string.common_spaced_strings, bank.name, bank.currency.displayTicker)
-            endDigits.text = resources.getString(R.string.dotted_suffixed_string, bank.account)
+            endDigits.text = resources.getString(R.string.dotted_suffixed_string, bank.accountEnding)
             accountInfo.text = getString(R.string.payment_method_type_account_info, bank.toHumanReadableAccount(), "")
             rmvBankBtn.setOnClickListener {
                 showConfirmation()
@@ -74,7 +78,7 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
     }
 
     private fun removeBank() {
-        compositeDisposable += custodialWalletManager.removeBank(bank)
+        compositeDisposable += paymentsDataManager.removeBank(bank)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
                 updateUi(true)
@@ -85,7 +89,7 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
             .subscribeBy(
                 onComplete = {
                     analytics.logEvent(SimpleBuyAnalytics.REMOVE_BANK)
-                    ((parentFragment ?: activity) as? RemovePaymentMethodBottomSheetHost)?.onLinkedBankRemoved(bank.id)
+                    (host as? Host)?.onLinkedBankRemoved(bank.id)
                     dismiss()
                 }, onError = {
                 ToastCustom.makeText(
@@ -113,7 +117,7 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
     companion object {
         private const val BANK_KEY = "BANK_KEY"
 
-        fun newInstance(bank: Bank) =
+        fun newInstance(bank: LinkedPaymentMethod.Bank) =
             RemoveLinkedBankBottomSheet().apply {
                 arguments = Bundle().apply {
                     putSerializable(BANK_KEY, bank)

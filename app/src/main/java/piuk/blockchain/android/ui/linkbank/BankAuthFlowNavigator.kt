@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.linkbank
 
 import com.blockchain.banking.BankPaymentApproval
-import com.blockchain.nabu.models.data.YapilyAttributes
-import com.blockchain.nabu.models.data.YapilyInstitution
-import com.blockchain.nabu.models.data.YodleeAttributes
+import com.blockchain.core.payments.model.YapilyAttributes
+import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.core.payments.model.YodleeAttributes
 import info.blockchain.balance.FiatCurrency
 
 interface BankAuthFlowNavigator {

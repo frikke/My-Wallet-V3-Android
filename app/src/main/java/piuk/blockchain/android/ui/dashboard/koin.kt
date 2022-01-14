@@ -39,6 +39,7 @@ val dashboardModule = module {
                 payloadManager = get(),
                 currencyPrefs = get(),
                 custodialWalletManager = get(),
+                paymentsDataManager = get(),
                 simpleBuyPrefs = get(),
                 userIdentity = get(),
                 analytics = get(),
@@ -65,7 +66,8 @@ val dashboardModule = module {
                 dashboardPrefs = get(),
                 coincore = get(),
                 userIdentity = get(),
-                custodialWalletManager = get()
+                custodialWalletManager = get(),
+                paymentsDataManager = get()
             )
         }
 
@@ -101,7 +103,9 @@ val dashboardModule = module {
         factory {
             DashboardOnboardingInteractor(
                 getDashboardOnboardingUseCase = get(),
-                custodialWalletManager = get()
+                custodialWalletManager = get(),
+                paymentsDataManager = get(),
+                getAvailablePaymentMethodsTypesUseCase = get()
             )
         }
     }

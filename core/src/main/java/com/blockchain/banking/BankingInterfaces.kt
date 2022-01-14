@@ -1,7 +1,7 @@
 package com.blockchain.banking
 
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkedBank
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkedBank
 import info.blockchain.balance.FiatValue
 import java.io.Serializable
 

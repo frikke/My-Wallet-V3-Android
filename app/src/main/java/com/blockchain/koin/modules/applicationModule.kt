@@ -67,6 +67,7 @@ import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
+import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
@@ -436,7 +437,9 @@ val applicationModule = module {
                 stripeAndCheckoutPaymentsFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
                 brokerageDataManager = get(),
                 cardProcessors = getCardProcessors().associateBy { it.acquirer },
-                cancelOrderUseCase = get()
+                cancelOrderUseCase = get(),
+                getAvailablePaymentMethodsTypesUseCase = get(),
+                paymentsDataManager = get()
             )
         }
 
@@ -485,6 +488,13 @@ val applicationModule = module {
         }
 
         factory {
+            GetAvailablePaymentMethodsTypesUseCase(
+                userIdentity = get(),
+                paymentsDataManager = get()
+            )
+        }
+
+        factory {
             CancelOrderUseCase(
                 bankLinkingPrefs = get(),
                 custodialWalletManager = get()
@@ -496,6 +506,7 @@ val applicationModule = module {
                 dashboardPrefs = get(),
                 userIdentity = get(),
                 custodialWalletManager = get(),
+                paymentsDataManager = get(),
                 tradeDataManager = get()
             )
         }
@@ -559,6 +570,7 @@ val applicationModule = module {
         scoped {
             SimpleBuySyncFactory(
                 custodialWallet = get(),
+                paymentsDataManager = get(),
                 serializer = get()
             )
         }
@@ -579,6 +591,8 @@ val applicationModule = module {
                 prefs = get(),
                 pinRepository = get(),
                 custodialWalletManager = get(),
+                getAvailablePaymentMethodsTypesUseCase = get(),
+                paymentsDataManager = get(),
                 notificationTokenManager = get(),
                 exchangeRates = get(),
                 kycStatusHelper = get(),
@@ -757,7 +771,7 @@ val applicationModule = module {
 
         factory {
             CardProviderActivator(
-                custodialWalletManager = get(),
+                paymentsDataManager = get(),
                 submitEveryPayCardService = get()
             )
         }.bind(CardActivator::class)

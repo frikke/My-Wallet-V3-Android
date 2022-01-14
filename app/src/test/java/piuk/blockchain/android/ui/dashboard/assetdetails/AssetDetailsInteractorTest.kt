@@ -45,7 +45,7 @@ class AssetDetailsInteractorTest {
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
     }
 
-    private val subject = AssetDetailsInteractor(mock(), mock(), mock(), mock())
+    private val subject = AssetDetailsInteractor(mock(), mock(), mock(), mock(), mock())
 
     @Before
     fun setUp() {

@@ -153,8 +153,9 @@ class DashboardOnboardingActivity :
                 }
                 showBottomSheet(
                     PaymentMethodChooserBottomSheet.newInstance(
-                        paymentMethods = action.eligiblePaymentMethods,
-                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES
+                        action.eligiblePaymentMethods,
+                        mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
+                        canAddNewPayment = true
                     )
                 )
             }

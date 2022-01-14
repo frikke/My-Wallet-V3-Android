@@ -27,6 +27,7 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.PaymentsDataManagerImpl
+import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
@@ -160,6 +161,14 @@ val coreModule = module {
 
         scoped {
             BuyPairsCache(nabuService = get())
+        }
+
+        scoped {
+            CardsCache(
+                paymentMethodsService = get(),
+                authenticator = get(),
+                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag)
+            )
         }
 
         scoped {
@@ -323,7 +332,13 @@ val coreModule = module {
         scoped {
             PaymentsDataManagerImpl(
                 paymentsService = get(),
-                authenticator = get()
+                paymentMethodsService = get(),
+                tradingBalanceDataManager = get(),
+                simpleBuyPrefs = get(),
+                authenticator = get(),
+                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
+                assetCatalogue = get(),
+                cardsCache = get()
             )
         }.bind(PaymentsDataManager::class)
     }

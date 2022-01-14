@@ -1,18 +1,29 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.Partner
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import com.blockchain.nabu.models.data.LinkBankTransfer
+import com.blockchain.nabu.datamanagers.PaymentLimits
+import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.math.BigInteger
+import java.util.Date
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
+import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.ui.settings.v2.PaymentMethods
 import piuk.blockchain.android.ui.settings.v2.SettingsError
 import piuk.blockchain.android.ui.settings.v2.SettingsIntent
@@ -125,6 +136,61 @@ class SettingsModelTest {
     }
 
     @Test
+    fun `removing a card should fetch and update available payment methods`() {
+        val nullLimits = PaymentLimits(BigInteger.ZERO, BigInteger.ZERO, USD)
+        val initialPaymentMethods = PaymentMethods(
+            availablePaymentMethodTypes = emptyList(),
+            linkedBanks = emptyList(),
+            linkedCards = listOf(
+                PaymentMethod.Card(
+                    "id",
+                    nullLimits,
+                    "",
+                    "",
+                    Partner.CARDPROVIDER,
+                    Date(),
+                    CardType.AMEX,
+                    CardStatus.ACTIVE,
+                    true
+                )
+            )
+        )
+        model = SettingsModel(
+            initialState = SettingsState(paymentMethodInfo = initialPaymentMethods),
+            mainScheduler = Schedulers.io(),
+            environmentConfig = environmentConfig,
+            crashLogger = mock(),
+            interactor = interactor
+        )
+
+        val expectedAvailable = listOf(
+            AvailablePaymentMethodType(
+                true,
+                LinkAccess.BLOCKED,
+                USD,
+                PaymentMethodType.PAYMENT_CARD,
+                nullLimits
+            )
+        )
+        whenever(interactor.getAvailablePaymentMethodsTypes()).thenReturn(Single.just(expectedAvailable))
+
+        val testState = model.state.test()
+        model.process(SettingsIntent.OnCardRemoved("id"))
+
+        testState
+            .assertValueAt(1) {
+                it.paymentMethodInfo?.linkedCards == emptyList<PaymentMethod.Card>()
+            }
+            .assertValueAt(2) {
+                it.paymentMethodInfo?.availablePaymentMethodTypes == expectedAvailable &&
+                    it.paymentMethodInfo?.linkedBanks == emptyList<BankItem>() &&
+                    it.paymentMethodInfo?.linkedCards == emptyList<PaymentMethod.Card>()
+            }
+
+        verify(interactor).getAvailablePaymentMethodsTypes()
+    }
+
+    @Test
     fun `loadPaymentMethods fails`() {
         whenever(interactor.getExistingPaymentMethods()).thenReturn(Single.error(Exception()))
 
@@ -222,5 +288,9 @@ class SettingsModelTest {
                     error = SettingsError.UNPAIR_FAILED
                 )
             }
+    }
+
+    companion object {
+        private val USD = FiatCurrency.fromCurrencyCode("USD")
     }
 }

@@ -1,16 +1,5 @@
 package com.blockchain.nabu.api.nabu
 
-import com.blockchain.nabu.models.responses.banktransfer.BankInfoResponse
-import com.blockchain.nabu.models.responses.banktransfer.BankTransferChargeResponse
-import com.blockchain.nabu.models.responses.banktransfer.BankTransferPaymentBody
-import com.blockchain.nabu.models.responses.banktransfer.BankTransferPaymentResponse
-import com.blockchain.nabu.models.responses.banktransfer.CreateLinkBankRequestBody
-import com.blockchain.nabu.models.responses.banktransfer.CreateLinkBankResponse
-import com.blockchain.nabu.models.responses.banktransfer.LinkedBankTransferResponse
-import com.blockchain.nabu.models.responses.banktransfer.OpenBankingTokenBody
-import com.blockchain.nabu.models.responses.banktransfer.UpdateProviderAccountBody
-import com.blockchain.nabu.models.responses.cards.BeneficiariesResponse
-import com.blockchain.nabu.models.responses.cards.CardResponse
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.interest.InterestActivityResponse
@@ -41,9 +30,6 @@ import com.blockchain.nabu.models.responses.nabu.VeriffToken
 import com.blockchain.nabu.models.responses.nabu.WalletMercuryLink
 import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
 import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
-import com.blockchain.nabu.models.responses.simplebuy.ActivateCardResponse
-import com.blockchain.nabu.models.responses.simplebuy.AddNewCardBodyRequest
-import com.blockchain.nabu.models.responses.simplebuy.AddNewCardResponse
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
@@ -54,7 +40,6 @@ import com.blockchain.nabu.models.responses.simplebuy.FeesResponse
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
@@ -86,7 +71,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
-import retrofit2.http.Url
 
 internal interface Nabu {
 
@@ -348,43 +332,6 @@ internal interface Nabu {
         @Body confirmBody: ConfirmOrderRequestBody
     ): Single<BuySellOrderResponse>
 
-    @POST(NABU_CARDS)
-    fun addNewCard(
-        @Header("authorization") authHeader: String,
-        @Body addNewCardBody: AddNewCardBodyRequest
-    ): Single<AddNewCardResponse>
-
-    @DELETE("$NABU_CARDS/{cardId}")
-    fun deleteCard(
-        @Header("authorization") authHeader: String,
-        @Path("cardId") cardId: String
-    ): Completable
-
-    @DELETE("$NABU_BANKS/{id}")
-    fun removeBeneficiary(
-        @Header("authorization") authHeader: String,
-        @Path("id") id: String
-    ): Completable
-
-    @DELETE("$NABU_LINKED_BANK/{id}")
-    fun removeLinkedBank(
-        @Header("authorization") authHeader: String,
-        @Path("id") id: String
-    ): Completable
-
-    @POST("$NABU_CARDS/{cardId}/activate")
-    fun activateCard(
-        @Header("authorization") authHeader: String,
-        @Path("cardId") cardId: String,
-        @Body attributes: SimpleBuyConfirmationAttributes
-    ): Single<ActivateCardResponse>
-
-    @GET("$NABU_CARDS/{cardId}")
-    fun getCardDetails(
-        @Header("authorization") authorization: String,
-        @Path("cardId") cardId: String
-    ): Single<CardResponse>
-
     @GET(NABU_ELIGIBLE_PAYMENT_METHODS)
     fun getPaymentMethodsForSimpleBuy(
         @Header("authorization") authorization: String,
@@ -397,17 +344,6 @@ internal interface Nabu {
     fun getCardAcquirers(
         @Header("authorization") authorization: String
     ): Single<List<PaymentCardAcquirerResponse>>
-
-    @GET(NABU_BENEFICIARIES)
-    fun getLinkedBeneficiaries(
-        @Header("authorization") authorization: String
-    ): Single<List<BeneficiariesResponse>>
-
-    @GET(NABU_CARDS)
-    fun getCards(
-        @Header("authorization") authorization: String,
-        @Query("cardProvider") cardProvidersSupported: Boolean
-    ): Single<List<CardResponse>>
 
     @Headers("blockchain-origin: simplebuy")
     @POST(NABU_SIMPLE_BUY_BALANCE_TRANSFER)
@@ -480,54 +416,10 @@ internal interface Nabu {
         @Query("limit") limit: Int = 50
     ): Single<List<CustodialOrderResponse>>
 
-    @GET("$NABU_LINKED_BANK/{id}")
-    fun getLinkedBank(
-        @Header("authorization") authorization: String,
-        @Path("id") id: String
-    ): Single<LinkedBankTransferResponse>
-
-    @POST(NABU_LINK_BANK)
-    fun linkABank(
-        @Header("authorization") authorization: String,
-        @Body body: CreateLinkBankRequestBody
-    ): Single<CreateLinkBankResponse>
-
-    @POST("$NABU_UPDATE_PROVIDER/{id}/update")
-    fun updateProviderAccount(
-        @Header("authorization") authorization: String,
-        @Path("id") id: String,
-        @Body body: UpdateProviderAccountBody
-    ): Completable
-
-    @GET(NABU_BANK_INFO)
-    fun getBanks(
-        @Header("authorization") authorization: String
-    ): Single<List<BankInfoResponse>>
-
-    @POST("$NABU_BANK_TRANSFER/{id}/payment")
-    fun startBankTransferPayment(
-        @Header("authorization") authorization: String,
-        @Path("id") id: String,
-        @Body body: BankTransferPaymentBody
-    ): Single<BankTransferPaymentResponse>
-
-    @GET("$NABU_BANK_TRANSFER_CHARGE/{paymentId}")
-    fun getBankTransferCharge(
-        @Header("authorization") authorization: String,
-        @Path("paymentId") paymentId: String
-    ): Single<BankTransferChargeResponse>
-
     @POST(NABU_TRANSFER)
     fun executeTransfer(
         @Header("authorization") authorization: String,
         @Body body: ProductTransferRequestBody
-    ): Completable
-
-    @POST
-    fun updateOpenBankingToken(
-        @Url url: String,
-        @Header("authorization") authorization: String,
-        @Body body: OpenBankingTokenBody
     ): Completable
 
     @POST(NABU_RECURRING_BUY_CREATE)

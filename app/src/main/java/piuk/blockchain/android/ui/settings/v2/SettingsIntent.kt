@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
+import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class SettingsIntent : MviIntent<SettingsState> {
@@ -34,6 +35,15 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
             )
     }
 
+    class UpdateAvailablePaymentMethods(private val available: List<AvailablePaymentMethodType>) : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState =
+            oldState.copy(
+                paymentMethodInfo = oldState.paymentMethodInfo?.copy(
+                    availablePaymentMethodTypes = available
+                )
+            )
+    }
+
     object AddBankTransferSelected : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }
@@ -63,13 +73,13 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
 
     class OnBankRemoved(private val bankId: String) : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState {
-            val updatedBankList = oldState.paymentMethodInfo?.linkedBanks?.toMutableSet()?.apply {
-                removeIf { it.id == bankId }
-            } ?: emptySet()
+            val updatedBankList = oldState.paymentMethodInfo?.linkedBanks?.toMutableList()?.apply {
+                removeIf { it.bank.id == bankId }
+            } ?: emptyList()
 
             return oldState.copy(
                 paymentMethodInfo = oldState.paymentMethodInfo?.copy(
-                    linkedBanks = updatedBankList.toSet()
+                    linkedBanks = updatedBankList
                 )
             )
         }

@@ -7,6 +7,7 @@ import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -57,7 +58,8 @@ class AssetDetailsInteractor(
     private val dashboardPrefs: DashboardPrefs,
     private val coincore: Coincore,
     private val userIdentity: UserIdentity,
-    private val custodialWalletManager: CustodialWalletManager
+    private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager
 ) {
 
     fun loadAssetDetails(asset: CryptoAsset) =
@@ -84,9 +86,9 @@ class AssetDetailsInteractor(
         originCurrency: String
     ): Single<RecurringBuyPaymentDetails> {
         return when (paymentMethodType) {
-            PaymentMethodType.PAYMENT_CARD -> custodialWalletManager.getCardDetails(paymentMethodId)
+            PaymentMethodType.PAYMENT_CARD -> paymentsDataManager.getCardDetails(paymentMethodId)
                 .map { it }
-            PaymentMethodType.BANK_TRANSFER -> custodialWalletManager.getLinkedBank(paymentMethodId)
+            PaymentMethodType.BANK_TRANSFER -> paymentsDataManager.getLinkedBank(paymentMethodId)
                 .map { it.toPaymentMethod() }
             PaymentMethodType.FUNDS -> Single.just(FundsAccount(currency = originCurrency))
 

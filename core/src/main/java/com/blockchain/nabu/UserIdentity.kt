@@ -39,7 +39,7 @@ sealed class Feature {
  3 - simplified due diligence eligible; user with tier 1 verification in specific low risk countries
  */
 enum class Tier {
-    BRONZE, SILVER, GOLD, SILVER_PLUS
+    BRONZE, SILVER, GOLD
 }
 
 data class BasicProfileInfo(

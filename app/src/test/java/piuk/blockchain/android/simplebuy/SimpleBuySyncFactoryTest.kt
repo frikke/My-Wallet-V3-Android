@@ -35,6 +35,7 @@ class SimpleBuySyncFactoryTest {
 
     private val subject = SimpleBuySyncFactory(
         custodialWallet = remoteState,
+        paymentsDataManager = mock(),
         serializer = serializer
     )
 

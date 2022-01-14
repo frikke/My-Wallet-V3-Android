@@ -1,5 +1,8 @@
-package com.blockchain.nabu.models.responses.banktransfer
+package com.blockchain.api.paymentmethods.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class CreateLinkBankResponse(
     val partner: String,
     val id: String,
@@ -11,10 +14,12 @@ data class CreateLinkBankResponse(
     }
 }
 
+@Serializable
 data class CreateLinkBankRequestBody(
     private val currency: String
 )
 
+@Serializable
 data class LinkBankAttrsResponse(
     val token: String?,
     val fastlinkUrl: String?,
@@ -23,6 +28,7 @@ data class LinkBankAttrsResponse(
     val entity: String?
 )
 
+@Serializable
 data class YapilyInstitutionResponse(
     val countries: List<YapilyCountryResponse>,
     val fullName: String,
@@ -30,14 +36,18 @@ data class YapilyInstitutionResponse(
     val media: List<YapilyMediaResponse>
 )
 
+@Serializable
 data class YapilyCountryResponse(val countryCode2: String, val displayName: String)
 
+@Serializable
 data class YapilyMediaResponse(val source: String, val type: String)
 
+@Serializable
 data class FastlinkParamsResponse(
     val configName: String
 )
 
+@Serializable
 data class LinkedBankTransferResponse(
     val id: String,
     val partner: String,
@@ -68,6 +78,7 @@ data class LinkedBankTransferResponse(
     }
 }
 
+@Serializable
 data class LinkedBankTransferAttributesResponse(
     val authorisationUrl: String?,
     val entity: String?,
@@ -75,6 +86,7 @@ data class LinkedBankTransferAttributesResponse(
     val callbackPath: String
 )
 
+@Serializable
 data class ProviderAccountAttrs(
     val providerAccountId: String? = null,
     val accountId: String? = null,
@@ -82,10 +94,12 @@ data class ProviderAccountAttrs(
     val callback: String? = null
 )
 
+@Serializable
 data class UpdateProviderAccountBody(
     val attributes: ProviderAccountAttrs
 )
 
+@Serializable
 data class LinkedBankDetailsResponse(
     val accountNumber: String,
     val accountName: String?,
@@ -96,6 +110,7 @@ data class LinkedBankDetailsResponse(
     val bic: String?
 )
 
+@Serializable
 data class BankTransferPaymentBody(
     val amountMinor: String,
     val currency: String,
@@ -103,25 +118,30 @@ data class BankTransferPaymentBody(
     val attributes: BankTransferPaymentAttributes?
 )
 
+@Serializable
 data class BankTransferPaymentAttributes(
     val callback: String?
 )
 
+@Serializable
 data class BankTransferPaymentResponse(
     val paymentId: String,
     val bankAccountType: String?,
     val attributes: BankTransferPaymentResponseAttributes
 )
 
+@Serializable
 data class BankTransferPaymentResponseAttributes(
     val paymentId: String,
     val callbackPath: String
 )
 
+@Serializable
 data class OpenBankingTokenBody(
     val oneTimeToken: String
 )
 
+@Serializable
 data class BankInfoResponse(
     val id: String,
     val name: String?,
@@ -141,6 +161,7 @@ data class BankInfoResponse(
     }
 }
 
+@Serializable
 data class BankTransferChargeResponse(
     val beneficiaryId: String,
     val state: String?,
@@ -149,11 +170,13 @@ data class BankTransferChargeResponse(
     val extraAttributes: BankTransferChargeAttributes
 )
 
+@Serializable
 data class BankTransferFiatAmount(
     val symbol: String,
     val value: String
 )
 
+@Serializable
 data class BankTransferChargeAttributes(
     val authorisationUrl: String?,
     val status: String?
@@ -175,13 +198,15 @@ data class BankTransferChargeAttributes(
     }
 }
 
+@Serializable
 data class BankInfoAttributes(
-    val entity: String,
+    val entity: String?,
     val media: List<BankMediaResponse>?,
-    val status: String,
-    val authorisationUrl: String
+    val status: String?,
+    val authorisationUrl: String?
 )
 
+@Serializable
 data class BankMediaResponse(
     val source: String,
     val type: String
@@ -190,10 +215,4 @@ data class BankMediaResponse(
         const val ICON = "icon"
         const val LOGO = "logo"
     }
-}
-
-object WithdrawFeeRequest {
-    const val BANK_TRANSFER = "BANK_TRANSFER"
-    const val BANK_ACCOUNT = "BANK_ACCOUNT"
-    const val DEFAULT = "DEFAULT"
 }

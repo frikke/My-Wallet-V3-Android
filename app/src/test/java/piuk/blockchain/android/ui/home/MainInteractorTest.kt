@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.home
 
 import android.content.Intent
 import com.blockchain.core.Database
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -59,6 +60,7 @@ class MainInteractorTest {
     private val qrScanResultProcessor: QrScanResultProcessor = mock()
     private val secureChannelManager: SecureChannelManager = mock()
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
+    private val paymentsDataManager: PaymentsDataManager = mock()
 
     @Before
     fun setup() {
@@ -79,7 +81,8 @@ class MainInteractorTest {
             credentialsWiper = credentialsWiper,
             qrScanResultProcessor = qrScanResultProcessor,
             secureChannelManager = secureChannelManager,
-            cancelOrderUseCase = cancelOrderUseCase
+            cancelOrderUseCase = cancelOrderUseCase,
+            paymentsDataManager = paymentsDataManager
         )
     }
 
@@ -185,14 +188,14 @@ class MainInteractorTest {
         val consentToken = "1234"
         val tokenUrl = "token url"
         whenever(bankLinkingPrefs.getDynamicOneTimeTokenUrl()).thenReturn(tokenUrl)
-        whenever(custodialWalletManager.updateOpenBankingConsent(tokenUrl, consentToken)).thenReturn(
+        whenever(paymentsDataManager.updateOpenBankingConsent(tokenUrl, consentToken)).thenReturn(
             Completable.complete()
         )
 
         interactor.updateOpenBankingConsent(consentToken)
 
         verify(bankLinkingPrefs).getDynamicOneTimeTokenUrl()
-        verify(custodialWalletManager).updateOpenBankingConsent(tokenUrl, consentToken)
+        verify(paymentsDataManager).updateOpenBankingConsent(tokenUrl, consentToken)
         verifyNoMoreInteractions(bankLinkingPrefs)
         verifyNoMoreInteractions(custodialWalletManager)
     }
@@ -204,7 +207,7 @@ class MainInteractorTest {
         val exception = Exception("test")
 
         whenever(bankLinkingPrefs.getDynamicOneTimeTokenUrl()).thenReturn(tokenUrl)
-        whenever(custodialWalletManager.updateOpenBankingConsent(tokenUrl, consentToken)).thenReturn(
+        whenever(paymentsDataManager.updateOpenBankingConsent(tokenUrl, consentToken)).thenReturn(
             Completable.error(exception)
         )
         doNothing().whenever(bankLinkingPrefs).setBankLinkingState(any())
@@ -216,7 +219,7 @@ class MainInteractorTest {
 
         verify(bankLinkingPrefs).getDynamicOneTimeTokenUrl()
         verify(bankLinkingPrefs).setBankLinkingState(any())
-        verify(custodialWalletManager).updateOpenBankingConsent(tokenUrl, consentToken)
+        verify(paymentsDataManager).updateOpenBankingConsent(tokenUrl, consentToken)
         verifyNoMoreInteractions(bankLinkingPrefs)
         verifyNoMoreInteractions(custodialWalletManager)
     }

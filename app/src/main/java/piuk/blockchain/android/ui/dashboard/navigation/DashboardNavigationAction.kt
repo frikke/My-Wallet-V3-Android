@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.dashboard.navigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.nabu.models.data.LinkBankTransfer
+import com.blockchain.core.payments.model.LinkBankTransfer
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails

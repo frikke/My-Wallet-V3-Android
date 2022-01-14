@@ -3,11 +3,11 @@ package piuk.blockchain.android.ui.home.models
 import android.content.Intent
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
+import com.blockchain.core.payments.model.BankTransferDetails
+import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.extensions.valueOf
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.data.BankTransferDetails
-import com.blockchain.nabu.models.data.BankTransferStatus
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException

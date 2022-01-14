@@ -74,14 +74,23 @@ class SettingsModel(
                         process(SettingsIntent.UpdateErrorState(SettingsError.UNPAIR_FAILED))
                     }
                 )
+            is SettingsIntent.OnCardRemoved ->
+                interactor.getAvailablePaymentMethodsTypes()
+                    .subscribeBy(
+                        onSuccess = { available ->
+                            process(SettingsIntent.UpdateAvailablePaymentMethods(available))
+                        }, onError = {
+                        process(SettingsIntent.UpdateErrorState(SettingsError.PAYMENT_METHODS_LOAD_FAIL))
+                    }
+                    )
             is SettingsIntent.UserLoggedOut,
             is SettingsIntent.UpdateViewToLaunch,
             is SettingsIntent.ResetViewState,
             is SettingsIntent.UpdateContactSupportEligibility,
             is SettingsIntent.UpdatePaymentMethodsInfo,
-            is SettingsIntent.OnCardRemoved,
             is SettingsIntent.OnBankRemoved,
             is SettingsIntent.ResetErrorState,
+            is SettingsIntent.UpdateAvailablePaymentMethods,
             is SettingsIntent.UpdateErrorState -> null
         }.exhaustive
 }

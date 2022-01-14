@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkBankAttributes
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkBankAttributes
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.GBP
@@ -17,11 +17,14 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.math.BigInteger
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
+import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class DashboardOnboardingModelTest {
@@ -153,7 +156,7 @@ class DashboardOnboardingModelTest {
         model.process(DashboardOnboardingIntent.FetchSteps)
         model.process(DashboardOnboardingIntent.StepClicked(DashboardOnboardingStep.LINK_PAYMENT_METHOD))
 
-        verify(interactor).getEligiblePaymentMethods(currency)
+        verify(interactor).getAvailablePaymentMethodTypes(currency)
     }
 
     @Test
@@ -190,26 +193,31 @@ class DashboardOnboardingModelTest {
 
         model.process(DashboardOnboardingIntent.TradingCurrencyChanged)
 
-        verify(interactor).getEligiblePaymentMethods(newUserCurrency)
+        verify(interactor).getAvailablePaymentMethodTypes(newUserCurrency)
     }
 
     @Test
     fun `given user clicked link payment method step, fetching eligible payment methods success should navigate to add payment method`() {
         val currency = EUR
-        val paymentMethods = listOf(
-            PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true),
-            PaymentMethod.UndefinedBankAccount(currency.name, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true),
-            PaymentMethod.UndefinedBankTransfer(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true)
+        val limits = PaymentLimits(BigInteger.ZERO, BigInteger.ZERO, currency)
+        val availablePaymentMethodTypes = listOf(
+            AvailablePaymentMethodType(true, LinkAccess.GRANTED, currency, PaymentMethodType.PAYMENT_CARD, limits),
+            AvailablePaymentMethodType(true, LinkAccess.GRANTED, currency, PaymentMethodType.BANK_ACCOUNT, limits),
+            AvailablePaymentMethodType(true, LinkAccess.BLOCKED, currency, PaymentMethodType.BANK_TRANSFER, limits)
         )
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
         whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(currency)))
-        whenever(interactor.getEligiblePaymentMethods(currency)).thenReturn(Single.just(paymentMethods))
+        whenever(interactor.getAvailablePaymentMethodTypes(currency)).thenReturn(Single.just(availablePaymentMethodTypes))
 
         val state = model.state.test()
         model.process(DashboardOnboardingIntent.FetchSteps)
         model.process(DashboardOnboardingIntent.StepClicked(DashboardOnboardingStep.LINK_PAYMENT_METHOD))
 
+        val paymentMethods = listOf(
+            PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true),
+            PaymentMethod.UndefinedBankAccount(currency, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true)
+        )
         state.assertValueAt(2) {
             it.navigationAction == DashboardOnboardingNavigationAction.AddPaymentMethod(paymentMethods)
         }
@@ -222,7 +230,7 @@ class DashboardOnboardingModelTest {
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
         whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(currency)))
-        whenever(interactor.getEligiblePaymentMethods(currency)).thenReturn(Single.error(error))
+        whenever(interactor.getAvailablePaymentMethodTypes(currency)).thenReturn(Single.error(error))
 
         val state = model.state.test()
         model.process(DashboardOnboardingIntent.FetchSteps)

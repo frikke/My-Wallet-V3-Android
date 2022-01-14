@@ -160,6 +160,7 @@ val transactionModule = module {
                 addressFactory = payloadScope.get(),
                 custodialRepository = payloadScope.get(),
                 custodialWalletManager = payloadScope.get(),
+                paymentsDataManager = payloadScope.get(),
                 currencyPrefs = get(),
                 identity = payloadScope.get(),
                 accountsSorting = payloadScope.get(),

@@ -5,12 +5,13 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.YodleeAttributes
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -27,6 +28,7 @@ class DashboardActionAdapterTest {
     private lateinit var actionAdapter: DashboardActionAdapter
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
+    private val paymentsDataManager: PaymentsDataManager = mock()
     private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
         on { currency }.thenReturn(USD)
@@ -55,7 +57,8 @@ class DashboardActionAdapterTest {
             userIdentity = mock(),
             getDashboardOnboardingStepsUseCase = mock(),
             dashboardOnboardingFlag = mock(),
-            exchangeRates = mock()
+            exchangeRates = mock(),
+            paymentsDataManager = paymentsDataManager
         )
     }
 
@@ -108,7 +111,7 @@ class DashboardActionAdapterTest {
                 emptyList()
             )
         )
-        whenever(custodialWalletManager.linkToABank(USD)).thenReturn(
+        whenever(paymentsDataManager.linkBank(USD)).thenReturn(
             Single.just(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
@@ -204,7 +207,7 @@ class DashboardActionAdapterTest {
             )
         )
 
-        whenever(custodialWalletManager.linkToABank(USD)).thenReturn(
+        whenever(paymentsDataManager.linkBank(USD)).thenReturn(
             Single.just(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")

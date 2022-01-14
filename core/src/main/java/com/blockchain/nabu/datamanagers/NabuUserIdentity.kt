@@ -178,15 +178,14 @@ class NabuUserIdentity(
             Tier.BRONZE -> KycTierLevel.BRONZE
             Tier.SILVER -> KycTierLevel.SILVER
             Tier.GOLD -> KycTierLevel.GOLD
-            Tier.SILVER_PLUS -> throw java.lang.IllegalStateException("The app does not interact with SDD tier")
-        }.exhaustive
+        }
 
     private fun KycTierLevel.toTier(): Tier =
         when (this) {
             KycTierLevel.BRONZE -> Tier.BRONZE
             KycTierLevel.SILVER -> Tier.SILVER
             KycTierLevel.GOLD -> Tier.GOLD
-        }.exhaustive
+        }
 }
 
 private fun SimpleBuyEligibility.canCreateOrder(): Boolean =

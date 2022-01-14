@@ -9,6 +9,8 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.logging.CrashLogger
@@ -16,7 +18,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -58,6 +59,7 @@ class DashboardActionAdapter(
     private val exchangeRates: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
@@ -516,7 +518,7 @@ class DashboardActionAdapter(
         }
 
     fun linkBankTransfer(currency: FiatCurrency): Single<LinkBankTransfer> =
-        custodialWalletManager.linkToABank(currency)
+        paymentsDataManager.linkBank(currency)
 
     fun getBankWithdrawalFlow(
         model: DashboardModel,

@@ -1,11 +1,11 @@
-package com.blockchain.nabu.models.data
+package com.blockchain.core.payments.model
 
+import com.blockchain.api.paymentmethods.models.LinkBankAttrsResponse
+import com.blockchain.api.paymentmethods.models.YapilyMediaResponse
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.responses.banktransfer.LinkBankAttrsResponse
-import com.blockchain.nabu.models.responses.banktransfer.YapilyMediaResponse
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
@@ -22,20 +22,16 @@ enum class BankPartner {
     fun attributes(attrsResponse: LinkBankAttrsResponse): LinkBankAttributes =
         when (this) {
             YODLEE -> {
-                require(attrsResponse.fastlinkUrl != null)
-                require(attrsResponse.token != null)
-                require(attrsResponse.fastlinkParams != null)
                 YodleeAttributes(
-                    attrsResponse.fastlinkUrl, attrsResponse.token,
-                    attrsResponse.fastlinkParams.configName
+                    attrsResponse.fastlinkUrl!!,
+                    attrsResponse.token!!,
+                    attrsResponse.fastlinkParams!!.configName
                 )
             }
             YAPILY -> {
-                require(attrsResponse.institutions != null)
-                require(attrsResponse.entity != null)
                 YapilyAttributes(
-                    entity = attrsResponse.entity,
-                    institutionList = attrsResponse.institutions.map {
+                    entity = attrsResponse.entity!!,
+                    institutionList = attrsResponse.institutions!!.map {
                         YapilyInstitution(
                             operatingCountries = it.countries.map { countryResponse ->
                                 InstitutionCountry(
@@ -175,4 +171,11 @@ enum class BankTransferStatus {
     PENDING,
     ERROR,
     COMPLETE
+}
+
+enum class BankState {
+    PENDING,
+    BLOCKED,
+    ACTIVE,
+    UNKNOWN
 }
