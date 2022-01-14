@@ -70,6 +70,8 @@ import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForActio
 import piuk.blockchain.android.ui.dashboard.model.Locks
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
+import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingAnalytics
+import piuk.blockchain.android.ui.dashboard.onboarding.toCurrentStepIndex
 import piuk.blockchain.android.ui.dashboard.sheets.FiatFundsDetailSheet
 import piuk.blockchain.android.ui.dashboard.sheets.ForceBackupForSendSheet
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
@@ -459,6 +461,9 @@ class PortfolioFragment :
                 setCompleteSteps(completeSteps)
                 setOnClickListener {
                     model.process(DashboardIntent.LaunchDashboardOnboarding(newState.steps))
+                    newState.steps.toCurrentStepIndex()?.let {
+                        analytics.logEvent(DashboardOnboardingAnalytics.CardClicked(it))
+                    }
                 }
             }
         }

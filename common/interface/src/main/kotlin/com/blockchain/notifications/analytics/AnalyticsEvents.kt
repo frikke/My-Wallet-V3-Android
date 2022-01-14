@@ -190,7 +190,11 @@ enum class AnalyticsNames(val eventName: String) {
     RECOVERY_RESET_CANCELLED("Reset Account Cancelled"),
     RECOVERY_RESET_CLICKED("Reset Account Clicked"),
     LANDING_CTA_LOGIN_CLICKED("Login Clicked"),
-    LANDING_CTA_SIGNUP_CLICKED("Sign Up Clicked")
+    LANDING_CTA_SIGNUP_CLICKED("Sign Up Clicked"),
+    DASHBOARD_ONBOARDING_VIEWED("Peeksheet Viewed"),
+    DASHBOARD_ONBOARDING_DISMISSED("Peeksheet Dismissed"),
+    DASHBOARD_ONBOARDING_CARD_CLICKED("Peeksheet Process Clicked"),
+    DASHBOARD_ONBOARDING_STEP_LAUNCHED("Peeksheet Selection Clicked")
 }
 
 enum class LaunchOrigin {

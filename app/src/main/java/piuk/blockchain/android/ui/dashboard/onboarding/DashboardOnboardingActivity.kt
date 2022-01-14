@@ -47,6 +47,9 @@ class DashboardOnboardingActivity :
     CurrencySelectionSheet.Host,
     PaymentMethodChooserBottomSheet.Host {
 
+    private var analyticsCurrentStepIndex: Int? = null
+    private var analyticsNextStepButtonClicked = false
+
     override val alwaysDisableScreenshots: Boolean = false
     override val model: DashboardOnboardingModel by scopedInject {
         parametersOf(intent.argInitialSteps())
@@ -56,6 +59,7 @@ class DashboardOnboardingActivity :
         OnboardingStepAdapter(
             onStepClicked = {
                 model.process(DashboardOnboardingIntent.StepClicked(it.step))
+                analyticsNextStepButtonClicked = false
             }
         )
     }
@@ -68,6 +72,10 @@ class DashboardOnboardingActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        intent.argInitialSteps().toCurrentStepIndex()?.let {
+            analytics.logEvent(DashboardOnboardingAnalytics.Viewed(it))
+        }
 
         if (intent.argShowCloseButton()) {
             updateToolbar(
@@ -92,6 +100,7 @@ class DashboardOnboardingActivity :
     }
 
     override fun render(newState: DashboardOnboardingState) {
+        analyticsCurrentStepIndex = newState.steps.toCurrentStepIndex()
         adapter.submitList(newState.steps)
 
         handleNavigation(newState.navigationAction)
@@ -125,9 +134,23 @@ class DashboardOnboardingActivity :
         when (action) {
             DashboardOnboardingNavigationAction.None -> return
             DashboardOnboardingNavigationAction.StartKyc -> {
+                analyticsCurrentStepIndex?.let {
+                    analytics.logEvent(
+                        DashboardOnboardingAnalytics.StepLaunched(
+                            it, DashboardOnboardingStep.UPGRADE_TO_GOLD, analyticsNextStepButtonClicked
+                        )
+                    )
+                }
                 KycNavHostActivity.start(this, CampaignType.None)
             }
             is DashboardOnboardingNavigationAction.AddPaymentMethod -> {
+                analyticsCurrentStepIndex?.let {
+                    analytics.logEvent(
+                        DashboardOnboardingAnalytics.StepLaunched(
+                            it, DashboardOnboardingStep.LINK_PAYMENT_METHOD, analyticsNextStepButtonClicked
+                        )
+                    )
+                }
                 showBottomSheet(
                     PaymentMethodChooserBottomSheet.newInstance(
                         paymentMethods = action.eligiblePaymentMethods,
@@ -136,6 +159,13 @@ class DashboardOnboardingActivity :
                 )
             }
             DashboardOnboardingNavigationAction.OpenBuy -> {
+                analyticsCurrentStepIndex?.let {
+                    analytics.logEvent(
+                        DashboardOnboardingAnalytics.StepLaunched(
+                            it, DashboardOnboardingStep.BUY, analyticsNextStepButtonClicked
+                        )
+                    )
+                }
                 val intent = Intent()
                 intent.putExtra(RESULT_LAUNCH_BUY_FLOW, true)
                 setResult(RESULT_OK, intent)
@@ -196,8 +226,16 @@ class DashboardOnboardingActivity :
             backgroundTintList = firstIncompleteStep.ctaButtonTint
             setOnClickListener {
                 model.process(DashboardOnboardingIntent.StepClicked(firstIncompleteStep))
+                analyticsNextStepButtonClicked = true
             }
         }
+    }
+
+    override fun finish() {
+        analyticsCurrentStepIndex?.let {
+            analytics.logEvent(DashboardOnboardingAnalytics.Dismissed(it))
+        }
+        super.finish()
     }
 
     // We have not been provided button states from design, so we're dynamically creating them
