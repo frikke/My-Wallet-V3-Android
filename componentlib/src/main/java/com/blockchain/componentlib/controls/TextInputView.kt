@@ -7,17 +7,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class TextInputView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var value by mutableStateOf("")
     var onValueChange by mutableStateOf({ _: String -> })

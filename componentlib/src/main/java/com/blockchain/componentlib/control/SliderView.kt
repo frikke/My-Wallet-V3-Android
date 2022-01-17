@@ -6,15 +6,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class SliderView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var value by mutableStateOf(0f)
     var onValueChanged by mutableStateOf({ value: Float -> })

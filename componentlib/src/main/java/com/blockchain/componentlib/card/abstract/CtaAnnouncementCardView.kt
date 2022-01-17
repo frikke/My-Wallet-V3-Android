@@ -7,19 +7,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.AnnotatedString
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.CtaAnnouncementCard
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class CtaAnnouncementCardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var header by mutableStateOf("")
     var subheader by mutableStateOf(
