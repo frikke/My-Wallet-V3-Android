@@ -49,7 +49,7 @@ object Versions {
     const val googleServicesPlaces = "2.4.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googlePlayCore = "1.8.2"
-    const val firebaseBom = "28.4.0"
+    const val firebaseBom = "29.0.3"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
     const val adsIdentifier = "17.0.0"
@@ -130,7 +130,7 @@ object Versions {
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
 
-    const val firebaseCrashlyticsPlugin = "2.7.1"
+    const val firebaseCrashlyticsPlugin = "2.8.1"
 
     // Debugging
     const val stetho = "1.5.1"
