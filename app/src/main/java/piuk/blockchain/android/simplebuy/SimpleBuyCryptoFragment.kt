@@ -508,8 +508,6 @@ class SimpleBuyCryptoFragment :
             paymentMethodBankInfo.gone()
             paymentMethodIcon.setImageResource(R.drawable.ic_payment_card)
             paymentMethodTitle.text = getString(R.string.credit_or_debit_card)
-            paymentMethodLimit.text =
-                getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
         }
     }
 

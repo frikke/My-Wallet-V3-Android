@@ -29,17 +29,9 @@ class AddCardDelegate : AdapterDelegate<PaymentMethodItem> {
 
     private class ViewHolder(private val binding: AddNewCardLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        val limit: AppCompatTextView = binding.paymentMethodLimit
         val root: ViewGroup = binding.paymentMethodRoot
 
         fun bind(paymentMethodItem: PaymentMethodItem) {
-            (paymentMethodItem.paymentMethod as? PaymentMethod.UndefinedCard)?.let {
-                limit.text =
-                    limit.context.getString(
-                        R.string.payment_method_limit,
-                        paymentMethodItem.paymentMethod.limits.max.toStringWithSymbol()
-                    )
-            }
             root.setOnClickListener { paymentMethodItem.clickAction() }
         }
     }
