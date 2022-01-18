@@ -7,6 +7,8 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import piuk.blockchain.android.databinding.AddFundsLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
+
+// TODO Rename this
 class AddFundsDelegate : AdapterDelegate<PaymentMethodItem> {
 
     override fun isForViewType(items: List<PaymentMethodItem>, position: Int): Boolean =
