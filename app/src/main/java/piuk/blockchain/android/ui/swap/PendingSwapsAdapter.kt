@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.utils.toFormattedDate
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SwapPendingItemLayoutBinding
@@ -37,13 +36,13 @@ class PendingSwapsAdapter(
         ) {
             with(binding) {
                 title.text = context.resources.getString(
-                    R.string.swap_direction, (custodialOrder.inputMoney as CryptoValue).currency.displayTicker,
-                    (custodialOrder.outputMoney as CryptoValue).currency.displayTicker
+                    R.string.swap_direction, custodialOrder.inputMoney.currency.displayTicker,
+                    custodialOrder.outputMoney.currency.displayTicker
                 )
                 subtitle.text = custodialOrder.createdAt.toFormattedDate()
                 fiatvalue.text = toFiat(custodialOrder.inputMoney).toStringWithSymbol()
                 cryptovalue.text = custodialOrder.inputMoney.toStringWithSymbol()
-                val asset = (custodialOrder.inputMoney as CryptoValue).currency
+                val asset = custodialOrder.inputMoney.currency
                 icon.setAssetIconColoursWithTint(asset)
             }
         }

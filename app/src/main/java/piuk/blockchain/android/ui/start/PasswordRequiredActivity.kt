@@ -59,8 +59,18 @@ class PasswordRequiredActivity :
             backAction = { onBackPressed() }
         )
         with(binding) {
-            buttonContinue.setOnClickListener { presenter.onContinueClicked(binding.fieldPassword.text.toString()) }
-            buttonForget.setOnClickListener { presenter.onForgetWalletClicked() }
+            buttonContinue.apply {
+                onClick = {
+                    presenter.onContinueClicked(binding.fieldPassword.text.toString())
+                }
+                text = getString(R.string.btn_continue)
+            }
+            buttonForget.apply {
+                onClick = {
+                    presenter.onForgetWalletClicked()
+                }
+                text = getString(R.string.wipe_wallet)
+            }
             buttonRecover.setOnClickListener { launchRecoveryFlow() }
         }
     }

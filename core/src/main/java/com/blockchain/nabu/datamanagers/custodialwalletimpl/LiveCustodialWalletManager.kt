@@ -728,13 +728,13 @@ class LiveCustodialWalletManager(
             depositAddress = this.kind.depositAddress,
             createdAt = this.createdAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
             inputMoney = Money.fromMinor(
-                assetCatalogue.fromNetworkTicker(
+                assetCatalogue.assetInfoFromNetworkTicker(
                     this.pair.toCryptoCurrencyPair()?.source?.networkTicker.toString()
                 ) ?: return null,
                 this.priceFunnel.inputMoney.toBigInteger()
             ),
             outputMoney = Money.fromMinor(
-                assetCatalogue.fromNetworkTicker(
+                assetCatalogue.assetInfoFromNetworkTicker(
                     this.pair.toCryptoCurrencyPair()?.destination?.networkTicker.toString()
                 ) ?: return null,
                 this.priceFunnel.outputMoney.toBigInteger()
