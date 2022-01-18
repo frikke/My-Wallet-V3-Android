@@ -63,8 +63,11 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
 
         if (availableSources != newState.availableSources) {
             updateSources(newState)
-            binding.depositTooltip.root.visibleIf {
-                customiser.selectSourceShouldShowDepositTooltip(newState)
+            binding.depositTooltip.root.apply {
+                visibleIf { customiser.selectSourceShouldShowDepositTooltip(newState) }
+                setOnClickListener {
+                    showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance())
+                }
             }
         }
 
