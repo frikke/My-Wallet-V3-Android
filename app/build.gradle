@@ -309,6 +309,7 @@ dependencies {
     implementation project(':blockchainApi')
     implementation project(':componentlib')
     implementation project(':biometrics')
+    implementation project(':walletconnect')
     implementation project(':wallet')
     implementation project(':common:interface')
     implementation project(':common:network')

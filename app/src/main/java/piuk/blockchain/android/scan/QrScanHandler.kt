@@ -53,6 +53,10 @@ sealed class ScanResult(
     class SecuredChannelLogin(
         val handshake: String
     ) : ScanResult(false)
+
+    class WalletConnectRequest(
+        val data: String
+    ) : ScanResult(false)
 }
 
 class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
@@ -74,6 +78,7 @@ class QrScanResultProcessor(
                     ScanResult.TxTarget(setOf(it), isDeeplinked)
                 }
             scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
+            scanResult.isWalletConnectLink() -> Single.just(ScanResult.WalletConnectRequest(scanResult))
             else -> {
                 val addressParser: AddressFactory = payloadScope.get()
                 addressParser.parse(scanResult)
@@ -214,3 +219,4 @@ private fun String.getAssetFromLink(): AssetInfo =
     }
 
 private fun String.isJson(): Boolean = FormatsUtil.isValidJson(this)
+private fun String.isWalletConnectLink(): Boolean = contains("bridge.walletconnect.org")

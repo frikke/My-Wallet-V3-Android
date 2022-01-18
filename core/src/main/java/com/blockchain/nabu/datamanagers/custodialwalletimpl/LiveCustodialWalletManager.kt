@@ -284,7 +284,7 @@ class LiveCustodialWalletManager(
                         fee = it.feeMinor?.let { fee ->
                             Money.fromMinor(crypto, fee.toBigInteger())
                         } ?: Money.zero(crypto),
-                        receivingAddress = it.extraAttributes.beneficiary?.accountRef.orEmpty(),
+                        receivingAddress = it.extraAttributes?.beneficiary?.accountRef.orEmpty(),
                         txHash = it.txHash.orEmpty(),
                         currency = currencyPrefs.selectedFiatCurrency,
                         paymentId = it.beneficiaryId

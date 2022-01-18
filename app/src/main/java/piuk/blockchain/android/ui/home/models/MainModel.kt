@@ -124,6 +124,7 @@ class MainModel(
                                     )
                                 )
                             }
+                            is ScanResult.WalletConnectRequest -> null /* walletConnect.connect()*/
                             is ScanResult.ImportedWallet -> {
                                 // TODO: as part of Auth
                             }

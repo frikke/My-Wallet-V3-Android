@@ -75,7 +75,8 @@ fun WebSocketReceive<String>.channelMessageFilter(name: String, throwErrors: Boo
             }
         }
 
-        private val incomingAdapter = Moshi.Builder().build().adapter(IncomingMessage::class.java)
+        private val incomingAdapter =
+            Moshi.Builder().build().adapter(IncomingMessage::class.java)
     }
 }
 

@@ -85,8 +85,8 @@ dependencies {
 
     // Firebase
     implementation platform(Libraries.firebaseBom)
-    implementation (Libraries.firebaseConfig) {
-        exclude group:'com.google.protobuf', module: 'protobuf-lite'
+    implementation(Libraries.firebaseConfig) {
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
 
     coreLibraryDesugaring Libraries.desugaring

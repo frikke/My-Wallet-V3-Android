@@ -59,7 +59,7 @@ class OutcomeCall<R>(
             // e.g. in case of 204 No Content
             successType == Unit::class.java ->
                 @Suppress("UNCHECKED_CAST")
-                Outcome.Success<ApiError, Unit>(Unit) as Outcome<ApiError, R>
+                Outcome.Success(Unit) as Outcome<ApiError, R>
             else -> Outcome.Failure(ApiError.UnknownApiError(throwable = Throwable(errorBody()?.toString() ?: "")))
         }
     }

@@ -8,9 +8,9 @@ import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 import timber.log.Timber
 
-internal fun <T> Single<T>.wrapErrorMessage(): Single<T> = this.onErrorResumeNext {
+internal inline fun <reified T> Single<T>.wrapErrorMessage(): Single<T> = this.onErrorResumeNext {
     if (BuildConfig.DEBUG) {
-        Timber.e("RX Wrapped Error: {${it.message}")
+        Timber.e("RX Wrapped Error: {${it.message} --- ${T::class.simpleName}")
     }
     when (it) {
         is HttpException -> Single.error(NabuApiException.fromResponseBody(it))
@@ -29,9 +29,9 @@ internal fun Completable.wrapErrorMessage(): Completable = this.onErrorResumeNex
     }
 }
 
-internal fun <T> Maybe<T>.wrapErrorMessage(): Maybe<T> = this.onErrorResumeNext {
+internal inline fun <reified T> Maybe<T>.wrapErrorMessage(): Maybe<T> = this.onErrorResumeNext {
     if (BuildConfig.DEBUG) {
-        Timber.e("RX Wrapped Error: {${it.message}")
+        Timber.e("RX Wrapped Error: {${it.message} --- ${T::class.simpleName}")
     }
 
     when (it) {

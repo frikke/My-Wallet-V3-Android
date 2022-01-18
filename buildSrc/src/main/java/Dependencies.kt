@@ -87,6 +87,7 @@ object Versions {
     const val commonsLang = "3.4"
     const val commonsCli = "1.3"
     const val commonsIo = "2.6"
+    const val walletConnect = "1.5.4"
     const val urlBuilder = "2.0.9"
     const val yearclass = "2.0.0"
     const val protobuf = "3.18.0"
@@ -247,6 +248,7 @@ object Libraries {
     // Utils, BTC, Ethereum
     const val bitcoinj = "org.bitcoinj:bitcoinj-core:${Versions.bitcoinj}"
     const val web3j = "org.web3j:core:${Versions.web3j}"
+    const val walletConnect = "com.github.TrustWallet:wallet-connect-kotlin:${Versions.walletConnect}"
     const val spongyCastle = "com.madgag.spongycastle:prov:${Versions.spongycastle}"
     const val jjwt = "io.jsonwebtoken:jjwt:${Versions.jjwt}"
     const val lambdaWorks = "com.lambdaworks:codec:${Versions.lambdaWorks}"

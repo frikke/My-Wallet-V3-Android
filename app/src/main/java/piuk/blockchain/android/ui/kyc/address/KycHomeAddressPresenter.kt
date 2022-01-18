@@ -105,7 +105,7 @@ class KycHomeAddressPresenter(
                             address.line2,
                             address.city!!,
                             address.state,
-                            address.postCode,
+                            address.postCode.orEmpty(),
                             countryName
                         )
                     },

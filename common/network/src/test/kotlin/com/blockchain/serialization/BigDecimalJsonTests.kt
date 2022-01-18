@@ -15,7 +15,7 @@ class BigDecimalJsonTests {
     )
 
     private val moshi = Moshi.Builder()
-        .add(BigDecimalAdaptor())
+        .add(BigDecimalAdapter())
         .build()
 
     private val jsonAdapter: JsonAdapter<ExampleDto> = moshi.adapter(

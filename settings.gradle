@@ -18,4 +18,5 @@ include ':app',
         ':biometrics',
         ':common-view',
         ':blockchain-component-library-catalog',
-        ':charts'
+        ':charts',
+        ':walletconnect'

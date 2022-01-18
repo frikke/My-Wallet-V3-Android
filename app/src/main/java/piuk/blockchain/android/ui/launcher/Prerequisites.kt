@@ -4,6 +4,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.CrashLogger
 import com.blockchain.operations.AppStartUpFlushable
+import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
@@ -26,6 +27,7 @@ class Prerequisites(
     private val exchangeRates: ExchangeRatesDataManager,
     private val crashLogger: CrashLogger,
     private val simpleBuySync: SimpleBuySyncFactory,
+    private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val flushables: List<AppStartUpFlushable>,
     private val walletCredentialsUpdater: WalletCredentialsMetadataUpdater,
     private val rxBus: RxBus
@@ -51,7 +53,12 @@ class Prerequisites(
             }.then {
                 walletCredentialsUpdater.checkAndUpdate()
                     .logAndCompleteOnError(WALLET_CREDENTIALS)
-            }.doOnComplete {
+            }.then {
+                Completable.fromCallable {
+                    walletConnectServiceAPI.connectToApprovedSessions()
+                }
+            }
+            .doOnComplete {
                 rxBus.emitEvent(MetadataEvent::class.java, MetadataEvent.SETUP_COMPLETE)
             }
             .subscribeOn(Schedulers.io())
@@ -83,5 +90,6 @@ class Prerequisites(
         private const val METADATA_ERROR_MESSAGE = "metadata_init"
         private const val SIMPLE_BUY_SYNC = "simple_buy_sync"
         private const val WALLET_CREDENTIALS = "wallet_credentials"
+        private const val WALLET_CONNECT = "wallet_connect"
     }
 }

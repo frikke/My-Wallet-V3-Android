@@ -102,7 +102,7 @@ data class BuySellOrderResponse(
     val processingErrorType: String?,
     val recurringBuyId: String?,
     val failureReason: String?,
-    val paymentError: String
+    val paymentError: String?
 ) {
     companion object {
         const val PENDING_DEPOSIT = "PENDING_DEPOSIT"
@@ -228,7 +228,7 @@ data class TransactionResponse(
     val state: String,
     val beneficiaryId: String? = null,
     val error: String? = null,
-    val extraAttributes: TransactionAttributesResponse,
+    val extraAttributes: TransactionAttributesResponse?,
     val txHash: String?
 ) {
     companion object {
