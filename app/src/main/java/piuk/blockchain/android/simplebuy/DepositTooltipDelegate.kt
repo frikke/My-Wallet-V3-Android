@@ -4,17 +4,18 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import piuk.blockchain.android.databinding.AddFundsLayoutBinding
+import piuk.blockchain.android.databinding.DepositTooltipLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
-class AddFundsDelegate : AdapterDelegate<PaymentMethodItem> {
+
+class DepositTooltipDelegate : AdapterDelegate<PaymentMethodItem> {
 
     override fun isForViewType(items: List<PaymentMethodItem>, position: Int): Boolean =
         items[position].paymentMethod is PaymentMethod.UndefinedBankAccount
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         ViewHolder(
-            AddFundsLayoutBinding.inflate(
+            DepositTooltipLayoutBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -27,7 +28,7 @@ class AddFundsDelegate : AdapterDelegate<PaymentMethodItem> {
     }
 
     private class ViewHolder(
-        private val binding: AddFundsLayoutBinding
+        private val binding: DepositTooltipLayoutBinding
     ) :
         RecyclerView.ViewHolder(binding.root) {
 

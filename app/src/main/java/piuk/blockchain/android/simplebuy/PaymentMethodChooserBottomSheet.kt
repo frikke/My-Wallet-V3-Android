@@ -116,7 +116,7 @@ private class PaymentMethodsAdapter(
     init {
         val cardPaymentDelegate = CardPaymentDelegate()
         val bankPaymentDelegate = BankPaymentDelegate()
-        val addFundsPaymentDelegate = AddFundsDelegate()
+        val depositTooltipDelegate = DepositTooltipDelegate()
         val addCardPaymentDelegate = AddCardDelegate()
         val linkBankPaymentDelegate = LinkBankDelegate()
         val fundsPaymentDelegate = FundsPaymentDelegate(assetResources)
@@ -127,7 +127,7 @@ private class PaymentMethodsAdapter(
             addAdapterDelegate(addCardPaymentDelegate)
             addAdapterDelegate(linkBankPaymentDelegate)
             addAdapterDelegate(bankPaymentDelegate)
-            addAdapterDelegate(addFundsPaymentDelegate)
+            addAdapterDelegate(depositTooltipDelegate)
         }
     }
 }
