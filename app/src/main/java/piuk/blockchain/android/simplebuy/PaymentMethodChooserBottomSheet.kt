@@ -120,6 +120,7 @@ private class PaymentMethodsAdapter(
         val addCardPaymentDelegate = AddCardDelegate()
         val linkBankPaymentDelegate = LinkBankDelegate()
         val fundsPaymentDelegate = FundsPaymentDelegate(assetResources)
+        val googlePayDelegate = GooglePayDelegate()
 
         delegatesManager.apply {
             addAdapterDelegate(cardPaymentDelegate)
@@ -128,6 +129,7 @@ private class PaymentMethodsAdapter(
             addAdapterDelegate(linkBankPaymentDelegate)
             addAdapterDelegate(bankPaymentDelegate)
             addAdapterDelegate(depositTooltipDelegate)
+            addAdapterDelegate(googlePayDelegate)
         }
     }
 }

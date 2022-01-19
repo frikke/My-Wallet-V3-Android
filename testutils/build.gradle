@@ -31,4 +31,7 @@ dependencies {
     // Unit Test dependencies
     implementation Libraries.junit
     implementation Libraries.kluent
+    implementation Libraries.kotlinCoroutinesTest
+    implementation Libraries.coreTesting
+    implementation Libraries.mockk
 }

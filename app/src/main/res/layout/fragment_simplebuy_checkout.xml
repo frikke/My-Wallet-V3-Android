@@ -124,6 +124,18 @@
         tools:text="Buy"
         tools:visibility="visible" />
 
+    <com.blockchain.payments.googlepay.view.GooglePayButton
+        android:id="@+id/button_google_pay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/tiny_margin"
+        app:layout_constraintBottom_toTopOf="@id/button_cancel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_goneMarginBottom="@dimen/standard_margin"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_cancel"
         style="@style/CtaButton.NoBackgroundRedText"

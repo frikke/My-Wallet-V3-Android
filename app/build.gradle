@@ -314,7 +314,10 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:network')
     implementation project(':common-view')
-    implementation project(':payments')
+    implementation project(':payments:checkoutcom')
+    implementation project(':payments:stripe')
+    implementation project(':payments:googlepay')
+    implementation project(':payments:core')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

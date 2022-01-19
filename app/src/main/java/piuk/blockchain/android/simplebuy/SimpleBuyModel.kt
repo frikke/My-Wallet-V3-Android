@@ -892,6 +892,8 @@ class SimpleBuyModel(
                 when (method.type) {
                     PaymentMethodType.PAYMENT_CARD ->
                         PaymentMethod.UndefinedCard(method.limits, method.canBeUsedForPayment)
+                    PaymentMethodType.GOOGLE_PAY ->
+                        PaymentMethod.GooglePay(method.limits, method.canBeUsedForPayment)
                     PaymentMethodType.BANK_TRANSFER ->
                         PaymentMethod.UndefinedBankTransfer(method.limits, method.canBeUsedForPayment)
                     PaymentMethodType.BANK_ACCOUNT ->

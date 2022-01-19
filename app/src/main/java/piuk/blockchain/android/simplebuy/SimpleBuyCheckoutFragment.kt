@@ -301,6 +301,7 @@ class SimpleBuyCheckoutFragment :
                 )
                 PaymentMethodType.BANK_TRANSFER,
                 PaymentMethodType.BANK_ACCOUNT,
+                PaymentMethodType.GOOGLE_PAY,
                 PaymentMethodType.PAYMENT_CARD -> {
                     state.selectedPaymentMethodDetails?.let { details ->
                         SimpleBuyCheckoutItem.ComplexCheckoutItem(
@@ -329,6 +330,7 @@ class SimpleBuyCheckoutFragment :
 
     private fun configureButtons(state: SimpleBuyState) {
         val isOrderAwaitingFunds = state.orderState == OrderState.AWAITING_FUNDS
+        val isGooglePay = state.selectedPaymentMethod?.paymentMethodType == PaymentMethodType.GOOGLE_PAY
 
         with(binding) {
             buttonAction.apply {
@@ -360,13 +362,20 @@ class SimpleBuyCheckoutFragment :
                 visibleIf { !showOnlyOrderData }
             }
 
-            buttonAction.isEnabled = !state.isLoading
+            buttonAction.apply {
+                isEnabled = !state.isLoading && !isGooglePay
+                visibleIf { !isGooglePay }
+            }
             buttonCancel.visibleIf {
                 isOrderAwaitingFunds && state.selectedPaymentMethod?.isBank() == true
             }
             buttonCancel.setOnClickListenerDebounced {
                 analytics.logEvent(SimpleBuyAnalytics.CHECKOUT_SUMMARY_PRESS_CANCEL)
                 showBottomSheet(SimpleBuyCancelOrderBottomSheet.newInstance())
+            }
+            buttonGooglePay.apply {
+                visibleIf { isGooglePay }
+                setOnClickListener { }
             }
         }
     }

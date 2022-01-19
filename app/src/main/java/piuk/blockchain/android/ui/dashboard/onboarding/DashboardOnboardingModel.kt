@@ -150,6 +150,7 @@ class DashboardOnboardingModel(
         when (type) {
             PaymentMethodType.PAYMENT_CARD ->
                 PaymentMethod.UndefinedCard(limits, canBeUsedForPayment)
+            PaymentMethodType.GOOGLE_PAY -> PaymentMethod.GooglePay(limits, canBeUsedForPayment)
             PaymentMethodType.BANK_TRANSFER ->
                 PaymentMethod.UndefinedBankTransfer(limits, canBeUsedForPayment)
             PaymentMethodType.BANK_ACCOUNT ->
