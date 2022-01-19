@@ -35,13 +35,6 @@ dependencies {
     implementation project(':common:interface')
 
     implementation Libraries.kotlinCoroutines
-    // Checkout.com
-    implementation Libraries.checkoutCom
-
-    // Stripe
-    implementation(Libraries.stripe) {
-        exclude group: 'com.github.stephenc.jcip', module: 'jcip-annotations'
-    }
 
     testImplementation Libraries.junit
 }

@@ -500,6 +500,25 @@ sealed class PaymentMethod(
     val availableBalance: Money?
         get() = (this as? Funds)?.balance
 
+    data class GooglePay(
+        override val limits: PaymentLimits,
+        override val isEligible: Boolean
+    ) : PaymentMethod(
+        GOOGLE_PAY_PAYMENT_ID,
+        PaymentMethodType.PAYMENT_CARD,
+        limits,
+        GOOGLE_PAY_PAYMENT_METHOD_ORDER,
+        isEligible
+    ) {
+        private val label = "Google Pay"
+
+        override fun detailedLabel() = label
+
+        override fun methodName() = label
+
+        override fun methodDetails() = label
+    }
+
     data class UndefinedCard(
         override val limits: PaymentLimits,
         override val isEligible: Boolean
@@ -616,10 +635,10 @@ sealed class PaymentMethod(
     }
 
     fun canBeUsedForPaying(): Boolean =
-        this is Card || this is Funds || this is Bank
+        this is Card || this is Funds || this is Bank || this is GooglePay
 
     fun canBeAdded(): Boolean =
-        this is UndefinedPaymentMethod
+        this is UndefinedPaymentMethod || this is GooglePay
 
     open fun detailedLabel(): String = ""
 
@@ -628,6 +647,7 @@ sealed class PaymentMethod(
     open fun methodDetails(): String = ""
 
     companion object {
+        const val GOOGLE_PAY_PAYMENT_ID = "GOOGLE_PAY_PAYMENT_ID"
         const val UNDEFINED_CARD_PAYMENT_ID = "UNDEFINED_CARD_PAYMENT_ID"
         const val FUNDS_PAYMENT_ID = "FUNDS_PAYMENT_ID"
         const val UNDEFINED_BANK_ACCOUNT_ID = "UNDEFINED_BANK_ACCOUNT_ID"
@@ -637,8 +657,9 @@ sealed class PaymentMethod(
         private const val CARD_PAYMENT_METHOD_ORDER = 1
         private const val BANK_PAYMENT_METHOD_ORDER = 2
         private const val UNDEFINED_CARD_PAYMENT_METHOD_ORDER = 3
-        private const val UNDEFINED_BANK_TRANSFER_METHOD_ORDER = 4
-        private const val UNDEFINED_BANK_ACCOUNT_METHOD_ORDER = 5
+        private const val GOOGLE_PAY_PAYMENT_METHOD_ORDER = 4
+        private const val UNDEFINED_BANK_TRANSFER_METHOD_ORDER = 5
+        private const val UNDEFINED_BANK_ACCOUNT_METHOD_ORDER = 6
     }
 }
 

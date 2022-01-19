@@ -13,6 +13,7 @@ data class PaymentMethodResponse(
 ) {
     companion object {
         const val PAYMENT_CARD = "PAYMENT_CARD"
+        const val GOOGLE_PAY = "GOOGLE_PAY"
         const val FUNDS = "FUNDS"
         const val BANK_TRANSFER = "BANK_TRANSFER"
         const val BANK_ACCOUNT = "BANK_ACCOUNT"

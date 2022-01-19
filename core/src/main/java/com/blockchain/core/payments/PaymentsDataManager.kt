@@ -141,11 +141,16 @@ class PaymentsDataManagerImpl(
     private val assetCatalogue: AssetCatalogue,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val authenticator: AuthHeaderProvider,
-    private val stripeAndCheckoutFeatureFlag: FeatureFlag
+    private val stripeAndCheckoutFeatureFlag: FeatureFlag,
+    private val googlePayFeatureFlag: FeatureFlag
 ) : PaymentsDataManager {
 
     private val cardProvidersEnabled: Single<Boolean> by lazy {
         stripeAndCheckoutFeatureFlag.enabled.cache()
+    }
+
+    private val googlePayEnabled: Single<Boolean> by lazy {
+        googlePayFeatureFlag.enabled.cache()
     }
 
     override suspend fun getPaymentMethodDetailsForId(
@@ -188,7 +193,25 @@ class PaymentsDataManagerImpl(
             currency = fiatCurrency.networkTicker,
             tier = if (fetchSddLimits) SDD_ELIGIBLE_TIER else null,
             eligibleOnly = onlyEligible
-        )
+        ).zipWith(googlePayEnabled) { methods, isGooglePayFeatureFlagEnabled ->
+            if (isGooglePayFeatureFlagEnabled) {
+                // TODO remove this once the API is in place
+                return@zipWith methods.toMutableList().apply {
+                    add(
+                        PaymentMethodResponse(
+                            type = PaymentMethodResponse.GOOGLE_PAY,
+                            eligible = true,
+                            visible = true,
+                            limits = Limits(min = 500, max = 120000, daily = null),
+                            subTypes = null,
+                            currency = fiatCurrency.networkTicker
+                        )
+                    )
+                }
+            } else {
+                return@zipWith methods.filter { it.type != PaymentMethodResponse.GOOGLE_PAY }
+            }
+        }
     }.map { methods ->
         methods.filter { it.visible }
             .filter { it.eligible || !onlyEligible }
@@ -205,6 +228,7 @@ class PaymentsDataManagerImpl(
                     PaymentMethodType.FUNDS -> SUPPORTED_FUNDS_CURRENCIES.contains(it.currency.networkTicker)
                     PaymentMethodType.BANK_TRANSFER,
                     PaymentMethodType.PAYMENT_CARD,
+                    PaymentMethodType.GOOGLE_PAY,
                     PaymentMethodType.UNKNOWN -> true
                 }
             }
@@ -589,6 +613,7 @@ class PaymentsDataManagerImpl(
         PaymentMethodResponse.FUNDS -> PaymentMethodType.FUNDS
         PaymentMethodResponse.BANK_TRANSFER -> PaymentMethodType.BANK_TRANSFER
         PaymentMethodResponse.BANK_ACCOUNT -> PaymentMethodType.BANK_ACCOUNT
+        PaymentMethodResponse.GOOGLE_PAY -> PaymentMethodType.GOOGLE_PAY
         else -> PaymentMethodType.UNKNOWN
     }
 

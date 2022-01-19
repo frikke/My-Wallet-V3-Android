@@ -97,19 +97,20 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 selectedPaymentMethod = SelectedPaymentMethod(
-                    paymentMethod.id,
+                    id = paymentMethod.id,
                     // no partner for bank transfer or ui label. Ui label for bank transfer is coming from resources
-                    (paymentMethod as? PaymentMethod.Card)?.partner,
-                    paymentMethod.detailedLabel(),
-                    when (paymentMethod) {
+                    partner = (paymentMethod as? PaymentMethod.Card)?.partner,
+                    label = paymentMethod.detailedLabel(),
+                    paymentMethodType = when (paymentMethod) {
                         is PaymentMethod.UndefinedBankTransfer -> PaymentMethodType.BANK_TRANSFER
                         is PaymentMethod.UndefinedCard -> PaymentMethodType.PAYMENT_CARD
                         is PaymentMethod.Bank -> PaymentMethodType.BANK_TRANSFER
                         is PaymentMethod.Funds -> PaymentMethodType.FUNDS
                         is PaymentMethod.UndefinedBankAccount -> PaymentMethodType.FUNDS
+                        is PaymentMethod.GooglePay -> PaymentMethodType.GOOGLE_PAY
                         else -> PaymentMethodType.PAYMENT_CARD
                     },
-                    paymentMethod.isEligible
+                    isEligible = paymentMethod.isEligible
                 )
             )
     }

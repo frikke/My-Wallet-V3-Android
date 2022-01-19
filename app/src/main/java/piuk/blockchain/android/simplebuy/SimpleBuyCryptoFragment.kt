@@ -41,6 +41,7 @@ import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
+import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.dashboard.showLoading
@@ -179,32 +180,37 @@ class SimpleBuyCryptoFragment :
 
     private fun startBuy() {
         lastState?.takeIf { canContinue(it) }?.let { state ->
-            model.process(SimpleBuyIntent.BuyButtonClicked)
-            model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
-            analytics.logEvent(
-                buyConfirmClicked(
-                    state.amount.toBigInteger().toString(),
-                    state.fiatCurrency.networkTicker,
-                    state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+            if (state.selectedPaymentMethod?.paymentMethodType == PaymentMethodType.GOOGLE_PAY) {
+                // TODO
+                toast("GPAY")
+            } else {
+                model.process(SimpleBuyIntent.BuyButtonClicked)
+                model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
+                analytics.logEvent(
+                    buyConfirmClicked(
+                        state.amount.toBigInteger().toString(),
+                        state.fiatCurrency.networkTicker,
+                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                    )
                 )
-            )
 
-            val paymentMethodDetails = state.selectedPaymentMethodDetails
-            check(paymentMethodDetails != null)
+                val paymentMethodDetails = state.selectedPaymentMethodDetails
+                check(paymentMethodDetails != null)
 
-            analytics.logEvent(
-                BuyAmountEntered(
-                    frequency = state.recurringBuyFrequency.name,
-                    inputAmount = state.amount,
-                    maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
-                        paymentMethodDetails.limits.max
-                        state.amount
-                    } else null,
-                    outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
-                    paymentMethod = state.selectedPaymentMethod?.paymentMethodType
-                        ?: return
+                analytics.logEvent(
+                    BuyAmountEntered(
+                        frequency = state.recurringBuyFrequency.name,
+                        inputAmount = state.amount,
+                        maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
+                            paymentMethodDetails.limits.max
+                            state.amount
+                        } else null,
+                        outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
+                        paymentMethod = state.selectedPaymentMethod?.paymentMethodType
+                            ?: return
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -409,15 +415,6 @@ class SimpleBuyCryptoFragment :
     private fun renderDefinedPaymentMethod(state: SimpleBuyState, selectedPaymentMethod: PaymentMethod) {
         renderRecurringBuy(state)
 
-        when (selectedPaymentMethod) {
-            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
-            is PaymentMethod.Funds -> renderFundsPayment(selectedPaymentMethod)
-            is PaymentMethod.Bank -> renderBankPayment(selectedPaymentMethod)
-            is PaymentMethod.UndefinedCard -> renderUndefinedCardPayment(selectedPaymentMethod)
-            is PaymentMethod.UndefinedBankTransfer -> renderUndefinedBankTransfer(selectedPaymentMethod)
-            else -> {
-            }
-        }
         with(binding) {
             paymentMethod.visible()
             paymentMethodSeparator.visible()
@@ -433,6 +430,18 @@ class SimpleBuyCryptoFragment :
                     },
                     paymentOptions = state.paymentOptions
                 )
+            }
+        }
+
+        when (selectedPaymentMethod) {
+            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
+            is PaymentMethod.Funds -> renderFundsPayment(selectedPaymentMethod)
+            is PaymentMethod.Bank -> renderBankPayment(selectedPaymentMethod)
+            is PaymentMethod.UndefinedCard -> renderUndefinedCardPayment(selectedPaymentMethod)
+            is PaymentMethod.UndefinedBankTransfer -> renderUndefinedBankTransfer(selectedPaymentMethod)
+            is PaymentMethod.GooglePay -> renderGooglePayPayment(selectedPaymentMethod)
+            else -> {
+                // Nothing to do here.
             }
         }
     }
@@ -551,6 +560,16 @@ class SimpleBuyCryptoFragment :
         } else {
             showBottomSheet(ErrorSlidingBottomDialog.newInstance(activity))
         }
+    }
+
+    private fun renderGooglePayPayment(selectedPaymentMethod: PaymentMethod.GooglePay) {
+        with(binding) {
+            paymentMethodBankInfo.gone()
+            paymentMethodIcon.setImageResource(R.drawable.google_pay_mark)
+            paymentMethodTitle.text = selectedPaymentMethod.detailedLabel()
+            paymentMethodLimit.gone()
+        }
+        disableRecurringBuyCta(false)
     }
 
     override fun onPause() {

@@ -2,6 +2,7 @@ package com.blockchain.koin.modules
 
 import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
+import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.pricingQuoteFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
@@ -67,6 +68,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_redesign_pt2",
                 "Wallet Redesign Part 2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(googlePayFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_gpay",
+                "Google Pay"
             )
         )
     }.bind(FeatureFlag::class)
