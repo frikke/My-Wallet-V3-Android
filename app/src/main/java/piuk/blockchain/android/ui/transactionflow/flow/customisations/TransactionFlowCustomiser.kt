@@ -627,6 +627,12 @@ class TransactionFlowCustomiserImpl(
             else -> false
         }
 
+    override fun selectSourceShouldShowDepositTooltip(state: TransactionState): Boolean =
+        when (state.action) {
+            AssetAction.FiatDeposit -> true
+            else -> false
+        }
+
     override fun selectTargetAccountDescription(state: TransactionState): String {
         return when (state.action) {
             AssetAction.Swap -> resources.getString(R.string.select_target_account_for_swap)

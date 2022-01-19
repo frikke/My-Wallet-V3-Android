@@ -10,6 +10,7 @@ interface SourceSelectionCustomisations {
     fun selectSourceShouldShowSubtitle(state: TransactionState): Boolean
     fun selectSourceAccountSubtitle(state: TransactionState): String
     fun selectSourceShouldShowAddNew(state: TransactionState): Boolean
+    fun selectSourceShouldShowDepositTooltip(state: TransactionState): Boolean
     fun sourceAccountSelectionStatusDecorator(state: TransactionState): StatusDecorator
     fun getLinkingSourceForAction(state: TransactionState): BankAuthSource
 }

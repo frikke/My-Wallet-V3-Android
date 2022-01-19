@@ -63,6 +63,12 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
 
         if (availableSources != newState.availableSources) {
             updateSources(newState)
+            binding.depositTooltip.root.apply {
+                visibleIf { customiser.selectSourceShouldShowDepositTooltip(newState) }
+                setOnClickListener {
+                    showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance())
+                }
+            }
         }
 
         if (newState.linkBankState != BankLinkingState.NotStarted && linkingBankState != newState.linkBankState) {
@@ -160,8 +166,10 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         FragmentTxAccountSelectorBinding.inflate(inflater, container, false)
 
     private fun doOnListLoaded(isEmpty: Boolean) {
-        binding.accountListEmpty.visibleIf { isEmpty }
-        binding.progress.gone()
+        with(binding) {
+            accountListEmpty.visibleIf { isEmpty }
+            progress.gone()
+        }
     }
 
     private fun doOnLoadError(it: Throwable) {
