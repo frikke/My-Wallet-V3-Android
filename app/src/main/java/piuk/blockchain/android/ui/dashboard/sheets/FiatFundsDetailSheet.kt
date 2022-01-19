@@ -1,9 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.sheets
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
