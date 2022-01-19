@@ -34,11 +34,6 @@ class BankPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
         fun bind(paymentMethodItem: PaymentMethodItem) {
             with(binding) {
                 (paymentMethodItem.paymentMethod as? PaymentMethod.Bank)?.let {
-                    paymentMethodLimit.text =
-                        context.getString(
-                            R.string.payment_method_limit,
-                            paymentMethodItem.paymentMethod.limits.max.toStringWithSymbol()
-                        )
                     paymentMethodTitle.text = it.bankName
                     paymentMethodDetails.text = context.getString(
                         R.string.payment_method_type_account_info, it.uiAccountType, it.accountEnding
