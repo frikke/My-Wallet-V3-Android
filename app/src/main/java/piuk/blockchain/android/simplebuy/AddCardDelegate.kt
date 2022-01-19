@@ -2,10 +2,8 @@ package piuk.blockchain.android.simplebuy
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.AddNewCardLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
