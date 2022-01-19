@@ -1,9 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.sheets
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -59,7 +57,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
         val currency = account.currency
         binding.apply {
             with(fundDetails) {
-                fundsTitle.setStringFromTicker(requireContext(), currency.displayTicker)
+                fundsTitle.text = currency.name
                 fundsFiatTicker.text = currency.displayTicker
                 fundsIcon.setIcon(currency)
                 fundsBalance.gone()
@@ -161,16 +159,5 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                 account = fiatAccount
             }
         }
-    }
-
-    private fun TextView.setStringFromTicker(context: Context, ticker: String) {
-        text = context.getString(
-            when (ticker) {
-                "EUR" -> R.string.euros
-                "GBP" -> R.string.pounds
-                "USD" -> R.string.us_dollars
-                else -> R.string.empty
-            }
-        )
     }
 }

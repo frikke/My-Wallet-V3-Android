@@ -24,7 +24,7 @@
         android:layout_marginStart="@dimen/small_margin"
         app:layout_constraintStart_toEndOf="@id/funds_icon"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Pounds" />
+        tools:text="British Pound" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/funds_fiat_ticker"

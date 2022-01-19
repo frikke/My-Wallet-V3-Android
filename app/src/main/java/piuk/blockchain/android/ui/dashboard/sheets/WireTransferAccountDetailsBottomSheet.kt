@@ -122,7 +122,8 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
             )
             title.text = if (isForLink) getString(R.string.add_bank_with_currency, fiatCurrency) else
                 getString(R.string.deposit_currency, fiatCurrency)
-            subtitle.text = getString(R.string.bank_transfer)
+            subtitle.text = if (fiatCurrency == FiatCurrency.Dollars) getString(R.string.bank_wire_transfer) else
+                getString(R.string.bank_transfer)
 
             bankTransferOnly.visible()
             processingTime.visible()
