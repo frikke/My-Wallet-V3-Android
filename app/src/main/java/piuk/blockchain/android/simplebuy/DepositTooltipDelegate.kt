@@ -7,7 +7,6 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import piuk.blockchain.android.databinding.DepositTooltipLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
-
 class DepositTooltipDelegate : AdapterDelegate<PaymentMethodItem> {
 
     override fun isForViewType(items: List<PaymentMethodItem>, position: Int): Boolean =
