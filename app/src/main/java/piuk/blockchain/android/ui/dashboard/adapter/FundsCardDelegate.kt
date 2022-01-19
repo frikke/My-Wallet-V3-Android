@@ -80,7 +80,7 @@ private class FundsCardViewHolder(
             binding.fundsSingleItem.setOnClickListener {
                 onFundsItemClicked(assetInfo.account)
             }
-            fundsTitle.setStringFromTicker(context, ticker)
+            fundsTitle.text = assetInfo.account.currency.name
             fundsFiatTicker.text = ticker
             fundsBalance.text = if (selectedFiat.networkTicker == ticker) {
                 assetInfo.balance.toStringWithSymbol()
@@ -132,7 +132,7 @@ private class MultipleFundsAdapter(
                 borderedFundsParent.setOnClickListener {
                     onFundsItemClicked(assetInfo.account)
                 }
-                borderedFundsTitle.setStringFromTicker(context, ticker)
+                borderedFundsTitle.text = assetInfo.account.currency.name
                 borderedFundsFiatTicker.text = ticker
                 borderedFundsBalance.text = if (selectedFiat.networkTicker == ticker) {
                     assetInfo.balance.toStringWithSymbol()
@@ -143,15 +143,4 @@ private class MultipleFundsAdapter(
             }
         }
     }
-}
-
-private fun TextView.setStringFromTicker(context: Context, ticker: String) {
-    text = context.getString(
-        when (ticker) {
-            "EUR" -> R.string.euros
-            "GBP" -> R.string.pounds
-            "USD" -> R.string.us_dollars
-            else -> R.string.empty
-        }
-    )
 }

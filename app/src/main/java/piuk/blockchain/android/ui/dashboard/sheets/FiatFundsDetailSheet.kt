@@ -59,7 +59,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
         val currency = account.currency
         binding.apply {
             with(fundDetails) {
-                fundsTitle.setStringFromTicker(requireContext(), currency.displayTicker)
+                fundsTitle.text = currency.name
                 fundsFiatTicker.text = currency.displayTicker
                 fundsIcon.setIcon(currency)
                 fundsBalance.gone()
@@ -161,16 +161,5 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                 account = fiatAccount
             }
         }
-    }
-
-    private fun TextView.setStringFromTicker(context: Context, ticker: String) {
-        text = context.getString(
-            when (ticker) {
-                "EUR" -> R.string.euros
-                "GBP" -> R.string.pounds
-                "USD" -> R.string.us_dollars
-                else -> R.string.empty
-            }
-        )
     }
 }
