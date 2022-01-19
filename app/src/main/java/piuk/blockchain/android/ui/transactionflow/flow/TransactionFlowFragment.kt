@@ -3,10 +3,9 @@ package piuk.blockchain.android.ui.transactionflow.flow
 import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.viewbinding.ViewBinding
-import org.koin.android.ext.android.get
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent

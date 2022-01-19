@@ -5,12 +5,12 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
+import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAccountRecoveryBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.reset.ResetAccountFragment

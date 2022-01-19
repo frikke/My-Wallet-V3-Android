@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -13,8 +15,6 @@ import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class DashboardOnboardingModel(
     initialSteps: List<CompletableDashboardOnboardingStep>,

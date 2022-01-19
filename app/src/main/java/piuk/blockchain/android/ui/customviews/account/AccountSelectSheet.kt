@@ -5,14 +5,14 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.commonarch.presentation.base.HostedBottomSheet
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.activityShown
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetAccountSelectorBinding
-import piuk.blockchain.android.ui.base.HostedBottomSheet
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf

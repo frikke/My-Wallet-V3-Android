@@ -5,6 +5,7 @@ import android.content.Context
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
 import com.blockchain.ui.password.SecondPasswordHandler
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
@@ -14,7 +15,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.MaybeSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager

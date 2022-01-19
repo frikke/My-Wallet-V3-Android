@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.notifications
 
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 
 sealed class NotificationsIntent : MviIntent<NotificationsState> {
 

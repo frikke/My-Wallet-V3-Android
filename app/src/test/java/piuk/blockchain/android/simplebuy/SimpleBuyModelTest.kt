@@ -5,6 +5,7 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.custodial.models.QuoteFee
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
@@ -44,7 +45,6 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 @Ignore("Ignoring because CI fails on this, re-enabling ASAP")
 class SimpleBuyModelTest {

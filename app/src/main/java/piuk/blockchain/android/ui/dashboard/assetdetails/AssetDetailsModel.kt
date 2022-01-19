@@ -6,9 +6,12 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.selectFirstAccount
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -19,9 +22,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.base.mvi.MviState
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 data class AssetDetailsState(

@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.settings.v2.profile
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
@@ -10,9 +12,7 @@ import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityProfileBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.USER_TIER
@@ -86,18 +86,18 @@ class ProfileActivity :
 
     override fun goToUpdatePhoneScreen(addToBackStack: Boolean) {
         // TODO next ticket
-//        supportFragmentManager.showFragment(
-//            fragment = UpdateEmailFragment.newInstance()
-//        )
-//        supportFragmentManager.beginTransaction()
-//            .addAnimationTransaction()
-//            .replace(R.id.content_frame, UpdatePhoneFragment.newInstance(), UpdatePhoneFragment::class.simpleName)
-//            .apply {
-//                if (addToBackStack) {
-//                    addToBackStack(UpdatePhoneFragment::class.simpleName)
-//                }
-//            }
-//            .commitAllowingStateLoss()
+        //        supportFragmentManager.showFragment(
+        //            fragment = UpdateEmailFragment.newInstance()
+        //        )
+        //        supportFragmentManager.beginTransaction()
+        //            .addAnimationTransaction()
+        //            .replace(R.id.content_frame, UpdatePhoneFragment.newInstance(), UpdatePhoneFragment::class.simpleName)
+        //            .apply {
+        //                if (addToBackStack) {
+        //                    addToBackStack(UpdatePhoneFragment::class.simpleName)
+        //                }
+        //            }
+        //            .commitAllowingStateLoss()
     }
 
     private fun openScope() =

@@ -3,12 +3,16 @@ package com.blockchain.koin.modules
 import android.content.Context
 import androidx.biometric.BiometricManager
 import com.blockchain.appinfo.AppInfo
+import com.blockchain.auth.LogoutTimer
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
+import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
+import com.blockchain.enviroment.Environment
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
@@ -37,7 +41,6 @@ import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
-import info.blockchain.wallet.api.Environment
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
@@ -46,6 +49,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.binds
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
+import piuk.blockchain.android.auth.AppLogoutTimer
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
@@ -143,7 +147,6 @@ import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 import thepit.PitLinking
@@ -162,7 +165,13 @@ val applicationModule = module {
             trust = get(),
             pinRepository = get()
         )
-    }
+    }.bind(AppUtilAPI::class)
+
+    single {
+        AppLogoutTimer(
+            application = get()
+        )
+    }.bind(LogoutTimer::class)
 
     single {
         val ctx: Context = get()

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.start
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.SecurityPrefs
 import info.blockchain.balance.AssetInfo
@@ -16,7 +17,6 @@ import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.RootUtil
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 interface LandingView : MvpView {
@@ -44,7 +44,7 @@ class LandingPresenter(
     override fun onViewAttached() {
         if (environmentSettings.isRunningInDebugMode()) {
             view?.showToast(
-                "Current environment: ${environmentSettings.environment.getName()}",
+                "Current environment: ${environmentSettings.environment.name}",
                 ToastCustom.TYPE_GENERAL
             )
         }

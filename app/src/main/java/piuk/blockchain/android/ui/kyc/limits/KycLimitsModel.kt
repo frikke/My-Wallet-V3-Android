@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.kyc.limits
 
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Tier
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class KycLimitsModel(
     private val interactor: KycLimitsInteractor,

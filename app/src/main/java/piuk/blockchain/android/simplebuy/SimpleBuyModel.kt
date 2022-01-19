@@ -3,10 +3,14 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.commonarch.presentation.base.ActivityIndicator
+import com.blockchain.commonarch.presentation.base.trackProgress
+import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.BankState
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Feature
@@ -47,11 +51,7 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import piuk.blockchain.android.util.ActivityIndicator
-import piuk.blockchain.android.util.trackProgress
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.auth.newlogin
 
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.preferences.BrowserIdentity
-import piuk.blockchain.android.ui.base.mvi.MviState
 
 data class AuthNewLoginState(
     val browserIdentity: BrowserIdentity = BrowserIdentity(""),

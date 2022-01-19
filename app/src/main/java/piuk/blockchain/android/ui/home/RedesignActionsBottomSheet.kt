@@ -2,14 +2,14 @@ package piuk.blockchain.android.ui.home
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.button.Alignment
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.home.models.ActionsSheetIntent
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetState

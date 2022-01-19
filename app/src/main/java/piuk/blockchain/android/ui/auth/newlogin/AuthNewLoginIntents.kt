@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.auth.newlogin
 
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.preferences.BrowserIdentity
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class AuthNewLoginIntents : MviIntent<AuthNewLoginState> {
     data class InitAuthInfo(

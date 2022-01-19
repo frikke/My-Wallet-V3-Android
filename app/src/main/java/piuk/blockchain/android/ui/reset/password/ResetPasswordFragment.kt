@@ -8,14 +8,14 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.mvi.MviActivity.Companion.start
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentPasswordResetBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.base.mvi.MviActivity.Companion.start
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics

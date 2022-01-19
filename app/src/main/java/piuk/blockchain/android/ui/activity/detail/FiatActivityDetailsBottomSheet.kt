@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
@@ -19,7 +20,6 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.ui.activity.detail.adapter.FiatDetailsSheetAdapter
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy

@@ -22,4 +22,5 @@ include ':app',
         ':common-view',
         ':blockchain-component-library-catalog',
         ':charts',
-        ':walletconnect'
+        ':walletconnect',
+        ':commonarch'

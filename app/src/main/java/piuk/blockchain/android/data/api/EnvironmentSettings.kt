@@ -1,9 +1,9 @@
 package piuk.blockchain.android.data.api
 
 import com.blockchain.bitpay.BITPAY_LIVE_BASE
-import info.blockchain.wallet.api.Environment
+import com.blockchain.enviroment.Environment
+import com.blockchain.enviroment.EnvironmentConfig
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class EnvironmentSettings : EnvironmentConfig {
 
@@ -11,7 +11,7 @@ class EnvironmentSettings : EnvironmentConfig {
 
     override fun isCompanyInternalBuild(): Boolean = BuildConfig.INTERNAL
 
-    override val environment: Environment = Environment.fromString(BuildConfig.ENVIRONMENT)
+    override val environment: Environment = Environment.fromString(BuildConfig.ENVIRONMENT)!!
 
     override val apiUrl: String = BuildConfig.API_URL
     override val everypayHostUrl: String = BuildConfig.EVERYPAY_HOST_URL

@@ -5,12 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAboutAppBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO

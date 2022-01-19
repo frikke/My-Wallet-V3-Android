@@ -7,11 +7,11 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.fragment.app.Fragment
 import com.blockchain.coincore.AssetAction
+import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
-import piuk.blockchain.android.ui.base.BlockchainActivity
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment

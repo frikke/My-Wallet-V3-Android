@@ -106,7 +106,6 @@ class CustodialTradingAccount(
         get() = custodialWalletManager.getAllOrdersFor(currency)
             .mapList { orderToSummary(it) }
             .flatMap { buySellList ->
-                println("XXX AFTER MAPPING $buySellList ${currency.networkTicker}")
                 appendTradeActivity(custodialWalletManager, currency, buySellList)
             }
             .flatMap {
@@ -114,7 +113,6 @@ class CustodialTradingAccount(
             }.filterActivityStates()
             .doOnSuccess { setHasTransactions(it.isNotEmpty()) }
             .onErrorReturn {
-                println("XXX $it")
                 emptyList()
             }
 

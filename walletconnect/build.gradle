@@ -49,6 +49,7 @@ dependencies {
     implementation Libraries.timber
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':commonarch')
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
     implementation Libraries.rxJava

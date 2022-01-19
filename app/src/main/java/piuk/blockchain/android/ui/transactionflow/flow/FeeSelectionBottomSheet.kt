@@ -13,12 +13,12 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.FeeState
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.core.price.ExchangeRates
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetFeeSelectionBinding
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel

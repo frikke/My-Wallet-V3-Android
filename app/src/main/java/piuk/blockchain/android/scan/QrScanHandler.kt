@@ -17,6 +17,7 @@ import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.filterByAction
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -30,7 +31,6 @@ import io.reactivex.rxjava3.subjects.MaybeSubject
 import io.reactivex.rxjava3.subjects.SingleSubject
 import java.security.KeyPair
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 
 sealed class ScanResult(

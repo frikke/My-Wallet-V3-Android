@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.launcher
 
 import android.content.Intent
+import com.blockchain.enviroment.Environment
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
-import info.blockchain.wallet.api.Environment
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 

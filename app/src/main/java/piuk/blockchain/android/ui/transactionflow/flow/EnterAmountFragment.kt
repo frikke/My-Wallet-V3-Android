@@ -14,6 +14,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
 import info.blockchain.balance.AssetInfo
@@ -33,7 +34,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
@@ -285,7 +285,6 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 InfoActionType.BUY -> {
                     val asset = (state.sendingAccount as? CryptoAccount)?.currency
                     require(asset != null)
-                    require(asset is AssetInfo)
                     return { startBuyForCurrency(asset) }
                 }
                 InfoActionType.KYC_UPGRADE -> return { startKyc() }

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.blockchain.commonarch.presentation.base.BlockchainActivity.Companion.LOGOUT_ACTION
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.NabuDataManager
@@ -15,7 +16,6 @@ import java.io.Serializable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
-import piuk.blockchain.android.ui.base.BlockchainActivity.Companion.LOGOUT_ACTION
 import piuk.blockchain.android.util.OSUtil
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState

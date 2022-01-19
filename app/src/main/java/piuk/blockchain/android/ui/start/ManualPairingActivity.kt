@@ -10,6 +10,7 @@ import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
+import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
 import com.google.android.material.textfield.TextInputEditText
@@ -18,7 +19,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityManualPairingBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom

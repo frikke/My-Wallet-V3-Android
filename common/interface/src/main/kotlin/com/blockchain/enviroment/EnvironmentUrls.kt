@@ -1,4 +1,4 @@
-package com.blockchain.network
+package com.blockchain.enviroment
 
 interface EnvironmentUrls {
     val apiUrl: String

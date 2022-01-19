@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.settings.v2.profile
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import info.blockchain.wallet.api.data.Settings
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.androidcore.data.settings.Email
 
 sealed class ProfileIntent : MviIntent<ProfileState> {

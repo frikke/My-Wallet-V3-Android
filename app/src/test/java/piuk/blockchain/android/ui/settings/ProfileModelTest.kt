@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
@@ -16,7 +17,6 @@ import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
 import piuk.blockchain.android.ui.settings.v2.profile.VerificationSent
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.settings.Email
 
 class ProfileModelTest {

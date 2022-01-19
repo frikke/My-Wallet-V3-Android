@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.auth
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class PinEntryActivity : BlockchainActivity() {

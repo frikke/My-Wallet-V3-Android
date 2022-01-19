@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -13,7 +14,6 @@ import junit.framework.Assert.assertEquals
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class PrefsUtilTest {
 

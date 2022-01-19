@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class SettingsIntent : MviIntent<SettingsState> {
 

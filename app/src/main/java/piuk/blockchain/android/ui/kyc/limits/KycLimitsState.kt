@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.limits
 
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.FeatureWithLimit
-import piuk.blockchain.android.ui.base.mvi.MviState
 
 data class KycLimitsState(
     val isLoading: Boolean = false,

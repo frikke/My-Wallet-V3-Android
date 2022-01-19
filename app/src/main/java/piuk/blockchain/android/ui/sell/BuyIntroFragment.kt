@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -38,7 +39,6 @@ import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 
 class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, HomeScreenFragment {

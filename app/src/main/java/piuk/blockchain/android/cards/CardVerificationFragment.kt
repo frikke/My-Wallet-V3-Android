@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.payments.stripe.StripeFactory
 import com.checkout.android_sdk.PaymentForm
@@ -17,10 +19,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 class CardVerificationFragment :
@@ -173,7 +173,7 @@ class CardVerificationFragment :
     override fun backPressedHandled(): Boolean = true
 
     private fun PaymentForm.initCheckoutPaymentForm() {
-        if (environmentConfig.environment == info.blockchain.wallet.api.Environment.PRODUCTION) {
+        if (environmentConfig.environment == com.blockchain.enviroment.Environment.PRODUCTION) {
             setEnvironment(Environment.LIVE)
         } else {
             setEnvironment(Environment.SANDBOX)
@@ -184,6 +184,7 @@ class CardVerificationFragment :
                     binding.checkoutCardForm.gone()
                     model.process(CardIntent.CheckCardStatus)
                 }
+
                 override fun onError(errorMessage: String?) {
                     Timber.e("PaymentForm.On3DSFinished onError: $errorMessage")
                     binding.checkoutCardForm.gone()

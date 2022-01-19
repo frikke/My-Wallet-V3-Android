@@ -5,6 +5,7 @@ import com.blockchain.api.services.Geolocation
 import com.blockchain.core.CountryIso
 import com.blockchain.core.EligibilityDataManager
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
@@ -22,7 +23,6 @@ import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity.Companion.CODE_US
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import timber.log.Timber

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.login.auth
 
-import piuk.blockchain.android.ui.base.mvi.MviState
+import com.blockchain.commonarch.presentation.mvi.MviState
 
 enum class TwoFAMethod(private val value: Int) {
     OFF(0),

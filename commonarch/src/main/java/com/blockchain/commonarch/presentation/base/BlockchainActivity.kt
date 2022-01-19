@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.base
+package com.blockchain.commonarch.presentation.base
 
 import android.app.PendingIntent
 import android.content.pm.ActivityInfo
@@ -10,6 +10,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.viewbinding.ViewBinding
+import com.blockchain.auth.LogoutTimer
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.SecurityPrefs
@@ -17,15 +18,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.BlockchainApplication
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
-import piuk.blockchain.android.util.ActivityIndicator
-import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.commonarch.R
+import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import io.reactivex.rxjava3.kotlin.subscribeBy
 
 /**
  * A base Activity for all activities which need auth timeouts & screenshot prevention
@@ -36,8 +33,11 @@ abstract class BlockchainActivity : ToolBarActivity() {
     private val securityPrefs: SecurityPrefs by inject()
 
     val analytics: Analytics by inject()
-    val appUtil: AppUtil by inject()
+
+    val appUtil: AppUtilAPI by inject()
+
     val environment: EnvironmentConfig by inject()
+    val logoutTimer: LogoutTimer by inject()
 
     protected abstract val alwaysDisableScreenshots: Boolean
     protected open val toolbarBinding: ToolbarGeneralBinding?
@@ -52,7 +52,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
             environment.isCompanyInternalBuild()
 
     protected open val enableLogoutTimer: Boolean = true
-    private lateinit var logoutPendingIntent: PendingIntent
 
     private var alertDialog: AlertDialog? = null
         @UiThread
@@ -63,7 +62,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             field = dlg
         }
         @UiThread
-        get() = field
+        get
 
     private var progressDialog: MaterialProgressDialog? = null
 
@@ -109,7 +108,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     @CallSuper
     override fun onResume() {
         super.onResume()
-        (application as BlockchainApplication).stopLogoutTimer()
+        logoutTimer.stop()
 
         if (enableScreenshots) {
             enableScreenshots()
@@ -136,7 +135,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     override fun onPause() {
         super.onPause()
         if (enableLogoutTimer) {
-            (application as BlockchainApplication).startLogoutTimer()
+            logoutTimer.start()
         }
         compositeDisposable.clear()
     }

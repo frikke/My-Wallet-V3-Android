@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
-import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.settings.BankItem
 
 data class SettingsState(

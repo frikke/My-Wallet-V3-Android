@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.home.models
 
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 
 sealed class ActionsSheetIntent : MviIntent<ActionsSheetState> {
 

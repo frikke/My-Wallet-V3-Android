@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -20,7 +21,6 @@ import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentProfileBinding
 import piuk.blockchain.android.ui.base.FlowFragment
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity
@@ -63,7 +63,7 @@ class ProfileFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        this.updateTitleToolbar(getString(R.string.profile_toolbar))
+        updateTitleToolbar(getString(R.string.profile_toolbar))
         setupTierInfo(basicProfileInfo)
         setContactSupport(basicProfileInfo)
     }

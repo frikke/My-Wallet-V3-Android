@@ -1,15 +1,14 @@
-package piuk.blockchain.android.ui.customviews.dialogs
+package com.blockchain.commonarch.presentation.base
 
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.TypedArray
 import android.graphics.PorterDuff
-import android.os.Build
 import android.view.LayoutInflater
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ProgressDialogCompatBinding
+import com.blockchain.commonarch.R
+import com.blockchain.commonarch.databinding.ProgressDialogCompatBinding
 
 /**
  * Creates an [AlertDialog] with a custom view for emulating a Material Design progress
@@ -20,7 +19,8 @@ import piuk.blockchain.android.databinding.ProgressDialogCompatBinding
 class MaterialProgressDialog(context: Context) {
 
     private val dialog: AlertDialog
-    private val binding: ProgressDialogCompatBinding = ProgressDialogCompatBinding.inflate(LayoutInflater.from(context))
+    private val binding: ProgressDialogCompatBinding =
+     ProgressDialogCompatBinding.inflate(LayoutInflater.from(context))
 
     val isShowing: Boolean
         get() = dialog.isShowing
@@ -31,11 +31,8 @@ class MaterialProgressDialog(context: Context) {
             .setView(binding.root)
             .create()
 
-        val a: TypedArray = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        val a: TypedArray =
             context.theme.obtainStyledAttributes(intArrayOf(android.R.attr.colorAccent))
-        } else {
-            context.theme.obtainStyledAttributes(intArrayOf(R.attr.colorAccent))
-        }
 
         binding.progressBar.indeterminateDrawable.setColorFilter(
             a.getColor(0, 0),

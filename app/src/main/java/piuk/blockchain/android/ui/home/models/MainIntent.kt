@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.home.models
 import android.content.Intent
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 
 sealed class MainIntent : MviIntent<MainState> {
     object PerformInitialChecks : MainIntent() {

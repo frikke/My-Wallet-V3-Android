@@ -3,11 +3,11 @@ package piuk.blockchain.android.ui.reset
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountResetBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
 import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
 import piuk.blockchain.android.util.visible

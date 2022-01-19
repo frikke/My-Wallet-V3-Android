@@ -2,14 +2,14 @@ package piuk.blockchain.android.ui.activity
 
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.base.mvi.MviState
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 enum class ActivitiesSheet {

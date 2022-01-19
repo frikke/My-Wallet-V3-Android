@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.kyc.autocomplete
 
-import piuk.blockchain.android.ui.base.mvi.MviState
+import com.blockchain.commonarch.presentation.mvi.MviState
 import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
 
 sealed class AutocompleteAddressStep {

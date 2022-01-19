@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.base.mvi
+package com.blockchain.commonarch.presentation.mvi
 
 import android.content.Context
 import android.content.Intent
@@ -6,10 +6,10 @@ import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
+import com.blockchain.commonarch.BuildConfig
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import timber.log.Timber
 
 abstract class MviActivity<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E : ViewBinding> : BlockchainActivity() {

@@ -5,6 +5,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.HistoricalRateList
@@ -15,7 +16,6 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction

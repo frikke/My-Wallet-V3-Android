@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.databinding.FragmentUpdatePhoneBinding
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 
 // TODO AND-5625
 class UpdatePhoneFragment : MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdatePhoneBinding>() {

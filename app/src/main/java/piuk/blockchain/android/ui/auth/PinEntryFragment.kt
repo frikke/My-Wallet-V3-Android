@@ -24,6 +24,8 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
+import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -50,7 +52,6 @@ import piuk.blockchain.android.databinding.FragmentPinEntryBinding
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
@@ -65,7 +66,6 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.scopedInjectActivity
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class PinEntryFragment :
     BaseFragment<PinEntryView, PinEntryPresenter>(),
@@ -145,7 +145,7 @@ class PinEntryFragment :
         if (environmentConfig.isRunningInDebugMode()) {
             ToastCustom.makeText(
                 activity,
-                "Current environment: " + environmentConfig.environment.getName(),
+                "Current environment: " + environmentConfig.environment.name,
                 ToastCustom.LENGTH_SHORT,
                 ToastCustom.TYPE_GENERAL
             )

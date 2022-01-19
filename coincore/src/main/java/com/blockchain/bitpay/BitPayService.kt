@@ -4,16 +4,14 @@ import com.blockchain.bitpay.models.BitPayChain
 import com.blockchain.bitpay.models.BitPaymentRequest
 import com.blockchain.bitpay.models.RawPaymentRequest
 import com.blockchain.bitpay.models.exceptions.wrapErrorMessage
+import com.blockchain.enviroment.EnvironmentConfig
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import retrofit2.Retrofit
 
 class BitPayService constructor(
     environmentConfig: EnvironmentConfig,
-    retrofit: Retrofit,
-    rxBus: RxBus
+    retrofit: Retrofit
 ) {
 
     private val service: BitPay = retrofit.create(BitPay::class.java)

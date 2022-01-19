@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.kyc.email.entry
 
 import android.text.TextUtils
 import android.util.Patterns
-import piuk.blockchain.android.ui.base.mvi.MviState
+import com.blockchain.commonarch.presentation.mvi.MviState
 import piuk.blockchain.androidcore.data.settings.Email
 
 data class EmailVerificationState(

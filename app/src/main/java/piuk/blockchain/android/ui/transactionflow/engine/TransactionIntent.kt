@@ -13,6 +13,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
@@ -20,7 +21,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import java.util.Stack
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
 

@@ -14,6 +14,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -44,7 +45,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetDashboardAssetDetailsBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
@@ -59,8 +59,13 @@ import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.setOnTabSelectedListener
 import piuk.blockchain.android.util.visible
 
-class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
-    AssetDetailsIntent, AssetDetailsState, DialogSheetDashboardAssetDetailsBinding>() {
+class AssetDetailSheet :
+    MviBottomSheet<
+        AssetDetailsModel,
+        AssetDetailsIntent,
+        AssetDetailsState,
+        DialogSheetDashboardAssetDetailsBinding
+        >() {
 
     private val currencyPrefs: CurrencyPrefs by inject()
     private val labels: DefaultLabels by inject()

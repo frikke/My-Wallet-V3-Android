@@ -19,12 +19,15 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
@@ -39,10 +42,7 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {

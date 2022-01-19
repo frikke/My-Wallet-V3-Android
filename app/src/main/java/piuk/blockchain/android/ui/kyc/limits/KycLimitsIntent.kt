@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.limits
 
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.limits.FeatureWithLimit
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class KycLimitsIntent : MviIntent<KycLimitsState> {
     object FetchLimitsAndTiers : KycLimitsIntent() {

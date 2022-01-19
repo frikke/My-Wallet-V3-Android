@@ -2,21 +2,19 @@ package piuk.blockchain.android
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlarmManager
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
-import android.os.SystemClock
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.CrashLogger
@@ -39,15 +37,12 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
 import piuk.blockchain.android.identity.SiftDigitalTrust
-import piuk.blockchain.android.ui.auth.LogoutActivity
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppAnalytics
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
@@ -66,8 +61,6 @@ open class BlockchainApplication : Application() {
     private val crashLogger: CrashLogger by inject()
     private val coinsWebSocketService: CoinsWebSocketService by inject()
     private val trust: SiftDigitalTrust by inject()
-
-    private lateinit var logoutPendingIntent: PendingIntent
 
     private val lifecycleListener: AppLifecycleListener by lazy {
         AppLifecycleListener(lifeCycleInterestedComponent, crashLogger)
@@ -211,32 +204,6 @@ open class BlockchainApplication : Application() {
         }
     }
 
-    fun startLogoutTimer() {
-        val intent = Intent(this, LogoutActivity::class.java)
-            .apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                action = BlockchainActivity.LOGOUT_ACTION
-            }
-        logoutPendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        (getSystemService(Context.ALARM_SERVICE) as AlarmManager).set(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS,
-            logoutPendingIntent
-        )
-    }
-
-    fun stopLogoutTimer() {
-        if (::logoutPendingIntent.isInitialized) {
-            (getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(logoutPendingIntent)
-        }
-    }
-
     /**
      * This patches a device's Security Provider asynchronously to help defend against various
      * vulnerabilities. This provider is normally updated in Google Play Services anyway, but this
@@ -334,7 +301,6 @@ open class BlockchainApplication : Application() {
 
     companion object {
         private const val RX_ERROR_TAG = "RxJava Error"
-        private const val LOGOUT_TIMEOUT_MILLIS = 1000L * 60L * 5L // 5 minutes
     }
 }
 

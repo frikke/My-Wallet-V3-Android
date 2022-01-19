@@ -9,19 +9,18 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
+import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.koin.scopedInject
 import com.google.android.material.textfield.TextInputEditText
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ChangeEmailBottomSheetBinding
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.KeyPreImeEditText
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
-class EditEmailAddressBottomSheet :
-    MviBottomSheet<EmailVerificationModel,
-        EmailVerificationIntent,
-        EmailVerificationState,
-        ChangeEmailBottomSheetBinding>() {
+class EditEmailAddressBottomSheet : MviBottomSheet<EmailVerificationModel,
+    EmailVerificationIntent,
+    EmailVerificationState,
+    ChangeEmailBottomSheetBinding>() {
 
     override val model: EmailVerificationModel by scopedInject()
 

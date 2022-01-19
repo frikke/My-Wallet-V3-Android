@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.notifications
 
-import piuk.blockchain.android.ui.base.mvi.MviState
+import com.blockchain.commonarch.presentation.mvi.MviState
 
 data class NotificationsState(
     val emailNotificationsEnabled: Boolean = false,

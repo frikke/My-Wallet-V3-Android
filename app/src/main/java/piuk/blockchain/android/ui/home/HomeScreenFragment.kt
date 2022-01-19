@@ -5,13 +5,13 @@ import androidx.viewbinding.ViewBinding
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.ui.base.mvi.MviFragment
-import piuk.blockchain.android.ui.base.mvi.MviIntent
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.sell.BuySellFragment
 

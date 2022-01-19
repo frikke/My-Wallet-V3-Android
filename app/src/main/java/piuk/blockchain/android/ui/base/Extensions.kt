@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.base
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import piuk.blockchain.android.R
 

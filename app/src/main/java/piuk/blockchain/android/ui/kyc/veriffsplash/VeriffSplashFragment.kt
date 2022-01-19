@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.blockchain.coincore.AssetAction
+import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -31,7 +32,6 @@ import piuk.blockchain.android.databinding.FragmentKycVeriffSplashBinding
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.cards
 
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
@@ -12,8 +14,6 @@ import java.lang.IllegalStateException
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 // TODO add tests for this class
 class CardModel(

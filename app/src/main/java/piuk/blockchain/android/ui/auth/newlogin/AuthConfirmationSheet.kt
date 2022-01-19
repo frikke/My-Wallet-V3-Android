@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.auth.newlogin
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.AuthNewLoginConfirmSheetBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 class AuthConfirmationSheet(
     private val isApproved: Boolean

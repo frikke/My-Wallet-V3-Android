@@ -6,6 +6,7 @@ import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.core.limits.FeatureWithLimit
 import com.blockchain.core.limits.TxLimitPeriod
 import com.blockchain.core.limits.TxPeriodicLimit
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.Tier
 import com.blockchain.testutils.USD
 import com.blockchain.testutils.numberToBigInteger
@@ -17,7 +18,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class KycLimitsModelTest {
 

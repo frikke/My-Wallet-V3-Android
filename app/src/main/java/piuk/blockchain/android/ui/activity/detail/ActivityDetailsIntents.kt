@@ -6,6 +6,7 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -13,7 +14,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.util.Date
 import piuk.blockchain.android.ui.activity.ActivityType
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class ActivityDetailsIntents : MviIntent<ActivityDetailState>
 

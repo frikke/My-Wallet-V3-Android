@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import info.blockchain.balance.FiatCurrency
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class AccountIntent : MviIntent<AccountState> {
 

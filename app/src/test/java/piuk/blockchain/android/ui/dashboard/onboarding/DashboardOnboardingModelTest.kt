@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.LinkBankAttributes
 import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -25,7 +26,6 @@ import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class DashboardOnboardingModelTest {
 

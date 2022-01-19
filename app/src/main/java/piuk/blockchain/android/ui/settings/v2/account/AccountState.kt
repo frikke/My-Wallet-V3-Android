@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
+import com.blockchain.commonarch.presentation.mvi.MviState
 import info.blockchain.balance.FiatCurrency
-import piuk.blockchain.android.ui.base.mvi.MviState
 
 data class AccountState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,

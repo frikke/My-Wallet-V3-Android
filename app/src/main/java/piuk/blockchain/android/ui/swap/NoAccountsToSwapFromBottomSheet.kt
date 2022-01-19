@@ -2,12 +2,12 @@ package piuk.blockchain.android.ui.swap
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.image.ImageResource
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetSwapEmptyStateBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
-class NoAccountsToSwapFromBottomSheet : SlidingModalBottomDialog<DialogSheetSwapEmptyStateBinding> () {
+class NoAccountsToSwapFromBottomSheet : SlidingModalBottomDialog<DialogSheetSwapEmptyStateBinding>() {
     interface Host : SlidingModalBottomDialog.Host {
         fun receiveClicked()
         fun buyClicked()

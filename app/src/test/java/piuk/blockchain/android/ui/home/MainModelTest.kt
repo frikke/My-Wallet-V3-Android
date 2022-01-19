@@ -6,6 +6,7 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.valueOf
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
@@ -48,7 +49,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import retrofit2.HttpException
 import retrofit2.Response
 

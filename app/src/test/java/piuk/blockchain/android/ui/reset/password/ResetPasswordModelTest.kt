@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.reset.password
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -11,7 +12,6 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import retrofit2.HttpException
 import retrofit2.Response
 

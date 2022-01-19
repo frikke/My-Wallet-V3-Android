@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -13,7 +14,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.android.util.RootUtil
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class LandingPresenterTest {

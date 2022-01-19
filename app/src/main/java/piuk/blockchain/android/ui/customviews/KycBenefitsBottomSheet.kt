@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import java.io.Serializable
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.KycBenefitsBottomSheetBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 class KycBenefitsBottomSheet : SlidingModalBottomDialog<KycBenefitsBottomSheetBinding>() {
 

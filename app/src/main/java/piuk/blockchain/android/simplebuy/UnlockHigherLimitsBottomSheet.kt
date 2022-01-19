@@ -2,6 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
@@ -12,7 +13,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.UnlockHigherLimitsLayoutBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.VerifyIdentityIconedBenefitItem
 

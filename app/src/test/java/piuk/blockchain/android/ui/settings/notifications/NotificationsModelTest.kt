@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.notifications
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
@@ -17,7 +18,6 @@ import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsIntent
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsInteractor
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsModel
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsState
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class NotificationsModelTest {
 

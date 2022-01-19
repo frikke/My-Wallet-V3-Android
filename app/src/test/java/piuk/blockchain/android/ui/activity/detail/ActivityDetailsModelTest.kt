@@ -6,6 +6,7 @@ import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -26,7 +27,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.activity.ActivityType
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class ActivityDetailsModelTest {
 

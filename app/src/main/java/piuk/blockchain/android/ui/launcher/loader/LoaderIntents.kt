@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.launcher.loader
 
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 
 sealed class LoaderIntents : MviIntent<LoaderState> {
     data class CheckIsLoggedIn(val isPinValidated: Boolean, val isAfterWalletCreation: Boolean) :

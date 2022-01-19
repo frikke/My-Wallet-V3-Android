@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import java.lang.IllegalStateException
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R

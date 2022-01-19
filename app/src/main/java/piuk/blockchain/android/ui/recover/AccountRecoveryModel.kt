@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.recover
 
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorTypes
@@ -10,8 +12,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
 import org.bitcoinj.crypto.MnemonicCode
 import org.bitcoinj.crypto.MnemonicException
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 

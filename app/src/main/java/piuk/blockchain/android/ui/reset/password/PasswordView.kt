@@ -5,6 +5,7 @@ import android.text.Editable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.appcompat.widget.LinearLayoutCompat
+import com.blockchain.enviroment.EnvironmentConfig
 import info.blockchain.wallet.util.PasswordUtil
 import kotlin.math.roundToInt
 import org.koin.core.component.KoinComponent
@@ -15,7 +16,6 @@ import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class PasswordView @JvmOverloads constructor(
     context: Context,

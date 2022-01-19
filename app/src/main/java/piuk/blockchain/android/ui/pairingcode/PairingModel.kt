@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.pairingcode
 
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.PairingEvent
@@ -9,8 +11,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import okhttp3.ResponseBody
 import piuk.blockchain.android.scan.QrCodeDataManager
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 

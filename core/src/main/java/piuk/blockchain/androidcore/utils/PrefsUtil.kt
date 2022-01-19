@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.Authorization
@@ -22,7 +23,6 @@ import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
 
 interface UUIDGenerator {

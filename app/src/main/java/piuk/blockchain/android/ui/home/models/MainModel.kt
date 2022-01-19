@@ -3,8 +3,10 @@ package piuk.blockchain.android.ui.home.models
 import android.content.Intent
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
+import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.valueOf
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.OrderState
@@ -31,12 +33,10 @@ import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.sunriver.CampaignLinkState
-import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 class MainModel(

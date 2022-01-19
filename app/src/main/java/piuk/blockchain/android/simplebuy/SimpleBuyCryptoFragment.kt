@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -38,7 +39,6 @@ import piuk.blockchain.android.cards.CardDetailsActivity.Companion.ADD_CARD_REQU
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.customviews.toast

@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.kyc.email.entry
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import piuk.blockchain.android.databinding.ResendOrEditEmailBottomSheetBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 class ResendOrChangeEmailBottomSheet : SlidingModalBottomDialog<ResendOrEditEmailBottomSheetBinding>() {
 

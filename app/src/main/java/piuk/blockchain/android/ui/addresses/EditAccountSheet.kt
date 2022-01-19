@@ -12,6 +12,8 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.WalletAnalytics
 import com.google.zxing.WriterException
@@ -24,9 +26,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAccountEditBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.gone

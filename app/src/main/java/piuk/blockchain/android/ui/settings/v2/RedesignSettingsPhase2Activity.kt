@@ -13,7 +13,10 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.core.content.ContextCompat
 import com.airbnb.lottie.LottieAnimationView
-import com.airbnb.lottie.LottieDrawable.RESTART
+import com.airbnb.lottie.LottieDrawable
+import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.button.MinimalButtonView
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.navigation.NavigationBarButton
@@ -21,6 +24,7 @@ import com.blockchain.componentlib.tablerow.BalanceTableRowView
 import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
@@ -36,13 +40,10 @@ import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.RemoveCardBottomSheet
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.ActivityRedesignPhase2SettingsBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.RemoveLinkedBankBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
-import piuk.blockchain.android.ui.base.mvi.MviActivity
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -61,7 +62,6 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.goneIf
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class RedesignSettingsPhase2Activity :
     MviActivity<SettingsModel, SettingsIntent, SettingsState, ActivityRedesignPhase2SettingsBinding>(),
@@ -144,7 +144,7 @@ class RedesignSettingsPhase2Activity :
                     LottieAnimationView(this@RedesignSettingsPhase2Activity).apply {
                         imageAssetsFolder = LOTTIE_LOADER_PATH
                         setAnimation(LOTTIE_LOADER_PATH)
-                        repeatMode = RESTART
+                        repeatMode = LottieDrawable.RESTART
                         playAnimation()
                     },
                     LinearLayoutCompat.LayoutParams(

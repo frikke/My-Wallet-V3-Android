@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.login
 
 import android.net.Uri
-import piuk.blockchain.android.ui.base.mvi.MviState
+import com.blockchain.commonarch.presentation.mvi.MviState
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 
 enum class LoginStep {

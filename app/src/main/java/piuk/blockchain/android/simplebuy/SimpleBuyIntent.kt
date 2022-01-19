@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.LinkBankTransfer
@@ -20,7 +21,6 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigInteger
 import piuk.blockchain.android.cards.CardAcquirerCredentials
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {

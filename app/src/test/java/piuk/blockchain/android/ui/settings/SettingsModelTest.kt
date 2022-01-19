@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.Partner
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.PaymentLimits
@@ -32,7 +33,6 @@ import piuk.blockchain.android.ui.settings.v2.SettingsModel
 import piuk.blockchain.android.ui.settings.v2.SettingsState
 import piuk.blockchain.android.ui.settings.v2.UserDetails
 import piuk.blockchain.android.ui.settings.v2.ViewToLaunch
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class SettingsModelTest {
     private lateinit var model: SettingsModel

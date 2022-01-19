@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.base
+package com.blockchain.commonarch.presentation.base
 
 import android.app.Dialog
 import android.content.DialogInterface

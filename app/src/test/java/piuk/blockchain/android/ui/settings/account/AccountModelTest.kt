@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.account
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
@@ -20,7 +21,6 @@ import piuk.blockchain.android.ui.settings.v2.account.AccountModel
 import piuk.blockchain.android.ui.settings.v2.account.AccountState
 import piuk.blockchain.android.ui.settings.v2.account.ExchangeLinkingState
 import piuk.blockchain.android.ui.settings.v2.account.ViewToLaunch
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class AccountModelTest {
 

@@ -17,8 +17,7 @@ val bitpayModule = module {
         factory {
             BitPayService(
                 environmentConfig = get(),
-                retrofit = get(moshiExplorerRetrofit),
-                rxBus = get()
+                retrofit = get(moshiExplorerRetrofit)
             )
         }
     }

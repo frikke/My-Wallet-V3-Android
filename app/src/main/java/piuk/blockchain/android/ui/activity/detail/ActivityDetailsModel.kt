@@ -2,6 +2,9 @@ package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
@@ -17,9 +20,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Date
 import piuk.blockchain.android.ui.activity.ActivityType
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.base.mvi.MviState
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 interface Copyable {
     val filed: String

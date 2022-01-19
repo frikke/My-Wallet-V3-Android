@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.recover
 
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 
 sealed class AccountRecoveryIntents : MviIntent<AccountRecoveryState> {
 

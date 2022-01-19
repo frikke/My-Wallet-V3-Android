@@ -310,6 +310,7 @@ dependencies {
     implementation project(':componentlib')
     implementation project(':biometrics')
     implementation project(':walletconnect')
+    implementation project(':commonarch')
     implementation project(':wallet')
     implementation project(':common:interface')
     implementation project(':common:network')

@@ -1,11 +1,11 @@
-package piuk.blockchain.android.ui.base.mvi
+package com.blockchain.commonarch.presentation.mvi
 
 import androidx.annotation.CallSuper
 import androidx.viewbinding.ViewBinding
+import com.blockchain.commonarch.BuildConfig
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import timber.log.Timber
 
 abstract class MviBottomSheet<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E : ViewBinding> :

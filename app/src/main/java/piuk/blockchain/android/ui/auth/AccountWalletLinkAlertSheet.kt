@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.auth
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.AccountWalletLinkAlertSheetBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 class AccountWalletLinkAlertSheet : SlidingModalBottomDialog<AccountWalletLinkAlertSheetBinding>() {
 

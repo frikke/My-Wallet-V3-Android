@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.base.mvi
+package com.blockchain.commonarch.presentation.mvi
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,14 +9,14 @@ import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import com.blockchain.commonarch.BuildConfig
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.notifications.analytics.Analytics
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.error.ClosedScopeException
-import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.ui.base.BlockchainActivity
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import timber.log.Timber
 
 abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E : ViewBinding> : Fragment() {
@@ -69,7 +69,9 @@ abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
 
     protected abstract fun render(newState: S)
 
-    protected open fun renderError(t: Throwable) { Timber.e(t) }
+    protected open fun renderError(t: Throwable) {
+        Timber.e(t)
+    }
 
     protected val activity: BlockchainActivity
         get() = requireActivity() as? BlockchainActivity

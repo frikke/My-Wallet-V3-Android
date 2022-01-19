@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.base
+package com.blockchain.commonarch.presentation.base
 
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity

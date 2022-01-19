@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.login
 import android.content.Intent
 import android.net.Uri
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.network.PollResult
 import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.any
@@ -20,7 +21,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class LoginModelTest {
 

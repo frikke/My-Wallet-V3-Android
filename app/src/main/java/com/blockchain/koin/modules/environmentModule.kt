@@ -1,10 +1,10 @@
 package com.blockchain.koin.modules
 
-import com.blockchain.network.EnvironmentUrls
+import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.enviroment.EnvironmentUrls
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.data.api.EnvironmentSettings
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 val environmentModule = module {
     single { EnvironmentSettings() }

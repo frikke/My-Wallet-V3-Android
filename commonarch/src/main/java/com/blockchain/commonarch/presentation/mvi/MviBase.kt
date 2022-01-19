@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.base.mvi
+package com.blockchain.commonarch.presentation.mvi
 
 import androidx.annotation.CallSuper
 import com.blockchain.logging.CrashLogger
@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.ReplaySubject
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import com.blockchain.enviroment.EnvironmentConfig
 import timber.log.Timber
 
 interface MviState

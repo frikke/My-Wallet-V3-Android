@@ -1,7 +1,4 @@
-package piuk.blockchain.androidcore.data.api
-
-import com.blockchain.network.EnvironmentUrls
-import info.blockchain.wallet.api.Environment
+package com.blockchain.enviroment
 
 interface EnvironmentConfig : EnvironmentUrls {
     val environment: Environment

@@ -39,7 +39,7 @@ class WalletConnectService(
             else Single.just(emptyList())
         }.subscribe { sessions ->
             sessions.forEach {
-                val wcClient = WCClient(GsonBuilder(), client)
+                val wcClient = WCClient(httpClient = client)
                 val wcSession = WCSession.from(it.url) ?: throw IllegalArgumentException(
                     "Not a valid wallet connect url ${it.url}"
                 )

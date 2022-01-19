@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.LinkedBank
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -35,7 +37,6 @@ import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -45,7 +46,6 @@ import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 class SimpleBuyPaymentFragment :
@@ -434,7 +434,7 @@ class SimpleBuyPaymentFragment :
     }
 
     private fun PaymentForm.initCheckoutPaymentForm() {
-        if (environmentConfig.environment == info.blockchain.wallet.api.Environment.PRODUCTION) {
+        if (environmentConfig.environment == com.blockchain.enviroment.Environment.PRODUCTION) {
             setEnvironment(Environment.LIVE)
         } else {
             setEnvironment(Environment.SANDBOX)

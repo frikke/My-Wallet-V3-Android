@@ -1,8 +1,8 @@
 package piuk.blockchain.com
 
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class InternalFeatureFlagReleaseApiImpl(
     private val environmentConfig: EnvironmentConfig
