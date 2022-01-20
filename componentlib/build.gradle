@@ -1,17 +1,9 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply from: '../quality/ktlint.gradle'
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 
 android {
     compileSdkVersion Versions.compileSdk
 
     defaultConfig {
-        minSdkVersion Versions.minSdk
-        targetSdkVersion Versions.targetSdk
-        versionCode Versions.versionCode
-        versionName Versions.versionName
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -21,12 +13,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
     kotlinOptions {
-        jvmTarget = '1.8'
         useIR = true
     }
     buildFeatures {

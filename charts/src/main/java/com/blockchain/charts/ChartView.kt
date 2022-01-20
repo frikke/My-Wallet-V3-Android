@@ -147,9 +147,11 @@ class ChartView : FrameLayout {
     }
 
     fun setData(entries: List<ChartEntry>) {
-        setEntryData(entries.map {
-            Entry(it.x, it.y)
-        })
+        setEntryData(
+            entries.map {
+                Entry(it.x, it.y)
+            }
+        )
     }
 
     private fun setEntryData(entries: List<Entry>) {
@@ -162,7 +164,7 @@ class ChartView : FrameLayout {
 
         selectedEntry?.let {
             val index = entries.indexOf(it)
-            firstEntries = entries.slice(0 .. index)
+            firstEntries = entries.slice(0..index)
             secondEntries = entries.slice(index until entries.size)
             mode = LineDataSet.Mode.LINEAR
             val h = Highlight(it.x, it.y, 0)
@@ -221,5 +223,4 @@ class ChartView : FrameLayout {
     companion object {
         private const val LONG_PRESS_DURATION = 350L
     }
-
 }

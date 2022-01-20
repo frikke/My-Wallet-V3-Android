@@ -31,7 +31,7 @@ internal class ScrubMarker(
     }
 
     override fun getOffsetForDrawingAtPoint(posX: Float, posY: Float): MPPointF {
-        return MPPointF((-width).toFloat()/2, 0f)
+        return MPPointF((-width).toFloat() / 2, 0f)
     }
 
     override fun draw(canvas: Canvas?, posX: Float, posY: Float) {

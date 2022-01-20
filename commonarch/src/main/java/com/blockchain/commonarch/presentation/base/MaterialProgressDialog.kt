@@ -20,7 +20,7 @@ class MaterialProgressDialog(context: Context) {
 
     private val dialog: AlertDialog
     private val binding: ProgressDialogCompatBinding =
-     ProgressDialogCompatBinding.inflate(LayoutInflater.from(context))
+        ProgressDialogCompatBinding.inflate(LayoutInflater.from(context))
 
     val isShowing: Boolean
         get() = dialog.isShowing

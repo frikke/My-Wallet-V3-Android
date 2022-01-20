@@ -1,6 +1,5 @@
 package com.blockchain.commonarch.presentation.base
 
-import android.app.PendingIntent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.MotionEvent
@@ -11,18 +10,18 @@ import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.viewbinding.ViewBinding
 import com.blockchain.auth.LogoutTimer
+import com.blockchain.commonarch.R
+import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.SecurityPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import org.koin.android.ext.android.inject
-import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.commonarch.R
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 
 /**
  * A base Activity for all activities which need auth timeouts & screenshot prevention

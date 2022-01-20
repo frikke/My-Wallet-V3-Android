@@ -9,9 +9,12 @@ fun TestRule.runRule() {
 }
 
 fun TestRule.runRule(statement: () -> Unit) {
-    apply(object : Statement() {
-        override fun evaluate() {
-            statement()
-        }
-    }, mock()).evaluate()
+    apply(
+        object : Statement() {
+            override fun evaluate() {
+                statement()
+            }
+        },
+        mock()
+    ).evaluate()
 }

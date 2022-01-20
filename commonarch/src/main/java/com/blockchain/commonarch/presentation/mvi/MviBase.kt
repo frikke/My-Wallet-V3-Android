@@ -1,6 +1,7 @@
 package com.blockchain.commonarch.presentation.mvi
 
 import androidx.annotation.CallSuper
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.jakewharton.rxrelay3.BehaviorRelay
 import io.reactivex.rxjava3.core.Observable
@@ -12,7 +13,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.ReplaySubject
-import com.blockchain.enviroment.EnvironmentConfig
 import timber.log.Timber
 
 interface MviState

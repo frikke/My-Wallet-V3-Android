@@ -1,7 +1,4 @@
-apply plugin: 'kotlin'
-
-sourceCompatibility = Versions.javaCompatibilityVersion
-targetCompatibility = Versions.javaCompatibilityVersion
+apply from: rootProject.file('gradle/local/common-feature.gradle')
 
 compileKotlin {
     kotlinOptions {

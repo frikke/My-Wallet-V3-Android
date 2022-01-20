@@ -5,13 +5,13 @@ import android.content.Intent
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor.Companion.GOOGLE_PAY_REQUEST_CODE
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
 
 class GooglePayResponseInterceptorImpl constructor(
     private val paymentDataMapper: PaymentDataMapper,

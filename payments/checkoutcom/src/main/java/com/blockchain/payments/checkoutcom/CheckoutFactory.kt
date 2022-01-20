@@ -18,13 +18,13 @@ class CheckoutFactory(
     private val checkoutInstances: MutableMap<String, CheckoutAPIClient> = mutableMapOf()
 
     fun getOrCreate(apiKey: String): CheckoutAPIClient {
-        return checkoutInstances[apiKey] ?:
-        CheckoutAPIClient(
-            context,
-            apiKey,
-            environment
-        ).also { checkoutApiClient ->
-            checkoutInstances[apiKey] = checkoutApiClient
-        }
+        return checkoutInstances[apiKey]
+            ?: CheckoutAPIClient(
+                context,
+                apiKey,
+                environment
+            ).also { checkoutApiClient ->
+                checkoutInstances[apiKey] = checkoutApiClient
+            }
     }
 }
