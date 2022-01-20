@@ -41,7 +41,7 @@ class ProfileModel(
                     .subscribeBy(
                         onSuccess = {
                             process(ProfileIntent.SaveEmailSucceeded(it))
-                            process(ProfileIntent.ResendEmail(it.email))
+                            process(ProfileIntent.ResendEmail)
                         },
                         onError = {
                             Timber.e("SaveEmail failure " + it)
@@ -54,11 +54,11 @@ class ProfileModel(
                     mobileWithPrefix = intent.phoneNumber
                 ).trackProgress(activityIndicator)
                     .subscribeBy(
-                        onSuccess = { mobileNumber ->
-                            process(ProfileIntent.SavePhoneNumberSucceeded(mobileNumber))
+                        onSuccess = { userInfoSettings ->
+                            process(ProfileIntent.SavePhoneNumberSucceeded(userInfoSettings))
                         },
                         onError = {
-                            Timber.e("SaveEmail failure " + it)
+                            Timber.e("SavePhoneNumber failure " + it)
                             process(ProfileIntent.SavePhoneNumberFailed)
                         }
                     )
@@ -81,7 +81,7 @@ class ProfileModel(
             }
             is ProfileIntent.ResendEmail -> {
                 interactor.resendEmail(
-                    email = intent.email
+                    email = previousState.userInfoSettings?.email.orEmpty()
                 ).trackProgress(activityIndicator)
                     .subscribeBy(
                         onSuccess = {
@@ -95,14 +95,14 @@ class ProfileModel(
             }
             is ProfileIntent.ResendCodeSMS -> {
                 interactor.resendCodeSMS(
-                    mobileWithPrefix = intent.mobileWithPrefix
+                    mobileWithPrefix = previousState.userInfoSettings?.mobileWithPrefix.orEmpty()
                 ).trackProgress(activityIndicator)
                     .subscribeBy(
                         onSuccess = {
-                            process(ProfileIntent.ResendCodeSMSSucceeded)
+                            process(ProfileIntent.ResendCodeSMSSucceeded(it))
                         },
                         onError = {
-                            Timber.e("SaveAndSendSMS failure " + it)
+                            Timber.e("ResendCodeSMS failure " + it)
                             process(ProfileIntent.ResendCodeSMSFailed)
                         }
                     )
@@ -133,6 +133,7 @@ class ProfileModel(
             is ProfileIntent.ResendCodeSMSFailed,
             is ProfileIntent.VerifyPhoneNumberFailed,
             is ProfileIntent.LoadProfileSucceeded,
-            is ProfileIntent.LoadProfileFailed -> null
+            is ProfileIntent.LoadProfileFailed,
+            is ProfileIntent.ClearErrors -> null
         }
 }

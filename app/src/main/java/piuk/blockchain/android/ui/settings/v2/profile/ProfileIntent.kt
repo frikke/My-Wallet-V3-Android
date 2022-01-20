@@ -10,6 +10,7 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     object LoadProfile : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
+                error = ProfileError.None,
                 isLoading = true
             )
     }
@@ -17,6 +18,7 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     object LoadProfileFailed : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
+                error = ProfileError.LoadProfileError,
                 isLoading = false
             )
     }
@@ -36,6 +38,7 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     ) : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
+                error = ProfileError.None,
                 isLoading = true
             )
     }
@@ -45,7 +48,6 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     ) : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
-                savingHasFailed = false,
                 isLoading = false,
                 userInfoSettings = WalletSettingsService.UserInfoSettings(
                     email = settings.email,
@@ -59,14 +61,15 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     object SaveEmailFailed : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
-                savingHasFailed = true,
+                error = ProfileError.SaveEmailError,
                 isLoading = false
             )
     }
 
-    data class ResendEmail(val email: String) : ProfileIntent() {
+    object ResendEmail : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
+                error = ProfileError.None,
                 isLoading = true,
                 isVerificationSent = VerificationSent(emailSent = false)
             )
@@ -75,6 +78,7 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     object ResendEmailFailed : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
+                error = ProfileError.ResendEmailError,
                 isLoading = false,
                 isVerificationSent = VerificationSent(emailSent = false)
             )
@@ -100,22 +104,26 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     class SavePhoneNumber(val phoneNumber: String) : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
+                error = ProfileError.None,
                 isLoading = true
             )
     }
 
     class SavePhoneNumberSucceeded(
-        val userInfoSettings: Settings
+        val settings: Settings
     ) : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
-                savingHasFailed = false,
                 isLoading = false,
                 userInfoSettings = WalletSettingsService.UserInfoSettings(
                     email = oldState.userInfoSettings?.email,
                     emailVerified = oldState.userInfoSettings?.emailVerified ?: false,
-                    mobileWithPrefix = userInfoSettings.smsNumber,
-                    mobileVerified = userInfoSettings.isSmsVerified
+                    mobileWithPrefix = settings.smsNumber,
+                    mobileVerified = settings.isSmsVerified
+                ),
+                isVerificationSent = VerificationSent(
+                    codeSent = true,
+                    emailSent = oldState.isVerificationSent?.emailSent ?: false,
                 )
             )
     }
@@ -123,12 +131,12 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     object SavePhoneNumberFailed : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
-                savingHasFailed = true,
+                error = ProfileError.SavePhoneError,
                 isLoading = false
             )
     }
 
-    data class ResendCodeSMS(val mobileWithPrefix: String) : ProfileIntent() {
+    object ResendCodeSMS : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
                 isLoading = true
@@ -138,14 +146,21 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
     object ResendCodeSMSFailed : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
+                error = ProfileError.ResendSmsError,
                 isLoading = false
             )
     }
 
-    object ResendCodeSMSSucceeded : ProfileIntent() {
+    data class ResendCodeSMSSucceeded(val settings: Settings) : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
                 isLoading = false,
+                userInfoSettings = WalletSettingsService.UserInfoSettings(
+                    email = oldState.userInfoSettings?.email,
+                    emailVerified = oldState.userInfoSettings?.emailVerified ?: false,
+                    mobileWithPrefix = settings.smsNumber,
+                    mobileVerified = settings.isSmsVerified
+                ),
                 isVerificationSent = VerificationSent(
                     codeSent = true,
                     emailSent = oldState.isVerificationSent?.emailSent ?: false,
@@ -173,13 +188,25 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
             )
     }
 
+    object ClearErrors : ProfileIntent() {
+        override fun reduce(oldState: ProfileState): ProfileState =
+            oldState.copy(
+                error = ProfileError.None
+            )
+    }
+
     data class VerifyPhoneNumber(val code: String) : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
-            oldState.copy(isLoading = true)
+            oldState.copy(
+                isLoading = true
+            )
     }
 
     object VerifyPhoneNumberFailed : ProfileIntent() {
         override fun reduce(oldState: ProfileState): ProfileState =
-            oldState.copy(isLoading = false)
+            oldState.copy(
+                error = ProfileError.VerifyPhoneError,
+                isLoading = false
+            )
     }
 }

@@ -42,7 +42,7 @@ class UpdateEmailFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        this.updateTitleToolbar(titleToolbar = getString(R.string.profile_toolbar_email))
+        this.updateTitleToolbar(getString(R.string.profile_toolbar_email))
         binding.updateEmail.buttonState = ButtonState.Disabled
     }
 
@@ -51,8 +51,14 @@ class UpdateEmailFragment :
             newState.userInfoSettings?.let { updateUI(it.emailVerified, it.email.orEmpty()) }
         }
 
-        if (newState.savingHasFailed) {
+        if (newState.error == ProfileError.SaveEmailError) {
             toast(getString(R.string.profile_update_error_email), ToastCustom.TYPE_ERROR)
+            model.process(ProfileIntent.ClearErrors)
+        }
+
+        if (newState.error == ProfileError.ResendEmailError) {
+            toast(getString(R.string.profile_update_error_resend_email), ToastCustom.TYPE_ERROR)
+            model.process(ProfileIntent.ClearErrors)
         }
 
         if (newState.isVerificationSent?.emailSent == true) {
@@ -62,7 +68,7 @@ class UpdateEmailFragment :
     }
 
     private fun onVerifyEmailClicked() {
-        model.process(ProfileIntent.ResendEmail(binding.email.value))
+        model.process(ProfileIntent.ResendEmail)
     }
 
     private fun isValidEmailAddress(): Boolean {
@@ -98,7 +104,7 @@ class UpdateEmailFragment :
             }
 
             changeStateCta(binding.email.value, emailValue)
-            binding.verifyEmailBtn.visibleIf { !isEmailVerified }
+            verifyEmailBtn.visibleIf { !isEmailVerified }
             verifyEmailBtn.apply {
                 text = getString(R.string.profile_verify_email)
                 onClick = { onVerifyEmailClicked() }

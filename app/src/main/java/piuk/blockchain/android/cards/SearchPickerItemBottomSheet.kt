@@ -18,7 +18,6 @@ import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SearchPickerItemBottomSheet : SlidingModalBottomDialog<PickerLayoutBinding>() {
-
     private val searchResults = mutableListOf<PickerItem>()
     private val adapter by unsafeLazy {
         PickerItemsAdapter {

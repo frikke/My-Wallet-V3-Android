@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="@dimen/standard_margin"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/verify_phone_msg"
+        style="@style/TextAppearance.Blockchain.Paragraph1"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/verify_sms_summary"
+        app:layout_constraintBottom_toTopOf="@+id/code_sms" />
+
+    <com.blockchain.componentlib.controls.TextInputView
+        android:id="@+id/code_sms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/standard_margin"
+        app:layout_constraintBottom_toTopOf="@id/resend_sms" />
+
+    <com.blockchain.componentlib.button.SmallSecondaryButtonView
+        android:id="@+id/resend_sms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/standard_margin"
+        app:layout_constraintBottom_toTopOf="@+id/verify_code"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.blockchain.componentlib.button.PrimaryButtonView
+        android:id="@+id/verify_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/profile_verify_code"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

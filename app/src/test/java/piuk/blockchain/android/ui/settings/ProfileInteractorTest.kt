@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
@@ -25,6 +26,7 @@ class ProfileInteractorTest {
     private val prefs = mock<PersistentPrefs>()
     private val settingsDataManager = mock<SettingsDataManager>()
     private val nabuUserSync = mock<NabuUserSync>()
+    private val payloadDataManager = mock<PayloadDataManager>()
 
     @Before
     fun setup() {
@@ -35,46 +37,45 @@ class ProfileInteractorTest {
             emailUpdater = emailSyncUpdater,
             prefs = prefs,
             settingsDataManager = settingsDataManager,
-            nabuUserSync = nabuUserSync
+            nabuUserSync = nabuUserSync,
+            payloadDataManager = payloadDataManager
         )
     }
 
     @Test
-    fun `Save email`() {
-        val settings = mock<Settings>()
+    fun `When saveEmail success then updateEmailAndSync and disableNotification methods should get called`() {
+        val email = mock<Email>()
+        val emailAddress = "paco@gmail.com"
+        val notifications: List<Int> = listOf(SettingsManager.NOTIFICATION_TYPE_EMAIL)
+        val settings = Settings().copy(notificationsType = notifications)
+
+        whenever(emailSyncUpdater.updateEmailAndSync(emailAddress)).thenReturn(Single.just(email))
+        whenever(settingsDataManager.disableNotification(Settings.NOTIFICATION_TYPE_EMAIL, notifications))
+            .thenReturn(Observable.just(settings))
+        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
+
+        interactor.saveEmail(emailAddress).test()
+
+        verify(emailSyncUpdater).updateEmailAndSync(emailAddress)
+        verify(settingsDataManager).disableNotification(Settings.NOTIFICATION_TYPE_EMAIL, notifications)
+    }
+
+    @Test
+    fun `When resendEmail success then emailSyncUpdater method should get called`() {
+        val email = mock<Email>()
         val emailAddress = "paco@gmail.com"
 
-        whenever(settingsDataManager.updateEmail(emailAddress)).thenReturn(Observable.just(settings))
+        whenever(emailSyncUpdater.resendEmail(emailAddress)).thenReturn(Single.just(email))
 
-        val observer = interactor.saveEmail(emailAddress).test()
-        observer.assertValueAt(0) {
-            it == settings
-        }
+        interactor.resendEmail(emailAddress).test()
 
-        verify(settingsDataManager).updateEmail(emailAddress)
-
-        verifyNoMoreInteractions(settingsDataManager)
-    }
-
-    // Next ticket update sms
-    @Test
-    fun `Save phone`() {
-        val settings = mock<Settings>()
-        val phone = "+34655819515"
-
-        whenever(settingsDataManager.updateSms(phone)).thenReturn(Observable.just(settings))
-        val observer = interactor.savePhoneNumber(phone).test()
-        observer.assertValueAt(0) {
-            it == settings
-        }
-
-        verify(settingsDataManager).updateSms(phone)
+        verify(emailSyncUpdater).resendEmail(emailAddress)
 
         verifyNoMoreInteractions(settingsDataManager)
     }
 
     @Test
-    fun `Load Profile`() {
+    fun `When loadProfile success then fetchWalletSettings method should get called`() {
         val settings = mock<WalletSettingsService.UserInfoSettings>()
 
         whenever(settingsDataManager.fetchWalletSettings(prefs.walletGuid, prefs.sharedKey))
@@ -91,37 +92,45 @@ class ProfileInteractorTest {
     }
 
     @Test
-    fun `Resend email to verify`() {
-        val email = mock<Email>()
-        val emailAddress = "paco@gmail.com"
-
-        whenever(emailSyncUpdater.resendEmail(emailAddress)).thenReturn(Single.just(email))
-
-        interactor.resendEmail(emailAddress).test()
-
-        verify(emailSyncUpdater).resendEmail(emailAddress)
-
-        verifyNoMoreInteractions(emailSyncUpdater)
-    }
-
-    @Test
-    fun `Save and send sms code`() {
+    fun `When savePhoneNumber success then updateSms, syncUser and disableNotification methods should get called`() {
         val phoneNumber = "+34655784930"
         val notifications: List<Int> = listOf(SettingsManager.NOTIFICATION_TYPE_SMS)
         val settings = Settings().copy(notificationsType = notifications)
 
         whenever(settingsDataManager.updateSms(phoneNumber)).thenReturn(Observable.just(settings))
         whenever(nabuUserSync.syncUser()).thenReturn(Completable.complete())
+        whenever(settingsDataManager.disableNotification(Settings.NOTIFICATION_TYPE_SMS, notifications))
+            .thenReturn(Observable.just(settings))
+        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
+
+        interactor.savePhoneNumber(phoneNumber).test()
+
+        verify(settingsDataManager).updateSms(phoneNumber)
+        verify(nabuUserSync).syncUser()
+        verify(settingsDataManager).disableNotification(Settings.NOTIFICATION_TYPE_SMS, notifications)
+    }
+
+    @Test
+    fun `When resendCodeSMS success then updateSms, syncUser and disableNotification methods should get called`() {
+        val phoneNumber = "+34655784930"
+        val notifications: List<Int> = listOf(SettingsManager.NOTIFICATION_TYPE_SMS)
+        val settings = Settings().copy(notificationsType = notifications)
+
+        whenever(settingsDataManager.updateSms(phoneNumber)).thenReturn(Observable.just(settings))
+        whenever(nabuUserSync.syncUser()).thenReturn(Completable.complete())
+        whenever(settingsDataManager.disableNotification(Settings.NOTIFICATION_TYPE_SMS, notifications))
+            .thenReturn(Observable.just(settings))
+        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
 
         interactor.resendCodeSMS(phoneNumber).test()
 
         verify(settingsDataManager).updateSms(phoneNumber)
-
-        verifyNoMoreInteractions(emailSyncUpdater)
+        verify(nabuUserSync).syncUser()
+        verify(settingsDataManager).disableNotification(Settings.NOTIFICATION_TYPE_SMS, notifications)
     }
 
     @Test
-    fun `Verify phone number`() {
+    fun `When verifyPhoneNumber success then verifySms and syncUser methods should get called`() {
         val settings = mock<Settings>()
         val code = "1234"
 

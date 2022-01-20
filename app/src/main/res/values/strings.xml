@@ -2546,9 +2546,12 @@
     <string name="profile_label_surname">Surname</string>
     <string name="profile_label_email">Email</string>
     <string name="profile_toolbar_email">Email</string>
+    <string name="profile_toolbar_mobile">Phone Number</string>
     <string name="profile_label_mobile">Phone Number</string>
     <string name="profile_mobile_empty">Add your phone number</string>
     <string name="profile_update_error_email">Email failed to save</string>
+    <string name="profile_update_error_resend_email">Resending email failed</string>
+    <string name="profile_update_error_resend_sms">Resending SMS failed</string>
     <string name="profile_update_email">Email saved</string>
     <string name="profile_update_error_phone">Phone number failed to save</string>
     <string name="profile_update_phone">Phone number saved</string>
@@ -2558,9 +2561,15 @@
     <string name="profile_verify_phone_msg">Your phone number can be used to enable 2FA.</string>
     <string name="profile_disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
     <string name="profile_verify_email">Verify Email</string>
-    <string name="profile_verify_phone">Send Text</string>
+    <string name="profile_verify_phone">Verify Phone</string>
+    <string name="profile_send_text">Send Text</string>
+    <string name="profile_re_send_text">Resend Text</string>
     <string name="profile_hint_phone">Enter Phone Number</string>
     <string name="profile_update">Update</string>
+    <string name="profile_verify_code">Verify Code</string>
+    <string name="profile_enter_code">Enter Verification Code</string>
+    <string name="profile_verification_code_error">Verification code failed</string>
+    <string name="profile_resend_sms_error">Resending SMS failed</string>
 
     <!-- Notifications screen -->
     <string name="notifications_toolbar">Notifications</string>

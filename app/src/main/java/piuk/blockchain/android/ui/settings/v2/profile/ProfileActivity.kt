@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
-import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import org.koin.core.scope.Scope
@@ -16,6 +15,7 @@ import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.USER_TIER
+import piuk.blockchain.android.ui.settings.v2.profileScope
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
@@ -85,26 +85,22 @@ class ProfileActivity :
     }
 
     override fun goToUpdatePhoneScreen(addToBackStack: Boolean) {
-        // TODO next ticket
-        //        supportFragmentManager.showFragment(
-        //            fragment = UpdateEmailFragment.newInstance()
-        //        )
-        //        supportFragmentManager.beginTransaction()
-        //            .addAnimationTransaction()
-        //            .replace(R.id.content_frame, UpdatePhoneFragment.newInstance(), UpdatePhoneFragment::class.simpleName)
-        //            .apply {
-        //                if (addToBackStack) {
-        //                    addToBackStack(UpdatePhoneFragment::class.simpleName)
-        //                }
-        //            }
-        //            .commitAllowingStateLoss()
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(R.id.content_frame, UpdatePhoneFragment.newInstance(), UpdatePhoneFragment::class.simpleName)
+            .apply {
+                if (addToBackStack) {
+                    addToBackStack(UpdatePhoneFragment::class.simpleName)
+                }
+            }
+            .commitAllowingStateLoss()
     }
 
     private fun openScope() =
         try {
             KoinJavaComponent.getKoin().getOrCreateScope(
                 scopeId,
-                payloadScopeQualifier
+                profileScope
             )
         } catch (e: Throwable) {
             Timber.wtf("Error opening scope for id $scopeId - $e")

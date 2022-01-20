@@ -2,243 +2,201 @@ package piuk.blockchain.android.ui.settings.v2.profile
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.koin.scopedInject
+import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.controls.TextInputState
+import com.blockchain.componentlib.image.ImageResource
+import com.mukesh.countrypicker.CountryPicker
+import info.blockchain.wallet.api.data.Settings
+import java.util.Locale
+import org.koin.android.ext.android.inject
+import org.koin.core.scope.Scope
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdatePhoneBinding
+import piuk.blockchain.android.ui.base.FlowFragment
+import piuk.blockchain.android.ui.base.updateTitleToolbar
+import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.util.FormatChecker
+import piuk.blockchain.android.util.visibleIf
 
-// TODO AND-5625
-class UpdatePhoneFragment : MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdatePhoneBinding>() {
+class UpdatePhoneFragment :
+    MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdatePhoneBinding>(),
+    FlowFragment {
 
-    override val model: ProfileModel by scopedInject()
+    private val formatChecker: FormatChecker by inject()
+
+    private val scope: Scope by lazy {
+        (requireActivity() as ProfileActivity).scope
+    }
+
+    override val model: ProfileModel
+        get() = scope.get()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentUpdatePhoneBinding =
         FragmentUpdatePhoneBinding.inflate(inflater, container, false)
 
+    override fun onBackPressed(): Boolean = true
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        this.updateTitleToolbar(getString(R.string.profile_toolbar_mobile))
+        binding.updatePhone.buttonState = ButtonState.Disabled
+        setCountryListener()
     }
 
     override fun render(newState: ProfileState) {
+        if (!newState.isLoading) {
+            newState.userInfoSettings?.let {
+                updateUI(
+                    mobileVerified = it.mobileVerified,
+                    mobileNoPrefix = it.mobileNoPrefix.filterNot { it.isWhitespace() },
+                    authType = it.authType,
+                    mobileWithPrefix = it.mobileWithPrefix.orEmpty()
+                )
+            }
+        }
+
+        if (newState.error == ProfileError.SavePhoneError) {
+            toast(getString(R.string.profile_update_error_phone), ToastCustom.TYPE_ERROR)
+            model.process(ProfileIntent.ClearErrors)
+        }
+
+        if (newState.error == ProfileError.ResendSmsError) {
+            toast(getString(R.string.profile_update_error_resend_sms), ToastCustom.TYPE_ERROR)
+            model.process(ProfileIntent.ClearErrors)
+        }
+
+        if (newState.isVerificationSent?.codeSent == true) {
+            showDialogVerifySms()
+            model.process(ProfileIntent.ResetCodeSentVerification)
+        }
     }
 
-    // TODO logic to ve moved to new screens, following ticket AND-5625
+    private fun changeStateCta(newPhone: String, currentPhone: String) {
+        val stateButton = if (newPhone == currentPhone) ButtonState.Disabled else ButtonState.Enabled
+        val stateVerifyButton = if (newPhone == currentPhone) ButtonState.Enabled else ButtonState.Disabled
+        binding.updatePhone.buttonState = stateButton
+        binding.verifyPhoneBtn.buttonState = stateVerifyButton
+    }
 
-    //    private fun setupEditMode(
-    //        basicProfileInfo: BasicProfileInfo?,
-    //        userInfoSettings: WalletSettingsService.UserInfoSettings?
-    //    ) {
-    //        enableTextInputs(isEditable = true, basicProfileInfo = basicProfileInfo, userInfoSettings = userInfoSettings)
-    //        with(binding) {
-    //            editProfile.gone()
-    //            contactSupport.visible()
-    //            splitButtons.visible()
-    //            splitButtons.apply {
-    //                primaryButtonText = getString(R.string.common_cancel)
-    //                onPrimaryButtonClick = {
-    //                    model.process(
-    //                        ProfileIntent.UpdateProfileView(
-    //                            profileViewToLaunch = ProfileViewState.View
-    //                        )
-    //                    )
-    //                }
-    //                secondaryButtonText = getString(R.string.common_save)
-    //                onSecondaryButtonClick = {
-    //                    if (areValidUserInputs(authType = userInfoSettings?.authType ?: Settings.AUTH_TYPE_OFF)
-    //                    ) {
-    //                        model.process(
-    //                            ProfileIntent.SaveProfile(
-    //                                WalletSettingsService.UserInfoSettings(
-    //                                    email = binding.email.value,
-    //                                    mobileWithPrefix = binding.dialCode.value + binding.phone.value
-    //                                )
-    //                            )
-    //                        )
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //    private fun setViewMode(
-    //        basicProfileInfo: BasicProfileInfo?,
-    //        userInfoSettings: WalletSettingsService.UserInfoSettings?
-    //    ) {
-    //        enableTextInputs(isEditable = false, basicProfileInfo = basicProfileInfo, userInfoSettings = userInfoSettings)
-    //        with(binding) {
-    //            splitButtons.gone()
-    //            contactSupport.gone()
-    //            editProfile.apply {
-    //                visible()
-    //                text = getString(R.string.edit)
-    //                onClick = {
-    //                    model.process(
-    //                        ProfileIntent.UpdateProfileView(
-    //                            profileViewToLaunch = ProfileViewState.Edit
-    //                        )
-    //                    )
-    //                }
-    //            }
-    //        }
-    //    }
-    //    private fun onVerifyPhoneClicked() {
-    //        model.process(ProfileIntent.SaveAndSendSMS(binding.dialCode.value + binding.phone.value))
-    //    }
-    //
-    //    private fun enableTextInputs(
-    //        isEditable: Boolean,
-    //        basicProfileInfo: BasicProfileInfo?,
-    //        userInfoSettings: WalletSettingsService.UserInfoSettings?
-    //    ) {
-    //        val inputState = if (isEditable) TextInputState.Default() else TextInputState.Disabled()
-    //        with(binding) {
-    //            if (userTier != Tier.BRONZE) {
-    //                name.apply {
-    //                    labelText = context.getString(R.string.profile_label_name)
-    //                    value = basicProfileInfo?.firstName.orEmpty()
-    //                    state = TextInputState.Disabled()
-    //                }
-    //                surname.apply {
-    //                    labelText = context.getString(R.string.profile_label_surname)
-    //                    value = basicProfileInfo?.lastName.orEmpty()
-    //                    state = TextInputState.Disabled()
-    //                }
-    //            }
-    //            email.apply {
-    //                labelText = context.getString(R.string.profile_label_email)
-    //                singleLine = true
-    //                inputType = KeyboardType.Text
-    //                value = userInfoSettings?.email.orEmpty()
-    //                state = inputState
-    //                onValueChange = { value = it }
-    //                trailingIconResource = ImageResource.None
-    //            }
-    //
-    //            phone.apply {
-    //                labelText = context.getString(R.string.profile_label_mobile)
-    //                value = userInfoSettings?.mobileNoPrefix.orEmpty()
-    //                state = inputState
-    //                inputType = KeyboardType.Number
-    //                singleLine = true
-    //                onValueChange = { value = it }
-    //                trailingIconResource = ImageResource.None
-    //            }
-    //
-    //            dialCode.apply {
-    //                labelText = context.getString(R.string.profile_label_dial_code)
-    //                singleLine = true
-    //                value = userInfoSettings?.dialCode.orEmpty()
-    //                state = TextInputState.Disabled()
-    //                trailingIconResource = ImageResource.None
-    //            }
-    //
-    //            val showPhoneWarning = userInfoSettings?.mobileVerified == false && !isEditable
-    //            verifyPhoneMsg.visibleIf { showPhoneWarning }
-    //            verifyPhoneBtn.apply {
-    //                visibleIf { showPhoneWarning }
-    //                text = getString(R.string.profile_verify_phone)
-    //                onClick = { onVerifyPhoneClicked() }
-    //            }
-    //
-    //            setCountryListener(isEditable)
-    //        }
-    //    }
-    //
-    //    private fun setCountryListener(isEditable: Boolean) {
-    //        with(binding) {
-    //            val picker = CountryPicker.Builder()
-    //                .with(this@ProfileActivity)
-    //                .listener { country -> setCountryInfo(country.dialCode, country.flag) }
-    //                .theme(CountryPicker.THEME_NEW)
-    //                .build()
-    //
-    //            val country = picker.countryFromSIM
-    //                ?: picker.getCountryByLocale(Locale.getDefault())
-    //                ?: picker.getCountryByISO("US")
-    //
-    //            setCountryInfo(country.dialCode, country.flag)
-    //
-    //            if (isEditable) {
-    //                openCountryPicker.setOnClickListener {
-    //                    picker.showBottomSheet(this@ProfileActivity)
-    //                }
-    //            } else {
-    //                openCountryPicker.setOnClickListener(null)
-    //            }
-    //        }
-    //    }
-    //
-    //    private fun areValidUserInputs(authType: Int): Boolean {
-    //        return showWarningToDisable2fa(authType) && isValidMobile()
-    //    }
-    //
-    //
-    //    private fun isValidMobile(): Boolean {
-    //        val newPhoneNumber = binding.dialCode.value + binding.phone.value
-    //        return if (!formatChecker.isValidMobileNumber(newPhoneNumber)) {
-    //            binding.phone.apply {
-    //                state = TextInputState.Error(getString(R.string.invalid_mobile))
-    //                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
-    //            }
-    //            false
-    //        } else {
-    //            binding.phone.apply {
-    //                trailingIconResource = ImageResource.None
-    //                state = TextInputState.Default()
-    //            }
-    //            true
-    //        }
-    //    }
-    //
-    //    private fun showWarningToDisable2fa(authType: Int): Boolean {
-    //        return if (authType != Settings.AUTH_TYPE_OFF) {
-    //            binding.phone.apply {
-    //                state = TextInputState.Error(getString(R.string.profile_disable_2fa_first))
-    //                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
-    //            }
-    //            false
-    //        } else {
-    //            binding.phone.apply {
-    //                trailingIconResource = ImageResource.None
-    //                state = TextInputState.Default()
-    //            }
-    //            true
-    //        }
-    //    }
-    //
-    //    private fun setCountryInfo(dialCode: String, flagResourceId: Int) {
-    //        val drawable = ContextCompat.getDrawable(this, flagResourceId)
-    //        binding.flag.background = drawable
-    //        binding.dialCode.value = dialCode
-    //    }
-    //    private fun showDialogVerifySms() {
-    //        val editText = AppCompatEditText(this@ProfileActivity)
-    //        editText.isSingleLine = true
-    //
-    //        val dialog = AlertDialog.Builder(this@ProfileActivity, R.style.AlertDialogStyle)
-    //            .setTitle(R.string.verify_mobile)
-    //            .setMessage(R.string.verify_sms_summary)
-    //            .setView(ViewUtils.getAlertDialogPaddedView(this@ProfileActivity, editText))
-    //            .setCancelable(false)
-    //            .setPositiveButton(R.string.verify, null)
-    //            .setNegativeButton(android.R.string.cancel, null)
-    //            .setNeutralButton(R.string.resend) { _, _ ->
-    //                model.process(ProfileIntent.SaveAndSendSMS(binding.dialCode.value + binding.phone.value))
-    //            }
-    //            .create()
-    //
-    //        dialog.setOnShowListener {
-    //            val positive = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
-    //            positive.setOnClickListener {
-    //                val code = editText.text.toString()
-    //                if (code.isNotEmpty()) {
-    //                    model.process(ProfileIntent.VerifyPhoneNumber(code))
-    //                    dialog.dismiss()
-    //                    ViewUtils.hideKeyboard(this@ProfileActivity)
-    //                }
-    //            }
-    //        }
-    //        dialog.show()
-    //    }
+    private fun updateUI(mobileVerified: Boolean, mobileNoPrefix: String, authType: Int, mobileWithPrefix: String) {
+        with(binding) {
+            phone.apply {
+                labelText = context.getString(R.string.profile_label_mobile)
+                value = mobileNoPrefix
+                inputType = KeyboardType.Number
+                singleLine = true
+                value = mobileNoPrefix
+                onValueChange = {
+                    changeStateCta(
+                        binding.dialCodeValue.text.toString() + it,
+                        mobileWithPrefix.filterNot { it.isWhitespace() }
+                    )
+                    value = it
+                }
+                trailingIconResource = ImageResource.None
+            }
+
+            changeStateCta(
+                binding.dialCodeValue.text.toString() + binding.phone.value,
+                mobileWithPrefix.filterNot { it.isWhitespace() }
+            )
+
+            verifyPhoneBtn.visibleIf { !mobileVerified }
+            verifyPhoneBtn.apply {
+                text = getString(R.string.profile_verify_phone)
+                onClick = {
+                    if (isValidMobileNumber(authType)) onVerifyPhoneClicked()
+                }
+            }
+
+            updatePhone.apply {
+                text = getString(R.string.profile_update)
+                onClick = {
+                    if (isValidMobileNumber(authType)) onUpdatePhoneClicked()
+                }
+            }
+        }
+    }
+
+    private fun onVerifyPhoneClicked() {
+        model.process(ProfileIntent.ResendCodeSMS)
+    }
+
+    private fun onUpdatePhoneClicked() {
+        model.process(ProfileIntent.SavePhoneNumber(binding.dialCodeValue.text.toString() + binding.phone.value))
+    }
+
+    private fun isValidMobileNumber(authType: Int): Boolean = showWarningToDisable2fa(authType) && isValidMobile()
+
+    private fun isValidMobile(): Boolean {
+        val newPhoneNumber = binding.dialCodeValue.text.toString() + binding.phone.value
+        return if (!formatChecker.isValidMobileNumber(newPhoneNumber)) {
+            binding.phone.apply {
+                state = TextInputState.Error(getString(R.string.invalid_mobile))
+                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+            }
+            false
+        } else {
+            binding.phone.apply {
+                trailingIconResource = ImageResource.None
+                state = TextInputState.Default()
+            }
+            true
+        }
+    }
+
+    private fun showWarningToDisable2fa(authType: Int): Boolean {
+        return if (authType != Settings.AUTH_TYPE_OFF) {
+            binding.phone.apply {
+                state = TextInputState.Error(getString(R.string.profile_disable_2fa_first))
+                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+            }
+            false
+        } else {
+            binding.phone.apply {
+                trailingIconResource = ImageResource.None
+                state = TextInputState.Default()
+            }
+            true
+        }
+    }
+
+    private fun setCountryListener() {
+        with(binding) {
+            val picker = CountryPicker.Builder()
+                .with(requireContext())
+                .listener { country -> setCountryInfo(country.dialCode) }
+                .theme(CountryPicker.THEME_NEW)
+                .build()
+
+            val country = picker.countryFromSIM
+                ?: picker.getCountryByLocale(Locale.getDefault())
+                ?: picker.getCountryByISO("US")
+
+            setCountryInfo(country.dialCode)
+
+            dialCode.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) picker.showBottomSheet(activity)
+                true
+            }
+        }
+    }
+
+    private fun setCountryInfo(dialCode: String) {
+        binding.dialCodeValue.text = dialCode
+    }
+
+    private fun showDialogVerifySms() {
+        CodeSMSVerificationBottomSheet.newInstance().show(childFragmentManager, BOTTOM_SHEET)
+    }
+
+    companion object {
+        fun newInstance() = UpdatePhoneFragment()
+    }
 }

@@ -6,7 +6,6 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.commonarch.presentation.mvi.MviFragment
@@ -140,7 +139,7 @@ class ProfileFragment :
                 } else {
                     userInfoSettings?.mobileWithPrefix
                 }
-                onClick = { Toast.makeText(context, "open phone updater", Toast.LENGTH_LONG).show() }
+                onClick = { navigator().goToUpdatePhoneScreen(true) }
             }
 
             updateTags(

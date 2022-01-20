@@ -1,7 +1,9 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.settings.v2.account.AccountInteractor
 import piuk.blockchain.android.ui.settings.v2.account.AccountModel
@@ -13,6 +15,8 @@ import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
 import piuk.blockchain.android.util.AppUtil
+
+val profileScope = named("ProfileScope")
 
 val redesignSettingsModule = module {
 
@@ -38,24 +42,27 @@ val redesignSettingsModule = module {
             )
         }
 
-        scoped {
-            ProfileModel(
-                initialState = ProfileState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
-                _activityIndicator = lazy { get<AppUtil>().activityIndicator },
-                environmentConfig = get(),
-                crashLogger = get()
-            )
-        }
+        scope(profileScope) {
+            scoped {
+                ProfileModel(
+                    initialState = ProfileState(),
+                    mainScheduler = AndroidSchedulers.mainThread(),
+                    interactor = get(),
+                    _activityIndicator = lazy { get<AppUtil>().activityIndicator },
+                    environmentConfig = get(),
+                    crashLogger = get()
+                )
+            }
 
-        scoped {
-            ProfileInteractor(
-                emailUpdater = get(),
-                settingsDataManager = get(),
-                prefs = get(),
-                nabuUserSync = get()
-            )
+            scoped {
+                ProfileInteractor(
+                    emailUpdater = payloadScope.get(),
+                    settingsDataManager = payloadScope.get(),
+                    prefs = payloadScope.get(),
+                    nabuUserSync = payloadScope.get(),
+                    payloadDataManager = payloadScope.get()
+                )
+            }
         }
 
         factory {

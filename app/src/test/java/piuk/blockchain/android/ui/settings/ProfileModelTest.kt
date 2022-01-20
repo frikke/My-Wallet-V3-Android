@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.settings.v2.profile.ProfileError
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileIntent
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
@@ -48,7 +49,7 @@ class ProfileModelTest {
     }
 
     @Test
-    fun `loadProfile successfully`() {
+    fun `when LoadProfile is successfully then state will update user settings`() {
         val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
 
         whenever(interactor.fetchProfileSettings()).thenReturn(
@@ -74,7 +75,7 @@ class ProfileModelTest {
     }
 
     @Test
-    fun `loadProfile fails`() {
+    fun `when LoadProfile fails then state should contain LoadProfileError`() {
         whenever(interactor.fetchProfileSettings()).thenReturn(
             Single.error { Throwable() }
         )
@@ -89,31 +90,27 @@ class ProfileModelTest {
                 it == ProfileState(isLoading = true)
             }.assertValueAt(2) {
                 it == ProfileState(
-                    isLoading = false
+                    isLoading = false,
+                    error = ProfileError.LoadProfileError
                 )
             }
     }
 
     @Test
-    fun `saveEmail successfully`() {
+    fun `when SaveEmail is successfully then state will update settings with the email`() {
         val userInfoSettings: WalletSettingsService.UserInfoSettings = mock {
             on { email }.thenReturn("paco@gmail.com")
-            on { mobileWithPrefix }.thenReturn("+34655819515")
         }
 
         val settings: Settings = mock {
             on { email }.thenReturn("paco@gmail.com")
-            on { smsNumber }.thenReturn("+34655819515")
         }
 
         whenever(
             interactor.saveEmail(
                 email = userInfoSettings.email.orEmpty()
             )
-        )
-            .thenReturn(
-                Single.just(settings)
-            )
+        ).thenReturn(Single.just(settings))
 
         val testState = model.state.test()
         model.process(ProfileIntent.SaveEmail(settings.email))
@@ -139,7 +136,7 @@ class ProfileModelTest {
     }
 
     @Test
-    fun `saveEmail failed`() {
+    fun `when SaveEmail fails then state should contain SaveEmailError`() {
         val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
         val emailAddress = "paco@gmail.com"
 
@@ -161,13 +158,53 @@ class ProfileModelTest {
         }.assertValueAt(2) {
             it == ProfileState(
                 isLoading = false,
-                savingHasFailed = true
+                error = ProfileError.SaveEmailError
             )
         }
     }
 
     @Test
-    fun `savePhone failed`() {
+    fun `when SavePhoneNumber is successfully then state isVerificationSent codeSent will be true`() {
+        val userInfoSettings: WalletSettingsService.UserInfoSettings = mock {
+            on { mobileWithPrefix }.thenReturn("+34655819515")
+        }
+
+        val settings: Settings = mock {
+            on { smsNumber }.thenReturn("+34655819515")
+        }
+
+        whenever(interactor.savePhoneNumber(userInfoSettings.mobileWithPrefix.orEmpty())).thenReturn(
+            Single.just(settings)
+        )
+
+        val testState = model.state.test()
+        model.process(ProfileIntent.SavePhoneNumber(settings.smsNumber))
+
+        testState.assertValueAt(0) {
+            it == ProfileState()
+        }.assertValueAt(1) {
+            it == ProfileState(
+                isLoading = true
+            )
+        }.assertValueAt(2) {
+            it == ProfileState(
+                isLoading = false,
+                userInfoSettings = WalletSettingsService.UserInfoSettings(
+                    email = it.userInfoSettings?.email,
+                    emailVerified = it.userInfoSettings?.emailVerified ?: false,
+                    mobileWithPrefix = settings.smsNumber,
+                    mobileVerified = settings.isSmsVerified
+                ),
+                isVerificationSent = VerificationSent(
+                    codeSent = true,
+                    emailSent = it.isVerificationSent?.emailSent ?: false,
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `when SavePhoneNumber fails then state should contain SavePhoneError`() {
         val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
         val phoneNumber = "+34655819515"
 
@@ -189,29 +226,25 @@ class ProfileModelTest {
         }.assertValueAt(2) {
             it == ProfileState(
                 isLoading = false,
-                savingHasFailed = true
+                error = ProfileError.SavePhoneError
             )
         }
     }
 
     @Test
-    fun `resendEmail successfully`() {
-        val userInfoSettings: WalletSettingsService.UserInfoSettings = mock {
-            on { email }.thenReturn("paco@gmail.com")
-        }
-
+    fun `when ResendEmail is successfully then state isVerificationSent emailSent will be true`() {
         val email: Email = mock {
             on { address }.thenReturn("paco@gmail.com")
             on { isVerified }.thenReturn(false)
         }
         whenever(
             interactor.resendEmail(
-                email = userInfoSettings.email.orEmpty()
+                email = ProfileState().userInfoSettings?.email.orEmpty()
             )
         ).thenReturn(Single.just(email))
 
         val testState = model.state.test()
-        model.process(ProfileIntent.ResendEmail(userInfoSettings.email.orEmpty()))
+        model.process(ProfileIntent.ResendEmail)
 
         testState
             .assertValueAt(0) {
@@ -236,21 +269,17 @@ class ProfileModelTest {
     }
 
     @Test
-    fun `resendEmail failed`() {
-        val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
-        val emailAddress = "paco@gmail.com"
-
-        whenever(userInfoSettings.email).thenReturn(emailAddress)
+    fun `when ResendEmail fails then state should contain ResendEmailError`() {
         whenever(
             interactor.resendEmail(
-                email = userInfoSettings.email.orEmpty()
+                email = ProfileState().userInfoSettings?.email.orEmpty()
             )
         ).thenReturn(
             Single.error { Throwable() }
         )
 
         val testState = model.state.test()
-        model.process(ProfileIntent.ResendEmail(userInfoSettings.email.orEmpty()))
+        model.process(ProfileIntent.ResendEmail)
 
         testState.assertValueAt(0) {
             it == ProfileState()
@@ -262,29 +291,26 @@ class ProfileModelTest {
         }.assertValueAt(2) {
             it == ProfileState(
                 isLoading = false,
-                isVerificationSent = VerificationSent(emailSent = false)
+                isVerificationSent = VerificationSent(emailSent = false),
+                error = ProfileError.ResendEmailError
             )
         }
     }
 
     @Test
-    fun `saveAndSendSMS successfully`() {
-        val userInfoSettings: WalletSettingsService.UserInfoSettings = mock {
-            on { mobileWithPrefix }.thenReturn("+34655819515")
-        }
-
+    fun `when ResendCode is successfully then state isVerificationSent codeSent will be true`() {
         val settings: Settings = mock {
             on { smsNumber }.thenReturn("+34655819515")
         }
 
         whenever(
             interactor.resendCodeSMS(
-                mobileWithPrefix = userInfoSettings.mobileWithPrefix.orEmpty()
+                mobileWithPrefix = ProfileState().userInfoSettings?.mobileWithPrefix.orEmpty()
             )
         ).thenReturn(Single.just(settings))
 
         val testState = model.state.test()
-        model.process(ProfileIntent.ResendCodeSMS(userInfoSettings.mobileWithPrefix.orEmpty()))
+        model.process(ProfileIntent.ResendCodeSMS)
 
         testState
             .assertValueAt(0) {
@@ -296,27 +322,32 @@ class ProfileModelTest {
             }.assertValueAt(2) {
                 it == ProfileState(
                     isLoading = false,
-                    isVerificationSent = VerificationSent(codeSent = true)
+                    userInfoSettings = WalletSettingsService.UserInfoSettings(
+                        email = it.userInfoSettings?.email,
+                        emailVerified = it.userInfoSettings?.emailVerified ?: false,
+                        mobileWithPrefix = settings.smsNumber,
+                        mobileVerified = settings.isSmsVerified
+                    ),
+                    isVerificationSent = VerificationSent(
+                        codeSent = true,
+                        emailSent = it.isVerificationSent?.emailSent ?: false,
+                    )
                 )
             }
     }
 
     @Test
-    fun `saveAndSendSMS failed`() {
-        val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
-        val phoneNumber = "+34655748394"
-
-        whenever(userInfoSettings.mobileWithPrefix).thenReturn(phoneNumber)
+    fun `when ResendCode fails then state should contain ResendSmsError`() {
         whenever(
             interactor.resendCodeSMS(
-                mobileWithPrefix = userInfoSettings.mobileWithPrefix.orEmpty()
+                mobileWithPrefix = ProfileState().userInfoSettings?.mobileWithPrefix.orEmpty()
             )
         ).thenReturn(
             Single.error { Throwable() }
         )
 
         val testState = model.state.test()
-        model.process(ProfileIntent.ResendCodeSMS(userInfoSettings.mobileWithPrefix.orEmpty()))
+        model.process(ProfileIntent.ResendCodeSMS)
 
         testState.assertValueAt(0) {
             it == ProfileState()
@@ -326,13 +357,14 @@ class ProfileModelTest {
             )
         }.assertValueAt(2) {
             it == ProfileState(
-                isLoading = false
+                isLoading = false,
+                error = ProfileError.ResendSmsError
             )
         }
     }
 
     @Test
-    fun `VerifyPhoneNumber successfully`() {
+    fun `when VerifyPhone is successfully then no error is set`() {
         val code = "1234AB"
 
         whenever(interactor.verifyPhoneNumber(code))
@@ -352,7 +384,7 @@ class ProfileModelTest {
     }
 
     @Test
-    fun `VerifyPhoneNumber failed`() {
+    fun `when VerifyPhone fails then state should contain VerifyPhoneError`() {
         val code = "1234AB"
 
         whenever(interactor.verifyPhoneNumber(code = code))
@@ -369,7 +401,8 @@ class ProfileModelTest {
             )
         }.assertValueAt(2) {
             it == ProfileState(
-                isLoading = false
+                isLoading = false,
+                error = ProfileError.VerifyPhoneError
             )
         }
     }
