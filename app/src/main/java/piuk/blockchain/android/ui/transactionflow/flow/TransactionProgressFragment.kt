@@ -28,7 +28,9 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.txProgressView.onCtaClick { activity.finish() }
+        binding.txProgressView.onCtaClick(
+            text = getString(R.string.common_ok)
+        ) { activity.finish() }
     }
 
     override fun render(newState: TransactionState) {

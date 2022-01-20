@@ -334,10 +334,15 @@ data class BuySellOrder(
 )
 
 enum class ApprovalErrorStatus {
+    INVALID,
     FAILED,
-    REJECTED,
     DECLINED,
+    REJECTED,
     EXPIRED,
+    LIMITED_EXCEEDED,
+    ACCOUNT_INVALID,
+    FAILED_INTERNAL,
+    INSUFFICIENT_FUNDS,
     UNKNOWN,
     NONE
 }

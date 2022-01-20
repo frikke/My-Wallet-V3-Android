@@ -417,7 +417,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class UpdatePaymentMethodsAndAddTheFirstEligible(val fiatCurrency: FiatCurrency) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
-                paymentOptions = PaymentOptions(), errorState = TransactionErrorState.NONE, selectedPaymentMethod = null
+                paymentOptions = PaymentOptions(),
+                errorState = TransactionErrorState.NONE,
+                selectedPaymentMethod = null
             )
     }
 
@@ -426,7 +428,8 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(newPaymentMethodToBeAdded = null)
     }
 
-    class RecurringBuyIntervalUpdated(private val recurringBuyFrequency: RecurringBuyFrequency) : SimpleBuyIntent() {
+    class RecurringBuyIntervalUpdated(private val recurringBuyFrequency: RecurringBuyFrequency) :
+        SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
     }

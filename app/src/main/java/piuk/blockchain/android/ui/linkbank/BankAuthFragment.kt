@@ -642,12 +642,16 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         with(binding) {
             linkBankIcon.setImageResource(R.drawable.ic_bank_details_big)
             linkBankProgress.gone()
-            linkBankStateIndicator.setImageResource(R.drawable.ic_check_circle)
-            linkBankStateIndicator.visible()
-            mainCta.text = getString(R.string.common_continue)
-            mainCta.visible()
-            mainCta.setOnClickListener {
-                navigator().bankLinkingFinished(id, currency)
+            linkBankStateIndicator.apply {
+                setImageResource(R.drawable.ic_check_circle)
+                visible()
+            }
+            mainCta.apply {
+                text = getString(R.string.common_continue)
+                visible()
+                setOnClickListener {
+                    navigator().bankLinkingFinished(id, currency)
+                }
             }
             setTitleAndSubtitle(
                 getString(R.string.bank_linking_success_title),

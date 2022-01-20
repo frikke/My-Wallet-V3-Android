@@ -2144,6 +2144,23 @@
     <string name="bank_linking_declined_title">Account Access Denied</string>
     <string name="bank_linking_declined_subtitle">Looks like there was an issue with approving the payment, please try again. If this keeps happening, please contact support.</string>
 
+    <!-- Error transfer payments copies -->
+    <string name="bank_transfer_payment_invalid_title">Invalid Account</string>
+    <string name="bank_transfer_payment_invalid_subtitle">The account you selected isn’t active. Please try another account or payment method. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_failed_title">Payment Failed</string>
+    <string name="bank_transfer_payment_failed_subtitle">There was an issue with your bank. Please try again or use a different payment method. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_declined_title">Payment Declined</string>
+    <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support</string>
+    <string name="bank_transfer_payment_rejected_title">Payment Rejected</string>
+    <string name="bank_transfer_payment_rejected_subtitle">We believe you have declined the payment from your bank account. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_expired_title">Payment Request Expired</string>
+    <string name="bank_transfer_payment_expired_subtitle">We haven’t heard from your bank. The payment request has expired. Please try to submit the order again. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_limited_exceeded_title">Incomplete Charges</string>
+    <string name="bank_transfer_payment_limited_exceeded_subtitle">This payment method has incomplete charges against it. To use this payment method again, place <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_insufficient_funds_title">Insufficient Funds</string>
+    <string name="bank_transfer_payment_insufficient_funds_subtitle">Payment failed due to insufficient funds in your account. Try another payment method. If this keep happening, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_transfer_go_back">Cancel &amp; Go Back</string>
+
     <string name="wallet_outage_message">We are experiencing an outage. Please rest assured your funds are safe. <annotation link="learn_more">Learn more</annotation></string>
     <string name="wallet_issue_message">There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. <annotation link="learn_more">Learn more →</annotation></string>
     <string name="increase_your_limits">Increase your limits</string>

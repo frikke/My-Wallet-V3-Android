@@ -33,14 +33,16 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         assetResources.loadAssetIcon(binding.txIcon, asset)
     }
 
-    fun onCtaClick(fn: () -> Unit) {
-        binding.txOkBtn.setOnClickListener {
-            fn()
+    fun onCtaClick(text: String, fn: () -> Unit) {
+        binding.txOkBtn.apply {
+            visible()
+            this.text = text
+            setOnClickListener { fn() }
         }
     }
 
-    fun configureSecondaryButton(text: String, fn: () -> Unit) {
-        with(binding.secondaryBtn) {
+    fun onSecondaryCtaClicked(text: String, fn: () -> Unit) {
+        binding.secondaryBtn.apply {
             visible()
             this.text = text
             setOnClickListener { fn() }
@@ -97,12 +99,12 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         }
     }
 
-    fun showTxError(title: String, subtitle: String) {
+    fun showTxError(title: String, subtitle: CharSequence, resourceIcon: Int = R.drawable.ic_alert_logo) {
         with(binding) {
-            txIcon.setImageResource(R.drawable.ic_alert_logo)
-            txStateIndicator.gone()
+            txStateIndicator.setImageResource(resourceIcon)
+            visible()
+            progress.gone()
         }
-        showEndStateUi()
         setText(title, subtitle)
     }
 
@@ -147,10 +149,13 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         }
     }
 
-    private fun setText(title: String, subtitle: String) {
+    private fun setText(title: String, subtitle: CharSequence) {
         with(binding) {
             txTitle.text = title
-            txSubtitle.text = subtitle
+            txSubtitle.apply {
+                text = subtitle
+                movementMethod = LinkMovementMethod.getInstance()
+            }
         }
     }
 }

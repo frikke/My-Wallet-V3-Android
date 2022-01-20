@@ -2,6 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -44,6 +45,8 @@ import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
+import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
@@ -78,7 +81,7 @@ class SimpleBuyPaymentFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.updateToolbar(getString(R.string.common_payment))
+        activity.updateToolbarTitle(getString(R.string.common_payment))
 
         // we need to make the request as soon as possible and cache the result
         if (!ratingPrefs.hasSeenRatingDialog) {
@@ -95,10 +98,6 @@ class SimpleBuyPaymentFragment :
     override fun render(newState: SimpleBuyState) {
         newState.selectedCryptoAsset?.let {
             binding.transactionProgressView.setAssetIcon(it)
-        }
-
-        newState.buyErrorState?.let {
-            handleErrorStates(it)
         }
 
         if (newState.orderState == OrderState.CANCELED) {
@@ -121,9 +120,7 @@ class SimpleBuyPaymentFragment :
 
         require(newState.selectedPaymentMethod != null)
 
-        renderTitleAndSubtitle(newState)
-
-        binding.transactionProgressView.onCtaClick {
+        binding.transactionProgressView.onCtaClick(getString(R.string.common_ok)) {
             when {
                 newState.showRecurringBuyFirstTimeFlow -> {
                     navigator().goToSetupFirstRecurringBuy()
@@ -132,6 +129,8 @@ class SimpleBuyPaymentFragment :
                 else -> navigator().goToPendingOrderScreen()
             }
         }
+
+        renderTitleAndSubtitle(newState)
 
         newState.cardAcquirerCredentials?.let { cardAcquirerCredentials ->
             processCardAuthRequest(cardAcquirerCredentials)
@@ -202,33 +201,79 @@ class SimpleBuyPaymentFragment :
         }
     }
 
+    private fun addLink(stringResource: Int): CharSequence {
+        val linksMap = mapOf<String, Uri>(
+            "contact_support" to Uri.parse(URL_CONTACT_SUPPORT)
+        )
+        return StringUtils.getStringWithMappedAnnotations(
+            requireContext(),
+            stringResource,
+            linksMap
+        )
+    }
+
     private fun handleErrorStates(errorState: ErrorState) =
         when (errorState) {
+            ErrorState.ApproveBankInvalid,
+            ErrorState.ApprovedBankAccountInvalid -> showError(
+                title = getString(R.string.bank_transfer_payment_invalid_title),
+                subtitle = addLink(R.string.bank_transfer_payment_invalid_subtitle),
+                resourceIcon = R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.ApprovedBankFailed,
+            ErrorState.ApprovedBankFailedInternal -> showError(
+                title = getString(R.string.bank_transfer_payment_failed_title),
+                subtitle = addLink(R.string.bank_transfer_payment_failed_subtitle)
+            )
             ErrorState.ApprovedBankDeclined -> showError(
-                getString(R.string.bank_linking_declined_title), getString(R.string.bank_linking_declined_subtitle)
+                title = getString(R.string.bank_transfer_payment_declined_title),
+                subtitle = addLink(R.string.bank_transfer_payment_declined_subtitle),
+                resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedBankRejected -> showError(
-                getString(R.string.bank_linking_rejected_title), getString(R.string.bank_linking_rejected_subtitle)
-            )
-            ErrorState.ApprovedBankFailed -> showError(
-                getString(R.string.bank_linking_failure_title), getString(R.string.bank_linking_failure_subtitle)
+                title = getString(R.string.bank_transfer_payment_rejected_title),
+                subtitle = addLink(R.string.bank_transfer_payment_rejected_subtitle),
+                resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedBankExpired -> showError(
-                getString(R.string.bank_linking_expired_title), getString(R.string.bank_linking_expired_subtitle)
+                title = getString(R.string.bank_transfer_payment_expired_title),
+                subtitle = addLink(R.string.bank_transfer_payment_expired_subtitle),
+                resourceIcon = R.drawable.ic_clock
+            )
+            ErrorState.ApprovedBankLimitedExceed -> showError(
+                title = getString(R.string.bank_transfer_payment_limited_exceeded_title),
+                subtitle = addLink(R.string.bank_transfer_payment_limited_exceeded_subtitle),
+                resourceIcon = R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.ApprovedBankInsufficientFunds -> showError(
+                title = getString(R.string.bank_transfer_payment_insufficient_funds_title),
+                subtitle = addLink(R.string.bank_transfer_payment_insufficient_funds_subtitle),
+                resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedGenericError -> showError(
-                getString(R.string.common_oops), getString(R.string.common_error)
+                getString(R.string.common_oops), addLink(R.string.common_error)
             )
             else -> {
                 // do nothing - we only want to handle OB approval errors in this fragment
             }
         }
 
-    private fun showError(title: String, subtitle: String) {
-        binding.transactionProgressView.onCtaClick {
-            navigator().exitSimpleBuyFlow()
+    private fun showError(
+        title: String,
+        subtitle: CharSequence,
+        resourceIcon: Int = R.drawable.ic_alert_logo
+    ) {
+        with(binding) {
+            transactionProgressView.apply {
+                onCtaClick(text = getString(R.string.common_try_again)) {
+                    model.process(SimpleBuyIntent.ConfirmOrder)
+                }
+                onSecondaryCtaClicked(getString(R.string.bank_transfer_transfer_go_back)) {
+                    navigator().exitSimpleBuyFlow()
+                }
+                showTxError(title, subtitle, resourceIcon)
+            }
         }
-        binding.transactionProgressView.showTxError(title, subtitle)
     }
 
     private fun launchExternalAuthoriseUrlFlow(
@@ -351,21 +396,7 @@ class SimpleBuyPaymentFragment :
                     }
                 }
             }
-
-            newState.buyErrorState != null -> {
-                binding.transactionProgressView.showTxError(
-                    getString(R.string.common_oops),
-                    if (newState.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
-                        getString(
-                            R.string.order_error_subtitle_rb,
-                            newState.order.amount?.formatOrSymbolForZero(),
-                            newState.selectedCryptoAsset?.displayTicker
-                        )
-                    } else {
-                        getString(R.string.order_error_subtitle)
-                    }
-                )
-            }
+            newState.buyErrorState != null -> handleErrorStates(newState.buyErrorState)
         }
     }
 
@@ -387,7 +418,9 @@ class SimpleBuyPaymentFragment :
     private fun checkForUnlockHigherLimits(shouldShowUnlockMoreFunds: Boolean) {
         if (!shouldShowUnlockMoreFunds)
             return
-        binding.transactionProgressView.configureSecondaryButton(getString(R.string.want_to_buy_more)) {
+        binding.transactionProgressView.onSecondaryCtaClicked(
+            text = getString(R.string.want_to_buy_more)
+        ) {
             showBottomSheet(UnlockHigherLimitsBottomSheet())
         }
     }
@@ -445,6 +478,7 @@ class SimpleBuyPaymentFragment :
                     binding.checkoutCardForm.gone()
                     model.process(SimpleBuyIntent.CheckOrderStatus)
                 }
+
                 override fun onError(errorMessage: String?) {
                     Timber.e("PaymentForm.On3DSFinished onError: $errorMessage")
                     binding.checkoutCardForm.gone()

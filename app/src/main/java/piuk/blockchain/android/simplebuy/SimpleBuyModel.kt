@@ -459,17 +459,32 @@ class SimpleBuyModel(
 
     private fun handleApprovalErrorState(approvalErrorStatus: ApprovalErrorStatus) {
         when (approvalErrorStatus) {
+            ApprovalErrorStatus.INVALID -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.ApproveBankInvalid)
+            )
             ApprovalErrorStatus.FAILED -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankFailed)
-            )
-            ApprovalErrorStatus.REJECTED -> process(
-                SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankRejected)
             )
             ApprovalErrorStatus.DECLINED -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankDeclined)
             )
+            ApprovalErrorStatus.REJECTED -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankRejected)
+            )
             ApprovalErrorStatus.EXPIRED -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankExpired)
+            )
+            ApprovalErrorStatus.LIMITED_EXCEEDED -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankLimitedExceed)
+            )
+            ApprovalErrorStatus.ACCOUNT_INVALID -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankAccountInvalid)
+            )
+            ApprovalErrorStatus.FAILED_INTERNAL -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankFailedInternal)
+            )
+            ApprovalErrorStatus.INSUFFICIENT_FUNDS -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankInsufficientFunds)
             )
             ApprovalErrorStatus.UNKNOWN -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedGenericError)

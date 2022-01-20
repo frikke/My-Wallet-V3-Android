@@ -97,22 +97,22 @@
         tools:text="Oops! Something Went Wrong." />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/secondary_btn"
-        style="@style/CtaButton.White"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/small_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/tx_ok_btn"
-        tools:visibility="visible" />
-
-    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/tx_ok_btn"
         style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
         android:text="@string/common_ok"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/secondary_btn"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/secondary_btn"
+        style="@style/CtaButton.White"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/small_margin"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:visibility="visible" />

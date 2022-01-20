@@ -888,7 +888,6 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
      val cryptoAmount =
          if (type() == OrderType.SELL) inputQuantity.toBigInteger() else outputQuantity.toBigInteger()
     */
-
     return BuySellOrder(
         id = id,
         pair = pair,
@@ -982,10 +981,15 @@ fun String.toRecurringBuyError() =
 
 private fun String.toApprovalError(): ApprovalErrorStatus =
     when (this) {
+        BuySellOrderResponse.APPROVAL_ERROR_INVALID,
+        BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID -> ApprovalErrorStatus.INVALID
         BuySellOrderResponse.APPROVAL_ERROR_FAILED -> ApprovalErrorStatus.FAILED
         BuySellOrderResponse.APPROVAL_ERROR_DECLINED -> ApprovalErrorStatus.DECLINED
         BuySellOrderResponse.APPROVAL_ERROR_REJECTED -> ApprovalErrorStatus.REJECTED
         BuySellOrderResponse.APPROVAL_ERROR_EXPIRED -> ApprovalErrorStatus.EXPIRED
+        BuySellOrderResponse.APPROVAL_ERROR_EXCEEDED -> ApprovalErrorStatus.LIMITED_EXCEEDED
+        BuySellOrderResponse.APPROVAL_ERROR_FAILED_INTERNAL -> ApprovalErrorStatus.FAILED_INTERNAL
+        BuySellOrderResponse.APPROVAL_ERROR_INSUFFICIENT_FUNDS -> ApprovalErrorStatus.INSUFFICIENT_FUNDS
         else -> ApprovalErrorStatus.UNKNOWN
     }
 
