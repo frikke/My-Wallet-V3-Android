@@ -65,7 +65,6 @@ interface PersistentPrefs :
         const val KEY_EMAIL_VERIFIED = "code_verified"
         const val KEY_SCHEME_URL = "scheme_url"
         const val KEY_METADATA_URI = "metadata_uri"
-        const val KEY_SCREENSHOTS_ENABLED = "screenshots_enabled"
         const val KEY_OVERLAY_TRUSTED = "overlay_trusted"
 
         const val KEY_ROOT_WARNING_DISABLED = "disable_root_warning"

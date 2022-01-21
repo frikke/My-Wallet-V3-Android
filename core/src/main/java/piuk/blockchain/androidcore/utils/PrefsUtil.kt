@@ -123,10 +123,10 @@ class PrefsUtil(
         set(v) = setValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, v)
 
     override val areScreenshotsEnabled: Boolean
-        get() = getValue(PersistentPrefs.KEY_SCREENSHOTS_ENABLED, false)
+        get() = getValue(KEY_SCREENSHOTS_ENABLED, false)
 
     override fun setScreenshotsEnabled(enable: Boolean) =
-        setValue(PersistentPrefs.KEY_SCREENSHOTS_ENABLED, enable)
+        setValue(KEY_SCREENSHOTS_ENABLED, enable)
 
     // From CurrencyPrefs
     override var selectedFiatCurrency: FiatCurrency
@@ -625,7 +625,7 @@ class PrefsUtil(
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
         private const val KEY_TAPPED_FAB = "key_tapped_fab"
-
+        private const val KEY_SCREENSHOTS_ENABLED = "screenshots_enabled"
         private const val KEY_ONBOARDING_COMPLETE = "KEY_ONBOARDING_COMPLETE"
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"

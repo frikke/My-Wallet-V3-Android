@@ -599,7 +599,6 @@ val applicationModule = module {
                 payloadDataManager = get(),
                 prefs = get(),
                 pinRepository = get(),
-                custodialWalletManager = get(),
                 getAvailablePaymentMethodsTypesUseCase = get(),
                 paymentsDataManager = get(),
                 notificationTokenManager = get(),
@@ -610,7 +609,8 @@ val applicationModule = module {
                 biometricsController = get(),
                 ratingPrefs = get(),
                 qrProcessor = get(),
-                secureChannelManager = get()
+                secureChannelManager = get(),
+                securityPrefs = get()
             )
         }
 

@@ -6,13 +6,13 @@ import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankState
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.nabu.NabuApiException.Companion.fromResponseBody
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs
+import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.GBP
@@ -99,11 +99,11 @@ class SettingsPresenterTest {
     private val featureFlag: FeatureFlag = mock()
 
     private val analytics: Analytics = mock()
-    private val custodialWalletManager: CustodialWalletManager = mock()
     private val paymentsDataManager: PaymentsDataManager = mock()
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase = mock()
     private val cardsFeatureFlag: FeatureFlag = mock()
     private val fundsFeatureFlag: FeatureFlag = mock()
+    private val securityPrefs: SecurityPrefs = mock()
 
     @Before
     fun setUp() {
@@ -115,7 +115,6 @@ class SettingsPresenterTest {
             payloadDataManager = payloadDataManager,
             prefs = prefsUtil,
             pinRepository = pinRepository,
-            custodialWalletManager = custodialWalletManager,
             paymentsDataManager = paymentsDataManager,
             getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
             notificationTokenManager = notificationTokenManager,
@@ -126,11 +125,13 @@ class SettingsPresenterTest {
             biometricsController = biometricsController,
             ratingPrefs = ratingPrefs,
             qrProcessor = qrProcessor,
-            secureChannelManager = secureChannelManager
+            secureChannelManager = secureChannelManager,
+            securityPrefs = securityPrefs
         )
         subject.initView(activity)
         whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
         whenever(prefsUtil.arePushNotificationsEnabled).thenReturn(false)
+        whenever(securityPrefs.areScreenshotsEnabled).thenReturn(false)
         whenever(biometricsController.isHardwareDetected).thenReturn(false)
         whenever(prefsUtil.getValue(any(), any<Boolean>())).thenReturn(false)
         whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())

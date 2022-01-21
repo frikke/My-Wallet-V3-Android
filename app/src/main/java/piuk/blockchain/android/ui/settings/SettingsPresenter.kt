@@ -6,7 +6,6 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
@@ -16,6 +15,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs
+import com.blockchain.preferences.SecurityPrefs
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
@@ -61,7 +61,6 @@ class SettingsPresenter(
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
     private val pinRepository: PinRepository,
-    private val custodialWalletManager: CustodialWalletManager,
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
     private val paymentsDataManager: PaymentsDataManager,
     private val notificationTokenManager: NotificationTokenManager,
@@ -72,7 +71,8 @@ class SettingsPresenter(
     private val biometricsController: BiometricsController,
     private val ratingPrefs: RatingPrefs,
     private val qrProcessor: QrScanResultProcessor,
-    private val secureChannelManager: SecureChannelManager
+    private val secureChannelManager: SecureChannelManager,
+    private val securityPrefs: SecurityPrefs
 ) : BasePresenter<SettingsView>() {
 
     private val fiatCurrency: FiatCurrency
@@ -258,7 +258,7 @@ class SettingsPresenter(
             updateFingerprintPreferenceStatus()
             setTwoFaPreference(settings.authType != Settings.AUTH_TYPE_OFF)
             setTorBlocked(settings.isBlockTorIps)
-            setScreenshotsEnabled(prefs.getValue(PersistentPrefs.KEY_SCREENSHOTS_ENABLED, false))
+            setScreenshotsEnabled(securityPrefs.areScreenshotsEnabled)
             setLauncherShortcutVisibility(AndroidUtils.is25orHigher())
         }
 
@@ -328,10 +328,10 @@ class SettingsPresenter(
      * Write key/value to [android.content.SharedPreferences]
      *
      * @param key The key under which to store the data
-     * @param value The value to be stored as a boolean
+     * @param enabled The value to be stored as a boolean
      */
-    fun updatePreferences(key: String, value: Boolean) {
-        prefs.setValue(key, value)
+    fun updateScreenshotPreference(enabled: Boolean) {
+        securityPrefs.setScreenshotsEnabled(enabled)
     }
 
     /**
@@ -636,7 +636,7 @@ class SettingsPresenter(
 
     fun onVerifySmsRequested() {
         compositeDisposable += cachedSettings.subscribeBy {
-            view?.showDialogMobile(it.authType, it.isSmsVerified, it.smsNumber ?: "")
+            view?.showDialogMobile(it.authType, it.isSmsVerified, it.smsNumber)
         }
     }
 

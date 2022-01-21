@@ -292,10 +292,7 @@ class SettingsFragment :
         }
 
         screenshotPref?.setOnPreferenceChangeListener { _, newValue ->
-            settingsPresenter.updatePreferences(
-                PersistentPrefs.KEY_SCREENSHOTS_ENABLED,
-                newValue as Boolean
-            )
+            settingsPresenter.updateScreenshotPreference(newValue as Boolean)
             true
         }
 

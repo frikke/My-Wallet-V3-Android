@@ -59,6 +59,7 @@ import piuk.blockchain.android.ui.settings.SettingsFragment
 import piuk.blockchain.android.ui.settings.v2.account.AccountActivity
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsActivity
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
+import piuk.blockchain.android.ui.settings.v2.security.SecurityActivity
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
@@ -397,7 +398,7 @@ class RedesignSettingsPhase2Activity :
                 primaryText = getString(R.string.settings_title_security)
                 secondaryText = getString(R.string.settings_subtitle_security)
                 onClick = {
-                    // TODO open
+                    startActivity(SecurityActivity.newIntent(this@RedesignSettingsPhase2Activity))
                 }
             }
 

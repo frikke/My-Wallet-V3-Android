@@ -30,10 +30,72 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.blockchain.componentlib.tablerow.DefaultTableRowView
-                android:id="@+id/support_option"
+            <com.blockchain.componentlib.tablerow.ToggleTableRowView
+                android:id="@+id/security_two_fa"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/security_change_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/security_change_pin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.tablerow.DefaultTableRowView
+                android:id="@+id/security_backup_phrase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.tablerow.ToggleTableRowView
+                android:id="@+id/security_biometrics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:id="@+id/biometrics_bottom_divider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.tablerow.ToggleTableRowView
+                android:id="@+id/security_screenshots"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.tablerow.ToggleTableRowView
+                android:id="@+id/security_tor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:id="@+id/tor_bottom_divider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

@@ -17,10 +17,12 @@ import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
 import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationInteractor
 import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationModel
 import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationState
+import piuk.blockchain.android.ui.settings.v2.security.SecurityInteractor
+import piuk.blockchain.android.ui.settings.v2.security.SecurityModel
+import piuk.blockchain.android.ui.settings.v2.security.SecurityState
 import piuk.blockchain.android.util.AppUtil
 
 val profileScope = named("ProfileScope")
-
 val redesignSettingsModule = module {
 
     scope(payloadScopeQualifier) {
@@ -98,6 +100,15 @@ val redesignSettingsModule = module {
         }
 
         factory {
+            NotificationsInteractor(
+                notificationPrefs = get(),
+                notificationTokenManager = get(),
+                settingsDataManager = get(),
+                payloadDataManager = get()
+            )
+        }
+
+        factory {
             AccountModel(
                 initialState = AccountState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
@@ -108,20 +119,30 @@ val redesignSettingsModule = module {
         }
 
         factory {
-            NotificationsInteractor(
-                notificationPrefs = get(),
-                notificationTokenManager = get(),
-                settingsDataManager = get(),
-                payloadDataManager = get()
-            )
-        }
-
-        factory {
             AccountInteractor(
                 settingsDataManager = get(),
                 exchangeRates = get(),
                 currencyPrefs = get(),
                 exchangeLinkingState = get()
+            )
+        }
+
+        factory {
+            SecurityModel(
+                initialState = SecurityState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+
+        factory {
+            SecurityInteractor(
+                settingsDataManager = get(),
+                biometricsController = get(),
+                securityPrefs = get(),
+                pinRepository = get()
             )
         }
     }

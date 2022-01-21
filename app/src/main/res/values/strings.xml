@@ -2534,7 +2534,6 @@
     <string name="settings_bank_transfer_blurb">Send funds directly from your bank to your Blockchain Wallet. Once we receive the wire transfer, we’ll complete your purchase.</string>
     <string name="settings_logout_error">There was an issue while logging you out, please try again!</string>
 
-
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>
     <string name="account_limits_title">Limits and Features</string>
@@ -2582,7 +2581,9 @@
     <string name="profile_send_text">Send Text</string>
     <string name="profile_hint_phone">Enter Phone Number</string>
     <string name="profile_update">Update</string>
-
+    <string name="profile_label_dial_code">Dial code</string>
+    <string name="profile_verify_code">Verify Code</string>
+    <string name="profile_enter_code">Enter Verification Code</string>
     <string name="profile_verification_code_error">Verification code failed</string>
     <string name="profile_resend_sms_error">Resending SMS failed</string>
 
@@ -2597,6 +2598,26 @@
     <string name="notifications_toolbar">Notifications</string>
     <string name="email_notifications_title">Email Notifications</string>
     <string name="push_notifications_title">Push Notifications</string>
+    <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
+    <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
+    <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
+    <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
+
+    <!-- Security screen -->
+    <string name="security_toolbar">Security</string>
+    <string name="security_two_fa_title">2-Step Verification</string>
+    <string name="security_password_title">Change Password</string>
+    <string name="security_password_subtitle">Create a New Password</string>
+    <string name="security_pin_title">Change PIN</string>
+    <string name="security_pin_subtitle">Create a New 4 Digit PIN</string>
+    <string name="security_backup_phrase_title">Backup Phrase</string>
+    <string name="security_backup_phrase_subtitle">Your Secret 12 Word Key</string>
+    <string name="security_backup_phrase_pill_not_backed_up">Not Backed Up</string>
+    <string name="security_backup_phrase_pill_backed_up">Backed Up</string>
+    <string name="security_biometrics_title">Enable Biometric Unlock</string>
+    <string name="security_screenshots_title">Enable Screenshots</string>
+    <string name="security_tor_title">Block Tor Requests</string>
+    <string name="security_tor_subtitle">Block IP addresses known to be part of the Tor anonymizing network.\n(Disabling this setting will be permanent)</string>
 
     <!-- About app screen -->
     <string name="about_app_toolbar">About App</string>
@@ -2605,10 +2626,6 @@
     <string name="about_app_rate_app">Rate Our App</string>
     <string name="about_app_terms_service">Terms of Service</string>
     <string name="about_app_privacy_policy">Privacy Policy</string>
-    <string name="profile_label_dial_code">Dial code</string>
-    <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
-    <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
-    <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
-    <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
+
 
 </resources>
