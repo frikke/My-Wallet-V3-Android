@@ -160,6 +160,10 @@ class SimpleBuyCheckoutFragment :
                     navigator().goToPaymentScreen()
                 }
             }
+            OrderState.FAILED -> {
+                showBottomSheet(ErrorSlidingBottomDialog.newInstance(activity))
+                binding.buttonAction.isEnabled = false
+            }
             OrderState.CANCELED -> {
                 if (activity is SmallSimpleBuyNavigator) {
                     (activity as SmallSimpleBuyNavigator).exitSimpleBuyFlow()
