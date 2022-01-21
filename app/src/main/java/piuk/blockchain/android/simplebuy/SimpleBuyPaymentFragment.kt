@@ -62,6 +62,8 @@ class SimpleBuyPaymentFragment :
     private val ratingPrefs: RatingPrefs by scopedInject()
     private var reviewInfo: ReviewInfo? = null
     private var isFirstLoad = false
+    private lateinit var previousSelectedPaymentMethodId: String
+    private lateinit var previousSelectedCryptoAsset: AssetInfo
 
     private val isPaymentAuthorised: Boolean by lazy {
         arguments?.getBoolean(IS_PAYMENT_AUTHORISED, false) ?: false
@@ -96,6 +98,12 @@ class SimpleBuyPaymentFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
+        require(newState.selectedPaymentMethod != null)
+        require(newState.selectedCryptoAsset != null)
+
+        previousSelectedPaymentMethodId = newState.selectedPaymentMethod.id
+        previousSelectedCryptoAsset = newState.selectedCryptoAsset
+
         newState.selectedCryptoAsset?.let {
             binding.transactionProgressView.setAssetIcon(it)
         }
@@ -266,7 +274,11 @@ class SimpleBuyPaymentFragment :
         with(binding) {
             transactionProgressView.apply {
                 onCtaClick(text = getString(R.string.common_try_again)) {
-                    model.process(SimpleBuyIntent.ConfirmOrder)
+                    navigator().goToBuyCryptoScreen(
+                        addToBackStack = false,
+                        preselectedAsset = previousSelectedCryptoAsset,
+                        preselectedPaymentMethodId = previousSelectedPaymentMethodId
+                    )
                 }
                 onSecondaryCtaClicked(getString(R.string.bank_transfer_transfer_go_back)) {
                     navigator().exitSimpleBuyFlow()
