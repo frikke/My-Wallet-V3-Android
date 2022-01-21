@@ -54,8 +54,7 @@ import timber.log.Timber
 class SwapFragment :
     Fragment(),
     KycBenefitsBottomSheet.Host,
-    TradingWalletPromoBottomSheet.Host,
-    NoAccountsToSwapFromBottomSheet.Host {
+    TradingWalletPromoBottomSheet.Host {
 
     interface Host {
         fun navigateToReceive()
@@ -124,6 +123,13 @@ class SwapFragment :
                 DividerItemDecoration.VERTICAL
             )
         )
+        binding.cardBuyNow.setOnClickListener {
+            host.navigateToBuy()
+        }
+        binding.cardReceive.setOnClickListener {
+            host.navigateToReceive()
+        }
+
         analytics.logEvent(SwapAnalyticsEvents.SwapViewedEvent)
         loadSwapOrKyc(showLoading = true)
     }
@@ -147,14 +153,6 @@ class SwapFragment :
 
     override fun startNewSwap() {
         startSwap()
-    }
-
-    override fun receiveClicked() {
-        host.navigateToReceive()
-    }
-
-    override fun buyClicked() {
-        host.navigateToBuy()
     }
 
     private fun loadSwapOrKyc(showLoading: Boolean) {
@@ -187,7 +185,9 @@ class SwapFragment :
                         showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
 
                         if (composite.tiers.isVerified()) {
-                            binding.swapViewSwitcher.displayedChild = SWAP_VIEW
+                            binding.swapViewFlipper.displayedChild =
+                                if (composite.hasAtLeastOneAccountToSwapFrom) SWAP_VIEW
+                                else SWAP_NO_ACCOUNTS
                             binding.swapHeader.toggleBottomSeparator(false)
 
                             val onPairClicked = onTrendingPairClicked()
@@ -198,13 +198,11 @@ class SwapFragment :
                                 assetResources = assetResources
                             )
 
-                            if (!composite.hasAtLeastOneAccountToSwapFrom) {
-                                showNoAccountsToSwapFrom()
-                            } else if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
+                            if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
                                 showKycUpsellIfEligible(composite.limits)
                             }
                         } else {
-                            binding.swapViewSwitcher.displayedChild = KYC_VIEW
+                            binding.swapViewFlipper.displayedChild = KYC_VIEW
                             initKycView()
                         }
                     },
@@ -249,10 +247,6 @@ class SwapFragment :
             )
             showBottomSheet(fragment)
         }
-    }
-
-    private fun showNoAccountsToSwapFrom() {
-        showBottomSheet(NoAccountsToSwapFromBottomSheet.newInstance())
     }
 
     private fun <T : ViewBinding> showBottomSheet(fragment: SlidingModalBottomDialog<T>) {
@@ -316,7 +310,7 @@ class SwapFragment :
     private fun showSwapUi(orders: List<CustodialOrder>, hasAtLeastOneAccountToSwapFrom: Boolean) {
         val pendingOrders = orders.filter { it.state.isPending }
         val hasPendingOrder = pendingOrders.isNotEmpty()
-        binding.swapViewSwitcher.visible()
+        binding.swapViewFlipper.visible()
         binding.swapError.gone()
         binding.swapCta.visible()
         binding.swapCta.isEnabled = hasAtLeastOneAccountToSwapFrom
@@ -346,7 +340,8 @@ class SwapFragment :
     companion object {
         private const val KYC_UPSELL_PERCENTAGE = 90
         private const val SWAP_VIEW = 0
-        private const val KYC_VIEW = 1
+        private const val SWAP_NO_ACCOUNTS = 1
+        private const val KYC_VIEW = 2
         private const val TAG = "BOTTOM_SHEET"
         fun newInstance(): SwapFragment =
             SwapFragment()

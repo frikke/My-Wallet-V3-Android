@@ -1907,6 +1907,7 @@
     <string name="swap_trading_fees_subtitle">You pay zero network fees by swapping crypto off-chain</string>
     <string name="swap_trading_speed_title">Swap in Seconds</string>
     <string name="swap_trading_speed_subtitle">Increased speed means your Swap trade clears in seconds, not minutes</string>
+    <string name="swap_empty_state_receive_button">Receive Crypto</string>
 
     <string name="trending_label">Trending</string>
     <string name="trending_swap">Swap %1$s</string>
