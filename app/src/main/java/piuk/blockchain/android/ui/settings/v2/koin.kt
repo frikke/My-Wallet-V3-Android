@@ -14,6 +14,9 @@ import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsState
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
+import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationInteractor
+import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationModel
+import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationState
 import piuk.blockchain.android.util.AppUtil
 
 val profileScope = named("ProfileScope")
@@ -42,6 +45,25 @@ val redesignSettingsModule = module {
             )
         }
 
+        factory {
+            SMSVerificationInteractor(
+                settingsDataManager = get(),
+                nabuUserSync = get(),
+                payloadDataManager = get()
+            )
+        }
+
+        factory {
+            SMSVerificationModel(
+                initialState = SMSVerificationState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                _activityIndicator = lazy { get<AppUtil>().activityIndicator },
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+
         scope(profileScope) {
             scoped {
                 ProfileModel(
@@ -58,7 +80,7 @@ val redesignSettingsModule = module {
                 ProfileInteractor(
                     emailUpdater = payloadScope.get(),
                     settingsDataManager = payloadScope.get(),
-                    prefs = payloadScope.get(),
+                    authPrefs = payloadScope.get(),
                     nabuUserSync = payloadScope.get(),
                     payloadDataManager = payloadScope.get()
                 )

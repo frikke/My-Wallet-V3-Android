@@ -26,6 +26,7 @@ import piuk.blockchain.android.util.FormatChecker
 
 class UpdatePhoneFragment :
     MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdatePhoneBinding>(),
+    CodeSMSVerificationBottomSheet.Host,
     FlowFragment {
 
     private val formatChecker: FormatChecker by inject()
@@ -36,6 +37,8 @@ class UpdatePhoneFragment :
 
     override val model: ProfileModel
         get() = scope.get()
+
+    private lateinit var mobileWithPrefix: String
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentUpdatePhoneBinding =
         FragmentUpdatePhoneBinding.inflate(inflater, container, false)
@@ -52,11 +55,12 @@ class UpdatePhoneFragment :
     override fun render(newState: ProfileState) {
         if (!newState.isLoading) {
             newState.userInfoSettings?.let {
+                mobileWithPrefix = it.mobileWithPrefix.orEmpty()
                 updateUI(
                     mobileVerified = it.mobileVerified,
                     mobileNoPrefix = it.mobileNoPrefix.filterNot { it.isWhitespace() },
                     authType = it.authType,
-                    mobileWithPrefix = it.mobileWithPrefix.orEmpty()
+                    mobileWithPrefix = mobileWithPrefix
                 )
             }
         }
@@ -72,7 +76,7 @@ class UpdatePhoneFragment :
         }
 
         if (newState.isVerificationSent?.codeSent == true) {
-            showDialogVerifySms()
+            showDialogVerifySms(newState.userInfoSettings?.mobileWithPrefix.orEmpty())
             model.process(ProfileIntent.ResetCodeSentVerification)
         }
     }
@@ -190,13 +194,28 @@ class UpdatePhoneFragment :
 
     private fun setCountryInfo(dialCode: String) {
         binding.dialCodeValue.text = dialCode
+        if (::mobileWithPrefix.isInitialized) {
+            changeStateCta(
+                binding.dialCodeValue.text.filterNot { it.isWhitespace() }.toString() + binding.phone.value,
+                mobileWithPrefix.filterNot { it.isWhitespace() }
+            )
+        }
     }
 
-    private fun showDialogVerifySms() {
-        CodeSMSVerificationBottomSheet.newInstance().show(childFragmentManager, BOTTOM_SHEET)
+    private fun showDialogVerifySms(mobileWithPrefix: String) {
+        CodeSMSVerificationBottomSheet.newInstance(mobileWithPrefix)
+            .show(childFragmentManager, BOTTOM_SHEET)
     }
 
     companion object {
         fun newInstance() = UpdatePhoneFragment()
+    }
+
+    override fun onReloadProfile() {
+        model.process(ProfileIntent.LoadProfile)
+    }
+
+    override fun onSheetClosed() {
+        // Do nothing
     }
 }

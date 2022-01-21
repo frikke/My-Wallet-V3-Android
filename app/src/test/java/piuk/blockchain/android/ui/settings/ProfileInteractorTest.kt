@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings
 
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.nabu.NabuUserSync
+import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -18,24 +19,23 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class ProfileInteractorTest {
     private lateinit var interactor: ProfileInteractor
     private val emailSyncUpdater = mock<EmailSyncUpdater>()
-    private val prefs = mock<PersistentPrefs>()
+    private val authPrefs = mock<AuthPrefs>()
     private val settingsDataManager = mock<SettingsDataManager>()
     private val nabuUserSync = mock<NabuUserSync>()
     private val payloadDataManager = mock<PayloadDataManager>()
 
     @Before
     fun setup() {
-        whenever(prefs.sharedKey).thenReturn("1234")
-        whenever(prefs.walletGuid).thenReturn("4321")
+        whenever(authPrefs.sharedKey).thenReturn("1234")
+        whenever(authPrefs.walletGuid).thenReturn("4321")
 
         interactor = ProfileInteractor(
             emailUpdater = emailSyncUpdater,
-            prefs = prefs,
+            authPrefs = authPrefs,
             settingsDataManager = settingsDataManager,
             nabuUserSync = nabuUserSync,
             payloadDataManager = payloadDataManager
@@ -78,7 +78,7 @@ class ProfileInteractorTest {
     fun `When loadProfile success then fetchWalletSettings method should get called`() {
         val settings = mock<WalletSettingsService.UserInfoSettings>()
 
-        whenever(settingsDataManager.fetchWalletSettings(prefs.walletGuid, prefs.sharedKey))
+        whenever(settingsDataManager.fetchWalletSettings(authPrefs.walletGuid, authPrefs.sharedKey))
             .thenReturn(Single.just(settings))
 
         val observer = interactor.fetchProfileSettings().test()
@@ -86,7 +86,7 @@ class ProfileInteractorTest {
             it == settings
         }
 
-        verify(settingsDataManager).fetchWalletSettings(prefs.walletGuid, prefs.sharedKey)
+        verify(settingsDataManager).fetchWalletSettings(authPrefs.walletGuid, authPrefs.sharedKey)
 
         verifyNoMoreInteractions(settingsDataManager)
     }

@@ -34,7 +34,7 @@
         android:id="@+id/verify_code"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/profile_verify_code"
+        android:text="@string/code_verification_verify_code"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

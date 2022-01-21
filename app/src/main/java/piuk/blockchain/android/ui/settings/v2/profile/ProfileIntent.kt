@@ -194,19 +194,4 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
                 error = ProfileError.None
             )
     }
-
-    data class VerifyPhoneNumber(val code: String) : ProfileIntent() {
-        override fun reduce(oldState: ProfileState): ProfileState =
-            oldState.copy(
-                isLoading = true
-            )
-    }
-
-    object VerifyPhoneNumberFailed : ProfileIntent() {
-        override fun reduce(oldState: ProfileState): ProfileState =
-            oldState.copy(
-                error = ProfileError.VerifyPhoneError,
-                isLoading = false
-            )
-    }
 }

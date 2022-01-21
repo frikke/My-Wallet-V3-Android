@@ -6,7 +6,6 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
@@ -359,50 +358,6 @@ class ProfileModelTest {
             it == ProfileState(
                 isLoading = false,
                 error = ProfileError.ResendSmsError
-            )
-        }
-    }
-
-    @Test
-    fun `when VerifyPhone is successfully then no error is set`() {
-        val code = "1234AB"
-
-        whenever(interactor.verifyPhoneNumber(code))
-            .thenReturn(Completable.complete())
-
-        val testState = model.state.test()
-        model.process(ProfileIntent.VerifyPhoneNumber(code))
-
-        testState
-            .assertValueAt(0) {
-                it == ProfileState()
-            }.assertValueAt(1) {
-                it == ProfileState(
-                    isLoading = true
-                )
-            }
-    }
-
-    @Test
-    fun `when VerifyPhone fails then state should contain VerifyPhoneError`() {
-        val code = "1234AB"
-
-        whenever(interactor.verifyPhoneNumber(code = code))
-            .thenReturn(Completable.error { Throwable() })
-
-        val testState = model.state.test()
-        model.process(ProfileIntent.VerifyPhoneNumber(code))
-
-        testState.assertValueAt(0) {
-            it == ProfileState()
-        }.assertValueAt(1) {
-            it == ProfileState(
-                isLoading = true
-            )
-        }.assertValueAt(2) {
-            it == ProfileState(
-                isLoading = false,
-                error = ProfileError.VerifyPhoneError
             )
         }
     }

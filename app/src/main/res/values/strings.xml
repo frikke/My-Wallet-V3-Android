@@ -2580,13 +2580,18 @@
     <string name="profile_verify_email">Verify Email</string>
     <string name="profile_verify_phone">Verify Phone</string>
     <string name="profile_send_text">Send Text</string>
-    <string name="profile_re_send_text">Resend Text</string>
     <string name="profile_hint_phone">Enter Phone Number</string>
     <string name="profile_update">Update</string>
-    <string name="profile_verify_code">Verify Code</string>
-    <string name="profile_enter_code">Enter Verification Code</string>
+
     <string name="profile_verification_code_error">Verification code failed</string>
     <string name="profile_resend_sms_error">Resending SMS failed</string>
+
+    <!-- Code SMS Verification -->
+    <string name="code_verification_resent_sms">A new code has been sent</string>
+    <string name="code_verification_enter">Enter Verification Code</string>
+    <string name="code_verification_re_send_text">Resend Text</string>
+    <string name="code_verification_verify_code">Verify Code</string>
+    <string name="code_verification_placeholder">-----</string>
 
     <!-- Notifications screen -->
     <string name="notifications_toolbar">Notifications</string>

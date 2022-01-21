@@ -21,6 +21,5 @@ enum class ProfileError {
     ResendEmailError,
     SavePhoneError,
     ResendSmsError,
-    VerifyPhoneError,
     None
 }

@@ -107,20 +107,6 @@ class ProfileModel(
                         }
                     )
             }
-            is ProfileIntent.VerifyPhoneNumber -> {
-                interactor.verifyPhoneNumber(
-                    code = intent.code
-                ).trackProgress(activityIndicator)
-                    .subscribeBy(
-                        onComplete = {
-                            process(ProfileIntent.LoadProfile)
-                        },
-                        onError = {
-                            Timber.e("VerifyPhoneNumber failure " + it)
-                            process(ProfileIntent.VerifyPhoneNumberFailed)
-                        }
-                    )
-            }
             is ProfileIntent.SaveEmailFailed,
             is ProfileIntent.SaveEmailSucceeded,
             is ProfileIntent.SavePhoneNumberSucceeded,
@@ -131,7 +117,6 @@ class ProfileModel(
             is ProfileIntent.ResendEmailFailed,
             is ProfileIntent.ResendCodeSMSSucceeded,
             is ProfileIntent.ResendCodeSMSFailed,
-            is ProfileIntent.VerifyPhoneNumberFailed,
             is ProfileIntent.LoadProfileSucceeded,
             is ProfileIntent.LoadProfileFailed,
             is ProfileIntent.ClearErrors -> null
