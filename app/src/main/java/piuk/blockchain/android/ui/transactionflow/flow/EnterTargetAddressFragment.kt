@@ -12,6 +12,11 @@ import androidx.core.content.ContextCompat
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.viewextensions.getTextString
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -33,11 +38,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetAddressSheetState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetSelectionCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
-import piuk.blockchain.android.util.getTextString
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAddressBinding>() {

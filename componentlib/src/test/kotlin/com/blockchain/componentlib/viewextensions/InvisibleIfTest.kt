@@ -1,4 +1,4 @@
-package piuk.blockchain.android.util
+package com.blockchain.componentlib.viewextensions
 
 import android.view.View
 import com.nhaarman.mockitokotlin2.mock

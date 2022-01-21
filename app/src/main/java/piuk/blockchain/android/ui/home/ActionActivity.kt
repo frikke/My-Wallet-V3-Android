@@ -10,6 +10,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
 import piuk.blockchain.android.ui.base.showFragment
@@ -17,8 +19,6 @@ import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
 import piuk.blockchain.android.ui.upsell.UpsellHost
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, UpsellHost, SwapFragment.Host {
 

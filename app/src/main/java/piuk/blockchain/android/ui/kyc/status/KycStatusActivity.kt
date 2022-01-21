@@ -8,6 +8,9 @@ import androidx.constraintlayout.widget.ConstraintSet
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.px
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -22,9 +25,6 @@ import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.px
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 

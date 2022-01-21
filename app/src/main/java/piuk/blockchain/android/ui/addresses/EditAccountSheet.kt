@@ -14,6 +14,8 @@ import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.WalletAnalytics
 import com.google.zxing.WriterException
@@ -29,9 +31,7 @@ import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {

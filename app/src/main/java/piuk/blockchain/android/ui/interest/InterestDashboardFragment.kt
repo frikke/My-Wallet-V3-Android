@@ -15,6 +15,8 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -33,8 +35,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentInterestDashboardBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class InterestDashboardFragment : Fragment() {

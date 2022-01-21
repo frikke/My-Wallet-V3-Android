@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
 import org.json.JSONObject
@@ -21,7 +22,6 @@ import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
-import piuk.blockchain.android.util.ViewUtils
 
 class PasswordRequiredActivity :
     MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),
@@ -127,7 +127,7 @@ class PasswordRequiredActivity :
         guid: String,
         password: String
     ) {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
 
         val dialog = getTwoFactorDialog(
             this, authType,

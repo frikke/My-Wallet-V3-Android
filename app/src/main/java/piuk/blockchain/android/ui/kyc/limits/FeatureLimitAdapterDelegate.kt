@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.invisibleIf
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.core.limits.TxLimitPeriod
@@ -23,8 +25,6 @@ import piuk.blockchain.android.ui.adapters.DelegationDiffAdapter
 import piuk.blockchain.android.urllinks.LIMITS_SUPPORT_CENTER
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.invisibleIf
-import piuk.blockchain.android.util.visibleIf
 
 class FeatureLimitAdapterDelegate(
     private val onHeaderCtaClicked: (Header) -> Unit

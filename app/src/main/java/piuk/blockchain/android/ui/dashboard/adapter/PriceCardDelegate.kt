@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
@@ -13,7 +14,6 @@ import piuk.blockchain.android.ui.dashboard.PricesItem
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.format
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.setOnClickListenerDebounced
 
 class PriceCardDelegate<in T>(
     private val prefs: CurrencyPrefs,

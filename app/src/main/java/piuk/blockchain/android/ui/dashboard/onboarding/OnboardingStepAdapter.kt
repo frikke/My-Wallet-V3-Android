@@ -7,12 +7,12 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.px
+import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemOnboardingStepBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.px
-import piuk.blockchain.android.util.visibleIf
 
 class OnboardingStepAdapter(
     private val onStepClicked: (CompletableDashboardOnboardingStep) -> Unit

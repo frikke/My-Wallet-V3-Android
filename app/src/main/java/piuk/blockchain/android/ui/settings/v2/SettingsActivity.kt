@@ -7,6 +7,7 @@ import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
@@ -26,7 +27,6 @@ import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.settings.SettingsFragment
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
-import piuk.blockchain.android.util.visibleIf
 
 class SettingsActivity : BlockchainActivity() {
 

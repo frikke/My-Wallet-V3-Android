@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import java.util.Locale
@@ -17,7 +18,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyIntent
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColours
 
 class RecurringBuySuccessfulFragment :

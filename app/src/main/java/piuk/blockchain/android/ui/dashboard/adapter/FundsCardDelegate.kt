@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visibleIf
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
@@ -13,9 +15,6 @@ import piuk.blockchain.android.databinding.ItemDashboardFundsParentBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.model.FiatAssetState
 import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
-import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visibleIf
 
 class FundsCardDelegate<in T>(
     private val selectedFiat: Currency,

@@ -11,6 +11,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
@@ -31,7 +32,6 @@ import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.complete.ApplicationCompleteFragment
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirections
-import piuk.blockchain.android.util.invisibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 

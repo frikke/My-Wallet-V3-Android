@@ -4,11 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import info.blockchain.balance.FiatCurrency
 import kotlin.properties.Delegates
 import piuk.blockchain.android.databinding.CurrencySelectionItemBinding
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class CurrenciesAdapter(
     private val showSectionDivider: Boolean = false,

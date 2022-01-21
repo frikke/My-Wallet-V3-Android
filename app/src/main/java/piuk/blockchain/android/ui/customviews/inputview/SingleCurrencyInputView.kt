@@ -5,6 +5,8 @@ import android.text.Editable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
@@ -18,8 +20,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
     ConstraintLayout(context, attrs),

@@ -10,6 +10,8 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.Money
@@ -27,8 +29,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class AccountInfoCrypto @JvmOverloads constructor(

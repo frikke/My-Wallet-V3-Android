@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
@@ -17,8 +19,6 @@ import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewAccountGroupOverviewBinding
 import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.android.util.invisible
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class AccountInfoGroup @JvmOverloads constructor(

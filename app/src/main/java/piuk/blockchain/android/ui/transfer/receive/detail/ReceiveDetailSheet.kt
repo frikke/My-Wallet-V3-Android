@@ -14,6 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.RequestAnalyticsEvents
 import org.koin.android.ext.android.inject
@@ -27,11 +31,7 @@ import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveInfoView
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveMemoView
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 internal class ReceiveDetailSheet :
     MviBottomSheet<ReceiveDetailModel, ReceiveDetailIntent, ReceiveDetailState, DialogReceiveBinding>() {

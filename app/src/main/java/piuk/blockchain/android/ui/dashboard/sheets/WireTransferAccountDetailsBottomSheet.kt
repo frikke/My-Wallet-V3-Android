@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -26,8 +28,6 @@ import piuk.blockchain.android.simplebuy.linkBankFieldCopied
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.urllinks.MODULAR_TERMS_AND_CONDITIONS
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetLinkBankAccountBinding>() {

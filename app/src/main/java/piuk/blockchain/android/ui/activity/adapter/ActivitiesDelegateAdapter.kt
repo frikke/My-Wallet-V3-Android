@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.activity.adapter
 import android.widget.TextView
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CryptoActivitySummaryItem
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Currency
@@ -14,7 +15,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class ActivitiesDelegateAdapter(

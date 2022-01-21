@@ -7,6 +7,8 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.FiatActivitySummaryItem
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.preferences.CurrencyPrefs
@@ -19,9 +21,7 @@ import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setTransactionHasFailed
-import piuk.blockchain.android.util.visible
 
 class CustodialFiatActivityItemDelegate<in T>(
     private val prefs: CurrencyPrefs,

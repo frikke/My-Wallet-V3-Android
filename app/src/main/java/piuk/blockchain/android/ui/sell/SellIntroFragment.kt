@@ -16,6 +16,8 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.trackProgress
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
@@ -46,8 +48,6 @@ import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class SellIntroFragment : ViewPagerFragment() {
     interface SellIntroHost {

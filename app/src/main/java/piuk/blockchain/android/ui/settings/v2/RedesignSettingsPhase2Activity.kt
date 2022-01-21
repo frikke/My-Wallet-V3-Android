@@ -24,6 +24,10 @@ import com.blockchain.componentlib.tablerow.BalanceTableRowView
 import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.goneIf
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
@@ -58,10 +62,6 @@ import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.goneIf
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class RedesignSettingsPhase2Activity :
     MviActivity<SettingsModel, SettingsIntent, SettingsState, ActivityRedesignPhase2SettingsBinding>(),

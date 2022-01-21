@@ -15,6 +15,9 @@ import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -35,13 +38,10 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.BackNavigationState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
 import piuk.blockchain.android.ui.transactionflow.transactionFlowActivityScope
-import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getTarget
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.putTarget
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class TransactionFlowActivity :
@@ -190,11 +190,11 @@ class TransactionFlowActivity :
                     model.process(TransactionIntent.ReturnToPreviousStep)
                 }
                 BackNavigationState.ResetPendingTransaction -> {
-                    ViewUtils.hideKeyboard(this)
+                    hideKeyboard()
                     model.process(TransactionIntent.InvalidateTransaction)
                 }
                 BackNavigationState.ResetPendingTransactionKeepingTarget -> {
-                    ViewUtils.hideKeyboard(this)
+                    hideKeyboard()
                     model.process(TransactionIntent.InvalidateTransactionKeepingTarget)
                 }
                 BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)

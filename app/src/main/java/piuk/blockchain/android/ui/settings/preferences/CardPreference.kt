@@ -9,6 +9,9 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import java.text.SimpleDateFormat
@@ -16,10 +19,7 @@ import java.util.Date
 import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.icon
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.loadInterMedium
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class CardPreference(
     private val card: PaymentMethod? = null,

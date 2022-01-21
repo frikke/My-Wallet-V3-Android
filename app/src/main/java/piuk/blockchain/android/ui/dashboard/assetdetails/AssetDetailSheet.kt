@@ -15,6 +15,10 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.viewextensions.configureWithPinnedView
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -52,12 +56,8 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAd
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
-import piuk.blockchain.android.util.configureWithPinnedView
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.setOnTabSelectedListener
-import piuk.blockchain.android.util.visible
 
 class AssetDetailSheet :
     MviBottomSheet<

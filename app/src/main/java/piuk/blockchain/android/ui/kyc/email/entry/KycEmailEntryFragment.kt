@@ -12,13 +12,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.EmailVerificationArgs
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAddEmailBinding
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.settings.Email
 
 class KycEmailEntryFragment :

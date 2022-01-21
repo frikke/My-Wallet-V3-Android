@@ -20,6 +20,8 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.blockchain.coincore.Coincore
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -32,9 +34,7 @@ import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewExpandingCurrencyHeaderBinding
 import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.setAnimationListener
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ExpandableCurrencyHeader @JvmOverloads constructor(

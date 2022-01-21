@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.visible
 import info.blockchain.balance.Money
 import piuk.blockchain.android.databinding.FundsLockedSummaryItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.util.visible
 
 class AccountLocksDelegate(
     private val onExtraInfoAccountClicked: (AccountLocks) -> Unit

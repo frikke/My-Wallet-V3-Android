@@ -42,6 +42,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.componentlib.viewextensions.windowRect
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.DecodeHintType
 import com.google.zxing.Result
@@ -59,9 +62,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.android.util.windowRect
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 

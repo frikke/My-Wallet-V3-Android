@@ -15,6 +15,8 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
 import info.blockchain.balance.AssetInfo
@@ -49,8 +51,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ExpandableTxFlowWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBinding>(), TransactionFlowInfoHost {

@@ -5,6 +5,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
 import info.blockchain.balance.CurrencyType
@@ -16,8 +18,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visibleIf
 
 class BalanceAndFeeView @JvmOverloads constructor(
     ctx: Context,

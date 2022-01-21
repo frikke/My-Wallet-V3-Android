@@ -10,6 +10,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.extensions.nextAfterOrNull
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
@@ -44,8 +46,6 @@ import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -314,7 +314,7 @@ class KycHomeAddressFragment :
 
     private fun closeKeyboard() {
         (requireActivity() as? AppCompatActivity)?.let {
-            ViewUtils.hideKeyboard(it)
+            it.hideKeyboard()
         }
     }
 

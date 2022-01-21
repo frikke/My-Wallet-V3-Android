@@ -11,6 +11,7 @@ import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
@@ -26,7 +27,6 @@ import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.visible
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 

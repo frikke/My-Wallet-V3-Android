@@ -44,6 +44,9 @@ import com.blockchain.biometrics.BiometricsType
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment.Companion.BOTTOM_SHEET
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.enviroment.Environment
@@ -110,8 +113,6 @@ import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.android.util.RootUtil
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -938,7 +939,7 @@ class SettingsFragment :
         val dialog = AlertDialog.Builder(settingsActivity, R.style.AlertDialogStyle)
             .setTitle(R.string.verify_mobile)
             .setMessage(R.string.verify_sms_summary)
-            .setView(ViewUtils.getAlertDialogPaddedView(requireContext(), editText))
+            .setView(requireContext().getAlertDialogPaddedView(editText))
             .setCancelable(false)
             .setPositiveButton(R.string.verify, null)
             .setNegativeButton(android.R.string.cancel, null)
@@ -954,7 +955,7 @@ class SettingsFragment :
                 if (codeS.isNotEmpty()) {
                     settingsPresenter.verifySms(codeS)
                     dialog.dismiss()
-                    ViewUtils.hideKeyboard(settingsActivity)
+                    settingsActivity.hideKeyboard()
                 }
             }
         }

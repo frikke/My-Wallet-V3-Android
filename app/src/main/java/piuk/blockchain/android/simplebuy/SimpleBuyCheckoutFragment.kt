@@ -16,6 +16,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
@@ -37,10 +41,6 @@ import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setOnClickListenerDebounced
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuyCheckoutFragment :

@@ -8,6 +8,11 @@ import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -22,10 +27,6 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(), EmailEntryHost {
 
@@ -189,7 +190,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             InputType.TYPE_TEXT_VARIATION_PASSWORD or
             InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 
-        val frameLayout = ViewUtils.getAlertDialogPaddedView(this, editText)
+        val frameLayout = getAlertDialogPaddedView(editText)
 
         AlertDialog.Builder(this, R.style.AlertDialogStyle)
             .setTitle(R.string.second_password_dlg_title)
@@ -197,7 +198,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             .setView(frameLayout)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                ViewUtils.hideKeyboard(this)
+                hideKeyboard()
                 model.process(LoaderIntents.DecryptAndSetupMetadata(editText.text.toString()))
             }
             .setOnDismissListener {

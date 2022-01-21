@@ -5,6 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.FeatureAccess
@@ -32,9 +35,6 @@ import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -178,7 +178,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     }
 
     override fun goToCheckOutScreen(addToBackStack: Boolean) {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(R.id.content_frame, SimpleBuyCheckoutFragment(), SimpleBuyCheckoutFragment::class.simpleName)

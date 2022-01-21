@@ -11,6 +11,9 @@ import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.isVisible
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.notifications.analytics.Analytics
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -18,9 +21,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAnnouncementMiniBinding
 import piuk.blockchain.android.databinding.ItemAnnouncementStandardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.isVisible
-import piuk.blockchain.android.util.visible
 
 class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
     AdapterDelegate<T> {

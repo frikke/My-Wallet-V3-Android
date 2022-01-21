@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.toFiat
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import org.koin.core.component.KoinComponent
@@ -18,8 +20,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class SwapInfoHeaderView @JvmOverloads constructor(
     ctx: Context,

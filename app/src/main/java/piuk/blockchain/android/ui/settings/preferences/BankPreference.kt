@@ -9,13 +9,13 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.bumptech.glide.Glide
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.settings.BankItem
 import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.loadInterMedium
-import piuk.blockchain.android.util.visible
 
 class BankPreference(
     fiatCurrency: String,

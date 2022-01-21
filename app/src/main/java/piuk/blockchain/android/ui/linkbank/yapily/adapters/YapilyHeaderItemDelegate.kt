@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.linkbank.yapily.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.databinding.ItemYapilyTermsHeaderBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.util.visibleIf
 
 class YapilyHeaderItemDelegate : AdapterDelegate<YapilyPermissionItem> {
     override fun isForViewType(items: List<YapilyPermissionItem>, position: Int): Boolean =

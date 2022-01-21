@@ -6,10 +6,10 @@ import android.text.InputType
 import android.text.TextWatcher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.android.util.ViewUtils
 
 internal fun showUpdateEmailDialog(
     activity: Context,
@@ -28,7 +28,7 @@ internal fun showUpdateEmailDialog(
     val alertDialog = AlertDialog.Builder(activity, R.style.AlertDialogStyle)
         .setTitle(R.string.email)
         .setMessage(R.string.verify_email2)
-        .setView(ViewUtils.getAlertDialogPaddedView(activity, editText))
+        .setView(activity.getAlertDialogPaddedView(editText))
         .setCancelable(false)
         .setPositiveButton(R.string.update) { _, _ ->
             val newEmail = editText.text.toString()

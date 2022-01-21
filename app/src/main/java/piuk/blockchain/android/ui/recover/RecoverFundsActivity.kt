@@ -8,6 +8,7 @@ import androidx.annotation.StringRes
 import com.blockchain.annotations.CommonCode
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import java.util.Locale
 import piuk.blockchain.android.R
@@ -16,7 +17,6 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.util.ViewUtils
 
 internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverFundsPresenter>(), RecoverFundsView {
 
@@ -62,7 +62,7 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
     }
 
     override fun startPinEntryActivity() {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         PinEntryActivity.startAfterWalletCreation(this)
     }
 

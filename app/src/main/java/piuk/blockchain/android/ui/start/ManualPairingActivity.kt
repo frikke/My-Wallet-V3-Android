@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
 import com.google.android.material.textfield.TextInputEditText
@@ -26,7 +27,6 @@ import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.ViewUtils
 
 class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresenter>(), ManualPairingView {
 
@@ -108,7 +108,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         password: String
     ) {
 
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
 
         val dialog = getTwoFactorDialog(this, authType, walletPrefs, positiveAction = {
             presenter.submitTwoFactorCode(

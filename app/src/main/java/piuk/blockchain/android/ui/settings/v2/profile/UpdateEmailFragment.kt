@@ -11,6 +11,7 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.viewextensions.visibleIf
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
@@ -20,7 +21,6 @@ import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.android.util.visibleIf
 
 class UpdateEmailFragment :
     MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdateEmailBinding>(),

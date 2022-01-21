@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.navigation.NavDirections
 import com.blockchain.activities.StartOnboarding
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -25,7 +26,6 @@ import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import timber.log.Timber

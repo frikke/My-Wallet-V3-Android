@@ -8,13 +8,13 @@ import android.view.LayoutInflater
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.bumptech.glide.Glide
 import java.io.Serializable
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.VerifyIdentityBenefitsLayoutBinding
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visibleIf
 
 class VerifyIdentityBenefitsView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
 

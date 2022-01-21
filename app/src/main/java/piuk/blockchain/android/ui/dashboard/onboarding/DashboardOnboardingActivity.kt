@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -35,7 +36,6 @@ import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBot
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
-import piuk.blockchain.android.util.visibleIf
 
 class DashboardOnboardingActivity :
     MviActivity<

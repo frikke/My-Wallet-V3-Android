@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.LinkedBank
 import com.blockchain.enviroment.EnvironmentConfig
@@ -47,8 +49,6 @@ import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class SimpleBuyPaymentFragment :

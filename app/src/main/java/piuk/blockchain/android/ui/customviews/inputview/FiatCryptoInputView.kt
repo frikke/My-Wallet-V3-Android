@@ -5,6 +5,10 @@ import android.text.Editable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.viewextensions.afterMeasured
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -27,10 +31,6 @@ import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.afterMeasured
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class FiatCryptoInputView(
     context: Context,

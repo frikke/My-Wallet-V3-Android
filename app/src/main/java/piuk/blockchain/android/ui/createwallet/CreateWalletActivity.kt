@@ -14,6 +14,10 @@ import com.blockchain.api.services.Geolocation
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.getTextString
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.CountryIso
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
@@ -37,10 +41,6 @@ import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.US
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.getTextString
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -225,7 +225,7 @@ class CreateWalletActivity :
     }
 
     override fun startPinEntryActivity() {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         PinEntryActivity.startAfterWalletCreation(this)
     }
 
@@ -301,7 +301,7 @@ class CreateWalletActivity :
                 WalletCreationAnalytics.StateSelectedOnSignUp(item.code)
             }
         }
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
     }
 
     private fun changeStatesSpinnerVisibility(showStateSpinner: Boolean) {

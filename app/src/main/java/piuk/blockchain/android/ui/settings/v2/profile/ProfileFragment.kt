@@ -12,6 +12,8 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -27,8 +29,6 @@ import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class ProfileFragment :
     MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentProfileBinding>(),

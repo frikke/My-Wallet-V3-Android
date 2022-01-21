@@ -3,11 +3,11 @@ package piuk.blockchain.android.ui.dashboard.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.visible
 import info.blockchain.balance.Money
 import piuk.blockchain.android.databinding.FundsLockedSummaryItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.model.Locks
-import piuk.blockchain.android.util.visible
 
 class FundsLockedDelegate(
     private val onHoldAmountClicked: (Locks) -> Unit

@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import java.io.Serializable
 import piuk.blockchain.android.BuildConfig
@@ -13,10 +16,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetExchangeConnectBinding
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.urllinks.URL_THE_PIT_LAUNCH_SUPPORT
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.launchUrlInBrowser
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class ExchangeConnectionSheet : ErrorBottomDialog<DialogSheetExchangeConnectBinding>() {
 

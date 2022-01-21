@@ -20,6 +20,7 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmXlmMemoBinding
 import piuk.blockchain.android.ui.activity.detail.adapter.INPUT_FIELD_FLAGS
@@ -30,7 +31,6 @@ import piuk.blockchain.android.urllinks.URL_XLM_MIN_BALANCE
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.visible
 
 class ConfirmXlmMemoItemDelegate<in T>(
     private val model: TransactionModel

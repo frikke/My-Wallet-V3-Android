@@ -5,8 +5,8 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.databinding.ViewStatusLineInfoBinding
-import piuk.blockchain.android.util.visibleIf
 
 class StatusInfoLine @JvmOverloads constructor(
     ctx: Context,

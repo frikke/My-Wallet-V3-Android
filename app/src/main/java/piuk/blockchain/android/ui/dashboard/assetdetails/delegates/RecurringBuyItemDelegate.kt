@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.assetdetails.delegates
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.utils.toFormattedDateWithoutYear
@@ -13,7 +14,6 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
-import piuk.blockchain.android.util.visibleIf
 
 class RecurringBuyItemDelegate(
     private val onRecurringBuyClicked: (RecurringBuy) -> Unit

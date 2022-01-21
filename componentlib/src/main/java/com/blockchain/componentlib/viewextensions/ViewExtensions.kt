@@ -1,15 +1,21 @@
-package piuk.blockchain.android.util
+package com.blockchain.componentlib.viewextensions
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.res.Resources
 import android.graphics.Rect
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.FrameLayout
+import androidx.annotation.IntDef
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
-import timber.log.Timber
 
 // In window/screen co-ordinates
 val View.windowRect: Rect
@@ -126,7 +132,7 @@ fun EditText.disableSoftKeyboard() {
     try {
         showSoftInputOnFocus = false
     } catch (e: Exception) {
-        Timber.e(e)
+        e.printStackTrace()
     }
 }
 
@@ -194,3 +200,59 @@ fun View.afterMeasured(f: (View) -> Unit) {
         }
     })
 }
+
+val Int.px: Int
+    get() = (this * Resources.getSystem().displayMetrics.density).toInt()
+
+val Int.dp: Int
+    get() = (this / Resources.getSystem().displayMetrics.density).toInt()
+
+/**
+ * Hides the keyboard in a specified [AppCompatActivity]
+ */
+fun Activity.hideKeyboard() {
+    val view = this.currentFocus
+    if (view != null) {
+        val imm = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+}
+
+/**
+ * Converts dp unit to equivalent pixels, depending on device density.
+ *
+ * @param dp A value in dp to convert to pixels
+ * @param context Context to get resources and device specific display metrics
+ * @return A float value to represent px equivalent to dp depending on device density
+ */
+private fun convertDpToPixel(dp: Float, context: Context): Float {
+    val resources = context.resources
+    val metrics = resources.displayMetrics
+    return dp * (metrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
+}
+
+/**
+ * Returns a properly padded FrameLayout which wraps a [View]. Once wrapped,
+ * the view will conform to the Material Design guidelines for spacing within a Dialog.
+ *
+ * @param view A [View] that you wish to wrap
+ * @return A correctly padded FrameLayout containing the AppCompatEditText
+ */
+fun Context.getAlertDialogPaddedView(view: View?): FrameLayout {
+    val frameLayout = FrameLayout(this)
+    val params = FrameLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+    )
+    val marginInPixels = convertDpToPixel(20f, this).toInt()
+    params.setMargins(marginInPixels, 0, marginInPixels, 0)
+    frameLayout.addView(view, params)
+    return frameLayout
+}
+
+/**
+ * These annotations are hidden in the Android Jar for some reason. Defining them here instead
+ * for use in View interfaces etc.
+ */
+@IntDef(View.VISIBLE, View.INVISIBLE, View.GONE)
+@kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+annotation class Visibility

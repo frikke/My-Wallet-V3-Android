@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
 import org.koin.android.ext.android.inject
@@ -19,8 +21,6 @@ import piuk.blockchain.android.databinding.FragmentRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.urllinks.DOLLAR_COST_AVERAGING
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RecurringBuyOnBoardingFragment : Fragment() {

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.activity.detail.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -40,7 +41,6 @@ import piuk.blockchain.android.ui.activity.detail.TransactionId
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.visible
 
 class ActivityDetailInfoItemDelegate<in T>(
     private val onLongClick: (String) -> Unit

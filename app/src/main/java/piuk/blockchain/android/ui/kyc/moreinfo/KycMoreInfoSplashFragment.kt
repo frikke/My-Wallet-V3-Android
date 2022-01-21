@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.blockchain.componentlib.viewextensions.inflate
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -14,7 +15,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
-import piuk.blockchain.android.util.inflate
 import piuk.blockchain.android.util.throttledClicks
 import timber.log.Timber
 

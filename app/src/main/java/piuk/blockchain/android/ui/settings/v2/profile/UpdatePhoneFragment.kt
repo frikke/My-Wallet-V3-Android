@@ -10,6 +10,7 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.mukesh.countrypicker.CountryPicker
 import info.blockchain.wallet.api.data.Settings
 import java.util.Locale
@@ -22,7 +23,6 @@ import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.android.util.visibleIf
 
 class UpdatePhoneFragment :
     MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdatePhoneBinding>(),

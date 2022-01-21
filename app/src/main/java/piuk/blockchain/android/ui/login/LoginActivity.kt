@@ -8,6 +8,9 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
@@ -29,9 +32,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
@@ -129,7 +129,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     val intent = ManualPairingActivity.newInstance(this, BuildConfig.PLAY_STORE_DEMO_WALLET_ID)
                     startActivity(intent)
                 } else {
-                    ViewUtils.hideKeyboard(this@LoginActivity)
+                    this@LoginActivity.hideKeyboard()
                     verifyReCaptcha(emailInputText.toString())
                 }
             }

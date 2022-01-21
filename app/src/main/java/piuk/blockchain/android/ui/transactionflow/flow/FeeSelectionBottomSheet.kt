@@ -14,6 +14,9 @@ import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.FeeState
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
@@ -24,9 +27,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class FeeSelectionBottomSheet :
     MviBottomSheet<TransactionModel, TransactionIntent, TransactionState, DialogSheetFeeSelectionBinding>() {

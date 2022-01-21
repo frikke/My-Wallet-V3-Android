@@ -9,6 +9,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
@@ -27,9 +30,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.DepositOptionsState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.SourceSelectionCustomisations
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSelectorBinding>(), BankLinkingHost {
 

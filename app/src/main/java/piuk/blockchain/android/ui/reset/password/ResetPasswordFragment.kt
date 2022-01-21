@@ -10,6 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviActivity.Companion.start
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import org.koin.android.ext.android.inject
@@ -24,9 +27,6 @@ import piuk.blockchain.android.urllinks.FUNDS_RECOVERY_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class ResetPasswordFragment :
     MviFragment<ResetPasswordModel, ResetPasswordIntents, ResetPasswordState, FragmentPasswordResetBinding>() {

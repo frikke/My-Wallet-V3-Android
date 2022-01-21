@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.auth
 
 import androidx.annotation.StringRes
+import com.blockchain.componentlib.viewextensions.Visibility
 import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.util.ViewUtils
 
 interface PinEntryView : View {
 
@@ -37,7 +37,7 @@ interface PinEntryView : View {
 
     fun setTitleString(@StringRes title: Int)
 
-    fun setTitleVisibility(@ViewUtils.Visibility visibility: Int)
+    fun setTitleVisibility(@Visibility visibility: Int)
 
     fun clearPinBoxes()
 

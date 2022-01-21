@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.koin.scopedInject
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
@@ -29,7 +30,6 @@ import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
-import piuk.blockchain.android.util.getTextString
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy

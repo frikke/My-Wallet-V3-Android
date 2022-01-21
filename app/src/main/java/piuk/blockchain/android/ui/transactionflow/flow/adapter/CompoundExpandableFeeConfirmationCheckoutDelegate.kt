@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.goneIf
+import com.blockchain.componentlib.viewextensions.visibleIf
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isErc20
 import piuk.blockchain.android.R
@@ -19,8 +21,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.goneIf
-import piuk.blockchain.android.util.visibleIf
 
 class CompoundExpandableFeeConfirmationCheckoutDelegate(private val mapper: TxConfirmReadOnlyMapperCheckout) :
     AdapterDelegate<TxConfirmationValue> {

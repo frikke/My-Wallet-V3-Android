@@ -14,6 +14,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
@@ -41,11 +44,8 @@ import piuk.blockchain.android.urllinks.RESET_2FA
 import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.clearErrorState
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setErrorState
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
@@ -256,7 +256,7 @@ class LoginAuthActivity :
     }
 
     private fun clearKeyboardAndFinish() {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         finish()
     }
 

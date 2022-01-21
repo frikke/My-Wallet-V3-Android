@@ -8,6 +8,9 @@ import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.extensions.exhaustive
@@ -19,9 +22,6 @@ import piuk.blockchain.android.databinding.ActivityKycLimitsBinding
 import piuk.blockchain.android.ui.adapters.Diffable
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class KycLimitsActivity :
     MviActivity<KycLimitsModel, KycLimitsIntent, KycLimitsState, ActivityKycLimitsBinding>(),

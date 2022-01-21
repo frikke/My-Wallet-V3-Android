@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.koin.scopedInject
 import java.text.DateFormat
 import kotlin.math.max
@@ -21,7 +22,6 @@ import piuk.blockchain.android.databinding.ItemAirdropStatusBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setOnClickListenerDebounced
 
 class AirdropCentreActivity :
     MvpActivity<AirdropCentreView, AirdropCentrePresenter>(),

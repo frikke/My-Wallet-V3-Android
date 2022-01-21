@@ -8,14 +8,14 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TrendingPair
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemTrendingPairRowBinding
 import piuk.blockchain.android.databinding.ViewTrendingPairsBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class TrendingPairsView(
     context: Context,

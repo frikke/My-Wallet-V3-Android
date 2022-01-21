@@ -50,4 +50,11 @@ dependencies {
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling
+
+    // Unit Tests
+    testImplementation Libraries.junit
+    testImplementation Libraries.mockito
+    testImplementation(Libraries.mockitoKotlin) {
+        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
+    }
 }

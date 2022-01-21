@@ -5,8 +5,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.databinding.CopyableTextFormItemBinding
-import piuk.blockchain.android.util.visibleIf
 
 class CopyableTextFormItem @JvmOverloads constructor(
     context: Context,

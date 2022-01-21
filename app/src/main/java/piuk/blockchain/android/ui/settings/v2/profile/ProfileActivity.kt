@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import org.koin.core.scope.Scope
@@ -16,8 +18,6 @@ import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.USER_TIER
 import piuk.blockchain.android.ui.settings.v2.profileScope
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class ProfileActivity :

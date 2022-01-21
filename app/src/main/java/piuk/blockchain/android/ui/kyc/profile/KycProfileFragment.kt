@@ -9,6 +9,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.getTextString
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -36,8 +38,6 @@ import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.getTextString
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import timber.log.Timber
@@ -200,7 +200,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
 
     private fun onDateOfBirthClicked() {
         (requireActivity() as? AppCompatActivity)?.let {
-            ViewUtils.hideKeyboard(it)
+            it.hideKeyboard()
         }
 
         val calendar = Calendar.getInstance().apply { add(Calendar.YEAR, -18) }
