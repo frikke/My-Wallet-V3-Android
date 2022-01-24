@@ -12,6 +12,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemOnboardingStepBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
+import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.util.context
 
 class OnboardingStepAdapter(
@@ -50,7 +51,9 @@ class OnboardingStepViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(item: CompletableDashboardOnboardingStep, onClick: (CompletableDashboardOnboardingStep) -> Unit) {
         with(binding) {
-            binding.root.cardElevation = if (item.isCompleted) 0f else 2.px.toFloat()
+            binding.root.cardElevation =
+                if (item.state == DashboardOnboardingStepState.INCOMPLETE) 2.px.toFloat()
+                else 0f
             if (item.isCompleted) {
                 binding.root.setOnClickListener(null)
             } else {
@@ -60,20 +63,27 @@ class OnboardingStepViewHolder(
             icon.setBackgroundResource(item.step.iconRes)
 
             textSubtitle.setText(
-                if (item.isCompleted) R.string.dashboard_onboarding_step_complete
-                else item.step.subtitleRes
+                when (item.state) {
+                    DashboardOnboardingStepState.INCOMPLETE -> item.step.subtitleRes
+                    DashboardOnboardingStepState.PENDING -> R.string.dashboard_onboarding_step_pending
+                    DashboardOnboardingStepState.COMPLETE -> R.string.dashboard_onboarding_step_complete
+                }
             )
             textSubtitle.setTextColor(
                 ContextCompat.getColor(
                     context,
-                    if (item.isCompleted) R.color.paletteBaseSuccess
-                    else R.color.grey_600
+                    when (item.state) {
+                        DashboardOnboardingStepState.INCOMPLETE -> R.color.grey_600
+                        DashboardOnboardingStepState.PENDING -> R.color.grey_800
+                        DashboardOnboardingStepState.COMPLETE -> R.color.paletteBaseSuccess
+                    }
                 )
             )
             textTitle.setText(item.step.titleRes)
-            actionIcon.visibleIf { !item.isCompleted }
+            actionIcon.visibleIf { item.state == DashboardOnboardingStepState.INCOMPLETE }
+            progressAction.visibleIf { item.state == DashboardOnboardingStepState.PENDING }
             completedIcon.visibleIf { item.isCompleted }
-            if (!item.isCompleted) {
+            if (item.state == DashboardOnboardingStepState.INCOMPLETE) {
                 actionIcon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context, item.step.colorRes))
             }
         }

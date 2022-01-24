@@ -6,10 +6,13 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
+import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 
 data class DashboardOnboardingState(
     val steps: List<CompletableDashboardOnboardingStep> =
-        DashboardOnboardingStep.values().map { CompletableDashboardOnboardingStep(it, false) },
+        DashboardOnboardingStep.values().map {
+            CompletableDashboardOnboardingStep(it, DashboardOnboardingStepState.INCOMPLETE)
+        },
     val errorState: DashboardOnboardingError = DashboardOnboardingError.None,
     val navigationAction: DashboardOnboardingNavigationAction = DashboardOnboardingNavigationAction.None
 ) : MviState

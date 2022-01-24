@@ -25,15 +25,16 @@ class GetDashboardOnboardingStepsUseCase(
             Single.just(
                 DashboardOnboardingStep.values()
                     .map { step ->
-                        CompletableDashboardOnboardingStep(step = step, isCompleted = true)
+                        CompletableDashboardOnboardingStep(step = step, state = DashboardOnboardingStepState.COMPLETE)
                     }
             )
         } else {
             Single.zip(
                 isGoldVerified(),
+                isGoldPending(),
                 hasLinkedPaymentMethod(),
                 hasBoughtCrypto()
-            ) { isGoldVerified, hasLinkedPaymentMethod, hasBoughtCrypto ->
+            ) { isGoldVerified, isGoldPending, hasLinkedPaymentMethod, hasBoughtCrypto ->
                 if (isGoldVerified && hasLinkedPaymentMethod && hasBoughtCrypto) {
                     dashboardPrefs.isOnboardingComplete = true
                 }
@@ -41,10 +42,17 @@ class GetDashboardOnboardingStepsUseCase(
                     .map { step ->
                         CompletableDashboardOnboardingStep(
                             step = step,
-                            isCompleted = when (step) {
-                                DashboardOnboardingStep.UPGRADE_TO_GOLD -> isGoldVerified
-                                DashboardOnboardingStep.LINK_PAYMENT_METHOD -> hasLinkedPaymentMethod
-                                DashboardOnboardingStep.BUY -> hasBoughtCrypto
+                            state = when (step) {
+                                DashboardOnboardingStep.UPGRADE_TO_GOLD ->
+                                    if (isGoldVerified) DashboardOnboardingStepState.COMPLETE
+                                    else if (isGoldPending) DashboardOnboardingStepState.PENDING
+                                    else DashboardOnboardingStepState.INCOMPLETE
+                                DashboardOnboardingStep.LINK_PAYMENT_METHOD ->
+                                    if (hasLinkedPaymentMethod) DashboardOnboardingStepState.COMPLETE
+                                    else DashboardOnboardingStepState.INCOMPLETE
+                                DashboardOnboardingStep.BUY ->
+                                    if (hasBoughtCrypto) DashboardOnboardingStepState.COMPLETE
+                                    else DashboardOnboardingStepState.INCOMPLETE
                             }
                         )
                     }
@@ -52,6 +60,8 @@ class GetDashboardOnboardingStepsUseCase(
         }
 
     private fun isGoldVerified(): Single<Boolean> = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))
+
+    private fun isGoldPending(): Single<Boolean> = userIdentity.isKycPending(Tier.GOLD)
 
     private fun hasLinkedPaymentMethod(): Single<Boolean> = Single.zip(
         paymentsDataManager.getLinkedBanks().map { banks ->
@@ -66,7 +76,18 @@ class GetDashboardOnboardingStepsUseCase(
         tradeDataManager.isFirstTimeBuyer().map { isFirstTimeBuyer -> !isFirstTimeBuyer }
 }
 
-data class CompletableDashboardOnboardingStep(val step: DashboardOnboardingStep, val isCompleted: Boolean)
+data class CompletableDashboardOnboardingStep(
+    val step: DashboardOnboardingStep,
+    val state: DashboardOnboardingStepState
+) {
+    val isCompleted: Boolean = state == DashboardOnboardingStepState.COMPLETE
+}
+
+enum class DashboardOnboardingStepState {
+    INCOMPLETE,
+    PENDING,
+    COMPLETE
+}
 
 enum class DashboardOnboardingStep {
     UPGRADE_TO_GOLD,

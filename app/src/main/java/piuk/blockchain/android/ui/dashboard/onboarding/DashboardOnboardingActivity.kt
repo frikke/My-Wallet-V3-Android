@@ -29,6 +29,7 @@ import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.ActivityDashboardOnboardingBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
+import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.simplebuy.CurrencySelectionSheet
 import piuk.blockchain.android.simplebuy.PaymentMethodChooserBottomSheet
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -259,18 +260,19 @@ class DashboardOnboardingActivity :
         }
 
     private fun Intent.argInitialSteps(): List<CompletableDashboardOnboardingStep> {
-        val isCompleteArray = getBooleanArrayExtra(ARG_IS_COMPLETE)
+        val statesArray = getStringArrayExtra(ARG_INITIAL_STEPS_STATES)
 
         return DashboardOnboardingStep.values().mapIndexed { index, step ->
-            val isComplete = isCompleteArray?.getOrNull(index) ?: false
-            CompletableDashboardOnboardingStep(step, isComplete)
+            val state = statesArray?.getOrNull(index)?.let { DashboardOnboardingStepState.valueOf(it) }
+                ?: DashboardOnboardingStepState.INCOMPLETE
+            CompletableDashboardOnboardingStep(step, state)
         }
     }
 
     private fun Intent.argShowCloseButton(): Boolean = getBooleanExtra(ARG_SHOW_CLOSE_BUTTON, false)
 
     companion object {
-        private const val ARG_IS_COMPLETE = "ARG_IS_COMPLETE"
+        private const val ARG_INITIAL_STEPS_STATES = "ARG_INITIAL_STEPS_STATES"
         private const val ARG_SHOW_CLOSE_BUTTON = "ARG_SHOW_CLOSE_BUTTON"
         private const val RESULT_LAUNCH_BUY_FLOW = "RESULT_LAUNCH_BUY_FLOW"
 
@@ -280,7 +282,7 @@ class DashboardOnboardingActivity :
             showCloseButton: Boolean = false
         ): Intent = Intent(context, DashboardOnboardingActivity::class.java).apply {
             if (initialSteps.isNotEmpty()) {
-                putExtra(ARG_IS_COMPLETE, initialSteps.map { it.isCompleted }.toBooleanArray())
+                putExtra(ARG_INITIAL_STEPS_STATES, initialSteps.map { it.state.name }.toTypedArray())
                 putExtra(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             }
         }

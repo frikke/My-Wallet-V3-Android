@@ -2503,6 +2503,7 @@
     <string name="dashboard_onboarding_step_upgrade_to_gold">Verify Your ID</string>
     <string name="dashboard_onboarding_step_link_payment_method">Link a Bank or Card</string>
     <string name="dashboard_onboarding_step_link_buy">Buy Crypto</string>
+    <string name="dashboard_onboarding_step_pending">Processing…</string>
     <string name="dashboard_onboarding_step_complete">Complete</string>
     <string name="dashboard_onboarding_step_upgrade_to_gold_time">3 Minutes</string>
     <string name="dashboard_onboarding_step_link_payment_method_time">2 Minutes</string>

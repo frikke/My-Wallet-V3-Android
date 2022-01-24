@@ -48,6 +48,7 @@ import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
+import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
@@ -195,7 +196,7 @@ class PortfolioFragment :
                 onSuccess = { isEnabled ->
                     if (isEnabled) {
                         val steps = DashboardOnboardingStep.values().map { step ->
-                            CompletableDashboardOnboardingStep(step, false)
+                            CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.INCOMPLETE)
                         }
                         launchDashboardOnboarding(steps, showCloseButton = true)
                     }
