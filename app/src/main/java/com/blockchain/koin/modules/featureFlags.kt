@@ -3,6 +3,7 @@ package com.blockchain.koin.modules
 import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
+import com.blockchain.koin.landingCtaFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.pricingQuoteFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
@@ -41,6 +42,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_checkout_stripe_payments",
                 "Checkout And Stripe Payments"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(landingCtaFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_landing_cta",
+                "Landing CTA"
             )
         )
     }.bind(FeatureFlag::class)

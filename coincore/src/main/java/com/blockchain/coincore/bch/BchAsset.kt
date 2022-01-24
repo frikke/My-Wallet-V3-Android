@@ -14,7 +14,6 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -52,8 +51,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     crashLogger: CrashLogger,
     private val walletPreferences: WalletStatus,
     private val beNotifyUpdate: BackendNotificationUpdater,
-    identity: UserIdentity,
-    features: InternalFeatureFlagApi
+    identity: UserIdentity
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -64,8 +62,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ),
     NonCustodialSupport {
 
@@ -116,8 +113,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity,
-                    features = features
+                    identity = identity
                 )
             )
         )

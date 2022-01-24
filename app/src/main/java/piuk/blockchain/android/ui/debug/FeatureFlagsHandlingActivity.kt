@@ -5,10 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -27,7 +25,6 @@ import piuk.blockchain.androidcore.utils.PersistentPrefs
 class FeatureFlagsHandlingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLocalFeatureFlagsBinding
-    private val internalFlags: InternalFeatureFlagApi by inject()
     private val featureFlagHandler: FeatureFlagHandler by inject()
     private val compositeDisposable = CompositeDisposable()
     private val prefs: PersistentPrefs by inject()
@@ -64,20 +61,6 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
                 adapter = featuresAdapter
             }
             val parent = nestedParent
-            internalFlags.getAll().entries.forEachIndexed { index, flag ->
-                val switch = SwitchCompat(this@FeatureFlagsHandlingActivity)
-                switch.text = flag.key.readableName
-                switch.isChecked = flag.value
-                switch.setOnCheckedChangeListener { _, isChecked ->
-                    if (isChecked) {
-                        internalFlags.enable(flag.key)
-                    } else {
-                        internalFlags.disable(flag.key)
-                    }
-                }
-                // adding index specifically so flags show before all other items
-                parent.addView(switch, index + 1)
-            }
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
             btnResetWallet.setOnClickListener { onResetWallet() }
             btnResetAnnounce.setOnClickListener { onResetAnnounce() }

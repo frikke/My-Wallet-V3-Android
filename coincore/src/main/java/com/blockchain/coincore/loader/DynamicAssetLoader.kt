@@ -11,7 +11,6 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -52,7 +51,6 @@ internal class DynamicAssetLoader(
     private val pitLinking: PitLinking,
     private val crashLogger: CrashLogger,
     private val identity: UserIdentity,
-    private val features: InternalFeatureFlagApi,
     private val formatUtils: FormatUtilities
 ) : AssetLoader {
 
@@ -182,7 +180,6 @@ internal class DynamicAssetLoader(
             pitLinking = pitLinking,
             crashLogger = crashLogger,
             identity = identity,
-            features = features,
             addressValidation = defaultCustodialAddressValidation,
             availableActions = assetActions
         )
@@ -206,7 +203,6 @@ internal class DynamicAssetLoader(
             pitLinking = pitLinking,
             walletPreferences = walletPreferences,
             identity = identity,
-            features = features,
             availableCustodialActions = assetActions,
             availableNonCustodialActions = assetActions,
             formatUtils = formatUtils

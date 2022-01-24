@@ -44,7 +44,6 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.FeatureFlagOverridePrefs
-import com.blockchain.preferences.InternalFeatureFlagPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SecureChannelPrefs
@@ -392,7 +391,6 @@ val coreModule = module {
         .bind(AuthPrefs::class)
         .bind(AppInfoPrefs::class)
         .bind(BankLinkingPrefs::class)
-        .bind(InternalFeatureFlagPrefs::class)
         .bind(SecureChannelPrefs::class)
         .bind(FeatureFlagOverridePrefs::class)
 

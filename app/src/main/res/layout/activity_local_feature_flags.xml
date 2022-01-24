@@ -16,14 +16,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/standard_margin"
-            android:text="Local feature flags" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/Text.Semibold.16"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/standard_margin"
-            android:layout_marginBottom="@dimen/standard_margin"
             android:text="Remote feature flags" />
 
         <androidx.recyclerview.widget.RecyclerView

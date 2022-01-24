@@ -9,7 +9,6 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.YodleeAttributes
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.testutils.USD
@@ -33,8 +32,6 @@ class DashboardActionAdapterTest {
     private val targetFiatAccount: FiatAccount = mock {
         on { currency }.thenReturn(USD)
     }
-
-    private val internalFlags: InternalFeatureFlagApi = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -74,8 +71,6 @@ class DashboardActionAdapterTest {
                 emptyList()
             )
         )
-
-        whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
 
         actionAdapter.getBankDepositFlow(
             model = model,
@@ -118,8 +113,6 @@ class DashboardActionAdapterTest {
                 )
             )
         )
-        whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
-
         actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
@@ -182,8 +175,6 @@ class DashboardActionAdapterTest {
             )
         )
 
-        whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
-
         actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
@@ -214,8 +205,6 @@ class DashboardActionAdapterTest {
                 )
             )
         )
-
-        whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
 
         actionAdapter.getBankDepositFlow(
             model = model,

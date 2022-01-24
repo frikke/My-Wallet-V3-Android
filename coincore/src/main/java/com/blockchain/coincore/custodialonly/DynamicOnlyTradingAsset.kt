@@ -9,7 +9,6 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -35,7 +34,6 @@ internal class DynamicOnlyTradingAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi,
     private val addressValidation: String? = null,
     private val availableActions: Set<AssetAction> = emptySet()
 ) : CryptoAssetBase(
@@ -48,8 +46,7 @@ internal class DynamicOnlyTradingAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ) {
     override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = false
@@ -67,7 +64,6 @@ internal class DynamicOnlyTradingAsset(
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
                     identity = identity,
-                    features = features,
                     baseActions = availableActions
                 )
             )

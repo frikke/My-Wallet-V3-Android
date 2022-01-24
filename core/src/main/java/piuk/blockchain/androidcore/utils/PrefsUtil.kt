@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflags.GatedFeature
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
@@ -440,26 +439,6 @@ class PrefsUtil(
     private fun decodeFromBase64ToString(data: String): String =
         String(Base64.decode(data.toByteArray(charset("UTF-8")), Base64.DEFAULT))
 
-    // internal feature flags
-    override fun isFeatureEnabled(gatedFeature: GatedFeature): Boolean =
-        getValue(gatedFeature.name, false)
-
-    override fun enableFeature(gatedFeature: GatedFeature) =
-        setValue(gatedFeature.name, true)
-
-    override fun disableFeature(gatedFeature: GatedFeature) = setValue(gatedFeature.name, false)
-
-    override fun disableAllFeatures() {
-        GatedFeature.values().forEach { feature ->
-            disableFeature(feature)
-        }
-    }
-
-    override fun getAllFeatures(): Map<GatedFeature, Boolean> =
-        GatedFeature.values().map {
-            it to isFeatureEnabled(it)
-        }.toMap()
-
     // Raw accessors
     override fun getValue(name: String): String? =
         store.getString(name, null)
@@ -503,8 +482,6 @@ class PrefsUtil(
     }
 
     override fun clear() {
-        val persistedBool = GatedFeature.values().map { it.name to store.getBoolean(it.name, false) }.toMap()
-
         val versionCode = store.getInt(APP_CURRENT_VERSION_CODE, AppInfoPrefs.DEFAULT_APP_VERSION_CODE)
         val installedVersion = store.getString(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
             ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
@@ -512,9 +489,6 @@ class PrefsUtil(
 
         store.edit().clear().apply()
 
-        persistedBool.forEach { (key, value) ->
-            setValue(key, value)
-        }
         setValue(APP_CURRENT_VERSION_CODE, versionCode)
         setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
         setValue(KEY_FIREBASE_TOKEN, firebaseToken)

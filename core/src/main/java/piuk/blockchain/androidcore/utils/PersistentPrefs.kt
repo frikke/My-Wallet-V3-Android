@@ -5,7 +5,6 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.preferences.InternalFeatureFlagPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SecureChannelPrefs
@@ -27,8 +26,7 @@ interface PersistentPrefs :
     EncryptedPrefs,
     AuthPrefs,
     BankLinkingPrefs,
-    AppInfoPrefs,
-    InternalFeatureFlagPrefs {
+    AppInfoPrefs {
 
     val deviceId: String // Pre-IDV device identifier
     var devicePreIDVCheckFailed: Boolean // Pre-IDV check has failed! Don't show 'gold' announce cards etc

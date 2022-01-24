@@ -7,7 +7,6 @@ import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.replace
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.CurrencyPrefs
@@ -22,7 +21,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -177,8 +175,6 @@ abstract class TxEngine : KoinComponent {
 
     protected val exchangeRates: ExchangeRatesDataManager
         get() = _exchangeRates
-
-    protected val internalFeatureFlagApi: InternalFeatureFlagApi by inject()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     fun refreshConfirmations(revalidate: Boolean = false) =

@@ -2,7 +2,6 @@ package com.blockchain.coincore
 
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.DomainAddressNotFound
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -50,9 +49,7 @@ interface AddressFactory {
 
 class AddressFactoryImpl(
     private val coincore: Coincore,
-    private val addressResolver: AddressMappingService,
-    @Suppress("unused")
-    private val features: InternalFeatureFlagApi
+    private val addressResolver: AddressMappingService
 ) : AddressFactory {
 
     /** Build the set of possible address for a given input string.

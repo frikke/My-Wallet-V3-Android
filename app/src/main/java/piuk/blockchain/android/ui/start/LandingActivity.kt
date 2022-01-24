@@ -12,11 +12,12 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.koin.landingCtaFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import org.koin.android.ext.android.inject
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
@@ -30,7 +31,7 @@ import piuk.blockchain.android.util.StringUtils
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
-    private val internalFeatureFlagApi: InternalFeatureFlagApi by inject()
+    private val landingCtaFF: FeatureFlag by scopedInject(landingCtaFeatureFlag)
 
     override val presenter: LandingPresenter by scopedInject()
     override val view: LandingView = this
@@ -46,12 +47,15 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
         setContentView(binding.root)
 
-        if (internalFeatureFlagApi.isFeatureEnabled(GatedFeature.LANDING_CTA)) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                startActivity(LandingCtaActivity.newIntent(this))
-                overridePendingTransition(R.anim.slide_up_from_bottom, 0)
-            }, 500)
-        }
+        compositeDisposable += landingCtaFF.enabled
+            .onErrorReturnItem(false)
+            .filter { enabled -> enabled }
+            .subscribeBy {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    startActivity(LandingCtaActivity.newIntent(this))
+                    overridePendingTransition(R.anim.slide_up_from_bottom, 0)
+                }, 500)
+            }
 
         with(binding) {
             if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {

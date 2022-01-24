@@ -18,7 +18,6 @@ import com.blockchain.coincore.takeEnabledIf
 import com.blockchain.coincore.toFiat
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -53,8 +52,6 @@ class CustodialTradingAccount(
     val isNoteSupported: Boolean = false,
     override val isMemoSupported: Boolean = false,
     private val identity: UserIdentity,
-    @Suppress("unused")
-    private val features: InternalFeatureFlagApi,
     override val baseActions: Set<AssetAction> = defaultActions
 ) : CryptoAccountBase(), TradingAccount {
 

@@ -14,7 +14,6 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.InterestState
@@ -36,9 +35,7 @@ class CryptoInterestAccount(
     override val label: String,
     private val interestBalance: InterestBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    override val exchangeRates: ExchangeRatesDataManager,
-    @Suppress("unused")
-    private val features: InternalFeatureFlagApi
+    override val exchangeRates: ExchangeRatesDataManager
 ) : CryptoAccountBase(), InterestAccount {
 
     override val baseActions: Set<AssetAction> = emptySet() // Not used by this class

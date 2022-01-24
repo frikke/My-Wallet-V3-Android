@@ -13,7 +13,6 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -46,7 +45,6 @@ internal class Erc20Asset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi,
     private val availableCustodialActions: Set<AssetAction>,
     private val availableNonCustodialActions: Set<AssetAction>,
     private val formatUtils: FormatUtilities
@@ -60,8 +58,7 @@ internal class Erc20Asset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ) {
     private val erc20address
         get() = erc20DataManager.accountHash
@@ -89,7 +86,6 @@ internal class Erc20Asset(
                         custodialWalletManager = custodialManager,
                         tradingBalances = tradingBalances,
                         identity = identity,
-                        features = features,
                         baseActions = availableCustodialActions
                     )
                 )

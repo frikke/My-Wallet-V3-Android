@@ -12,7 +12,6 @@ import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -54,7 +53,6 @@ import thepit.PitLinking
     private val walletPreferences: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -65,8 +63,7 @@ import thepit.PitLinking
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ) {
 
     override val assetInfo: AssetInfo
@@ -103,8 +100,7 @@ import thepit.PitLinking
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity,
-                    features = features
+                    identity = identity
                 )
             )
         )

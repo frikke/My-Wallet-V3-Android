@@ -5,7 +5,6 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -38,7 +37,6 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val pitLinking: PitLinking = mock()
     private val crashLogger: CrashLogger = mock()
     private val identity: UserIdentity = mock()
-    private val features: InternalFeatureFlagApi = mock()
     private val formatUtils: FormatUtilities = mock()
 
     private val subject = EthAsset(
@@ -57,7 +55,6 @@ class EthAddressParserTest : CoincoreTestBase() {
         pitLinking = pitLinking,
         crashLogger = crashLogger,
         identity = identity,
-        features = features,
         formatUtils = formatUtils
     )
 

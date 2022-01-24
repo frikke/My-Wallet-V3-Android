@@ -18,7 +18,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRates
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -34,7 +33,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetInterestDetailsBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
@@ -68,9 +66,6 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
-
-    @Suppress("unused")
-    private val features: InternalFeatureFlagApi by inject()
 
     private val listAdapter: InterestSummaryAdapter by lazy { InterestSummaryAdapter() }
 

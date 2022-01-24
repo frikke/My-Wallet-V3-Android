@@ -5,7 +5,6 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
@@ -25,7 +24,6 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
     private val custodialManager: CustodialWalletManager = mock()
     private val tradingBalances: TradingBalanceDataManager = mock()
     private val identity: UserIdentity = mock()
-    private val features: InternalFeatureFlagApi = mock()
 
     private val subject = CustodialTradingAccount(
         currency = TEST_ASSET,
@@ -34,7 +32,6 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
         custodialWalletManager = custodialManager,
         tradingBalances = tradingBalances,
         identity = identity,
-        features = features,
         baseActions = ACTIONS
     )
 

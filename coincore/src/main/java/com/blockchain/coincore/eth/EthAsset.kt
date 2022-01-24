@@ -13,7 +13,6 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -49,7 +48,6 @@ internal class EthAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi,
     private val formatUtils: FormatUtilities
 ) : CryptoAssetBase(
     payloadManager,
@@ -61,8 +59,7 @@ internal class EthAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ),
     NonCustodialSupport {
     override val assetInfo: AssetInfo
@@ -106,8 +103,7 @@ internal class EthAsset(
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity,
-                    features = features
+                    identity = identity
                 )
             )
         )

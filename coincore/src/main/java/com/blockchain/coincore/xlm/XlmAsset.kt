@@ -9,7 +9,6 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -48,8 +47,7 @@ internal class XlmAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     private val walletPreferences: WalletStatus,
-    identity: UserIdentity,
-    features: InternalFeatureFlagApi
+    identity: UserIdentity
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -60,8 +58,7 @@ internal class XlmAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ) {
 
     override val assetInfo: AssetInfo
@@ -98,7 +95,6 @@ internal class XlmAsset(
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
                     identity = identity,
-                    features = features,
                     isMemoSupported = true
                 )
             )

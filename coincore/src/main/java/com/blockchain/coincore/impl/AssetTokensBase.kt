@@ -19,7 +19,6 @@ import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -50,8 +49,7 @@ interface AccountRefreshTrigger {
     protected val tradingBalances: TradingBalanceDataManager,
     private val pitLinking: PitLinking,
     protected val crashLogger: CrashLogger,
-    protected val identity: UserIdentity,
-    protected val features: InternalFeatureFlagApi
+    protected val identity: UserIdentity
 ) : CryptoAsset, AccountRefreshTrigger {
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {
@@ -118,8 +116,7 @@ interface AccountRefreshTrigger {
                             label = labels.getDefaultInterestWalletLabel(),
                             interestBalance = interestBalance,
                             custodialWalletManager = custodialManager,
-                            exchangeRates = exchangeRates,
-                            features = features
+                            exchangeRates = exchangeRates
                         )
                     )
                 } else {
