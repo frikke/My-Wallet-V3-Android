@@ -14,8 +14,8 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.extensions.exhaustive

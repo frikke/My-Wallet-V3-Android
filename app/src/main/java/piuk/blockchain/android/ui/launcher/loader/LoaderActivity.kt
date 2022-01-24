@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone

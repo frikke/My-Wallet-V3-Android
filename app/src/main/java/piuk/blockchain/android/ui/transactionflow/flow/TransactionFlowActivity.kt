@@ -11,9 +11,9 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard

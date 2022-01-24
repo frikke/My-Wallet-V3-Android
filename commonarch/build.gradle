@@ -1,3 +1,4 @@
+apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 
 android {
@@ -9,7 +10,7 @@ android {
     }
 
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
 }
 

@@ -2,6 +2,10 @@ apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 
 android {
+    buildFeatures {
+        viewBinding true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -19,14 +23,22 @@ dependencies {
     implementation project(':coincore')
     implementation project(':core')
     implementation project(':commonarch')
+    implementation project(':componentlib')
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin
+
     implementation Libraries.rxAndroid
+    implementation Libraries.design
     implementation Libraries.walletConnect
     implementation project(':common:interface')
     implementation project(':common-mp:utils')
+    implementation Libraries.constraintLayout
+    implementation Libraries.appCompat
+    implementation Libraries.glide
+    // Compose
+    implementation Libraries.composeUi
     // Unit Test dependencies
     testImplementation Libraries.junit
     testImplementation Libraries.mockito

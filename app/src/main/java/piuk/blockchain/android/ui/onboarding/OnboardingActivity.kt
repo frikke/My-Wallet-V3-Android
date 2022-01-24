@@ -11,7 +11,7 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil

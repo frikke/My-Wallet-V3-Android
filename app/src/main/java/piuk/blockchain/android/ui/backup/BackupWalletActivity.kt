@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents

@@ -6,7 +6,6 @@ import android.graphics.ImageFormat.YUV_422_888
 import android.graphics.ImageFormat.YUV_444_888
 import android.graphics.Point
 import android.graphics.Rect
-import android.os.Build
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.zxing.BinaryBitmap
@@ -29,11 +28,8 @@ class QrCodeAnalyzer(
     private val onQrCodesDetected: (qrCode: Result) -> Unit
 ) : ImageAnalysis.Analyzer {
 
-    private val yuvFormats: List<Int> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    private val yuvFormats: List<Int> =
         listOf(YUV_420_888, YUV_422_888, YUV_444_888)
-    } else {
-        listOf(YUV_420_888)
-    }
 
     private val reader = MultiFormatReader().apply {
         setHints(hints)

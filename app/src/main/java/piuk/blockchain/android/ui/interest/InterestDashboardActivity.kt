@@ -8,8 +8,8 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable

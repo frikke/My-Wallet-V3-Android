@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf

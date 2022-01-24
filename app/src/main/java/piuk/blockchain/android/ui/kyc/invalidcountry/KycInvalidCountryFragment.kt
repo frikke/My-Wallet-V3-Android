@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycInvalidCountryBinding

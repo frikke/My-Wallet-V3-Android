@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import info.blockchain.balance.AssetInfo

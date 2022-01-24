@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.extensions.exhaustive
 import com.blockchain.extensions.valueOf
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.OrderState
@@ -16,6 +17,8 @@ import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.utils.capitalizeFirstChar
+import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
+import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.google.gson.JsonSyntaxException
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -37,12 +40,14 @@ import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
+import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
 
 class MainModel(
     initialState: MainState,
     mainScheduler: Scheduler,
     private val interactor: MainInteractor,
+    private val walletConnectServiceAPI: WalletConnectServiceAPI,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<MainState, MainIntent>(
@@ -55,6 +60,26 @@ class MainModel(
     private val compositeDisposable = CompositeDisposable()
 
     fun clearDisposables() = compositeDisposable.clear()
+
+    init {
+        compositeDisposable += walletConnectServiceAPI.sessionEvents.subscribeBy { sessionEvent ->
+            when (sessionEvent) {
+                is WalletConnectSessionEvent.ReadyForApproval -> process(
+                    MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionApproval(sessionEvent.session))
+                )
+                is WalletConnectSessionEvent.DidConnect -> process(
+                    MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionApproved(sessionEvent.session))
+                )
+                is WalletConnectSessionEvent.FailToConnect,
+                is WalletConnectSessionEvent.DidReject -> process(
+                    MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionRejected(sessionEvent.session))
+                )
+                else -> {
+                    // todo next PRs
+                }
+            }.exhaustive
+        }
+    }
 
     override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
         when (intent) {
@@ -124,7 +149,8 @@ class MainModel(
                                     )
                                 )
                             }
-                            is ScanResult.WalletConnectRequest -> null /* walletConnect.connect()*/
+                            is ScanResult.WalletConnectRequest -> walletConnectServiceAPI.attemptToConnect(it.data)
+                                .emptySubscribe()
                             is ScanResult.ImportedWallet -> {
                                 // TODO: as part of Auth
                             }
@@ -143,7 +169,10 @@ class MainModel(
                     }
                 )
             is MainIntent.LaunchExchange -> handleExchangeLaunchingFromLinkingState()
-            else -> null
+            is MainIntent.ApproveWCSession -> walletConnectServiceAPI.acceptConnection(intent.session).emptySubscribe()
+            is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
+            MainIntent.ResetViewState,
+            is MainIntent.UpdateViewToLaunch -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {

@@ -5,8 +5,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject

@@ -2583,7 +2583,6 @@
     <string name="profile_send_text">Send Text</string>
     <string name="profile_hint_phone">Enter Phone Number</string>
     <string name="profile_update">Update</string>
-    <string name="profile_label_dial_code">Dial code</string>
     <string name="profile_verify_code">Verify Code</string>
     <string name="profile_enter_code">Enter Verification Code</string>
     <string name="profile_verification_code_error">Verification code failed</string>
@@ -2600,10 +2599,6 @@
     <string name="notifications_toolbar">Notifications</string>
     <string name="email_notifications_title">Email Notifications</string>
     <string name="push_notifications_title">Push Notifications</string>
-    <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
-    <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
-    <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
-    <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
 
     <!-- Security screen -->
     <string name="security_toolbar">Security</string>
@@ -2628,6 +2623,14 @@
     <string name="about_app_rate_app">Rate Our App</string>
     <string name="about_app_terms_service">Terms of Service</string>
     <string name="about_app_privacy_policy">Privacy Policy</string>
-
-
+    <string name="profile_label_dial_code">Dial code</string>
+    <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
+    <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
+    <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
+    <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
+    <!--    Wallet Connect-->
+    <string name="dapp_wants_to_connect">%1s wants to connect</string>
+    <string name="dapp_is_now_approved">%1s is Now Connected to Your Wallet</string>
+    <string name="dapp_is_now_rejected">%1s Connection was Rejected</string>
+    <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
 </resources>

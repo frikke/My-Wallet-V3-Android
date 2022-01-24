@@ -1,4 +1,4 @@
-package com.blockchain.commonarch.presentation.base
+package com.blockchain.componentlib.legacy
 
 import android.content.Context
 import android.content.DialogInterface
@@ -7,8 +7,8 @@ import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.commonarch.R
-import com.blockchain.commonarch.databinding.ProgressDialogCompatBinding
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.databinding.ProgressDialogCompatBinding
 
 /**
  * Creates an [AlertDialog] with a custom view for emulating a Material Design progress

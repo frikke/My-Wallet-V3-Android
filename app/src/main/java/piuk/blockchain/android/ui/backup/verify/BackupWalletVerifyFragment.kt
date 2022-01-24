@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupWalletVerifyBinding

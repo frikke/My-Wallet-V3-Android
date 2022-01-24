@@ -5,8 +5,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState

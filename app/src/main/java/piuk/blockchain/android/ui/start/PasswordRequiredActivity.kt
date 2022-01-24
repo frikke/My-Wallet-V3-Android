@@ -6,7 +6,7 @@ import android.os.CountDownTimer
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus

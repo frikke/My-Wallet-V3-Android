@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject

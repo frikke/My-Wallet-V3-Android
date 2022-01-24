@@ -9,8 +9,8 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf

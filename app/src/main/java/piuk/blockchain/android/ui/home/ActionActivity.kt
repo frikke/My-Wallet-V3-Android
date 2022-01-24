@@ -7,9 +7,9 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.fragment.app.Fragment
 import com.blockchain.coincore.AssetAction
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R

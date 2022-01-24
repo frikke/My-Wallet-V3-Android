@@ -41,6 +41,13 @@
         <item name="shapeAppearanceOverlay">@style/CustomShapeAppearanceBottomSheetDialog</item>
     </style>
 
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!-- Used for the buttons -->
+        <item name="colorAccent">@color/primary_blue_accent</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">@color/black</item>
+    </style>
+
     <style name="CustomShapeAppearanceBottomSheetDialog" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopRight">8dp</item>

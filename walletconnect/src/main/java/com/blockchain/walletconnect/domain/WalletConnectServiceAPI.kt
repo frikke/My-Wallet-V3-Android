@@ -2,12 +2,21 @@ package com.blockchain.walletconnect.domain
 
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 
 interface WalletConnectServiceAPI {
-    fun attemptToConnect(url: String)
+    fun attemptToConnect(url: String): Completable
     fun connectToApprovedSessions()
-    fun acceptConnection(session: WalletConnectSession)
-    fun denyConnection(session: WalletConnectSession)
+    fun acceptConnection(session: WalletConnectSession): Completable
+    fun denyConnection(session: WalletConnectSession): Completable
+    fun disconnect(session: WalletConnectSession): Completable
+
+    val sessionEvents: Observable<WalletConnectSessionEvent>
+}
+
+interface WalletConnectUrlValidator {
+    fun isUrlValid(url: String): Boolean
 }
 
 sealed class WalletConnectUserEvent {
@@ -22,7 +31,10 @@ sealed class WalletConnectResponseEvent {
     class TransactionHash(val hash: String) : WalletConnectResponseEvent()
 }
 
-sealed class WalletConnectSessionEvent {
-    class FailToConnect(val session: WalletConnectSession) : WalletConnectSessionEvent()
-    class DidConnect(val session: WalletConnectSession) : WalletConnectSessionEvent()
+sealed class WalletConnectSessionEvent(val session: WalletConnectSession) {
+    class FailToConnect(session: WalletConnectSession) : WalletConnectSessionEvent(session)
+    class DidReject(session: WalletConnectSession) : WalletConnectSessionEvent(session)
+    class DidConnect(session: WalletConnectSession) : WalletConnectSessionEvent(session)
+    class DidDisconnect(session: WalletConnectSession) : WalletConnectSessionEvent(session)
+    class ReadyForApproval(session: WalletConnectSession) : WalletConnectSessionEvent(session)
 }

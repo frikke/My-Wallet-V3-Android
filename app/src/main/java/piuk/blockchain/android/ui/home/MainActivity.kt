@@ -14,9 +14,9 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.BottomNavigationState
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.navigation.NavigationItem
@@ -30,6 +30,9 @@ import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
+import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -91,6 +94,7 @@ class MainActivity :
     SlidingModalBottomDialog.Host,
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
+    WCApproveSessionBottomSheet.Host,
     RedesignActionsBottomSheet.Host,
     SmallSimpleBuyNavigator,
     BuyPendingOrdersBottomSheet.Host {
@@ -526,6 +530,15 @@ class MainActivity :
             is ViewToLaunch.None -> {
                 // do nothing
             }
+            is ViewToLaunch.LaunchWalletConnectSessionApproval -> launchWalletConnectSessionApproval(
+                view.walletConnectSession
+            )
+            is ViewToLaunch.LaunchWalletConnectSessionApproved -> launchWalletConnectSessionApproved(
+                view.walletConnectSession
+            )
+            is ViewToLaunch.LaunchWalletConnectSessionRejected -> launchWalletConnectSessionRejected(
+                view.walletConnectSession
+            )
         }.exhaustive
 
         // once we've completed a loop of render with a view to launch
@@ -533,6 +546,24 @@ class MainActivity :
         if (newState.viewToLaunch != ViewToLaunch.None) {
             model.process(MainIntent.ResetViewState)
         }
+    }
+
+    private fun launchWalletConnectSessionApproval(walletConnectSession: WalletConnectSession) {
+        showBottomSheet(
+            WCApproveSessionBottomSheet.newInstance(walletConnectSession)
+        )
+    }
+
+    private fun launchWalletConnectSessionApproved(walletConnectSession: WalletConnectSession) {
+        showBottomSheet(
+            WCSessionUpdatedBottomSheet.newInstance(session = walletConnectSession, approved = true)
+        )
+    }
+
+    private fun launchWalletConnectSessionRejected(walletConnectSession: WalletConnectSession) {
+        showBottomSheet(
+            WCSessionUpdatedBottomSheet.newInstance(session = walletConnectSession, approved = false)
+        )
     }
 
     private fun showTargetScanError(error: QrScanError) {
@@ -584,6 +615,14 @@ class MainActivity :
         if (AndroidUtils.is25orHigher()) {
             getSystemService(ShortcutManager::class.java).removeAllDynamicShortcuts()
         }
+    }
+
+    override fun onSessionApproved(session: WalletConnectSession) {
+        model.process(MainIntent.ApproveWCSession(session))
+    }
+
+    override fun onSessionRejected(session: WalletConnectSession) {
+        model.process(MainIntent.RejectWCSession(session))
     }
 
     override fun onSheetClosed() {

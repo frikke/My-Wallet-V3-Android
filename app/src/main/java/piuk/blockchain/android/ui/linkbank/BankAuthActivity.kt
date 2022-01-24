@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.banking.BankPaymentApproval
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.YapilyAttributes

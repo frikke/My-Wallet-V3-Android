@@ -24,7 +24,7 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.Visibility
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone

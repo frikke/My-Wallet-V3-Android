@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.blockchain.coincore.AssetAction
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible

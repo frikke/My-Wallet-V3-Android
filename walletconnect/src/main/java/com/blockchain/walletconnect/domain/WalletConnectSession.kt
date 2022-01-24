@@ -2,8 +2,9 @@ package com.blockchain.walletconnect.domain
 
 import com.trustwallet.walletconnect.models.WCPeerMeta
 import com.trustwallet.walletconnect.models.session.WCSession
+import java.io.Serializable
 
-class WalletConnectSession(val url: String, val dAppInfo: DAppInfo, val walletInfo: WalletInfo) {
+class WalletConnectSession(val url: String, val dAppInfo: DAppInfo, val walletInfo: WalletInfo) : Serializable {
     companion object {
         fun fromWCSession(wcSession: WCSession, peerMeta: WCPeerMeta, peerId: String) =
             WalletConnectSession(
@@ -36,8 +37,12 @@ class WalletConnectSession(val url: String, val dAppInfo: DAppInfo, val walletIn
     }
 }
 
-data class WalletInfo(val clientId: String, val sourcePlatform: String)
+data class WalletInfo(val clientId: String, val sourcePlatform: String) : Serializable
 
-data class DAppInfo(val peerId: String, val peerMeta: ClientMeta, val chainId: Int)
+data class DAppInfo(val peerId: String, val peerMeta: ClientMeta, val chainId: Int) : Serializable
 
-data class ClientMeta(val description: String, val url: String, val icons: List<String>, val name: String)
+data class ClientMeta(val description: String, val url: String, val icons: List<String>, val name: String) :
+    Serializable {
+    fun uiIcon(): String =
+        icons.takeIf { it.isNotEmpty() }?.let { it[0] } ?: "https://www.blockchain.com/static/apple-touch-icon.png"
+}

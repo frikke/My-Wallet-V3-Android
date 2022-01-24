@@ -11,9 +11,9 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
 import com.blockchain.api.services.Geolocation
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard

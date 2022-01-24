@@ -21,6 +21,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.usd
+import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
@@ -419,7 +420,9 @@ val applicationModule = module {
 
         scoped {
             QrScanResultProcessor(
-                bitPayDataManager = get()
+                bitPayDataManager = get(),
+                walletConnectUrlValidator = get(),
+                featureFlag = get(walletConnectFeatureFlag)
             )
         }
 

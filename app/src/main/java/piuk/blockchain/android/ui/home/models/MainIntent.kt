@@ -4,6 +4,7 @@ import android.content.Intent
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.walletconnect.domain.WalletConnectSession
 
 sealed class MainIntent : MviIntent<MainState> {
     object PerformInitialChecks : MainIntent() {
@@ -43,7 +44,15 @@ sealed class MainIntent : MviIntent<MainState> {
         )
     }
 
+    class RejectWCSession(val session: WalletConnectSession) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
     class ProcessScanResult(val decodedData: String) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class ApproveWCSession(val session: WalletConnectSession) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 }

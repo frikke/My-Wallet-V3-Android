@@ -14,10 +14,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.core.content.ContextCompat
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.button.MinimalButtonView
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.tablerow.BalanceTableRowView

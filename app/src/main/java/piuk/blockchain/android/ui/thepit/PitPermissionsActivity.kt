@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.thepit
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign

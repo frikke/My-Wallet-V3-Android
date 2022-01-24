@@ -12,8 +12,8 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject

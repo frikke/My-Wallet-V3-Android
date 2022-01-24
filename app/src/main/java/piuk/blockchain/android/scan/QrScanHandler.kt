@@ -19,6 +19,8 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.filterByAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.koin.payloadScope
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
+import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.util.FormatsUtil
@@ -67,7 +69,9 @@ class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
 }
 
 class QrScanResultProcessor(
-    private val bitPayDataManager: BitPayDataManager
+    private val bitPayDataManager: BitPayDataManager,
+    private val walletConnectUrlValidator: WalletConnectUrlValidator,
+    private val featureFlag: IntegratedFeatureFlag,
 ) {
 
     fun processScan(scanResult: String, isDeeplinked: Boolean = false): Single<ScanResult> =
@@ -78,7 +82,12 @@ class QrScanResultProcessor(
                     ScanResult.TxTarget(setOf(it), isDeeplinked)
                 }
             scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
-            scanResult.isWalletConnectLink() -> Single.just(ScanResult.WalletConnectRequest(scanResult))
+            walletConnectUrlValidator.isUrlValid(scanResult) -> featureFlag.enabled.map { enabled ->
+                if (enabled)
+                    ScanResult.WalletConnectRequest(scanResult)
+                else
+                    throw QrScanError(QrScanError.ErrorCode.ScanFailed, "Not Supported")
+            }
             else -> {
                 val addressParser: AddressFactory = payloadScope.get()
                 addressParser.parse(scanResult)
@@ -219,4 +228,3 @@ private fun String.getAssetFromLink(): AssetInfo =
     }
 
 private fun String.isJson(): Boolean = FormatsUtil.isValidJson(this)
-private fun String.isWalletConnectLink(): Boolean = contains("bridge.walletconnect.org")

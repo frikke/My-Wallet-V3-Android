@@ -6,6 +6,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.walletconnect.domain.WalletConnectSession
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
@@ -43,6 +44,9 @@ sealed class ViewToLaunch {
     class LaunchOpenBankingApprovalDepositComplete(val amount: Money, val estimatedDepositCompletionTime: String) :
         ViewToLaunch()
 
+    class LaunchWalletConnectSessionApproval(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
+    class LaunchWalletConnectSessionApproved(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
+    class LaunchWalletConnectSessionRejected(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
     object LaunchSimpleBuyFromDeepLinkApproval : ViewToLaunch()
     class LaunchPaymentForCancelledOrder(val state: SimpleBuyState) : ViewToLaunch()
     class CheckForAccountWalletLinkErrors(val walletIdHint: String) : ViewToLaunch()

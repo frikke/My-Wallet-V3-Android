@@ -15,6 +15,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
 import com.blockchain.testutils.EUR
 import com.blockchain.utils.capitalizeFirstChar
+import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.google.gson.JsonSyntaxException
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
@@ -25,6 +26,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -60,6 +62,9 @@ class MainModelTest {
     }
 
     private val interactor: MainInteractor = mock()
+    private val walletConnectServiceAPI: WalletConnectServiceAPI = mock {
+        on { sessionEvents }.thenReturn(Observable.empty())
+    }
 
     @get:Rule
     val rx = rxInit {
@@ -75,6 +80,7 @@ class MainModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             crashLogger = mock(),
+            walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor
         )
     }

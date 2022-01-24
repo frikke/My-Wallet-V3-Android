@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAboutAppBinding

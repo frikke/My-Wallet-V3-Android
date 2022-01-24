@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import com.blockchain.annotations.CommonCode
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import java.util.Locale

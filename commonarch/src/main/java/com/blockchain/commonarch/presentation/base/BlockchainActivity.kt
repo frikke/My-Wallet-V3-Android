@@ -11,7 +11,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.viewbinding.ViewBinding
 import com.blockchain.auth.LogoutTimer
 import com.blockchain.commonarch.R
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.notifications.analytics.Analytics

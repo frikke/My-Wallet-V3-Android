@@ -19,6 +19,7 @@ val mainModule = module {
                 initialState = MainState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
+                walletConnectServiceAPI = get(),
                 environmentConfig = get(),
                 crashLogger = get()
             )

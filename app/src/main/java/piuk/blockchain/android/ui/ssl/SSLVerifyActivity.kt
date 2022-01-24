@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding

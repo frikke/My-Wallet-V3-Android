@@ -6,8 +6,8 @@ import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf

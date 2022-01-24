@@ -8,6 +8,7 @@ import com.blockchain.walletconnect.data.WalletConnectService
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectAddressProvider
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
+import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -19,10 +20,11 @@ val walletConnectModule = module {
             WalletConnectService(
                 sessionRepository = get(),
                 client = get(),
+                lifecycleObservable = get(),
                 featureFlag = get(walletConnectFeatureFlag),
                 walletConnectAccountProvider = get(),
             )
-        }.bind(WalletConnectServiceAPI::class)
+        }.bind(WalletConnectServiceAPI::class).bind(WalletConnectUrlValidator::class)
 
         factory {
             EthWalletAddressProvider(

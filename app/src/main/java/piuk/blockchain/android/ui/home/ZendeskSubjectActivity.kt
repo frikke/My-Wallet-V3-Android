@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.RadioButton
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R

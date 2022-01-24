@@ -10,7 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment.findNavController
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics

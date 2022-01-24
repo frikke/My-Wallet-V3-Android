@@ -6,8 +6,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
 import com.blockchain.coincore.AssetAction
-import com.blockchain.commonarch.databinding.ToolbarGeneralBinding
-import com.blockchain.commonarch.presentation.base.MaterialProgressDialog
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.componentlib.viewextensions.visible
