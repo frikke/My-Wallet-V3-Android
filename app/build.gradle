@@ -4,17 +4,11 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'androidx.navigation.safeargs'
-apply plugin: 'com.novoda.build-properties'
 apply from: '../quality/ktlint.gradle'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.squareup.sqldelight'
 
-buildProperties {
-    secrets {
-        using(file('secrets.properties')) | file('secretsDefaults.properties')
-    }
-}
 
 def getGitCommitHash = { ->
     def stdout = new ByteArrayOutputStream()
@@ -25,20 +19,22 @@ def getGitCommitHash = { ->
     return stdout.toString().trim()
 }
 
+final buildProperties = new BuildProperties(file('secrets.properties'), file('secretsDefaults.properties'))
+
 android {
     signingConfigs {
         debug {
             storeFile file('blockchainDebugKey.keystore')
-            storePassword buildProperties.secrets['keyPassword'].string
-            keyPassword buildProperties.secrets['keyPassword'].string
-            keyAlias buildProperties.secrets['debugKeyAlias'].string
+            storePassword buildProperties.secrets['keyPassword'].toString()
+            keyPassword buildProperties.secrets['keyPassword'].toString()
+            keyAlias buildProperties.secrets['debugKeyAlias'].toString()
         }
 
         prodInternal {
             storeFile file('blockchainInternalKey.keystore')
-            storePassword buildProperties.secrets['keyPasswordInternal'].string
-            keyPassword buildProperties.secrets['keyPasswordInternal'].string
-            keyAlias buildProperties.secrets['internalKeyAlias'].string
+            storePassword buildProperties.secrets['keyPasswordInternal'].toString()
+            keyPassword buildProperties.secrets['keyPasswordInternal'].toString()
+            keyAlias buildProperties.secrets['internalKeyAlias'].toString()
         }
     }
     compileSdkVersion Versions.compileSdk
@@ -56,15 +52,15 @@ android {
         archivesBaseName = "blockchain-$versionName"
 
         // Flag to hide or show the Contacts feature
-        buildConfigBoolean "LOG_KOIN_STARTUP", false
-        buildConfigBoolean "SKIP_VERIFF_KYC", false
-        buildConfigBoolean "INTERNAL", true
+        buildConfigField "boolean", "LOG_KOIN_STARTUP", "false"
+        buildConfigField "boolean", "SKIP_VERIFF_KYC", "false"
+        buildConfigField "boolean", "INTERNAL", "true"
 
-        buildConfigString "SHAPE_SHIFT_API_KEY", buildProperties.secrets['shapeShiftApiKey']
+        buildConfigField "String", "SHAPE_SHIFT_API_KEY", "\"${buildProperties.secrets['shapeShiftApiKey']}\""
 
         manifestPlaceholders = [
                 APP_NAME      : "@string/app_name",
-                FABRIC_API_KEY: buildProperties.secrets['fabricApiKey'].string
+                FABRIC_API_KEY: buildProperties.secrets['fabricApiKey'].toString()
         ]
 
         resConfigs 'en',
@@ -101,37 +97,37 @@ android {
         envProd {
             dimension "environment"
             manifestPlaceholders = [
-                    BACKUP_API_KEY     : buildProperties.secrets['prodGoogleBackupApiKey'].string,
-                    DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
-                    DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
-                    LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].string,
+                    BACKUP_API_KEY     : buildProperties.secrets['prodGoogleBackupApiKey'].toString(),
+                    DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].toString(),
+                    DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].toString(),
+                    LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
             ]
-            buildConfigString "EXPLORER_URL", buildProperties.secrets['prodExplorer']
-            buildConfigString "API_URL", buildProperties.secrets['prodApiServer']
-            buildConfigString "EVERYPAY_HOST_URL", buildProperties.secrets['prodEverypayHost']
-            buildConfigString "ETHEREUM_WEBSOCKET_URL", buildProperties.secrets['prodEthWebsocket']
-            buildConfigString "BITCOIN_CASH_WEBSOCKET_URL", buildProperties.secrets['prodBchWebsocket']
-            buildConfigString "STATUS_API_URL", buildProperties.secrets['prodApiStatus']
-            buildConfigString "NABU_WEBSOCKET_URL", buildProperties.secrets['prodNabuWebsocket']
-            buildConfigString "HORIZON_URL", buildProperties.secrets['prodHorizonUrl']
-            buildConfigString "PIT_LINKING_URL", buildProperties.secrets['prodPitDoLink']
-            buildConfigString "PIT_LAUNCHING_URL", buildProperties.secrets['prodPitLaunch']
-            buildConfigString "COINS_WEBSOCKET_URL", buildProperties.secrets['prodCoinsWebsocket']
+            buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
+            buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
+            buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
+            buildConfigField "String", "ETHEREUM_WEBSOCKET_URL", "\"${buildProperties.secrets['prodEthWebsocket']}\""
+            buildConfigField "String", "BITCOIN_CASH_WEBSOCKET_URL", "\"${buildProperties.secrets['prodBchWebsocket']}\""
+            buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
+            buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
+            buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
+            buildConfigField "String", "PIT_LINKING_URL", "\"${buildProperties.secrets['prodPitDoLink']}\""
+            buildConfigField "String", "PIT_LAUNCHING_URL", "\"${buildProperties.secrets['prodPitLaunch']}\""
+            buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
             buildConfigField "String", "VERSION_NAME_SUFFIX", "\"" + versionNameSuffix + "\""
             buildConfigField "String", "COMMIT_HASH", "\"\""
-            buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['prodSiftAccount']
-            buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
-            buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
-            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
-            buildConfigString "DEEPLINK_HOST", buildProperties.secrets['prodDynamicLink']
-            buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
-            buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
-            buildConfigBoolean "INTERNAL", false
-            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
+            buildConfigField "String", "SIFT_ACCOUNT_ID", "\"${buildProperties.secrets['prodSiftAccount']}\""
+            buildConfigField "String", "SIFT_BEACON_KEY", "\"${buildProperties.secrets['prodSiftBeaconId']}\""
+            buildConfigField "String", "RECAPTCHA_SITE_KEY", "\"${buildProperties.secrets['captchaProdSiteKey']}\""
+            buildConfigField "String", "LOGIN_HOST_LINK", "\"${buildProperties.secrets['prodLoginLink']}\""
+            buildConfigField "String", "DEEPLINK_HOST", "\"${buildProperties.secrets['prodDynamicLink']}\""
+            buildConfigField "String", "ZENDESK_API_KEY", "\"${buildProperties.secrets['zendeskAccountKey']}\""
+            buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
+            buildConfigField "boolean",  "INTERNAL", "false"
+            buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
 
-            buildConfigString "PLAY_STORE_DEMO_EMAIL", buildProperties.secrets['playstoreProdDemoEmail']
-            buildConfigString "PLAY_STORE_DEMO_WALLET_ID", buildProperties.secrets['playstoreProdDemoWalletId']
+            buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
+            buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreProdDemoWalletId']}\""
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
@@ -143,35 +139,35 @@ android {
             dimension "environment"
             manifestPlaceholders = [
                     APP_NAME           : "@string/alpha_app_name",
-                    BACKUP_API_KEY     : buildProperties.secrets['prodGoogleBackupApiKey'].string,
-                    DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
-                    DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
-                    LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].string,
+                    BACKUP_API_KEY     : buildProperties.secrets['prodGoogleBackupApiKey'].toString(),
+                    DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].toString(),
+                    DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].toString(),
+                    LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
             ]
-            buildConfigString "EXPLORER_URL", buildProperties.secrets['prodExplorer']
-            buildConfigString "API_URL", buildProperties.secrets['prodApiServer']
-            buildConfigString "EVERYPAY_HOST_URL", buildProperties.secrets['prodEverypayHost']
-            buildConfigString "ETHEREUM_WEBSOCKET_URL", buildProperties.secrets['prodEthWebsocket']
-            buildConfigString "BITCOIN_CASH_WEBSOCKET_URL", buildProperties.secrets['prodBchWebsocket']
-            buildConfigString "STATUS_API_URL", buildProperties.secrets['prodApiStatus']
-            buildConfigString "NABU_WEBSOCKET_URL", buildProperties.secrets['prodNabuWebsocket']
-            buildConfigString "HORIZON_URL", buildProperties.secrets['prodHorizonUrl']
-            buildConfigString "PIT_LINKING_URL", buildProperties.secrets['prodPitDoLink']
-            buildConfigString "PIT_LAUNCHING_URL", buildProperties.secrets['prodPitLaunch']
-            buildConfigString "COINS_WEBSOCKET_URL", buildProperties.secrets['prodCoinsWebsocket']
+            buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
+            buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
+            buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
+            buildConfigField "String", "ETHEREUM_WEBSOCKET_URL", "\"${buildProperties.secrets['prodEthWebsocket']}\""
+            buildConfigField "String", "BITCOIN_CASH_WEBSOCKET_URL", "\"${buildProperties.secrets['prodBchWebsocket']}\""
+            buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
+            buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
+            buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
+            buildConfigField "String", "PIT_LINKING_URL", "\"${buildProperties.secrets['prodPitDoLink']}\""
+            buildConfigField "String", "PIT_LAUNCHING_URL", "\"${buildProperties.secrets['prodPitLaunch']}\""
+            buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
             buildConfigField "String", "VERSION_NAME_SUFFIX", "\"" + versionNameSuffix + "\""
             buildConfigField "String", "COMMIT_HASH", "\"\""
-            buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['prodSiftAccount']
-            buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
-            buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
-            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
-            buildConfigString "DEEPLINK_HOST", buildProperties.secrets['prodDynamicLink']
-            buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
-            buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
-            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['prodLoginPortal']
-            buildConfigString "PLAY_STORE_DEMO_EMAIL", buildProperties.secrets['playstoreProdDemoEmail']
-            buildConfigString "PLAY_STORE_DEMO_WALLET_ID", buildProperties.secrets['playstoreProdDemoWalletId']
+            buildConfigField "String", "SIFT_ACCOUNT_ID", "\"${buildProperties.secrets['prodSiftAccount']}\""
+            buildConfigField "String", "SIFT_BEACON_KEY", "\"${buildProperties.secrets['prodSiftBeaconId']}\""
+            buildConfigField "String", "RECAPTCHA_SITE_KEY", "\"${buildProperties.secrets['captchaProdSiteKey']}\""
+            buildConfigField "String", "LOGIN_HOST_LINK", "\"${buildProperties.secrets['prodLoginLink']}\""
+            buildConfigField "String", "DEEPLINK_HOST", "\"${buildProperties.secrets['prodDynamicLink']}\""
+            buildConfigField "String", "ZENDESK_API_KEY", "\"${buildProperties.secrets['zendeskAccountKey']}\""
+            buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
+            buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
+            buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
+            buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreProdDemoWalletId']}\""
             applicationId "com.blockchain.wallet.internal"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -185,35 +181,35 @@ android {
             dimension "environment"
             manifestPlaceholders = [
                     APP_NAME           : "@string/staging_app_name",
-                    BACKUP_API_KEY     : buildProperties.secrets['stagingGoogleBackupApiKey'].string,
-                    DYNAMIC_LINK_HOST  : buildProperties.secrets['stagingDynamicLink'].string,
-                    DYNAMIC_LINK_HOST_2: buildProperties.secrets['stagingDynamicLink2'].string,
-                    LOGIN_LINK_HOST    : buildProperties.secrets['stagingLoginLink'].string,
+                    BACKUP_API_KEY     : buildProperties.secrets['stagingGoogleBackupApiKey'].toString(),
+                    DYNAMIC_LINK_HOST  : buildProperties.secrets['stagingDynamicLink'].toString(),
+                    DYNAMIC_LINK_HOST_2: buildProperties.secrets['stagingDynamicLink2'].toString(),
+                    LOGIN_LINK_HOST    : buildProperties.secrets['stagingLoginLink'].toString(),
             ]
-            buildConfigString "EXPLORER_URL", buildProperties.secrets['stagingExplorer']
-            buildConfigString "API_URL", buildProperties.secrets['stagingApiServer']
-            buildConfigString "EVERYPAY_HOST_URL", buildProperties.secrets['stagingEverypayHost']
-            buildConfigString "STATUS_API_URL", buildProperties.secrets['stagingApiStatus']
-            buildConfigString "ETHEREUM_WEBSOCKET_URL", buildProperties.secrets['stagingEthWebsocket']
-            buildConfigString "BITCOIN_CASH_WEBSOCKET_URL", buildProperties.secrets['stagingBchWebsocket']
-            buildConfigString "NABU_WEBSOCKET_URL", buildProperties.secrets['stagingNabuWebsocket']
-            buildConfigString "HORIZON_URL", buildProperties.secrets['stagingHorizonUrl']
-            buildConfigString "PIT_LINKING_URL", buildProperties.secrets['stagingPitDoLink']
-            buildConfigString "PIT_LAUNCHING_URL", buildProperties.secrets['stagingPitLaunch']
-            buildConfigString "COINS_WEBSOCKET_URL", buildProperties.secrets['stagingCoinsWebsocket']
+            buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['stagingExplorer']}\""
+            buildConfigField "String", "API_URL", "\"${buildProperties.secrets['stagingApiServer']}\""
+            buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['stagingEverypayHost']}\""
+            buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['stagingApiStatus']}\""
+            buildConfigField "String", "ETHEREUM_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingEthWebsocket']}\""
+            buildConfigField "String", "BITCOIN_CASH_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingBchWebsocket']}\""
+            buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingNabuWebsocket']}\""
+            buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['stagingHorizonUrl']}\""
+            buildConfigField "String", "PIT_LINKING_URL", "\"${buildProperties.secrets['stagingPitDoLink']}\""
+            buildConfigField "String", "PIT_LAUNCHING_URL", "\"${buildProperties.secrets['stagingPitLaunch']}\""
+            buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_staging"'
             buildConfigField "String", "COMMIT_HASH", "\"${getGitCommitHash()}\""
             buildConfigField "String", "VERSION_NAME_SUFFIX", "\"" + versionNameSuffix + "\""
-            buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['stagingSiftAccount']
-            buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['stagingSiftBeaconId']
-            buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaStagingSiteKey']
-            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['stagingLoginLink']
-            buildConfigString "DEEPLINK_HOST", buildProperties.secrets['stagingDynamicLink']
-            buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
-            buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
-            buildConfigString "WEB_WALLET_URL", buildProperties.secrets['stagingLoginPortal']
-            buildConfigString "PLAY_STORE_DEMO_EMAIL", buildProperties.secrets['playstoreStagingDemoEmail']
-            buildConfigString "PLAY_STORE_DEMO_WALLET_ID", buildProperties.secrets['playstoreStagingDemoWalletId']
+            buildConfigField "String", "SIFT_ACCOUNT_ID", "\"${buildProperties.secrets['stagingSiftAccount']}\""
+            buildConfigField "String", "SIFT_BEACON_KEY", "\"${buildProperties.secrets['stagingSiftBeaconId']}\""
+            buildConfigField "String", "RECAPTCHA_SITE_KEY", "\"${buildProperties.secrets['captchaStagingSiteKey']}\""
+            buildConfigField "String", "LOGIN_HOST_LINK", "\"${buildProperties.secrets['stagingLoginLink']}\""
+            buildConfigField "String", "DEEPLINK_HOST", "\"${buildProperties.secrets['stagingDynamicLink']}\""
+            buildConfigField "String", "ZENDESK_API_KEY", "\"${buildProperties.secrets['zendeskAccountKey']}\""
+            buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
+            buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['stagingLoginPortal']}\""
+            buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreStagingDemoEmail']}\""
+            buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreStagingDemoWalletId']}\""
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
@@ -232,7 +228,7 @@ android {
         }
         debug {
             multiDexEnabled true
-            buildConfigBoolean "SKIP_VERIFF_KYC", false
+            buildConfigField "boolean",  "SKIP_VERIFF_KYC", "false"
         }
     }
 

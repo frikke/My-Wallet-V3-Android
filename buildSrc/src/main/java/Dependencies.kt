@@ -20,7 +20,6 @@ object Versions {
     const val coroutines = "1.5.2"
 
     const val googleServicesPlugin = "4.3.3"
-    const val buildProperties = "0.4"
     const val ktlint = "0.43.0"
     const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
@@ -46,7 +45,7 @@ object Versions {
     // Support Libraries
     const val googleServices = "17.1.0"
     const val googleServicesAuth = "19.0.0"
-    const val googleServicesPlaces = "2.4.0"
+    const val googleServicesPlaces = "2.5.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
     const val googlePlayCore = "1.8.2"
@@ -83,7 +82,7 @@ object Versions {
     const val spongycastle = "1.54.0.0"
     const val jjwt = "0.9.0"
     const val lambdaWorks = "1.0.0"
-    const val libPhoneNumber = "8.9.10"
+    const val libPhoneNumber = "8.12.41"
     const val commonsCodec = "1.3" // Keep at 1.3 to match Android
     const val commonsLang = "3.4"
     const val commonsCli = "1.3"
@@ -124,7 +123,7 @@ object Versions {
     const val xlmSunriver = "0.21.1"
     const val lottieVersion = "3.5.0"
     const val zendeskChatVersion = "3.3.0"
-    const val zendeskMessagingVersion = "5.2.0"
+    const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "18.2.0"
 
@@ -164,7 +163,6 @@ object Libraries {
     const val androidCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
-    const val buildProperties = "com.novoda:gradle-build-properties-plugin:${Versions.buildProperties}"
     const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
 
     // Support Libraries
