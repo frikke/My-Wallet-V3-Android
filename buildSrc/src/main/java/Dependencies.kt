@@ -135,6 +135,7 @@ object Versions {
 
     // Debugging
     const val stetho = "1.5.1"
+    const val leakCanary = "2.7"
 
     // Testing
     const val mockito = "3.12.4"
@@ -314,6 +315,7 @@ object Libraries {
     // Debugging
     const val stetho = "com.facebook.stetho:stetho:${Versions.stetho}"
     const val stethoOkHttp = "com.facebook.stetho:stetho-okhttp3:${Versions.stetho}"
+    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
 
     // Testing
     const val mockito = "org.mockito:mockito-core:${Versions.mockito}"
