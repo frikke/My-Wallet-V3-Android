@@ -6,9 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
+import java.io.Serializable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBinding
@@ -46,6 +49,7 @@ class CurrencySelectionSheet :
     private fun updateFiat(currency: FiatCurrency) {
         if (selectionType == CurrencySelectionType.TRADING_CURRENCY) {
             currencyPrefs.tradingCurrency = currency
+            analytics.logEvent(CurrencySelectionAnalytics.TradingCurrencyChanged(currency))
         }
         (host as? Host)?.onCurrencyChanged(currency)
         dismiss()
@@ -119,4 +123,16 @@ data class CurrencyItem(
 
 interface ChangeCurrencyOptionHost : SimpleBuyScreen {
     fun skip()
+}
+
+sealed class CurrencySelectionAnalytics(
+    override val event: String,
+    override val params: Map<String, Serializable> = mapOf()
+) : AnalyticsEvent {
+    data class TradingCurrencyChanged(
+        val currency: FiatCurrency
+    ) : CurrencySelectionAnalytics(
+        AnalyticsNames.CURRENCY_SELECTION_TRADING_CURRENCY_CHANGED.eventName,
+        mapOf("currency" to currency.networkTicker)
+    )
 }

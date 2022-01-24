@@ -194,7 +194,8 @@ enum class AnalyticsNames(val eventName: String) {
     DASHBOARD_ONBOARDING_VIEWED("Peeksheet Viewed"),
     DASHBOARD_ONBOARDING_DISMISSED("Peeksheet Dismissed"),
     DASHBOARD_ONBOARDING_CARD_CLICKED("Peeksheet Process Clicked"),
-    DASHBOARD_ONBOARDING_STEP_LAUNCHED("Peeksheet Selection Clicked")
+    DASHBOARD_ONBOARDING_STEP_LAUNCHED("Peeksheet Selection Clicked"),
+    CURRENCY_SELECTION_TRADING_CURRENCY_CHANGED("Fiat Currency Selected")
 }
 
 enum class LaunchOrigin {
