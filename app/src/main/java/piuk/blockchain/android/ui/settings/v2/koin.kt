@@ -14,12 +14,12 @@ import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsState
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileInteractor
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
-import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationInteractor
-import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationModel
-import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationState
 import piuk.blockchain.android.ui.settings.v2.security.SecurityInteractor
 import piuk.blockchain.android.ui.settings.v2.security.SecurityModel
 import piuk.blockchain.android.ui.settings.v2.security.SecurityState
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationInteractor
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationModel
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationState
 import piuk.blockchain.android.util.AppUtil
 
 val profileScope = named("ProfileScope")

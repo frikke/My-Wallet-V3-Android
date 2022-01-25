@@ -63,16 +63,19 @@ class SecurityInteractorTest {
 
     @Test
     fun `check two fa state auth off and not sms verified should trigger view`() {
+        val phoneNumber = "12334556"
         val settingsMock: Settings = mock {
             on { authType }.thenReturn(Settings.AUTH_TYPE_OFF)
             on { isSmsVerified }.thenReturn(false)
+            on { smsNumber }.thenReturn(phoneNumber)
         }
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
 
         val test = interactor.checkTwoFaState().test()
         test.assertValue {
             (it is SecurityIntent.UpdateViewState) &&
-                (it.viewState == SecurityViewState.ShowVerifyPhoneNumberRequired)
+                (it.viewState is SecurityViewState.ShowVerifyPhoneNumberRequired) &&
+                (it.viewState as SecurityViewState.ShowVerifyPhoneNumberRequired).phoneNumber == phoneNumber
         }
 
         verify(settingsDataManager).getSettings()
@@ -86,14 +89,24 @@ class SecurityInteractorTest {
             on { isSmsVerified }.thenReturn(true)
         }
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
-        whenever(settingsDataManager.updateTwoFactor(Settings.AUTH_TYPE_SMS)).thenReturn(Observable.just(mock()))
 
         val test = interactor.checkTwoFaState().test()
         test.assertValue {
-            it is SecurityIntent.TwoFactorEnabled
+            (it is SecurityIntent.UpdateViewState) &&
+                (it.viewState == SecurityViewState.ShowConfirmTwoFaEnabling)
         }
 
         verify(settingsDataManager).getSettings()
+        verifyNoMoreInteractions(settingsDataManager)
+    }
+
+    @Test
+    fun `enable 2fa should call settings`() {
+        whenever(settingsDataManager.updateTwoFactor(Settings.AUTH_TYPE_SMS)).thenReturn(Observable.just(mock()))
+
+        val test = interactor.enableTwoFa().test()
+        test.assertComplete()
+
         verify(settingsDataManager).updateTwoFactor(Settings.AUTH_TYPE_SMS)
         verifyNoMoreInteractions(settingsDataManager)
     }
@@ -223,5 +236,12 @@ class SecurityInteractorTest {
 
     @Test
     fun `disable biometrics should update preferences`() {
+        doNothing().whenever(biometricsController).setBiometricUnlockDisabled()
+
+        val result = interactor.disableBiometricLogin().test()
+        result.assertComplete()
+
+        verify(biometricsController).setBiometricUnlockDisabled()
+        verifyNoMoreInteractions(biometricsController)
     }
 }

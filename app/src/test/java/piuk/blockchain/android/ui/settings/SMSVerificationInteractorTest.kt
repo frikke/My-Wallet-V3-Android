@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationInteractor
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationInteractor
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 

@@ -492,12 +492,8 @@
     <string name="settings_pair_wallet">Pair my wallet</string>
     <string name="web_login">Web Log In</string>
 
-    <string name="disable_2fa_first">Please disable 2-step Verification via SMS in the security
-        settings first.
-    </string>
-    <string name="disable_online_only">Please login to your wallet in the web browser to disable
-        2FA.
-    </string>
+    <string name="disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
+    <string name="disable_online_only">Please login to your wallet in the web browser to disable 2FA.</string>
     <string name="settings_error_updating">Error updating settings, please try again</string>
     <string name="request_camera_permission">Camera access is required.</string>
 
@@ -506,8 +502,7 @@
     <string name="verify_mobile">Verify Mobile</string>
     <string name="select_country">Select Country</string>
     <string name="search_country">Search Country</string>
-    <string name="verify_sms_summary">We have sent your mobile phone an SMS message with a
-        verification code. Enter the code to verify your mobile phone number.
+    <string name="verify_sms_summary">We have sent an SMS message to your phone number with a verification code. Enter it below to verify your mobile phone.
     </string>
     <string name="verify_sms_failed">Code invalid, please try again</string>
     <string name="mobile_description">Your mobile phone can be used to enable two-factor
@@ -2587,18 +2582,24 @@
     <string name="profile_enter_code">Enter Verification Code</string>
     <string name="profile_verification_code_error">Verification code failed</string>
     <string name="profile_resend_sms_error">Resending SMS failed</string>
+    <string name="profile_label_dial_code">Dial code</string>
 
     <!-- Code SMS Verification -->
     <string name="code_verification_resent_sms">A new code has been sent</string>
     <string name="code_verification_enter">Enter Verification Code</string>
     <string name="code_verification_re_send_text">Resend Text</string>
     <string name="code_verification_verify_code">Verify Code</string>
-    <string name="code_verification_placeholder">-----</string>
+    <string name="code_verification_placeholder">--- ---</string>
+    <string name="code_verification_title">Verify Your Phone Number</string>
 
     <!-- Notifications screen -->
     <string name="notifications_toolbar">Notifications</string>
     <string name="email_notifications_title">Email Notifications</string>
     <string name="push_notifications_title">Push Notifications</string>
+    <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
+    <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
+    <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
+    <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
 
     <!-- Security screen -->
     <string name="security_toolbar">Security</string>
@@ -2615,6 +2616,22 @@
     <string name="security_screenshots_title">Enable Screenshots</string>
     <string name="security_tor_title">Block Tor Requests</string>
     <string name="security_tor_subtitle">Block IP addresses known to be part of the Tor anonymizing network.\n(Disabling this setting will be permanent)</string>
+    <string name="security_two_fa_sheet_title">Enable 2FA</string>
+    <string name="security_two_fa_sheet_blurb">Protect your wallet from unauthorized access by enabling 2 Step Verification. Tap Enable to use your phone number to secure your wallet. To use other authentication methods, log into your web wallet and set them up there.</string>
+    <string name="security_two_fa_sheet_cta_enable">Enable SMS 2FA</string>
+    <string name="security_two_fa_sheet_cta_other">Enable Other 2FA Method</string>
+    <string name="security_two_fa_disable_on_web_cta">Open Web Login</string>
+    <string name="security_two_fa_disable_on_web_blurb">This 2FA type can only be disabled through the Web Wallet. Please log in there to proceed.</string>
+    <string name="security_biometrics_disable_title">Disable Biometrics?</string>
+    <string name="security_biometrics_add_title">No Biometrics Added</string>
+    <string name="security_biometrics_cta_disable">Disable Biometrics</string>
+    <string name="security_biometrics_cta_add">Add Biometrics</string>
+    <string name="security_biometrics_add_blurb">No biometrics have been registered on this device yet. Do you want to register your biometrics now?</string>
+    <string name="security_error_initial_info_load">There was an error loading your Security information. Please try again.</string>
+    <string name="security_error_pin_missing">There was an error with your PIN. Please try again.</string>
+    <string name="security_error_biometrics_disable">There was an error disabling your Biometrics, please try again.</string>
+    <string name="security_error_two_fa">There was an error updating Two Factor Authentication, please try again.</string>
+    <string name="security_error_screenshots">There was an error updating Screenshots, please try again.</string>
 
     <!-- About app screen -->
     <string name="about_app_toolbar">About App</string>
@@ -2623,14 +2640,11 @@
     <string name="about_app_rate_app">Rate Our App</string>
     <string name="about_app_terms_service">Terms of Service</string>
     <string name="about_app_privacy_policy">Privacy Policy</string>
-    <string name="profile_label_dial_code">Dial code</string>
-    <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
-    <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
-    <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
-    <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
-    <!--    Wallet Connect-->
+
+    <!-- Wallet Connect-->
     <string name="dapp_wants_to_connect">%1s wants to connect</string>
     <string name="dapp_is_now_approved">%1s is Now Connected to Your Wallet</string>
     <string name="dapp_is_now_rejected">%1s Connection was Rejected</string>
     <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
+
 </resources>

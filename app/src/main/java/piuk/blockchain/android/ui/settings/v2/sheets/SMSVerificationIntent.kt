@@ -1,10 +1,10 @@
-package piuk.blockchain.android.ui.settings.v2.profile
+package piuk.blockchain.android.ui.settings.v2.sheets
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 
 sealed class SMSVerificationIntent : MviIntent<SMSVerificationState> {
 
-    data class ResendCodeSMS(val phoneNumber: String) : SMSVerificationIntent() {
+    data class ResendSMS(val phoneNumber: String) : SMSVerificationIntent() {
         override fun reduce(oldState: SMSVerificationState): SMSVerificationState =
             oldState.copy(
                 isLoading = true
@@ -34,7 +34,7 @@ sealed class SMSVerificationIntent : MviIntent<SMSVerificationState> {
             )
     }
 
-    data class VerifyPhoneNumber(val code: String) : SMSVerificationIntent() {
+    data class VerifySMSCode(val code: String) : SMSVerificationIntent() {
         override fun reduce(oldState: SMSVerificationState): SMSVerificationState =
             oldState.copy(
                 isLoading = true

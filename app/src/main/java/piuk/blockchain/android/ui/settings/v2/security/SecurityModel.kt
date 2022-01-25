@@ -66,6 +66,17 @@ class SecurityModel(
                         }
                     )
             }
+            is SecurityIntent.EnableTwoFa -> {
+                interactor.enableTwoFa()
+                    .subscribeBy(
+                        onSuccess = {
+                            process(SecurityIntent.TwoFactorEnabled)
+                        },
+                        onError = {
+                            process(SecurityIntent.UpdateErrorState(SecurityError.TWO_FA_TOGGLE_FAIL))
+                        }
+                    )
+            }
             is SecurityIntent.ToggleScreenshots -> {
                 previousState.securityInfo?.areScreenshotsEnabled?.let { currentSetting ->
                     interactor.updateScreenshotsEnabled(!currentSetting)

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.settings.v2.profile
+package piuk.blockchain.android.ui.settings.v2.sheets
 
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
@@ -34,7 +34,7 @@ class SMSVerificationModel(
         intent: SMSVerificationIntent
     ): Disposable? =
         when (intent) {
-            is SMSVerificationIntent.ResendCodeSMS -> {
+            is SMSVerificationIntent.ResendSMS -> {
                 interactor.resendCodeSMS(
                     mobileWithPrefix = intent.phoneNumber
                 ).trackProgress(activityIndicator)
@@ -43,12 +43,12 @@ class SMSVerificationModel(
                             process(SMSVerificationIntent.ResendCodeSMSSucceeded)
                         },
                         onError = {
-                            Timber.e("ResendCodeSMS failure " + it)
+                            Timber.e("ResendSMS failure $it")
                             process(SMSVerificationIntent.ResendCodeSMSFailed)
                         }
                     )
             }
-            is SMSVerificationIntent.VerifyPhoneNumber -> {
+            is SMSVerificationIntent.VerifySMSCode -> {
                 interactor.verifyPhoneNumber(
                     code = intent.code
                 ).trackProgress(activityIndicator)
@@ -57,7 +57,7 @@ class SMSVerificationModel(
                             process(SMSVerificationIntent.VerifyPhoneNumberSucceeded)
                         },
                         onError = {
-                            Timber.e("VerifyPhoneNumber failure " + it)
+                            Timber.e("VerifySMSCode failure $it")
                             process(SMSVerificationIntent.VerifyPhoneNumberFailed)
                         }
                     )

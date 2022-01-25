@@ -35,12 +35,11 @@ class SecurityInteractor internal constructor(
         settingsDataManager.getSettings().firstOrError().flatMap {
             if (it.authType == Settings.AUTH_TYPE_OFF) {
                 if (!it.isSmsVerified) {
-                    Single.just(SecurityIntent.UpdateViewState(SecurityViewState.ShowVerifyPhoneNumberRequired))
+                    Single.just(
+                        SecurityIntent.UpdateViewState(SecurityViewState.ShowVerifyPhoneNumberRequired(it.smsNumber))
+                    )
                 } else {
-                    // TODO here we currently show a dialog with details about how to set up another type of two fa via website
-                    settingsDataManager.updateTwoFactor(Settings.AUTH_TYPE_SMS).firstOrError().map {
-                        SecurityIntent.TwoFactorEnabled
-                    }
+                    Single.just(SecurityIntent.UpdateViewState(SecurityViewState.ShowConfirmTwoFaEnabling))
                 }
             } else {
                 if (it.authType == Settings.AUTH_TYPE_GOOGLE_AUTHENTICATOR ||
@@ -54,6 +53,8 @@ class SecurityInteractor internal constructor(
                 }
             }
         }
+
+    fun enableTwoFa(): Single<Settings> = settingsDataManager.updateTwoFactor(Settings.AUTH_TYPE_SMS).firstOrError()
 
     fun updateScreenshotsEnabled(enabled: Boolean): Completable =
         Completable.fromAction { securityPrefs.setScreenshotsEnabled(enabled) }

@@ -1,9 +1,8 @@
-package piuk.blockchain.android.ui.settings.v2.profile
+package piuk.blockchain.android.ui.settings.v2.sheets
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.koin.scopedInject
@@ -12,12 +11,12 @@ import piuk.blockchain.android.databinding.BottomSheetCodeSmsVerificationBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 
-class CodeSMSVerificationBottomSheet :
+class SMSPhoneVerificationBottomSheet :
     MviBottomSheet<SMSVerificationModel, SMSVerificationIntent,
         SMSVerificationState, BottomSheetCodeSmsVerificationBinding>() {
 
     interface Host : HostedBottomSheet.Host {
-        fun onReloadProfile()
+        fun onPhoneNumberVerified()
     }
 
     override val model: SMSVerificationModel by scopedInject()
@@ -30,11 +29,6 @@ class CodeSMSVerificationBottomSheet :
 
     private val phoneNumber: String by lazy {
         arguments?.getString(PHONE_NUMBER).orEmpty()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.FloatingBottomSheet)
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): BottomSheetCodeSmsVerificationBinding =
@@ -53,19 +47,20 @@ class CodeSMSVerificationBottomSheet :
                 getString(R.string.profile_resend_sms_error), ToastCustom.TYPE_ERROR
             )
         }
-        if (newState.isCodeSmsSent == true) {
+        if (newState.isCodeSmsSent) {
             toast(getString(R.string.code_verification_resent_sms), ToastCustom.TYPE_OK)
             model.process(SMSVerificationIntent.ResetCodeSentVerification)
         }
-        if (newState.isPhoneVerified == true) {
-            host.onReloadProfile()
+        if (newState.isPhoneVerified) {
+            toast(getString(R.string.sms_verified), ToastCustom.TYPE_OK)
+            host.onPhoneNumberVerified()
             dismiss()
         }
     }
 
     private fun setupUI() {
         with(binding) {
-            codeSms.apply {
+            smsCode.apply {
                 singleLine = true
                 labelText = getString(R.string.code_verification_enter)
                 onValueChange = { value = it }
@@ -73,28 +68,34 @@ class CodeSMSVerificationBottomSheet :
             }
             resendSms.apply {
                 text = getString(R.string.code_verification_re_send_text)
-                onClick = { resendCodeSMS() }
+                onClick = { resendSMS() }
             }
             verifyCode.apply {
                 text = getString(R.string.code_verification_verify_code)
-                onClick = { verifyCodeSMS() }
+                onClick = { verifyCode() }
+            }
+            sheetHeader.apply {
+                title = getString(R.string.code_verification_title)
+                onClosePress = {
+                    this@SMSPhoneVerificationBottomSheet.dismiss()
+                }
             }
         }
     }
 
-    private fun resendCodeSMS() {
-        model.process(SMSVerificationIntent.ResendCodeSMS(phoneNumber))
+    private fun resendSMS() {
+        model.process(SMSVerificationIntent.ResendSMS(phoneNumber))
     }
 
-    private fun verifyCodeSMS() {
-        model.process(SMSVerificationIntent.VerifyPhoneNumber(binding.codeSms.value))
+    private fun verifyCode() {
+        model.process(SMSVerificationIntent.VerifySMSCode(binding.smsCode.value))
     }
 
     companion object {
         private const val PHONE_NUMBER = "phone_number"
 
         fun newInstance(phoneNumber: String) =
-            CodeSMSVerificationBottomSheet().apply {
+            SMSPhoneVerificationBottomSheet().apply {
                 arguments = Bundle().apply {
                     putString(PHONE_NUMBER, phoneNumber)
                 }

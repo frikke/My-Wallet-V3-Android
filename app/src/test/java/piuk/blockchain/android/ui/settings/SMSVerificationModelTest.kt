@@ -11,11 +11,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationIntent
-import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationInteractor
-import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationModel
-import piuk.blockchain.android.ui.settings.v2.profile.SMSVerificationState
-import piuk.blockchain.android.ui.settings.v2.profile.VerificationError
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationIntent
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationInteractor
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationModel
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationState
+import piuk.blockchain.android.ui.settings.v2.sheets.VerificationError
 
 class SMSVerificationModelTest {
     private lateinit var model: SMSVerificationModel
@@ -56,7 +56,7 @@ class SMSVerificationModelTest {
         ).thenReturn(Single.just(settings))
 
         val testState = model.state.test()
-        model.process(SMSVerificationIntent.ResendCodeSMS(settings.smsNumber))
+        model.process(SMSVerificationIntent.ResendSMS(settings.smsNumber))
 
         testState
             .assertValueAt(0) {
@@ -83,7 +83,7 @@ class SMSVerificationModelTest {
         )
 
         val testState = model.state.test()
-        model.process(SMSVerificationIntent.ResendCodeSMS(phoneNumber))
+        model.process(SMSVerificationIntent.ResendSMS(phoneNumber))
 
         testState.assertValueAt(0) {
             it == SMSVerificationState()
@@ -107,7 +107,7 @@ class SMSVerificationModelTest {
             .thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(SMSVerificationIntent.VerifyPhoneNumber(code))
+        model.process(SMSVerificationIntent.VerifySMSCode(code))
 
         testState
             .assertValueAt(0) {
@@ -132,7 +132,7 @@ class SMSVerificationModelTest {
             .thenReturn(Completable.error { Throwable() })
 
         val testState = model.state.test()
-        model.process(SMSVerificationIntent.VerifyPhoneNumber(code))
+        model.process(SMSVerificationIntent.VerifySMSCode(code))
 
         testState.assertValueAt(0) {
             it == SMSVerificationState()

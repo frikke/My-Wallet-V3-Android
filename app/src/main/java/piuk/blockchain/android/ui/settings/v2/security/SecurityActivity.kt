@@ -2,10 +2,11 @@ package piuk.blockchain.android.ui.settings.v2.security
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
@@ -20,10 +21,19 @@ import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ActivitySecurityBinding
+import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
+import piuk.blockchain.android.ui.settings.v2.sheets.BiometricsInfoSheet
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSPhoneVerificationBottomSheet
+import piuk.blockchain.android.ui.settings.v2.sheets.TwoFactorInfoSheet
+import piuk.blockchain.android.urllinks.WEB_WALLET_LOGIN_URI
 
-class SecurityActivity : MviActivity<SecurityModel, SecurityIntent, SecurityState, ActivitySecurityBinding>() {
+class SecurityActivity :
+    MviActivity<SecurityModel, SecurityIntent, SecurityState, ActivitySecurityBinding>(),
+    SMSPhoneVerificationBottomSheet.Host,
+    TwoFactorInfoSheet.Host,
+    BiometricsInfoSheet.Host {
 
     override val model: SecurityModel by scopedInject()
 
@@ -40,6 +50,12 @@ class SecurityActivity : MviActivity<SecurityModel, SecurityIntent, SecurityStat
         ActivityResultContracts.StartActivityForResult()
     ) {
         model.process(SecurityIntent.ToggleBiometrics)
+    }
+
+    private val onWebWalletOpenResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        model.process(SecurityIntent.LoadInitialInformation)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,19 +133,24 @@ class SecurityActivity : MviActivity<SecurityModel, SecurityIntent, SecurityStat
         if (newState.securityViewState != SecurityViewState.None) {
             when (newState.securityViewState) {
                 SecurityViewState.ConfirmBiometricsDisabling -> {
-                    showDisableBiometricsConfirmationDialog()
+                    showDisableBiometricsConfirmationSheet()
                 }
                 SecurityViewState.ShowEnrollBiometrics -> {
-                    showNoBiometricsAddedDialog()
+                    showNoBiometricsAddedSheet()
                 }
                 SecurityViewState.ShowEnableBiometrics -> {
                     showBiometricsConfirmationSheet()
                 }
-                SecurityViewState.ShowVerifyPhoneNumberRequired -> {
-                    // TODO show phone number verification bottom sheet from Profile when that is merged to develop
+                is SecurityViewState.ShowVerifyPhoneNumberRequired -> {
+                    showBottomSheet(SMSPhoneVerificationBottomSheet.newInstance(newState.securityViewState.phoneNumber))
                 }
                 SecurityViewState.ShowDisablingOnWebRequired -> {
-                    // TODO
+                    showBottomSheet(
+                        TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.DISABLE_ON_WEB)
+                    )
+                }
+                SecurityViewState.ShowConfirmTwoFaEnabling -> {
+                    showBottomSheet(TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.ENABLE))
                 }
                 SecurityViewState.None -> {
                     // do nothing
@@ -168,22 +189,29 @@ class SecurityActivity : MviActivity<SecurityModel, SecurityIntent, SecurityStat
     private fun processError(errorState: SecurityError) {
         when (errorState) {
             SecurityError.LOAD_INITIAL_INFO_FAIL -> {
-                toast("Error loading initial info")
+                ToastCustom.makeText(
+                    this, getString(R.string.security_error_initial_info_load), Toast.LENGTH_LONG,
+                    ToastCustom.TYPE_ERROR
+                )
+                finish()
             }
             SecurityError.PIN_MISSING_EXCEPTION -> {
-                toast("PIN missing")
+                ToastCustom.makeText(
+                    this, getString(R.string.security_error_pin_missing), Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
+                )
+                finish()
             }
             SecurityError.BIOMETRICS_DISABLING_FAIL -> {
-                toast("failed disabling biometrics")
+                toast(getString(R.string.security_error_biometrics_disable), ToastCustom.TYPE_ERROR)
             }
             SecurityError.TWO_FA_TOGGLE_FAIL -> {
-                toast("failed toggling two fa")
+                toast(getString(R.string.security_error_two_fa), ToastCustom.TYPE_ERROR)
             }
             SecurityError.TOR_FILTER_UPDATE_FAIL -> {
-                toast("failed toggling tor")
+                toast(getString(R.string.security_error_two_fa), ToastCustom.TYPE_ERROR)
             }
             SecurityError.SCREENSHOT_UPDATE_FAIL -> {
-                toast("failed toggling screenshots")
+                toast(getString(R.string.security_error_screenshots), ToastCustom.TYPE_ERROR)
             }
             SecurityError.NONE -> {
                 // do nothing
@@ -230,14 +258,12 @@ class SecurityActivity : MviActivity<SecurityModel, SecurityIntent, SecurityStat
                     )
                 }
             )
-            is BiometricAuthError.BiometricsNoSuitableMethods -> showNoBiometricsAddedDialog()
+            is BiometricAuthError.BiometricsNoSuitableMethods -> showNoBiometricsAddedSheet()
             is BiometricAuthError.BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(this)
-            is BiometricAuthError.BiometricAuthLockoutPermanent -> BiometricPromptUtil.showPermanentAuthLockoutDialog(
-                this
-            )
-            is BiometricAuthError.BiometricAuthOther -> BiometricPromptUtil.showBiometricsGenericError(
-                this, error.error
-            )
+            is BiometricAuthError.BiometricAuthLockoutPermanent ->
+                BiometricPromptUtil.showPermanentAuthLockoutDialog(this)
+            is BiometricAuthError.BiometricAuthOther ->
+                BiometricPromptUtil.showBiometricsGenericError(this, error.error)
             else -> {
                 // do nothing
             }
@@ -246,27 +272,36 @@ class SecurityActivity : MviActivity<SecurityModel, SecurityIntent, SecurityStat
         analytics.logEvent(SettingsAnalytics.BiometricsOptionUpdated(false))
     }
 
-    private fun showDisableBiometricsConfirmationDialog() {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.app_name)
-            .setMessage(R.string.biometric_disable_message)
-            .setCancelable(true)
-            .setPositiveButton(R.string.common_yes) { di, _ ->
-                model.process(SecurityIntent.DisableBiometrics)
-                di.dismiss()
-            }
-            .setNegativeButton(android.R.string.cancel) { di, _ ->
-                di.dismiss()
-            }
-            .show()
+    private fun showDisableBiometricsConfirmationSheet() {
+        showBottomSheet(
+            BiometricsInfoSheet.newInstance(BiometricsInfoSheet.Companion.BiometricSheetMode.DISABLE_CONFIRMATION)
+        )
     }
 
-    private fun showNoBiometricsAddedDialog() {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.app_name)
-            .setMessage(R.string.fingerprint_no_fingerprints_added)
-            .setCancelable(true)
-            .setPositiveButton(R.string.common_yes) { _, _ ->
+    private fun showNoBiometricsAddedSheet() {
+        showBottomSheet(
+            BiometricsInfoSheet.newInstance(BiometricsInfoSheet.Companion.BiometricSheetMode.NO_BIOMETRICS_ADDED)
+        )
+    }
+
+    override fun onPhoneNumberVerified() {
+        model.process(SecurityIntent.ToggleTwoFa)
+    }
+
+    override fun onEnableSMSTwoFa() {
+        model.process(SecurityIntent.EnableTwoFa)
+    }
+
+    override fun onActionOnWebTwoFa() {
+        onWebWalletOpenResult.launch(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.$WEB_WALLET_LOGIN_URI")))
+    }
+
+    override fun onPositiveActionClicked(sheetMode: BiometricsInfoSheet.Companion.BiometricSheetMode) {
+        when (sheetMode) {
+            BiometricsInfoSheet.Companion.BiometricSheetMode.DISABLE_CONFIRMATION -> {
+                model.process(SecurityIntent.DisableBiometrics)
+            }
+            BiometricsInfoSheet.Companion.BiometricSheetMode.NO_BIOMETRICS_ADDED -> {
                 onBiometricsAddedResult.launch(
                     Intent(
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
@@ -277,8 +312,11 @@ class SecurityActivity : MviActivity<SecurityModel, SecurityIntent, SecurityStat
                     )
                 )
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        }
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
     }
 
     companion object {

@@ -22,11 +22,12 @@ import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.settings.v2.sheets.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.util.FormatChecker
 
 class UpdatePhoneFragment :
     MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdatePhoneBinding>(),
-    CodeSMSVerificationBottomSheet.Host,
+    SMSPhoneVerificationBottomSheet.Host,
     FlowFragment {
 
     private val formatChecker: FormatChecker by inject()
@@ -203,7 +204,7 @@ class UpdatePhoneFragment :
     }
 
     private fun showDialogVerifySms(mobileWithPrefix: String) {
-        CodeSMSVerificationBottomSheet.newInstance(mobileWithPrefix)
+        SMSPhoneVerificationBottomSheet.newInstance(mobileWithPrefix)
             .show(childFragmentManager, BOTTOM_SHEET)
     }
 
@@ -211,7 +212,7 @@ class UpdatePhoneFragment :
         fun newInstance() = UpdatePhoneFragment()
     }
 
-    override fun onReloadProfile() {
+    override fun onPhoneNumberVerified() {
         model.process(ProfileIntent.LoadProfile)
     }
 

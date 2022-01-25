@@ -13,8 +13,9 @@ sealed class SecurityViewState {
     object ConfirmBiometricsDisabling : SecurityViewState()
     object ShowEnrollBiometrics : SecurityViewState()
     object ShowEnableBiometrics : SecurityViewState()
-    object ShowVerifyPhoneNumberRequired : SecurityViewState()
+    class ShowVerifyPhoneNumberRequired(val phoneNumber: String) : SecurityViewState()
     object ShowDisablingOnWebRequired : SecurityViewState()
+    object ShowConfirmTwoFaEnabling : SecurityViewState()
 }
 
 enum class SecurityError {

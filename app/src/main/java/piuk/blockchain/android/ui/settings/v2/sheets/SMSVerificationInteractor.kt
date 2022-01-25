@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.settings.v2.profile
+package piuk.blockchain.android.ui.settings.v2.sheets
 
 import com.blockchain.nabu.NabuUserSync
 import info.blockchain.wallet.api.data.Settings

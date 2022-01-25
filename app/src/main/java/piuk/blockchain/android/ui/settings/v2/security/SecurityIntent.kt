@@ -66,6 +66,10 @@ sealed class SecurityIntent : MviIntent<SecurityState> {
         )
     }
 
+    object EnableTwoFa : SecurityIntent() {
+        override fun reduce(oldState: SecurityState): SecurityState = oldState
+    }
+
     object TwoFactorDisabled : SecurityIntent() {
         override fun reduce(oldState: SecurityState): SecurityState = oldState.copy(
             securityInfo = oldState.securityInfo?.copy(isTwoFaEnabled = false)

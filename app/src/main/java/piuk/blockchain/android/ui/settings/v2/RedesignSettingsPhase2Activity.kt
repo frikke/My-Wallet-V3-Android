@@ -60,6 +60,7 @@ import piuk.blockchain.android.ui.settings.v2.account.AccountActivity
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsActivity
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityActivity
+import piuk.blockchain.android.ui.settings.v2.sheets.AddPaymentMethodsBottomSheet
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg

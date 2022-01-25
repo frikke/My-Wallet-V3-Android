@@ -157,10 +157,11 @@ class SecurityModelTest {
     @Test
     fun `toggle two fa succeeds`() {
         // get an intent returned by this interactor function and test the state updates
+        val number = "12345"
         whenever(interactor.checkTwoFaState()).thenReturn(
             Single.just(
                 SecurityIntent.UpdateViewState(
-                    SecurityViewState.ShowVerifyPhoneNumberRequired
+                    SecurityViewState.ShowVerifyPhoneNumberRequired(number)
                 )
             )
         )
@@ -171,7 +172,8 @@ class SecurityModelTest {
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it.securityViewState is SecurityViewState.ShowVerifyPhoneNumberRequired
+            it.securityViewState is SecurityViewState.ShowVerifyPhoneNumberRequired &&
+                (it.securityViewState as SecurityViewState.ShowVerifyPhoneNumberRequired).phoneNumber == number
         }
     }
 
