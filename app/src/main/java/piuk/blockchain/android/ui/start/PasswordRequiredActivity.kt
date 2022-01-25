@@ -6,7 +6,7 @@ import android.os.CountDownTimer
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
@@ -48,17 +48,17 @@ class PasswordRequiredActivity :
         }
     }
 
-    override val toolbarBinding: ToolbarGeneralBinding
-        get() = binding.toolbar
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        updateToolbar(
-            toolbarTitle = getString(R.string.confirm_password),
-            backAction = { onBackPressed() }
-        )
+
         with(binding) {
+
+            walletIdentifier.apply {
+                labelText = getString(R.string.wallet_id)
+                state = TextInputState.Disabled()
+            }
+
             buttonContinue.apply {
                 onClick = {
                     presenter.onContinueClicked(binding.fieldPassword.text.toString())
@@ -99,7 +99,7 @@ class PasswordRequiredActivity :
     }
 
     override fun showWalletGuid(guid: String) {
-        binding.walletIdentifier.text = guid
+        binding.walletIdentifier.value = guid
     }
 
     override fun goToPinPage() {
