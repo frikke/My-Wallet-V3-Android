@@ -21,7 +21,7 @@ class CeloEurAnnouncement(
 
     override val dismissKey = DISMISS_KEY
 
-    override val name = "celo_eur"
+    override val name = "celo_eur_jan22"
 
     private var newAsset: AssetInfo? = null
 
