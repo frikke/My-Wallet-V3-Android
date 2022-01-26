@@ -1,4 +1,4 @@
-package piuk.blockchain.android.simplebuy
+package piuk.blockchain.android.simplebuy.paymentmethods
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,8 @@ import java.io.Serializable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyPaymentMethodChooserBinding
+import piuk.blockchain.android.simplebuy.paymentMethodsShown
+import piuk.blockchain.android.simplebuy.toAnalyticsString
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor

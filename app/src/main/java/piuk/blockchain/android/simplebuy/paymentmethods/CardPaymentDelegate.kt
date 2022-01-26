@@ -1,22 +1,26 @@
-package piuk.blockchain.android.simplebuy
+package piuk.blockchain.android.simplebuy.paymentmethods
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.PaymentMethod
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.LinkBankLayoutBinding
+import piuk.blockchain.android.cards.icon
+import piuk.blockchain.android.databinding.CardPaymentMethodLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 
-class LinkBankDelegate : AdapterDelegate<PaymentMethodItem> {
+class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
 
     override fun isForViewType(items: List<PaymentMethodItem>, position: Int): Boolean =
-        items[position].paymentMethod is PaymentMethod.UndefinedBankTransfer
+        items[position].paymentMethod is PaymentMethod.Card
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
-        LinkBankViewHolder(
-            LinkBankLayoutBinding.inflate(
+        CardPaymentViewHolder(
+            CardPaymentMethodLayoutBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -24,23 +28,29 @@ class LinkBankDelegate : AdapterDelegate<PaymentMethodItem> {
         )
 
     override fun onBindViewHolder(items: List<PaymentMethodItem>, position: Int, holder: RecyclerView.ViewHolder) {
-        (holder as LinkBankViewHolder).bind(items[position])
+        (holder as CardPaymentViewHolder).bind(items[position])
     }
 
-    private class LinkBankViewHolder(private val binding: LinkBankLayoutBinding) :
+    private class CardPaymentViewHolder(private val binding: CardPaymentMethodLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(paymentMethodItem: PaymentMethodItem) {
             with(binding) {
-                (paymentMethodItem.paymentMethod as? PaymentMethod.UndefinedBankTransfer)?.let {
+                (paymentMethodItem.paymentMethod as? PaymentMethod.Card)?.let {
+                    paymentMethodIcon.setImageResource(it.cardType.icon())
                     paymentMethodLimit.text =
                         context.getString(
                             R.string.payment_method_limit,
                             paymentMethodItem.paymentMethod.limits.max.toStringWithSymbol()
                         )
+                    paymentMethodTitle.text = it.uiLabel()
+                    cardNumber.text = it.dottedEndDigits()
                 }
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
             }
         }
+
+        private fun Date.formatted(): String =
+            SimpleDateFormat("MM/yyyy", Locale.getDefault()).format(this)
     }
 }

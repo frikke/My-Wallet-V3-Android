@@ -2059,6 +2059,11 @@
     <string name="sb_checkout_yearly_limit_blurb">Oops, looks like you’ve used up your yearly transaction limit for Buys and Deposits.</string>
     <string name="sb_checkout_pending_order_title">Order in progress</string>
     <string name="sb_checkout_pending_order_blurb">Oops, looks like you’ve already got a Buy order in progress, please wait until it completes before buying again.</string>
+    <string name="sb_checkout_card_insufficient_funds_title">Insufficient funds</string>
+    <string name="sb_checkout_card_insufficient_funds_blurb">Your bank tells us you don’t have enough funds in your account, check and try again.</string>
+    <string name="sb_checkout_card_declined_title">Payment declined</string>
+    <string name="sb_checkout_card_declined_blurb">Your bank has declined this transaction, please try another bank or payment method.</string>
+    <string name="sb_checkout_contact_support">If you think the payment should have worked, please <annotation link="contact_support">contact support</annotation></string>
 
     <!-- Yapily -->
     <string name="yapily_empty_blurb">We couldn’t find your bank. Send funds from your bank to your Blockchain Wallet with a Manual Transfer.</string>
@@ -2146,7 +2151,7 @@
     <string name="bank_transfer_payment_failed_title">Payment Failed</string>
     <string name="bank_transfer_payment_failed_subtitle">There was an issue with your bank. Please try again or use a different payment method. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_declined_title">Payment Declined</string>
-    <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support</string>
+    <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support.\nIf you’ve already done this then please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_rejected_title">Payment Rejected</string>
     <string name="bank_transfer_payment_rejected_subtitle">We believe you have declined the payment from your bank account. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_expired_title">Payment Request Expired</string>

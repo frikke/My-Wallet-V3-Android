@@ -16,8 +16,7 @@ sealed class CardIntent : MviIntent<CardState> {
     }
 
     class ActivateCard(val card: CardData, val cardId: String) : CardIntent() {
-        override fun reduce(oldState: CardState): CardState =
-            oldState
+        override fun reduce(oldState: CardState): CardState = oldState
     }
 
     class AuthoriseCard(private val credentials: CardAcquirerCredentials) : CardIntent() {

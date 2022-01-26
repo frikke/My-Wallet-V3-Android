@@ -15,6 +15,7 @@ import java.io.Serializable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBinding
+import piuk.blockchain.android.simplebuy.sheets.CurrenciesAdapter
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class CurrencySelectionSheet :

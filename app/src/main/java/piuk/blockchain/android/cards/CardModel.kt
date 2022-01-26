@@ -4,18 +4,18 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
+import com.blockchain.nabu.models.responses.nabu.NabuApiException
+import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.gson.Gson
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.lang.IllegalStateException
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 
-// TODO add tests for this class
 class CardModel(
     uiScheduler: Scheduler,
     currencyPrefs: CurrencyPrefs,
@@ -76,15 +76,29 @@ class CardModel(
         .doOnSubscribe {
             process(CardIntent.UpdateRequestState(CardRequestStatus.Loading))
         }.subscribeBy(
-            onError = {
-                process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL)))
-            },
             onSuccess = {
                 process(
                     CardIntent.AuthoriseCard(
                         credentials = it.toCardAcquirerCredentials()
                     )
                 )
+            },
+            onError = {
+                if (it is NabuApiException) {
+                    when (it.getErrorCode()) {
+                        NabuErrorCodes.InsufficientCardFunds -> process(
+                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.INSUFFICIENT_CARD_BALANCE))
+                        )
+                        NabuErrorCodes.CardPaymentDeclined -> process(
+                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_DECLINED))
+                        )
+                        else -> process(
+                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL))
+                        )
+                    }
+                } else {
+                    process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL)))
+                }
             }
         )
 
@@ -95,29 +109,32 @@ class CardModel(
         .doOnSubscribe {
             process(CardIntent.UpdateRequestState(CardRequestStatus.Loading))
         }
-        .subscribeBy(onError = {
-            process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.PENDING_AFTER_POLL)))
-        }, onSuccess = {
-            process(it)
-            if (it.cardDetails.status == CardStatus.ACTIVE) {
-                process(
-                    CardIntent.UpdateRequestState(
-                        CardRequestStatus.Success(
-                            it.cardDetails
+        .subscribeBy(
+            onSuccess = {
+                process(it)
+                if (it.cardDetails.status == CardStatus.ACTIVE) {
+                    process(
+                        CardIntent.UpdateRequestState(
+                            CardRequestStatus.Success(
+                                it.cardDetails
+                            )
                         )
                     )
-                )
-            } else {
-                process(
-                    CardIntent.UpdateRequestState(
-                        CardRequestStatus.Error(
-                            if (it.cardDetails.status == CardStatus.PENDING) CardError.PENDING_AFTER_POLL
-                            else CardError.LINK_FAILED
+                } else {
+                    process(
+                        CardIntent.UpdateRequestState(
+                            CardRequestStatus.Error(
+                                if (it.cardDetails.status == CardStatus.PENDING) CardError.PENDING_AFTER_POLL
+                                else CardError.LINK_FAILED
+                            )
                         )
                     )
-                )
+                }
+            },
+            onError = {
+                process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.PENDING_AFTER_POLL)))
             }
-        })
+        )
 
     private fun CompleteCardActivation.toCardAcquirerCredentials() = when (this) {
         is CompleteCardActivation.EverypayCompleteCardActivationDetails ->

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.simplebuy
+package piuk.blockchain.android.simplebuy.sheets
 
 import android.animation.LayoutTransition
 import android.content.DialogInterface
@@ -19,6 +19,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.RemoveBankBottomSheetBinding
+import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.simplebuy
+package piuk.blockchain.android.simplebuy.sheets
 
 import android.view.LayoutInflater
 import android.view.View

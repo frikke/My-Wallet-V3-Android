@@ -215,6 +215,8 @@ sealed class ErrorState : Serializable {
     object WeeklyLimitExceeded : ErrorState()
     object YearlyLimitExceeded : ErrorState()
     object ExistingPendingOrder : ErrorState()
+    object InsufficientCardFunds : ErrorState()
+    object CardPaymentDeclined : ErrorState()
 }
 
 data class SimpleBuyOrder(

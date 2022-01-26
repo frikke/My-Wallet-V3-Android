@@ -47,7 +47,7 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.transactionflow.analytics.DepositAnalytics
-import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.StringUtils
 
 class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
@@ -271,7 +271,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         transactionState: OrderState
     ) {
         val linksMap = mapOf<String, Uri>(
-            "contact_support_link" to Uri.parse(URL_BLOCKCHAIN_SUPPORT_PORTAL)
+            "contact_support_link" to Uri.parse(URL_CONTACT_SUPPORT)
         )
 
         val errorExplanation = StringUtils.getStringWithMappedAnnotations(

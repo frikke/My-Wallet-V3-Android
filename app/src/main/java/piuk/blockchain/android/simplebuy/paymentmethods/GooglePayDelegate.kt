@@ -1,19 +1,19 @@
-package piuk.blockchain.android.simplebuy
+package piuk.blockchain.android.simplebuy.paymentmethods
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import piuk.blockchain.android.databinding.AddNewCardLayoutBinding
+import piuk.blockchain.android.databinding.GooglePayLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
-class AddCardDelegate : AdapterDelegate<PaymentMethodItem> {
+class GooglePayDelegate : AdapterDelegate<PaymentMethodItem> {
 
     override fun isForViewType(items: List<PaymentMethodItem>, position: Int): Boolean =
-        items[position].paymentMethod is PaymentMethod.UndefinedCard
+        items[position].paymentMethod is PaymentMethod.GooglePay
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(
-        AddNewCardLayoutBinding.inflate(
+        GooglePayLayoutBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -25,7 +25,7 @@ class AddCardDelegate : AdapterDelegate<PaymentMethodItem> {
         headerViewHolder.bind(items[position])
     }
 
-    private class ViewHolder(private val binding: AddNewCardLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+    private class ViewHolder(binding: GooglePayLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
 
         val root: ViewGroup = binding.paymentMethodRoot
 

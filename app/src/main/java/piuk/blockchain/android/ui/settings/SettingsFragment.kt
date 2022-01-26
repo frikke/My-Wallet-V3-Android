@@ -83,9 +83,9 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ModalChangePasswordBinding
 import piuk.blockchain.android.scan.QrScanError
-import piuk.blockchain.android.simplebuy.RemoveLinkedBankBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
+import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
 import piuk.blockchain.android.ui.auth.KEY_VALIDATING_PIN_FOR_RESULT
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.auth.REQUEST_CODE_VALIDATE_PIN

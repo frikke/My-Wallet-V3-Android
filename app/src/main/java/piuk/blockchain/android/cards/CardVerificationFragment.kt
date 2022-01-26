@@ -141,12 +141,16 @@ class CardVerificationFragment :
             icon.visibility = View.VISIBLE
             okBtn.visibility = View.VISIBLE
             title.text = getString(R.string.linking_card_error_title)
-            subtitle.text = when (error) {
-                CardError.CREATION_FAILED -> getString(R.string.could_not_save_card)
-                CardError.ACTIVATION_FAIL -> getString(R.string.could_not_activate_card)
-                CardError.PENDING_AFTER_POLL -> getString(R.string.card_still_pending)
-                CardError.LINK_FAILED -> getString(R.string.card_link_failed)
-            }
+            subtitle.text = getString(
+                when (error) {
+                    CardError.CREATION_FAILED -> R.string.could_not_save_card
+                    CardError.ACTIVATION_FAIL -> R.string.could_not_activate_card
+                    CardError.PENDING_AFTER_POLL -> R.string.card_still_pending
+                    CardError.LINK_FAILED -> R.string.card_link_failed
+                    CardError.INSUFFICIENT_CARD_BALANCE -> R.string.sb_checkout_card_insufficient_funds_blurb
+                    CardError.CARD_PAYMENT_DECLINED -> R.string.sb_checkout_card_declined_blurb
+                }
+            )
         }
     }
 

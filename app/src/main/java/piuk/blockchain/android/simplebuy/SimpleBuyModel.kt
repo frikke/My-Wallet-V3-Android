@@ -745,6 +745,12 @@ class SimpleBuyModel(
                 NabuErrorCodes.PendingOrdersLimitReached -> process(
                     SimpleBuyIntent.ErrorIntent(ErrorState.ExistingPendingOrder)
                 )
+                NabuErrorCodes.InsufficientCardFunds -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.InsufficientCardFunds)
+                )
+                NabuErrorCodes.CardPaymentDeclined -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDeclined)
+                )
                 else -> process(SimpleBuyIntent.ErrorIntent())
             }
         } else {

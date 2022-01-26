@@ -1,4 +1,4 @@
-package piuk.blockchain.android.simplebuy
+package piuk.blockchain.android.simplebuy.sheets
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +8,8 @@ import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyCancelOrderBottomSheetBinding
+import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 
 class SimpleBuyCancelOrderBottomSheet : SlidingModalBottomDialog<SimpleBuyCancelOrderBottomSheetBinding>() {
 

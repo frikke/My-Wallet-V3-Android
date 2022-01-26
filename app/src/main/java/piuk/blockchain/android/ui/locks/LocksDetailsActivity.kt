@@ -20,7 +20,7 @@ import piuk.blockchain.android.databinding.ActivityOnHoldDetailsBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
-import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -94,7 +94,7 @@ class LocksDetailsActivity : BlockchainActivity() {
                 onSuccess = { userInformation ->
                     startActivity(ZendeskSubjectActivity.newInstance(this, userInformation, FUND_LOCKS_SUPPORT))
                 }, onError = {
-                calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                calloutToExternalSupportLinkDlg(this, URL_CONTACT_SUPPORT)
             }
             )
     }

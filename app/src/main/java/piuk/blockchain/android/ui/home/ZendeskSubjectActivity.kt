@@ -11,6 +11,7 @@ import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityZendeskSubjectBinding
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import zendesk.chat.Chat
 import zendesk.chat.ChatConfiguration
 import zendesk.chat.ChatEngine
@@ -25,8 +26,8 @@ class ZendeskSubjectActivity : BlockchainActivity() {
         ActivityZendeskSubjectBinding.inflate(layoutInflater)
     }
 
-    private val userInformation by lazy {
-        intent.getSerializableExtra(USER_INFO) as BasicProfileInfo
+    private val userInformation by unsafeLazy {
+        intent.getSerializableExtra(USER_INFO) as? BasicProfileInfo
     }
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -95,9 +96,10 @@ class ZendeskSubjectActivity : BlockchainActivity() {
     }
 
     private fun setChatVisitorInfo() {
+
         val visitorInfo = VisitorInfo.builder()
-            .withName(userInformation.firstName)
-            .withEmail(userInformation.email)
+            .withName(userInformation?.firstName ?: "Anonymous")
+            .withEmail(userInformation?.email ?: "Unknown email")
             .build()
 
         val chatProvidersConfiguration = ChatProvidersConfiguration.builder()
@@ -123,7 +125,7 @@ class ZendeskSubjectActivity : BlockchainActivity() {
         private const val SUBJECT = "SUBJECT"
         private const val ZENDESK_CHANNEL = "wallet_sb_department"
 
-        fun newInstance(context: Context, userInfo: BasicProfileInfo, subject: String = ""): Intent =
+        fun newInstance(context: Context, userInfo: BasicProfileInfo?, subject: String = ""): Intent =
             Intent(context, ZendeskSubjectActivity::class.java).apply {
                 putExtra(USER_INFO, userInfo)
                 putExtra(SUBJECT, subject)

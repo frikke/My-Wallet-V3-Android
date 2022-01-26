@@ -288,7 +288,7 @@ internal interface Nabu {
         @Body depositRequestBody: DepositRequestBody
     ): Completable
 
-    @POST("$NABU_UDPATE_ORDER/{id}")
+    @POST("$NABU_UPDATE_ORDER/{id}")
     fun updateOrder(
         @Header("authorization") authorization: String,
         @Path("id") id: String,

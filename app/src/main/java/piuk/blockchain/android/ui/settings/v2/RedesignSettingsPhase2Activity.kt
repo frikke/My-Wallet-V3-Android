@@ -45,9 +45,9 @@ import piuk.blockchain.android.cards.RemoveCardBottomSheet
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.ActivityRedesignPhase2SettingsBinding
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.simplebuy.RemoveLinkedBankBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
+import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -61,7 +61,7 @@ import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsActivit
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityActivity
 import piuk.blockchain.android.ui.settings.v2.sheets.AddPaymentMethodsBottomSheet
-import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 
@@ -548,7 +548,7 @@ class RedesignSettingsPhase2Activity :
             listOf(
                 NavigationBarButton.Icon(R.drawable.ic_support_chat) {
                     analytics.logEvent(AnalyticsEvents.Support)
-                    calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                    calloutToExternalSupportLinkDlg(this, URL_CONTACT_SUPPORT)
                 }
             )
         )

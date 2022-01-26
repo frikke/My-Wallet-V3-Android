@@ -34,6 +34,7 @@ import java.time.ZonedDateTime
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.databinding.PromoLayoutBinding
+import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
@@ -418,6 +419,24 @@ class SimpleBuyCheckoutFragment :
                     ErrorDialogData(
                         getString(R.string.sb_checkout_pending_order_title),
                         getString(R.string.sb_checkout_pending_order_blurb),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.InsufficientCardFunds -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_card_insufficient_funds_title),
+                        getString(R.string.sb_checkout_card_insufficient_funds_blurb),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.CardPaymentDeclined -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_card_declined_title),
+                        getString(R.string.sb_checkout_card_declined_blurb),
                         getString(R.string.common_ok)
                     )
                 )
