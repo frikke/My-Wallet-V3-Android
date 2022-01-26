@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/wallet_name"
+        android:id="@+id/currency_name"
         style="@style/Text.Semibold.16"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -28,15 +28,15 @@
         android:singleLine="true"
         app:layout_constraintStart_toEndOf="@id/icon"
         app:layout_constraintTop_toTopOf="@id/icon"
-        tools:text="BTC Wallet" />
+        tools:text="British Pound" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/asset_subtitle"
         style="@style/Text.Semibold.Light.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@+id/wallet_name"
-        app:layout_constraintTop_toBottomOf="@+id/wallet_name"
+        app:layout_constraintStart_toStartOf="@+id/currency_name"
+        app:layout_constraintTop_toBottomOf="@+id/currency_name"
         tools:text="GBP" />
 
     <androidx.appcompat.widget.AppCompatTextView
