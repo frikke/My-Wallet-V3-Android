@@ -106,7 +106,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     ) {
         with(binding) {
             txStateIndicator.setImageResource(resourceIcon)
-            visible()
+            txStateIndicator.visible()
             progress.gone()
         }
         setText(title, subtitle)
