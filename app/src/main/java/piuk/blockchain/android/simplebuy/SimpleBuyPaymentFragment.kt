@@ -252,7 +252,7 @@ class SimpleBuyPaymentFragment :
             ErrorState.ApprovedBankExpired -> showError(
                 title = getString(R.string.bank_transfer_payment_expired_title),
                 subtitle = addLink(R.string.bank_transfer_payment_expired_subtitle, verificationState),
-                resourceIcon = R.drawable.ic_clock
+                resourceIcon = R.drawable.ic_pending_icon_circle
             )
             ErrorState.ApprovedBankLimitedExceed -> showError(
                 title = getString(R.string.bank_transfer_payment_limited_exceeded_title),
@@ -275,7 +275,7 @@ class SimpleBuyPaymentFragment :
     private fun showError(
         title: String,
         subtitle: CharSequence,
-        resourceIcon: Int = R.drawable.ic_alert_logo
+        resourceIcon: Int = R.drawable.ic_alert_white_bkgd
     ) {
         with(binding) {
             transactionProgressView.apply {
