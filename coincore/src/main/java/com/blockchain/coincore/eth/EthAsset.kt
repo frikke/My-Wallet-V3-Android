@@ -8,6 +8,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -48,7 +49,8 @@ internal class EthAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    private val formatUtils: FormatUtilities
+    private val formatUtils: FormatUtilities,
+    addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -59,7 +61,8 @@ internal class EthAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity
+    identity,
+    addressResolver
 ),
     NonCustodialSupport {
     override val assetInfo: AssetInfo
@@ -86,7 +89,8 @@ internal class EthAsset(
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     identity = identity,
-                    assetCatalogue = assetCatalogue.value
+                    assetCatalogue = assetCatalogue.value,
+                    addressResolver = addressResolver
                 )
             }.doOnSuccess {
                 updateBackendNotificationAddresses(it)

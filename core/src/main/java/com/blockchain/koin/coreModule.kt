@@ -186,7 +186,8 @@ val coreModule = module {
                 ethAccountApi = get(),
                 ethDataStore = get(),
                 metadataManager = get(),
-                lastTxUpdater = get()
+                lastTxUpdater = get(),
+                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
             )
         }
 
@@ -208,7 +209,8 @@ val coreModule = module {
             Erc20DataManagerImpl(
                 ethDataManager = get(),
                 balanceCallCache = get(),
-                historyCallCache = get()
+                historyCallCache = get(),
+                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 

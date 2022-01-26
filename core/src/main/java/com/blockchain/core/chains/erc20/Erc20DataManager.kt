@@ -4,6 +4,7 @@ import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryList
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -11,6 +12,7 @@ import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
@@ -30,7 +32,8 @@ interface Erc20DataManager {
         to: String,
         amount: BigInteger,
         gasPriceWei: BigInteger,
-        gasLimitGwei: BigInteger
+        gasLimitGwei: BigInteger,
+        hotWalletAddress: String
     ): Single<RawTransaction>
 
     fun signErc20Transaction(
@@ -58,7 +61,8 @@ interface Erc20DataManager {
 internal class Erc20DataManagerImpl(
     private val ethDataManager: EthDataManager,
     private val balanceCallCache: Erc20BalanceCallCache,
-    private val historyCallCache: Erc20HistoryCallCache
+    private val historyCallCache: Erc20HistoryCallCache,
+    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag
 ) : Erc20DataManager {
 
     override val accountHash: String
@@ -114,31 +118,54 @@ internal class Erc20DataManagerImpl(
         to: String,
         amount: BigInteger,
         gasPriceWei: BigInteger,
-        gasLimitGwei: BigInteger
+        gasLimitGwei: BigInteger,
+        hotWalletAddress: String
     ): Single<RawTransaction> {
         require(asset.isErc20())
 
-        return ethDataManager.getNonce()
-            .map { nonce ->
+        return Singles.zip(
+            ethDataManager.getNonce(),
+            ethMemoForHotWalletFeatureFlag.enabled
+        )
+            .map { (nonce, enabled) ->
                 val contractAddress = asset.l2identifier
                 checkNotNull(contractAddress)
+
+                // If we couldn't find a hot wallet address for any reason (in which case the HotWalletService is
+                // returning an empty address) fall back to the usual path.
+                val useHotWallet = enabled && hotWalletAddress.isNotEmpty()
 
                 RawTransaction.createTransaction(
                     nonce,
                     gasPriceWei,
-                    gasLimitGwei,
+                    if (useHotWallet) {
+                        gasLimitGwei + ethDataManager.extraGasLimitForMemo()
+                    } else {
+                        gasLimitGwei
+                    },
                     contractAddress,
                     0.toBigInteger(),
-                    erc20TransferMethod(to, amount)
+                    erc20TransferMethod(to, amount, hotWalletAddress, useHotWallet)
                 )
             }
     }
 
-    private fun erc20TransferMethod(to: String, amount: BigInteger): String {
+    private fun erc20TransferMethod(
+        to: String,
+        amount: BigInteger,
+        hotWalletAddress: String,
+        useHotWallet: Boolean
+    ): String {
         val transferMethodHex = "0xa9059cbb"
 
-        return transferMethodHex + TypeEncoder.encode(Address(to)) +
-            TypeEncoder.encode(org.web3j.abi.datatypes.generated.Uint256(amount))
+        return if (useHotWallet) {
+            transferMethodHex + TypeEncoder.encode(Address(hotWalletAddress)) +
+                TypeEncoder.encode(org.web3j.abi.datatypes.generated.Uint256(amount)) +
+                TypeEncoder.encode(Address(to))
+        } else {
+            transferMethodHex + TypeEncoder.encode(Address(to)) +
+                TypeEncoder.encode(org.web3j.abi.datatypes.generated.Uint256(amount))
+        }
     }
 
     override fun signErc20Transaction(

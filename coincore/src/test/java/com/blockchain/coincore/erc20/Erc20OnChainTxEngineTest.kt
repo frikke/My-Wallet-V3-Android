@@ -50,7 +50,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         erc20DataManager = erc20DataManager,
         feeManager = feeManager,
         requireSecondPassword = false,
-        walletPreferences = walletPreferences
+        walletPreferences = walletPreferences,
+        resolvedAddress = mock()
     )
 
     @Before

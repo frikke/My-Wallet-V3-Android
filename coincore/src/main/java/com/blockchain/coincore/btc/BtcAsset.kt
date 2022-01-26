@@ -2,6 +2,7 @@ package com.blockchain.coincore.btc
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
@@ -53,6 +54,7 @@ import thepit.PitLinking
     private val walletPreferences: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
     identity: UserIdentity,
+    addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -63,7 +65,8 @@ import thepit.PitLinking
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity
+    identity,
+    addressResolver
 ) {
 
     override val assetInfo: AssetInfo
@@ -196,7 +199,8 @@ import thepit.PitLinking
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            identity = identity
+            identity = identity,
+            addressResolver = addressResolver
         )
 
     private fun btcAccountFromImportedAccount(payloadAccount: ImportedAddress): BtcCryptoWalletAccount =
@@ -209,7 +213,8 @@ import thepit.PitLinking
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            identity = identity
+            identity = identity,
+            addressResolver = addressResolver
         )
 
     companion object {

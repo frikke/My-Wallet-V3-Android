@@ -161,7 +161,7 @@ class TxProcessorFactory(
         target: TransactionTarget,
         action: AssetAction
     ): Single<TransactionProcessor> {
-        val engine = source.createTxEngine() as OnChainTxEngineBase
+        val engine = source.createTxEngine(target, action) as OnChainTxEngineBase
 
         return when (target) {
             is BitPayInvoiceTarget -> Single.just(

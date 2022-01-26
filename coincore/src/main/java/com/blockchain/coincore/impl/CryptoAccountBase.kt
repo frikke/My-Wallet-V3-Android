@@ -4,6 +4,7 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
@@ -14,6 +15,7 @@ import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.takeEnabledIf
@@ -192,6 +194,8 @@ abstract class CryptoNonCustodialAccount(
             )
         }
 
+    protected abstract val addressResolver: AddressResolver
+
     protected abstract fun getOnChainBalance(): Observable<Money>
 
     // The plan here is once we are caching the non custodial balances to remove this isFunded
@@ -238,7 +242,7 @@ abstract class CryptoNonCustodialAccount(
     override fun requireSecondPassword(): Single<Boolean> =
         Single.fromCallable { payloadDataManager.isDoubleEncrypted }
 
-    abstract fun createTxEngine(): TxEngine
+    abstract fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine
 
     override val isArchived: Boolean
         get() = false

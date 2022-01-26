@@ -2,6 +2,7 @@ package com.blockchain.coincore.custodialonly
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.impl.CryptoAssetBase
@@ -35,7 +36,8 @@ internal class DynamicOnlyTradingAsset(
     crashLogger: CrashLogger,
     identity: UserIdentity,
     private val addressValidation: String? = null,
-    private val availableActions: Set<AssetAction> = emptySet()
+    private val availableActions: Set<AssetAction> = emptySet(),
+    addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -46,7 +48,8 @@ internal class DynamicOnlyTradingAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity
+    identity,
+    addressResolver
 ) {
     override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = false

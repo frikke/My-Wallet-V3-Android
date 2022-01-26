@@ -74,7 +74,8 @@ class BtcAssetTest {
         crashLogger = crashLogger,
         notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
-        identity = identity
+        identity = identity,
+        addressResolver = mock()
     )
 
     @Test

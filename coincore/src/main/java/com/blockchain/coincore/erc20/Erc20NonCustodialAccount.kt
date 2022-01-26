@@ -1,8 +1,10 @@
 package com.blockchain.coincore.erc20
 
 import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -30,7 +32,8 @@ class Erc20NonCustodialAccount(
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
     override val baseActions: Set<AssetAction>,
-    identity: UserIdentity
+    identity: UserIdentity,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(payloadManager, asset, custodialWalletManager, identity) {
 
     private val hasFunds = AtomicBoolean(false)
@@ -90,11 +93,12 @@ class Erc20NonCustodialAccount(
                 }
         }
 
-    override fun createTxEngine(): TxEngine =
+    override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         Erc20OnChainTxEngine(
             erc20DataManager = erc20DataManager,
             feeManager = fees,
             requireSecondPassword = erc20DataManager.requireSecondPassword,
-            walletPreferences = walletPreferences
+            walletPreferences = walletPreferences,
+            resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 }

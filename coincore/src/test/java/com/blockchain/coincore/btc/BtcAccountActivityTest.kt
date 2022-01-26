@@ -55,7 +55,8 @@ class BtcAccountActivityTest : CoincoreTestBase() {
             walletPreferences = walletPrefs,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = mock()
+            identity = mock(),
+            addressResolver = mock()
         )
 
     @Before

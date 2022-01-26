@@ -2,6 +2,7 @@ package com.blockchain.coincore.bch
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
@@ -51,7 +52,8 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     crashLogger: CrashLogger,
     private val walletPreferences: WalletStatus,
     private val beNotifyUpdate: BackendNotificationUpdater,
-    identity: UserIdentity
+    identity: UserIdentity,
+    addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -62,7 +64,8 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity
+    identity,
+    addressResolver
 ),
     NonCustodialSupport {
 
@@ -93,7 +96,8 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
                             walletPreferences = walletPreferences,
                             custodialWalletManager = custodialManager,
                             refreshTrigger = this@BchAsset,
-                            identity = identity
+                            identity = identity,
+                            addressResolver = addressResolver
                         )
                         if (bchAccount.isDefault) {
                             updateBackendNotificationAddresses(bchAccount)

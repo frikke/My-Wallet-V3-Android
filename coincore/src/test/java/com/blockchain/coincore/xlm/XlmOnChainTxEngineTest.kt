@@ -52,7 +52,8 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
         xlmFeesFetcher = xlmFeesFetcher,
         walletOptionsDataManager = walletOptionsDataManager,
         requireSecondPassword = false,
-        walletPreferences = walletPreferences
+        walletPreferences = walletPreferences,
+        resolvedAddress = mock()
     )
 
     @Before

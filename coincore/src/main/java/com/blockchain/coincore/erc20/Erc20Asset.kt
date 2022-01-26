@@ -8,6 +8,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -47,7 +48,8 @@ internal class Erc20Asset(
     identity: UserIdentity,
     private val availableCustodialActions: Set<AssetAction>,
     private val availableNonCustodialActions: Set<AssetAction>,
-    private val formatUtils: FormatUtilities
+    private val formatUtils: FormatUtilities,
+    addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -58,7 +60,8 @@ internal class Erc20Asset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity
+    identity,
+    addressResolver
 ) {
     private val erc20address
         get() = erc20DataManager.accountHash
@@ -106,7 +109,8 @@ internal class Erc20Asset(
             walletPreferences,
             custodialManager,
             availableNonCustodialActions,
-            identity
+            identity,
+            addressResolver
         )
 
     @CommonCode("Exists in EthAsset")
@@ -134,7 +138,7 @@ internal class Erc20Asset(
         formatUtils.isValidEthereumAddress(address)
 }
 
-internal open class Erc20Address(
+internal class Erc20Address(
     final override val asset: AssetInfo,
     override val address: String,
     override val label: String = address,

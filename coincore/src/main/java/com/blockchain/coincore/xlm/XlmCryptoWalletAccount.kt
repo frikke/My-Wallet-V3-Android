@@ -2,8 +2,10 @@ package com.blockchain.coincore.xlm
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -35,7 +37,8 @@ internal class XlmCryptoWalletAccount(
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
-    identity: UserIdentity
+    identity: UserIdentity,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.XLM, custodialWalletManager, identity) {
 
     override val baseActions: Set<AssetAction> = defaultActions
@@ -102,13 +105,14 @@ internal class XlmCryptoWalletAccount(
             .doOnError { xlmAccountReference = xlmAccountReference.copy(label = revertLabel) }
     }
 
-    override fun createTxEngine(): TxEngine =
+    override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         XlmOnChainTxEngine(
             xlmDataManager = xlmManager,
             xlmFeesFetcher = xlmFeesFetcher,
             walletOptionsDataManager = walletOptionsDataManager,
             requireSecondPassword = payloadDataManager.isDoubleEncrypted,
-            walletPreferences = walletPreferences
+            walletPreferences = walletPreferences,
+            resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 }
 

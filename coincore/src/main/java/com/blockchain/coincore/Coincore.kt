@@ -99,7 +99,7 @@ class Coincore internal constructor(
         action: AssetAction
     ): Single<SingleAccountList> {
         val sameCurrencyTransactionTargets =
-            get(sourceAccount.currency as AssetInfo).transactionTargets(sourceAccount)
+            get(sourceAccount.currency).transactionTargets(sourceAccount)
 
         val fiatTargets = fiatAsset.accountGroup(AssetFilter.All)
             .map {

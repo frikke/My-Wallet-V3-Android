@@ -34,14 +34,16 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 
-open class EthOnChainTxEngine(
+class EthOnChainTxEngine(
     private val ethDataManager: EthDataManager,
     private val feeManager: FeeDataManager,
     walletPreferences: WalletStatus,
-    requireSecondPassword: Boolean
+    requireSecondPassword: Boolean,
+    resolvedAddress: Single<String>
 ) : OnChainTxEngineBase(
     requireSecondPassword,
-    walletPreferences
+    walletPreferences,
+    resolvedAddress
 ) {
 
     override fun assertInputsValid() {
@@ -185,18 +187,19 @@ open class EthOnChainTxEngine(
             }
 
     private fun createTransaction(pendingTx: PendingTx): Single<RawTransaction> {
-        val targetAddress = txTarget as CryptoAddress
 
         return Singles.zip(
             ethDataManager.getNonce(),
-            feeOptions()
-        ).map { (nonce, fees) ->
+            feeOptions(),
+            resolvedHotWalletAddress
+        ).flatMap { (nonce, fees, hotWalletAddress) ->
             ethDataManager.createEthTransaction(
                 nonce = nonce,
-                to = targetAddress.address,
+                to = (txTarget as CryptoAddress).address,
                 gasPriceWei = fees.gasPrice(pendingTx.feeSelection.selectedLevel),
                 gasLimitGwei = fees.getGasLimit(txTarget.isContract),
-                weiValue = pendingTx.amount.toBigInteger()
+                weiValue = pendingTx.amount.toBigInteger(),
+                hotWalletAddress = hotWalletAddress
             )
         }
     }

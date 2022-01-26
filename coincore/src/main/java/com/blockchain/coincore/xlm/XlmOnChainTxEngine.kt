@@ -51,8 +51,9 @@ class XlmOnChainTxEngine(
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
     requireSecondPassword: Boolean,
-    walletPreferences: WalletStatus
-) : OnChainTxEngineBase(requireSecondPassword, walletPreferences) {
+    walletPreferences: WalletStatus,
+    resolvedAddress: Single<String>
+) : OnChainTxEngineBase(requireSecondPassword, walletPreferences, resolvedAddress) {
 
     private val targetXlmAddress: XlmAddress
         get() = txTarget as XlmAddress

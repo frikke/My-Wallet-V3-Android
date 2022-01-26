@@ -25,6 +25,7 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigDecimal
 import java.math.BigInteger
 import org.web3j.crypto.RawTransaction
@@ -32,14 +33,16 @@ import org.web3j.utils.Convert
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 
-open class Erc20OnChainTxEngine(
+class Erc20OnChainTxEngine(
     private val erc20DataManager: Erc20DataManager,
     private val feeManager: FeeDataManager,
     walletPreferences: WalletStatus,
-    requireSecondPassword: Boolean
+    requireSecondPassword: Boolean,
+    resolvedAddress: Single<String>
 ) : OnChainTxEngineBase(
     requireSecondPassword,
-    walletPreferences
+    walletPreferences,
+    resolvedAddress
 ) {
 
     override fun doInitialiseTx(): Single<PendingTx> =
@@ -255,8 +258,11 @@ open class Erc20OnChainTxEngine(
     private fun createTransaction(pendingTx: PendingTx): Single<RawTransaction> {
         val tgt = txTarget as CryptoAddress
 
-        return feeOptions()
-            .flatMap { fees ->
+        return Singles.zip(
+            feeOptions(),
+            resolvedHotWalletAddress
+        )
+            .flatMap { (fees, hotWalletAddress) ->
                 erc20DataManager.createErc20Transaction(
                     asset = sourceAssetInfo,
                     to = tgt.address,
@@ -264,7 +270,8 @@ open class Erc20OnChainTxEngine(
                     gasPriceWei = fees.gasPrice(
                         pendingTx.feeSelection.selectedLevel
                     ),
-                    gasLimitGwei = fees.gasLimitGwei
+                    gasLimitGwei = fees.gasLimitGwei,
+                    hotWalletAddress = hotWalletAddress
                 )
             }
     }
@@ -275,8 +282,7 @@ open class Erc20OnChainTxEngine(
             Convert.Unit.GWEI
         ).toBigInteger()
 
-    private
-    val FeeOptions.gasLimitGwei: BigInteger
+    private val FeeOptions.gasLimitGwei: BigInteger
         get() = BigInteger.valueOf(
             gasLimitContract
         )

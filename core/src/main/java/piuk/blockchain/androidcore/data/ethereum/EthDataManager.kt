@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isErc20
@@ -32,7 +33,8 @@ class EthDataManager(
     private val ethAccountApi: EthAccountApi,
     private val ethDataStore: EthDataStore,
     private val metadataManager: MetadataManager,
-    private val lastTxUpdater: LastTxUpdater
+    private val lastTxUpdater: LastTxUpdater,
+    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag
 ) {
 
     private val internalAccountAddress: String?
@@ -209,14 +211,32 @@ class EthDataManager(
         to: String,
         gasPriceWei: BigInteger,
         gasLimitGwei: BigInteger,
-        weiValue: BigInteger
-    ): RawTransaction? = RawTransaction.createEtherTransaction(
-        nonce,
-        gasPriceWei,
-        gasLimitGwei,
-        to,
-        weiValue
-    )
+        weiValue: BigInteger,
+        hotWalletAddress: String
+    ): Single<RawTransaction> =
+        ethMemoForHotWalletFeatureFlag.enabled.map { enabled ->
+            // If we couldn't find a hot wallet address for any reason (in which case the HotWalletService is returning
+            // an empty address) fall back to the usual path.
+            val useHotWallet = enabled && hotWalletAddress.isNotEmpty()
+            if (useHotWallet) {
+                RawTransaction.createTransaction(
+                    nonce,
+                    gasPriceWei,
+                    gasLimitGwei + extraGasLimitForMemo(),
+                    hotWalletAddress,
+                    weiValue,
+                    to
+                )
+            } else {
+                RawTransaction.createEtherTransaction(
+                    nonce,
+                    gasPriceWei,
+                    gasLimitGwei,
+                    to,
+                    weiValue
+                )
+            }
+        }
 
     fun getTransaction(hash: String): Observable<EthTransaction> =
         ethAccountApi.getTransaction(hash)
@@ -299,4 +319,12 @@ class EthDataManager(
 
     val requireSecondPassword: Boolean
         get() = payloadDataManager.isDoubleEncrypted
+
+    // Exposing it for ERC20 and for testing
+    fun extraGasLimitForMemo() = extraGasLimitForMemo
+
+    companion object {
+        // To account for the extra data we want to send
+        private val extraGasLimitForMemo: BigInteger = 600.toBigInteger()
+    }
 }
