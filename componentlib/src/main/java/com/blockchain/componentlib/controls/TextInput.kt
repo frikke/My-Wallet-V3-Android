@@ -26,10 +26,8 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.theme.Dark700
-import com.blockchain.componentlib.theme.Grey200
-import com.blockchain.componentlib.theme.Grey300
+import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey600
-import com.blockchain.componentlib.theme.Grey800
 
 sealed class TextInputState(val message: String? = null) {
     data class Default(val defaultMessage: String? = null) : TextInputState(defaultMessage)
@@ -71,7 +69,7 @@ fun TextInput(
 
     val unfocusedColor = when (state) {
         is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
-            Grey300
+            Grey000
         } else {
             Dark600
         }
@@ -88,14 +86,14 @@ fun TextInput(
     val textColor = if (enabled) {
         AppTheme.colors.title
     } else {
-        Grey800
+        Grey600
     }
 
     val backgroundColor = if (enabled) {
         AppTheme.colors.light
     } else {
         if (!isSystemInDarkTheme()) {
-            Grey200
+            Grey000
         } else {
             Dark700
         }
@@ -117,7 +115,7 @@ fun TextInput(
                     onFocusChanged.invoke(focusState)
                 },
             label = if (label != null) {
-                { Text(label) }
+                { Text(label, style = AppTheme.typography.caption1) }
             } else null,
             placeholder = if (placeholder != null) {
                 { Text(placeholder) }
@@ -155,6 +153,7 @@ fun TextInput(
                 cursorColor = focusedColor,
                 errorCursorColor = focusedColor,
                 placeholderColor = placeholderColor,
+                disabledTextColor = textColor,
                 disabledLabelColor = placeholderColor,
                 disabledPlaceholderColor = placeholderColor
             )
