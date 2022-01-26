@@ -50,7 +50,7 @@ class AccountInfoFiat @JvmOverloads constructor(
             contentDescription = "$ACCOUNT_INFO_FIAT_VIEW_ID${account.currency.networkTicker}_${account.label}"
             val userFiat = currencyPrefs.selectedFiatCurrency
 
-            walletName.text = account.label
+            currencyName.text = account.currency.name
             icon.setIcon(account.currency)
             assetSubtitle.text = account.currency.networkTicker
 
