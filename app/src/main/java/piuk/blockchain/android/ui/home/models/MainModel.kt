@@ -478,6 +478,13 @@ class MainModel(
                                     ViewToLaunch.LaunchOpenBankingApprovalTimeout(paymentData.orderValue.currencyCode)
                                 )
                             )
+                            interactor.updateBankLinkingState(
+                                deepLinkState.copy(
+                                    bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE,
+                                    bankPaymentData = null,
+                                    bankLinkingInfo = null
+                                )
+                            )
                         }
                         is PollResult.Cancel -> {
                             // do nothing
