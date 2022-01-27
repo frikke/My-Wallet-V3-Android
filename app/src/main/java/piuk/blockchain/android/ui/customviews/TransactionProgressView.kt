@@ -99,7 +99,11 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         }
     }
 
-    fun showTxError(title: String, subtitle: CharSequence, resourceIcon: Int = R.drawable.ic_alert_logo) {
+    fun showTxError(
+        title: String,
+        subtitle: CharSequence,
+        resourceIcon: Int = R.drawable.ic_alert_white_bkgd
+    ) {
         with(binding) {
             txStateIndicator.setImageResource(resourceIcon)
             txStateIndicator.visible()
