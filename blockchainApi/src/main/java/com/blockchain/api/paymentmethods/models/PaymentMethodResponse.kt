@@ -1,14 +1,21 @@
 package com.blockchain.api.paymentmethods.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class PaymentMethodResponse(
+    @SerialName("type")
     val type: String,
+    @SerialName("eligible")
     val eligible: Boolean,
+    @SerialName("visible")
     val visible: Boolean,
+    @SerialName("limits")
     val limits: Limits,
+    @SerialName("subTypes")
     val subTypes: List<String>? = null,
+    @SerialName("currency")
     val currency: String? = null
 ) {
     companion object {
@@ -21,16 +28,35 @@ data class PaymentMethodResponse(
 }
 
 @Serializable
-data class Limits(val min: Long, val max: Long, val daily: DailyLimits? = null)
+data class Limits(
+    @SerialName("min")
+    val min: Long,
+    @SerialName("max")
+    val max: Long,
+    @SerialName("daily")
+    val daily: DailyLimits? = null
+)
 @Serializable
-data class DailyLimits(val limit: Long, val available: Long, val used: Long)
+data class DailyLimits(
+    @SerialName("limit")
+    val limit: Long,
+    @SerialName("available")
+    val available: Long,
+    @SerialName("used")
+    val used: Long
+)
 
 @Serializable
 data class CardResponse(
+    @SerialName("id")
     val id: String,
+    @SerialName("partner")
     val partner: String,
+    @SerialName("state")
     val state: String,
+    @SerialName("currency")
     val currency: String,
+    @SerialName("card")
     val card: CardDetailsResponse? = null
 ) {
     companion object {
@@ -44,9 +70,14 @@ data class CardResponse(
 
 @Serializable
 data class CardDetailsResponse(
+    @SerialName("number")
     val number: String,
+    @SerialName("expireYear")
     val expireYear: Int? = null,
+    @SerialName("expireMonth")
     val expireMonth: Int? = null,
+    @SerialName("type")
     val type: String? = null,
+    @SerialName("label")
     val label: String? = null
 )
