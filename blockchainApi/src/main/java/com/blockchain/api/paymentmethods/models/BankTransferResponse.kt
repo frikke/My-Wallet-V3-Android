@@ -1,11 +1,15 @@
 package com.blockchain.api.paymentmethods.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateLinkBankResponse(
+    @SerialName("partner")
     val partner: String,
+    @SerialName("id")
     val id: String,
+    @SerialName("attributes")
     val attributes: LinkBankAttrsResponse?
 ) {
     companion object {
@@ -16,45 +20,73 @@ data class CreateLinkBankResponse(
 
 @Serializable
 data class CreateLinkBankRequestBody(
+    @SerialName("currency")
     private val currency: String
 )
 
 @Serializable
 data class LinkBankAttrsResponse(
+    @SerialName("token")
     val token: String?,
+    @SerialName("fastlinkUrl")
     val fastlinkUrl: String?,
+    @SerialName("fastlinkParams")
     val fastlinkParams: FastlinkParamsResponse?,
+    @SerialName("institutions")
     val institutions: List<YapilyInstitutionResponse>?,
+    @SerialName("entity")
     val entity: String?
 )
 
 @Serializable
 data class YapilyInstitutionResponse(
+    @SerialName("countries")
     val countries: List<YapilyCountryResponse>,
+    @SerialName("fullName")
     val fullName: String,
+    @SerialName("id")
     val id: String,
+    @SerialName("media")
     val media: List<YapilyMediaResponse>
 )
 
 @Serializable
-data class YapilyCountryResponse(val countryCode2: String, val displayName: String)
+data class YapilyCountryResponse(
+    @SerialName("countryCode2")
+    val countryCode2: String,
+    @SerialName("displayName")
+    val displayName: String
+)
 
 @Serializable
-data class YapilyMediaResponse(val source: String, val type: String)
+data class YapilyMediaResponse(
+    @SerialName("source")
+    val source: String,
+    @SerialName("type")
+    val type: String
+)
 
 @Serializable
 data class FastlinkParamsResponse(
+    @SerialName("configName")
     val configName: String
 )
 
 @Serializable
 data class LinkedBankTransferResponse(
+    @SerialName("id")
     val id: String,
+    @SerialName("partner")
     val partner: String,
+    @SerialName("currency")
     val currency: String,
+    @SerialName("state")
     val state: String,
+    @SerialName("details")
     val details: LinkedBankDetailsResponse?,
+    @SerialName("error")
     val error: String?,
+    @SerialName("attributes")
     val attributes: LinkedBankTransferAttributesResponse?
 ) {
     companion object {
@@ -80,78 +112,115 @@ data class LinkedBankTransferResponse(
 
 @Serializable
 data class LinkedBankTransferAttributesResponse(
+    @SerialName("authorisationUrl")
     val authorisationUrl: String?,
+    @SerialName("entity")
     val entity: String?,
+    @SerialName("media")
     val media: List<BankMediaResponse>?,
+    @SerialName("callbackPath")
     val callbackPath: String
 )
 
 @Serializable
 data class ProviderAccountAttrs(
+    @SerialName("providerAccountId")
     val providerAccountId: String? = null,
+    @SerialName("accountId")
     val accountId: String? = null,
+    @SerialName("institutionId")
     val institutionId: String? = null,
+    @SerialName("callback")
     val callback: String? = null
 )
 
 @Serializable
 data class UpdateProviderAccountBody(
+    @SerialName("attributes")
     val attributes: ProviderAccountAttrs
 )
 
 @Serializable
 data class LinkedBankDetailsResponse(
+    @SerialName("accountNumber")
     val accountNumber: String,
+    @SerialName("accountName")
     val accountName: String?,
+    @SerialName("bankName")
     val bankName: String?,
+    @SerialName("bankAccountType")
     val bankAccountType: String,
+    @SerialName("sortCode")
     val sortCode: String?,
+    @SerialName("iban")
     val iban: String?,
+    @SerialName("bic")
     val bic: String?
 )
 
 @Serializable
 data class BankTransferPaymentBody(
+    @SerialName("amountMinor")
     val amountMinor: String,
+    @SerialName("currency")
     val currency: String,
+    @SerialName("product")
     val product: String = "SIMPLEBUY",
+    @SerialName("attributes")
     val attributes: BankTransferPaymentAttributes?
 )
 
 @Serializable
 data class BankTransferPaymentAttributes(
+    @SerialName("callback")
     val callback: String?
 )
 
 @Serializable
 data class BankTransferPaymentResponse(
+    @SerialName("paymentId")
     val paymentId: String,
+    @SerialName("bankAccountType")
     val bankAccountType: String?,
+    @SerialName("attributes")
     val attributes: BankTransferPaymentResponseAttributes
 )
 
 @Serializable
 data class BankTransferPaymentResponseAttributes(
+    @SerialName("paymentId")
     val paymentId: String,
+    @SerialName("callbackPath")
     val callbackPath: String
 )
 
 @Serializable
 data class OpenBankingTokenBody(
+    @SerialName("oneTimeToken")
     val oneTimeToken: String
 )
 
 @Serializable
 data class BankInfoResponse(
+    @SerialName("id")
     val id: String,
+    @SerialName("name")
     val name: String?,
+    @SerialName("accountName")
     val accountName: String?,
+    @SerialName("currency")
     val currency: String,
+    @SerialName("state")
     val state: String,
+    @SerialName("accountNumber")
     val accountNumber: String?,
+    @SerialName("bankAccountType")
     val bankAccountType: String?,
+    @SerialName("isBankAccount")
     val isBankAccount: Boolean,
+    @SerialName("isBankTransferAccount")
     val isBankTransferAccount: Boolean,
+    @SerialName("attributes")
     val attributes: BankInfoAttributes?
 ) {
     companion object {
@@ -163,22 +232,31 @@ data class BankInfoResponse(
 
 @Serializable
 data class BankTransferChargeResponse(
+    @SerialName("beneficiaryId")
     val beneficiaryId: String,
+    @SerialName("state")
     val state: String?,
+    @SerialName("amountMinor")
     val amountMinor: String,
+    @SerialName("amount")
     val amount: BankTransferFiatAmount,
+    @SerialName("extraAttributes")
     val extraAttributes: BankTransferChargeAttributes
 )
 
 @Serializable
 data class BankTransferFiatAmount(
+    @SerialName("symbol")
     val symbol: String,
+    @SerialName("value")
     val value: String
 )
 
 @Serializable
 data class BankTransferChargeAttributes(
+    @SerialName("authorisationUrl")
     val authorisationUrl: String?,
+    @SerialName("status")
     val status: String?
 ) {
     companion object {
@@ -200,15 +278,21 @@ data class BankTransferChargeAttributes(
 
 @Serializable
 data class BankInfoAttributes(
+    @SerialName("entity")
     val entity: String?,
+    @SerialName("media")
     val media: List<BankMediaResponse>?,
+    @SerialName("status")
     val status: String?,
+    @SerialName("authorisationUrl")
     val authorisationUrl: String?
 )
 
 @Serializable
 data class BankMediaResponse(
+    @SerialName("source")
     val source: String,
+    @SerialName("type")
     val type: String
 ) {
     companion object {
