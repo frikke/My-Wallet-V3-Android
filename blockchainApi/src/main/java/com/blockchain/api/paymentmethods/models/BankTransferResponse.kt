@@ -149,7 +149,7 @@ data class LinkedBankDetailsResponse(
     @SerialName("bankName")
     val bankName: String?,
     @SerialName("bankAccountType")
-    val bankAccountType: String,
+    val bankAccountType: String?,
     @SerialName("sortCode")
     val sortCode: String?,
     @SerialName("iban")
@@ -165,7 +165,7 @@ data class BankTransferPaymentBody(
     @SerialName("currency")
     val currency: String,
     @SerialName("product")
-    val product: String = "SIMPLEBUY",
+    val product: String,
     @SerialName("attributes")
     val attributes: BankTransferPaymentAttributes?
 )
@@ -189,7 +189,7 @@ data class BankTransferPaymentResponse(
 @Serializable
 data class BankTransferPaymentResponseAttributes(
     @SerialName("paymentId")
-    val paymentId: String,
+    val paymentId: String?,
     @SerialName("callbackPath")
     val callbackPath: String
 )

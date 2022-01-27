@@ -404,6 +404,7 @@ class PaymentsDataManagerImpl(
                 body = BankTransferPaymentBody(
                     amountMinor = amount.toBigInteger().toString(),
                     currency = currency,
+                    product = "SIMPLEBUY",
                     attributes = if (callback != null) {
                         BankTransferPaymentAttributes(callback)
                     } else null
