@@ -522,12 +522,12 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 logAnalytics(BankAuthAnalytics.GENERIC_ERROR, partner)
                 if (partner == BankPartner.YODLEE) {
                     setTitleAndSubtitle(
-                        getString(R.string.bank_linking_failed_ob_title),
+                        getString(R.string.bank_linking_failed_ach_title),
                         getString(R.string.bank_linking_failed_subtitle)
                     )
                 } else {
                     setTitleAndSubtitle(
-                        getString(R.string.bank_linking_failed_ach_title),
+                        getString(R.string.bank_linking_failed_ob_title),
                         getString(R.string.bank_linking_failed_subtitle)
                     )
                 }
