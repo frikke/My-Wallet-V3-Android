@@ -1,7 +1,9 @@
 package piuk.blockchain.androidcore.data.auth.metadata
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class WalletRecoveryMetadata(
     @SerialName("guid") val guid: String,
     @SerialName("password") val password: String,
