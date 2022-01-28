@@ -39,8 +39,6 @@ class UpdatePhoneFragment :
     override val model: ProfileModel
         get() = scope.get()
 
-    private lateinit var mobileWithPrefix: String
-
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentUpdatePhoneBinding =
         FragmentUpdatePhoneBinding.inflate(inflater, container, false)
 
@@ -50,19 +48,20 @@ class UpdatePhoneFragment :
         super.onViewCreated(view, savedInstanceState)
         this.updateTitleToolbar(getString(R.string.profile_toolbar_mobile))
         binding.updatePhone.buttonState = ButtonState.Disabled
-        setCountryListener()
     }
 
     override fun render(newState: ProfileState) {
         if (!newState.isLoading) {
             newState.userInfoSettings?.let {
-                mobileWithPrefix = it.mobileWithPrefix.orEmpty()
                 updateUI(
                     mobileVerified = it.mobileVerified,
-                    mobileNoPrefix = it.mobileNoPrefix.filterNot { it.isWhitespace() },
+                    mobileNoPrefix = it.mobileNoPrefix,
                     authType = it.authType,
-                    mobileWithPrefix = mobileWithPrefix
+                    mobileWithPrefix = it.mobileWithPrefix.orEmpty()
                 )
+                if (binding.dialCodeValue.text.toString().isEmpty()) {
+                    setCountryListener(it.smsDialCode, it.mobileWithPrefix.orEmpty())
+                }
             }
         }
 
@@ -172,20 +171,22 @@ class UpdatePhoneFragment :
         }
     }
 
-    private fun setCountryListener() {
+    private fun setCountryListener(countryCode: String, mobileWithPrefix: String) {
         with(binding) {
             val picker = CountryPicker.Builder()
                 .with(requireContext())
-                .listener { country -> setCountryInfo(country.dialCode) }
+                .listener { country -> setCountryInfo(country.dialCode, mobileWithPrefix) }
                 .theme(CountryPicker.THEME_NEW)
                 .build()
 
-            val country = picker.countryFromSIM
-                ?: picker.getCountryByLocale(Locale.getDefault())
-                ?: picker.getCountryByISO("US")
-
-            setCountryInfo(country.dialCode)
-
+            if (countryCode.isEmpty()) {
+                val country = picker.countryFromSIM
+                    ?: picker.getCountryByLocale(Locale.getDefault())
+                    ?: picker.getCountryByISO("US")
+                setCountryInfo(country.dialCode, mobileWithPrefix)
+            } else {
+                setCountryInfo(countryCode, mobileWithPrefix)
+            }
             dialCode.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) picker.showBottomSheet(activity)
                 true
@@ -193,14 +194,12 @@ class UpdatePhoneFragment :
         }
     }
 
-    private fun setCountryInfo(dialCode: String) {
+    private fun setCountryInfo(dialCode: String, mobileWithPrefix: String) {
         binding.dialCodeValue.text = dialCode
-        if (::mobileWithPrefix.isInitialized) {
-            changeStateCta(
-                binding.dialCodeValue.text.filterNot { it.isWhitespace() }.toString() + binding.phone.value,
-                mobileWithPrefix.filterNot { it.isWhitespace() }
-            )
-        }
+        changeStateCta(
+            binding.dialCodeValue.text.filterNot { it.isWhitespace() }.toString() + binding.phone.value,
+            mobileWithPrefix.filterNot { it.isWhitespace() }
+        )
     }
 
     private fun showDialogVerifySms(mobileWithPrefix: String) {

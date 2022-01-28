@@ -2576,7 +2576,7 @@
     <string name="profile_update_success">Updates saved.</string>
     <string name="profile_label_support">Need to update your name? <annotation link="contact_support">Contact support</annotation></string>
     <string name="profile_verify_email_msg">Your verified email address is used to send payment alerts, ID reminders, and login codes.</string>
-    <string name="profile_verify_phone_msg">Your phone number can be used to enable 2FA.</string>
+    <string name="profile_verify_phone_msg">Your mobile phone can be used to enable 2FA or to receive alerts.</string>
     <string name="profile_disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
     <string name="profile_verify_email">Verify Email</string>
     <string name="profile_verify_phone">Verify Phone</string>

@@ -12,7 +12,7 @@
         style="@style/TextAppearance.Blockchain.Paragraph1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/profile_verify_email_msg"
+        android:text="@string/profile_verify_phone_msg"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
