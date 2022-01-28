@@ -5,13 +5,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.alert.DefaultToastAlert
 import com.blockchain.componentlib.card.AnnouncementCard
 import com.blockchain.componentlib.card.CallOutCard
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.CtaAnnouncementCard
 import com.blockchain.componentlib.card.DefaultCard
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 

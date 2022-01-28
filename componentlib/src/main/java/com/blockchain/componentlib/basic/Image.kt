@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.image
+package com.blockchain.componentlib.basic
 
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.background
@@ -15,10 +15,13 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -80,5 +83,18 @@ fun Image(
             }
         }
         ImageResource.None -> return
+    }
+}
+
+@Preview
+@Composable
+fun Image_Local_24() {
+    AppTheme(darkTheme = true) {
+        AppSurface {
+            Image(
+                imageResource = ImageResource.Local(R.drawable.ic_blockchain, ""),
+                Modifier.size(24.dp),
+            )
+        }
     }
 }

@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.text.buildAnnotatedString
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.BalanceStackedIconTableRowView
 import com.blockchain.componentlib.tablerow.BalanceTableRowLargeView
 import com.blockchain.componentlib.tablerow.BalanceTableRowView

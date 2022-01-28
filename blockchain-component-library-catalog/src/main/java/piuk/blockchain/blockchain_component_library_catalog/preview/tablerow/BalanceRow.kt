@@ -6,7 +6,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.BalanceStackedIconTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRowLarge

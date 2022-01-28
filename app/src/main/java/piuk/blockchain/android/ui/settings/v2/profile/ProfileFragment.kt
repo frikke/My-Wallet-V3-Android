@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visible

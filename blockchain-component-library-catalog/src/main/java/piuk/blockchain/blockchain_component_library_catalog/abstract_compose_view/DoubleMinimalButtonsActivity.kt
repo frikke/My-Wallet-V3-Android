@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.DoubleMinimalButtonsView
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class DoubleMinimalButtonsActivity : AppCompatActivity() {

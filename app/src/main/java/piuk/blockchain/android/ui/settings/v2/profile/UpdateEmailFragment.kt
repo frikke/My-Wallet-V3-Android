@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
-import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.viewextensions.visibleIf
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope

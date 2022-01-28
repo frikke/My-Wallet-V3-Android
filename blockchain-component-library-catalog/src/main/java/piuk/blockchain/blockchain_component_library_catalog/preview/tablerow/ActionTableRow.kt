@@ -2,7 +2,7 @@ package piuk.blockchain.blockchain_component_library_catalog.preview.tablerow
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.ActionStackedIconTableRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme

@@ -9,8 +9,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.image.Image
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 
 @Composable
 internal fun SheetHeaderCloseButton(
