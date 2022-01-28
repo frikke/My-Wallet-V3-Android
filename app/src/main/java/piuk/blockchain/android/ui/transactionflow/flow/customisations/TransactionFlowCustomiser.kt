@@ -605,7 +605,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_source_select_title)
-            AssetAction.InterestDeposit -> resources.getString(R.string.select_deposit_source_title)
+            AssetAction.InterestDeposit -> resources.getString(R.string.select_interest_deposit_source_title)
             else -> resources.getString(R.string.select_a_wallet)
         }
 

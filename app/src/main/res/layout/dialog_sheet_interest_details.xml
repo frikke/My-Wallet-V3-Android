@@ -101,19 +101,8 @@
         android:fadingEdge="vertical"
         android:fadingEdgeLength="@dimen/very_small_margin"
         android:requiresFadingEdge="vertical"
-        app:layout_constraintBottom_toTopOf="@id/interest_details_withdraw_cta"
-        app:layout_constraintTop_toBottomOf="@id/interest_details_separator" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/interest_details_withdraw_cta"
-        style="@style/CtaButton.White"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/very_small_margin"
-        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/interest_details_deposit_cta"
-        tools:text="Withdraw BTC"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@id/interest_details_separator" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/interest_details_deposit_cta"
@@ -122,7 +111,19 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/very_small_margin"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/interest_details_withdraw_cta"
         tools:text="Deposit BTC"
         tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/interest_details_withdraw_cta"
+        style="@style/CtaButton.White"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/very_small_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="Withdraw BTC"
+        tools:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
