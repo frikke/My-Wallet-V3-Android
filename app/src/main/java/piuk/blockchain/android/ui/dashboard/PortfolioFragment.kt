@@ -867,7 +867,7 @@ class PortfolioFragment :
                 BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
             }.exhaustive
         } ?: run {
-            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset, true)
         }
     }
 

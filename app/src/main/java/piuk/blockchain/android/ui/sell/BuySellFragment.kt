@@ -141,6 +141,12 @@ class BuySellFragment :
                             ),
                             SB_ACTIVITY
                         )
+                    } else {
+                        SimpleBuyActivity.newIntent(
+                            context = activity as Context,
+                            asset = action.selectedAsset,
+                            launchFromNavigationBar = true
+                        )
                     }
                 }
                 else -> startActivity(
