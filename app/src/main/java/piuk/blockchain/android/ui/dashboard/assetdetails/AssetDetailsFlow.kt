@@ -112,7 +112,7 @@ class AssetDetailsFlow(
                     this,
                     filterNonCustodialAccounts(localState.hostAction),
                     when (localState.hostAction) {
-                        AssetAction.InterestDeposit -> R.string.select_deposit_source_title
+                        AssetAction.InterestDeposit -> R.string.select_interest_deposit_source_title
                         AssetAction.Send -> R.string.select_send_sheet_title
                         else -> R.string.select_account_sheet_title
                     }
