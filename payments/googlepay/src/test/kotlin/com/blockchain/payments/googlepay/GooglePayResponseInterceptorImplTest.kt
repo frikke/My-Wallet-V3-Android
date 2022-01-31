@@ -20,10 +20,12 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
+@Ignore
 class GooglePayResponseInterceptorImplTest {
 
     @get:Rule
