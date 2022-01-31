@@ -12,7 +12,7 @@ import com.blockchain.componentlib.card.abstract.AnnouncementCardView
 import com.blockchain.componentlib.card.abstract.CallOutCardView
 import com.blockchain.componentlib.card.abstract.CtaAnnouncementCardView
 import com.blockchain.componentlib.card.abstract.DefaultCardView
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class CardActivity : AppCompatActivity() {

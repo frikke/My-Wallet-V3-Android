@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".abstract_compose_view.SimpleTextViewActivity">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="Local Image"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.basic.SimpleImageView
+            android:id="@+id/local_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="Local Image with background"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.basic.SimpleImageView
+            android:id="@+id/local_image_w_bkgd_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="Remote Image"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.basic.SimpleImageView
+            android:id="@+id/remote_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</ScrollView>

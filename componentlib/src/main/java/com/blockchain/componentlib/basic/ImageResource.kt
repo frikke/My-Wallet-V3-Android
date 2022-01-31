@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.image
+package com.blockchain.componentlib.basic
 
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes

@@ -3,7 +3,7 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sectionheader.LargeSectionHeaderType
 import com.blockchain.componentlib.sectionheader.LargeSectionHeaderView
 import com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView

@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.LinearLayoutCompat
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.SheetHeaderActionType
 import com.blockchain.componentlib.sheets.SheetHeaderBackAndActionView
 import com.blockchain.componentlib.sheets.SheetHeaderBackAndCloseView
