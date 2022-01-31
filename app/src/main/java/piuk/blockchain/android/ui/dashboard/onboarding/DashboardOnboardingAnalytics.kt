@@ -14,19 +14,19 @@ sealed class DashboardOnboardingAnalytics(
         private val currentStepIndex: Int
     ) : DashboardOnboardingAnalytics(
         event = AnalyticsNames.DASHBOARD_ONBOARDING_VIEWED.eventName,
-        params = mapOf("current_step_completed" to currentStepIndex)
+        params = mapOf("current_step_completed" to currentStepIndex.toString())
     )
     data class Dismissed(
         private val currentStepIndex: Int
     ) : DashboardOnboardingAnalytics(
         event = AnalyticsNames.DASHBOARD_ONBOARDING_DISMISSED.eventName,
-        params = mapOf("current_step_completed" to currentStepIndex)
+        params = mapOf("current_step_completed" to currentStepIndex.toString())
     )
     data class CardClicked(
         private val currentStepIndex: Int
     ) : DashboardOnboardingAnalytics(
         event = AnalyticsNames.DASHBOARD_ONBOARDING_CARD_CLICKED.eventName,
-        params = mapOf("current_step_completed" to currentStepIndex)
+        params = mapOf("current_step_completed" to currentStepIndex.toString())
     )
     data class StepLaunched(
         private val currentStepIndex: Int,
@@ -36,7 +36,7 @@ sealed class DashboardOnboardingAnalytics(
     ) : DashboardOnboardingAnalytics(
         event = AnalyticsNames.DASHBOARD_ONBOARDING_STEP_LAUNCHED.eventName,
         params = mapOf(
-            "current_step_completed" to currentStepIndex,
+            "current_step_completed" to currentStepIndex.toString(),
             "item" to step.toParam(),
             "button_clicked" to nextStepButtonClicked
         )
