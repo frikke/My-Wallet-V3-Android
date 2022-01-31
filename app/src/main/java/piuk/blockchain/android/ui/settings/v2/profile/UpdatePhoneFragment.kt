@@ -11,6 +11,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.google.android.material.snackbar.Snackbar
 import com.mukesh.countrypicker.CountryPicker
 import info.blockchain.wallet.api.data.Settings
 import java.util.Locale
@@ -20,8 +21,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdatePhoneBinding
 import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.base.updateTitleToolbar
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.settings.v2.sheets.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.util.FormatChecker
 
@@ -65,13 +64,13 @@ class UpdatePhoneFragment :
             }
         }
 
-        if (newState.error == ProfileError.SavePhoneError) {
-            toast(getString(R.string.profile_update_error_phone), ToastCustom.TYPE_ERROR)
-            model.process(ProfileIntent.ClearErrors)
-        }
+        if (newState.error != ProfileError.None) handleErrors(newState.error)
 
         if (newState.error == ProfileError.ResendSmsError) {
-            toast(getString(R.string.profile_update_error_resend_sms), ToastCustom.TYPE_ERROR)
+            Snackbar.make(
+                binding.root, getString(R.string.profile_update_error_resend_sms),
+                Snackbar.LENGTH_LONG
+            ).show()
             model.process(ProfileIntent.ClearErrors)
         }
 
@@ -79,6 +78,15 @@ class UpdatePhoneFragment :
             showDialogVerifySms(newState.userInfoSettings?.mobileWithPrefix.orEmpty())
             model.process(ProfileIntent.ResetCodeSentVerification)
         }
+    }
+
+    private fun handleErrors(error: ProfileError) {
+        val errorText = when (error) {
+            ProfileError.PhoneNumberNotValidError -> getString(R.string.profile_update_error_phone_invalid)
+            else -> getString(R.string.profile_update_error_phone)
+        }
+        Snackbar.make(binding.root, errorText, Snackbar.LENGTH_LONG).show()
+        model.process(ProfileIntent.ClearErrors)
     }
 
     private fun changeStateCta(newPhone: String, currentPhone: String) {

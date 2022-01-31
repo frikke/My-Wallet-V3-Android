@@ -106,7 +106,7 @@ class SimpleBuyPaymentFragment :
         previousSelectedPaymentMethodId = newState.selectedPaymentMethod.id
         previousSelectedCryptoAsset = newState.selectedCryptoAsset
 
-        newState.selectedCryptoAsset?.let {
+        newState.selectedCryptoAsset.let {
             binding.transactionProgressView.setAssetIcon(it)
         }
 
@@ -127,8 +127,6 @@ class SimpleBuyPaymentFragment :
             }
             isFirstLoad = false
         }
-
-        require(newState.selectedPaymentMethod != null)
 
         binding.transactionProgressView.onCtaClick(getString(R.string.common_ok)) {
             when {

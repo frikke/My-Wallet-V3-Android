@@ -6,6 +6,7 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
+import info.blockchain.wallet.exceptions.HDWalletException
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
@@ -18,6 +19,7 @@ import piuk.blockchain.android.ui.settings.v2.profile.ProfileModel
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
 import piuk.blockchain.android.ui.settings.v2.profile.VerificationSent
 import piuk.blockchain.androidcore.data.settings.Email
+import piuk.blockchain.androidcore.data.settings.InvalidPhoneNumber
 
 class ProfileModelTest {
     private lateinit var model: ProfileModel
@@ -128,7 +130,8 @@ class ProfileModelTest {
                         email = settings.email,
                         emailVerified = settings.isEmailVerified,
                         mobileWithPrefix = it.userInfoSettings?.mobileWithPrefix,
-                        mobileVerified = it.userInfoSettings?.mobileVerified ?: false
+                        mobileVerified = it.userInfoSettings?.mobileVerified ?: false,
+                        smsDialCode = it.userInfoSettings?.smsDialCode.orEmpty()
                     )
                 )
             }
@@ -170,6 +173,7 @@ class ProfileModelTest {
 
         val settings: Settings = mock {
             on { smsNumber }.thenReturn("+34655819515")
+            on { smsDialCode }.thenReturn("+34")
         }
 
         whenever(interactor.savePhoneNumber(userInfoSettings.mobileWithPrefix.orEmpty())).thenReturn(
@@ -192,7 +196,8 @@ class ProfileModelTest {
                     email = it.userInfoSettings?.email,
                     emailVerified = it.userInfoSettings?.emailVerified ?: false,
                     mobileWithPrefix = settings.smsNumber,
-                    mobileVerified = settings.isSmsVerified
+                    mobileVerified = settings.isSmsVerified,
+                    smsDialCode = settings.smsDialCode
                 ),
                 isVerificationSent = VerificationSent(
                     codeSent = true,
@@ -207,10 +212,14 @@ class ProfileModelTest {
         val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
         val phoneNumber = "+34655819515"
 
+        val error: HDWalletException = mock {
+            on { message }.thenReturn("whatever")
+        }
+
         whenever(userInfoSettings.mobileWithPrefix).thenReturn(phoneNumber)
 
         whenever(interactor.savePhoneNumber(phoneNumber)).thenReturn(
-            Single.error { Throwable() }
+            Single.error { error }
         )
 
         val testState = model.state.test()
@@ -226,6 +235,34 @@ class ProfileModelTest {
             it == ProfileState(
                 isLoading = false,
                 error = ProfileError.SavePhoneError
+            )
+        }
+    }
+
+    @Test
+    fun `when SavePhoneNumber fails then state should contain PhoneNumberNotValidError`() {
+        val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
+        val phoneNumber = "+34123456789"
+
+        whenever(userInfoSettings.mobileWithPrefix).thenReturn(phoneNumber)
+
+        whenever(interactor.savePhoneNumber(phoneNumber)).thenReturn(
+            Single.error { InvalidPhoneNumber() }
+        )
+
+        val testState = model.state.test()
+        model.process(ProfileIntent.SavePhoneNumber(phoneNumber))
+
+        testState.assertValueAt(0) {
+            it == ProfileState()
+        }.assertValueAt(1) {
+            it == ProfileState(
+                isLoading = true
+            )
+        }.assertValueAt(2) {
+            it == ProfileState(
+                isLoading = false,
+                error = ProfileError.PhoneNumberNotValidError
             )
         }
     }
@@ -261,7 +298,8 @@ class ProfileModelTest {
                         email = email.address,
                         emailVerified = email.isVerified,
                         mobileWithPrefix = it.userInfoSettings?.mobileWithPrefix,
-                        mobileVerified = it.userInfoSettings?.mobileVerified ?: false
+                        mobileVerified = it.userInfoSettings?.mobileVerified ?: false,
+                        smsDialCode = it.userInfoSettings?.smsDialCode.orEmpty()
                     )
                 )
             }
@@ -300,6 +338,7 @@ class ProfileModelTest {
     fun `when ResendCode is successfully then state isVerificationSent codeSent will be true`() {
         val settings: Settings = mock {
             on { smsNumber }.thenReturn("+34655819515")
+            on { smsDialCode }.thenReturn("+34")
         }
 
         whenever(
@@ -325,7 +364,8 @@ class ProfileModelTest {
                         email = it.userInfoSettings?.email,
                         emailVerified = it.userInfoSettings?.emailVerified ?: false,
                         mobileWithPrefix = settings.smsNumber,
-                        mobileVerified = settings.isSmsVerified
+                        mobileVerified = settings.isSmsVerified,
+                        smsDialCode = settings.smsDialCode
                     ),
                     isVerificationSent = VerificationSent(
                         codeSent = true,

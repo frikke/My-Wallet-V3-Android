@@ -53,7 +53,8 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
                     email = settings.email,
                     emailVerified = settings.isEmailVerified,
                     mobileWithPrefix = oldState.userInfoSettings?.mobileWithPrefix,
-                    mobileVerified = oldState.userInfoSettings?.mobileVerified ?: false
+                    mobileVerified = oldState.userInfoSettings?.mobileVerified ?: false,
+                    smsDialCode = oldState.userInfoSettings?.smsDialCode.orEmpty()
                 )
             )
     }
@@ -96,7 +97,8 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
                     email = email.address,
                     emailVerified = email.isVerified,
                     mobileWithPrefix = oldState.userInfoSettings?.mobileWithPrefix,
-                    mobileVerified = oldState.userInfoSettings?.mobileVerified ?: false
+                    mobileVerified = oldState.userInfoSettings?.mobileVerified ?: false,
+                    smsDialCode = oldState.userInfoSettings?.smsDialCode.orEmpty()
                 )
             )
     }
@@ -119,7 +121,8 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
                     email = oldState.userInfoSettings?.email,
                     emailVerified = oldState.userInfoSettings?.emailVerified ?: false,
                     mobileWithPrefix = settings.smsNumber,
-                    mobileVerified = settings.isSmsVerified
+                    mobileVerified = settings.isSmsVerified,
+                    smsDialCode = settings.smsDialCode
                 ),
                 isVerificationSent = VerificationSent(
                     codeSent = true,
@@ -132,6 +135,14 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
         override fun reduce(oldState: ProfileState): ProfileState =
             oldState.copy(
                 error = ProfileError.SavePhoneError,
+                isLoading = false
+            )
+    }
+
+    object PhoneNumberNotValid : ProfileIntent() {
+        override fun reduce(oldState: ProfileState): ProfileState =
+            oldState.copy(
+                error = ProfileError.PhoneNumberNotValidError,
                 isLoading = false
             )
     }
@@ -159,7 +170,8 @@ sealed class ProfileIntent : MviIntent<ProfileState> {
                     email = oldState.userInfoSettings?.email,
                     emailVerified = oldState.userInfoSettings?.emailVerified ?: false,
                     mobileWithPrefix = settings.smsNumber,
-                    mobileVerified = settings.isSmsVerified
+                    mobileVerified = settings.isSmsVerified,
+                    smsDialCode = settings.smsDialCode
                 ),
                 isVerificationSent = VerificationSent(
                     codeSent = true,

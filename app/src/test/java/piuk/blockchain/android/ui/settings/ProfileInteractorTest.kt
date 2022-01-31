@@ -97,7 +97,7 @@ class ProfileInteractorTest {
         val notifications: List<Int> = listOf(SettingsManager.NOTIFICATION_TYPE_SMS)
         val settings = Settings().copy(notificationsType = notifications)
 
-        whenever(settingsDataManager.updateSms(phoneNumber)).thenReturn(Observable.just(settings))
+        whenever(settingsDataManager.updateSms(phoneNumber, true)).thenReturn(Single.just(settings))
         whenever(nabuUserSync.syncUser()).thenReturn(Completable.complete())
         whenever(settingsDataManager.disableNotification(Settings.NOTIFICATION_TYPE_SMS, notifications))
             .thenReturn(Observable.just(settings))
@@ -105,7 +105,7 @@ class ProfileInteractorTest {
 
         interactor.savePhoneNumber(phoneNumber).test()
 
-        verify(settingsDataManager).updateSms(phoneNumber)
+        verify(settingsDataManager).updateSms(phoneNumber, true)
         verify(nabuUserSync).syncUser()
         verify(settingsDataManager).disableNotification(Settings.NOTIFICATION_TYPE_SMS, notifications)
     }
@@ -116,7 +116,7 @@ class ProfileInteractorTest {
         val notifications: List<Int> = listOf(SettingsManager.NOTIFICATION_TYPE_SMS)
         val settings = Settings().copy(notificationsType = notifications)
 
-        whenever(settingsDataManager.updateSms(phoneNumber)).thenReturn(Observable.just(settings))
+        whenever(settingsDataManager.updateSms(phoneNumber, true)).thenReturn(Single.just(settings))
         whenever(nabuUserSync.syncUser()).thenReturn(Completable.complete())
         whenever(settingsDataManager.disableNotification(Settings.NOTIFICATION_TYPE_SMS, notifications))
             .thenReturn(Observable.just(settings))
@@ -124,7 +124,7 @@ class ProfileInteractorTest {
 
         interactor.resendCodeSMS(phoneNumber).test()
 
-        verify(settingsDataManager).updateSms(phoneNumber)
+        verify(settingsDataManager).updateSms(phoneNumber, true)
         verify(nabuUserSync).syncUser()
         verify(settingsDataManager).disableNotification(Settings.NOTIFICATION_TYPE_SMS, notifications)
     }

@@ -2572,6 +2572,7 @@
     <string name="profile_update_error_resend_sms">Resending SMS failed</string>
     <string name="profile_update_email">Email saved</string>
     <string name="profile_update_error_phone">Phone number failed to save</string>
+    <string name="profile_update_error_phone_invalid">Invalid phone number</string>
     <string name="profile_update_phone">Phone number saved</string>
     <string name="profile_update_success">Updates saved.</string>
     <string name="profile_label_support">Need to update your name? <annotation link="contact_support">Contact support</annotation></string>

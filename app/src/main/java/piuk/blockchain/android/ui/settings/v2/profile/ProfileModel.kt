@@ -8,6 +8,7 @@ import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.androidcore.data.settings.InvalidPhoneNumber
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -54,12 +55,16 @@ class ProfileModel(
                     mobileWithPrefix = intent.phoneNumber
                 ).trackProgress(activityIndicator)
                     .subscribeBy(
-                        onSuccess = { userInfoSettings ->
-                            process(ProfileIntent.SavePhoneNumberSucceeded(userInfoSettings))
+                        onSuccess = { settings ->
+                            process(ProfileIntent.SavePhoneNumberSucceeded(settings))
                         },
                         onError = {
                             Timber.e("SavePhoneNumber failure " + it)
-                            process(ProfileIntent.SavePhoneNumberFailed)
+                            if (it is InvalidPhoneNumber) {
+                                process(ProfileIntent.PhoneNumberNotValid)
+                            } else {
+                                process(ProfileIntent.SavePhoneNumberFailed)
+                            }
                         }
                     )
             }
@@ -117,6 +122,7 @@ class ProfileModel(
             is ProfileIntent.ResendEmailFailed,
             is ProfileIntent.ResendCodeSMSSucceeded,
             is ProfileIntent.ResendCodeSMSFailed,
+            is ProfileIntent.PhoneNumberNotValid,
             is ProfileIntent.LoadProfileSucceeded,
             is ProfileIntent.LoadProfileFailed,
             is ProfileIntent.ClearErrors -> null

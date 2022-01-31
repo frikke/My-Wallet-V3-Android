@@ -12,14 +12,13 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdateEmailBinding
 import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.base.updateTitleToolbar
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.util.FormatChecker
 
 class UpdateEmailFragment :
@@ -52,12 +51,15 @@ class UpdateEmailFragment :
         }
 
         if (newState.error == ProfileError.SaveEmailError) {
-            toast(getString(R.string.profile_update_error_email), ToastCustom.TYPE_ERROR)
+            Snackbar.make(binding.root, getString(R.string.profile_update_error_email), Snackbar.LENGTH_LONG).show()
             model.process(ProfileIntent.ClearErrors)
         }
 
         if (newState.error == ProfileError.ResendEmailError) {
-            toast(getString(R.string.profile_update_error_resend_email), ToastCustom.TYPE_ERROR)
+            Snackbar.make(
+                binding.root, getString(R.string.profile_update_error_resend_email),
+                Snackbar.LENGTH_LONG
+            ).show()
             model.process(ProfileIntent.ClearErrors)
         }
 

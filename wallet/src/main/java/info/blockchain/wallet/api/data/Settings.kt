@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -15,6 +16,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
+
+@Serializable
 data class Settings(
 
     @JsonProperty("btc_currency")
@@ -48,6 +51,8 @@ data class Settings(
 
     @JsonProperty("sms_number")
     private val _smsNumber: String? = null,
+    @JsonProperty("sms_dial_code")
+    val smsDialCode: String = "",
 
     @JsonProperty("sms_verified")
     private val smsVerified: Int = 0,

@@ -30,6 +30,10 @@ class ProfileInteractor internal constructor(
             sharedKey = authPrefs.sharedKey
         )
 
+    /*
+       BE eventually will sync and update notifications when user updates email and phone number
+       keep an eye: https://blockchain.atlassian.net/browse/WS-171
+    */
     fun saveEmail(email: String): Single<Settings> =
         emailUpdater.updateEmailAndSync(email).flatMap {
             updateNotification(Settings.NOTIFICATION_TYPE_EMAIL, false)
@@ -38,17 +42,18 @@ class ProfileInteractor internal constructor(
     fun resendEmail(email: String): Single<Email> = emailUpdater.resendEmail(email)
 
     fun savePhoneNumber(mobileWithPrefix: String): Single<Settings> =
-        settingsDataManager.updateSms(mobileWithPrefix)
-            .firstOrError()
+        settingsDataManager.updateSms(mobileWithPrefix, forceJson = true)
             .flatMap {
                 syncPhoneNumberWithNabu().thenSingle {
                     updateNotification(Settings.NOTIFICATION_TYPE_SMS, false)
                 }
             }
-
+    /*
+        Eventually "resend-sms" without having to save the phone number in order to get a SMS,
+        keep an eye: https://blockchain.atlassian.net/browse/WS-170
+    */
     fun resendCodeSMS(mobileWithPrefix: String): Single<Settings> =
-        settingsDataManager.updateSms(mobileWithPrefix)
-            .firstOrError()
+        settingsDataManager.updateSms(mobileWithPrefix, forceJson = true)
             .flatMap {
                 syncPhoneNumberWithNabu().thenSingle {
                     updateNotification(Settings.NOTIFICATION_TYPE_SMS, false)

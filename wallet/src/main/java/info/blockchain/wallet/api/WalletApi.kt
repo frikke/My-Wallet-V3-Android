@@ -237,6 +237,27 @@ class WalletApi(
         )
     }
 
+    fun updateSettings(
+        method: String,
+        guid: String,
+        sharedKey: String,
+        payload: String,
+        context: String?,
+        forceJson: Boolean?
+    ): Single<Response<ResponseBody>> {
+        return explorerInstance.updateSettings(
+            method,
+            guid,
+            sharedKey,
+            payload,
+            payload.length,
+            "plain",
+            context,
+            api.apiCode,
+            forceJson
+        )
+    }
+
     val walletOptions: Observable<WalletOptions>
         get() = explorerInstance.getWalletOptions(api.apiCode)
 

@@ -66,6 +66,20 @@ interface WalletExplorerEndpoints {
 
     @FormUrlEncoded
     @POST("wallet")
+    fun updateSettings(
+        @Field("method") method: String,
+        @Field("guid") guid: String,
+        @Field("sharedKey") sharedKey: String,
+        @Field("payload") payload: String,
+        @Field("length") length: Int,
+        @Field("format") format: String,
+        @Field("context") context: String?,
+        @Field("api_code") apiCode: String,
+        @Field("forceJson") forceJson: Boolean? = false
+    ): Single<Response<ResponseBody>>
+
+    @FormUrlEncoded
+    @POST("wallet")
     fun fetchWalletData(
         @Field("method") method: String,
         @Field("guid") guid: String,
