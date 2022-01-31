@@ -95,7 +95,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                         interestDetailsDepositCta.visible()
                         interestDetailsDepositCta.animate().alpha(1f).start()
                         interestDetailsDepositCta.text =
-                            getString(R.string.tx_title_deposit, asset.displayTicker)
+                            getString(R.string.tx_title_add, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(InterestAnalytics.InterestSummaryDepositCta)
                             host.goToInterestDeposit(account as InterestAccount)

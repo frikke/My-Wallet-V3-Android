@@ -633,6 +633,8 @@
     <string name="tx_title_transferred">Transferred %s</string>
     <string name="tx_title_fee">Fee %s</string>
     <string name="tx_title_rewards">%s Rewards Earned</string>
+    <string name="tx_title_add">Add %s</string>
+    <string name="tx_title_added">Added %s</string>
 
     <!-- TRANSACTION DETAILS -->
     <string name="transaction_detail_coinbase">No Inputs (Newly Generated Coins)</string>
@@ -1438,6 +1440,7 @@
     <string name="select_account_sheet_empty">You have no eligible Wallets to perform this action.</string>
     <string name="select_send_sheet_title">Send from</string>
     <string name="select_deposit_source_title">Transfer from</string>
+    <string name="select_interest_deposit_source_title">Add from</string>
     <string name="select_withdraw_target_title">Withdraw to</string>
     <string name="select_send_source_title">Send from</string>
     <string name="activity_state_initialised">Initialised</string>
