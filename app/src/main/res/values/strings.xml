@@ -634,6 +634,7 @@
     <string name="tx_title_fee">Fee %s</string>
     <string name="tx_title_rewards">%s Rewards Earned</string>
     <string name="tx_title_add">Add %s</string>
+    <string name="tx_title_added">Added %s</string>
 
     <!-- TRANSACTION DETAILS -->
     <string name="transaction_detail_coinbase">No Inputs (Newly Generated Coins)</string>
