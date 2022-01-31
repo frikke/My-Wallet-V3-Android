@@ -22,7 +22,8 @@ class AssetActionsComparatorTest {
             AssetAction.InterestWithdraw,
             AssetAction.Withdraw,
             AssetAction.ViewStatement,
-            AssetAction.ViewActivity
+            AssetAction.ViewActivity,
+            AssetAction.Sign
         )
 
         assert(actions.sortedWith(comparator) == expected)

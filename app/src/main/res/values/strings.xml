@@ -45,6 +45,7 @@
     <string name="common_try_again">Try Again</string>
     <string name="common_oops">Oops! Something went wrong.</string>
     <string name="common_sell">Sell</string>
+    <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
     <string name="common_search">Search</string>
     <string name="common_approve">Approve</string>
@@ -1698,6 +1699,7 @@
     <string name="enter_amount_not_enough_balance">Insufficient balance for fee</string>
     <string name="deposit_confirmation_progress_title">Depositing %1$s</string>
     <string name="deposit_confirmation_progress_message">We’re completing your deposit now.</string>
+    <string name="sign_confirmation_progress_message">We’re signing your transaction now.</string>
     <string name="deposit_confirmation_success_title">%1$s Deposited!</string>
     <string name="deposit_confirmation_success_message">While we wait for your bank to send the cash, here’s early access to %1$s in your %2$s Cash Account so you can buy crypto right away.\n\nYour funds will be available to withdraw once the bank transfer is complete on %3$s.</string>
     <string name="deposit_confirmation_pending_title">We’re waiting on your bank</string>
@@ -2655,5 +2657,11 @@
     <string name="dapp_is_now_approved">%1s is Now Connected to Your Wallet</string>
     <string name="dapp_is_now_rejected">%1s Connection was Rejected</string>
     <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
+    <string name="dapp_confirmation_warning">This dapp is requesting an action, which could take money from your wallet. Make sure you trust this site.</string>
+    <string name="common_chain">Chain</string>
+    <string name="message_from_dapp">Message from %1s</string>
+    <string name="signing_confirmation_progress_title">Signing…</string>
+    <string name="signed">Signed</string>
+    <string name="message_signed">The message has been successfully signed. Go back to the dApp.</string>
 
 </resources>

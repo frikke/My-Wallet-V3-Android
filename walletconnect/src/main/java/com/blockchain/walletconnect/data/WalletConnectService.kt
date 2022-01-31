@@ -1,14 +1,17 @@
 package com.blockchain.walletconnect.data
 
+import com.blockchain.coincore.TxResult
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.DAppInfo
+import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectAddressProvider
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
+import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import com.trustwallet.walletconnect.WCClient
 import com.trustwallet.walletconnect.models.WCPeerMeta
 import com.trustwallet.walletconnect.models.session.WCSession
@@ -16,20 +19,20 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.lang.IllegalArgumentException
 import java.util.UUID
 import okhttp3.OkHttpClient
-import okhttp3.Response
-import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
-import timber.log.Timber
 
 class WalletConnectService(
     private val walletConnectAccountProvider: WalletConnectAddressProvider,
     private val sessionRepository: SessionRepository,
     private val featureFlag: IntegratedFeatureFlag,
+    private val ethRequestSign: EthRequestSign,
     lifecycleObservable: LifecycleObservable,
     private val client: OkHttpClient
 ) : WalletConnectServiceAPI, WalletConnectUrlValidator, WebSocketListener() {
@@ -41,35 +44,34 @@ class WalletConnectService(
     override val sessionEvents: Observable<WalletConnectSessionEvent>
         get() = _sessionEvents
 
+    private val _walletConnectUserEvents = PublishSubject.create<WalletConnectUserEvent>()
+    override val userEvents: Observable<WalletConnectUserEvent>
+        get() = _walletConnectUserEvents
+
     init {
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe {
             // TODO connect and disconnect
         }
     }
 
-    override fun connectToApprovedSessions() {
+    override fun init() {
         compositeDisposable += featureFlag.enabled.flatMap { enabled ->
             if (enabled)
                 sessionRepository.retrieve()
             else sessionRepository.removeAll().toSingle { emptyList() }
-        }.subscribe { sessions ->
-            sessions.forEach {
+        }.zipWith(walletConnectAccountProvider.address()).subscribe { (sessions, address) ->
+            sessions.forEach { session ->
                 val wcClient = WCClient(httpClient = client)
-                val wcSession = WCSession.from(it.url) ?: throw IllegalArgumentException(
-                    "Not a valid wallet connect url ${it.url}"
+                val wcSession = WCSession.from(session.url) ?: throw IllegalArgumentException(
+                    "Not a valid wallet connect url ${session.url}"
                 )
                 wcClient.connect(
                     session = wcSession,
-                    peerId = it.dAppInfo.peerId,
-                    peerMeta = it.dAppInfo.toWCPeerMeta()
+                    peerId = session.walletInfo.clientId,
+                    remotePeerId = session.dAppInfo.peerId,
+                    peerMeta = session.dAppInfo.toWCPeerMeta()
                 )
-                wcClient.addSocketListener(object : WebSocketListener() {
-                    override fun onOpen(webSocket: WebSocket, response: Response) {
-                        super.onOpen(webSocket, response)
-                        // Doing nothing for the time being
-                        Timber.v("Session Connected ${it.dAppInfo.peerMeta.name}")
-                    }
-                })
+                wcClient.addSignEthHandler(session)
             }
         }
     }
@@ -83,12 +85,13 @@ class WalletConnectService(
             val peerId = UUID.randomUUID().toString()
 
             wcClient.onSessionRequest = { _, peerMeta ->
-                onNewSessionRequested(session, peerMeta, peerId)
+                onNewSessionRequested(session, peerMeta, wcClient.remotePeerId.orEmpty(), peerId)
             }
-            wcClient.configureFailureAndDisconnetion(session)
+            wcClient.configureFailureAndDisconnection(session)
             wcClients[session.toUri()] = wcClient
             wcClient.connect(
                 session = session,
+                peerId = peerId,
                 peerMeta = DEFAULT_PEER_META
             )
         }
@@ -97,6 +100,7 @@ class WalletConnectService(
     private fun onSessionApproved(session: WalletConnectSession) {
         _sessionEvents.onNext(WalletConnectSessionEvent.DidConnect(session))
         compositeDisposable += sessionRepository.store(session).onErrorComplete().emptySubscribe()
+        wcClients[session.url]?.addSignEthHandler(session)
     }
 
     private fun onSessionConnectFailedOrDisconnected(wcSession: WCSession) {
@@ -149,19 +153,20 @@ class WalletConnectService(
             _sessionEvents.onNext(WalletConnectSessionEvent.DidDisconnect(session))
         }
 
-    private fun onNewSessionRequested(session: WCSession, peerMeta: WCPeerMeta, peerId: String) {
+    private fun onNewSessionRequested(session: WCSession, peerMeta: WCPeerMeta, remotePeerId: String, peerId: String) {
         _sessionEvents.onNext(
             WalletConnectSessionEvent.ReadyForApproval(
                 WalletConnectSession.fromWCSession(
                     wcSession = session,
                     peerMeta = peerMeta,
+                    remotePeerId = remotePeerId,
                     peerId = peerId,
                 )
             )
         )
     }
 
-    private fun WCClient.configureFailureAndDisconnetion(wcSession: WCSession) {
+    private fun WCClient.configureFailureAndDisconnection(wcSession: WCSession) {
         onFailure = {
             onSessionConnectFailedOrDisconnected(wcSession)
         }
@@ -177,6 +182,20 @@ class WalletConnectService(
             url = "https://blockchain.com",
             icons = listOf("https://www.blockchain.com/static/apple-touch-icon.png")
         )
+    }
+
+    private fun WCClient.addSignEthHandler(session: WalletConnectSession) {
+        onEthSign = { id, message ->
+            compositeDisposable += ethRequestSign.onEthSign(message, session) { txResult ->
+                (txResult as? TxResult.HashedTxResult).let {
+                    Completable.fromCallable {
+                        this.approveRequest(id, it!!.txId)
+                    }
+                }
+            }.subscribeBy(onSuccess = {
+                _walletConnectUserEvents.onNext(it)
+            }, onError = {})
+        }
     }
 
     override fun isUrlValid(url: String): Boolean =

@@ -52,7 +52,7 @@ class MetadataManager(
             _metadataNodeFactory = it
         }
 
-    fun attemptMetadataSetup() = Completable.defer { initMetadataNodes() }
+    fun attemptMetadataSetup(): Completable = Completable.defer { initMetadataNodes() }
 
     fun decryptAndSetupMetadata(
         secondPassword: String

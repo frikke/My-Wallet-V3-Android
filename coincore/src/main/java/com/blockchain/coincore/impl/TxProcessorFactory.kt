@@ -15,6 +15,8 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TransferError
+import com.blockchain.coincore.eth.EthOnChainTxEngine
+import com.blockchain.coincore.eth.EthereumSignMessageTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.FiatDepositTxEngine
 import com.blockchain.coincore.impl.txEngine.FiatWithdrawalTxEngine
@@ -29,6 +31,7 @@ import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
+import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.payments.PaymentsDataManager
@@ -39,6 +42,7 @@ import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
@@ -48,6 +52,7 @@ class TxProcessorFactory(
     private val limitsDataManager: LimitsDataManager,
     private val interestBalances: InterestBalanceDataManager,
     private val walletPrefs: WalletStatus,
+    private val ethMessageSigner: EthMessageSigner,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val quotesEngine: TransferQuotesEngine,
     private val analytics: Analytics,
@@ -177,6 +182,18 @@ class TxProcessorFactory(
                     )
                 )
             )
+            is EthereumSignMessageTarget -> Single.just(
+                TransactionProcessor(
+                    exchangeRates = exchangeRates,
+                    sourceAccount = source,
+                    txTarget = target,
+                    engine = WalletConnectSignEngine(
+                        assetEngine = engine as EthOnChainTxEngine,
+                        ethMessageSigner = ethMessageSigner
+                    )
+                )
+            )
+
             is CryptoInterestAccount ->
                 target.receiveAddress
                     .map {

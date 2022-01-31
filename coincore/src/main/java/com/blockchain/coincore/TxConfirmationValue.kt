@@ -25,6 +25,17 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
         val assetAction: AssetAction
     ) : TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
 
+    data class DAppInfo(
+        val name: String,
+        val url: String,
+    ) : TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
+
+    data class Chain(val assetInfo: AssetInfo) :
+        TxConfirmationValue(TxConfirmation.SIMPLE_READ_ONLY)
+
+    data class SignEthMessage(val message: String, val dAppName: String) :
+        TxConfirmationValue(TxConfirmation.EXPANDABLE_SINGLE_VALUE_READ_ONLY)
+
     data class Sale(val amount: Money, val exchange: Money) :
         TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
 
@@ -81,6 +92,9 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
         val data: T? = null,
         val value: Boolean = false
     ) : TxConfirmationValue(confirmation), UserEditable
+
+    data class WalletConnectHeader(val dAppName: String, val dAppLogo: String, val dAppUrl: String) :
+        TxConfirmationValue(TxConfirmation.HEADER)
 }
 
 interface UserEditable

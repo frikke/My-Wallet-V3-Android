@@ -16,9 +16,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/confirm_details_list"
-        style="@style/Text.Semibold.14"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginBottom="@dimen/minuscule_margin"
         android:fadingEdge="vertical"
         android:fadingEdgeLength="@dimen/very_small_margin"
@@ -31,6 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/confirm_header_slot"
         app:layout_constraintVertical_bias="0"
+        app:layout_goneMarginBottom="@dimen/huge_margin"
         tools:listitem="@layout/item_send_confirm_details" />
 
     <androidx.appcompat.widget.AppCompatTextView

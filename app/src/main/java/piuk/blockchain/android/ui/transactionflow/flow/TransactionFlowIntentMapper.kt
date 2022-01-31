@@ -36,6 +36,9 @@ class TransactionFlowIntentMapper(
             AssetAction.InterestWithdraw -> {
                 handleInterestWithdraw(passwordRequired)
             }
+            AssetAction.Sign -> {
+                handleSignAction(passwordRequired)
+            }
             AssetAction.Receive,
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
@@ -43,6 +46,14 @@ class TransactionFlowIntentMapper(
                 "Flows for Buy, Receive, ViewActivity and Summary not supported"
             )
         }
+
+    private fun handleSignAction(passwordRequired: Boolean): TransactionIntent =
+        TransactionIntent.InitialiseWithSourceAndTargetAccount(
+            action,
+            sourceAccount,
+            target,
+            passwordRequired
+        )
 
     private fun handleInterestDeposit(passwordRequired: Boolean) =
         when {

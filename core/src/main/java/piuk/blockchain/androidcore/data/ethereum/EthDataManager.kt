@@ -20,6 +20,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
 import org.spongycastle.util.encoders.Hex
+import org.web3j.abi.TypeEncoder
+import org.web3j.abi.datatypes.Utf8String
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
@@ -35,7 +37,7 @@ class EthDataManager(
     private val metadataManager: MetadataManager,
     private val lastTxUpdater: LastTxUpdater,
     private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag
-) {
+) : EthMessageSigner {
 
     private val internalAccountAddress: String?
         get() = ethDataStore.ethWallet?.account?.address
@@ -257,6 +259,34 @@ class EthDataManager(
             val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
             account.signTransaction(rawTransaction, payloadDataManager.masterKey)
         }
+
+    override fun signEthMessage(message: String, secondPassword: String): Single<ByteArray> =
+        Single.fromCallable {
+            val data = message.decodeHex()
+            if (payloadDataManager.isDoubleEncrypted) {
+                payloadDataManager.decryptHDWallet(secondPassword)
+            }
+            val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
+            account.signMessage(data, payloadDataManager.masterKey)
+        }
+
+    override fun signEthTypedMessage(message: String, secondPassword: String): Single<ByteArray> =
+        Single.fromCallable {
+            val data = TypeEncoder.encode(Utf8String(message)).decodeHex()
+            if (payloadDataManager.isDoubleEncrypted) {
+                payloadDataManager.decryptHDWallet(secondPassword)
+            }
+            val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
+            account.signMessage(data, payloadDataManager.masterKey)
+        }
+
+    private fun String.decodeHex(): ByteArray {
+        check(length % 2 == 0) { "Must have an even length" }
+        return removePrefix("0x")
+            .chunked(2)
+            .map { it.toInt(16).toByte() }
+            .toByteArray()
+    }
 
     fun pushEthTx(signedTxBytes: ByteArray): Observable<String> =
         ethAccountApi.pushTx("0x" + String(Hex.encode(signedTxBytes)))

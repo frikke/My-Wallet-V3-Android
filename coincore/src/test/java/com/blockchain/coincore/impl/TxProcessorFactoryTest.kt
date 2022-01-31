@@ -71,6 +71,7 @@ class TxProcessorFactoryTest {
             limitsDataManager = limitsDataManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
             quotesEngine = quotesEngine,
+            ethMessageSigner = mock(),
             analytics = analytics,
             userIdentity = userIdentity,
             withdrawLocksRepository = withdrawalLocksRepository,

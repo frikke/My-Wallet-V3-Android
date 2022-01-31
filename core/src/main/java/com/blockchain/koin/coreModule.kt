@@ -65,6 +65,7 @@ import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
+import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
@@ -189,7 +190,7 @@ val coreModule = module {
                 lastTxUpdater = get(),
                 ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
             )
-        }
+        }.bind(EthMessageSigner::class)
 
         factory {
             Erc20BalanceCallCache(

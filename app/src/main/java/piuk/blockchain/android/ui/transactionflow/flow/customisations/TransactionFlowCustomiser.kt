@@ -43,6 +43,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.plugin.AccountLimitsView
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ConfirmSheetWidget
+import piuk.blockchain.android.ui.transactionflow.plugin.EmptyHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.FromAndToView
 import piuk.blockchain.android.ui.transactionflow.plugin.SimpleInfoHeaderView
@@ -315,6 +316,7 @@ class TransactionFlowCustomiserImpl(
                 AssetAction.Swap -> resources.getString(R.string.common_swap)
                 AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
                 AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)
+                AssetAction.Sign -> resources.getString(R.string.common_sign)
                 AssetAction.Sell -> resources.getString(R.string.common_sell)
                 AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
                 AssetAction.Withdraw -> resources.getString(R.string.common_withdraw)
@@ -327,6 +329,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send -> resources.getString(R.string.send_confirmation_cta_button)
             AssetAction.Swap -> resources.getString(R.string.swap_confirmation_cta_button)
             AssetAction.Sell -> resources.getString(R.string.sell_confirmation_cta_button)
+            AssetAction.Sign -> resources.getString(R.string.common_sign)
             AssetAction.InterestDeposit -> resources.getString(R.string.send_confirmation_deposit_cta_button)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_cta_button)
             AssetAction.Withdraw,
@@ -420,6 +423,9 @@ class TransactionFlowCustomiserImpl(
                 R.string.withdraw_confirmation_progress_title,
                 amount
             )
+            AssetAction.Sign -> resources.getString(
+                R.string.signing_confirmation_progress_title
+            )
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -434,6 +440,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.sell_confirmation_progress_message)
             AssetAction.Swap -> resources.getString(R.string.swap_confirmation_progress_message)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_progress_message)
+            AssetAction.Sign -> resources.getString(R.string.sign_confirmation_progress_message)
             AssetAction.Withdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_progress_message)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
@@ -479,6 +486,7 @@ class TransactionFlowCustomiserImpl(
             )
             AssetAction.Withdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_success_title, amount)
+            AssetAction.Sign -> resources.getString(R.string.signed)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -504,6 +512,7 @@ class TransactionFlowCustomiserImpl(
             }
             AssetAction.FiatDeposit,
             AssetAction.Withdraw,
+            AssetAction.Sign,
             AssetAction.InterestWithdraw -> R.drawable.ic_check_circle
 
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
@@ -575,6 +584,9 @@ class TransactionFlowCustomiserImpl(
                 state.pendingTx?.amount?.toStringWithSymbol() ?: "",
                 (state.sendingAccount as? FiatAccount)?.currency ?: "",
                 getEstimatedTransactionCompletionTime()
+            )
+            AssetAction.Sign -> resources.getString(
+                R.string.message_signed
             )
             AssetAction.Withdraw -> resources.getString(
                 R.string.withdraw_confirmation_success_message,
@@ -781,6 +793,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> AccountInfoBank(ctx).also { frame.addView(it) }
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
+            AssetAction.Sign,
             AssetAction.Buy -> throw IllegalStateException("${state.action} is not supported in enter amount")
         }
 
@@ -924,6 +937,7 @@ class TransactionFlowCustomiserImpl(
                 AssetAction.InterestWithdraw -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell
+                AssetAction.Sign -> R.string.common_sign
                 AssetAction.InterestDeposit,
                 AssetAction.FiatDeposit -> R.string.common_deposit
                 AssetAction.ViewActivity -> R.string.common_activity
@@ -934,7 +948,7 @@ class TransactionFlowCustomiserImpl(
         )
 
     override fun amountHeaderConfirmationVisible(state: TransactionState): Boolean =
-        state.action != AssetAction.Swap
+        state.action != AssetAction.Swap && state.action != AssetAction.Sign
 
     override fun confirmInstallHeaderView(
         ctx: Context,
@@ -949,6 +963,7 @@ class TransactionFlowCustomiserImpl(
                     frame.addView(it)
                     it.shouldShowExchange = false
                 }
+            AssetAction.Sign -> EmptyHeaderView()
             else -> SimpleInfoHeaderView(ctx).also { frame.addView(it) }
         }
 

@@ -13,6 +13,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.payments.model.LinkBankTransfer
@@ -76,6 +77,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             when {
                 passwordRequired -> TransactionStep.ENTER_PASSWORD
                 target is InvoiceTarget -> TransactionStep.CONFIRM_DETAIL
+                target is WalletConnectTarget -> TransactionStep.CONFIRM_DETAIL
                 else -> TransactionStep.ENTER_AMOUNT
             }
     }

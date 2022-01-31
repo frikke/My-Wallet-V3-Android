@@ -265,6 +265,7 @@ class AssetActionsSheet :
             }
             AssetAction.Withdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
+            AssetAction.Sign -> throw IllegalStateException("Sign action is not supported")
         }
     }
 

@@ -117,6 +117,7 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
+import piuk.blockchain.android.ui.launcher.GlobalEventHandler
 import piuk.blockchain.android.ui.launcher.LauncherPresenter
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.ui.linkbank.BankAuthModel
@@ -687,11 +688,20 @@ val applicationModule = module {
                 coincore = get(),
                 exchangeRates = get(),
                 crashLogger = get(),
+                globalEventHandler = get(),
                 simpleBuySync = get(),
                 rxBus = get(),
                 walletConnectServiceAPI = get(),
                 flushables = getAll(AppStartUpFlushable::class),
                 walletCredentialsUpdater = get()
+            )
+        }
+
+        scoped {
+            GlobalEventHandler(
+                application = get(),
+                walletConnectServiceAPI = get(),
+                wcFeatureFlag = get(walletConnectFeatureFlag),
             )
         }
 

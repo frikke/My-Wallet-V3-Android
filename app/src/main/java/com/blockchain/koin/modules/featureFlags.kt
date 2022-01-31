@@ -5,7 +5,6 @@ import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.landingCtaFeatureFlag
-import com.blockchain.koin.payloadScope
 import com.blockchain.koin.pricingQuoteFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.ssoSignInPolling
@@ -18,6 +17,7 @@ import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
 
@@ -112,5 +112,5 @@ val featureFlagsModule = module {
 }
 
 fun getFeatureFlags(): List<FeatureFlag> {
-    return payloadScope.getAll()
+    return KoinJavaComponent.getKoin().getAll()
 }

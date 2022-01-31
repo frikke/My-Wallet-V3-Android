@@ -12,13 +12,16 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxFlowErrorReporting
 import piuk.blockchain.android.ui.transactionflow.flow.AmountFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.ChainPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.CompoundNetworkFeeFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.DAppInfoPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.EstimatedCompletionPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.ExchangePriceFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.FromPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.NetworkFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.PaymentMethodPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SalePropertyFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.SignEthMessagePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SwapExchangeRateFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.ToPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.TotalFormatter
@@ -88,6 +91,24 @@ val transactionModule = module {
 
     factory {
         EstimatedCompletionPropertyFormatter(
+            context = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
+        DAppInfoPropertyFormatter(
+            context = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
+        ChainPropertyFormatter(
+            context = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
+        SignEthMessagePropertyFormatter(
             context = get()
         )
     }.bind(TxOptionsFormatterCheckout::class)

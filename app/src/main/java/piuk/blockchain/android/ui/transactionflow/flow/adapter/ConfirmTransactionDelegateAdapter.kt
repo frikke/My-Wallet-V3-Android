@@ -32,6 +32,8 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(SimpleConfirmationCheckoutDelegate(mapper))
             addAdapterDelegate(ComplexConfirmationCheckoutDelegate(mapper))
             addAdapterDelegate(ExpandableSimpleConfirmationCheckout(mapper))
+            addAdapterDelegate(ExpandableSingleValueConfirmationAdapter(mapper))
+            addAdapterDelegate(HeaderConfirmationDelegate())
             addAdapterDelegate(ExpandableComplexConfirmationCheckout(mapper))
             addAdapterDelegate(CompoundExpandableFeeConfirmationCheckoutDelegate(mapper))
 
