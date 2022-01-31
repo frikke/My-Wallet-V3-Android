@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -56,9 +57,11 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/item_interest_acc_balance_title"
         style="@style/Text.Standard.12"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/very_small_margin"
+        app:layout_constraintEnd_toStartOf="@id/item_interest_acc_earned_title"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/item_interest_separator"
         tools:text="BTC Balance" />
@@ -66,17 +69,23 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/item_interest_acc_balance_label"
         style="@style/Text.Semibold.14"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:layout_marginEnd="@dimen/minuscule_margin"
+        app:layout_constraintEnd_toStartOf="@id/item_interest_acc_earned_title"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="@id/item_interest_acc_balance_title"
         app:layout_constraintTop_toBottomOf="@id/item_interest_acc_balance_title"
-        tools:text="0.00 BTC" />
+        tools:text="12324325245235252 BTC" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/item_interest_acc_earned_title"
         style="@style/Text.Standard.12"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/minuscule_margin"
         android:text="@string/rewards_dashboard_item_accrued_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/item_interest_acc_balance_title"
@@ -85,12 +94,14 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/item_interest_acc_earned_label"
         style="@style/Text.Semibold.14"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/item_interest_acc_earned_title"
         app:layout_constraintTop_toBottomOf="@id/item_interest_acc_earned_title"
         tools:text="0.00 BTC" />
-
 
     <Button
         android:id="@+id/item_interest_cta"
