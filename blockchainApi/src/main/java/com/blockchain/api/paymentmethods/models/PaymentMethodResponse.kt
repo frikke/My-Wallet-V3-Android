@@ -16,7 +16,9 @@ data class PaymentMethodResponse(
     @SerialName("subTypes")
     val subTypes: List<String>? = null,
     @SerialName("currency")
-    val currency: String? = null
+    val currency: String? = null,
+    @SerialName("mobilePayment")
+    val mobilePayment: List<String>? = null
 ) {
     companion object {
         const val PAYMENT_CARD = "PAYMENT_CARD"

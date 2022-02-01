@@ -21,8 +21,8 @@ data class CardPaymentMethod(
 ) {
     @Serializable
     data class CardPaymentParameters(
-        val allowedAuthMethods: List<String> = listOf("PAN_ONLY", "CRYPTOGRAM_3DS"),
-        val allowedCardNetworks: List<String> = listOf("AMEX", "DISCOVER", "JCB", "MASTERCARD", "VISA"),
+        val allowedAuthMethods: List<String>,
+        val allowedCardNetworks: List<String>,
         val billingAddressRequired: Boolean = true,
         val billingAddressParameters: BillingAddressParameters
     ) {
@@ -35,14 +35,8 @@ data class CardPaymentMethod(
     @Serializable
     data class TokenizationSpecification(
         val type: String = "PAYMENT_GATEWAY",
-        val parameters: Parameters
-    ) {
-        @Serializable
-        data class Parameters(
-            val gateway: String,
-            val gatewayMerchantId: String
-        )
-    }
+        val parameters: Map<String, String>
+    )
 }
 
 @Serializable

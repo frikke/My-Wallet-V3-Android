@@ -8,7 +8,7 @@ interface GooglePayResponseInterceptor {
         const val GOOGLE_PAY_REQUEST_CODE = 991
     }
 
-    fun setPaymentDataReceivedListener(onPaymentDataReceivedListener: OnPaymentDataReceivedListener)
+    fun setPaymentDataReceivedListener(onPaymentDataReceivedListener: OnGooglePayDataReceivedListener)
 
     fun interceptActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
 

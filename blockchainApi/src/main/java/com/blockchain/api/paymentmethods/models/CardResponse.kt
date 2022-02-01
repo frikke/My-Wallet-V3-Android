@@ -29,7 +29,13 @@ data class SimpleBuyConfirmationAttributes(
     @SerialName("callback")
     private val callback: String? = null,
     @SerialName("redirectURL")
-    private val redirectURL: String?
+    private val redirectURL: String?,
+    @SerialName("disable3DS")
+    private val disable3DS: Boolean? = null,
+    @SerialName("isMitPayment")
+    private val isMitPayment: Boolean? = null,
+    @SerialName("googlePayPayload")
+    private val googlePayPayload: String? = null
 )
 
 @Serializable

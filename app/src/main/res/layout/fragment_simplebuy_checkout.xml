@@ -119,8 +119,8 @@
         android:layout_marginBottom="@dimen/tiny_margin"
         app:layout_constraintBottom_toTopOf="@id/button_cancel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_goneMarginBottom="@dimen/standard_margin"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_goneMarginBottom="@dimen/standard_margin"
         tools:text="Buy"
         tools:visibility="visible" />
 
@@ -128,13 +128,14 @@
         android:id="@+id/button_google_pay"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/tiny_margin"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/button_cancel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_goneMarginBottom="@dimen/standard_margin"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        app:layout_goneMarginBottom="@dimen/standard_margin" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_cancel"

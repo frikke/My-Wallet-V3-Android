@@ -2,6 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.paymentmethods.models.ProviderAccountAttrs
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.api.serializers.StringMapSerializer
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
@@ -26,6 +27,7 @@ import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
+import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
@@ -59,6 +61,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.rx3.rxSingle
+import kotlinx.serialization.json.Json
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.cards.CardIntent
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
@@ -153,8 +156,8 @@ class SimpleBuyInteractor(
         brokerageDataManager.quoteForTransaction(
             pair = CurrencyPair(amount.currency, cryptoAsset),
             amount = amount,
-            paymentMethodType = paymentMethod,
-            paymentMethodId = paymentMethodId,
+            paymentMethodType = getPaymentMethodType(paymentMethod),
+            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
             product = Product.BUY
         ).flatMap { quote ->
             custodialWalletManager.createOrder(
@@ -168,8 +171,8 @@ class SimpleBuyInteractor(
                     output = OrderOutput(
                         cryptoAsset.networkTicker, null
                     ),
-                    paymentMethodId = paymentMethodId,
-                    paymentType = paymentMethod.name,
+                    paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
+                    paymentType = getPaymentMethodType(paymentMethod).name,
                     period = recurringBuyFrequency?.name
                 ),
                 stateAction = if (isPending) PENDING else null
@@ -177,6 +180,16 @@ class SimpleBuyInteractor(
                 SimpleBuyIntent.OrderCreated(buyOrder = it, quote = quote)
             }
         }
+
+    private fun getPaymentMethodType(paymentMethod: PaymentMethodType) =
+        // The API cannot handle GOOGLE_PAY as a payment method, so we're treating this as a card
+        if (paymentMethod == PaymentMethodType.GOOGLE_PAY) PaymentMethodType.PAYMENT_CARD else paymentMethod
+
+    private fun getPaymentMethodId(paymentMethodId: String? = null, paymentMethod: PaymentMethodType) =
+        // The API cannot handle GOOGLE_PAY as a payment method, so we're sending a null paymentMethodId
+        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID)
+            null
+        else paymentMethodId
 
     fun createRecurringBuyOrder(
         asset: AssetInfo?,
@@ -502,6 +515,19 @@ class SimpleBuyInteractor(
     fun updateExchangeRate(fiat: FiatCurrency, asset: AssetInfo): Single<ExchangeRate> {
         return exchangeRatesDataManager.exchangeRate(asset, fiat).firstOrError()
     }
+
+    fun getGooglePayInfo(
+        currency: FiatCurrency
+    ): Single<SimpleBuyIntent.GooglePayInfoReceived> =
+        paymentsDataManager.getGooglePayTokenizationParameters(
+            currency = currency.networkTicker
+        ).map {
+            SimpleBuyIntent.GooglePayInfoReceived(
+                tokenizationData = Json.decodeFromString(StringMapSerializer, it.googlePayParameters),
+                beneficiaryId = it.beneficiaryID,
+                merchantBankCountryCode = it.merchantBankCountryCode
+            )
+        }
 
     data class PaymentMethods(
         val available: List<AvailablePaymentMethodType>,

@@ -285,6 +285,12 @@ class SimpleBuyModel(
                 previousState.id,
                 previousState.selectedPaymentMethod
             )
+            is SimpleBuyIntent.ConfirmGooglePayOrder -> processConfirmOrder(
+                previousState.id,
+                previousState.selectedPaymentMethod,
+                intent.googlePayPayload,
+                previousState.googlePayBeneficiaryId
+            )
             is SimpleBuyIntent.FinishedFirstBuy -> null
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
@@ -338,6 +344,18 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.ErrorIntent())
                 }
             )
+
+            is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
+                previousState.fiatCurrency
+            ).subscribeBy(
+                onSuccess = {
+                    process(it)
+                },
+                onError = {
+                    process(SimpleBuyIntent.ErrorIntent())
+                }
+            )
+
             else -> null
         }
 
@@ -687,13 +705,15 @@ class SimpleBuyModel(
 
     private fun confirmOrder(
         id: String?,
-        selectedPaymentMethod: SelectedPaymentMethod?
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        googlePayPayload: String?,
+        googlePayBeneficiaryId: String?
     ): Single<BuySellOrder> {
         require(id != null) { "Order Id not available" }
         require(selectedPaymentMethod != null) { "selectedPaymentMethod missing" }
         return interactor.confirmOrder(
             orderId = id,
-            paymentMethodId = selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
+            paymentMethodId = googlePayBeneficiaryId ?: selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
             attributes = if (selectedPaymentMethod.isBank()) {
                 // redirectURL is for card providers only.
                 SimpleBuyConfirmationAttributes(
@@ -701,7 +721,15 @@ class SimpleBuyModel(
                     redirectURL = null
                 )
             } else {
-                cardActivator.paymentAttributes()
+                googlePayPayload?.let { payload ->
+                    cardActivator.paymentAttributes().copy(
+                        disable3DS = false,
+                        isMitPayment = false,
+                        googlePayPayload = payload
+                    )
+                } ?: run {
+                    cardActivator.paymentAttributes()
+                }
             },
             isBankPartner = selectedPaymentMethod.isBank()
         )
@@ -709,9 +737,11 @@ class SimpleBuyModel(
 
     private fun processConfirmOrder(
         id: String?,
-        selectedPaymentMethod: SelectedPaymentMethod?
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        googlePayPayload: String? = null,
+        googlePayBeneficiaryId: String? = null
     ): Disposable {
-        return confirmOrder(id, selectedPaymentMethod).map { it }
+        return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
             .subscribeBy(
                 onSuccess = { buySellOrder ->
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
@@ -847,6 +877,13 @@ class SimpleBuyModel(
                 process(SimpleBuyIntent.ErrorIntent())
             }
         )
+    }
+
+    private fun requestGooglePayInfo(
+        currency: FiatCurrency?
+    ): Single<SimpleBuyIntent.GooglePayInfoReceived> {
+        require(currency != null) { "Missing Currency" }
+        return interactor.getGooglePayInfo(currency)
     }
 
     override fun onStateUpdate(s: SimpleBuyState) {

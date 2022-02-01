@@ -338,8 +338,8 @@ val coreModule = module {
                 tradingBalanceDataManager = get(),
                 simpleBuyPrefs = get(),
                 authenticator = get(),
-                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
+                googlePayManager = get(),
                 assetCatalogue = get(),
                 cardsCache = get()
             )

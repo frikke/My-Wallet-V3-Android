@@ -86,6 +86,36 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
+    object GooglePayInfoRequested : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState.copy(
+            isLoading = true
+        )
+    }
+
+    class GooglePayInfoReceived(
+        private val tokenizationData: Map<String, String>,
+        private val beneficiaryId: String,
+        private val merchantBankCountryCode: String
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
+            return oldState.copy(
+                isLoading = false,
+                googlePayTokenizationInfo = tokenizationData,
+                googlePayBeneficiaryId = beneficiaryId,
+                googlePayMerchantBankCountryCode = merchantBankCountryCode
+            )
+        }
+    }
+
+    object ClearGooglePayInfo : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(googlePayTokenizationInfo = null)
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean {
+            return oldState.googlePayTokenizationInfo != null
+        }
+    }
+
     class SelectedPaymentMethodUpdate(
         private val paymentMethod: PaymentMethod
     ) : SimpleBuyIntent() {
@@ -219,6 +249,14 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     object ConfirmOrder : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                confirmationActionRequested = true,
+                isLoading = true
+            )
+    }
+
+    data class ConfirmGooglePayOrder(val googlePayPayload: String) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 confirmationActionRequested = true,

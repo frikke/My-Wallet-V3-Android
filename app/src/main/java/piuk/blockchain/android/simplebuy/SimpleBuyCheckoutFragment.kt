@@ -23,14 +23,21 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
+import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
+import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
+import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import java.time.ZonedDateTime
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.databinding.PromoLayoutBinding
@@ -47,9 +54,11 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),
     SimpleBuyScreen,
-    SimpleBuyCancelOrderBottomSheet.Host {
+    SimpleBuyCancelOrderBottomSheet.Host,
+    OnGooglePayDataReceivedListener {
 
     override val model: SimpleBuyModel by scopedInject()
+    private val googlePayManager: GooglePayManager by inject()
 
     private var lastState: SimpleBuyState? = null
     private val checkoutAdapterDelegate = CheckoutAdapterDelegate()
@@ -176,6 +185,24 @@ class SimpleBuyCheckoutFragment :
                 // do nothing
             }
         }
+
+        newState.googlePayTokenizationInfo?.let { tokenizationMap ->
+            if (tokenizationMap.isNotEmpty()) {
+                googlePayManager.requestPayment(
+                    GooglePayRequestBuilder.buildForPaymentRequest(
+                        allowedAuthMethods = allowedAuthMethods,
+                        allowedCardNetworks = allowedCardNetworks,
+                        gatewayTokenizationParameters = tokenizationMap,
+                        totalPrice = newState.amount.toStringWithoutSymbol(),
+                        countryCode = newState.googlePayMerchantBankCountryCode.orEmpty(),
+                        currencyCode = newState.fiatCurrency.networkTicker
+                    ),
+                    requireActivity()
+                )
+
+                model.process(SimpleBuyIntent.ClearGooglePayInfo)
+            }
+        }
     }
 
     private fun renderPrivateKeyLabel(selectedCryptoAsset: AssetInfo) {
@@ -299,20 +326,30 @@ class SimpleBuyCheckoutFragment :
 
     private fun buildPaymentMethodItem(state: SimpleBuyState): SimpleBuyCheckoutItem? =
         state.selectedPaymentMethod?.let {
-            when (it.paymentMethodType) {
+            val paymentMethodType = if (state.selectedPaymentMethodDetails?.id == GOOGLE_PAY_PAYMENT_ID)
+                PaymentMethodType.GOOGLE_PAY else it.paymentMethodType
+
+            when (paymentMethodType) {
                 PaymentMethodType.FUNDS -> SimpleBuyCheckoutItem.SimpleCheckoutItem(
                     getString(R.string.payment_method),
                     getString(R.string.fiat_currency_funds_wallet_name_1, state.fiatCurrency)
                 )
                 PaymentMethodType.BANK_TRANSFER,
                 PaymentMethodType.BANK_ACCOUNT,
-                PaymentMethodType.GOOGLE_PAY,
                 PaymentMethodType.PAYMENT_CARD -> {
                     state.selectedPaymentMethodDetails?.let { details ->
                         SimpleBuyCheckoutItem.ComplexCheckoutItem(
                             getString(R.string.payment_method),
                             details.methodDetails(),
                             details.methodName()
+                        )
+                    }
+                }
+                PaymentMethodType.GOOGLE_PAY -> {
+                    state.selectedPaymentMethodDetails?.let { details ->
+                        SimpleBuyCheckoutItem.SimpleCheckoutItem(
+                            getString(R.string.payment_method),
+                            details.methodDetails()
                         )
                     }
                 }
@@ -335,7 +372,8 @@ class SimpleBuyCheckoutFragment :
 
     private fun configureButtons(state: SimpleBuyState) {
         val isOrderAwaitingFunds = state.orderState == OrderState.AWAITING_FUNDS
-        val isGooglePay = state.selectedPaymentMethod?.paymentMethodType == PaymentMethodType.GOOGLE_PAY
+        val isGooglePay = state.selectedPaymentMethod?.id == GOOGLE_PAY_PAYMENT_ID &&
+            !isForPendingPayment && !isOrderAwaitingFunds
 
         with(binding) {
             buttonAction.apply {
@@ -364,13 +402,10 @@ class SimpleBuyCheckoutFragment :
                         }
                     }
                 }
-                visibleIf { !showOnlyOrderData }
+                visibleIf { !showOnlyOrderData && !isGooglePay }
+                isEnabled = !state.isLoading
             }
 
-            buttonAction.apply {
-                isEnabled = !state.isLoading && !isGooglePay
-                visibleIf { !isGooglePay }
-            }
             buttonCancel.visibleIf {
                 isOrderAwaitingFunds && state.selectedPaymentMethod?.isBank() == true
             }
@@ -379,8 +414,12 @@ class SimpleBuyCheckoutFragment :
                 showBottomSheet(SimpleBuyCancelOrderBottomSheet.newInstance())
             }
             buttonGooglePay.apply {
+                isEnabled = true
                 visibleIf { isGooglePay }
-                setOnClickListener { }
+                setOnClickListener {
+                    buttonGooglePay.isEnabled = false
+                    model.process(SimpleBuyIntent.GooglePayInfoRequested)
+                }
             }
         }
     }
@@ -459,13 +498,36 @@ class SimpleBuyCheckoutFragment :
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.buttonGooglePay.hideLoading()
+    }
+
     override fun onPause() {
         super.onPause()
         model.process(SimpleBuyIntent.NavigationHandled)
     }
 
     override fun onSheetClosed() {
-        // do nothing
+        binding.buttonGooglePay.hideLoading()
+    }
+
+    override fun onGooglePayTokenReceived(token: String) {
+        model.process(SimpleBuyIntent.ConfirmGooglePayOrder(googlePayPayload = token))
+        binding.buttonGooglePay.showLoading()
+    }
+
+    override fun onGooglePayCancelled() {
+        binding.buttonGooglePay.isEnabled = true
+    }
+
+    override fun onGooglePaySheetClosed() {
+        binding.buttonGooglePay.isEnabled = true
+    }
+
+    override fun onGooglePayError(e: Throwable) {
+        // TODO Show error sheet here?
+        binding.buttonGooglePay.isEnabled = true
     }
 
     private fun viewForPromo(buyFees: BuyFees): View? {

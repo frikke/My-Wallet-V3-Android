@@ -659,10 +659,10 @@ sealed class PaymentMethod(
         const val UNDEFINED_BANK_TRANSFER_PAYMENT_ID = "UNDEFINED_BANK_TRANSFER_PAYMENT_ID"
 
         private const val FUNDS_PAYMENT_METHOD_ORDER = 0
-        private const val CARD_PAYMENT_METHOD_ORDER = 1
-        private const val BANK_PAYMENT_METHOD_ORDER = 2
-        private const val UNDEFINED_CARD_PAYMENT_METHOD_ORDER = 3
-        private const val GOOGLE_PAY_PAYMENT_METHOD_ORDER = 4
+        private const val UNDEFINED_CARD_PAYMENT_METHOD_ORDER = 1
+        private const val GOOGLE_PAY_PAYMENT_METHOD_ORDER = 2
+        private const val CARD_PAYMENT_METHOD_ORDER = 3
+        private const val BANK_PAYMENT_METHOD_ORDER = 4
         private const val UNDEFINED_BANK_TRANSFER_METHOD_ORDER = 5
         private const val UNDEFINED_BANK_ACCOUNT_METHOD_ORDER = 6
     }

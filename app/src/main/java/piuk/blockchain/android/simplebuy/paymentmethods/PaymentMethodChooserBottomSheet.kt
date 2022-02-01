@@ -74,9 +74,6 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         return PaymentMethodItem(this, clickAction())
     }
 
-    private fun PaymentMethod.canBeDisplayedAsPayingMethod(): Boolean =
-        canBeUsedForPaying() || this is PaymentMethod.UndefinedBankAccount
-
     private fun PaymentMethod.clickAction(): () -> Unit =
         {
             (host as? Host)?.onPaymentMethodChanged(this)

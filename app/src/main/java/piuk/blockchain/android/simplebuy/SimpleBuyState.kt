@@ -25,7 +25,6 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
-import java.lang.IllegalStateException
 import java.math.BigInteger
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
@@ -57,6 +56,9 @@ data class SimpleBuyState constructor(
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
+    val googlePayTokenizationInfo: Map<String, String>? = null,
+    val googlePayBeneficiaryId: String? = null,
+    val googlePayMerchantBankCountryCode: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     @Transient val buyErrorState: ErrorState? = null,
@@ -299,5 +301,7 @@ data class SelectedPaymentMethod(
         id != PaymentMethod.UNDEFINED_BANK_TRANSFER_PAYMENT_ID
 
     fun isActive() =
-        concreteId() != null || (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID)
+        concreteId() != null ||
+            (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID) ||
+            paymentMethodType == PaymentMethodType.GOOGLE_PAY
 }

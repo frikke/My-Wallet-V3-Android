@@ -34,6 +34,11 @@ import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
 import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
+import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
+import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptorImpl
+import com.blockchain.payments.googlepay.interceptor.PaymentDataMapper
+import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
@@ -45,6 +50,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.binds
@@ -899,6 +905,24 @@ val applicationModule = module {
             checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
+
+    single {
+        GooglePayManagerImpl(
+            environmentConfig = get(),
+            context = get()
+        )
+    }.bind(GooglePayManager::class)
+
+    single {
+        PaymentDataMapper()
+    }
+
+    factory {
+        GooglePayResponseInterceptorImpl(
+            paymentDataMapper = get(),
+            coroutineContext = Dispatchers.IO
+        )
+    }.bind(GooglePayResponseInterceptor::class)
 }
 
 fun getCardProcessors(): List<CardProcessor> {
