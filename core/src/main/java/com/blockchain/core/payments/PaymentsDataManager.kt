@@ -44,6 +44,7 @@ import com.blockchain.core.payments.model.LinkedBankState
 import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.payments.model.PartnerCredentials
 import com.blockchain.core.payments.model.PaymentMethodDetailsError
+import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -331,7 +332,7 @@ class PaymentsDataManagerImpl(
             }
         }.also {
             cardsCache.invalidate()
-        }
+        }.wrapErrorMessage()
 
     override fun getCardDetails(cardId: String): Single<PaymentMethod.Card> =
         authenticator.getAuthHeader().flatMap { authToken ->
