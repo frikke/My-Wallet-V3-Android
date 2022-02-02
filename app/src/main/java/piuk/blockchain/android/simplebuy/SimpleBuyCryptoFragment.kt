@@ -521,7 +521,7 @@ class SimpleBuyCryptoFragment :
         with(binding) {
             paymentMethodBankInfo.gone()
             paymentMethodIcon.setImageResource(R.drawable.ic_bank_transfer)
-            paymentMethodTitle.text = getString(R.string.link_a_bank)
+            paymentMethodTitle.text = getString(R.string.easy_bank_transfer)
             paymentMethodLimit.text =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
         }

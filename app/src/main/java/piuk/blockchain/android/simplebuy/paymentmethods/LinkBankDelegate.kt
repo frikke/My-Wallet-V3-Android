@@ -32,13 +32,6 @@ class LinkBankDelegate : AdapterDelegate<PaymentMethodItem> {
 
         fun bind(paymentMethodItem: PaymentMethodItem) {
             with(binding) {
-                (paymentMethodItem.paymentMethod as? PaymentMethod.UndefinedBankTransfer)?.let {
-                    paymentMethodLimit.text =
-                        context.getString(
-                            R.string.payment_method_limit,
-                            paymentMethodItem.paymentMethod.limits.max.toStringWithSymbol()
-                        )
-                }
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
             }
         }
