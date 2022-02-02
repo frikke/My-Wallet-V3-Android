@@ -138,20 +138,20 @@ class SimpleBuyModel(
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
                 ).thenSingle {
-                    processCreateOrder(
-                        previousState.selectedCryptoAsset,
-                        previousState.selectedPaymentMethod,
-                        previousState.order,
-                        previousState.recurringBuyFrequency
-                    )
-                }.subscribeBy(
-                    onSuccess = {
-                        process(it)
-                    },
-                    onError = {
-                        process(SimpleBuyIntent.ErrorIntent())
-                    }
+                processCreateOrder(
+                    previousState.selectedCryptoAsset,
+                    previousState.selectedPaymentMethod,
+                    previousState.order,
+                    previousState.recurringBuyFrequency
                 )
+            }.subscribeBy(
+                onSuccess = {
+                    process(it)
+                },
+                onError = {
+                    process(SimpleBuyIntent.ErrorIntent())
+                }
+            )
 
             is SimpleBuyIntent.FetchKycState -> interactor.pollForKycState()
                 .subscribeBy(
