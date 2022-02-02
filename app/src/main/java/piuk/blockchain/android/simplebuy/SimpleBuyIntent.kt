@@ -74,7 +74,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class PaymentMethodsUpdated(
-        private val paymentOptions: PaymentOptions,
+        val paymentOptions: PaymentOptions,
         val selectedPaymentMethod: SelectedPaymentMethod?
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {

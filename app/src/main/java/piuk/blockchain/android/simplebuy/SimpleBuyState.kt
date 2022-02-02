@@ -227,11 +227,18 @@ data class SimpleBuyOrder(
 )
 
 data class PaymentOptions(
-    val availablePaymentMethods: List<PaymentMethod> = emptyList(),
-    val canAddCard: Boolean = false,
-    val canLinkFunds: Boolean = false,
-    val canLinkBank: Boolean = false
-)
+    val availablePaymentMethods: List<PaymentMethod> = emptyList()
+) {
+    val canAddCard: Boolean
+        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedCard>()
+            .firstOrNull()?.isEligible ?: false
+    val canLinkFunds: Boolean
+        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>().firstOrNull()?.isEligible
+            ?: false
+    val canLinkBank: Boolean
+        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>().firstOrNull()?.isEligible
+            ?: false
+}
 
 data class BuyQuote(
     val id: String? = null,

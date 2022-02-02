@@ -138,20 +138,20 @@ class SimpleBuyModel(
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
                 ).thenSingle {
-                processCreateOrder(
-                    previousState.selectedCryptoAsset,
-                    previousState.selectedPaymentMethod,
-                    previousState.order,
-                    previousState.recurringBuyFrequency
+                    processCreateOrder(
+                        previousState.selectedCryptoAsset,
+                        previousState.selectedPaymentMethod,
+                        previousState.order,
+                        previousState.recurringBuyFrequency
+                    )
+                }.subscribeBy(
+                    onSuccess = {
+                        process(it)
+                    },
+                    onError = {
+                        process(SimpleBuyIntent.ErrorIntent())
+                    }
                 )
-            }.subscribeBy(
-                onSuccess = {
-                    process(it)
-                },
-                onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
-                }
-            )
 
             is SimpleBuyIntent.FetchKycState -> interactor.pollForKycState()
                 .subscribeBy(
@@ -216,11 +216,12 @@ class SimpleBuyModel(
             }
             is SimpleBuyIntent.PaymentMethodsUpdated -> {
                 check(previousState.selectedCryptoAsset != null)
-                intent.selectedPaymentMethod?.paymentMethodType?.let {
+                intent.selectedPaymentMethod?.let { selectedPaymentMethod ->
                     onPaymentMethodsUpdated(
                         previousState.selectedCryptoAsset,
                         previousState.fiatCurrency,
-                        it
+                        selectedPaymentMethod,
+                        intent.paymentOptions.availablePaymentMethods
                     )
                 }
             }
@@ -388,12 +389,13 @@ class SimpleBuyModel(
     private fun onPaymentMethodsUpdated(
         asset: AssetInfo,
         fiatCurrency: FiatCurrency,
-        selectedPaymentMethodType: PaymentMethodType
+        selectedPaymentMethod: SelectedPaymentMethod,
+        availablePaymentMethods: List<PaymentMethod>
     ): Disposable {
         return interactor.fetchBuyLimits(
             fiat = fiatCurrency,
             asset = asset,
-            paymentMethodType = selectedPaymentMethodType
+            paymentMethodType = selectedPaymentMethod.paymentMethodType
         )
             .trackProgress(activityIndicator)
             .subscribeBy(
@@ -401,11 +403,60 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.ErrorIntent())
                 },
                 onSuccess = { limits ->
-                    process(
-                        SimpleBuyIntent.UpdatedBuyLimits(
-                            limits
+                    val paymentMethodsWithNotEnoughBalance = availablePaymentMethods.filter { paymentMethod ->
+                        paymentMethod.availableBalance?.let { balance ->
+                            balance < limits.minAmount
+                        } ?: false
+                    }
+
+                    val paymentMethodsWithEnoughBalance = availablePaymentMethods.filter { paymentMethod ->
+                        paymentMethod.availableBalance?.let { balance ->
+                            balance >= limits.minAmount
+                        } ?: true
+                    }
+
+                    // We are allowed to refresh the payment methods only when
+                    // 1. there is at least one with enough funds so making sure that in the end
+                    // something will be selected
+                    // 2. when at least one with not enought funds has been detected.
+
+                    val shouldRefreshPaymentMethods =
+                        paymentMethodsWithEnoughBalance.isNotEmpty() && paymentMethodsWithNotEnoughBalance.isNotEmpty()
+
+                    if (shouldRefreshPaymentMethods) {
+                        val newSelectedPaymentMethodId = selectedMethodId(
+                            preselectedId = null,
+                            previousSelectedId = null,
+                            availablePaymentMethods = paymentMethodsWithEnoughBalance
                         )
-                    )
+
+                        val updateSelectedPaymentMethod = paymentMethodsWithEnoughBalance.firstOrNull { paymentMethod ->
+                            newSelectedPaymentMethodId == paymentMethod.id
+                        }?.let { sPaymentMethod ->
+                            SelectedPaymentMethod(
+                                sPaymentMethod.id,
+                                (sPaymentMethod as? PaymentMethod.Card)?.partner,
+                                sPaymentMethod.detailedLabel(),
+                                sPaymentMethod.type,
+                                sPaymentMethod.isEligible
+                            )
+                        }
+
+                        process(
+                            SimpleBuyIntent.PaymentMethodsUpdated(
+                                paymentOptions = PaymentOptions(
+                                    paymentMethodsWithEnoughBalance,
+                                ),
+                                selectedPaymentMethod = updateSelectedPaymentMethod
+                            )
+                        )
+                    } else {
+                        process(
+                            SimpleBuyIntent.UpdatedBuyLimits(
+                                limits
+                            )
+                        )
+                    }
                 }
             )
     }
@@ -571,13 +622,7 @@ class SimpleBuyModel(
         availablePaymentMethods: List<PaymentMethod>
     ): SimpleBuyIntent.PaymentMethodsUpdated {
         val paymentOptions = PaymentOptions(
-            availablePaymentMethods = availablePaymentMethods,
-            canAddCard = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedCard>()
-                .firstOrNull()?.isEligible ?: false,
-            canLinkFunds = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>()
-                .firstOrNull()?.isEligible ?: false,
-            canLinkBank = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankTransfer>()
-                .firstOrNull()?.isEligible ?: false
+            availablePaymentMethods = availablePaymentMethods
         )
 
         val selectedPaymentMethodId = selectedMethodId(
