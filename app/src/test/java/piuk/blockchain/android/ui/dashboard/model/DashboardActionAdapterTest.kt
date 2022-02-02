@@ -9,12 +9,16 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
@@ -28,6 +32,8 @@ class DashboardActionAdapterTest {
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val paymentsDataManager: PaymentsDataManager = mock()
+    private val currencyPrefs: CurrencyPrefs = mock()
+    private val userIdentity: NabuUserIdentity = mock()
     private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
         on { currency }.thenReturn(USD)
@@ -50,8 +56,8 @@ class DashboardActionAdapterTest {
             crashLogger = mock(),
             analytics = mock(),
             simpleBuyPrefs = mock(),
-            currencyPrefs = mock(),
-            userIdentity = mock(),
+            currencyPrefs = currencyPrefs,
+            userIdentity = userIdentity,
             getDashboardOnboardingStepsUseCase = mock(),
             dashboardOnboardingFlag = mock(),
             exchangeRates = mock(),
@@ -222,5 +228,16 @@ class DashboardActionAdapterTest {
                 AssetAction.FiatDeposit
             )
         )
+    }
+
+    @Test
+    fun `loading profile then check getHighestApprovedKycTier`() {
+        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(
+            Single.just(Tier.GOLD)
+        )
+        actionAdapter.canDeposit().test()
+
+        verify(userIdentity).getHighestApprovedKycTier()
+        verifyNoMoreInteractions(userIdentity)
     }
 }

@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="empty_portfolio_title, portfolio_description, buy_crypto_button, receive_deposit_button, bottom_background"
+            app:constraint_referenced_ids="empty_portfolio_title, portfolio_description, buy_crypto_button, receive_deposit_button, bottom_background, receive_button"
             tools:visibility="gone" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -97,6 +97,19 @@
             app:layout_constraintTop_toBottomOf="@+id/buy_crypto_button"
             app:leftButtonText="@string/receive"
             app:rightButtonText="@string/common_deposit" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/receive_button"
+            style="@style/CtaButton.White"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/epic_margin"
+            android:text="@string/receive"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buy_crypto_button"/>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/bottom_background"
