@@ -319,7 +319,7 @@ class PortfolioFragment :
                 else -> {
                     portfolioRecyclerView.visibleIf { showPortfolio }
                     emptyPortfolioGroup.visibleIf { !showPortfolio }
-                    setupCtaButtons(showDepositButton)
+                    setupCtaButtons(showDepositButton, showPortfolio)
                     dashboardProgress.gone()
                 }
             }
@@ -471,18 +471,18 @@ class PortfolioFragment :
         }
     }
 
-    private fun setupCtaButtons(showDepositButton: Boolean) {
+    private fun setupCtaButtons(showDepositButton: Boolean, showPortfolio: Boolean) {
         with(binding) {
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
             receiveDepositButton.apply {
-                visibleIf { showDepositButton }
+                visibleIf { showDepositButton && !showPortfolio }
                 leftButton.setOnClickListener { navigator().launchReceive() }
                 rightButton.setOnClickListener {
                     model.process(DashboardIntent.StartBankTransferFlow(action = AssetAction.FiatDeposit))
                 }
             }
             receiveButton.apply {
-                visibleIf { !showDepositButton }
+                visibleIf { !showDepositButton && !showPortfolio }
                 setOnClickListener { navigator().launchReceive() }
             }
         }
