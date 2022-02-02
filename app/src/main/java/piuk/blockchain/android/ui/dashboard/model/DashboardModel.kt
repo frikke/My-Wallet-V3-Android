@@ -58,6 +58,7 @@ class DashboardModel(
             is DashboardIntent.LaunchBankTransferFlow -> processBankTransferFlow(intent)
             is DashboardIntent.StartBankTransferFlow ->
                 interactor.launchBankTransferFlow(this, intent.currency, intent.action)
+            is DashboardIntent.UpdateDepositButton -> userCanDeposit()
             is DashboardIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(this)
             is DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
             is DashboardIntent.RefreshFiatBalances -> interactor.refreshFiatBalances(intent.fiatAccounts, this)
@@ -84,6 +85,7 @@ class DashboardModel(
             is DashboardIntent.FundsLocksLoaded,
             is DashboardIntent.FetchOnboardingStepsSuccess,
             is DashboardIntent.LaunchDashboardOnboarding,
+            is DashboardIntent.SetDepositVisibility,
             is DashboardIntent.ResetDashboardAssets -> null
         }
     }
@@ -110,6 +112,16 @@ class DashboardModel(
                 null
             }
         }
+
+    private fun userCanDeposit(): Disposable =
+        interactor.canDeposit().subscribeBy(
+            onSuccess = { canDeposit ->
+                process(DashboardIntent.SetDepositVisibility(canDeposit))
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
 
     private fun checkBackupStatus(account: SingleAccount, action: AssetAction): Disposable =
         interactor.hasUserBackedUp()

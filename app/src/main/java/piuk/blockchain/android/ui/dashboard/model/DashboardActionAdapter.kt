@@ -15,6 +15,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -304,6 +305,14 @@ class DashboardActionAdapter(
                 }
             )
     }
+
+    fun canDeposit(): Single<Boolean> =
+        userIdentity.getHighestApprovedKycTier()
+            .flatMap {
+                if (it == Tier.GOLD) {
+                    paymentsDataManager.canTransactWithBankMethods(currencyPrefs.selectedFiatCurrency)
+                } else Single.just(true)
+            }
 
     fun launchBankTransferFlow(model: DashboardModel, currencyCode: String = "", action: AssetAction) =
         userIdentity.isEligibleFor(Feature.SimpleBuy)

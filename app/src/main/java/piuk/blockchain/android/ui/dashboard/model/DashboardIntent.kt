@@ -305,6 +305,18 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
+    object UpdateDepositButton : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
+    }
+
+    data class SetDepositVisibility(val showDeposit: Boolean) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            return oldState.copy(
+                canPotentiallyTransactWithBanks = showDeposit
+            )
+        }
+    }
+
     data class ShowLinkablePaymentMethodsSheet(
         private val fiatAccount: FiatAccount,
         private val paymentMethodsForAction: LinkablePaymentMethodsForAction

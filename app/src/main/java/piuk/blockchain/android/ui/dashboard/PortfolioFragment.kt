@@ -175,11 +175,11 @@ class PortfolioFragment :
 
         analytics.logEvent(AnalyticsEvents.Dashboard)
 
+        model.process(DashboardIntent.UpdateDepositButton)
+        model.process(DashboardIntent.LoadFundsLocked)
+
         setupSwipeRefresh()
         setupRecycler()
-        setupCtaButtons()
-
-        model.process(DashboardIntent.LoadFundsLocked)
 
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
@@ -297,14 +297,14 @@ class PortfolioFragment :
 
             val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
 
-            manageLoadingState(isLoading, showPortfolio)
+            manageLoadingState(isLoading, showPortfolio, newState.canPotentiallyTransactWithBanks)
             clear()
             addAll(newMap.values + cryptoAssets)
         }
         theAdapter.notifyDataSetChanged()
     }
 
-    private fun manageLoadingState(isLoading: Boolean, showPortfolio: Boolean) {
+    private fun manageLoadingState(isLoading: Boolean, showPortfolio: Boolean, showDepositButton: Boolean) {
         with(binding) {
             when {
                 isLoading && showPortfolio -> {
@@ -319,6 +319,7 @@ class PortfolioFragment :
                 else -> {
                     portfolioRecyclerView.visibleIf { showPortfolio }
                     emptyPortfolioGroup.visibleIf { !showPortfolio }
+                    setupCtaButtons(showDepositButton)
                     dashboardProgress.gone()
                 }
             }
@@ -470,14 +471,19 @@ class PortfolioFragment :
         }
     }
 
-    private fun setupCtaButtons() {
+    private fun setupCtaButtons(showDepositButton: Boolean) {
         with(binding) {
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
             receiveDepositButton.apply {
+                visibleIf { showDepositButton }
                 leftButton.setOnClickListener { navigator().launchReceive() }
                 rightButton.setOnClickListener {
                     model.process(DashboardIntent.StartBankTransferFlow(action = AssetAction.FiatDeposit))
                 }
+            }
+            receiveButton.apply {
+                visibleIf { !showDepositButton }
+                setOnClickListener { navigator().launchReceive() }
             }
         }
     }
