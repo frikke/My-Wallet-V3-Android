@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LinkBankLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
