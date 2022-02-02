@@ -146,7 +146,10 @@ class SettingsPresenter(
                             )
                         }
 
-                        view?.cardsEnabled(cardPaymentMethodType?.canBeUsedForPayment == true && cards.isNotEmpty())
+                        view?.cardsEnabled(
+                            (cardPaymentMethodType?.canBeUsedForPayment == true && cards.isNotEmpty()) ||
+                                cardPaymentMethodType?.linkAccess == LinkAccess.GRANTED
+                        )
                         view?.addCardEnabled(cardPaymentMethodType?.linkAccess == LinkAccess.GRANTED)
                         onCardsUpdated(cards)
                     },
