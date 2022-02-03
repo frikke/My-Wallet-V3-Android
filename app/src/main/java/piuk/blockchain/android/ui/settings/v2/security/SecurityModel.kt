@@ -104,6 +104,20 @@ class SecurityModel(
                         )
                 }
             }
+            is SecurityIntent.CheckCanChangePassword -> {
+                previousState.securityInfo?.isWalletBackedUp?.let { isBackedUp ->
+                    process(
+                        SecurityIntent.UpdateViewState(
+                            if (isBackedUp) {
+                                SecurityViewState.LaunchPasswordChange
+                            } else {
+                                SecurityViewState.ShowMustBackWalletUp
+                            }
+                        )
+                    )
+                    null
+                }
+            }
             is SecurityIntent.UpdateViewState,
             is SecurityIntent.UpdateSecurityInfo,
             is SecurityIntent.UpdateErrorState,

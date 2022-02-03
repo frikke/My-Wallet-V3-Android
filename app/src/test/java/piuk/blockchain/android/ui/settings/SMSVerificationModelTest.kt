@@ -11,11 +11,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationIntent
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationInteractor
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationModel
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationState
-import piuk.blockchain.android.ui.settings.v2.sheets.VerificationError
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationIntent
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationInteractor
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationModel
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationState
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.VerificationError
 
 class SMSVerificationModelTest {
     private lateinit var model: SMSVerificationModel

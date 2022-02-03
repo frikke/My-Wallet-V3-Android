@@ -19,6 +19,7 @@ class SimpleTextView @JvmOverloads constructor(
     var text by mutableStateOf("")
     var style by mutableStateOf(ComposeTypographies.Body1)
     var textColor by mutableStateOf(ComposeColors.Medium)
+    var gravity by mutableStateOf(ComposeGravities.Start)
 
     @Composable
     override fun Content() {
@@ -27,7 +28,8 @@ class SimpleTextView @JvmOverloads constructor(
                 SimpleText(
                     text = text,
                     style = style,
-                    color = textColor
+                    color = textColor,
+                    gravity = gravity
                 )
             }
         }

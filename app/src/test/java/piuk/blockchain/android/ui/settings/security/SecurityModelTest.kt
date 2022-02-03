@@ -124,7 +124,8 @@ class SecurityModelTest {
             isBiometricsEnabled = true,
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = true,
-            isTwoFaEnabled = true
+            isTwoFaEnabled = true,
+            isWalletBackedUp = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -199,7 +200,8 @@ class SecurityModelTest {
             isBiometricsEnabled = true,
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = false,
-            isTwoFaEnabled = true
+            isTwoFaEnabled = true,
+            isWalletBackedUp = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -222,7 +224,8 @@ class SecurityModelTest {
             isBiometricsEnabled = true,
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = true,
-            isTwoFaEnabled = true
+            isTwoFaEnabled = true,
+            isWalletBackedUp = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -263,7 +266,8 @@ class SecurityModelTest {
             isBiometricsEnabled = true,
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = true,
-            isTwoFaEnabled = true
+            isTwoFaEnabled = true,
+            isWalletBackedUp = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -286,7 +290,8 @@ class SecurityModelTest {
             isBiometricsEnabled = true,
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = true,
-            isTwoFaEnabled = true
+            isTwoFaEnabled = true,
+            isWalletBackedUp = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)

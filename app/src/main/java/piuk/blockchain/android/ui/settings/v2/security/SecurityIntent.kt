@@ -95,4 +95,8 @@ sealed class SecurityIntent : MviIntent<SecurityState> {
             securityInfo = oldState.securityInfo?.copy(isTorFilteringEnabled = filteringEnabled)
         )
     }
+
+    object CheckCanChangePassword : SecurityIntent() {
+        override fun reduce(oldState: SecurityState): SecurityState = oldState
+    }
 }

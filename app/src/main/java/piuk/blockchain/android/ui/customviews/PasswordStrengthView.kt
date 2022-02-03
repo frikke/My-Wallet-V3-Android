@@ -44,7 +44,7 @@ class PasswordStrengthView(context: Context, attrs: AttributeSet) : ConstraintLa
         }
     }
 
-    fun updatePassword(password: String) {
+    fun updatePassword(password: String): Int {
         val passwordStrength = PasswordUtil.getStrength(password).roundToInt()
         setStrengthProgress(passwordStrength)
 
@@ -54,6 +54,8 @@ class PasswordStrengthView(context: Context, attrs: AttributeSet) : ConstraintLa
             in 51..75 -> updateLevelUI(2)
             in 76..100 -> updateLevelUI(3)
         }
+
+        return passwordStrength
     }
 
     private fun setStrengthProgress(score: Int) {

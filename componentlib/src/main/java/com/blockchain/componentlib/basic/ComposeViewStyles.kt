@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.basic
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -69,5 +70,19 @@ enum class ComposeTypographies {
             Caption2 -> AppTheme.typography.caption2
             Overline -> AppTheme.typography.overline
             Micro -> AppTheme.typography.micro
+        }
+}
+
+enum class ComposeGravities {
+    Start,
+    Centre,
+    End;
+
+    @Composable
+    fun toComposeGravity(): Alignment.Horizontal =
+        when (this) {
+            Start -> Alignment.Start
+            Centre -> Alignment.CenterHorizontally
+            End -> Alignment.End
         }
 }

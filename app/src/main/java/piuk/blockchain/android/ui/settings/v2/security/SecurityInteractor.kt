@@ -7,13 +7,15 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.androidcore.data.access.PinRepository
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class SecurityInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val biometricsController: BiometricsController,
     private val securityPrefs: SecurityPrefs,
-    private val pinRepository: PinRepository
+    private val pinRepository: PinRepository,
+    private val payloadManager: PayloadDataManager
 ) {
 
     fun loadInitialInformation(): Single<SecurityInfo> =
@@ -27,7 +29,8 @@ class SecurityInteractor internal constructor(
                 isBiometricsEnabled = biometricsEnabled,
                 isTorFilteringEnabled = settings.isBlockTorIps,
                 areScreenshotsEnabled = securityPrefs.areScreenshotsEnabled,
-                isTwoFaEnabled = settings.authType != Settings.AUTH_TYPE_OFF
+                isTwoFaEnabled = settings.authType != Settings.AUTH_TYPE_OFF,
+                isWalletBackedUp = payloadManager.isBackedUp
             )
         }
 

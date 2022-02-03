@@ -12,6 +12,8 @@ import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -21,19 +23,23 @@ import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ActivitySecurityBinding
+import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
+import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeFragment
+import piuk.blockchain.android.ui.settings.v2.sheets.BackupPhraseInfoSheet
 import piuk.blockchain.android.ui.settings.v2.sheets.BiometricsInfoSheet
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.ui.settings.v2.sheets.TwoFactorInfoSheet
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.urllinks.WEB_WALLET_LOGIN_URI
 
 class SecurityActivity :
     MviActivity<SecurityModel, SecurityIntent, SecurityState, ActivitySecurityBinding>(),
     SMSPhoneVerificationBottomSheet.Host,
     TwoFactorInfoSheet.Host,
-    BiometricsInfoSheet.Host {
+    BiometricsInfoSheet.Host,
+    BackupPhraseInfoSheet.Host {
 
     override val model: SecurityModel by scopedInject()
 
@@ -78,7 +84,7 @@ class SecurityActivity :
                 primaryText = getString(R.string.security_password_title)
                 secondaryText = getString(R.string.security_password_subtitle)
                 onClick = {
-                    toast("Coming soon")
+                    model.process(SecurityIntent.CheckCanChangePassword)
                 }
             }
 
@@ -152,6 +158,20 @@ class SecurityActivity :
                 SecurityViewState.ShowConfirmTwoFaEnabling -> {
                     showBottomSheet(TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.ENABLE))
                 }
+                SecurityViewState.LaunchPasswordChange -> {
+                    supportFragmentManager.beginTransaction()
+                        .addAnimationTransaction()
+                        .add(
+                            R.id.security_content_frame, PasswordChangeFragment.newInstance(),
+                            PasswordChangeFragment::class.simpleName
+                        )
+                        .addToBackStack(PasswordChangeFragment::class.simpleName)
+                        .commitAllowingStateLoss()
+                    binding.securityContentFrame.visible()
+                }
+                SecurityViewState.ShowMustBackWalletUp -> {
+                    showBottomSheet(BackupPhraseInfoSheet.newInstance())
+                }
                 SecurityViewState.None -> {
                     // do nothing
                 }
@@ -168,21 +188,37 @@ class SecurityActivity :
         }
     }
 
-    private fun renderSecuritySettings(it: SecurityInfo) {
+    override fun onBackPressed() {
+        super.onBackPressed()
+        supportFragmentManager.findFragmentByTag(PasswordChangeFragment::class.simpleName)?.let {
+            supportFragmentManager.beginTransaction().remove(it).commitNowAllowingStateLoss()
+            this@SecurityActivity.updateToolbarTitle(getString(R.string.security_toolbar))
+            binding.securityContentFrame.gone()
+        } ?: finish()
+    }
+
+    private fun renderSecuritySettings(securityInfo: SecurityInfo) {
         with(binding) {
-            if (it.isBiometricsVisible) {
+            if (securityInfo.isBiometricsVisible) {
                 biometricsBottomDivider.visible()
                 securityBiometrics.visible()
-                securityBiometrics.isChecked = it.isBiometricsEnabled
+                securityBiometrics.isChecked = securityInfo.isBiometricsEnabled
             } else {
                 biometricsBottomDivider.gone()
                 securityBiometrics.gone()
             }
-            securityTwoFa.isChecked = it.isTwoFaEnabled
-            securityScreenshots.isChecked = it.areScreenshotsEnabled
-            securityTor.visibleIf { it.isTorFilteringEnabled }
-            securityTor.isChecked = it.isTorFilteringEnabled
-            torBottomDivider.visibleIf { it.isTorFilteringEnabled }
+            securityBackupPhrase.apply {
+                tags = if (securityInfo.isWalletBackedUp) {
+                    listOf(TagViewState(getString(R.string.security_backup_phrase_pill_backed_up), TagType.Success()))
+                } else {
+                    listOf(TagViewState(getString(R.string.security_backup_phrase_pill_not_backed_up), TagType.Error()))
+                }
+            }
+            securityTwoFa.isChecked = securityInfo.isTwoFaEnabled
+            securityScreenshots.isChecked = securityInfo.areScreenshotsEnabled
+            securityTor.visibleIf { securityInfo.isTorFilteringEnabled }
+            securityTor.isChecked = securityInfo.isTorFilteringEnabled
+            torBottomDivider.visibleIf { securityInfo.isTorFilteringEnabled }
         }
     }
 
@@ -313,6 +349,10 @@ class SecurityActivity :
                 )
             }
         }
+    }
+
+    override fun onBackupNow() {
+        toast("Coming soon")
     }
 
     override fun onSheetClosed() {

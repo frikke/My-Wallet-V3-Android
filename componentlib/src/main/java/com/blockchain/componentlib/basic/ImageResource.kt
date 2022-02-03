@@ -10,7 +10,7 @@ sealed class ImageResource(
 
     class Local(
         @DrawableRes val id: Int,
-        contentDescription: String?,
+        contentDescription: String? = null,
         val colorFilter: ColorFilter? = null,
     ) : ImageResource(contentDescription) {
 
@@ -26,12 +26,12 @@ sealed class ImageResource(
         @ColorRes val filterColorId: Int,
         @ColorRes val tintColorId: Int,
         val alpha: Float = 0.15F,
-        contentDescription: String?
+        contentDescription: String? = null
     ) : ImageResource(contentDescription)
 
     class Remote(
         val url: String,
-        contentDescription: String?,
+        contentDescription: String? = null,
         val colorFilter: ColorFilter? = null,
     ) : ImageResource(contentDescription)
 

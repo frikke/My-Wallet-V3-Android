@@ -121,9 +121,7 @@
     <string name="invalid_guid">Invalid Wallet ID</string>
 
     <string name="password_mismatch_error">Passwords do not match</string>
-    <string name="change_password_new_matches_current">You can’t use your current password as your
-        new password
-    </string>
+    <string name="change_password_new_matches_current">You can’t use your current password as your new password</string>
     <string name="no_private_key">Cannot produce private key.</string>
 
     <string name="pin_max_strikes">%1$d failed PIN attempts. Please provide password.</string>
@@ -2643,6 +2641,20 @@
     <string name="security_error_biometrics_disable">There was an error disabling your Biometrics, please try again.</string>
     <string name="security_error_two_fa">There was an error updating Two Factor Authentication, please try again.</string>
     <string name="security_error_screenshots">There was an error updating Screenshots, please try again.</string>
+    <string name="security_backup_sheet_title">Recovery Phrase Not Backed Up</string>
+    <string name="security_backup_sheet_blurb">Before you change your password, back up your secret 12 word key. This allows you to recover your account if you forget your password.</string>
+    <string name="security_backup_sheet_cta">Back Up Now</string>
+    <string name="password_change_blurb">Enter your current password. Then enter and confirm your new password.</string>
+    <string name="password_change_cta">Update password</string>
+    <string name="change_password_title">Change Password</string>
+    <string name="change_password_error_old_new_match">You can’t use your current password as your new password</string>
+    <string name="change_password_error_old_incorrect">Your current password is not correct</string>
+    <string name="change_password_error_new_dont_match">The new passwords don\'t match</string>
+    <string name="change_password_error_new_length">Your new passwords length is too short, or too long (4–255)</string>
+    <string name="change_password_error_new_too_weak">Your new password is too weak, please use a stronger password</string>
+    <string name="change_password_error_general">There was an issue updating your password, please try again.</string>
+    <string name="change_password_success">Password successfully updated!</string>
+
 
     <!-- About app screen -->
     <string name="about_app_toolbar">About App</string>
@@ -2663,5 +2675,8 @@
     <string name="signing_confirmation_progress_title">Signing…</string>
     <string name="signed">Signed</string>
     <string name="message_signed">The message has been successfully signed. Go back to the dApp.</string>
+    <string name="password_current_hint">Enter current password</string>
+    <string name="password_new_hint">Enter new password</string>
+    <string name="password_confirm_hint">Re-enter new password</string>
 
 </resources>

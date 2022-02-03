@@ -16,6 +16,8 @@ sealed class SecurityViewState {
     class ShowVerifyPhoneNumberRequired(val phoneNumber: String) : SecurityViewState()
     object ShowDisablingOnWebRequired : SecurityViewState()
     object ShowConfirmTwoFaEnabling : SecurityViewState()
+    object LaunchPasswordChange : SecurityViewState()
+    object ShowMustBackWalletUp : SecurityViewState()
 }
 
 enum class SecurityError {
@@ -33,5 +35,6 @@ data class SecurityInfo(
     val isBiometricsEnabled: Boolean,
     val isTorFilteringEnabled: Boolean,
     val areScreenshotsEnabled: Boolean,
-    val isTwoFaEnabled: Boolean
+    val isTwoFaEnabled: Boolean,
+    val isWalletBackedUp: Boolean
 )

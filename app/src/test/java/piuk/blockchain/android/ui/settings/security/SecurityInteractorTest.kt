@@ -18,6 +18,7 @@ import piuk.blockchain.android.ui.settings.v2.security.SecurityIntent
 import piuk.blockchain.android.ui.settings.v2.security.SecurityInteractor
 import piuk.blockchain.android.ui.settings.v2.security.SecurityViewState
 import piuk.blockchain.androidcore.data.access.PinRepository
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class SecurityInteractorTest {
@@ -28,6 +29,7 @@ class SecurityInteractorTest {
     private val biometricsController: BiometricsController = mock()
     private val securityPrefs: SecurityPrefs = mock()
     private val pinRepository: PinRepository = mock()
+    private val payloadManager: PayloadDataManager = mock()
 
     @Before
     fun setup() {
@@ -35,7 +37,8 @@ class SecurityInteractorTest {
             settingsDataManager = settingsDataManager,
             biometricsController = biometricsController,
             securityPrefs = securityPrefs,
-            pinRepository = pinRepository
+            pinRepository = pinRepository,
+            payloadManager = payloadManager
         )
     }
 

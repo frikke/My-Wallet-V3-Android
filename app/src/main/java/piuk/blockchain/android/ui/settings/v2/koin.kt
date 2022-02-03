@@ -17,9 +17,12 @@ import piuk.blockchain.android.ui.settings.v2.profile.ProfileState
 import piuk.blockchain.android.ui.settings.v2.security.SecurityInteractor
 import piuk.blockchain.android.ui.settings.v2.security.SecurityModel
 import piuk.blockchain.android.ui.settings.v2.security.SecurityState
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationInteractor
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationModel
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSVerificationState
+import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeInteractor
+import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeModel
+import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeState
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationInteractor
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationModel
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationState
 import piuk.blockchain.android.util.AppUtil
 
 val profileScope = named("ProfileScope")
@@ -142,6 +145,25 @@ val redesignSettingsModule = module {
                 settingsDataManager = get(),
                 biometricsController = get(),
                 securityPrefs = get(),
+                pinRepository = get(),
+                payloadManager = get()
+            )
+        }
+
+        factory {
+            PasswordChangeModel(
+                initialState = PasswordChangeState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+
+        factory {
+            PasswordChangeInteractor(
+                payloadManager = get(),
+                authDataManager = get(),
                 pinRepository = get()
             )
         }

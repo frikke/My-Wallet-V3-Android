@@ -21,7 +21,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdatePhoneBinding
 import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.base.updateTitleToolbar
-import piuk.blockchain.android.ui.settings.v2.sheets.SMSPhoneVerificationBottomSheet
+import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.util.FormatChecker
 
 class UpdatePhoneFragment :
