@@ -65,6 +65,9 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             updateSources(newState)
             binding.depositTooltip.root.apply {
                 visibleIf { customiser.selectSourceShouldShowDepositTooltip(newState) }
+                binding.depositTooltip.paymentMethodTitle.text =
+                    if (newState.receivingAsset.networkTicker == "USD") getString(R.string.payment_wire_transfer)
+                    else getString(R.string.bank_transfer)
                 setOnClickListener {
                     showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance())
                 }

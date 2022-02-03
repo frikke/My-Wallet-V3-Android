@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.PaymentMethod
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DepositTooltipLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
@@ -35,6 +36,10 @@ class DepositTooltipDelegate : AdapterDelegate<PaymentMethodItem> {
             require(paymentMethodItem.paymentMethod is PaymentMethod.UndefinedBankAccount)
             binding.apply {
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
+                paymentMethodTitle.text =
+                    if (paymentMethodItem.paymentMethod.fiatCurrency.networkTicker == "USD")
+                        binding.root.context.getString(R.string.payment_wire_transfer)
+                    else binding.root.context.getString(R.string.bank_transfer)
             }
         }
     }
