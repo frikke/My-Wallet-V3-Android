@@ -1848,6 +1848,8 @@
     <string name="sell_info_action">Send Now →</string>
     <string name="sell_intro_empty_title">No Wallets to Sell from</string>
     <string name="sell_intro_empty_label">Looks like you have no Wallets with a balance you can Sell, try funding some Wallets first.</string>
+    <string name="buy_large_amounts">Buy Large Amounts</string>
+    <string name="buy_small_amounts">Buy Small Amounts</string>
 
 
     <string name="scan_mismatch_transaction_target">The scanned code is not a %1$s QR code.</string>
@@ -1966,8 +1968,10 @@
     <string name="swap_better_experience">We’ve updated Swap with a new look and better experience.</string>
     <string name="swap_faster_cheaper_better">Faster. Cheaper. Better. Our new Swap experience lets you exchange crypto in fewer taps.</string>
     <string name="link_a_bank">Link a Bank</string>
+    <string name="easy_bank_transfer">Easy Bank Transfer</string>
     <string name="approve_payment">Approve Your Payment</string>
     <string name="instantly_buy_crypto_with_link_a_bank">Link your bank and instantly buy crypto at anytime.</string>
+    <string name="link_once_and_instantly_buy_crypto_anytime">Link once and instantly buy crypto at anytime.</string>
     <string name="add_payment_method">+ Add New</string>
     <string name="pay_with_my_dotted">Pay with my…</string>
 

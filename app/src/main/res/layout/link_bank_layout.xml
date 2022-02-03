@@ -32,7 +32,7 @@
         android:layout_marginEnd="@dimen/standard_margin"
         android:ellipsize="end"
         android:singleLine="true"
-        android:text="@string/link_a_bank"
+        android:text="@string/easy_bank_transfer"
         app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
         app:layout_constraintTop_toTopOf="@+id/payment_method_icon" />
 
@@ -43,21 +43,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginTop="2dp"
-        android:text="@string/instantly_available"
+        android:text="@string/buy_large_amounts"
         android:textColor="@color/grey_900"
         app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
         app:layout_constraintTop_toBottomOf="@+id/payment_method_title" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/payment_method_limit"
-        style="@style/Text.Light.14"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginTop="2dp"
-        app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
-        app:layout_constraintTop_toBottomOf="@+id/payment_method_availability"
-        tools:text="$5,000 USD Limit" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/instructions"
@@ -68,10 +57,10 @@
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="@dimen/standard_margin"
-        android:text="@string/instantly_buy_crypto_with_link_a_bank"
+        android:text="@string/link_once_and_instantly_buy_crypto_anytime"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
-        app:layout_constraintTop_toBottomOf="@+id/payment_method_limit" />
+        app:layout_constraintTop_toBottomOf="@+id/payment_method_availability" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/add_payment_method_icon"
