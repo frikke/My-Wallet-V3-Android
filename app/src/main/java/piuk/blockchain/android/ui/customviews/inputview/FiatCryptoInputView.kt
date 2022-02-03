@@ -68,6 +68,9 @@ class FiatCryptoInputView(
     var customInternalExchangeRate: ExchangeRate? = null
         set(value) {
             field = value
+            if (value != null) {
+                conversionModel.updateInternalExchangeRate(value)
+            }
             convertAmount()
         }
 

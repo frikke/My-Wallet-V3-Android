@@ -24,6 +24,8 @@ internal class FiatCryptoConversionModel(
     private val internalRate: BehaviorSubject<ExchangeRate> = BehaviorSubject.create()
     private val outputRate: BehaviorSubject<ExchangeRate> = BehaviorSubject.create()
 
+    private var shouldUseCustomInternal = false
+
     val exchangeAmount: Observable<ConvertedAmounts> = Observable.combineLatest(
         internalRate.filter { it.price.toBigInteger() != 0.toBigInteger() },
         outputRate.filter { it.price.toBigInteger() != 0.toBigInteger() },
@@ -45,25 +47,14 @@ internal class FiatCryptoConversionModel(
         )
     }
 
-    private fun getExchangeRate(
-        input: Currency,
-        output: Currency
-    ): Single<ExchangeRate> {
-        return exchangeRates.exchangeRate(
-            input, output
-        ).firstOrError()
-    }
-
     fun amountUpdated(amount: Money) {
         inputValue.onNext(amount)
     }
 
     fun configUpdated(configuration: FiatCryptoViewConfiguration) {
-        internalRate.onNext(ExchangeRate.zeroRateExchangeRate(configuration.inputCurrency))
-        outputRate.onNext(ExchangeRate.zeroRateExchangeRate(configuration.inputCurrency))
         Single.zip(
-            getExchangeRate(configuration.inputCurrency, configuration.exchangeCurrency),
-            getExchangeRate(configuration.inputCurrency, configuration.outputCurrency)
+            getInternalExchangeRate(configuration.inputCurrency, configuration.exchangeCurrency),
+            getOutputExchangeRate(configuration.inputCurrency, configuration.outputCurrency)
         ) { internal, output ->
             internalRate.onNext(internal)
             outputRate.onNext(output)
@@ -92,5 +83,42 @@ internal class FiatCryptoConversionModel(
                 )
             }
         }
+    }
+
+    fun updateInternalExchangeRate(exchangeRate: ExchangeRate) {
+        shouldUseCustomInternal = true
+        internalRate.onNext(exchangeRate)
+    }
+
+    private fun getInternalExchangeRate(
+        input: Currency,
+        output: Currency
+    ): Single<ExchangeRate> {
+        return if (shouldUseCustomInternal) {
+            val customRate = internalRate.value
+            if (customRate.from == input && customRate.to == output)
+                Single.just(customRate)
+            else Single.just(customRate.inverse())
+        } else {
+            internalRate.onNext(ExchangeRate.zeroRateExchangeRate(input))
+            getExchangeRate(input, output)
+        }
+    }
+
+    private fun getOutputExchangeRate(
+        input: Currency,
+        output: Currency
+    ): Single<ExchangeRate> {
+        outputRate.onNext(ExchangeRate.zeroRateExchangeRate(input))
+        return getExchangeRate(input, output)
+    }
+
+    private fun getExchangeRate(
+        input: Currency,
+        output: Currency
+    ): Single<ExchangeRate> {
+        return exchangeRates.exchangeRate(
+            input, output
+        ).firstOrError()
     }
 }
