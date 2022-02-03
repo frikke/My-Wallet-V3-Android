@@ -37,6 +37,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallMinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallPrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SnackbarsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SplitButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TabLayoutActivity
@@ -159,6 +160,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.sheets).setOnClickListener {
             startActivity(Intent(this@MainActivity, SheetActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.snackbars).setOnClickListener {
+            startActivity(Intent(this@MainActivity, SnackbarsActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {
             startActivity(Showkase.getBrowserIntent(this@MainActivity))

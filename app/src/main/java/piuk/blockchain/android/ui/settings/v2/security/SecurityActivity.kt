@@ -11,6 +11,7 @@ import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -24,6 +25,7 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ActivitySecurityBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
@@ -92,7 +94,7 @@ class SecurityActivity :
                 primaryText = getString(R.string.security_pin_title)
                 secondaryText = getString(R.string.security_pin_subtitle)
                 onClick = {
-                    toast("Coming soon")
+                    BlockchainSnackbar.make(binding.root, "Coming soon", type = SnackbarType.Warning).show()
                 }
             }
 
@@ -100,7 +102,7 @@ class SecurityActivity :
                 primaryText = getString(R.string.security_backup_phrase_title)
                 secondaryText = getString(R.string.security_backup_phrase_subtitle)
                 onClick = {
-                    toast("Coming soon")
+                    BlockchainSnackbar.make(binding.root, "Coming soon", type = SnackbarType.Warning).show()
                 }
             }
 

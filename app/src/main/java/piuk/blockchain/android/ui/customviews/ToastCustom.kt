@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.getResolvedColor
 
+@Deprecated("Use BlockchainSnackbar instead")
 object ToastCustom {
     const val TYPE_ERROR = "TYPE_ERROR"
     const val TYPE_GENERAL = "TYPE_GENERAL"
@@ -20,6 +21,7 @@ object ToastCustom {
     const val LENGTH_SHORT = 0
     const val LENGTH_LONG = 1
 
+    @Deprecated("Use BlockchainSnackbar instead")
     @UiThread
     fun makeText(
         context: Context?,

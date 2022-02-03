@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.google.android.material.snackbar.Snackbar
 import com.mukesh.countrypicker.CountryPicker
 import info.blockchain.wallet.api.data.Settings
 import java.util.Locale
@@ -21,6 +21,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdatePhoneBinding
 import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.base.updateTitleToolbar
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.util.FormatChecker
 
@@ -67,9 +68,8 @@ class UpdatePhoneFragment :
         if (newState.error != ProfileError.None) handleErrors(newState.error)
 
         if (newState.error == ProfileError.ResendSmsError) {
-            Snackbar.make(
-                binding.root, getString(R.string.profile_update_error_resend_sms),
-                Snackbar.LENGTH_LONG
+            BlockchainSnackbar.make(
+                binding.root, getString(R.string.profile_update_error_resend_sms), type = SnackbarType.Warning
             ).show()
             model.process(ProfileIntent.ClearErrors)
         }
@@ -81,11 +81,17 @@ class UpdatePhoneFragment :
     }
 
     private fun handleErrors(error: ProfileError) {
-        val errorText = when (error) {
-            ProfileError.PhoneNumberNotValidError -> getString(R.string.profile_update_error_phone_invalid)
-            else -> getString(R.string.profile_update_error_phone)
-        }
-        Snackbar.make(binding.root, errorText, Snackbar.LENGTH_LONG).show()
+        BlockchainSnackbar.make(
+            view = binding.root,
+            message = getString(
+                when (error) {
+                    ProfileError.PhoneNumberNotValidError -> R.string.profile_update_error_phone_invalid
+                    else -> R.string.profile_update_error_phone
+                }
+            ),
+            type = SnackbarType.Error
+        ).show()
+
         model.process(ProfileIntent.ClearErrors)
     }
 
