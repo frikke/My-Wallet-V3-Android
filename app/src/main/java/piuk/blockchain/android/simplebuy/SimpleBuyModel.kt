@@ -445,15 +445,17 @@ class SimpleBuyModel(
                         process(
                             SimpleBuyIntent.PaymentMethodsUpdated(
                                 paymentOptions = PaymentOptions(
-                                    paymentMethodsWithEnoughBalance,
+                                    paymentMethodsWithEnoughBalance
                                 ),
                                 selectedPaymentMethod = updateSelectedPaymentMethod
                             )
                         )
                     } else {
                         process(
-                            SimpleBuyIntent.UpdatedBuyLimits(
-                                limits
+                            SimpleBuyIntent.UpdatedBuyLimitsAndPaymentMethods(
+                                limits = limits,
+                                paymentOptions = PaymentOptions(availablePaymentMethods),
+                                selectedPaymentMethod = selectedPaymentMethod
                             )
                         )
                     }
