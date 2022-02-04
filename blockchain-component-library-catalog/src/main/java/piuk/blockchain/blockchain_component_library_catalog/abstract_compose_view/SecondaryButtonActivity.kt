@@ -3,6 +3,7 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButtonView
 import com.blockchain.componentlib.button.SecondaryButtonView
@@ -25,6 +26,24 @@ class SecondaryButtonActivity : AppCompatActivity() {
             }
             text = "Enabled"
             buttonState = ButtonState.Enabled
+        }
+
+        findViewById<SecondaryButtonView>(R.id.icon).apply {
+            onClick = {
+                Toast
+                    .makeText(
+                        this@SecondaryButtonActivity,
+                        "This button has an icon",
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
+            }
+            text = "Icon"
+            buttonState = ButtonState.Enabled
+            icon = ImageResource.Local(
+                id = R.drawable.ic_qr_code,
+                contentDescription = null,
+            )
         }
 
         findViewById<SecondaryButtonView>(R.id.disabled).apply {

@@ -3,9 +3,11 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.DestructiveMinimalButtonView
 import com.blockchain.componentlib.button.MinimalButtonView
+import com.blockchain.componentlib.button.SecondaryButtonView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class MinimalButtonActivity : AppCompatActivity() {
@@ -25,6 +27,24 @@ class MinimalButtonActivity : AppCompatActivity() {
             }
             text = "Enabled"
             buttonState = ButtonState.Enabled
+        }
+
+        findViewById<MinimalButtonView>(R.id.icon).apply {
+            onClick = {
+                Toast
+                    .makeText(
+                        this@MinimalButtonActivity,
+                        "This button has an icon",
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
+            }
+            text = "Icon"
+            buttonState = ButtonState.Enabled
+            icon = ImageResource.Local(
+                id = R.drawable.ic_qr_code,
+                contentDescription = null,
+            )
         }
 
         findViewById<MinimalButtonView>(R.id.disabled).apply {
