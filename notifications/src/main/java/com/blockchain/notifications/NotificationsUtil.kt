@@ -26,7 +26,7 @@ class NotificationsUtil(
         title: String,
         marquee: String,
         text: String,
-        @DrawableRes icon: Int = R.drawable.notification_icon,
+        @DrawableRes icon: Int = R.drawable.ic_notification,
         pendingIntent: PendingIntent,
         id: Int,
         @StringRes appName: Int,
