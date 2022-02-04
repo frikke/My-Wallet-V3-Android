@@ -27,8 +27,8 @@ import com.blockchain.componentlib.theme.Grey600
 
 @Composable
 fun SheetHeader(
-    title: String,
     modifier: Modifier = Modifier,
+    title: String? = null,
     byline: String? = null,
     startImageResource: ImageResource = ImageResource.None,
     onClosePress: () -> Unit,
@@ -74,15 +74,17 @@ fun SheetHeader(
                     modifier = Modifier.padding(top = 16.dp, end = 16.dp)
                 )
             }
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            title?.let {
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            }
         }
     }
 }
 
 @Composable
 private fun SheetHeaderTitle(
-    title: String,
     modifier: Modifier = Modifier,
+    title: String?,
     byline: String? = null,
     isDarkMode: Boolean = isSystemInDarkTheme(),
 ) {
@@ -90,12 +92,15 @@ private fun SheetHeaderTitle(
         modifier = modifier,
         horizontalAlignment = Alignment.Start,
     ) {
-        Text(
-            text = title,
-            style = AppTheme.typography.title3,
-            color = AppTheme.colors.title,
-            textAlign = TextAlign.Center,
-        )
+        title?.let {
+            Text(
+                text = title,
+                style = AppTheme.typography.title3,
+                color = AppTheme.colors.title,
+                textAlign = TextAlign.Center,
+            )
+        }
+
         if (byline != null && byline.isNotBlank()) {
             Text(
                 text = byline,
@@ -114,6 +119,18 @@ private fun SheetHeaderPreview() {
         AppSurface {
             SheetHeader(
                 title = "Title",
+                onClosePress = { /* no-op */ },
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun SheetHeaderNoTitle() {
+    AppTheme {
+        AppSurface {
+            SheetHeader(
                 onClosePress = { /* no-op */ },
             )
         }

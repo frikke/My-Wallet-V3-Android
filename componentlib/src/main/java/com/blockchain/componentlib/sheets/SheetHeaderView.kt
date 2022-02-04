@@ -17,7 +17,7 @@ class SheetHeaderView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
-    var title by mutableStateOf("")
+    var title by mutableStateOf(null as? String?)
     var byline by mutableStateOf(null as? String?)
     var onClosePress by mutableStateOf({ })
     var startImageResource: ImageResource by mutableStateOf(ImageResource.None)

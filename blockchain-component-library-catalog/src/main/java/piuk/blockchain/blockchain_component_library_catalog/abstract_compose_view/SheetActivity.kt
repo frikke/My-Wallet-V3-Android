@@ -38,6 +38,12 @@ class SheetActivity : AppCompatActivity() {
                 IconBottomSheetDialogFragment().show(supportFragmentManager, "icon")
             }
         }
+
+        findViewById<MaterialButton>(R.id.no_title).apply {
+            setOnClickListener {
+                NoTitleBottomSheetDialogFragment().show(supportFragmentManager, "no_title")
+            }
+        }
         findViewById<MaterialButton>(R.id.back).apply {
             setOnClickListener {
                 BackDefaultBottomSheetDialogFragment().show(supportFragmentManager, "icon")
@@ -123,6 +129,28 @@ class IconBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                         id = R.drawable.ic_qr_code,
                         contentDescription = null,
                     )
+                },
+            context = requireContext(),
+        )
+    }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
+    }
+}
+
+class NoTitleBottomSheetDialogFragment : BottomSheetDialogFragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return BottomSheetDummyView(
+            bottomSheetHeaderView = SheetHeaderView(requireContext())
+                .apply {
+                   this.onClosePress = {
+                       dismiss()
+                   }
                 },
             context = requireContext(),
         )
