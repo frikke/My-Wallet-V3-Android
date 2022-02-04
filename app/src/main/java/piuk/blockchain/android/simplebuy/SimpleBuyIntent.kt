@@ -74,15 +74,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class PaymentMethodsUpdated(
-        private val paymentOptions: PaymentOptions,
+        val paymentOptions: PaymentOptions,
         val selectedPaymentMethod: SelectedPaymentMethod?
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
-            return oldState.copy(
-                isLoading = false,
-                selectedPaymentMethod = selectedPaymentMethod,
-                paymentOptions = paymentOptions
-            )
+            return oldState
         }
     }
 
@@ -181,6 +177,20 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(
                 transferLimits = limits
+            )
+        }
+    }
+
+    data class UpdatedBuyLimitsAndPaymentMethods(
+        private val limits: TxLimits,
+        private val paymentOptions: PaymentOptions,
+        private val selectedPaymentMethod: SelectedPaymentMethod?
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
+            return oldState.copy(
+                transferLimits = limits,
+                paymentOptions = paymentOptions,
+                selectedPaymentMethod = selectedPaymentMethod
             )
         }
     }
