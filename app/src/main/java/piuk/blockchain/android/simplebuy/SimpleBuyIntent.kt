@@ -90,6 +90,10 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState.copy(
             isLoading = true
         )
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean {
+            return true
+        }
     }
 
     class GooglePayInfoReceived(
