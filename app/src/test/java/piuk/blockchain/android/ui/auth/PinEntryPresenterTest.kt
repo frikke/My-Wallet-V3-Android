@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.auth
 
 import android.view.View
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
@@ -46,7 +47,6 @@ import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -144,7 +144,7 @@ class PinEntryPresenterTest {
 
         // Assert
         assertTrue(subject.allowExit())
-        verify(view).showParameteredToast(anyInt(), anyString(), anyInt())
+        verify(view).showParameteredSnackbar(anyInt(), any(), anyInt(), any())
         verify(view).showMaxAttemptsDialog()
     }
 
@@ -235,7 +235,7 @@ class PinEntryPresenterTest {
         assertNull(subject.userEnteredConfirmationPin)
 
         verify(view).clearPinBoxes()
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
         verify(view).dismissProgressDialog()
         verify(view).fillPinBoxAtIndex(0)
         verify(view).fillPinBoxAtIndex(1)
@@ -311,7 +311,7 @@ class PinEntryPresenterTest {
 
         // Assert
         verify(view).dismissProgressDialog()
-        verify(view).showToast(anyInt(), eq(ToastCustom.TYPE_ERROR))
+        verify(view).showSnackbar(anyInt(), eq(SnackbarType.Error), any())
         verify(view).clearPinBoxes()
     }
 
@@ -375,8 +375,7 @@ class PinEntryPresenterTest {
         verify(authDataManager).validatePin(anyString())
         verify(prefsUtil).pinFails = anyInt()
         verify(prefsUtil).pinFails
-        verify(view).showToast(anyInt(), anyString())
-        verify(view).restartPageAndClearTop()
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test
@@ -398,8 +397,7 @@ class PinEntryPresenterTest {
         verify(view).setTitleVisibility(View.INVISIBLE)
         verify(view).showProgressDialog(anyInt())
         verify(authDataManager).validatePin(anyString())
-        verify(view).showToast(anyInt(), anyString())
-        verify(view).restartPageAndClearTop()
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test
@@ -417,8 +415,7 @@ class PinEntryPresenterTest {
         verify(view).setTitleVisibility(View.INVISIBLE)
         verify(view).showProgressDialog(anyInt())
         verify(authDataManager).validatePin(anyString())
-        verify(view).showToast(anyInt(), anyString())
-        verify(view).restartPageAndClearTop()
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test
@@ -440,10 +437,9 @@ class PinEntryPresenterTest {
         verify(view, atLeastOnce()).dismissProgressDialog()
         verify(authDataManager).validatePin(anyString())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
         verify(pinRepository).clearPin()
         verify(appUtil).clearCredentials()
-        verify(appUtil).restartApp()
         verify(prefsUtil).sharedKey
         verify(prefsUtil).walletGuid
         verify(prefsUtil, atLeastOnce()).pinId
@@ -467,7 +463,7 @@ class PinEntryPresenterTest {
 
         // Assert
         verify(view).setTitleVisibility(View.INVISIBLE)
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
 
         verify(view).fillPinBoxAtIndex(0)
         verify(view).fillPinBoxAtIndex(1)
@@ -482,7 +478,6 @@ class PinEntryPresenterTest {
         verify(prefsUtil, atLeastOnce()).pinId
         verify(prefsUtil).walletGuid
         verify(prefsUtil).sharedKey
-        verify(appUtil).restartApp()
 
         verifyNoMoreInteractions(prefsUtil)
         verifyNoMoreInteractions(view)
@@ -530,10 +525,9 @@ class PinEntryPresenterTest {
         // Assert
         verify(view).showProgressDialog(anyInt())
         verify(view, atLeastOnce()).dismissProgressDialog()
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
         verify(authDataManager).createPin(anyString(), anyString())
         verify(prefsUtil).clear()
-        verify(appUtil).restartApp()
     }
 
     @Test
@@ -565,7 +559,7 @@ class PinEntryPresenterTest {
         subject.onPadClicked("7")
 
         // Assert
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
         verify(view).dismissProgressDialog()
     }
 
@@ -591,11 +585,10 @@ class PinEntryPresenterTest {
         verify(payloadManager).initializeAndDecrypt(anyString(), anyString(), eq(password))
         verify(view).showProgressDialog(anyInt())
         verify(view).dismissProgressDialog()
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
         verify(prefsUtil).removeValue(PersistentPrefs.KEY_PIN_FAILS)
         verify(prefsUtil).pinId = anyString()
         verify(pinRepository).clearPin()
-        verify(view).restartPageAndClearTop()
     }
 
     @Test fun validatePasswordThrowsGenericException() {
@@ -611,7 +604,7 @@ class PinEntryPresenterTest {
         verify(view).showProgressDialog(anyInt())
         verify(view, atLeastOnce()).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
         verify(view).showValidationDialog()
     }
 
@@ -633,7 +626,7 @@ class PinEntryPresenterTest {
         verify(view).showProgressDialog(anyInt())
         verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test
@@ -650,7 +643,7 @@ class PinEntryPresenterTest {
         verify(view).showProgressDialog(anyInt())
         verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test
@@ -671,8 +664,7 @@ class PinEntryPresenterTest {
         verify(view).showProgressDialog(anyInt())
         verify(view).dismissProgressDialog()
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(appUtil).restartApp()
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test
@@ -744,7 +736,7 @@ class PinEntryPresenterTest {
         // Assert
         verify(view).showProgressDialog(anyInt())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test
@@ -793,8 +785,7 @@ class PinEntryPresenterTest {
         // Assert
         verify(view).showProgressDialog(anyInt())
         verify(payloadManager).initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password)
-        verify(appUtil).restartApp()
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test
@@ -970,8 +961,7 @@ class PinEntryPresenterTest {
         // Assert
         verify(prefsUtil).pinFails
         verify(prefsUtil).pinFails = anyInt()
-        verify(view).showToast(anyInt(), anyString())
-        verify(view).restartPageAndClearTop()
+        verify(view).showSnackbar(anyInt(), any(), any())
     }
 
     @Test

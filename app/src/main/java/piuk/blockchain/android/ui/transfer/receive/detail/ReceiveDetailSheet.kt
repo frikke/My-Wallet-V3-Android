@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
@@ -25,7 +25,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogReceiveBinding
 import piuk.blockchain.android.databinding.ReceiveShareRowBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveInfoView
@@ -185,7 +185,9 @@ internal class ReceiveDetailSheet :
                 .setPositiveButton(R.string.common_yes) { _, _ ->
                     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     val clip = ClipData.newPlainText("Send address", address)
-                    toast(R.string.copied_to_clipboard)
+                    BlockchainSnackbar.make(
+                        binding.root, getString(R.string.copied_to_clipboard), type = SnackbarType.Success
+                    ).show()
                     clipboard.setPrimaryClip(clip)
                 }
                 .setNegativeButton(R.string.common_no, null)
@@ -236,15 +238,14 @@ private class ShareListAdapter(private val paymentCodeData: List<SendPaymentCode
 
             binding.root.setOnClickListener {
                 onClick.invoke()
-                attemptToStartTargetActivity(itemView.context, data.title, data.intent)
-            }
-        }
-
-        private fun attemptToStartTargetActivity(ctx: Context, appName: String, intent: Intent) {
-            try {
-                ctx.startActivity(intent)
-            } catch (e: SecurityException) {
-                ctx.toast(ctx.getString(R.string.share_failed, appName))
+                try {
+                    itemView.context.startActivity(data.intent)
+                } catch (e: SecurityException) {
+                    BlockchainSnackbar.make(
+                        itemView, itemView.context.getString(R.string.share_failed, data.title),
+                        type = SnackbarType.Error
+                    ).show()
+                }
             }
         }
     }

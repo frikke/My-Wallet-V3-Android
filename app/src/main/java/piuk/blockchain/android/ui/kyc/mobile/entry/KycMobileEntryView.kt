@@ -12,7 +12,7 @@ interface KycMobileEntryView : View {
 
     fun preFillPhoneNumber(phoneNumber: String)
 
-    fun showErrorToast(@StringRes message: Int)
+    fun showErrorSnackbar(@StringRes message: Int)
 
     fun dismissProgressDialog()
 

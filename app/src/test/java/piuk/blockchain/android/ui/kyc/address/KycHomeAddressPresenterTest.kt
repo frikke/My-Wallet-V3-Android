@@ -241,7 +241,7 @@ class KycHomeAddressPresenterTest {
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).showErrorToast(any())
+        verify(view).showErrorSnackbar(any())
     }
 
     @Test

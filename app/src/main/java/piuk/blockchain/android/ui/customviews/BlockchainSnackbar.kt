@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.customviews
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.alert.abstract.SnackbarAlertView
 import com.blockchain.componentlib.alert.abstract.SnackbarType
@@ -26,7 +27,7 @@ class BlockchainSnackbar(
             @Duration duration: Int = Snackbar.LENGTH_LONG,
             type: SnackbarType = SnackbarType.Info,
             actionLabel: String? = null,
-            listener: () -> Unit = {},
+            onClick: () -> Unit = {}
         ): BlockchainSnackbar {
 
             // First we find a suitable parent for our custom view
@@ -37,7 +38,34 @@ class BlockchainSnackbar(
             val customView = SnackbarAlertView(view.context).apply {
                 this.message = message
                 this.actionLabel = actionLabel.orEmpty()
-                this.onClick = listener
+                this.onClick = onClick
+                this.type = type
+            }
+
+            return BlockchainSnackbar(
+                parent,
+                customView
+            ).setDuration(duration)
+        }
+
+        fun make(
+            view: View,
+            @StringRes message: Int,
+            @Duration duration: Int = Snackbar.LENGTH_LONG,
+            type: SnackbarType = SnackbarType.Info,
+            actionLabel: String? = null,
+            onClick: () -> Unit = {}
+        ): BlockchainSnackbar {
+
+            // First we find a suitable parent for our custom view
+            val parent = view.findSuitableParent() ?: throw IllegalArgumentException(
+                "No suitable parent found from the given view. Please provide a valid view."
+            )
+
+            val customView = SnackbarAlertView(view.context).apply {
+                this.message = view.context.getString(message)
+                this.actionLabel = actionLabel.orEmpty()
+                this.onClick = onClick
                 this.type = type
             }
 

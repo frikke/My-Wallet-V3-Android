@@ -5,8 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
@@ -26,8 +26,6 @@ import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ActivitySecurityBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeFragment
 import piuk.blockchain.android.ui.settings.v2.sheets.BackupPhraseInfoSheet
@@ -227,35 +225,38 @@ class SecurityActivity :
     private fun processError(errorState: SecurityError) {
         when (errorState) {
             SecurityError.LOAD_INITIAL_INFO_FAIL -> {
-                ToastCustom.makeText(
-                    this, getString(R.string.security_error_initial_info_load), Toast.LENGTH_LONG,
-                    ToastCustom.TYPE_ERROR
-                )
+                showErrorSnackbar(R.string.security_error_initial_info_load)
                 finish()
             }
             SecurityError.PIN_MISSING_EXCEPTION -> {
-                ToastCustom.makeText(
-                    this, getString(R.string.security_error_pin_missing), Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
-                )
+                showErrorSnackbar(R.string.security_error_pin_missing)
                 finish()
             }
             SecurityError.BIOMETRICS_DISABLING_FAIL -> {
-                toast(getString(R.string.security_error_biometrics_disable), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.security_error_biometrics_disable)
             }
             SecurityError.TWO_FA_TOGGLE_FAIL -> {
-                toast(getString(R.string.security_error_two_fa), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.security_error_two_fa)
             }
             SecurityError.TOR_FILTER_UPDATE_FAIL -> {
-                toast(getString(R.string.security_error_two_fa), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.security_error_two_fa)
             }
             SecurityError.SCREENSHOT_UPDATE_FAIL -> {
-                toast(getString(R.string.security_error_screenshots), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.security_error_screenshots)
             }
             SecurityError.NONE -> {
                 // do nothing
             }
         }
         model.process(SecurityIntent.ResetErrorState)
+    }
+
+    private fun showErrorSnackbar(@StringRes message: Int) {
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = SnackbarType.Error
+        ).show()
     }
 
     private fun showBiometricsConfirmationSheet() {
@@ -354,7 +355,7 @@ class SecurityActivity :
     }
 
     override fun onBackupNow() {
-        toast("Coming soon")
+        BlockchainSnackbar.make(binding.root, "Coming soon", type = SnackbarType.Warning).show()
     }
 
     override fun onSheetClosed() {

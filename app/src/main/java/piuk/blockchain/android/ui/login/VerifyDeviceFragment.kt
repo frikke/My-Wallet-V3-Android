@@ -6,15 +6,15 @@ import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.koin.scopedInject
 import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, FragmentVerifyDeviceBinding>() {
 
@@ -68,15 +68,15 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
                 if (!isTimerRunning.get()) {
                     timer.start()
                     model.process(LoginIntents.SendEmail(sessionId, email, captcha))
-                    ToastCustom.makeText(
-                        requireContext(), getString(R.string.verify_device_email_resent), Toast.LENGTH_SHORT,
-                        ToastCustom.TYPE_OK
-                    )
+                    BlockchainSnackbar.make(
+                        binding.root, getString(R.string.verify_device_email_resent),
+                        type = SnackbarType.Success
+                    ).show()
                 } else {
-                    ToastCustom.makeText(
-                        requireContext(), getString(R.string.verify_device_resend_blocked), Toast.LENGTH_LONG,
-                        ToastCustom.TYPE_ERROR
-                    )
+                    BlockchainSnackbar.make(
+                        binding.root, getString(R.string.verify_device_resend_blocked),
+                        type = SnackbarType.Error
+                    ).show()
                 }
             }
         }

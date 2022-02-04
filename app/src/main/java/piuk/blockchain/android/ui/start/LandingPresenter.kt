@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.coincore.loader.AssetCatalogueImpl
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
@@ -15,12 +16,11 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.RootUtil
 import timber.log.Timber
 
 interface LandingView : MvpView {
-    fun showToast(message: String, @ToastCustom.ToastType toastType: String)
+    fun showSnackbar(message: String, type: SnackbarType)
     fun showIsRootedWarning()
     fun showApiOutageMessage()
     fun onLoadPrices(assets: List<PriceView.Price>)
@@ -43,9 +43,9 @@ class LandingPresenter(
 
     override fun onViewAttached() {
         if (environmentSettings.isRunningInDebugMode()) {
-            view?.showToast(
+            view?.showSnackbar(
                 "Current environment: ${environmentSettings.environment.name}",
-                ToastCustom.TYPE_GENERAL
+                SnackbarType.Info
             )
         }
         checkApiStatus()

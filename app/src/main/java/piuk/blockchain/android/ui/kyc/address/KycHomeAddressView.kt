@@ -14,7 +14,7 @@ interface KycHomeAddressView : View {
 
     fun setButtonEnabled(enabled: Boolean)
 
-    fun showErrorToast(@StringRes message: Int)
+    fun showErrorSnackbar(@StringRes message: Int)
 
     fun showInvalidPostcode()
 

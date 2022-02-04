@@ -22,7 +22,7 @@ interface KycProfileView : View {
 
     fun continueSignUp(profileModel: ProfileModel)
 
-    fun showErrorToast(message: String)
+    fun showErrorSnackbar(message: String)
 
     fun dismissProgressDialog()
 

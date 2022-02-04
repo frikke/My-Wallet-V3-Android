@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -19,7 +19,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -130,10 +130,9 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     }
 
     private fun displayErrorMessage() {
-        ToastCustom.makeText(
-            requireContext(), getString(R.string.common_error), Toast.LENGTH_SHORT,
-            ToastCustom.TYPE_ERROR
-        )
+        BlockchainSnackbar.make(
+            binding.root, getString(R.string.common_error), type = SnackbarType.Error
+        ).show()
     }
 
     private fun updateSources(newState: TransactionState) {

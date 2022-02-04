@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.hideKeyboard
@@ -30,8 +31,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycProfileBinding
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
@@ -153,8 +153,12 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
         )
     }
 
-    override fun showErrorToast(message: String) {
-        toast(message, ToastCustom.TYPE_ERROR)
+    override fun showErrorSnackbar(message: String) {
+        BlockchainSnackbar.make(
+            binding.root,
+            message,
+            type = SnackbarType.Error
+        ).show()
     }
 
     override fun showProgressDialog() {

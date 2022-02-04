@@ -105,7 +105,7 @@ class KycMobileEntryPresenterTest {
         verify(phoneNumberUpdater, times(2)).updateSms(argThat { sanitized == "+1234567890" })
         verify(view, times(2)).showProgressDialog()
         verify(view, times(2)).dismissProgressDialog()
-        verify(view).showErrorToast(any())
+        verify(view).showErrorSnackbar(any())
         verify(view).continueSignUp(PhoneDisplayModel(phoneNumber, phoneNumberSanitized))
         verify(nabuUserSync).syncUser()
     }
@@ -125,6 +125,6 @@ class KycMobileEntryPresenterTest {
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).showErrorToast(any())
+        verify(view).showErrorSnackbar(any())
     }
 }

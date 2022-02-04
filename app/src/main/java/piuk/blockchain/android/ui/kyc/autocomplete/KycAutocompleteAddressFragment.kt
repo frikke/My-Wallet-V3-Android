@@ -8,12 +8,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAutocompleteBinding
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
@@ -86,7 +86,7 @@ class KycAutocompleteAddressFragment :
     override fun render(newState: KycAutocompleteAddressState) {
         when (val step = newState.autocompleteAddressStep) {
             is AutocompleteAddressStep.Address -> navigateToAddress(step.addressDetailsModel)
-            null -> { }
+            null -> {}
         }
 
         binding.enterManuallyButton.visibleIf {
@@ -97,10 +97,18 @@ class KycAutocompleteAddressFragment :
 
         when (newState.toastType) {
             AutocompleteAddressToastType.ADDRESSES_ERROR -> {
-                toast(R.string.kyc_autocomplete_addresses_error, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.kyc_autocomplete_addresses_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             AutocompleteAddressToastType.SELECTED_ADDRESS_ERROR -> {
-                toast(R.string.kyc_autocomplete_selected_address_error, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.kyc_autocomplete_selected_address_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             null -> {}
         }

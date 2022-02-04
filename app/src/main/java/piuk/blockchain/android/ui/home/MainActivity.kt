@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -16,6 +15,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.BottomNavigationState
 import com.blockchain.componentlib.navigation.NavigationBarButton
@@ -34,6 +34,7 @@ import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -55,8 +56,7 @@ import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.home.models.MainIntent
@@ -226,7 +226,12 @@ class MainActivity :
                             },
                             onError = {
                                 // this should never happen
-                                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                                BlockchainSnackbar.make(
+                                    binding.root,
+                                    getString(R.string.common_error),
+                                    duration = Snackbar.LENGTH_SHORT,
+                                    type = SnackbarType.Error
+                                ).show()
                             }
                         )
                 }
@@ -384,11 +389,11 @@ class MainActivity :
                     },
                     onComplete = {
                         Timber.d("No source accounts available for scan target")
-                        showNoAccountFromScanToast(targetAddress.asset)
+                        showNoAccountFromScanSnackbar(targetAddress.asset)
                     },
                     onError = {
                         Timber.e("Unable to select source account for scan")
-                        showNoAccountFromScanToast(targetAddress.asset)
+                        showNoAccountFromScanSnackbar(targetAddress.asset)
                     }
                 )
         }
@@ -406,8 +411,10 @@ class MainActivity :
             )
     }
 
-    private fun showNoAccountFromScanToast(asset: AssetInfo) =
-        toast(getString(R.string.scan_no_available_account, asset.displayTicker))
+    private fun showNoAccountFromScanSnackbar(asset: AssetInfo) =
+        BlockchainSnackbar.make(
+            binding.root, getString(R.string.scan_no_available_account, asset.displayTicker)
+        ).show()
 
     override fun render(newState: MainState) {
         when (val view = newState.viewToLaunch) {
@@ -472,9 +479,11 @@ class MainActivity :
                 )
             }
             is ViewToLaunch.LaunchOpenBankingBuyApprovalError -> {
-                ToastCustom.makeText(
-                    this, getString(R.string.simple_buy_confirmation_error), Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
-                )
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.simple_buy_confirmation_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             is ViewToLaunch.LaunchOpenBankingError -> {
                 replaceBottomSheet(
@@ -516,12 +525,11 @@ class MainActivity :
             is ViewToLaunch.LaunchTwoFaSetup -> launchSetup2Fa()
             is ViewToLaunch.LaunchVerifyEmail -> launchVerifyEmail()
             is ViewToLaunch.ShowOpenBankingError ->
-                ToastCustom.makeText(
-                    context = this,
-                    msg = getString(R.string.open_banking_deeplink_error),
-                    duration = Toast.LENGTH_LONG,
-                    type = ToastCustom.TYPE_ERROR
-                )
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.open_banking_deeplink_error),
+                    type = SnackbarType.Error
+                ).show()
             is ViewToLaunch.CheckForAccountWalletLinkErrors -> showBottomSheet(
                 AccountWalletLinkAlertSheet.newInstance(view.walletIdHint)
             )
@@ -567,17 +575,16 @@ class MainActivity :
     }
 
     private fun showTargetScanError(error: QrScanError) {
-        ToastCustom.makeText(
-            this,
+        BlockchainSnackbar.make(
+            binding.root,
             getString(
                 when (error.errorCode) {
                     QrScanError.ErrorCode.ScanFailed -> R.string.error_scan_failed_general
                     QrScanError.ErrorCode.BitPayScanFailed -> R.string.error_scan_failed_bitpay
                 }
             ),
-            ToastCustom.LENGTH_LONG,
-            ToastCustom.TYPE_ERROR
-        )
+            type = SnackbarType.Error
+        ).show()
     }
 
     private fun launchAssetAction(

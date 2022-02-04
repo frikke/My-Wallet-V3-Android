@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.NavDirections
 import com.blockchain.activities.StartOnboarding
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.koin.scopedInject
@@ -21,8 +22,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycSplashBinding
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
@@ -135,7 +135,11 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
     }
 
     override fun showError(message: String) =
-        toast(message, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(
+            binding.root,
+            message,
+            type = SnackbarType.Error
+        ).show()
 
     override fun onEmailNotVerified() {
         disposable += settingsDataManager.getSettings().subscribeBy(onNext = {

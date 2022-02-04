@@ -5,8 +5,8 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -20,7 +20,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.RemoveBankBottomSheetBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -93,10 +93,10 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
                     (host as? Host)?.onLinkedBankRemoved(bank.id)
                     dismiss()
                 }, onError = {
-                ToastCustom.makeText(
-                    requireContext(), getString(R.string.settings_bank_remove_error), Toast.LENGTH_LONG,
-                    ToastCustom.TYPE_ERROR
-                )
+                BlockchainSnackbar.make(
+                    binding.root, getString(R.string.settings_bank_remove_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             )
     }

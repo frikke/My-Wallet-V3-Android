@@ -16,6 +16,7 @@ import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButtonView
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -48,8 +49,7 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
@@ -201,10 +201,18 @@ class RedesignSettingsPhase2Activity :
                 // TODO error state here? maybe show retry - check with design
             }
             SettingsError.BANK_LINK_START_FAIL -> {
-                toast(R.string.failed_to_link_bank, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.failed_to_link_bank),
+                    type = SnackbarType.Error
+                ).show()
             }
             SettingsError.UNPAIR_FAILED -> {
-                toast(R.string.settings_logout_error, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.settings_logout_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             SettingsError.NONE -> {
                 // do nothing

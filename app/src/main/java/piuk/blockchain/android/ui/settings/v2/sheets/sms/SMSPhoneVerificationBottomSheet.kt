@@ -3,13 +3,14 @@ package piuk.blockchain.android.ui.settings.v2.sheets.sms
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetCodeSmsVerificationBinding
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class SMSPhoneVerificationBottomSheet :
     MviBottomSheet<SMSVerificationModel, SMSVerificationIntent,
@@ -40,22 +41,29 @@ class SMSPhoneVerificationBottomSheet :
 
     override fun render(newState: SMSVerificationState) {
         when (newState.error) {
-            VerificationError.VerifyPhoneError -> toast(
-                getString(R.string.profile_verification_code_error), ToastCustom.TYPE_ERROR
+            VerificationError.VerifyPhoneError -> showSnackbar(
+                SnackbarType.Error, R.string.profile_verification_code_error
             )
-            VerificationError.ResendSmsError -> toast(
-                getString(R.string.profile_resend_sms_error), ToastCustom.TYPE_ERROR
-            )
+            VerificationError.ResendSmsError ->
+                showSnackbar(SnackbarType.Error, R.string.profile_resend_sms_error)
         }
         if (newState.isCodeSmsSent) {
-            toast(getString(R.string.code_verification_resent_sms), ToastCustom.TYPE_OK)
+            showSnackbar(SnackbarType.Success, R.string.code_verification_resent_sms)
             model.process(SMSVerificationIntent.ResetCodeSentVerification)
         }
         if (newState.isPhoneVerified) {
-            toast(getString(R.string.sms_verified), ToastCustom.TYPE_OK)
+            showSnackbar(SnackbarType.Success, R.string.sms_verified)
             host.onPhoneNumberVerified()
             dismiss()
         }
+    }
+
+    private fun showSnackbar(type: SnackbarType, @StringRes message: Int) {
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = type
+        ).show()
     }
 
     private fun setupUI() {

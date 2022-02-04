@@ -12,6 +12,7 @@ import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.historic.HistoricRateFetcher
@@ -19,6 +20,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -36,9 +38,8 @@ import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AccountIcon
@@ -89,7 +90,12 @@ class ActivitiesFragment :
     @UiThread
     override fun render(newState: ActivitiesState) {
         if (newState.isError) {
-            toast(R.string.activity_loading_error, ToastCustom.TYPE_ERROR)
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(R.string.activity_loading_error),
+                duration = Snackbar.LENGTH_SHORT,
+                type = SnackbarType.Error
+            ).show()
         }
 
         switchView(newState)

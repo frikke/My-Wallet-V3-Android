@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import com.blockchain.annotations.CommonCode
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
@@ -16,7 +17,7 @@ import piuk.blockchain.android.databinding.ActivityRecoverFundsBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverFundsPresenter>(), RecoverFundsView {
 
@@ -72,7 +73,11 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
     }
 
     override fun showError(@StringRes message: Int) {
-        ToastCustom.makeText(this, getString(message), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = SnackbarType.Error
+        ).show()
     }
 
     override fun onDestroy() {

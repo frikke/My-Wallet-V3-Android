@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -26,6 +27,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -41,8 +43,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.activity.detail.adapter.ActivityDetailsDelegateAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -226,18 +227,20 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
             }
         }
         if (state.recurringBuyId == null) {
-            ToastCustom.makeText(
-                requireContext(), getString(R.string.recurring_buy_cancelled_toast), Toast.LENGTH_LONG,
-                ToastCustom.TYPE_OK
-            )
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(R.string.recurring_buy_cancelled_toast),
+                type = SnackbarType.Success
+            ).show()
             dismiss()
         }
 
         if (state.hasDeleteError) {
-            ToastCustom.makeText(
-                requireContext(), getString(R.string.recurring_buy_cancelled_error_toast), Toast.LENGTH_LONG,
-                ToastCustom.TYPE_ERROR
-            )
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(R.string.recurring_buy_cancelled_error_toast),
+                type = SnackbarType.Error
+            ).show()
         }
 
         if (state.recurringBuyHasFailedAndCanBeFixedByAddingFunds()) {
@@ -470,7 +473,12 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     private fun updateClipboard(value: String, context: Context) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("value", value))
-        toast(R.string.copied_to_clipboard, ToastCustom.TYPE_OK)
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(R.string.copied_to_clipboard),
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Success
+        ).show()
     }
 
     private fun mapToAction(transactionType: TransactionSummary.TransactionType?): String =

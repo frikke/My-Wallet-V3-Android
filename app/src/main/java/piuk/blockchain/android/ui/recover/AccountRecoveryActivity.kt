@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -13,8 +14,7 @@ import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAccountRecoveryBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.reset.ResetAccountFragment
 import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
 import piuk.blockchain.android.util.StringUtils
@@ -65,10 +65,18 @@ class AccountRecoveryActivity :
             }
             AccountRecoveryStatus.RECOVERY_FAILED -> {
                 analytics.logEvent(AccountRecoveryAnalytics.RecoveryFailed(false))
-                toast(R.string.restore_failed, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.restore_failed),
+                    type = SnackbarType.Error
+                ).show()
             }
             AccountRecoveryStatus.RESET_KYC_FAILED ->
-                toast(R.string.reset_kyc_failed, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.reset_kyc_failed),
+                    type = SnackbarType.Error
+                ).show()
             else -> {
                 // Do nothing.
             }

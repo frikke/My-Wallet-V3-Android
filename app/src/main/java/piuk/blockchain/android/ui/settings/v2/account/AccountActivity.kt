@@ -5,7 +5,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.tag.TagType
@@ -17,9 +19,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAccountBinding
 import piuk.blockchain.android.simplebuy.CurrencySelectionSheet
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
@@ -70,10 +71,18 @@ class AccountActivity :
                         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("walletId", walletId)
                         clipboard.setPrimaryClip(clip)
-                        toast(R.string.copied_to_clipboard, ToastCustom.TYPE_OK)
+                        BlockchainSnackbar.make(
+                            binding.root,
+                            getString(R.string.copied_to_clipboard),
+                            type = SnackbarType.Success
+                        ).show()
                         analytics.logEvent(SettingsAnalytics.WalletIdCopyCopied)
                     } else {
-                        toast(R.string.account_wallet_id_copy_error, ToastCustom.TYPE_ERROR)
+                        BlockchainSnackbar.make(
+                            binding.root,
+                            getString(R.string.account_wallet_id_copy_error),
+                            type = SnackbarType.Error
+                        ).show()
                     }
                 }
             }
@@ -137,25 +146,32 @@ class AccountActivity :
     private fun renderErrorState(error: AccountError) =
         when (error) {
             AccountError.ACCOUNT_INFO_FAIL -> {
-                toast(getString(R.string.account_load_info_error), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.account_load_info_error)
             }
             AccountError.FIAT_LIST_FAIL -> {
-                toast(getString(R.string.account_load_fiat_error), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.account_load_fiat_error)
             }
             AccountError.ACCOUNT_FIAT_UPDATE_FAIL -> {
-                toast(getString(R.string.account_fiat_update_error), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.account_fiat_update_error)
             }
             AccountError.EXCHANGE_INFO_FAIL -> {
-                toast(getString(R.string.account_exchange_info_error), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.account_exchange_info_error)
             }
             AccountError.EXCHANGE_LOAD_FAIL -> {
-                toast(getString(R.string.account_load_exchange_error), ToastCustom.TYPE_ERROR)
+                showErrorSnackbar(R.string.account_load_exchange_error)
             }
             AccountError.NONE -> {
                 // do nothing
             }
         }
 
+    private fun showErrorSnackbar(@StringRes message: Int) {
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = SnackbarType.Error
+        ).show()
+    }
     private fun renderWalletInformation(accountInformation: AccountInformation) {
         walletId = accountInformation.walletId
 

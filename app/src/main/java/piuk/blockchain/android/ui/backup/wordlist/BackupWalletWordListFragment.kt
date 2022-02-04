@@ -9,6 +9,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.FragmentTransaction
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
@@ -19,8 +20,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupWordListBinding
 import piuk.blockchain.android.ui.backup.verify.BackupWalletVerifyFragment
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -99,7 +99,11 @@ class BackupWalletWordListFragment :
                 textviewCurrentWord.text = it
             } ?: kotlin.run {
                 crashLogger.logEvent("Mnemonic word for position $currentWordIndex was null")
-                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.common_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             buttonNext.setOnClickListener { onNextClicked() }
             buttonPrevious.setOnClickListener { onPreviousClicked() }

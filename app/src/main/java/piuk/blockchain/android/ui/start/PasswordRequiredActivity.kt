@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.start
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
@@ -16,7 +16,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
@@ -80,12 +80,12 @@ class PasswordRequiredActivity :
         presenter.loadWalletGuid()
     }
 
-    override fun showToast(@StringRes messageId: Int, @ToastCustom.ToastType toastType: String) {
-        ToastCustom.makeText(this, getString(messageId), ToastCustom.LENGTH_SHORT, toastType)
+    override fun showSnackbar(@StringRes messageId: Int, type: SnackbarType) {
+        BlockchainSnackbar.make(binding.root, getString(messageId), type = type).show()
     }
 
-    override fun showErrorToastWithParameter(@StringRes messageId: Int, message: String) {
-        ToastCustom.makeText(this, getString(messageId, message), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR)
+    override fun showErrorSnackbarWithParameter(@StringRes messageId: Int, message: String) {
+        BlockchainSnackbar.make(binding.root, getString(messageId, message), type = SnackbarType.Error).show()
     }
 
     override fun restartPage() {
@@ -144,10 +144,7 @@ class PasswordRequiredActivity :
             if (!limitReached) {
                 presenter.requestNew2FaCode(password, guid)
             } else {
-                ToastCustom.makeText(
-                    this, getString(R.string.two_factor_retries_exceeded),
-                    Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
-                )
+                showSnackbar(R.string.two_factor_retries_exceeded, SnackbarType.Error)
                 if (!isTwoFATimerRunning) {
                     twoFATimer.start()
                 }

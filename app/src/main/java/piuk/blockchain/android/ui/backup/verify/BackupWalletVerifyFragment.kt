@@ -6,8 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
@@ -15,7 +17,7 @@ import piuk.blockchain.android.databinding.FragmentBackupWalletVerifyBinding
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedFragment
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class BackupWalletVerifyFragment :
     BaseFragment<BackupVerifyView, BackupVerifyPresenter>(),
@@ -95,8 +97,12 @@ class BackupWalletVerifyFragment :
         popAllAndStartFragment(BackupWalletStartingFragment(), BackupWalletStartingFragment.TAG)
     }
 
-    override fun showToast(message: Int, toastType: String) {
-        toast(message, toastType)
+    override fun showSnackbar(@StringRes message: Int, type: SnackbarType) {
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = type
+        ).show()
     }
 
     override fun onDestroyView() {

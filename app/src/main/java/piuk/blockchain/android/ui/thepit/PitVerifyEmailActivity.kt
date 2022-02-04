@@ -3,13 +3,13 @@ package piuk.blockchain.android.ui.thepit
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPitVerifyEmailLayoutBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class PitVerifyEmailActivity : BaseMvpActivity<PitVerifyEmailView, PitVerifyEmailPresenter>(), PitVerifyEmailView {
 
@@ -59,11 +59,15 @@ class PitVerifyEmailActivity : BaseMvpActivity<PitVerifyEmailView, PitVerifyEmai
     override fun getView(): PitVerifyEmailView = this
 
     override fun mailResendFailed() {
-        toast(R.string.mail_resent_failed, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(
+            binding.root, getString(R.string.mail_resent_failed), type = SnackbarType.Error
+        ).show()
     }
 
     override fun mailResentSuccessfully() {
-        toast(R.string.mail_resent_succeed, ToastCustom.TYPE_OK)
+        BlockchainSnackbar.make(
+            binding.root, getString(R.string.mail_resent_succeed), type = SnackbarType.Success
+        ).show()
     }
 
     override fun emailVerified() {

@@ -2,10 +2,10 @@ package piuk.blockchain.android.ui.dashboard.sheets
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -24,7 +24,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyCheckoutItem
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsError
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsIntent
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
@@ -103,18 +103,19 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
         newState.selectedRecurringBuy.let {
             when {
                 it.state == RecurringBuyState.INACTIVE -> {
-                    ToastCustom.makeText(
-                        requireContext(), getString(R.string.recurring_buy_cancelled_toast), Toast.LENGTH_LONG,
-                        ToastCustom.TYPE_OK
-                    )
+                    BlockchainSnackbar.make(
+                        binding.root,
+                        getString(R.string.recurring_buy_cancelled_toast),
+                        type = SnackbarType.Success
+                    ).show()
                     returnToPreviousSheet()
                 }
                 newState.errorState == AssetDetailsError.RECURRING_BUY_DELETE -> {
-                    ToastCustom.makeText(
-                        requireContext(), getString(R.string.recurring_buy_cancelled_error_toast),
-                        Toast.LENGTH_LONG,
-                        ToastCustom.TYPE_ERROR
-                    )
+                    BlockchainSnackbar.make(
+                        binding.root,
+                        getString(R.string.recurring_buy_cancelled_error_toast),
+                        type = SnackbarType.Error
+                    ).show()
                 }
                 else ->
                     with(binding) {

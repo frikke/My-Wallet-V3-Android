@@ -4,9 +4,10 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.viewbinding.ViewBinding
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -32,11 +33,8 @@ abstract class TransactionFlowFragment<T : ViewBinding> :
     }
 
     protected fun showErrorToast(@StringRes msgId: Int) {
-        ToastCustom.makeText(
-            activity,
-            getString(msgId),
-            ToastCustom.LENGTH_LONG,
-            ToastCustom.TYPE_ERROR
-        )
+        BlockchainSnackbar.make(
+            binding.root, getString(msgId), type = SnackbarType.Error
+        ).show()
     }
 }

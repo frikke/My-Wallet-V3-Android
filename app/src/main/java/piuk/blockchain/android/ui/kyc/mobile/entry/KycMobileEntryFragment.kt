@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.StringRes
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.koin.scopedInject
@@ -22,8 +24,7 @@ import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAddPhoneNumberBinding
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
@@ -137,8 +138,12 @@ class KycMobileEntryFragment :
         binding.editTextKycMobileNumber.setText(formattedNumber)
     }
 
-    override fun showErrorToast(message: Int) {
-        toast(message, ToastCustom.TYPE_ERROR)
+    override fun showErrorSnackbar(@StringRes message: Int) {
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = SnackbarType.Error
+        ).show()
     }
 
     override fun continueSignUp(displayModel: PhoneDisplayModel) {

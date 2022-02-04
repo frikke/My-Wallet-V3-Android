@@ -9,6 +9,7 @@ import android.os.Looper
 import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
@@ -23,7 +24,7 @@ import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
@@ -174,7 +175,8 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         }
     }
 
-    override fun showToast(message: String, toastType: String) = toast(message, toastType)
+    override fun showSnackbar(message: String, type: SnackbarType) =
+        BlockchainSnackbar.make(binding.root, message, type = type).show()
 
     override fun onLoadPrices(prices: List<PriceView.Price>) {
         binding.carousel.onLoadPrices(prices)

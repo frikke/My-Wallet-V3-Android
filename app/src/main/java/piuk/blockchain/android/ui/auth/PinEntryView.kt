@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.auth
 
 import androidx.annotation.StringRes
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.Visibility
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.android.ui.customviews.ToastCustom
 
 interface PinEntryView : View {
 
@@ -15,9 +15,14 @@ interface PinEntryView : View {
 
     fun fillPinBoxes()
 
-    fun showToast(@StringRes message: Int, @ToastCustom.ToastType toastType: String)
+    fun showSnackbar(@StringRes message: Int, type: SnackbarType, doOnDismiss: () -> Unit = {})
 
-    fun showParameteredToast(@StringRes message: Int, @ToastCustom.ToastType toastType: String, parameter: Int)
+    fun showParameteredSnackbar(
+        @StringRes message: Int,
+        type: SnackbarType,
+        parameter: Int,
+        doOnDismiss: () -> Unit = {}
+    )
 
     fun dismissProgressDialog()
 

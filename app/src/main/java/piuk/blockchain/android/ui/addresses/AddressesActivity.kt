@@ -10,9 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -25,8 +27,7 @@ import piuk.blockchain.android.ui.addresses.adapter.AccountAdapter
 import piuk.blockchain.android.ui.addresses.adapter.AccountListItem
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -232,10 +233,20 @@ class AddressesActivity :
         )
 
     override fun showError(@StringRes message: Int) =
-        toast(message, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
 
     override fun showSuccess(@StringRes message: Int) {
-        toast(message, ToastCustom.TYPE_OK)
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Success
+        ).show()
         presenter.refresh(binding.currencyHeader.getSelectedCurrency())
     }
 

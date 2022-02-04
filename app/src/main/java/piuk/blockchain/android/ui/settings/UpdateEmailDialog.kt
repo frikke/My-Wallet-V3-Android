@@ -6,9 +6,10 @@ import android.text.InputType
 import android.text.TextWatcher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.FormatChecker
 
 internal fun showUpdateEmailDialog(
@@ -33,12 +34,9 @@ internal fun showUpdateEmailDialog(
         .setPositiveButton(R.string.update) { _, _ ->
             val newEmail = editText.text.toString()
             if (!formatChecker.isValidEmailAddress(newEmail)) {
-                ToastCustom.makeText(
-                    activity,
-                    activity.getString(R.string.invalid_email),
-                    ToastCustom.LENGTH_SHORT,
-                    ToastCustom.TYPE_ERROR
-                )
+                BlockchainSnackbar.make(
+                    editText, activity.getString(R.string.invalid_email), type = SnackbarType.Error
+                ).show()
             } else {
                 settingsPresenter.updateEmail(newEmail)
             }

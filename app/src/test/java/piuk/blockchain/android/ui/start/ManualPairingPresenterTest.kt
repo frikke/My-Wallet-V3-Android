@@ -54,7 +54,7 @@ class ManualPairingPresenterTest {
     }
 
     /**
-     * Password is missing, should trigger [ManualPairingActivity.showToast]
+     * Password is missing, should trigger [ManualPairingActivity.showSnackbar]
      */
     @Test
     fun onContinueClickedNoPassword() {
@@ -64,12 +64,12 @@ class ManualPairingPresenterTest {
         subject.onContinueClicked(GUID, "")
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(analytics, never()).logEvent(any())
     }
 
     /**
-     * GUID is missing, should trigger [ManualPairingActivity.showToast]
+     * GUID is missing, should trigger [ManualPairingActivity.showSnackbar]
      */
     @Test
     fun onContinueClickedNoGuid() {
@@ -79,7 +79,7 @@ class ManualPairingPresenterTest {
         subject.onContinueClicked("", PASSWORD)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(analytics, never()).logEvent(any())
     }
 

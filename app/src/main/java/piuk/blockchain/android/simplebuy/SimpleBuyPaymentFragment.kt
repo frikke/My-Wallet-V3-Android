@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.payments.model.BankPartner
@@ -23,6 +24,7 @@ import com.blockchain.preferences.RatingPrefs
 import com.blockchain.utils.secondsToDays
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.stripe.android.PaymentAuthConfig
@@ -40,8 +42,7 @@ import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.simplebuy.sheets.UnlockHigherLimitsBottomSheet
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -116,7 +117,10 @@ class SimpleBuyPaymentFragment :
         }
 
         if (newState.recurringBuyState == RecurringBuyState.INACTIVE) {
-            toast(resources.getString(R.string.recurring_buy_creation_error), ToastCustom.TYPE_ERROR)
+            BlockchainSnackbar.make(
+                binding.root, getString(R.string.recurring_buy_creation_error), Snackbar.LENGTH_SHORT,
+                SnackbarType.Error
+            ).show()
         }
 
         if (newState.orderState == OrderState.AWAITING_FUNDS && isFirstLoad) {

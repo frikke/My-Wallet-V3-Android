@@ -13,11 +13,13 @@ import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.WalletAnalytics
+import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.WriterException
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -28,8 +30,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAccountEditBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.putAccount
 import timber.log.Timber
@@ -123,7 +124,12 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
     }
 
     private fun showError(@StringRes msgId: Int) =
-        toast(msgId, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(msgId),
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
 
     // This should all be in a model or presenter. Move it all once the updates are working
     private val disposables = CompositeDisposable()

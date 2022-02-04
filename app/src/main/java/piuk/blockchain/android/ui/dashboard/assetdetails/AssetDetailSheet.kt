@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
@@ -15,6 +14,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
@@ -34,6 +34,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -50,7 +51,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetDashboardAssetDetailsBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
 import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAdapterDelegate
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
@@ -339,7 +340,12 @@ class AssetDetailSheet :
         }
 
         if (errorString.isNotEmpty()) {
-            ToastCustom.makeText(requireContext(), errorString, Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR)
+            BlockchainSnackbar.make(
+                binding.root,
+                errorString,
+                duration = Snackbar.LENGTH_SHORT,
+                type = SnackbarType.Error
+            ).show()
         }
     }
 

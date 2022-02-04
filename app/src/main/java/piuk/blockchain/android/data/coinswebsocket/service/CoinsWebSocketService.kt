@@ -15,7 +15,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
@@ -46,15 +45,6 @@ class CoinsWebSocketService(
                     coinsWebSocketStrategy.close()
                 }
             }
-    }
-
-    override fun showToast(message: Int) {
-        ToastCustom.makeText(
-            applicationContext,
-            applicationContext.getString(message),
-            ToastCustom.LENGTH_SHORT,
-            ToastCustom.TYPE_GENERAL
-        )
     }
 
     override fun triggerNotification(title: String, marquee: String, text: String) {

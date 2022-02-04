@@ -18,6 +18,7 @@ import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Single
@@ -28,8 +29,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAddressBinding
 import piuk.blockchain.android.scan.QrScanResultProcessor
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.EditTextUpdateThrottle
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -261,20 +262,18 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                             model.process(TransactionIntent.TargetSelectionUpdated(it))
                         },
                         onComplete = {
-                            ToastCustom.makeText(
-                                requireContext(),
+                            BlockchainSnackbar.make(
+                                binding.root,
                                 getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.displayTicker),
-                                ToastCustom.LENGTH_SHORT,
-                                ToastCustom.TYPE_GENERAL
-                            )
+                                duration = Snackbar.LENGTH_SHORT,
+                            ).show()
                         },
                         onError = {
-                            ToastCustom.makeText(
-                                requireContext(),
+                            BlockchainSnackbar.make(
+                                binding.root,
                                 getString(R.string.scan_failed),
-                                ToastCustom.LENGTH_SHORT,
-                                ToastCustom.TYPE_GENERAL
-                            )
+                                duration = Snackbar.LENGTH_SHORT,
+                            ).show()
                         }
                     )
             }

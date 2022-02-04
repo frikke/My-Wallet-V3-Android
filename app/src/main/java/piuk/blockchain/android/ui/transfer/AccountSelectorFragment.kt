@@ -10,18 +10,20 @@ import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
 import piuk.blockchain.android.ui.base.ViewPagerFragment
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
 
@@ -139,12 +141,12 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     private fun doOnLoadError(t: Throwable) {
-        ToastCustom.makeText(
-            requireContext(),
+        BlockchainSnackbar.make(
+            binding.root,
             getString(R.string.transfer_wallets_load_error),
-            ToastCustom.LENGTH_SHORT,
-            ToastCustom.TYPE_ERROR
-        )
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
         doOnEmptyList()
     }
 

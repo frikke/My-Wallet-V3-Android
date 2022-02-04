@@ -13,7 +13,7 @@ interface KycNavHostView : View {
 
     fun displayLoading(loading: Boolean)
 
-    fun showErrorToastAndFinish(@StringRes message: Int)
+    fun showErrorSnackbarAndFinish(@StringRes message: Int)
 
     fun navigate(directions: NavDirections)
 

@@ -43,6 +43,7 @@ import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment.Companion.BOTTOM_SHEET
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.hideKeyboard
@@ -90,8 +91,8 @@ import piuk.blockchain.android.ui.auth.KEY_VALIDATING_PIN_FOR_RESULT
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.auth.REQUEST_CODE_VALIDATE_PIN
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.PasswordStrengthView
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -381,12 +382,7 @@ class SettingsFragment :
     }
 
     override fun showError(@StringRes message: Int) {
-        ToastCustom.makeText(
-            activity,
-            getString(message),
-            ToastCustom.LENGTH_SHORT,
-            ToastCustom.TYPE_ERROR
-        )
+        showSnackbar(message)
     }
 
     override fun showScanTargetError(error: QrScanError) {
@@ -877,7 +873,7 @@ class SettingsFragment :
                     val sms = countryTextView.text.toString() + mobileNumber.text.toString()
 
                     if (!formatChecker.isValidMobileNumber(sms)) {
-                        showCustomToast(R.string.invalid_mobile)
+                        showSnackbar(R.string.invalid_mobile)
                     } else {
                         settingsPresenter.updateSms(sms)
                         dialog.dismiss()
@@ -899,7 +895,7 @@ class SettingsFragment :
                     settingsActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clip = ClipData.newPlainText("guid", guidPref!!.summary)
                 clipboard.setPrimaryClip(clip)
-                showCustomToast(R.string.copied_to_clipboard)
+                showSnackbar(R.string.copied_to_clipboard)
                 analytics.logEvent(SettingsAnalytics.WalletIdCopyCopied)
             }
             .setNegativeButton(R.string.common_no, null)
@@ -1082,12 +1078,7 @@ class SettingsFragment :
                         if (currentPw == walletPassword) {
                             if (newPw == newConfirmedPw) {
                                 if (newConfirmedPw.length < 4 || newConfirmedPw.length > 255) {
-                                    ToastCustom.makeText(
-                                        activity,
-                                        getString(R.string.invalid_password),
-                                        ToastCustom.LENGTH_SHORT,
-                                        ToastCustom.TYPE_ERROR
-                                    )
+                                    showSnackbar(R.string.invalid_password)
                                 } else if (PasswordUtil.getStrength(newPw).roundToInt() < 50) {
                                     AlertDialog.Builder(settingsActivity, R.style.AlertDialogStyle)
                                         .setTitle(R.string.app_name)
@@ -1114,18 +1105,18 @@ class SettingsFragment :
                             } else {
                                 confirmPassword.setText("")
                                 confirmPassword.requestFocus()
-                                showCustomToast(R.string.password_mismatch_error)
+                                showSnackbar(R.string.password_mismatch_error)
                             }
                         } else {
                             currentPassword.setText("")
                             currentPassword.requestFocus()
-                            showCustomToast(R.string.invalid_password)
+                            showSnackbar(R.string.invalid_password)
                         }
                     } else {
                         newPassword.setText("")
                         confirmPassword.setText("")
                         newPassword.requestFocus()
-                        showCustomToast(R.string.change_password_new_matches_current)
+                        showSnackbar(R.string.change_password_new_matches_current)
                     }
                 }
             }
@@ -1133,13 +1124,12 @@ class SettingsFragment :
         }
     }
 
-    private fun showCustomToast(@StringRes stringId: Int) {
-        ToastCustom.makeText(
-            activity,
+    private fun showSnackbar(@StringRes stringId: Int) {
+        BlockchainSnackbar.make(
+            this.requireView(),
             getString(stringId),
-            ToastCustom.LENGTH_LONG,
-            ToastCustom.TYPE_ERROR
-        )
+            type = SnackbarType.Error
+        ).show()
     }
 
     override fun showDialogTwoFA(authType: Int, smsVerified: Boolean) {

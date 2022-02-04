@@ -11,11 +11,12 @@ import android.widget.ImageView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.getTextString
+import com.google.android.material.snackbar.Snackbar
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 private const val ADDRESS_LABEL_MAX_LENGTH = 17
 
@@ -50,7 +51,12 @@ internal fun promptForAccountLabel(
             if (label.isNotEmpty()) {
                 okAction(label)
             } else {
-                ctx.toast(R.string.label_cant_be_empty, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    editCtrl,
+                    ctx.getString(R.string.label_cant_be_empty),
+                    duration = Snackbar.LENGTH_SHORT,
+                    type = SnackbarType.Error
+                ).show()
             }
         }.setNegativeButton(cancelText, null)
         .show()
@@ -120,7 +126,9 @@ fun showAddressQrCode(
         .setPositiveButton(copyBtn) { _, _ ->
             val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip: ClipData = ClipData.newPlainText("Send address", qrString)
-            ctx.toast(R.string.copied_to_clipboard)
+            BlockchainSnackbar.make(
+                view, ctx.getString(R.string.copied_to_clipboard), type = SnackbarType.Success
+            ).show()
             clipboard.setPrimaryClip(clip)
         }
         .create()

@@ -6,6 +6,7 @@ import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
@@ -20,8 +21,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
@@ -101,10 +101,16 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         }
 
         if (newState.toastType != null) {
-            when (newState.toastType) {
-                ToastType.INVALID_PASSWORD -> showToast(R.string.invalid_password, ToastCustom.TYPE_ERROR)
-                ToastType.UNEXPECTED_ERROR -> showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
-            }
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(
+                    when (newState.toastType) {
+                        ToastType.INVALID_PASSWORD -> R.string.invalid_password
+                        ToastType.UNEXPECTED_ERROR -> R.string.unexpected_error
+                    }
+                ),
+                type = SnackbarType.Error
+            ).show()
         }
     }
 
@@ -160,10 +166,6 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_frame, KycEmailEntryFragment(), KycEmailEntryFragment::class.simpleName)
             .commitAllowingStateLoss()
-    }
-
-    private fun showToast(message: Int, toastType: String) {
-        toast(message, toastType)
     }
 
     private fun showMetadataNodeFailure() {

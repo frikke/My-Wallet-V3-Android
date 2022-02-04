@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviActivity.Companion.start
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -19,8 +20,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentPasswordResetBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
 import piuk.blockchain.android.urllinks.CONTACT_SUPPORT_FUNDS_RECOVERY
 import piuk.blockchain.android.urllinks.FUNDS_RECOVERY_INFO
@@ -82,7 +82,11 @@ class ResetPasswordFragment :
         when (newState.status) {
             ResetPasswordStatus.SHOW_ERROR -> {
                 binding.progressBar.gone()
-                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.common_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             ResetPasswordStatus.SHOW_SUCCESS -> {
                 analytics.logEvent(AccountRecoveryAnalytics.PasswordReset(shouldRecoverAccount))
@@ -102,7 +106,11 @@ class ResetPasswordFragment :
                 showFundRecoveryFailureUI()
             }
             ResetPasswordStatus.SHOW_RESET_KYC_FAILED -> {
-                toast(getString(R.string.reset_password_kyc_reset_failed_message), ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.reset_password_kyc_reset_failed_message),
+                    type = SnackbarType.Error
+                ).show()
                 for (i in 0 until parentFragmentManager.backStackEntryCount) {
                     parentFragmentManager.popBackStack()
                 }

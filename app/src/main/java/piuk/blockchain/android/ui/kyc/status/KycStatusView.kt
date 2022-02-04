@@ -16,7 +16,7 @@ interface KycStatusView : View {
 
     fun startExchange()
 
-    fun showToast(@StringRes message: Int)
+    fun showSnackbar(@StringRes message: Int)
 
     fun showNotificationsEnabledDialog()
 }

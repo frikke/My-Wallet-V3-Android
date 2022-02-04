@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.start
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.logging.CrashLogger
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -20,7 +21,6 @@ import org.json.JSONObject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -30,8 +30,8 @@ import timber.log.Timber
 
 interface PasswordAuthView : MvpView {
     fun goToPinPage()
-    fun showToast(@StringRes messageId: Int, @ToastCustom.ToastType toastType: String)
-    fun showErrorToastWithParameter(@StringRes messageId: Int, message: String)
+    fun showSnackbar(@StringRes messageId: Int, type: SnackbarType)
+    fun showErrorSnackbarWithParameter(@StringRes messageId: Int, message: String)
     fun updateWaitingForAuthDialog(secondsRemaining: Int)
     fun resetPasswordField()
     fun showTwoFactorCodeNeededDialog(
@@ -78,7 +78,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         code: String?
     ) {
         if (code.isNullOrEmpty()) {
-            view?.showToast(R.string.two_factor_null_error, ToastCustom.TYPE_ERROR)
+            view?.showSnackbar(R.string.two_factor_null_error, SnackbarType.Error)
         } else {
             compositeDisposable += authDataManager.submitTwoFactorCode(sessionId, guid, code)
                 .doOnSubscribe {
@@ -98,7 +98,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
                         handleResponse(password, guid, payload)
                     },
                     {
-                        showErrorToast(R.string.two_factor_incorrect_error)
+                        showErrorSnackbar(R.string.two_factor_incorrect_error)
                     }
                 )
         }
@@ -163,10 +163,10 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             val json = JSONObject(errorBody)
             val errorReason = json.getString(INITIAL_ERROR)
             crashLogger.logState(INITIAL_ERROR, errorReason)
-            view?.showErrorToastWithParameter(R.string.common_replaceable_value, errorReason)
+            view?.showErrorSnackbarWithParameter(R.string.common_replaceable_value, errorReason)
         } catch (e: Exception) {
             crashLogger.logState(INITIAL_ERROR, e.message!!)
-            view?.showToast(R.string.common_error, ToastCustom.TYPE_ERROR)
+            view?.showSnackbar(R.string.common_error, SnackbarType.Error)
         }
     }
 
@@ -192,7 +192,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             .doOnNext { integer ->
                 if (integer <= 0) {
                     // Only called if timer has run out
-                    showErrorToastAndRestartApp(R.string.pairing_failed)
+                    showErrorSnackbarAndRestartApp(R.string.pairing_failed)
                 } else {
                     view?.updateWaitingForAuthDialog(integer!!)
                 }
@@ -205,7 +205,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             dlgUpdater
         ).subscribeBy(
             onError = {
-                showErrorToast(R.string.auth_failed)
+                showErrorSnackbar(R.string.auth_failed)
             }
         )
     }
@@ -246,9 +246,9 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
                 },
                 onError = { throwable ->
                     when (throwable) {
-                        is HDWalletException -> showErrorToast(R.string.pairing_failed)
-                        is DecryptionException -> showErrorToast(R.string.invalid_password)
-                        else -> showErrorToastAndRestartApp(R.string.auth_failed)
+                        is HDWalletException -> showErrorSnackbar(R.string.pairing_failed)
+                        is DecryptionException -> showErrorSnackbar(R.string.invalid_password)
+                        else -> showErrorSnackbarAndRestartApp(R.string.auth_failed)
                     }
                 }
             )
@@ -269,19 +269,19 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         authDisposable.clear()
     }
 
-    protected fun showErrorToast(@StringRes message: Int) {
+    protected fun showErrorSnackbar(@StringRes message: Int) {
         view?.apply {
             dismissProgressDialog()
             resetPasswordField()
-            showToast(message, ToastCustom.TYPE_ERROR)
+            showSnackbar(message, SnackbarType.Error)
         }
     }
 
-    protected fun showErrorToastAndRestartApp(@StringRes message: Int) {
+    protected fun showErrorSnackbarAndRestartApp(@StringRes message: Int) {
         view?.apply {
             resetPasswordField()
             dismissProgressDialog()
-            showToast(message, ToastCustom.TYPE_ERROR)
+            showSnackbar(message, SnackbarType.Error)
         }
         appUtil.clearCredentialsAndRestart()
     }
