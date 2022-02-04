@@ -443,7 +443,8 @@ class SimpleBuyModel(
                         }
 
                         process(
-                            SimpleBuyIntent.PaymentMethodsUpdated(
+                            SimpleBuyIntent.UpdatedBuyLimitsAndPaymentMethods(
+                                limits = limits,
                                 paymentOptions = PaymentOptions(
                                     paymentMethodsWithEnoughBalance
                                 ),

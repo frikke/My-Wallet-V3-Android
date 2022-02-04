@@ -178,9 +178,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     data class UpdatedBuyLimitsAndPaymentMethods(
-        val limits: TxLimits,
-        val paymentOptions: PaymentOptions,
-        val selectedPaymentMethod: SelectedPaymentMethod?
+        private val limits: TxLimits,
+        private val paymentOptions: PaymentOptions,
+        private val selectedPaymentMethod: SelectedPaymentMethod?
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(
