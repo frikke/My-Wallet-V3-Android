@@ -11,7 +11,6 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.alert.abstract.SnackbarType
-import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -31,14 +30,10 @@ import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
-import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
-import piuk.blockchain.android.ui.customviews.account.addViewToBottomWithConstraints
-import piuk.blockchain.android.ui.customviews.account.removePossibleBottomView
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import timber.log.Timber
 
 class AssetActionsSheet :
@@ -217,7 +212,7 @@ class AssetActionsSheet :
                 title = getString(R.string.dashboard_asset_actions_add_title),
                 icon = R.drawable.ic_tx_deposit_arrow,
                 hasWarning = hasWarning,
-                description = getString(R.string.dashboard_asset_actions_add_dsc_1, asset.displayTicker),
+                description = getString(R.string.dashboard_asset_actions_add_dsc, asset.displayTicker),
                 asset = asset,
                 action = action
             ) {

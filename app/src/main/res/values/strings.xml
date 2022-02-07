@@ -795,7 +795,7 @@
     <string name="dashboard_asset_actions_send_dsc">Transfer %1$s to any Wallet</string>
     <string name="dashboard_asset_actions_receive_dsc">Accept or Share Your %1$s Address</string>
     <string name="dashboard_asset_actions_swap_dsc">Exchange %1$s for Another Crypto</string>
-    <string name="dashboard_asset_actions_add_dsc_1">Add %1$s to your Rewards Account</string>
+    <string name="dashboard_asset_actions_add_dsc">Add %1$s to your Rewards Account</string>
     <string name="dashboard_asset_actions_add_title">Add</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Withdraw %1$s from your Rewards Account</string>
     <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Trading Account</string>

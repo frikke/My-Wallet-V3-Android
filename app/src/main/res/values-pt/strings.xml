@@ -1837,7 +1837,7 @@ Enquanto isso, pode vender em Dinheiro, Trocar e Negociar em Blockchain.com.</st
     <string name="landing_value_prop_two_1">Ganhe Recompensas na Sua Criptomoeda.</string>
     <string name="tx_title_rewards">%s Recompensas Ganhas</string>
     <string name="dashboard_asset_balance_rewards">Ganhe %1$.1f %% anualmente</string>
-    <string name="dashboard_asset_actions_add_dsc_1">Adicione %1$s à sua Conta Recompensas</string>
+    <string name="dashboard_asset_actions_add_dsc">Adicione %1$s à sua Conta Recompensas</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Levante %1$s da sua Conta Recompensas</string>
     <string name="dashboard_asset_actions_summary_title_1">Resumo de Recompensas</string>
     <string name="dashboard_asset_actions_summary_dsc_1">Visualize as suas %1$s Recompensas acumuladas</string>
