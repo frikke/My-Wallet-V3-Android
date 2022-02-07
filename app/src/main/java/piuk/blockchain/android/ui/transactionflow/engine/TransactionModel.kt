@@ -186,15 +186,12 @@ data class TransactionState(
     // This is a hack to allow the enter amount screen to update to the initial amount, if one is specified,
     // without getting stuck in an update loop
     fun initialAmountToSet(): Money? {
-        return if (selectedTarget is CryptoAddress) {
-            val amount = selectedTarget.amount
-            if (amount != null && amount.isPositive && amount == pendingTx?.amount) {
-                selectedTarget.amount
+        return (selectedTarget as? CryptoAddress)?.amount?.let { amount ->
+            if (amount.isPositive) {
+                amount
             } else {
                 null
             }
-        } else {
-            null
         }
     }
 

@@ -94,5 +94,5 @@ class AddressFactoryImpl(
         }
 
     private fun isDomainAddress(address: String): Single<Boolean> =
-        Single.just(address.contains('.'))
+        Single.just(address.contains('.') && !address.contains('?'))
 }

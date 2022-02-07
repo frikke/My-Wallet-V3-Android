@@ -136,7 +136,11 @@ import thepit.PitLinking
                 it.startsWith(BTC_ADDRESS_AMOUNT_PART, true)
             }?.let {
                 val amountString = it.removePrefix(BTC_ADDRESS_AMOUNT_PART)
-                CryptoValue.fromMajor(CryptoCurrency.BTC, amountString.toBigDecimal())
+                if (amountString.isNotEmpty()) {
+                    CryptoValue.fromMajor(CryptoCurrency.BTC, amountString.toBigDecimal())
+                } else {
+                    null
+                }
             }
             if (addressPart != null && isValidAddress(addressPart)) {
                 BtcAddress(address = addressPart, label = label ?: address, amount = amountPart)

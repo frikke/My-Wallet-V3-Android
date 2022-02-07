@@ -263,8 +263,8 @@ class FiatCryptoInputView(
         with(binding) {
             exchangeAmount.text = amounts.exchangeAmount.toStringWithSymbol()
             exchangeSubject.onNext(amounts.exchangeAmount)
-
-            if (amounts.outputAmount.isZero) {
+            val shouldResetConfig = amounts.outputAmount.isZero && getLastEnteredAmount(configuration).isZero
+            if (shouldResetConfig) {
                 updateValue(amounts.outputAmount)
             }
             amountSubject.onNext(amounts.outputAmount)
