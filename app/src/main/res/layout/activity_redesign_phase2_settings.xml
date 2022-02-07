@@ -35,9 +35,9 @@
                 android:layout_marginTop="@dimen/xlarge_margin"
                 android:background="@drawable/bkgd_profile_circle_empty"
                 android:gravity="center"
+                android:textColor="@color/purple_700"
                 android:textSize="40sp"
                 android:textStyle="bold"
-                android:textColor="@color/purple_700"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -55,18 +55,22 @@
                 android:id="@+id/name"
                 style="@style/TextAppearance.Blockchain.Title3"
                 android:layout_width="wrap_content"
-                android:alpha="0"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:alpha="0"
+                android:ellipsize="middle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/user_initials" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.blockchain.componentlib.basic.SimpleTextView
                 android:id="@+id/email"
-                style="@style/TextAppearance.Blockchain.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/name" />
@@ -101,11 +105,11 @@
                     android:layout_width="@dimen/xlarge_margin"
                     android:layout_height="@dimen/xlarge_margin"
                     android:layout_gravity="center"
+                    android:visibility="gone"
                     app:lottie_autoPlay="true"
                     app:lottie_fileName="lottie/loader.json"
                     app:lottie_imageAssetsFolder="lottie/loader.json"
                     app:lottie_loop="true"
-                    android:visibility="gone"
                     app:lottie_repeatMode="restart" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -114,8 +118,8 @@
                 android:id="@+id/header_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_goneMarginTop="@dimen/xlarge_margin"
-                app:layout_constraintTop_toBottomOf="@id/payments_container" />
+                app:layout_constraintTop_toBottomOf="@id/payments_container"
+                app:layout_goneMarginTop="@dimen/xlarge_margin" />
 
             <com.blockchain.componentlib.tablerow.DefaultTableRowView
                 android:id="@+id/account_group"

@@ -83,5 +83,7 @@ class BackupWalletActivity : BlockchainActivity() {
                 requestCode
             )
         }
+
+        fun newIntent(context: Context): Intent = Intent(context, BackupWalletActivity::class.java)
     }
 }

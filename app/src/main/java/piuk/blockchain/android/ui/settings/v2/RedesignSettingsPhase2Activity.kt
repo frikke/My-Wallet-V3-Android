@@ -17,6 +17,8 @@ import com.airbnb.lottie.LottieDrawable
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButtonView
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -501,8 +503,12 @@ class RedesignSettingsPhase2Activity :
                 R.string.common_spaced_strings, userInformation.firstName, userInformation.lastName
             )
             name.animate().alpha(1f)
-            email.text = userInformation.email
-            email.animate().alpha(1f)
+            email.apply {
+                text = userInformation.email
+                style = ComposeTypographies.Body1
+                textColor = ComposeColors.Body
+                this.animate().alpha(1f)
+            }
             userInitials.background = ContextCompat.getDrawable(
                 this@RedesignSettingsPhase2Activity,
                 R.drawable.bkgd_profile_circle

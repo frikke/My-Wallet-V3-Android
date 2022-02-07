@@ -103,6 +103,15 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
 
+            <com.blockchain.componentlib.tablerow.ToggleTableRowView
+                android:id="@+id/security_cloud_backup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.divider.HorizontalDividerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </ScrollView>

@@ -24,6 +24,7 @@ import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ActivitySecurityBinding
+import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
@@ -56,6 +57,12 @@ class SecurityActivity :
         ActivityResultContracts.StartActivityForResult()
     ) {
         model.process(SecurityIntent.ToggleBiometrics)
+    }
+
+    private val onBackupResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        model.process(SecurityIntent.LoadInitialInformation)
     }
 
     private val onWebWalletOpenResult = registerForActivityResult(
@@ -100,7 +107,7 @@ class SecurityActivity :
                 primaryText = getString(R.string.security_backup_phrase_title)
                 secondaryText = getString(R.string.security_backup_phrase_subtitle)
                 onClick = {
-                    BlockchainSnackbar.make(binding.root, "Coming soon", type = SnackbarType.Warning).show()
+                    onBackupResult.launch(BackupWalletActivity.newIntent(this@SecurityActivity))
                 }
             }
 
@@ -127,6 +134,14 @@ class SecurityActivity :
                     model.process(SecurityIntent.ToggleTor)
                 }
             }
+
+            securityCloudBackup.apply {
+                primaryText = getString(R.string.enable_cloud_backup)
+                secondaryText = getString(R.string.enable_cloud_backup_summary)
+                onCheckedChange = {
+                    model.process(SecurityIntent.ToggleCloudBackup)
+                }
+            }
         }
     }
 
@@ -137,46 +152,7 @@ class SecurityActivity :
 
     override fun render(newState: SecurityState) {
         if (newState.securityViewState != SecurityViewState.None) {
-            when (newState.securityViewState) {
-                SecurityViewState.ConfirmBiometricsDisabling -> {
-                    showDisableBiometricsConfirmationSheet()
-                }
-                SecurityViewState.ShowEnrollBiometrics -> {
-                    showNoBiometricsAddedSheet()
-                }
-                SecurityViewState.ShowEnableBiometrics -> {
-                    showBiometricsConfirmationSheet()
-                }
-                is SecurityViewState.ShowVerifyPhoneNumberRequired -> {
-                    showBottomSheet(SMSPhoneVerificationBottomSheet.newInstance(newState.securityViewState.phoneNumber))
-                }
-                SecurityViewState.ShowDisablingOnWebRequired -> {
-                    showBottomSheet(
-                        TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.DISABLE_ON_WEB)
-                    )
-                }
-                SecurityViewState.ShowConfirmTwoFaEnabling -> {
-                    showBottomSheet(TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.ENABLE))
-                }
-                SecurityViewState.LaunchPasswordChange -> {
-                    supportFragmentManager.beginTransaction()
-                        .addAnimationTransaction()
-                        .add(
-                            R.id.security_content_frame, PasswordChangeFragment.newInstance(),
-                            PasswordChangeFragment::class.simpleName
-                        )
-                        .addToBackStack(PasswordChangeFragment::class.simpleName)
-                        .commitAllowingStateLoss()
-                    binding.securityContentFrame.visible()
-                }
-                SecurityViewState.ShowMustBackWalletUp -> {
-                    showBottomSheet(BackupPhraseInfoSheet.newInstance())
-                }
-                SecurityViewState.None -> {
-                    // do nothing
-                }
-            }
-            model.process(SecurityIntent.ResetViewState)
+            renderViewState(newState.securityViewState)
         }
 
         newState.securityInfo?.let {
@@ -195,6 +171,49 @@ class SecurityActivity :
             this@SecurityActivity.updateToolbarTitle(getString(R.string.security_toolbar))
             binding.securityContentFrame.gone()
         } ?: finish()
+    }
+
+    private fun renderViewState(viewState: SecurityViewState) {
+        when (viewState) {
+            SecurityViewState.ConfirmBiometricsDisabling -> {
+                showDisableBiometricsConfirmationSheet()
+            }
+            SecurityViewState.ShowEnrollBiometrics -> {
+                showNoBiometricsAddedSheet()
+            }
+            SecurityViewState.ShowEnableBiometrics -> {
+                showBiometricsConfirmationSheet()
+            }
+            is SecurityViewState.ShowVerifyPhoneNumberRequired -> {
+                showBottomSheet(SMSPhoneVerificationBottomSheet.newInstance(viewState.phoneNumber))
+            }
+            SecurityViewState.ShowDisablingOnWebRequired -> {
+                showBottomSheet(
+                    TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.DISABLE_ON_WEB)
+                )
+            }
+            SecurityViewState.ShowConfirmTwoFaEnabling -> {
+                showBottomSheet(TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.ENABLE))
+            }
+            SecurityViewState.LaunchPasswordChange -> {
+                supportFragmentManager.beginTransaction()
+                    .addAnimationTransaction()
+                    .add(
+                        R.id.security_content_frame, PasswordChangeFragment.newInstance(),
+                        PasswordChangeFragment::class.simpleName
+                    )
+                    .addToBackStack(PasswordChangeFragment::class.simpleName)
+                    .commitAllowingStateLoss()
+                binding.securityContentFrame.visible()
+            }
+            SecurityViewState.ShowMustBackWalletUp -> {
+                showBottomSheet(BackupPhraseInfoSheet.newInstance())
+            }
+            SecurityViewState.None -> {
+                // do nothing
+            }
+        }
+        model.process(SecurityIntent.ResetViewState)
     }
 
     private fun renderSecuritySettings(securityInfo: SecurityInfo) {
@@ -219,6 +238,7 @@ class SecurityActivity :
             securityTor.visibleIf { securityInfo.isTorFilteringEnabled }
             securityTor.isChecked = securityInfo.isTorFilteringEnabled
             torBottomDivider.visibleIf { securityInfo.isTorFilteringEnabled }
+            securityCloudBackup.isChecked = securityInfo.isCloudBackupEnabled
         }
     }
 
@@ -355,7 +375,7 @@ class SecurityActivity :
     }
 
     override fun onBackupNow() {
-        BlockchainSnackbar.make(binding.root, "Coming soon", type = SnackbarType.Warning).show()
+        onBackupResult.launch(BackupWalletActivity.newIntent(this@SecurityActivity))
     }
 
     override fun onSheetClosed() {

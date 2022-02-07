@@ -9,13 +9,15 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class SecurityInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val biometricsController: BiometricsController,
     private val securityPrefs: SecurityPrefs,
     private val pinRepository: PinRepository,
-    private val payloadManager: PayloadDataManager
+    private val payloadManager: PayloadDataManager,
+    private val backupPrefs: EncryptedPrefs
 ) {
 
     fun loadInitialInformation(): Single<SecurityInfo> =
@@ -30,7 +32,8 @@ class SecurityInteractor internal constructor(
                 isTorFilteringEnabled = settings.isBlockTorIps,
                 areScreenshotsEnabled = securityPrefs.areScreenshotsEnabled,
                 isTwoFaEnabled = settings.authType != Settings.AUTH_TYPE_OFF,
-                isWalletBackedUp = payloadManager.isBackedUp
+                isWalletBackedUp = payloadManager.isBackedUp,
+                isCloudBackupEnabled = backupPrefs.backupEnabled
             )
         }
 
@@ -82,4 +85,8 @@ class SecurityInteractor internal constructor(
 
     fun disableBiometricLogin(): Completable =
         Completable.fromAction { biometricsController.setBiometricUnlockDisabled() }
+
+    fun updateCloudBackup(enabled: Boolean) {
+        backupPrefs.backupEnabled = enabled
+    }
 }

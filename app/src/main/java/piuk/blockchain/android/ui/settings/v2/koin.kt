@@ -146,7 +146,8 @@ val redesignSettingsModule = module {
                 biometricsController = get(),
                 securityPrefs = get(),
                 pinRepository = get(),
-                payloadManager = get()
+                payloadManager = get(),
+                backupPrefs = get()
             )
         }
 

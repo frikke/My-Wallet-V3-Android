@@ -36,5 +36,6 @@ data class SecurityInfo(
     val isTorFilteringEnabled: Boolean,
     val areScreenshotsEnabled: Boolean,
     val isTwoFaEnabled: Boolean,
-    val isWalletBackedUp: Boolean
+    val isWalletBackedUp: Boolean,
+    val isCloudBackupEnabled: Boolean
 )

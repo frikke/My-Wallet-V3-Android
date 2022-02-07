@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings.security
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
+import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
@@ -125,7 +126,8 @@ class SecurityModelTest {
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = true,
             isTwoFaEnabled = true,
-            isWalletBackedUp = true
+            isWalletBackedUp = true,
+            isCloudBackupEnabled = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -201,7 +203,8 @@ class SecurityModelTest {
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = false,
             isTwoFaEnabled = true,
-            isWalletBackedUp = true
+            isWalletBackedUp = true,
+            isCloudBackupEnabled = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -225,7 +228,8 @@ class SecurityModelTest {
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = true,
             isTwoFaEnabled = true,
-            isWalletBackedUp = true
+            isWalletBackedUp = true,
+            isCloudBackupEnabled = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -267,7 +271,8 @@ class SecurityModelTest {
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = true,
             isTwoFaEnabled = true,
-            isWalletBackedUp = true
+            isWalletBackedUp = true,
+            isCloudBackupEnabled = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -291,7 +296,8 @@ class SecurityModelTest {
             isTorFilteringEnabled = true,
             areScreenshotsEnabled = true,
             isTwoFaEnabled = true,
-            isWalletBackedUp = true
+            isWalletBackedUp = true,
+            isCloudBackupEnabled = true
         )
 
         whenever(defaultState.securityInfo).thenReturn(initialInfo)
@@ -304,6 +310,31 @@ class SecurityModelTest {
             it == defaultState
         }.assertValueAt(1) {
             it.errorState == SecurityError.TOR_FILTER_UPDATE_FAIL
+        }
+    }
+
+    @Test
+    fun `toggle backup succeeds`() {
+        val initialInfo = SecurityInfo(
+            isBiometricsVisible = true,
+            isBiometricsEnabled = true,
+            isTorFilteringEnabled = true,
+            areScreenshotsEnabled = true,
+            isTwoFaEnabled = true,
+            isWalletBackedUp = true,
+            isCloudBackupEnabled = true
+        )
+
+        whenever(defaultState.securityInfo).thenReturn(initialInfo)
+        doNothing().whenever(interactor).updateCloudBackup(false)
+
+        val testState = model.state.test()
+        model.process(SecurityIntent.ToggleCloudBackup)
+
+        testState.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.securityInfo?.isCloudBackupEnabled == false
         }
     }
 }

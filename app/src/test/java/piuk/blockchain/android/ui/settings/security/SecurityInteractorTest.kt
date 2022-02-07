@@ -20,6 +20,7 @@ import piuk.blockchain.android.ui.settings.v2.security.SecurityViewState
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class SecurityInteractorTest {
 
@@ -30,6 +31,7 @@ class SecurityInteractorTest {
     private val securityPrefs: SecurityPrefs = mock()
     private val pinRepository: PinRepository = mock()
     private val payloadManager: PayloadDataManager = mock()
+    private val encryptedPrefs: EncryptedPrefs = mock()
 
     @Before
     fun setup() {
@@ -38,7 +40,8 @@ class SecurityInteractorTest {
             biometricsController = biometricsController,
             securityPrefs = securityPrefs,
             pinRepository = pinRepository,
-            payloadManager = payloadManager
+            payloadManager = payloadManager,
+            backupPrefs = encryptedPrefs
         )
     }
 
@@ -246,5 +249,14 @@ class SecurityInteractorTest {
 
         verify(biometricsController).setBiometricUnlockDisabled()
         verifyNoMoreInteractions(biometricsController)
+    }
+
+    @Test
+    fun `update cloud backup updates preferences`() {
+        doNothing().whenever(encryptedPrefs).backupEnabled = false
+        interactor.updateCloudBackup(false)
+
+        verify(encryptedPrefs).backupEnabled = false
+        verifyNoMoreInteractions(encryptedPrefs)
     }
 }
