@@ -193,6 +193,9 @@ class TransactionInteractor(
     fun verifyAndExecute(secondPassword: String): Completable =
         transactionProcessor?.execute(secondPassword) ?: throw IllegalStateException("TxProcessor not initialised")
 
+    fun cancelTransaction(): Completable =
+        transactionProcessor?.cancel() ?: throw IllegalStateException("TxProcessor not initialised")
+
     fun modifyOptionValue(newConfirmation: TxConfirmationValue): Completable =
         transactionProcessor?.setOption(newConfirmation) ?: throw IllegalStateException("TxProcessor not initialised")
 

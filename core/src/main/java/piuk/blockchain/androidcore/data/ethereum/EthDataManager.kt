@@ -214,31 +214,15 @@ class EthDataManager(
         gasPriceWei: BigInteger,
         gasLimitGwei: BigInteger,
         weiValue: BigInteger,
-        hotWalletAddress: String
-    ): Single<RawTransaction> =
-        ethMemoForHotWalletFeatureFlag.enabled.map { enabled ->
-            // If we couldn't find a hot wallet address for any reason (in which case the HotWalletService is returning
-            // an empty address) fall back to the usual path.
-            val useHotWallet = enabled && hotWalletAddress.isNotEmpty()
-            if (useHotWallet) {
-                RawTransaction.createTransaction(
-                    nonce,
-                    gasPriceWei,
-                    gasLimitGwei + extraGasLimitForMemo(),
-                    hotWalletAddress,
-                    weiValue,
-                    to
-                )
-            } else {
-                RawTransaction.createEtherTransaction(
-                    nonce,
-                    gasPriceWei,
-                    gasLimitGwei,
-                    to,
-                    weiValue
-                )
-            }
-        }
+        data: String = ""
+    ): RawTransaction = RawTransaction.createTransaction(
+        nonce,
+        gasPriceWei,
+        gasLimitGwei,
+        to,
+        weiValue,
+        data
+    )
 
     fun getTransaction(hash: String): Observable<EthTransaction> =
         ethAccountApi.getTransaction(hash)

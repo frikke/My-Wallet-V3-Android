@@ -24,6 +24,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.SalePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SignEthMessagePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SwapExchangeRateFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.ToPropertyFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.ToWithNameAndAddressFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.TotalFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFeeFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
@@ -73,6 +74,12 @@ val transactionModule = module {
         ToPropertyFormatter(
             context = get(),
             defaultLabel = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
+        ToWithNameAndAddressFormatter(
+            context = get()
         )
     }.bind(TxOptionsFormatterCheckout::class)
 

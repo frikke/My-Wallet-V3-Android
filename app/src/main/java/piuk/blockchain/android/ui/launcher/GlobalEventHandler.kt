@@ -25,15 +25,11 @@ class GlobalEventHandler(
             if (enabled) walletConnectServiceAPI.userEvents
             else Observable.empty()
         }.subscribe { event ->
-            when (event) {
-                is WalletConnectUserEvent.SignMessage -> startTransactionFlowForSingMessage(event)
-                is WalletConnectUserEvent.SendTransaction,
-                is WalletConnectUserEvent.SignTransaction -> throw NotImplementedError("Not yet implemented")
-            }
+            startTransactionFlowForSigning(event)
         }
     }
 
-    private fun startTransactionFlowForSingMessage(event: WalletConnectUserEvent.SignMessage) {
+    private fun startTransactionFlowForSigning(event: WalletConnectUserEvent) {
         val intent = TransactionFlowActivity.newInstance(
             application,
             sourceAccount = event.source,

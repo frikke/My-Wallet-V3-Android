@@ -309,20 +309,41 @@ class TransactionFlowCustomiserImpl(
         }
 
     override fun confirmTitle(state: TransactionState): String =
-        resources.getString(
-            R.string.common_parametrised_confirm,
-            when (state.action) {
-                AssetAction.Send -> resources.getString(R.string.send_confirmation_title)
-                AssetAction.Swap -> resources.getString(R.string.common_swap)
-                AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
-                AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)
-                AssetAction.Sign -> resources.getString(R.string.common_sign)
-                AssetAction.Sell -> resources.getString(R.string.common_sell)
-                AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
-                AssetAction.Withdraw -> resources.getString(R.string.common_withdraw)
-                else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
-            }
-        )
+        when (state.action) {
+            AssetAction.Send -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.send_confirmation_title)
+            )
+            AssetAction.Swap -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.common_swap)
+            )
+            AssetAction.InterestDeposit -> resources.getString(
+                R.string.common_parametrised_confirm,
+                resources.getString(
+                    R.string.common_transfer
+                )
+            )
+            AssetAction.InterestWithdraw -> resources.getString(
+                R.string.common_parametrised_confirm,
+                resources.getString(
+                    R.string.common_withdraw
+                )
+            )
+            AssetAction.Sign -> resources.getString(R.string.signature_request)
+
+            AssetAction.Sell -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.common_sell)
+            )
+            AssetAction.FiatDeposit -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.common_deposit)
+            )
+            AssetAction.Withdraw -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.common_withdraw)
+            )
+            AssetAction.ViewActivity,
+            AssetAction.ViewStatement,
+            AssetAction.Buy,
+            AssetAction.Receive -> throw IllegalArgumentException("Action not supported by Transaction Flow")
+        }
 
     override fun confirmCtaText(state: TransactionState): String {
         return when (state.action) {
@@ -348,6 +369,12 @@ class TransactionFlowCustomiserImpl(
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
+
+    override fun cancelButtonText(action: AssetAction): String =
+        resources.getString(R.string.common_cancel)
+
+    override fun cancelButtonVisible(action: AssetAction): Boolean =
+        action == AssetAction.Sign
 
     override fun confirmDisclaimerBlurb(state: TransactionState, context: Context): CharSequence =
         when (state.action) {

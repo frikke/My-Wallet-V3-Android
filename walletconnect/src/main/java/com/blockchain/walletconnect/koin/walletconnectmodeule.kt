@@ -7,6 +7,7 @@ import com.blockchain.walletconnect.data.SignRequestHandler
 import com.blockchain.walletconnect.data.WalletConnectMetadataRepository
 import com.blockchain.walletconnect.data.WalletConnectService
 import com.blockchain.walletconnect.domain.EthRequestSign
+import com.blockchain.walletconnect.domain.EthSendTransactionRequest
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectAddressProvider
 import com.blockchain.walletconnect.domain.WalletConnectEthAccountProvider
@@ -27,6 +28,7 @@ val walletConnectModule = module {
                 lifecycleObservable = get(),
                 featureFlag = get(walletConnectFeatureFlag),
                 walletConnectAccountProvider = get(),
+                ethSendTransactionRequest = get()
             )
         }.bind(WalletConnectServiceAPI::class).bind(WalletConnectUrlValidator::class)
 
@@ -35,6 +37,7 @@ val walletConnectModule = module {
                 accountProvider = get()
             )
         }.bind(EthRequestSign::class)
+            .bind(EthSendTransactionRequest::class)
 
         factory {
             EthWalletAddressProvider(

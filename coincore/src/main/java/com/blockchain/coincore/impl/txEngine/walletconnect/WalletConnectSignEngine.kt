@@ -114,6 +114,10 @@ class WalletConnectSignEngine(
             )
         }
 
+    override fun cancel(pendingTx: PendingTx): Completable {
+        return ethSignMessageTarget.onTxCancelled()
+    }
+
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
         return ethSignMessageTarget.onTxCompleted(txResult)
     }

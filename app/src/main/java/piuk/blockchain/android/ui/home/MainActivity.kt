@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.home
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutManager
@@ -24,12 +26,14 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
@@ -63,6 +67,7 @@ import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
+import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
@@ -97,7 +102,8 @@ class MainActivity :
     WCApproveSessionBottomSheet.Host,
     RedesignActionsBottomSheet.Host,
     SmallSimpleBuyNavigator,
-    BuyPendingOrdersBottomSheet.Host {
+    BuyPendingOrdersBottomSheet.Host,
+    UiTourView.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -118,6 +124,8 @@ class MainActivity :
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
     private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
+
+    private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -144,8 +152,7 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val startDashboardOnboarding = intent.getBooleanExtra(START_DASHBOARD_ONBOARDING_KEY, false)
-        launchPortfolio(startOnboarding = startDashboardOnboarding)
+        launchPortfolio()
 
         setupToolbar()
         setupNavigation()
@@ -158,6 +165,17 @@ class MainActivity :
 
         if (savedInstanceState == null) {
             model.process(MainIntent.CheckForPendingLinks(intent))
+        }
+
+        val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
+        if (startUiTour) {
+            intent.removeExtra(START_UI_TOUR_KEY)
+            compositeDisposable += uiTourFF.enabled.onErrorReturnItem(false)
+                .filter { enabled -> enabled }
+                .subscribeBy {
+                    binding.uiTour.host = this
+                    showUiTour()
+                }
         }
 
         if (intent.hasExtra(SHOW_SWAP) &&
@@ -612,6 +630,50 @@ class MainActivity :
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
 
+    override fun startDashboardOnboarding() {
+        hideUiTour(onAnimationEnd = {
+            supportFragmentManager.findFragmentByTag(PortfolioFragment::class.java.simpleName)
+                ?.let {
+                    (it as PortfolioFragment).launchNewUserDashboardOnboarding()
+                }
+        })
+    }
+
+    override fun startBuy() {
+        hideUiTour(onAnimationEnd = {
+            launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+        })
+    }
+
+    override fun dismiss() {
+        hideUiTour()
+    }
+
+    private fun showUiTour() {
+        binding.uiTour.apply {
+            alpha = 0f
+            visible()
+            animate()
+                .alpha(1f)
+                .setStartDelay(500L)
+                .setDuration(resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
+        }
+    }
+
+    private fun hideUiTour(onAnimationEnd: (() -> Unit)? = null) {
+        binding.uiTour.apply {
+            animate()
+                .alpha(0f)
+                .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        gone()
+                        onAnimationEnd?.invoke()
+                    }
+                })
+        }
+    }
+
     override fun exitSimpleBuyFlow() {
         launchBuySell()
     }
@@ -645,13 +707,12 @@ class MainActivity :
     private fun launchPortfolio(
         action: AssetAction? = null,
         fiatCurrency: String? = null,
-        startOnboarding: Boolean = false,
         reload: Boolean = false
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
-            fragment = PortfolioFragment.newInstance(action, fiatCurrency, startOnboarding),
+            fragment = PortfolioFragment.newInstance(action, fiatCurrency),
             reloadFragment = reload
         )
     }
@@ -836,7 +897,7 @@ class MainActivity :
     }
 
     companion object {
-        private const val START_DASHBOARD_ONBOARDING_KEY = "START_DASHBOARD_ONBOARDING_KEY"
+        private const val START_UI_TOUR_KEY = "START_UI_TOUR_KEY"
         private const val SHOW_SWAP = "SHOW_SWAP"
         private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
@@ -896,7 +957,7 @@ class MainActivity :
         fun newIntent(
             context: Context,
             intentData: String?,
-            shouldLaunchDashboardOnboarding: Boolean,
+            shouldLaunchUiTour: Boolean,
             shouldBeNewTask: Boolean
         ): Intent = Intent(context, MainActivity::class.java).apply {
             if (intentData != null) {
@@ -907,7 +968,7 @@ class MainActivity :
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
-            putExtra(START_DASHBOARD_ONBOARDING_KEY, shouldLaunchDashboardOnboarding)
+            putExtra(START_UI_TOUR_KEY, shouldLaunchUiTour)
         }
     }
 }
