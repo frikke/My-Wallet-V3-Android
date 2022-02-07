@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.blockchain.componentlib.sheets.SheetHeaderView
+        android:id="@+id/sheet_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/verify_phone_msg"
+        style="@style/TextAppearance.Blockchain.Paragraph1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:paddingBottom="@dimen/very_small_margin"
+        android:text="@string/verify_sms_summary"
+        app:layout_constraintBottom_toTopOf="@+id/sms_code"
+        app:layout_constraintTop_toBottomOf="@id/sheet_header" />
+
+    <com.blockchain.componentlib.controls.TextInputView
+        android:id="@+id/sms_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:paddingBottom="@dimen/very_small_margin"
+        app:layout_constraintBottom_toTopOf="@id/resend_sms"
+        app:layout_constraintTop_toBottomOf="@id/verify_phone_msg" />
+
+    <com.blockchain.componentlib.button.SmallSecondaryButtonView
+        android:id="@+id/resend_sms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:paddingBottom="@dimen/very_small_margin"
+        app:layout_constraintBottom_toTopOf="@+id/verify_code"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sms_code" />
+
+    <com.blockchain.componentlib.button.PrimaryButtonView
+        android:id="@+id/verify_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:paddingBottom="@dimen/standard_margin"
+        android:text="@string/code_verification_verify_code"
+        app:layout_constraintTop_toBottomOf="@id/resend_sms" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

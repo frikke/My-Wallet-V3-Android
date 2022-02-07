@@ -51,7 +51,9 @@ class BalanceCall(
 
     private fun buildBalanceMap(response: Response<BalanceResponseDto>): Map<String, BigInteger> {
         if (!response.isSuccessful) {
-            throw ServerConnectionException(response.errorBody()?.string() ?: "Unknown, no error body")
+            throw ServerConnectionException(
+                response.errorBody()?.string() ?: "Unknown, no error body"
+            )
         }
         return response.body()?.toBalanceMap()?.finalBalanceMap() ?: throw Exception("No balances returned")
     }

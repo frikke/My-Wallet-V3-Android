@@ -42,18 +42,18 @@ class Erc20NonCustodialAccount(
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
-            Erc20Address(asset, address, label)
+            Erc20Address(currency, address, label)
         )
 
     override fun getOnChainBalance(): Observable<Money> =
-        erc20DataManager.getErc20Balance(asset)
+        erc20DataManager.getErc20Balance(currency)
             .doOnNext { hasFunds.set(it.balance.isPositive) }
             .doOnNext { setHasTransactions(it.hasTransactions) }
             .map { it.balance }
 
     override val activity: Single<ActivitySummaryList>
         get() {
-            val feedTransactions = erc20DataManager.getErc20History(asset)
+            val feedTransactions = erc20DataManager.getErc20History(currency)
 
             return Single.zip(
                 feedTransactions,
@@ -61,18 +61,18 @@ class Erc20NonCustodialAccount(
             ) { transactions, latestBlockNumber ->
                 transactions.map { transaction ->
                     Erc20ActivitySummaryItem(
-                        asset,
+                        currency,
                         event = transaction,
                         accountHash = address,
                         erc20DataManager = erc20DataManager,
                         exchangeRates = exchangeRates,
                         lastBlockNumber = latestBlockNumber,
                         account = this,
-                        supportsDescription = erc20DataManager.supportsErc20TxNote(asset)
+                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency)
                     )
                 }
             }.flatMap {
-                appendTradeActivity(custodialWalletManager, asset, it)
+                appendTradeActivity(custodialWalletManager, currency, it)
             }.doOnSuccess {
                 setHasTransactions(it.isNotEmpty())
             }

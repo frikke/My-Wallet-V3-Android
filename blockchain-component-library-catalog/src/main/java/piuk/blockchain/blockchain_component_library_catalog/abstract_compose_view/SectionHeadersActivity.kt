@@ -22,8 +22,7 @@ class SectionHeadersActivity : AppCompatActivity() {
         findViewById<BalanceSectionHeaderView>(R.id.balance).apply {
             primaryText = "\$12,293.21"
             secondaryText = "0.1393819 BTC"
-            buttonText = "Buy BTC"
-            onButtonClick = {
+            onIconClick = {
                 Toast.makeText(this@SectionHeadersActivity, "Clicked", Toast.LENGTH_SHORT).show()
             }
         }

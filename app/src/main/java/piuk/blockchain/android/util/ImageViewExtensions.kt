@@ -7,7 +7,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import piuk.blockchain.android.R
 
 private const val TINT_ALPHA = 0x26
@@ -16,13 +16,13 @@ fun ImageView.setImageDrawable(@DrawableRes res: Int) {
     setImageDrawable(context.getResolvedDrawable(res))
 }
 
-fun ImageView.setAssetIconColoursWithTint(asset: AssetInfo) {
+fun ImageView.setAssetIconColoursWithTint(asset: Currency) {
     val main = tryParseColour(asset.colour)
     val tint = ColorUtils.setAlphaComponent(main, TINT_ALPHA)
     setAssetIconColours(tint, main)
 }
 
-fun ImageView.setAssetIconColoursNoTint(asset: AssetInfo) {
+fun ImageView.setAssetIconColoursNoTint(asset: Currency) {
     val main = tryParseColour(asset.colour)
     val tint = context.getResolvedColor(R.color.white)
     setAssetIconColours(tint, main)

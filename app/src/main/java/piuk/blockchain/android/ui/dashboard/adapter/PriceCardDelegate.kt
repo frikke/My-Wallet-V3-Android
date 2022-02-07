@@ -3,16 +3,17 @@ package piuk.blockchain.android.ui.dashboard.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import piuk.blockchain.android.databinding.ItemDashboardPriceCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.PricesItem
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.format
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.setOnClickListenerDebounced
 
 class PriceCardDelegate<in T>(
     private val prefs: CurrencyPrefs,
@@ -46,7 +47,7 @@ private class PriceCardViewHolder(
 
     fun bind(
         item: PricesItem,
-        fiatSymbol: String,
+        fiatCurrency: Currency,
         assetResources: AssetResources,
         onPriceRequest: (AssetInfo) -> Unit,
         onCardClicked: (AssetInfo) -> Unit
@@ -62,8 +63,8 @@ private class PriceCardViewHolder(
                 price.text = UNKNOWN_PRICE
                 priceDelta.text = UNKNOWN_PRICE
             } else {
-                val rate = item.priceWithDelta.currentRate as ExchangeRate.CryptoToFiat
-                price.text = rate.price().format(fiatSymbol)
+                val rate = item.priceWithDelta.currentRate as ExchangeRate
+                price.text = rate.price.format(fiatCurrency)
                 priceDelta.asDeltaPercent(item.priceWithDelta.delta24h)
             }
         }

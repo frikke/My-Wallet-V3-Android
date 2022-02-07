@@ -3,12 +3,18 @@ package piuk.blockchain.android.simplebuy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -17,12 +23,11 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentActivityBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.home.MainScreenLauncher
+import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
+import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
@@ -30,9 +35,6 @@ import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -45,7 +47,6 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     private val buyFlowNavigator: BuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
-    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
 
     private val startedFromDashboard: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_NAVIGATION_KEY, false)
@@ -65,7 +66,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     private val asset: AssetInfo? by unsafeLazy {
         intent.getStringExtra(ASSET_KEY)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         }
     }
 
@@ -79,13 +80,20 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar { super.onBackPressed() }
+        updateToolbar { super.onBackPressed() }
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
-                val currentState = bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()
-                bankLinkingPrefs.setBankLinkingState(
-                    currentState.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE).toPreferencesValue()
-                )
+                bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()?.let {
+                    bankLinkingPrefs.setBankLinkingState(
+                        it.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE).toPreferencesValue()
+                    )
+                } ?: run {
+                    bankLinkingPrefs.setBankLinkingState(
+                        BankAuthDeepLinkState(
+                            bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_COMPLETE
+                        ).toPreferencesValue()
+                    )
+                }
             }
             analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_BUY))
             subscribeForNavigation()
@@ -114,9 +122,15 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             }
     }
 
-    private fun launchCurrencySelector(currencies: List<String>, selectedCurrency: String) {
+    private fun launchCurrencySelector(currencies: List<FiatCurrency>, selectedCurrency: FiatCurrency) {
         compositeDisposable.clear()
-        showBottomSheet(SimpleBuySelectCurrencyFragment.newInstance(currencies, selectedCurrency))
+        showBottomSheet(
+            CurrencySelectionSheet.newInstance(
+                currencies = currencies,
+                selectedCurrency = selectedCurrency,
+                currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.TRADING_CURRENCY
+            )
+        )
     }
 
     private fun startFlow(screenWithCurrency: BuyNavigation.FlowScreenWithCurrency) {
@@ -137,7 +151,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun exitSimpleBuyFlow() {
         if (!startedFromDashboard) {
-            mainScreenLauncher.startMainActivity(this, compositeDisposable)
+            startActivity(MainActivity.newIntentAsNewTask(this))
         } else {
             finish()
         }
@@ -164,7 +178,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     }
 
     override fun goToCheckOutScreen(addToBackStack: Boolean) {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(R.id.content_frame, SimpleBuyCheckoutFragment(), SimpleBuyCheckoutFragment::class.simpleName)

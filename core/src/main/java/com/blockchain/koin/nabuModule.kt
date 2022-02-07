@@ -67,7 +67,6 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.operations.AppStartUpFlushable
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import retrofit2.Retrofit
 
 val nabuModule = module {
@@ -107,14 +106,12 @@ val nabuModule = module {
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
                 ),
                 kycFeatureEligibility = get(),
-                tradingBalanceDataManager = get(),
                 interestRepository = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
                 buyOrdersCache = get(),
-                pairsCache = get(),
-                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag)
+                pairsCache = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -201,7 +198,13 @@ val nabuModule = module {
             AnalyticsWalletReporter(userAnalytics = get())
         }.bind(WalletReporter::class)
 
-        factory { NabuTierService(get(), get()) }
+        factory {
+            NabuTierService(
+                assetCatalogue = get(),
+                authenticator = get(),
+                endpoint = get()
+            )
+        }
             .bind(TierService::class)
             .bind(TierUpdater::class)
 
@@ -286,7 +289,7 @@ val nabuModule = module {
     single(nabu) {
         NabuAnalytics(
             analyticsService = get(),
-            prefs = lazy { get<PersistentPrefs>() },
+            prefs = lazy { get() },
             analyticsContextProvider = get(),
             localAnalyticsPersistence = get(),
             crashLogger = get(),

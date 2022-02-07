@@ -5,6 +5,8 @@ import android.content.Context
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.ui.password.SecondPasswordHandler
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
@@ -14,9 +16,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.MaybeSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.CurrentContextAccess
-import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class ErrorDialogCancelled : Exception("Dialog Cancelled")
@@ -41,7 +41,7 @@ class SecondPasswordDialog(
             AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.enter_double_encryption_pw)
-                .setView(ViewUtils.getAlertDialogPaddedView(ctx, passwordField))
+                .setView(ctx.getAlertDialogPaddedView(passwordField))
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     val secondPassword = passwordField.text.toString()

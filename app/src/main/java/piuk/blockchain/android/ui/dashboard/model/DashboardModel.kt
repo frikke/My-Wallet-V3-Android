@@ -3,13 +3,13 @@ package piuk.blockchain.android.ui.dashboard.model
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 class DashboardModel(
@@ -51,7 +51,6 @@ class DashboardModel(
                 process(DashboardIntent.RefreshPrices(intent.asset))
                 null
             }
-            is DashboardIntent.GetUserCanBuy -> interactor.userCanBuy(this)
             is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
             is DashboardIntent.AssetPriceUpdate -> interactor.refreshPriceHistory(this, intent.asset)
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
@@ -59,7 +58,10 @@ class DashboardModel(
             is DashboardIntent.LaunchBankTransferFlow -> processBankTransferFlow(intent)
             is DashboardIntent.StartBankTransferFlow ->
                 interactor.launchBankTransferFlow(this, intent.currency, intent.action)
+            is DashboardIntent.UpdateDepositButton -> userCanDeposit()
             is DashboardIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(this)
+            is DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
+            is DashboardIntent.RefreshFiatBalances -> interactor.refreshFiatBalances(intent.fiatAccounts, this)
             is DashboardIntent.FiatBalanceUpdate,
             is DashboardIntent.BalanceUpdateError,
             is DashboardIntent.PriceHistoryUpdate,
@@ -77,12 +79,14 @@ class DashboardModel(
             is DashboardIntent.ResetDashboardNavigation,
             is DashboardIntent.ShowLinkablePaymentMethodsSheet,
             is DashboardIntent.LongCallStarted,
-            is DashboardIntent.UserBuyAccessStateUpdated,
             is DashboardIntent.LongCallEnded,
             is DashboardIntent.FilterAssets,
             is DashboardIntent.UpdateLaunchDetailsFlow,
             is DashboardIntent.FundsLocksLoaded,
-            DashboardIntent.ResetDashboardAssets -> null
+            is DashboardIntent.FetchOnboardingStepsSuccess,
+            is DashboardIntent.LaunchDashboardOnboarding,
+            is DashboardIntent.SetDepositVisibility,
+            is DashboardIntent.ResetDashboardAssets -> null
         }
     }
 
@@ -108,6 +112,16 @@ class DashboardModel(
                 null
             }
         }
+
+    private fun userCanDeposit(): Disposable =
+        interactor.canDeposit().subscribeBy(
+            onSuccess = { canDeposit ->
+                process(DashboardIntent.SetDepositVisibility(canDeposit))
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
 
     private fun checkBackupStatus(account: SingleAccount, action: AssetAction): Disposable =
         interactor.hasUserBackedUp()

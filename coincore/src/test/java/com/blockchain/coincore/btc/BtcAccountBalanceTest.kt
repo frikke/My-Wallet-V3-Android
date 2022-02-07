@@ -56,7 +56,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
     @Before
     fun setup() {
         initMocks()
-        whenever(exchangeRates.cryptoToUserFiatRate(CryptoCurrency.BTC))
+        whenever(exchangeRates.exchangeRateToUserFiat(CryptoCurrency.BTC))
             .thenReturn(Observable.just(BTC_TO_USER_RATE))
     }
 
@@ -71,7 +71,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.total == btcBalance &&
-                    it.actionable == btcBalance &&
+                    it.withdrawable == btcBalance &&
                     it.pending.isZero &&
                     it.exchangeRate == BTC_TO_USER_RATE
             }
@@ -90,7 +90,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.total.isZero &&
-                    it.actionable.isZero &&
+                    it.withdrawable.isZero &&
                     it.pending.isZero &&
                     it.exchangeRate == BTC_TO_USER_RATE
             }
@@ -101,7 +101,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
     companion object {
         private const val ACCOUNT_XPUB = "1234jfwepsdfapsksefksdwperoun894y98hefjbnakscdfoiw4rnwef"
 
-        private val BTC_TO_USER_RATE = ExchangeRate.CryptoToFiat(
+        private val BTC_TO_USER_RATE = ExchangeRate(
             from = CryptoCurrency.BTC,
             to = TEST_USER_FIAT,
             rate = 38000.toBigDecimal()

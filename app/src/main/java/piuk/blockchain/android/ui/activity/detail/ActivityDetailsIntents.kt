@@ -6,21 +6,21 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.util.Date
-import piuk.blockchain.android.ui.activity.CryptoActivityType
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import piuk.blockchain.android.ui.activity.ActivityType
 
 sealed class ActivityDetailsIntents : MviIntent<ActivityDetailState>
 
 class LoadActivityDetailsIntent(
     val asset: AssetInfo,
     val txHash: String,
-    val activityType: CryptoActivityType
+    val activityType: ActivityType
 ) : ActivityDetailsIntents() {
     override fun reduce(oldState: ActivityDetailState): ActivityDetailState {
         return oldState
@@ -132,7 +132,7 @@ class LoadCustodialInterestHeaderDataIntent(
             isPending = summaryItem.isPending(),
             isFeeTransaction = false,
             confirmations = summaryItem.confirmations,
-            totalConfirmations = summaryItem.account.asset.requiredConfirmations
+            totalConfirmations = summaryItem.account.currency.requiredConfirmations
         )
     }
 }

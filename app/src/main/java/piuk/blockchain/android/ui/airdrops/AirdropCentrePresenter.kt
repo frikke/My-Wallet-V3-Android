@@ -12,7 +12,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -43,7 +43,7 @@ class AirdropCentrePresenter(
         fetchAirdropStatus()
     }
 
-    override fun onViewDetached() { }
+    override fun onViewDetached() {}
 
     private fun fetchAirdropStatus() {
         compositeDisposable += nabuToken.fetchNabuToken()
@@ -84,7 +84,7 @@ class AirdropCentrePresenter(
         )
     }
 
-    private fun parseAmount(item: AirdropStatus): Pair<FiatValue?, CryptoValue?> {
+    private fun parseAmount(item: AirdropStatus): Pair<Money?, Money?> {
 
         val tx = item.txResponseList
             .firstOrNull {
@@ -93,9 +93,11 @@ class AirdropCentrePresenter(
 
         return tx?.let {
             Pair(
-                FiatValue.fromMinor(
-                    tx.fiatCurrency,
-                    tx.fiatValue
+                Money.fromMinor(
+                    assetCatalogue.fromNetworkTicker(tx.fiatCurrency) ?: throw IllegalStateException(
+                        "Unknown crypto currency: ${tx.fiatCurrency}"
+                    ),
+                    tx.fiatValue.toBigInteger()
                 ),
                 CryptoValue.fromMinor(
                     parseAsset(tx.withdrawalCurrency),
@@ -106,7 +108,7 @@ class AirdropCentrePresenter(
     }
 
     private fun parseAsset(ticker: String): AssetInfo {
-        val asset = assetCatalogue.fromNetworkTicker(ticker)
+        val asset = assetCatalogue.assetInfoFromNetworkTicker(ticker)
         // STX is not, currently, a supported asset so we'll have to check that manually here for now.
         // When we get full-dynamic assets _and_ it's supported, we can take this out TODO
         return when {
@@ -179,8 +181,8 @@ data class Airdrop(
     val name: String,
     val asset: AssetInfo,
     val status: AirdropState,
-    val amountFiat: FiatValue?,
-    val amountCrypto: CryptoValue?,
+    val amountFiat: Money?,
+    val amountCrypto: Money?,
     val date: Date?
 ) {
     val isActive: Boolean = (status == AirdropState.PENDING || status == AirdropState.REGISTERED)

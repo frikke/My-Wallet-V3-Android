@@ -104,7 +104,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
                 )
             }
             .flatMap {
-                appendTradeActivity(custodialWalletManager, asset, it)
+                appendTradeActivity(custodialWalletManager, currency, it)
             }
             .doOnSuccess {
                 setHasTransactions(it.isNotEmpty())

@@ -7,6 +7,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
@@ -115,7 +116,9 @@ class BuyFlowNavigator(
 }
 
 sealed class BuyNavigation {
-    data class CurrencySelection(val currencies: List<String>, val selectedCurrency: String) : BuyNavigation()
+    data class CurrencySelection(val currencies: List<FiatCurrency>, val selectedCurrency: FiatCurrency) :
+        BuyNavigation()
+
     data class FlowScreenWithCurrency(val flowScreen: FlowScreen, val cryptoCurrency: AssetInfo) : BuyNavigation()
     data class BlockBuy(val access: FeatureAccess.Blocked) : BuyNavigation()
     object CurrencyNotAvailable : BuyNavigation()

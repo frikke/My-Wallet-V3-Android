@@ -1,16 +1,17 @@
 package piuk.blockchain.android.cards
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.preferences.SimpleBuyPrefs
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityCardDetailsBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
-import piuk.blockchain.android.ui.base.BlockchainActivity
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
 class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsPersistence {
@@ -30,7 +31,7 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar { onSupportNavigateUp() }
+        updateToolbar { onSupportNavigateUp() }
         if (savedInstanceState == null) {
             simpleBuyPrefs.clearCardState()
             supportFragmentManager.beginTransaction()
@@ -90,6 +91,8 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
     companion object {
         const val CARD_KEY = "card_key"
         const val ADD_CARD_REQUEST_CODE = 3245
+
+        fun newIntent(context: Context): Intent = Intent(context, CardDetailsActivity::class.java)
     }
 }
 

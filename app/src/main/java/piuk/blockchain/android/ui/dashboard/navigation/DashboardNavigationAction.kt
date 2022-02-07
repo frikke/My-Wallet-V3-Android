@@ -1,36 +1,34 @@
 package piuk.blockchain.android.ui.dashboard.navigation
 
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.SingleAccount
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import info.blockchain.balance.AssetInfo
+import com.blockchain.core.payments.model.LinkBankTransfer
+import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 
 sealed class DashboardNavigationAction {
-    object StxAirdropComplete : DashboardNavigationAction()
-    data class BackUpBeforeSend(val backupSheetDetails: BackupDetails) : DashboardNavigationAction()
-    object SimpleBuyCancelOrder : DashboardNavigationAction()
-    data class FiatFundsDetails(val fiatAccount: FiatAccount) : DashboardNavigationAction()
-    data class LinkOrDeposit(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction()
-    object FiatFundsNoKyc : DashboardNavigationAction()
-    data class InterestSummary(val account: SingleAccount, val asset: AssetInfo) : DashboardNavigationAction()
+    object StxAirdropComplete : DashboardNavigationAction(), BottomSheet
+    data class BackUpBeforeSend(val backupSheetDetails: BackupDetails) : DashboardNavigationAction(), BottomSheet
+    object SimpleBuyCancelOrder : DashboardNavigationAction(), BottomSheet
+    data class FiatFundsDetails(val fiatAccount: FiatAccount) : DashboardNavigationAction(), BottomSheet
+    data class LinkOrDeposit(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction(), BottomSheet
+    object FiatFundsNoKyc : DashboardNavigationAction(), BottomSheet
+    data class InterestSummary(
+        val account: CryptoAccount
+    ) : DashboardNavigationAction(), BottomSheet
     data class PaymentMethods(
         val paymentMethodsForAction: LinkablePaymentMethodsForAction
-    ) : DashboardNavigationAction()
+    ) : DashboardNavigationAction(), BottomSheet
     class LinkBankWithPartner(
-        override val linkBankTransfer: LinkBankTransfer,
-        override val fiatAccount: FiatAccount,
-        override val assetAction: AssetAction
-    ) : DashboardNavigationAction(), LinkBankNavigationAction
+        val linkBankTransfer: LinkBankTransfer,
+        val fiatAccount: FiatAccount,
+        val assetAction: AssetAction
+    ) : DashboardNavigationAction()
+    data class DashboardOnboarding(
+        val initialSteps: List<CompletableDashboardOnboardingStep>
+    ) : DashboardNavigationAction()
 
-    fun isBottomSheet() =
-        this !is LinkBankNavigationAction
-}
-
-interface LinkBankNavigationAction {
-    val linkBankTransfer: LinkBankTransfer
-    val fiatAccount: FiatAccount
-    val assetAction: AssetAction
+    interface BottomSheet
 }

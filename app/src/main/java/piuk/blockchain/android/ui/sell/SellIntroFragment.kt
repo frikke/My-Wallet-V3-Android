@@ -15,6 +15,9 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.commonarch.presentation.base.trackProgress
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
@@ -23,6 +26,7 @@ import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -44,9 +48,6 @@ import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.trackProgress
-import piuk.blockchain.android.util.visible
 
 class SellIntroFragment : ViewPagerFragment() {
     interface SellIntroHost {
@@ -236,7 +237,7 @@ class SellIntroFragment : ViewPagerFragment() {
                             accountsSorting.sorter()
                         ).map {
                             it.filterIsInstance<CryptoAccount>().filter { account ->
-                                supportedCryptos.contains(account.asset)
+                                supportedCryptos.contains(account.currency)
                             }
                         },
                         status = ::statusDecorator,
@@ -292,11 +293,13 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
         val availableFiats =
             custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
-        return custodialWalletManager.getSupportedBuySellCryptoCurrencies()
-            .zipWith(availableFiats) { supportedPairs, fiats ->
-                supportedPairs.filter { fiats.contains(it.destination) }
-                    .map { it.source }
-            }
+        return Single.zip(
+            custodialWalletManager.getSupportedBuySellCryptoCurrencies(), availableFiats
+        ) { supportedPairs, fiats ->
+            supportedPairs
+                .filter { fiats.contains(it.destination) }
+                .map { it.source.asAssetInfoOrThrow() }
+        }
     }
 
     override fun onResumeFragment() {

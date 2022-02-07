@@ -1,5 +1,9 @@
 package info.blockchain.balance
 
+import com.blockchain.testutils.bitcoin
+import com.blockchain.testutils.ether
+import com.blockchain.testutils.satoshi
+import com.blockchain.testutils.satoshiCash
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.withMessage

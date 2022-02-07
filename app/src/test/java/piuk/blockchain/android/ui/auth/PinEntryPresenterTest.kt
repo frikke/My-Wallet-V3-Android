@@ -360,7 +360,11 @@ class PinEntryPresenterTest {
         subject.userEnteredPin = "133"
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(authDataManager.validatePin(anyString()))
-            .thenReturn(Observable.error(InvalidCredentialsException()))
+            .thenReturn(
+                Observable.error(
+                    InvalidCredentialsException()
+                )
+            )
 
         // Act
         subject.onPadClicked("7")
@@ -381,7 +385,11 @@ class PinEntryPresenterTest {
         subject.userEnteredPin = "133"
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(authDataManager.validatePin(anyString()))
-            .thenReturn(Observable.error(ServerConnectionException()))
+            .thenReturn(
+                Observable.error(
+                    ServerConnectionException()
+                )
+            )
 
         // Act
         subject.onPadClicked("7")
@@ -612,7 +620,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "1234567890"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(ServerConnectionException()))
+            .thenReturn(
+                Completable.error(
+                    ServerConnectionException()
+                )
+            )
 
         // Act
         subject.validatePassword(password)
@@ -646,7 +658,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "1234567890"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(HDWalletException()))
+            .thenReturn(
+                Completable.error(
+                    HDWalletException()
+                )
+            )
 
         // Act
         subject.validatePassword(password)
@@ -664,7 +680,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "1234567890"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(AccountLockedException()))
+            .thenReturn(
+                Completable.error(
+                    AccountLockedException()
+                )
+            )
 
         // Act
         subject.validatePassword(password)
@@ -681,7 +701,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "change_me"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(InvalidCredentialsException()))
+            .thenReturn(
+                Completable.error(
+                    InvalidCredentialsException()
+                )
+            )
 
         // Act
         subject.updatePayload(password, false)
@@ -703,7 +727,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "password"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(ServerConnectionException()))
+            .thenReturn(
+                Completable.error(
+                    ServerConnectionException()
+                )
+            )
 
         val mockPayload: Wallet = mock {
             on { sharedKey }.thenReturn(SHARED_KEY)
@@ -724,7 +752,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "password"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(DecryptionException()))
+            .thenReturn(
+                Completable.error(
+                    DecryptionException()
+                )
+            )
 
         val mockPayload: Wallet = mock {
             on { sharedKey }.thenReturn(SHARED_KEY)
@@ -745,7 +777,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "password"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(HDWalletException()))
+            .thenReturn(
+                Completable.error(
+                    HDWalletException()
+                )
+            )
         val mockPayload: Wallet = mock {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
@@ -766,7 +802,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "password"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(UnsupportedVersionException()))
+            .thenReturn(
+                Completable.error(
+                    UnsupportedVersionException()
+                )
+            )
 
         val mockPayload: Wallet = mock {
             on { sharedKey }.thenReturn(SHARED_KEY)
@@ -786,7 +826,11 @@ class PinEntryPresenterTest {
         // Arrange
         val password = "Change_Me"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
-            .thenReturn(Completable.error(AccountLockedException()))
+            .thenReturn(
+                Completable.error(
+                    AccountLockedException()
+                )
+            )
 
         val mockPayload = mock<Wallet> {
             on { sharedKey }.thenReturn(SHARED_KEY)

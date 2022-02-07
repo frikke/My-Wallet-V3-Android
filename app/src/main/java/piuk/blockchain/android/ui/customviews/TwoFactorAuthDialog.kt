@@ -5,10 +5,10 @@ import android.text.InputType
 import android.text.method.DigitsKeyListener
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.wallet.api.data.Settings
 import piuk.blockchain.android.R
-import piuk.blockchain.android.util.ViewUtils
 
 fun getTwoFactorDialog(
     context: Context,
@@ -36,7 +36,7 @@ fun getTwoFactorDialog(
     val builder = AlertDialog.Builder(context, R.style.AlertDialogStyle)
         .setTitle(R.string.two_factor_dialog_title)
         .setMessage(message)
-        .setView(ViewUtils.getAlertDialogPaddedView(context, editText))
+        .setView(context.getAlertDialogPaddedView(editText))
         .setPositiveButton(android.R.string.ok) { _, _ ->
             positiveAction(editText.text.toString())
         }

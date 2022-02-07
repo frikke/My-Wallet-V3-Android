@@ -13,9 +13,9 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -38,7 +38,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
             Single.just(
                 TxLimits(
-                    min = TxLimit.Limited(FiatValue.fromMinor(TEST_API_FIAT, 100L)),
+                    min = TxLimit.Limited(FiatValue.fromMinor(TEST_API_FIAT, 100L.toBigInteger())),
                     max = TxLimit.Unlimited,
                     periodicLimits = emptyList(),
                     suggestedUpgrade = null
@@ -106,23 +106,23 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Test
     fun `PendingTx is correctly initialised`() {
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
-        val expectedBalance = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
-        val expectedAccountBalance = FiatValue.fromMinor(TEST_API_FIAT, 100000L)
+        val expectedBalance = FiatValue.fromMinor(TEST_API_FIAT, 10000L.toBigInteger())
+        val expectedAccountBalance = FiatValue.fromMinor(TEST_API_FIAT, 100000L.toBigInteger())
         val balance: AccountBalance = mock {
             on { total }.thenReturn(expectedAccountBalance)
-            on { actionable }.thenReturn(expectedBalance)
+            on { withdrawable }.thenReturn(expectedBalance)
         }
         val sourceAccount = mock<FiatAccount>()
         whenever(sourceAccount.balance).thenReturn(Observable.just(balance))
-        whenever(sourceAccount.fiatCurrency).thenReturn(TEST_API_FIAT)
+        whenever(sourceAccount.currency).thenReturn(TEST_API_FIAT)
 
         val expectedMinAmountAndFee = FiatWithdrawalFeeAndLimit(
-            minLimit = FiatValue.fromMinor(TEST_API_FIAT, 100L),
-            fee = FiatValue.fromMinor(TEST_API_FIAT, 1000L)
+            minLimit = FiatValue.fromMinor(TEST_API_FIAT, 100L.toBigInteger()),
+            fee = FiatValue.fromMinor(TEST_API_FIAT, 1000L.toBigInteger())
         )
 
         val txTarget: LinkedBankAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
             on { getWithdrawalFeeAndMinLimit() }.thenReturn(Single.just(expectedMinAmountAndFee))
         }
 
@@ -138,7 +138,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             .assertValue {
                 it.amount == zeroFiat &&
                     it.totalBalance == balance.total &&
-                    it.availableBalance == balance.actionable - expectedMinAmountAndFee.fee &&
+                    it.availableBalance == balance.withdrawable - expectedMinAmountAndFee.fee &&
                     it.feeForFullAvailable == zeroFiat &&
                     it.feeAmount == expectedMinAmountAndFee.fee &&
                     it.selectedFiat == TEST_USER_FIAT &&
@@ -165,7 +165,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Test
     fun `update amount modifies the pendingTx correctly`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -186,7 +186,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             feeSelection = FeeSelection()
         )
 
-        val inputAmount = FiatValue.fromMinor(TEST_API_FIAT, 1000L)
+        val inputAmount = FiatValue.fromMinor(TEST_API_FIAT, 1000L.toBigInteger())
 
         subject.doUpdateAmount(
             inputAmount,
@@ -206,7 +206,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Test
     fun `validate amount when pendingTx uninitialised`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -245,7 +245,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Test
     fun `validate amount when limits not set`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -255,7 +255,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        val amount = FiatValue.fromMinor(TEST_API_FIAT, 1000L)
+        val amount = FiatValue.fromMinor(TEST_API_FIAT, 1000L.toBigInteger())
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val pendingTx = PendingTx(
             amount = amount,
@@ -280,7 +280,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Test
     fun `validate amount when under min limit`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -290,9 +290,9 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        val amount = FiatValue.fromMinor(TEST_API_FIAT, 1000L)
-        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L)
-        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
+        val amount = FiatValue.fromMinor(TEST_API_FIAT, 1000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L.toBigInteger())
 
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val pendingTx = PendingTx(
@@ -318,7 +318,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Test
     fun `validate amount when over max limit`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
 
         val txTarget: LinkedBankAccount = mock()
@@ -329,9 +329,9 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        val amount = FiatValue.fromMinor(TEST_API_FIAT, 1000000L)
-        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L)
-        val availableToWithdraw = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
+        val amount = FiatValue.fromMinor(TEST_API_FIAT, 1000000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L.toBigInteger())
+        val availableToWithdraw = FiatValue.fromMinor(TEST_API_FIAT, 10000L.toBigInteger())
 
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val pendingTx = PendingTx(
@@ -357,7 +357,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Test
     fun `validate amount when over available balance`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -367,9 +367,9 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        val amount = FiatValue.fromMinor(TEST_API_FIAT, 3000L)
-        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L)
-        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
+        val amount = FiatValue.fromMinor(TEST_API_FIAT, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L.toBigInteger())
 
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val pendingTx = PendingTx(
@@ -395,7 +395,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     @Test
     fun `validate amount when correct`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -405,10 +405,10 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        val balance = FiatValue.fromMinor(TEST_API_FIAT, 4000L)
-        val amount = FiatValue.fromMinor(TEST_API_FIAT, 3000L)
-        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L)
-        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
+        val balance = FiatValue.fromMinor(TEST_API_FIAT, 4000L.toBigInteger())
+        val amount = FiatValue.fromMinor(TEST_API_FIAT, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L.toBigInteger())
 
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val pendingTx = PendingTx(
@@ -438,7 +438,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     fun `executing tx works`() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
         val txTarget: LinkedBankAccount = mock {
             on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
@@ -450,9 +450,9 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        val amount = FiatValue.fromMinor(TEST_API_FIAT, 3000L)
-        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L)
-        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
+        val amount = FiatValue.fromMinor(TEST_API_FIAT, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L.toBigInteger())
 
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val pendingTx = PendingTx(
@@ -487,7 +487,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
     fun `executing tx throws exception`() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(TEST_API_FIAT)
+            on { currency }.thenReturn(TEST_API_FIAT)
         }
         val txTarget: LinkedBankAccount = mock {
             on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
@@ -499,9 +499,9 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        val amount = FiatValue.fromMinor(TEST_API_FIAT, 3000L)
-        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L)
-        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L)
+        val amount = FiatValue.fromMinor(TEST_API_FIAT, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TEST_API_FIAT, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TEST_API_FIAT, 10000L.toBigInteger())
 
         val zeroFiat = FiatValue.zero(TEST_API_FIAT)
         val pendingTx = PendingTx(

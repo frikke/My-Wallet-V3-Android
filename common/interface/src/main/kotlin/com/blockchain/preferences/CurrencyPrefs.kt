@@ -1,7 +1,10 @@
 package com.blockchain.preferences
 
+import info.blockchain.balance.FiatCurrency
+
 interface CurrencyPrefs {
-    var selectedFiatCurrency: String
-    var tradingCurrency: String
-    val defaultFiatCurrency: String
+    var selectedFiatCurrency: FiatCurrency
+    var tradingCurrency: FiatCurrency
+    val defaultFiatCurrency: FiatCurrency
+    val noCurrencySet: Boolean
 }

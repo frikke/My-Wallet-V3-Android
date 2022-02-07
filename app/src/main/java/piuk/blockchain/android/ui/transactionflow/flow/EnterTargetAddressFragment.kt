@@ -12,8 +12,14 @@ import androidx.core.content.ContextCompat
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.viewextensions.getTextString
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -32,11 +38,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetAddressSheetState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetSelectionCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
-import piuk.blockchain.android.util.getTextString
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAddressBinding>() {
@@ -75,7 +76,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             model.process(TransactionIntent.EnteredAddressReset)
         } else {
             binding.walletSelect.clearSelectedAccount()
-            addressEntered(address, state.sendingAsset)
+            addressEntered(address, state.sendingAsset.asAssetInfoOrThrow())
         }
     }
 
@@ -223,7 +224,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private fun onLaunchAddressScan() {
         analyticsHooks.onScanQrClicked(state)
-        QrScanActivity.start(this, QrExpected.ASSET_ADDRESS_QR(state.sendingAsset))
+        QrScanActivity.start(this, QrExpected.ASSET_ADDRESS_QR(state.sendingAsset.asAssetInfoOrThrow()))
     }
 
     private fun addressEntered(address: String, asset: AssetInfo) {
@@ -251,7 +252,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         if (resultCode == Activity.RESULT_OK) {
             data.getRawScanData()?.let { rawScan ->
                 disposables += qrProcessor.processScan(rawScan, false)
-                    .flatMapMaybe { qrProcessor.selectAssetTargetFromScan(state.sendingAsset, it) }
+                    .flatMapMaybe { qrProcessor.selectAssetTargetFromScan(state.sendingAsset.asAssetInfoOrThrow(), it) }
                     .subscribeBy(
                         onSuccess = {
                             // TODO update the selected target (address type) instead so the render method knows what to show  & hide

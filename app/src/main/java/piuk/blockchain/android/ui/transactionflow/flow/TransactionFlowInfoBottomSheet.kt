@@ -3,13 +3,13 @@ package piuk.blockchain.android.ui.transactionflow.flow
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.bumptech.glide.Glide
 import java.lang.IllegalStateException
 import piuk.blockchain.android.databinding.TxFlowInfoBottomSheetLayoutBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class TransactionFlowInfoBottomSheet : SlidingModalBottomDialog<TxFlowInfoBottomSheetLayoutBinding>() {
 

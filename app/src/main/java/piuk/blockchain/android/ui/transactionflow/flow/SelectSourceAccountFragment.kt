@@ -8,21 +8,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
+import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
+import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
+import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
+import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.engine.BankLinkingState
+import piuk.blockchain.android.ui.transactionflow.engine.DepositOptionsState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.SourceSelectionCustomisations
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
-class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSelectorBinding>() {
+class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSelectorBinding>(), BankLinkingHost {
 
     private val customiser: SourceSelectionCustomisations by inject()
 
@@ -40,32 +49,70 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
 
             addMethod.setOnClickListener {
                 binding.progress.visible()
-                model.process(TransactionIntent.StartLinkABank)
+                model.process(TransactionIntent.CheckAvailableOptionsForFiatDeposit)
             }
         }
     }
 
     override fun render(newState: TransactionState) {
         binding.accountList.onAccountSelected = {
+            require(it is SingleAccount)
             model.process(TransactionIntent.SourceAccountSelected(it))
             analyticsHooks.onSourceAccountSelected(it, newState)
         }
 
         if (availableSources != newState.availableSources) {
             updateSources(newState)
+            binding.depositTooltip.root.apply {
+                visibleIf { customiser.selectSourceShouldShowDepositTooltip(newState) }
+                binding.depositTooltip.paymentMethodTitle.text =
+                    if (newState.receivingAsset.networkTicker == "USD") getString(R.string.payment_wire_transfer)
+                    else getString(R.string.bank_transfer)
+                setOnClickListener {
+                    showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance())
+                }
+            }
         }
 
         if (newState.linkBankState != BankLinkingState.NotStarted && linkingBankState != newState.linkBankState) {
             handleBankLinking(newState)
         }
 
+        renderDepositOptions(newState)
+
         availableSources = newState.availableSources
         linkingBankState = newState.linkBankState
     }
 
-    private fun handleBankLinking(
-        newState: TransactionState
-    ) {
+    private fun renderDepositOptions(newState: TransactionState) {
+        when (newState.depositOptionsState) {
+            DepositOptionsState.LaunchLinkBank -> {
+                model.process(TransactionIntent.StartLinkABank)
+            }
+            is DepositOptionsState.LaunchWireTransfer -> {
+                binding.progress.gone()
+                onBankWireTransferSelected(newState.depositOptionsState.fiatCurrency)
+            }
+            is DepositOptionsState.ShowBottomSheet -> {
+                binding.progress.gone()
+                LinkBankMethodChooserBottomSheet.newInstance(
+                    LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
+                        newState.depositOptionsState.linkablePaymentMethods
+                    )
+                ).show(childFragmentManager, BOTTOM_SHEET)
+            }
+            is DepositOptionsState.Error -> {
+                displayErrorMessage()
+            }
+            DepositOptionsState.None -> {}
+        }
+
+        if (newState.depositOptionsState != DepositOptionsState.None) {
+            model.process(TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.None))
+        }
+    }
+
+    private fun handleBankLinking(newState: TransactionState) {
         binding.progress.gone()
 
         if (newState.linkBankState is BankLinkingState.Success) {
@@ -78,11 +125,15 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
                 BankAuthActivity.LINK_BANK_REQUEST_CODE
             )
         } else {
-            ToastCustom.makeText(
-                requireContext(), getString(R.string.common_error), Toast.LENGTH_SHORT,
-                ToastCustom.TYPE_ERROR
-            )
+            displayErrorMessage()
         }
+    }
+
+    private fun displayErrorMessage() {
+        ToastCustom.makeText(
+            requireContext(), getString(R.string.common_error), Toast.LENGTH_SHORT,
+            ToastCustom.TYPE_ERROR
+        )
     }
 
     private fun updateSources(newState: TransactionState) {
@@ -118,8 +169,10 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         FragmentTxAccountSelectorBinding.inflate(inflater, container, false)
 
     private fun doOnListLoaded(isEmpty: Boolean) {
-        binding.accountListEmpty.visibleIf { isEmpty }
-        binding.progress.gone()
+        with(binding) {
+            accountListEmpty.visibleIf { isEmpty }
+            progress.gone()
+        }
     }
 
     private fun doOnLoadError(it: Throwable) {
@@ -131,6 +184,18 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         binding.accountListEmpty.gone()
         binding.progress.visible()
     }
+
+    override fun onBankWireTransferSelected(currency: FiatCurrency) {
+        WireTransferAccountDetailsBottomSheet.newInstance(currency).show(childFragmentManager, BOTTOM_SHEET)
+        analytics.logEvent(linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, currency.networkTicker))
+    }
+
+    override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {
+        binding.progress.visible()
+        model.process(TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.LaunchLinkBank))
+    }
+
+    override fun onSheetClosed() {}
 
     companion object {
         fun newInstance(): SelectSourceAccountFragment = SelectSourceAccountFragment()

@@ -2,15 +2,17 @@ package com.blockchain.core.interest
 
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 data class InterestAccountBalance(
-    val totalBalance: CryptoValue,
-    val pendingInterest: CryptoValue,
-    val pendingDeposit: CryptoValue,
-    val totalInterest: CryptoValue,
-    val lockedBalance: CryptoValue,
+    val totalBalance: Money,
+    val pendingInterest: Money,
+    val pendingDeposit: Money,
+    val totalInterest: Money,
+    val lockedBalance: Money,
     val hasTransactions: Boolean = false
 ) {
     val actionableBalance: CryptoValue
@@ -40,11 +42,11 @@ internal class InterestBalanceDataManagerImpl(
     }
 }
 
-private fun zeroBalance(asset: AssetInfo): InterestAccountBalance =
+private fun zeroBalance(asset: Currency): InterestAccountBalance =
     InterestAccountBalance(
-        totalBalance = CryptoValue.zero(asset),
-        pendingInterest = CryptoValue.zero(asset),
-        pendingDeposit = CryptoValue.zero(asset),
-        totalInterest = CryptoValue.zero(asset),
-        lockedBalance = CryptoValue.zero(asset)
+        totalBalance = Money.zero(asset),
+        pendingInterest = Money.zero(asset),
+        pendingDeposit = Money.zero(asset),
+        totalInterest = Money.zero(asset),
+        lockedBalance = Money.zero(asset)
     )

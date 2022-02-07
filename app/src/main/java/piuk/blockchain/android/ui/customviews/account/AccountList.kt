@@ -16,6 +16,8 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.commonarch.presentation.base.ActivityIndicator
+import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.payments.model.FundsLocks
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -34,9 +36,7 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
-import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.trackProgress
 
 typealias StatusDecorator = (BlockchainAccount) -> CellDecorator
 

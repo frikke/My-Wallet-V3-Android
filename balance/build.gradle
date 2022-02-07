@@ -1,13 +1,10 @@
-apply plugin: 'kotlin'
-apply from: '../quality/ktlint.gradle'
-
-sourceCompatibility = Versions.javaCompatibilityVersion
-targetCompatibility = Versions.javaCompatibilityVersion
+apply from: rootProject.file('gradle/local/common-feature.gradle')
 
 dependencies {
     implementation Libraries.kotlin
 
     // Testing
+    testImplementation project(':testutils')
     testImplementation Libraries.junit
     testImplementation Libraries.mockito
     testImplementation Libraries.kluent

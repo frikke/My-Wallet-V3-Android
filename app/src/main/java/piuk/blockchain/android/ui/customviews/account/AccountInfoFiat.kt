@@ -5,11 +5,13 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.core.price.ExchangeRates
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -20,9 +22,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class AccountInfoFiat @JvmOverloads constructor(
     ctx: Context,
@@ -30,7 +29,7 @@ class AccountInfoFiat @JvmOverloads constructor(
     defStyle: Int = 0
 ) : ConstraintLayout(ctx, attr, defStyle), KoinComponent, EnterAmountWidget {
 
-    private val exchangeRates: ExchangeRates by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val currencyPrefs: CurrencyPrefs by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
@@ -48,24 +47,22 @@ class AccountInfoFiat @JvmOverloads constructor(
         onAccountClicked: (FiatAccount) -> Unit
     ) {
         with(binding) {
-            contentDescription = "$ACCOUNT_INFO_FIAT_VIEW_ID${account.fiatCurrency}_${account.label}"
+            contentDescription = "$ACCOUNT_INFO_FIAT_VIEW_ID${account.currency.networkTicker}_${account.label}"
             val userFiat = currencyPrefs.selectedFiatCurrency
 
-            walletName.text = account.label
-            icon.setIcon(account.fiatCurrency)
-            assetSubtitle.text = account.fiatCurrency
+            currencyName.text = account.currency.name
+            icon.setIcon(account.currency)
+            assetSubtitle.text = account.currency.networkTicker
 
-            compositeDisposable += account.accountBalance
-                .flatMap { balanceInAccountCurrency ->
-                    if (userFiat == account.fiatCurrency)
-                        Single.just(balanceInAccountCurrency to balanceInAccountCurrency)
-                    else account.fiatBalance(userFiat, exchangeRates).map { balanceInSelectedCurrency ->
-                        balanceInAccountCurrency to balanceInSelectedCurrency
+            compositeDisposable += account.balance.firstOrError().map { it.total }
+                .flatMap { balance ->
+                    exchangeRates.exchangeRateToUserFiat(account.currency).firstOrError().map { exchangeRate ->
+                        balance to exchangeRate.convert(balance)
                     }
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy { (balanceInAccountCurrency, balanceInWalletCurrency) ->
-                    if (userFiat == account.fiatCurrency) {
+                    if (userFiat == account.currency) {
                         walletBalanceExchangeFiat.gone()
                         walletBalanceFiat.text = balanceInAccountCurrency.toStringWithSymbol()
                     } else {

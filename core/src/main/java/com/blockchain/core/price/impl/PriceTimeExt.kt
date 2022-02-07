@@ -4,7 +4,7 @@ import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.PriceTimescale
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
 
@@ -13,7 +13,7 @@ import java.util.Calendar
  */
 internal fun Calendar.getStartTimeForTimeSpan(
     timeSpan: HistoricalTimeSpan,
-    asset: AssetInfo
+    asset: Currency
 ): Long {
     val assetStartDate = asset.startDate
     require(assetStartDate != null)

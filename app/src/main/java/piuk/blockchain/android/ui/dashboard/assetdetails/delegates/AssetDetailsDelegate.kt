@@ -8,8 +8,12 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.selectFirstAccount
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -20,9 +24,6 @@ import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.addViewToBottomWithConstraints
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class AssetDetailsDelegate(
     private val onAccountSelected: (BlockchainAccount, AssetFilter) -> Unit,
@@ -71,7 +72,7 @@ private class AssetWalletViewHolder(
 
             assetSubtitle.text = when (item.assetFilter) {
                 AssetFilter.NonCustodial,
-                AssetFilter.Custodial -> labels.getAssetMasterWalletLabel(asset)
+                AssetFilter.Custodial -> labels.getAssetMasterWalletLabel(asset as AssetInfo)
                 AssetFilter.Interest -> context.resources.getString(
                     R.string.dashboard_asset_balance_rewards, item.interestRate
                 )
@@ -122,11 +123,11 @@ private class AssetWalletViewHolder(
         }
     }
 
-    private fun getAsset(account: BlockchainAccount, currency: String): AssetInfo =
+    private fun getAsset(account: BlockchainAccount, currency: String): Currency =
         when (account) {
-            is CryptoAccount -> account.asset
+            is CryptoAccount -> account.currency
             is AccountGroup -> account.accounts.filterIsInstance<CryptoAccount>()
-                .firstOrNull()?.asset ?: throw IllegalStateException(
+                .firstOrNull()?.currency ?: throw IllegalStateException(
                 "No crypto accounts found in ${this::class.java} with currency $currency "
             )
             else -> null

@@ -6,16 +6,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
 import java.util.Date
 
 class DateCalendarView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var minimumDate by mutableStateOf(null as? Date?)
     var maximumDate by mutableStateOf(null as? Date?)
@@ -32,5 +32,11 @@ class DateCalendarView @JvmOverloads constructor(
                 )
             }
         }
+    }
+
+    fun clearState() {
+        minimumDate = null
+        maximumDate = null
+        onDateSelected = { _: Date -> }
     }
 }

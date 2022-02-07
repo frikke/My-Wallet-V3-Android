@@ -13,6 +13,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.RequestAnalyticsEvents
 import org.koin.android.ext.android.inject
@@ -20,18 +25,13 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogReceiveBinding
 import piuk.blockchain.android.databinding.ReceiveShareRowBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveInfoView
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveMemoView
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 internal class ReceiveDetailSheet :
     MviBottomSheet<ReceiveDetailModel, ReceiveDetailIntent, ReceiveDetailState, DialogReceiveBinding>() {
@@ -75,7 +75,7 @@ internal class ReceiveDetailSheet :
     private fun renderReceive(newState: ReceiveDetailState) {
         with(binding) {
             switcher.displayedChild = VIEW_RECEIVE
-            receiveTitle.text = getString(R.string.tx_title_receive, newState.account.asset.displayTicker)
+            receiveTitle.text = getString(R.string.tx_title_receive, newState.account.currency.displayTicker)
             val addressAvailable = newState.qrUri != null
             if (addressAvailable) {
                 shareButton.setOnClickListener { shareAddress() }
@@ -83,7 +83,7 @@ internal class ReceiveDetailSheet :
                     analytics.logEvent(
                         TransferAnalyticsEvent.ReceiveDetailsCopied(
                             accountType = TxFlowAnalyticsAccountType.fromAccount(newState.account),
-                            asset = account?.asset ?: throw IllegalStateException(
+                            asset = account?.currency ?: throw IllegalStateException(
                                 "Account asset is missing"
                             )
                         )
@@ -118,10 +118,12 @@ internal class ReceiveDetailSheet :
             switcher.displayedChild = VIEW_SHARE
             check(newState.qrUri != null)
             val dataIntent = qrBitmap?.let {
-                receiveIntentHelper.getIntentDataList(uri = newState.qrUri, bitmap = it, asset = newState.account.asset)
+                receiveIntentHelper.getIntentDataList(
+                    uri = newState.qrUri, bitmap = it, asset = newState.account.currency
+                )
             } ?: emptyList()
 
-            shareTitle.text = getString(R.string.receive_share_title, newState.account.asset.displayTicker)
+            shareTitle.text = getString(R.string.receive_share_title, newState.account.currency.displayTicker)
             with(shareList) {
                 layoutManager = LinearLayoutManager(context)
                 adapter = ShareListAdapter(dataIntent).apply {

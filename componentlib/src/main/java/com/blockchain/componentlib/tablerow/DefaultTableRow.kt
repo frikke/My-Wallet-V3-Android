@@ -1,9 +1,11 @@
 package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,6 +28,7 @@ fun DefaultTableRow(
     secondaryText: String? = null,
     paragraphText: String? = null,
     tags: List<TagViewState>? = null,
+    endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
     endImageResource: ImageResource = ImageResource.Local(
         id = R.drawable.ic_chevron_end,
@@ -42,10 +45,11 @@ fun DefaultTableRow(
             )
         },
         content = {
+            val startPadding = if (startImageResource != ImageResource.None) 16.dp else 0.dp
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 16.dp, end = 8.dp)
+                    .padding(start = startPadding, end = 8.dp)
             ) {
                 Text(
                     text = primaryText,
@@ -62,17 +66,23 @@ fun DefaultTableRow(
             }
         },
         contentEnd = {
-            Image(
-                imageResource = endImageResource,
-                modifier = Modifier.requiredSizeIn(
-                    maxWidth = 24.dp,
-                    maxHeight = 24.dp,
-                ),
-            )
+            if (endTag != null) {
+                Spacer(Modifier.width(8.dp))
+                TagsRow(listOf(endTag))
+            } else {
+                Image(
+                    imageResource = endImageResource,
+                    modifier = Modifier.requiredSizeIn(
+                        maxWidth = 24.dp,
+                        maxHeight = 24.dp,
+                    ),
+                )
+            }
         },
         onContentClicked = onClick,
         contentBottom = {
-            Column {
+            val startPadding = if (startImageResource != ImageResource.None) 40.dp else 0.dp
+            Column(Modifier.padding(start = startPadding)) {
                 if (paragraphText != null) {
                     Text(
                         text = paragraphText,
@@ -118,6 +128,21 @@ fun DefaultTableRow_TwoLine() {
                 primaryText = "Navigate over here",
                 secondaryText = "Text for more info",
                 onClick = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_TwoLine_EndTag() {
+    AppTheme {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                secondaryText = "Text for more info",
+                onClick = {},
+                endTag = TagViewState("Complete", TagType.Success())
             )
         }
     }
@@ -176,7 +201,7 @@ fun DefaultTableRow_Tag() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     )
                 )
             )
@@ -196,27 +221,27 @@ fun DefaultTableRow_Tag_Dark() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     )
                 )
             )
@@ -237,7 +262,7 @@ fun DefaultTableRow_Long_Tag() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     )
                 )
             )
@@ -258,27 +283,27 @@ fun DefaultTableRow_Long_Tag_Dark() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     )
                 )
             )
@@ -298,6 +323,24 @@ fun DefaultTableRow_Local_ImageStart() {
                     id = R.drawable.carousel_rewards,
                     contentDescription = null
                 )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_Local_ImageStart_EndTag() {
+    AppTheme {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Navigate over here",
+                onClick = {},
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.carousel_rewards,
+                    contentDescription = null
+                ),
+                endTag = TagViewState("Complete", TagType.Success()),
             )
         }
     }

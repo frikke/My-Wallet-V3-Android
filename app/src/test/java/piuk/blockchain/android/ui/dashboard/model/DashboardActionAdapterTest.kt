@@ -5,15 +5,20 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.YodleeAttributes
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
@@ -26,12 +31,13 @@ class DashboardActionAdapterTest {
     private lateinit var actionAdapter: DashboardActionAdapter
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
+    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val currencyPrefs: CurrencyPrefs = mock()
+    private val userIdentity: NabuUserIdentity = mock()
     private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
-        on { fiatCurrency }.thenReturn("USD")
+        on { currency }.thenReturn(USD)
     }
-
-    private val internalFlags: InternalFeatureFlagApi = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -50,10 +56,12 @@ class DashboardActionAdapterTest {
             crashLogger = mock(),
             analytics = mock(),
             simpleBuyPrefs = mock(),
-            dashboardBuyButtonFlag = mock(),
-            currencyPrefs = mock(),
-            userIdentity = mock(),
-            exchangeRates = mock()
+            currencyPrefs = currencyPrefs,
+            userIdentity = userIdentity,
+            getDashboardOnboardingStepsUseCase = mock(),
+            dashboardOnboardingFlag = mock(),
+            exchangeRates = mock(),
+            paymentsDataManager = paymentsDataManager
         )
     }
 
@@ -70,8 +78,6 @@ class DashboardActionAdapterTest {
             )
         )
 
-        whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
-
         actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
@@ -84,7 +90,7 @@ class DashboardActionAdapterTest {
                 targetFiatAccount,
                 LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                     LinkablePaymentMethods(
-                        "USD",
+                        USD,
                         listOf(
                             PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT
                         )
@@ -106,15 +112,13 @@ class DashboardActionAdapterTest {
                 emptyList()
             )
         )
-        whenever(custodialWalletManager.linkToABank("USD")).thenReturn(
+        whenever(paymentsDataManager.linkBank(USD)).thenReturn(
             Single.just(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
                 )
             )
         )
-        whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
-
         actionAdapter.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
@@ -161,7 +165,8 @@ class DashboardActionAdapterTest {
     @Test
     fun `with 1 available bank transfer, flow should be launched and wire transfer should get ignored`() {
         val linkedBankAccount: LinkedBankAccount = mock {
-            on { currency }.thenReturn("USD")
+            on { currency }.thenReturn(USD)
+            on { type }.thenReturn(PaymentMethodType.BANK_TRANSFER)
         }
         whenever(linkedBanksFactory.eligibleBankPaymentMethods(any())).thenReturn(
             Single.just(
@@ -175,8 +180,6 @@ class DashboardActionAdapterTest {
                 )
             )
         )
-
-        whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
 
         actionAdapter.getBankDepositFlow(
             model = model,
@@ -201,15 +204,13 @@ class DashboardActionAdapterTest {
             )
         )
 
-        whenever(custodialWalletManager.linkToABank("USD")).thenReturn(
+        whenever(paymentsDataManager.linkBank(USD)).thenReturn(
             Single.just(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
                 )
             )
         )
-
-        whenever(internalFlags.isFeatureEnabled(any())).thenReturn(true)
 
         actionAdapter.getBankDepositFlow(
             model = model,
@@ -227,5 +228,16 @@ class DashboardActionAdapterTest {
                 AssetAction.FiatDeposit
             )
         )
+    }
+
+    @Test
+    fun `loading profile then check getHighestApprovedKycTier`() {
+        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(
+            Single.just(Tier.GOLD)
+        )
+        actionAdapter.canDeposit().test()
+
+        verify(userIdentity).getHighestApprovedKycTier()
+        verifyNoMoreInteractions(userIdentity)
     }
 }

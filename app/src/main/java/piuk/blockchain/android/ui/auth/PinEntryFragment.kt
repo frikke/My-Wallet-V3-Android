@@ -24,6 +24,13 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.Visibility
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -50,7 +57,6 @@ import piuk.blockchain.android.databinding.FragmentPinEntryBinding
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
@@ -59,13 +65,8 @@ import piuk.blockchain.android.urllinks.APP_STORE_URL
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.StringUtils.Companion.getStringWithMappedAnnotations
-import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.copyHashOnLongClick
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.scopedInjectActivity
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class PinEntryFragment :
     BaseFragment<PinEntryView, PinEntryPresenter>(),
@@ -145,7 +146,7 @@ class PinEntryFragment :
         if (environmentConfig.isRunningInDebugMode()) {
             ToastCustom.makeText(
                 activity,
-                "Current environment: " + environmentConfig.environment.getName(),
+                "Current environment: " + environmentConfig.environment.name,
                 ToastCustom.LENGTH_SHORT,
                 ToastCustom.TYPE_GENERAL
             )
@@ -402,7 +403,7 @@ class PinEntryFragment :
         HANDLER.postDelayed({ binding.titleBox.setText(title) }, 200)
     }
 
-    override fun setTitleVisibility(@ViewUtils.Visibility visibility: Int) {
+    override fun setTitleVisibility(@Visibility visibility: Int) {
         binding.titleBox.visibility = visibility
     }
 
@@ -445,7 +446,7 @@ class PinEntryFragment :
             AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(getString(R.string.password_entry))
-                .setView(ViewUtils.getAlertDialogPaddedView(ctx, password))
+                .setView(ctx.getAlertDialogPaddedView(password))
                 .setCancelable(false)
                 .setNegativeButton(android.R.string.cancel) { _, _ ->
                     restartApp()

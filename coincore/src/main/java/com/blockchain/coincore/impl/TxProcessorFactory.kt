@@ -31,6 +31,7 @@ import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -43,6 +44,7 @@ class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val limitsDataManager: LimitsDataManager,
     private val interestBalances: InterestBalanceDataManager,
     private val walletPrefs: WalletStatus,
@@ -115,6 +117,7 @@ class TxProcessorFactory(
                         txTarget = target,
                         engine = FiatDepositTxEngine(
                             walletManager = walletManager,
+                            paymentsDataManager = paymentsDataManager,
                             userIdentity = userIdentity,
                             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
                             limitsDataManager = limitsDataManager,

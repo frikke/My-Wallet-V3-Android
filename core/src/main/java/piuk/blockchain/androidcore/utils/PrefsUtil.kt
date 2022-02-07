@@ -6,17 +6,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.logging.CrashLogger
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.wallet.api.data.Settings
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
-import java.util.Currency
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -24,7 +22,6 @@ import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
 
 interface UUIDGenerator {
@@ -37,7 +34,7 @@ class PrefsUtil(
     private val backupStore: SharedPreferences,
     private val idGenerator: DeviceIdGenerator,
     private val uuidGenerator: UUIDGenerator,
-    private val crashLogger: CrashLogger,
+    private val assetCatalogue: AssetCatalogue,
     private val environmentConfig: EnvironmentConfig
 ) : PersistentPrefs {
 
@@ -83,9 +80,9 @@ class PrefsUtil(
         get() = getValue(KEY_PRE_IDV_FAILED, false)
         set(value) = setValue(KEY_PRE_IDV_FAILED, value)
 
-    override var isOnBoardingComplete: Boolean
-        get() = getValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, false)
-        set(completed) = setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, completed)
+    override var isOnboardingComplete: Boolean
+        get() = getValue(KEY_ONBOARDING_COMPLETE, false)
+        set(completed) = setValue(KEY_ONBOARDING_COMPLETE, completed)
 
     override var isCustodialIntroSeen: Boolean
         get() = getValue(KEY_CUSTODIAL_INTRO_SEEN, false)
@@ -125,36 +122,25 @@ class PrefsUtil(
         set(v) = setValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, v)
 
     override val areScreenshotsEnabled: Boolean
-        get() = getValue(PersistentPrefs.KEY_SCREENSHOTS_ENABLED, false)
+        get() = getValue(KEY_SCREENSHOTS_ENABLED, false)
 
     override fun setScreenshotsEnabled(enable: Boolean) =
-        setValue(PersistentPrefs.KEY_SCREENSHOTS_ENABLED, enable)
+        setValue(KEY_SCREENSHOTS_ENABLED, enable)
 
     // From CurrencyPrefs
-    override var selectedFiatCurrency: String
-        get() = getValue(KEY_SELECTED_FIAT, "")
+    override var selectedFiatCurrency: FiatCurrency
+        get() = assetCatalogue.fiatFromNetworkTicker(getValue(KEY_SELECTED_FIAT, "")) ?: FiatCurrency.Dollars
         set(fiat) {
-            // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
-            // So we'll try and catch them when it's written and find the root cause on a future iteration
-            // Check the currency is supported and throw a meaningful exception message if it's not
-            // Everytime that local currency changes (either from settings or from a different platform)
-            // we need to align the tradingCurrency accordingly.
-            try {
-                Currency.getInstance(fiat)
-                setValue(KEY_SELECTED_FIAT, fiat)
-                tradingCurrency = fiat
-            } catch (e: IllegalArgumentException) {
-                crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
-            }
+            setValue(KEY_SELECTED_FIAT, fiat.networkTicker)
+            tradingCurrency = fiat
         }
 
-    override val defaultFiatCurrency: String
-        get() = try {
-            val localeFiat = Currency.getInstance(Locale.getDefault()).currencyCode
-            if (Settings.UNIT_FIAT.contains(localeFiat)) localeFiat else DEFAULT_FIAT_CURRENCY
-        } catch (e: Exception) {
-            DEFAULT_FIAT_CURRENCY
-        }
+    override val defaultFiatCurrency: FiatCurrency
+        get() = FiatCurrency.locale().takeIf { assetCatalogue.fiatFromNetworkTicker(it.networkTicker) != null }
+            ?: FiatCurrency.Dollars
+
+    override val noCurrencySet: Boolean
+        get() = getValue(KEY_SELECTED_FIAT, "").isEmpty()
 
     // From ThePitLinkingPrefs
     override var pitToWalletLinkId: String
@@ -227,10 +213,11 @@ class PrefsUtil(
             setValue(KEY_FIRST_TIME_BUYER, value)
         }
 
-    override var tradingCurrency: String
-        get() = getValue(KEY_SIMPLE_BUY_CURRENCY, selectedFiatCurrency)
+    override var tradingCurrency: FiatCurrency
+        get() = assetCatalogue.fromNetworkTicker(getValue(KEY_SIMPLE_BUY_CURRENCY, "")) as? FiatCurrency
+            ?: selectedFiatCurrency
         set(value) {
-            setValue(KEY_SIMPLE_BUY_CURRENCY, value)
+            setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
         }
 
     override var hasCompletedAtLeastOneBuy: Boolean
@@ -452,26 +439,6 @@ class PrefsUtil(
     private fun decodeFromBase64ToString(data: String): String =
         String(Base64.decode(data.toByteArray(charset("UTF-8")), Base64.DEFAULT))
 
-    // internal feature flags
-    override fun isFeatureEnabled(gatedFeature: GatedFeature): Boolean =
-        getValue(gatedFeature.name, false)
-
-    override fun enableFeature(gatedFeature: GatedFeature) =
-        setValue(gatedFeature.name, true)
-
-    override fun disableFeature(gatedFeature: GatedFeature) = setValue(gatedFeature.name, false)
-
-    override fun disableAllFeatures() {
-        GatedFeature.values().forEach { feature ->
-            disableFeature(feature)
-        }
-    }
-
-    override fun getAllFeatures(): Map<GatedFeature, Boolean> =
-        GatedFeature.values().map {
-            it to isFeatureEnabled(it)
-        }.toMap()
-
     // Raw accessors
     override fun getValue(name: String): String? =
         store.getString(name, null)
@@ -515,8 +482,6 @@ class PrefsUtil(
     }
 
     override fun clear() {
-        val persistedBool = GatedFeature.values().map { it.name to store.getBoolean(it.name, false) }.toMap()
-
         val versionCode = store.getInt(APP_CURRENT_VERSION_CODE, AppInfoPrefs.DEFAULT_APP_VERSION_CODE)
         val installedVersion = store.getString(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
             ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
@@ -524,9 +489,6 @@ class PrefsUtil(
 
         store.edit().clear().apply()
 
-        persistedBool.forEach { (key, value) ->
-            setValue(key, value)
-        }
         setValue(APP_CURRENT_VERSION_CODE, versionCode)
         setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
         setValue(KEY_FIREBASE_TOKEN, firebaseToken)
@@ -607,9 +569,6 @@ class PrefsUtil(
     }
 
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val DEFAULT_FIAT_CURRENCY = "USD"
-
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -640,6 +599,8 @@ class PrefsUtil(
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
         private const val KEY_TAPPED_FAB = "key_tapped_fab"
+        private const val KEY_SCREENSHOTS_ENABLED = "screenshots_enabled"
+        private const val KEY_ONBOARDING_COMPLETE = "KEY_ONBOARDING_COMPLETE"
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"

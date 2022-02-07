@@ -10,5 +10,5 @@ internal data class TradingBalanceResponseDto(
     @SerialName("available") // Badly named param, is actually the total including uncleared & locked
     val total: String,
     @SerialName("withdrawable") // Balance that is NOT uncleared and IS withdrawable
-    val actionable: String
+    val withdrawable: String
 )

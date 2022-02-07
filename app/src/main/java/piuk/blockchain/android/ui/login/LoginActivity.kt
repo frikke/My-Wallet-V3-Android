@@ -6,19 +6,23 @@ import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.enviroment.Environment
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import info.blockchain.wallet.api.Environment
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.launcher.LauncherActivity
@@ -28,10 +32,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
@@ -59,8 +59,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loadToolbar(
-            titleToolbar = getString(R.string.login_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.login_title),
             backAction = { onBackPressed() }
         )
         recaptchaClient.initReCaptcha()
@@ -129,7 +129,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     val intent = ManualPairingActivity.newInstance(this, BuildConfig.PLAY_STORE_DEMO_WALLET_ID)
                     startActivity(intent)
                 } else {
-                    ViewUtils.hideKeyboard(this@LoginActivity)
+                    this@LoginActivity.hideKeyboard()
                     verifyReCaptcha(emailInputText.toString())
                 }
             }

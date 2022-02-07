@@ -34,7 +34,6 @@ class LoginInteractor(
                         sharedKey = wallet.sharedKey
                         walletGuid = wallet.guid
                         emailVerified = true
-                        isOnBoardingComplete = true
                     }
                 }
             }

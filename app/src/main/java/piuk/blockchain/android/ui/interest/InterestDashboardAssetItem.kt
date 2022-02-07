@@ -8,11 +8,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -23,8 +25,6 @@ import piuk.blockchain.android.databinding.ItemInterestDashboardAssetInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class InterestDashboardAssetItem<in T>(
@@ -182,8 +182,8 @@ private class InterestAssetItemViewHolder(
     }
 
     private data class InterestDetails(
-        val balance: CryptoValue,
-        val totalInterest: CryptoValue,
+        val balance: Money,
+        val totalInterest: Money,
         val interestRate: Double,
         val available: Boolean,
         val disabledReason: IneligibilityReason

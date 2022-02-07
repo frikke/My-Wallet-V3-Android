@@ -5,23 +5,21 @@ import android.text.Editable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.text.DecimalFormatSymbols
-import java.util.Currency
 import java.util.Locale
 import kotlin.properties.Delegates
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
     ConstraintLayout(context, attrs),
@@ -51,18 +49,11 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
                 override fun afterTextChanged(s: Editable?) {
                     configuration.let {
                         when (it) {
-                            is SingleInputViewConfiguration.Fiat -> {
-                                val fiatAmount = enterAmount.bigDecimalValue?.let { amount ->
-                                    FiatValue.fromMajor(it.fiatCurrency, amount)
-                                } ?: FiatValue.zero(it.fiatCurrency)
-                                amountSubject.onNext(fiatAmount)
-                            }
-                            is SingleInputViewConfiguration.Crypto -> {
-                                val cryptoAmount = enterAmount.bigDecimalValue?.let { amount ->
-                                    CryptoValue.fromMajor(it.cryptoCurrency, amount)
-                                } ?: CryptoValue.zero(it.cryptoCurrency)
-
-                                amountSubject.onNext(cryptoAmount)
+                            is SingleInputViewConfiguration.Defined -> {
+                                val amount = enterAmount.bigDecimalValue?.let { amount ->
+                                    Money.fromMajor(it.currency, amount)
+                                } ?: Money.zero(it.currency)
+                                amountSubject.onNext(amount)
                             }
                             is SingleInputViewConfiguration.Undefined -> {
                             }
@@ -73,10 +64,10 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
         }
     }
 
-    var maxLimit by Delegates.observable<Money>(
-        FiatValue.fromMinor(
+    var maxLimit by Delegates.observable(
+        Money.fromMinor(
             currencyPrefs.defaultFiatCurrency,
-            Long.MAX_VALUE
+            Long.MAX_VALUE.toBigInteger()
         )
     ) { _, oldValue, newValue ->
         if (newValue != oldValue)
@@ -94,34 +85,18 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
     ) { _, _, newValue ->
         with(binding.enterAmount) {
             filters = emptyArray()
-
             when (newValue) {
-                is SingleInputViewConfiguration.Fiat -> {
-                    val fiatSymbol = Currency.getInstance(newValue.fiatCurrency).getSymbol(Locale.getDefault())
-                    updateFilters(fiatSymbol)
+                is SingleInputViewConfiguration.Defined -> {
+                    val dTicker = newValue.currency.displayTicker
+                    updateFilters(dTicker)
                     configuration = PrefixedOrSuffixedEditText.Configuration(
-                        prefixOrSuffix = fiatSymbol,
-                        isPrefix = true,
-                        initialText = newValue.predefinedAmount.toStringWithoutSymbol()
-                            .replace(DecimalFormatSymbols(Locale.getDefault()).groupingSeparator.toString(), "")
-                            .removeSuffix("${DecimalFormatSymbols(Locale.getDefault()).decimalSeparator}00")
-                    )
-                    amountSubject.onNext(
-                        newValue.predefinedAmount
-                    )
-                }
-                is SingleInputViewConfiguration.Crypto -> {
-                    val cryptoSymbol = newValue.cryptoCurrency.displayTicker
-                    updateFilters(cryptoSymbol)
-                    configuration = PrefixedOrSuffixedEditText.Configuration(
-                        prefixOrSuffix = cryptoSymbol,
-                        isPrefix = false,
+                        prefixOrSuffix = dTicker,
+                        isPrefix = newValue.currency.type == CurrencyType.FIAT,
                         initialText = newValue.predefinedAmount.toStringWithoutSymbol()
                             .replace(
-                                DecimalFormatSymbols(Locale.getDefault())
-                                    .groupingSeparator.toString(),
-                                ""
+                                DecimalFormatSymbols(java.util.Locale.getDefault()).groupingSeparator.toString(), ""
                             )
+                            .removeSuffix("${DecimalFormatSymbols(Locale.getDefault()).decimalSeparator}00")
                     )
                     amountSubject.onNext(
                         newValue.predefinedAmount
@@ -158,28 +133,12 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
             }
         }
     }
-
-    fun hideError() {
-        with(binding) {
-            error.gone()
-            exchangeAmount.visible()
-            currencySwap.let {
-                it.isEnabled = true
-                it.alpha = 1f
-            }
-        }
-    }
 }
 
 sealed class SingleInputViewConfiguration {
     object Undefined : SingleInputViewConfiguration()
-    data class Fiat(
-        val fiatCurrency: String,
-        val predefinedAmount: FiatValue = FiatValue.zero(fiatCurrency)
-    ) : SingleInputViewConfiguration()
-
-    data class Crypto(
-        val cryptoCurrency: AssetInfo,
-        val predefinedAmount: CryptoValue = CryptoValue.zero(cryptoCurrency)
+    data class Defined(
+        val currency: Currency,
+        val predefinedAmount: Money = Money.zero(currency)
     ) : SingleInputViewConfiguration()
 }

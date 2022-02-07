@@ -12,6 +12,10 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.WalletAnalytics
 import com.google.zxing.WriterException
@@ -24,14 +28,10 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAccountEditBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
@@ -73,7 +73,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
             setOnClickListener { }
 
             if (!account.isInternalAccount) {
-                account.actionableBalance
+                account.balance.firstOrError().map { it.withdrawable }
                     .subscribeBy(
                         onSuccess = {
                             visible()
@@ -200,7 +200,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                 tvXpub.setText(R.string.extended_public_key)
                 tvXpubDescription.visible()
 
-                if (account.asset == CryptoCurrency.BCH) {
+                if (account.currency == CryptoCurrency.BCH) {
                     tvXpubDescription.setText(R.string.extended_public_key_description_bch_only)
                 } else {
                     tvXpubDescription.setText(R.string.extended_public_key_description)

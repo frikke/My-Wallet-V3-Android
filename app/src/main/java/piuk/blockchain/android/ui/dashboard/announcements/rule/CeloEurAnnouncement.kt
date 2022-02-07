@@ -21,7 +21,7 @@ class CeloEurAnnouncement(
 
     override val dismissKey = DISMISS_KEY
 
-    override val name = "celo_eur"
+    override val name = "celo_eur_jan22"
 
     private var newAsset: AssetInfo? = null
 
@@ -71,6 +71,6 @@ class CeloEurAnnouncement(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val DISMISS_KEY = "CeloEurAnnouncement_DISMISSED"
         const val TICKER_NAME = "CEUR"
-        private val excludedCountries = listOf("US", "IT")
+        private val excludedCountries = listOf("DE", "FR", "NL", "US", "IT")
     }
 }

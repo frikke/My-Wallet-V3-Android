@@ -17,6 +17,13 @@ class TabLayoutActivity : AppCompatActivity() {
             this.selectedItemIndex = 0
         }
 
+        findViewById<TabLayoutLargeView>(R.id.shadow).apply {
+            this.items = listOf("First", "Second", "Third")
+            this.onItemSelected = {}
+            this.selectedItemIndex = 0
+            this.showBottomShadow = true
+        }
+
         findViewById<TabLayoutLiveView>(R.id.live).apply {
             this.items = listOf("Live", "1D", "1W", "1M", "1Y", "All")
             this.onItemSelected = {}

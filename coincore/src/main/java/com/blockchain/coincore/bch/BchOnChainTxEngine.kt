@@ -78,15 +78,15 @@ class BchOnChainTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.just(
             PendingTx(
-                amount = CryptoValue.zero(sourceAsset),
-                totalBalance = CryptoValue.zero(sourceAsset),
-                availableBalance = CryptoValue.zero(sourceAsset),
-                feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                feeAmount = CryptoValue.zero(sourceAsset),
+                amount = Money.zero(sourceAsset),
+                totalBalance = Money.zero(sourceAsset),
+                availableBalance = Money.zero(sourceAsset),
+                feeForFullAvailable = Money.zero(sourceAsset),
+                feeAmount = Money.zero(sourceAsset),
                 feeSelection = FeeSelection(
                     selectedLevel = FeeLevel.Regular,
                     availableLevels = AVAILABLE_FEE_LEVELS,
-                    asset = sourceAsset
+                    asset = CryptoCurrency.BCH
                 ),
                 selectedFiat = userFiat
             )
@@ -97,7 +97,7 @@ class BchOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Singles.zip(
-            sourceAccount.accountBalance.map { it as CryptoValue },
+            sourceAccount.balance.firstOrError().map { it.total as CryptoValue },
             getUnspentApiResponse(bchSource.xpubAddress),
             getDynamicFeePerKb()
         ) { balance, coins, feePerKb ->
@@ -110,7 +110,7 @@ class BchOnChainTxEngine(
     }
 
     private fun getUnspentApiResponse(address: String): Single<List<Utxo>> =
-        if (bchDataManager.getAddressBalance(address) > CryptoValue.zero(sourceAsset)) {
+        if (bchDataManager.getAddressBalance(address) > Money.zero(sourceAsset)) {
             sendDataManager.getUnspentBchOutputs(address)
                 // If we get here, we should have balance and valid UTXOs. IF we don't, then, um... we'd best fail hard
                 .map { utxo ->
@@ -129,17 +129,17 @@ class BchOnChainTxEngine(
         amount: CryptoValue,
         balance: CryptoValue,
         pendingTx: PendingTx,
-        feePerKb: CryptoValue,
+        feePerKb: Money,
         coins: List<Utxo>
     ): PendingTx {
         val targetOutputType = payloadDataManager.getAddressOutputType(bchTarget.address)
         val changeOutputType = payloadDataManager.getXpubFormatOutputType(XPub.Format.LEGACY)
 
         val available = sendDataManager.getMaximumAvailable(
-            asset = sourceAsset,
+            asset = CryptoCurrency.BCH,
             targetOutputType = targetOutputType,
             unspentCoins = coins,
-            feePerKb = feePerKb
+            feePerKb = feePerKb as CryptoValue
         )
 
         val unspentOutputs = sendDataManager.getSpendableCoins(
@@ -155,7 +155,7 @@ class BchOnChainTxEngine(
             totalBalance = balance,
             availableBalance = available.maxSpendable,
             feeForFullAvailable = available.feeForMax,
-            feeAmount = CryptoValue.fromMinor(sourceAsset, unspentOutputs.absoluteFee),
+            feeAmount = Money.fromMinor(sourceAsset, unspentOutputs.absoluteFee),
             feeSelection = pendingTx.feeSelection.copy(
                 feesForLevels = mapOf(FeeLevel.Regular to feePerKb)
             ),
@@ -163,14 +163,14 @@ class BchOnChainTxEngine(
         )
     }
 
-    private fun getDynamicFeePerKb(): Single<CryptoValue> =
+    private fun getDynamicFeePerKb(): Single<Money> =
         feeManager.bchFeeOptions
             .map { feeOptions ->
                 feeToCrypto(feeOptions.regularFee)
             }.firstOrError()
 
-    private fun feeToCrypto(feePerKb: Long): CryptoValue =
-        CryptoValue.fromMinor(sourceAsset, (feePerKb * 1000).toBigInteger())
+    private fun feeToCrypto(feePerKb: Long): Money =
+        Money.fromMinor(sourceAsset, (feePerKb * 1000).toBigInteger())
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
         validateAmounts(pendingTx)
@@ -196,12 +196,11 @@ class BchOnChainTxEngine(
         availableBalance >= amount && unspentOutputBundle.spendableOutputs.isNotEmpty()
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        exchangeRates.cryptoToUserFiatRate(sourceAsset)
+        exchangeRates.exchangeRateToUserFiat(sourceAsset)
             .firstOrError()
-            .map { it as ExchangeRate.CryptoToFiat }
             .map { fiatRate -> buildConfirmations(pendingTx, fiatRate) }
 
-    private fun buildConfirmations(pendingTx: PendingTx, fiatRate: ExchangeRate.CryptoToFiat): PendingTx =
+    private fun buildConfirmations(pendingTx: PendingTx, fiatRate: ExchangeRate): PendingTx =
         pendingTx.copy(
             confirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
@@ -282,7 +281,9 @@ class BchOnChainTxEngine(
             val xpub = bchSource.xpubAddress
             val node = it.node.serializePubB58(networkParams)
             node == xpub
-        } ?: throw HDWalletException("No matching private key found for ${bchSource.xpubAddress}")
+        } ?: throw HDWalletException(
+            "No matching private key found for ${bchSource.xpubAddress}"
+        )
 
         return Single.just(
             bchDataManager.getHDKeysForSigning(

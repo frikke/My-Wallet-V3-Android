@@ -1,7 +1,5 @@
 package com.blockchain.nabu.models.responses.cards
 
-import com.braintreepayments.cardform.utils.CardType
-
 data class PaymentMethodsResponse(
     val currency: String,
     val methods: List<PaymentMethodResponse>
@@ -22,8 +20,8 @@ data class PaymentMethodResponse(
     val eligible: Boolean,
     val visible: Boolean,
     val limits: Limits,
-    val subTypes: List<String>?,
-    val currency: String?
+    val subTypes: List<String>,
+    val currency: String
 ) {
     companion object {
         const val PAYMENT_CARD = "PAYMENT_CARD"
@@ -33,32 +31,8 @@ data class PaymentMethodResponse(
     }
 }
 
-data class Limits(val min: Long, val max: Long, val daily: DailyLimits?)
+data class Limits(val min: Long, val max: Long, val daily: DailyLimits)
 data class DailyLimits(val limit: Long, val available: Long, val used: Long)
-
-data class CardResponse(
-    val id: String,
-    val partner: String,
-    val state: String,
-    val currency: String,
-    val card: CardDetailsResponse?
-) {
-    companion object {
-        const val ACTIVE = "ACTIVE"
-        const val PENDING = "PENDING"
-        const val BLOCKED = "BLOCKED"
-        const val CREATED = "CREATED"
-        const val EXPIRED = "EXPIRED"
-    }
-}
-
-data class CardDetailsResponse(
-    val number: String,
-    val expireYear: Int?,
-    val expireMonth: Int?,
-    val type: CardType,
-    val label: String
-)
 
 data class PaymentCardAcquirerResponse(
     val cardAcquirerName: String,

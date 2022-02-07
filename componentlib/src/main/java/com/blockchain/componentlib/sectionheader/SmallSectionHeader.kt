@@ -1,5 +1,7 @@
 package com.blockchain.componentlib.sectionheader
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,7 +19,7 @@ fun SmallSectionHeader(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier,
+        modifier = modifier.background(color = AppTheme.colors.light),
         contentAlignment = Alignment.CenterStart
     ) {
         Text(
@@ -35,6 +37,16 @@ fun SmallSectionHeader(
 @Preview
 @Composable
 private fun SmallSectionHeaderPreview() {
+    AppTheme {
+        AppSurface {
+            SmallSectionHeader("Title", Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun SmallSectionHeaderDarkPreview() {
     AppTheme {
         AppSurface {
             SmallSectionHeader("Title", Modifier.fillMaxWidth())

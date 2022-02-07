@@ -8,17 +8,17 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat.getColor
+import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.PairingSheetBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.urllinks.WEB_WALLET_LOGIN_URI
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visibleIf
 
 class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingState, PairingSheetBinding>() {
 

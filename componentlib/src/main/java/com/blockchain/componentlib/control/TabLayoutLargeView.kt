@@ -6,15 +6,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AbstractComposeView
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class TabLayoutLargeView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var items: List<String> by mutableStateOf(emptyList())
     var onItemSelected by mutableStateOf({ _: Int -> })
@@ -36,5 +36,12 @@ class TabLayoutLargeView @JvmOverloads constructor(
                 )
             }
         }
+    }
+
+    fun clearState() {
+        items = emptyList()
+        onItemSelected = { _: Int -> }
+        selectedItemIndex = 0
+        showBottomShadow = false
     }
 }

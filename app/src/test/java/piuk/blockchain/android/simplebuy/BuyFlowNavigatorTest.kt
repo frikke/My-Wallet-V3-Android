@@ -7,6 +7,9 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.GBP
+import com.blockchain.testutils.PLN
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
@@ -35,10 +38,10 @@ class BuyFlowNavigatorTest {
     fun `if currency is not  supported  and startedFromDashboard then screen should be currency selector`() {
         mockCurrencyIsSupported(false)
         whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("GBP,EUR")))
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("PLN")
-        whenever(currencyPrefs.tradingCurrency).thenReturn("PLN")
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("PLN"))
+        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(GBP, EUR)))
+        whenever(currencyPrefs.selectedFiatCurrency).thenReturn(PLN)
+        whenever(currencyPrefs.tradingCurrency).thenReturn(PLN)
+        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(PLN))
             .thenReturn(Single.just(false))
 
         val test =
@@ -50,16 +53,16 @@ class BuyFlowNavigatorTest {
                 failOnUnavailableCurrency = false
             )
                 .test()
-        test.assertValueAt(0, BuyNavigation.CurrencySelection(listOf("GBP,EUR"), "PLN"))
+        test.assertValueAt(0, BuyNavigation.CurrencySelection(listOf(GBP, EUR), PLN))
     }
 
     @Test
     fun `if currency is not  supported  and should fail on check then it should faile`() {
         mockCurrencyIsSupported(false)
         whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("GBP,EUR")))
-        whenever(currencyPrefs.tradingCurrency).thenReturn("PLN")
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy("PLN"))
+        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(GBP, EUR)))
+        whenever(currencyPrefs.tradingCurrency).thenReturn(PLN)
+        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(PLN))
             .thenReturn(Single.just(false))
 
         val test =
@@ -181,12 +184,12 @@ class BuyFlowNavigatorTest {
     private fun mockCurrencyIsSupported(supported: Boolean) {
         whenever(
             custodialWalletManager
-                .isCurrencySupportedForSimpleBuy("GBP")
+                .isCurrencySupportedForSimpleBuy(GBP)
         ).thenReturn(Single.just(supported))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(("GBP"))
+        whenever(currencyPrefs.tradingCurrency).thenReturn((GBP))
     }
 
     companion object {
-        private val btcExchangeRate = ExchangeRate.FiatToCrypto("GBP", CryptoCurrency.BTC, null)
+        private val btcExchangeRate = ExchangeRate(from = GBP, to = CryptoCurrency.BTC, rate = null)
     }
 }

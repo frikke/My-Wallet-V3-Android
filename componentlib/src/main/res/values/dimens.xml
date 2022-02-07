@@ -12,4 +12,28 @@
     <dimen name="borderRadiiMedium">16dp</dimen>
     <dimen name="borderRadiiLarge">100dp</dimen>
 
+    <dimen name="epic_margin"></dimen>
+    <dimen name="xhuge_margin"></dimen>
+    <dimen name="huge_margin"></dimen>
+    <dimen name="xlarge_margin"></dimen>
+    <dimen name="large_margin"></dimen>
+    <dimen name="standard_margin"></dimen>
+    <dimen name="medium_margin"></dimen>
+    <dimen name="small_margin"></dimen>
+    <dimen name="very_small_margin"></dimen>
+    <dimen name="tiny_margin"></dimen>
+    <dimen name="minuscule_margin"></dimen>
+    <dimen name="smallest_margin"></dimen>
+
+    <dimen name="size_epic"></dimen>
+    <dimen name="size_massive"></dimen>
+    <dimen name="size_huge"></dimen>
+    <dimen name="size_large"></dimen>
+    <dimen name="size_medium"></dimen>
+    <dimen name="size_standard"></dimen>
+    <dimen name="size_small"></dimen>
+    <dimen name="size_tiny"></dimen>
+
+    <dimen name="small_elevation"></dimen>
+
 </resources>

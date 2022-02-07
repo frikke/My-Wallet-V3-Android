@@ -11,10 +11,12 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.testutils.EUR
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
@@ -29,7 +31,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.model.FIAT_CURRENCY
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class AssetDetailsModelTest {
 
@@ -82,7 +83,7 @@ class AssetDetailsModelTest {
             nextPaymentDate = mock(),
             paymentMethodType = PaymentMethodType.BANK_TRANSFER,
             paymentMethodId = "321",
-            amount = FiatValue.zero("EUR"),
+            amount = FiatValue.zero(EUR),
             asset = mock(),
             createDate = mock()
         )
@@ -95,12 +96,12 @@ class AssetDetailsModelTest {
 
         val priceSeries = listOf<HistoricalRate>(mock())
         val asset: CryptoAsset = mock {
-            on { asset }.thenReturn(CryptoCurrency.BTC)
+            on { assetInfo }.thenReturn(CryptoCurrency.BTC)
         }
 
         val expectedDeltaDetails = Prices24HrWithDelta(
-            previousRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
-            currentRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+            previousRate = ExchangeRate(400.toBigDecimal(), CryptoCurrency.BTC, FIAT_CURRENCY),
+            currentRate = ExchangeRate(400.toBigDecimal(), CryptoCurrency.BTC, FIAT_CURRENCY),
             delta24h = 0.0
         )
 
@@ -108,8 +109,8 @@ class AssetDetailsModelTest {
 
         whenever(interactor.loadAssetDetails(asset)).thenReturn(Single.just(assetDisplayMap))
         whenever(interactor.loadHistoricPrices(asset, timeSpan)).thenReturn(Single.just(priceSeries))
-        whenever(interactor.loadRecurringBuysForAsset(asset.asset)).thenReturn(Single.just(recurringBuys))
-        whenever(interactor.load24hPriceDelta(asset.asset)).thenReturn(Single.just(expectedDeltaDetails))
+        whenever(interactor.loadRecurringBuysForAsset(asset.assetInfo)).thenReturn(Single.just(recurringBuys))
+        whenever(interactor.load24hPriceDelta(asset.assetInfo)).thenReturn(Single.just(expectedDeltaDetails))
 
         val stateTest = subject.state.test()
 
@@ -163,9 +164,9 @@ class AssetDetailsModelTest {
             }
 
         verify(interactor).loadAssetDetails(asset)
-        verify(interactor).loadRecurringBuysForAsset(asset.asset)
+        verify(interactor).loadRecurringBuysForAsset(asset.assetInfo)
         verify(interactor).loadHistoricPrices(asset, timeSpan)
-        verify(interactor).load24hPriceDelta(asset.asset)
+        verify(interactor).load24hPriceDelta(asset.assetInfo)
 
         verifyNoMoreInteractions(interactor)
     }

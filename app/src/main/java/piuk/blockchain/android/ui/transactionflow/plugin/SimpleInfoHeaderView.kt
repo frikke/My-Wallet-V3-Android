@@ -4,15 +4,15 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.goneIf
+import com.blockchain.componentlib.viewextensions.visibleIf
 import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.databinding.ViewCheckoutHeaderBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.goneIf
-import piuk.blockchain.android.util.visibleIf
 
 class SimpleInfoHeaderView @JvmOverloads constructor(
     ctx: Context,

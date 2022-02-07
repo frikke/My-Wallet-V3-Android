@@ -5,6 +5,9 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.BillingAddress
@@ -18,11 +21,8 @@ import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.US
-import piuk.blockchain.android.util.visibleIf
 
 class BillingAddressFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentBillingAddressBinding>(),
@@ -123,7 +123,7 @@ class BillingAddressFragment :
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
             }
         }
-        activity.updateTitleToolbar(getString(R.string.add_card_address_title))
+        activity.updateToolbarTitle(getString(R.string.add_card_address_title))
     }
 
     private fun setupUserDetails(user: NabuUser) {

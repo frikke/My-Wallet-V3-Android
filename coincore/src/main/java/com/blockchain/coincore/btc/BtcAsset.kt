@@ -12,7 +12,6 @@ import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -23,6 +22,7 @@ import com.blockchain.websocket.CoinsWebSocketInterface
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.Account
@@ -53,7 +53,6 @@ import thepit.PitLinking
     private val walletPreferences: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -64,14 +63,13 @@ import thepit.PitLinking
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ) {
 
-    override val asset: AssetInfo
+    override val assetInfo: AssetInfo
         get() = CryptoCurrency.BTC
 
-    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = true
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
@@ -97,13 +95,12 @@ import thepit.PitLinking
         Single.just(
             listOf(
                 CustodialTradingAccount(
-                    asset = asset,
+                    currency = assetInfo,
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity,
-                    features = features
+                    identity = identity
                 )
             )
         )
@@ -121,7 +118,7 @@ import thepit.PitLinking
         }
 
         val notify = NotificationAddresses(
-            assetTicker = asset.networkTicker,
+            assetTicker = assetInfo.networkTicker,
             addressList = addressList
         )
         return notificationUpdater.updateNotificationBackend(notify)
@@ -229,7 +226,7 @@ internal class BtcAddress(
 ) : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
 
-    override fun toUrl(amount: CryptoValue): String {
+    override fun toUrl(amount: Money): String {
         return FormatsUtil.toBtcUri(address, amount.toBigInteger())
     }
 }

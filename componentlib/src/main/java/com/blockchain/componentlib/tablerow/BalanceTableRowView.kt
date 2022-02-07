@@ -6,18 +6,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.text.buildAnnotatedString
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class BalanceTableRowView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var startImageResource: ImageResource by mutableStateOf(ImageResource.None)
     var titleStart by mutableStateOf(buildAnnotatedString { })
@@ -26,6 +26,7 @@ class BalanceTableRowView @JvmOverloads constructor(
     var bodyEnd by mutableStateOf(buildAnnotatedString { })
     var onClick by mutableStateOf({})
     var tags by mutableStateOf(null as? List<TagViewState>?)
+    var isInlineTags by mutableStateOf(false)
 
     @Composable
     override fun Content() {
@@ -39,8 +40,19 @@ class BalanceTableRowView @JvmOverloads constructor(
                     startImageResource = startImageResource,
                     tags = tags.orEmpty(),
                     onClick = onClick,
+                    isInlineTags = isInlineTags
                 )
             }
         }
+    }
+
+    fun clearState() {
+        startImageResource = ImageResource.None
+        titleStart = buildAnnotatedString { }
+        titleEnd = buildAnnotatedString { }
+        bodyStart = buildAnnotatedString { }
+        bodyEnd = buildAnnotatedString { }
+        onClick = {}
+        tags = null
     }
 }

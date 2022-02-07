@@ -47,7 +47,9 @@ class HDWalletsContainer {
     }
 
     fun addAccount(): Int {
-        val legacy = legacy ?: throw HDWalletException("HDWallet not instantiated")
+        val legacy = legacy ?: throw HDWalletException(
+            "HDWallet not instantiated"
+        )
 
         val account = legacy.addAccount()
         segwitBech32?.addAccount()

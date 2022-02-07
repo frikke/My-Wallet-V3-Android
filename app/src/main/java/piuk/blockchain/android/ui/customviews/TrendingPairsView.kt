@@ -8,14 +8,14 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TrendingPair
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemTrendingPairRowBinding
 import piuk.blockchain.android.databinding.ViewTrendingPairsBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class TrendingPairsView(
     context: Context,
@@ -112,12 +112,12 @@ private class TrendingPairsAdapter(
 
         fun bind(type: TrendingPairsView.TrendingType, item: TrendingPair, assetResources: AssetResources) {
             binding.apply {
-                assetResources.loadAssetIcon(trendingIconIn, item.sourceAccount.asset)
-                assetResources.loadAssetIcon(trendingIconOut, item.destinationAccount.asset)
+                assetResources.loadAssetIcon(trendingIconIn, item.sourceAccount.currency)
+                assetResources.loadAssetIcon(trendingIconOut, item.destinationAccount.currency)
                 trendingRoot.apply {
                     contentDescription =
-                        "$TRENDING_PAIR_SWAP_VIEW_ID${item.sourceAccount.asset.networkTicker}" +
-                        "$FOR_CONTENT_DESCRIPTION${item.destinationAccount.asset.networkTicker}"
+                        "$TRENDING_PAIR_SWAP_VIEW_ID${item.sourceAccount.currency.networkTicker}" +
+                        "$FOR_CONTENT_DESCRIPTION${item.destinationAccount.currency.networkTicker}"
                     if (item.enabled) {
                         setOnClickListener { itemClicked(item) }
                         alpha = 1f
@@ -131,11 +131,11 @@ private class TrendingPairsAdapter(
                     TrendingPairsView.TrendingType.SWAP -> {
                         trendingTitle.text = context.getString(
                             R.string.trending_swap,
-                            item.sourceAccount.asset.name
+                            item.sourceAccount.currency.name
                         )
                         trendingSubtitle.text = context.getString(
                             R.string.trending_receive,
-                            item.destinationAccount.asset.name
+                            item.destinationAccount.currency.name
                         )
                         trendingIconType.setImageDrawable(context.getResolvedDrawable(R.drawable.ic_swap_light_blue))
                     }

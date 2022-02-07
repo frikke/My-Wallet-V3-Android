@@ -78,6 +78,10 @@
     <color name="btc">#FF9B22</color>
     <color name="aave">#2EBAC6</color>
 
+    <color name="purple_000">#EFECFE</color>
+
+    <color name="purple_700">#451DBF</color>
+
 </resources>
 
 

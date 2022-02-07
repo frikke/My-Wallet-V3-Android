@@ -5,19 +5,19 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
+import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAccountRecoveryBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.reset.ResetAccountFragment
 import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.visibleIf
 
 class AccountRecoveryActivity :
     MviActivity<AccountRecoveryModel, AccountRecoveryIntents, AccountRecoveryState, ActivityAccountRecoveryBinding>() {
@@ -45,8 +45,8 @@ class AccountRecoveryActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.account_recover_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.account_recover_title),
             backAction = { onBackPressed() }
         )
         initControls()
@@ -111,7 +111,7 @@ class AccountRecoveryActivity :
             verifyButton.setOnClickListener {
                 analytics.logEvent(AccountRecoveryAnalytics.MnemonicEntered(isCustodialAccount = false))
 
-                ViewUtils.hideKeyboard(this@AccountRecoveryActivity)
+                this@AccountRecoveryActivity.hideKeyboard()
                 model.process(
                     AccountRecoveryIntents.VerifySeedPhrase(
                         seedPhrase = recoveryPhaseText.text?.toString() ?: ""
@@ -123,7 +123,7 @@ class AccountRecoveryActivity :
 
     private fun launchResetAccountFlow() {
         analytics.logEvent(AccountRecoveryAnalytics.ResetClicked(isCustodialAccount = true))
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(

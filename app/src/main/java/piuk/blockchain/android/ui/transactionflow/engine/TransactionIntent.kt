@@ -8,26 +8,26 @@ import com.blockchain.coincore.InvoiceTarget
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import java.util.Stack
-import piuk.blockchain.android.ui.base.mvi.MviIntent
-import piuk.blockchain.android.ui.customviews.inputview.CurrencyType
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent.UpdateTransactionComplete.updateBackstack
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
 
     // The InitialiseXYZ intents are data classes so the TransactionFlowIntentMapperTest can compare them
     data class InitialiseWithSourceAccount(
         val action: AssetAction,
-        val fromAccount: BlockchainAccount,
+        val fromAccount: SingleAccount,
         private val passwordRequired: Boolean
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
@@ -54,7 +54,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
 
     data class InitialiseWithSourceAndTargetAccount(
         val action: AssetAction,
-        val fromAccount: BlockchainAccount,
+        val fromAccount: SingleAccount,
         val target: TransactionTarget,
         private val passwordRequired: Boolean
     ) : TransactionIntent() {
@@ -82,7 +82,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
 
     data class InitialiseWithSourceAndPreferredTarget(
         val action: AssetAction,
-        val fromAccount: BlockchainAccount,
+        val fromAccount: SingleAccount,
         val target: TransactionTarget,
         private val passwordRequired: Boolean
     ) : TransactionIntent() {
@@ -313,7 +313,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     }
 
     class SourceAccountSelected(
-        val sourceAccount: BlockchainAccount
+        val sourceAccount: SingleAccount
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
@@ -354,11 +354,11 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     }
 
     class DisplayModeChanged(
-        private val currencyType: CurrencyType
+        private val inputCurrency: CurrencyType
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
-                currencyType = currencyType
+                currencyType = inputCurrency
             )
     }
 
@@ -412,6 +412,21 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
 
     object StartLinkABank : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    object CheckAvailableOptionsForFiatDeposit : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(
+            depositOptionsState = DepositOptionsState.None
+        )
+    }
+
+    data class FiatDepositOptionSelected(
+        private val depositOptionsState: DepositOptionsState
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                depositOptionsState = depositOptionsState
+            )
     }
 
     object RefreshSourceAccounts : TransactionIntent() {

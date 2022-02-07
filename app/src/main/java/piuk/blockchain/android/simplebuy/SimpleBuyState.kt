@@ -2,30 +2,32 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.LinkedBank
+import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.lang.IllegalStateException
 import java.math.BigInteger
 import piuk.blockchain.android.cards.CardAcquirerCredentials
-import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -37,7 +39,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
  */
 data class SimpleBuyState constructor(
     val id: String? = null,
-    val fiatCurrency: String = "USD",
+    val fiatCurrency: FiatCurrency = FiatCurrency.fromCurrencyCode("USD"),
     override val amount: FiatValue = FiatValue.zero(fiatCurrency),
     val selectedCryptoAsset: AssetInfo? = null,
     val orderState: OrderState = OrderState.UNINITIALISED,
@@ -47,7 +49,7 @@ data class SimpleBuyState constructor(
     val selectedPaymentMethod: SelectedPaymentMethod? = null,
     val quote: BuyQuote? = null,
     val orderValue: CryptoValue? = null,
-    val supportedFiatCurrencies: List<String> = emptyList(),
+    val supportedFiatCurrencies: List<FiatCurrency> = emptyList(),
     val paymentSucceeded: Boolean = false,
     val showRating: Boolean = false,
     val withdrawalLockPeriod: BigInteger = BigInteger.ZERO,
@@ -150,8 +152,8 @@ data class SimpleBuyState constructor(
     override val sendingAsset: AssetInfo?
         get() = null
 
-    override val receivingCurrency: String
-        get() = selectedCryptoAsset?.displayTicker ?: throw IllegalStateException("Missing asset")
+    override val receivingAsset: Currency
+        get() = selectedCryptoAsset ?: throw IllegalStateException("Receiving asset is empty")
 
     override val availableBalance: Money?
         get() = selectedPaymentMethodDetails?.availableBalance
@@ -199,10 +201,15 @@ sealed class ErrorState : Serializable {
     object LinkedBankInternalFailure : ErrorState()
     object LinkedBankInvalid : ErrorState()
     object LinkedBankFraud : ErrorState()
+    object ApproveBankInvalid : ErrorState()
+    object ApprovedBankFailed : ErrorState()
     object ApprovedBankDeclined : ErrorState()
     object ApprovedBankRejected : ErrorState()
-    object ApprovedBankFailed : ErrorState()
     object ApprovedBankExpired : ErrorState()
+    object ApprovedBankLimitedExceed : ErrorState()
+    object ApprovedBankAccountInvalid : ErrorState()
+    object ApprovedBankFailedInternal : ErrorState()
+    object ApprovedBankInsufficientFunds : ErrorState()
     object ApprovedGenericError : ErrorState()
     object DailyLimitExceeded : ErrorState()
     object WeeklyLimitExceeded : ErrorState()
@@ -230,7 +237,7 @@ data class BuyQuote(
     val feeDetails: BuyFees
 ) {
     companion object {
-        fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: String, orderFee: FiatValue?) =
+        fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency, orderFee: Money?) =
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
@@ -238,26 +245,26 @@ data class BuyQuote(
                 availability = brokerageQuote.availability,
                 quoteMargin = brokerageQuote.quoteMargin,
                 feeDetails = BuyFees(
-                    fee = fee(brokerageQuote.feeDetails.fee as FiatValue, orderFee) as FiatValue,
+                    fee = fee(brokerageQuote.feeDetails.fee as FiatValue, orderFee as FiatValue),
                     feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
                     promo = brokerageQuote.feeDetails.promo
                 )
             )
 
-        private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): Money =
-            orderFee?.let {
-                Money.max(quoteFee, it)
-            } ?: quoteFee
+        private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): FiatValue =
+            (
+                orderFee?.let {
+                    Money.max(quoteFee, it)
+                } ?: quoteFee
+                ) as FiatValue
 
-        private fun Money.toFiat(fiatCurrency: String): FiatValue {
+        private fun Money.toFiat(fiatCurrency: Currency): FiatValue {
             return (this as? CryptoValue)?.let { value ->
-                val exchangeRate = ExchangeRate.FiatToCrypto(
+                return ExchangeRate(
                     from = fiatCurrency,
                     to = value.currency,
                     rate = value.toBigDecimal()
-                ).inverse().rate
-                check(exchangeRate != null)
-                FiatValue.fromMajor(fiatCurrency, exchangeRate)
+                ).inverse().price as FiatValue
             } ?: this as FiatValue
         }
     }

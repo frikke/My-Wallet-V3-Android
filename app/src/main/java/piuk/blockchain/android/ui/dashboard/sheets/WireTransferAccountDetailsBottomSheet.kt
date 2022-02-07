@@ -6,9 +6,13 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -21,12 +25,9 @@ import piuk.blockchain.android.simplebuy.CopyFieldListener
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.linkBankFieldCopied
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.urllinks.MODULAR_TERMS_AND_CONDITIONS
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetLinkBankAccountBinding>() {
@@ -36,8 +37,9 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
     private val stringUtils: StringUtils by inject()
     private val currencyPrefs: CurrencyPrefs by scopedInject()
 
-    private val fiatCurrency: String by unsafeLazy {
-        arguments?.getString(FIAT_CURRENCY) ?: currencyPrefs.selectedFiatCurrency
+    private val fiatCurrency: FiatCurrency by unsafeLazy {
+        arguments?.getSerializable(FIAT_CURRENCY) as? FiatCurrency
+            ?: currencyPrefs.selectedFiatCurrency
     }
 
     private val isForLink: Boolean by unsafeLazy {
@@ -63,7 +65,7 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
                     analytics.logEvent(
                         linkBankEventWithCurrency(
                             SimpleBuyAnalytics.WIRE_TRANSFER_SCREEN_SHOWN,
-                            fiatCurrency
+                            fiatCurrency.networkTicker
                         )
                     )
                 },
@@ -72,7 +74,7 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
                     analytics.logEvent(
                         linkBankEventWithCurrency(
                             SimpleBuyAnalytics.WIRE_TRANSFER_LOADING_ERROR,
-                            fiatCurrency
+                            fiatCurrency.networkTicker
                         )
                     )
                 }
@@ -94,9 +96,9 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
         }
     }
 
-    private fun configureUi(fiatCurrency: String) {
+    private fun configureUi(fiatCurrency: FiatCurrency) {
         with(binding) {
-            if (fiatCurrency == "GBP") {
+            if (fiatCurrency.networkTicker == "GBP") {
                 val linksMap = mapOf<String, Uri>(
                     "modular_terms_and_conditions" to Uri.parse(MODULAR_TERMS_AND_CONDITIONS)
                 )
@@ -112,7 +114,7 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
             }
 
             processingTime.updateSubtitle(
-                when (fiatCurrency) {
+                when (fiatCurrency.networkTicker) {
                     "GBP" -> getString(R.string.processing_time_subtitle_gbp)
                     "USD" -> getString(R.string.processing_time_subtitle_usd)
                     else -> getString(R.string.processing_time_subtitle_eur)
@@ -120,7 +122,8 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
             )
             title.text = if (isForLink) getString(R.string.add_bank_with_currency, fiatCurrency) else
                 getString(R.string.deposit_currency, fiatCurrency)
-            subtitle.text = getString(R.string.bank_transfer)
+            subtitle.text = if (fiatCurrency == FiatCurrency.Dollars) getString(R.string.bank_wire_transfer) else
+                getString(R.string.bank_transfer)
 
             bankTransferOnly.visible()
             processingTime.visible()
@@ -134,7 +137,7 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
 
     private val copyListener = object : CopyFieldListener {
         override fun onFieldCopied(field: String) {
-            analytics.logEvent(linkBankFieldCopied(field, fiatCurrency))
+            analytics.logEvent(linkBankFieldCopied(field, fiatCurrency.networkTicker))
             ToastCustom.makeText(
                 requireContext(),
                 resources.getString(R.string.simple_buy_copied_to_clipboard, field),
@@ -151,17 +154,17 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
         fun newInstance(fiatAccount: FiatAccount) =
             WireTransferAccountDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putString(FIAT_CURRENCY, fiatAccount.fiatCurrency)
+                    putSerializable(FIAT_CURRENCY, fiatAccount.currency as FiatCurrency)
                     putBoolean(IS_FOR_LINK, !fiatAccount.isFunded)
                 }
             }
 
         fun newInstance() = WireTransferAccountDetailsBottomSheet()
 
-        fun newInstance(fiatCurrency: String) =
+        fun newInstance(fiatCurrency: FiatCurrency) =
             WireTransferAccountDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putString(FIAT_CURRENCY, fiatCurrency)
+                    putSerializable(FIAT_CURRENCY, fiatCurrency)
                 }
             }
     }

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.cards
 
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class CardIntent : MviIntent<CardState> {
 

@@ -2,6 +2,7 @@ package com.blockchain.core.chains.erc20.model
 
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 
@@ -12,7 +13,7 @@ data class Erc20HistoryEvent(
     val to: String,
     val blockNumber: BigInteger,
     val timestamp: Long,
-    val fee: Single<CryptoValue>
+    val fee: Single<Money>
 ) {
     fun isFromAccount(accountHash: String): Boolean =
         accountHash.compareTo(from, ignoreCase = true) == 0

@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.nabu.datamanagers.Bank
-import com.blockchain.nabu.datamanagers.BankState
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankState
 import com.blockchain.nabu.datamanagers.featureflags.Feature
 import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
@@ -18,7 +18,7 @@ class FiatFundsKycAnnouncementTest {
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
     private val kycFeatureEligibility: KycFeatureEligibility = mock()
-    private val custodialWalletManager: CustodialWalletManager = mock()
+    private val paymentsDataManager: PaymentsDataManager = mock()
 
     private lateinit var subject: FiatFundsKycAnnouncement
 
@@ -31,7 +31,7 @@ class FiatFundsKycAnnouncementTest {
             FiatFundsKycAnnouncement(
                 dismissRecorder = dismissRecorder,
                 featureEligibility = kycFeatureEligibility,
-                custodialWalletManager = custodialWalletManager
+                paymentsDataManager = paymentsDataManager
             )
     }
 
@@ -52,7 +52,7 @@ class FiatFundsKycAnnouncementTest {
         whenever(kycFeatureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE))
             .thenReturn(Single.just(true))
 
-        whenever(custodialWalletManager.getBanks()).thenReturn(Single.just(emptyList()))
+        whenever(paymentsDataManager.getLinkedBanks()).thenReturn(Single.just(emptyList()))
 
         subject.shouldShow()
             .test()
@@ -67,8 +67,12 @@ class FiatFundsKycAnnouncementTest {
         whenever(kycFeatureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE))
             .thenReturn(Single.just(true))
 
-        whenever(custodialWalletManager.getBanks()).thenReturn(
-            Single.just(listOf(Bank("", "", "", BankState.ACTIVE, "USD", "", PaymentMethodType.BANK_ACCOUNT, "")))
+        whenever(paymentsDataManager.getLinkedBanks()).thenReturn(
+            Single.just(
+                listOf(
+                    LinkedPaymentMethod.Bank("", "", "", "", "", false, BankState.ACTIVE, USD)
+                )
+            )
         )
 
         subject.shouldShow()
@@ -84,7 +88,7 @@ class FiatFundsKycAnnouncementTest {
         whenever(kycFeatureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE))
             .thenReturn(Single.just(false))
 
-        whenever(custodialWalletManager.getBanks()).thenReturn(Single.just(emptyList()))
+        whenever(paymentsDataManager.getLinkedBanks()).thenReturn(Single.just(emptyList()))
 
         subject.shouldShow()
             .test()

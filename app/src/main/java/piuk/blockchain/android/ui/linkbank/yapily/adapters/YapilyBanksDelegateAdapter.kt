@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.linkbank.yapily.adapters
 
-import com.blockchain.nabu.models.data.YapilyInstitution
+import com.blockchain.core.payments.model.YapilyInstitution
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 

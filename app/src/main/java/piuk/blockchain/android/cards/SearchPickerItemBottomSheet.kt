@@ -9,16 +9,15 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import java.io.Serializable
 import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.PickerLayoutBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SearchPickerItemBottomSheet : SlidingModalBottomDialog<PickerLayoutBinding>() {
-
     private val searchResults = mutableListOf<PickerItem>()
     private val adapter by unsafeLazy {
         PickerItemsAdapter {

@@ -1,11 +1,11 @@
 package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.DestructiveMinimalButtonView
 import com.blockchain.componentlib.button.MinimalButtonView
-import com.blockchain.componentlib.button.PrimaryButtonView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class MinimalButtonActivity : AppCompatActivity() {
@@ -42,6 +42,48 @@ class MinimalButtonActivity : AppCompatActivity() {
         }
 
         findViewById<MinimalButtonView>(R.id.loading).apply {
+            onClick = {
+                Toast
+                    .makeText(
+                        context,
+                        "This toast shouldn't show up",
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
+            }
+            text = "Loading"
+            buttonState = ButtonState.Loading
+        }
+
+        findViewById<DestructiveMinimalButtonView>(R.id.destructive_enabled).apply {
+            onClick = {
+                Toast
+                    .makeText(
+                        context,
+                        "Clicked",
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
+            }
+            text = "Enabled"
+            buttonState = ButtonState.Enabled
+        }
+
+        findViewById<DestructiveMinimalButtonView>(R.id.destructive_disabled).apply {
+            onClick = {
+                Toast
+                    .makeText(
+                        context,
+                        "This toast shouldn't show up",
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
+            }
+            text = "Disabled"
+            buttonState = ButtonState.Disabled
+        }
+
+        findViewById<DestructiveMinimalButtonView>(R.id.destructive_loading).apply {
             onClick = {
                 Toast
                     .makeText(

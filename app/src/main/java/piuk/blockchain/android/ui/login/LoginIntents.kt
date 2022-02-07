@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.login
 
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 
 sealed class LoginIntents : MviIntent<LoginState> {

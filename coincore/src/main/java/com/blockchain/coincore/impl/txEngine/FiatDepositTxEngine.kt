@@ -21,6 +21,8 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -28,7 +30,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.network.PollService
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetCategory
@@ -45,6 +46,7 @@ private const val PAYMENT_METHOD_LIMITS = "PAYMENT_METHOD_LIMITS"
 class FiatDepositTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val limitsDataManager: LimitsDataManager,
@@ -63,8 +65,8 @@ class FiatDepositTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> {
         check(sourceAccount is BankAccount)
         check(txTarget is FiatAccount)
-        val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
-        val zeroFiat = FiatValue.zero(sourceAccountCurrency)
+        val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).currency
+        val zeroFiat = Money.zero(sourceAccountCurrency)
         val paymentMethodLimits = walletManager.getBankTransferLimits(sourceAccountCurrency, true)
         val locks = withdrawLocksRepository.getWithdrawLockTypeForPaymentMethod(
             paymentMethodType = PaymentMethodType.BANK_TRANSFER,
@@ -76,7 +78,7 @@ class FiatDepositTxEngine(
                 limitsDataManager.getLimits(
                     outputCurrency = sourceAccountCurrency,
                     sourceCurrency = sourceAccountCurrency,
-                    targetCurrency = (txTarget as FiatAccount).fiatCurrency,
+                    targetCurrency = (txTarget as FiatAccount).currency,
                     sourceAccountType = AssetCategory.NON_CUSTODIAL,
                     targetAccountType = AssetCategory.CUSTODIAL,
                     legacyLimits = Single.just(paymentMethodLimits).map {
@@ -182,7 +184,7 @@ class FiatDepositTxEngine(
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         sourceAccount.receiveAddress.flatMap {
-            walletManager.startBankTransfer(
+            paymentsDataManager.startBankTransfer(
                 it.address, pendingTx.amount, pendingTx.amount.currencyCode,
                 if (isOpenBankingCurrency()) {
                     bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
@@ -195,16 +197,16 @@ class FiatDepositTxEngine(
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         if (isOpenBankingCurrency()) {
             val paymentId = (txResult as TxResult.HashedTxResult).txId
-            PollService(walletManager.getBankTransferCharge(paymentId)) {
+            PollService(paymentsDataManager.getBankTransferCharge(paymentId)) {
                 it.authorisationUrl != null
             }.start().map { it.value }.flatMap { bankTransferDetails ->
-                walletManager.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
+                paymentsDataManager.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
                     bankTransferDetails.authorisationUrl?.let {
                         BankPaymentApproval(
                             paymentId,
                             it,
                             linkedBank,
-                            bankTransferDetails.amount
+                            bankTransferDetails.amount as FiatValue
                         )
                     } ?: throw InvalidParameterException("No auth url was returned")
                 }
@@ -216,8 +218,7 @@ class FiatDepositTxEngine(
         }
 
     private fun isOpenBankingCurrency(): Boolean {
-        val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
-        return sourceAccountCurrency == "EUR" || sourceAccountCurrency == "GBP"
+        return (sourceAccount as? LinkedBankAccount)?.isOpenBankingCurrency() == true
     }
 
     private fun PendingTx.maxLimitForPaymentMethodViolated(): Boolean =

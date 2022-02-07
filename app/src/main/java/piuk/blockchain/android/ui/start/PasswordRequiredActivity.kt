@@ -6,13 +6,14 @@ import android.os.CountDownTimer
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.componentlib.controls.TextInputState
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -21,7 +22,6 @@ import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
-import piuk.blockchain.android.util.ViewUtils
 
 class PasswordRequiredActivity :
     MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),
@@ -48,19 +48,29 @@ class PasswordRequiredActivity :
         }
     }
 
-    override val toolbarBinding: ToolbarGeneralBinding
-        get() = binding.toolbar
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.confirm_password),
-            backAction = { onBackPressed() }
-        )
+
         with(binding) {
-            buttonContinue.setOnClickListener { presenter.onContinueClicked(binding.fieldPassword.text.toString()) }
-            buttonForget.setOnClickListener { presenter.onForgetWalletClicked() }
+
+            walletIdentifier.apply {
+                labelText = getString(R.string.wallet_id)
+                state = TextInputState.Disabled()
+            }
+
+            buttonContinue.apply {
+                onClick = {
+                    presenter.onContinueClicked(binding.fieldPassword.text.toString())
+                }
+                text = getString(R.string.btn_continue)
+            }
+            buttonForget.apply {
+                onClick = {
+                    presenter.onForgetWalletClicked()
+                }
+                text = getString(R.string.wipe_wallet)
+            }
             buttonRecover.setOnClickListener { launchRecoveryFlow() }
         }
     }
@@ -89,7 +99,7 @@ class PasswordRequiredActivity :
     }
 
     override fun showWalletGuid(guid: String) {
-        binding.walletIdentifier.text = guid
+        binding.walletIdentifier.value = guid
     }
 
     override fun goToPinPage() {
@@ -117,7 +127,7 @@ class PasswordRequiredActivity :
         guid: String,
         password: String
     ) {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
 
         val dialog = getTwoFactorDialog(
             this, authType,

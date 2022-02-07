@@ -4,10 +4,6 @@ import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.responses.banktransfer.BankTransferPaymentBody
-import com.blockchain.nabu.models.responses.banktransfer.CreateLinkBankRequestBody
-import com.blockchain.nabu.models.responses.banktransfer.OpenBankingTokenBody
-import com.blockchain.nabu.models.responses.banktransfer.UpdateProviderAccountBody
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
@@ -29,14 +25,12 @@ import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.nabu.WalletMercuryLink
 import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
 import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
-import com.blockchain.nabu.models.responses.simplebuy.AddNewCardBodyRequest
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.DepositRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
@@ -341,14 +335,6 @@ class NabuService internal constructor(
         amount = amount
     )
 
-    internal fun getPredefinedAmounts(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ): Single<List<Map<String, List<Long>>>> = nabu.getPredefinedAmounts(
-        sessionToken.authHeader,
-        currency
-    ).wrapErrorMessage()
-
     internal fun getTransactions(
         sessionToken: NabuSessionTokenResponse,
         currency: String,
@@ -477,49 +463,6 @@ class NabuService internal constructor(
         sessionToken.authHeader, orderId
     ).wrapErrorMessage()
 
-    fun deleteCard(
-        sessionToken: NabuSessionTokenResponse,
-        cardId: String
-    ) = nabu.deleteCard(
-        sessionToken.authHeader, cardId
-    ).wrapErrorMessage()
-
-    fun removeBeneficiary(
-        sessionToken: NabuSessionTokenResponse,
-        id: String
-    ) = nabu.removeBeneficiary(
-        sessionToken.authHeader, id
-    ).wrapErrorMessage()
-
-    fun removeLinkedBank(
-        sessionToken: NabuSessionTokenResponse,
-        id: String
-    ) = nabu.removeLinkedBank(
-        sessionToken.authHeader, id
-    ).wrapErrorMessage()
-
-    fun addNewCard(
-        sessionToken: NabuSessionTokenResponse,
-        addNewCardBodyRequest: AddNewCardBodyRequest
-    ) = nabu.addNewCard(
-        sessionToken.authHeader, addNewCardBodyRequest
-    ).wrapErrorMessage()
-
-    fun activateCard(
-        sessionToken: NabuSessionTokenResponse,
-        cardId: String,
-        attributes: SimpleBuyConfirmationAttributes
-    ) = nabu.activateCard(
-        sessionToken.authHeader, cardId, attributes
-    ).wrapErrorMessage()
-
-    fun getCardDetails(
-        sessionToken: NabuSessionTokenResponse,
-        cardId: String
-    ) = nabu.getCardDetails(
-        sessionToken.authHeader, cardId
-    ).wrapErrorMessage()
-
     fun confirmOrder(
         sessionToken: NabuSessionTokenResponse,
         orderId: String,
@@ -561,43 +504,6 @@ class NabuService internal constructor(
     fun cardAcquirers(
         sessionToken: NabuSessionTokenResponse
     ) = nabu.getCardAcquirers(sessionToken.authHeader).wrapErrorMessage()
-
-    fun getBeneficiaries(sessionToken: NabuSessionTokenResponse) =
-        nabu.getLinkedBeneficiaries(sessionToken.authHeader).wrapErrorMessage()
-
-    fun linkToABank(
-        sessionToken: NabuSessionTokenResponse,
-        fiatCurrency: String
-    ) = nabu.linkABank(
-        sessionToken.authHeader,
-        CreateLinkBankRequestBody(
-            fiatCurrency
-        )
-    ).wrapErrorMessage()
-
-    fun updateAccountProviderId(
-        sessionToken: NabuSessionTokenResponse,
-        id: String,
-        body: UpdateProviderAccountBody
-    ) = nabu.updateProviderAccount(
-        sessionToken.authHeader,
-        id,
-        body
-    ).wrapErrorMessage()
-
-    /**
-     * cardProvidersSupported is signalling to the backend if they can list
-     * cards created by the new providers for payment. The purpose is to avoid listing
-     * cards which were tokenised with the new providers on other platforms if
-     * the feature flag is off.
-     */
-    fun getCards(
-        sessionToken: NabuSessionTokenResponse,
-        cardProvidersSupported: Boolean
-    ) = nabu.getCards(
-        authorization = sessionToken.authHeader,
-        cardProvidersSupported = cardProvidersSupported
-    ).wrapErrorMessage()
 
     /**
      * If there is no rate for a given asset, this endpoint returns a 204, which must be parsed
@@ -643,45 +549,6 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse
     ) = nabu.getInterestEnabled(authorization = sessionToken.authHeader)
         .wrapErrorMessage()
-
-    fun getLinkedBank(
-        sessionToken: NabuSessionTokenResponse,
-        id: String
-    ) = nabu.getLinkedBank(authorization = sessionToken.authHeader, id = id)
-        .wrapErrorMessage()
-
-    fun getBanks(
-        sessionToken: NabuSessionTokenResponse
-    ) = nabu.getBanks(authorization = sessionToken.authHeader)
-        .wrapErrorMessage()
-
-    fun startBankTransferPayment(
-        sessionToken: NabuSessionTokenResponse,
-        id: String,
-        body: BankTransferPaymentBody
-    ) = nabu.startBankTransferPayment(
-        authorization = sessionToken.authHeader,
-        id = id,
-        body = body
-    ).wrapErrorMessage()
-
-    fun getBankTransferCharge(
-        sessionToken: NabuSessionTokenResponse,
-        paymentId: String
-    ) = nabu.getBankTransferCharge(
-        authorization = sessionToken.authHeader,
-        paymentId = paymentId
-    ).wrapErrorMessage()
-
-    fun updateOpenBankingToken(
-        url: String,
-        sessionToken: NabuSessionTokenResponse,
-        body: OpenBankingTokenBody
-    ) = nabu.updateOpenBankingToken(
-        url = url,
-        authorization = sessionToken.authHeader,
-        body = body
-    ).wrapErrorMessage()
 
     fun executeTransfer(
         sessionToken: NabuSessionTokenResponse,

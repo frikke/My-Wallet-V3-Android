@@ -3,11 +3,13 @@ package com.blockchain.componentlib.system
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppSurface
@@ -24,9 +26,20 @@ fun CircularProgressBar(
 ) {
     val color = Blue600
     val backgroundColor = Grey000
+    val fontStyle = AppTheme.typography.body1
+
+    val textHeight = with(LocalDensity.current) {
+        fontStyle.lineHeight.toDp()
+    }
+
+    var boxModifier = modifier
+
+    if (text != null) {
+        boxModifier = modifier.size(textHeight)
+    }
 
     Row {
-        Box(modifier = modifier) {
+        Box(modifier = boxModifier) {
             CircularProgressIndicator(
                 color = backgroundColor,
                 progress = 1f
@@ -49,7 +62,7 @@ fun CircularProgressBar(
                     .padding(start = 25.dp)
                     .align(Alignment.Bottom),
                 text = text,
-                style = AppTheme.typography.body1,
+                style = fontStyle,
                 color = Grey600
             )
         }

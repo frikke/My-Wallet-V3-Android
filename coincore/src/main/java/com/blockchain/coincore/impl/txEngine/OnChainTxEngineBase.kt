@@ -9,6 +9,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -104,12 +105,13 @@ abstract class OnChainTxEngineBase(
     }
 
     private fun updateFeeSelection(
-        cryptoCurrency: AssetInfo,
+        currency: Currency,
         pendingTx: PendingTx,
         newFeeLevel: FeeLevel,
         customFeeAmount: Long
     ): Single<PendingTx> {
-        storeDefaultFeeLevel(cryptoCurrency, newFeeLevel)
+        require(currency is AssetInfo)
+        storeDefaultFeeLevel(currency, newFeeLevel)
 
         return doUpdateAmount(
             amount = pendingTx.amount,

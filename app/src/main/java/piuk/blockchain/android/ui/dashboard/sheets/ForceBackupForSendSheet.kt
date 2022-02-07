@@ -5,12 +5,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.preferences.DashboardPrefs
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogBackupForSendBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 class ForceBackupForSendSheet : SlidingModalBottomDialog<DialogBackupForSendBinding>() {
 

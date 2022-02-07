@@ -49,7 +49,7 @@ class AssetDetailsFlow(
         fun goToInterestDeposit(toAccount: InterestAccount) {}
         fun goToInterestWithdraw(fromAccount: InterestAccount) {}
         fun goToInterestDashboard() {}
-        fun goToSummary(account: SingleAccount, asset: AssetInfo) {}
+        fun goToSummary(account: CryptoAccount) {}
         fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess)
     }
 
@@ -189,8 +189,7 @@ class AssetDetailsFlow(
                 )
             }
             AssetAction.ViewStatement -> assetFlowHost.goToSummary(
-                newState.selectedAccount.selectFirstAccount(),
-                newState.selectedAccount.selectFirstAccount().asset
+                newState.selectedAccount.selectFirstAccount()
             )
             AssetAction.InterestDeposit -> {
                 val account = newState.selectedAccount.selectFirstAccount()
@@ -208,7 +207,7 @@ class AssetDetailsFlow(
             }
             AssetAction.Buy -> {
                 newState.asset?.let {
-                    assetFlowHost.tryToLaunchBuy(it.asset, newState.userBuyAccess)
+                    assetFlowHost.tryToLaunchBuy(it.assetInfo, newState.userBuyAccess)
                     finishFlow()
                 }
             }
@@ -246,7 +245,7 @@ class AssetDetailsFlow(
         state: AssetDetailsState,
         singleAccountAction: (SingleAccount) -> Unit
     ) {
-        disposables += coincore[state.asset!!.asset].accountGroup(AssetFilter.NonCustodial)
+        disposables += coincore[state.asset!!.assetInfo].accountGroup(AssetFilter.NonCustodial)
             .subscribeBy { ag ->
                 when {
                     ag.accounts.size > 1 -> {

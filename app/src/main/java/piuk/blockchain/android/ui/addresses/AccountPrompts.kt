@@ -11,11 +11,11 @@ import android.widget.ImageView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
+import com.blockchain.componentlib.viewextensions.getTextString
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.getTextString
 
 private const val ADDRESS_LABEL_MAX_LENGTH = 17
 
@@ -43,7 +43,7 @@ internal fun promptForAccountLabel(
     AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
         .setTitle(title)
         .setMessage(msg)
-        .setView(ViewUtils.getAlertDialogPaddedView(ctx, editCtrl))
+        .setView(ctx.getAlertDialogPaddedView(editCtrl))
         .setCancelable(false)
         .setPositiveButton(okBtnText) { _, _ ->
             val label = editCtrl.getTextString().trim { it <= ' ' }
@@ -138,7 +138,7 @@ fun promptImportKeyPassword(
     AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
         .setTitle(R.string.app_name)
         .setMessage(R.string.bip38_password_entry)
-        .setView(ViewUtils.getAlertDialogPaddedView(ctx, editCtrl))
+        .setView(ctx.getAlertDialogPaddedView(editCtrl))
         .setCancelable(false)
         .setPositiveButton(android.R.string.ok) { _, _ ->
             val password = editCtrl.getTextString().trim { it <= ' ' }

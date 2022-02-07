@@ -124,7 +124,11 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("1234567890"))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
-            .thenReturn(Completable.error(DecryptionException()))
+            .thenReturn(
+                Completable.error(
+                    DecryptionException()
+                )
+            )
 
         // Act
         subject.verifyPassword(PASSWORD, GUID)
@@ -149,7 +153,11 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.just("1234567890"))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
-            .thenReturn(Completable.error(HDWalletException()))
+            .thenReturn(
+                Completable.error(
+                    HDWalletException()
+                )
+            )
 
         // Act
         subject.verifyPassword(PASSWORD, GUID)

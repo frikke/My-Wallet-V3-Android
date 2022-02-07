@@ -3,6 +3,8 @@ package piuk.blockchain.android.util
 import android.content.res.Resources
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.resources.AssetResources
 
@@ -26,7 +28,7 @@ internal class ResourceDefaultLabels(
         return resources.getString(R.string.custodial_wallet_default_label_1)
     }
 
-    override fun getAssetMasterWalletLabel(asset: AssetInfo): String =
+    override fun getAssetMasterWalletLabel(asset: Currency): String =
         asset.name
 
     override fun getAllWalletLabel(): String =
@@ -38,6 +40,6 @@ internal class ResourceDefaultLabels(
     override fun getDefaultExchangeWalletLabel(): String =
         resources.getString(R.string.exchange_default_account_label_1)
 
-    override fun getDefaultCustodialFiatWalletLabel(fiatCurrency: String): String =
-        resources.getString(R.string.fiat_currency_funds_wallet_name_1, fiatCurrency)
+    override fun getDefaultCustodialFiatWalletLabel(fiatCurrency: FiatCurrency): String =
+        resources.getString(R.string.fiat_currency_funds_wallet_name_1, fiatCurrency.displayTicker)
 }

@@ -2,6 +2,7 @@
 
 package com.blockchain.coincore.btc
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeLevel
@@ -10,6 +11,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.satoshi
@@ -91,7 +93,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         subject.assertInputsValid()
 
         // Assert
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(txTarget).asset
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -100,7 +102,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount: BtcCryptoWalletAccount = mock {
-            on { asset }.thenReturn(WRONG_ASSET)
+            on { currency }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -117,7 +119,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         subject.assertInputsValid()
 
         // Assert
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(txTarget).asset
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -142,7 +144,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         assertEquals(asset, ASSET)
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -179,7 +181,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(walletPreferences).getFeeTypeForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
 
@@ -288,9 +290,9 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
         verify(txTarget, atMost(2)).address
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).accountBalance
+        verify(sourceAccount).balance
         verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
@@ -413,9 +415,9 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(txTarget, atMost(2)).address
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).accountBalance
+        verify(sourceAccount).balance
         verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
@@ -541,9 +543,9 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(txTarget, atMost(2)).address
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).accountBalance
+        verify(sourceAccount).balance
         verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
@@ -784,9 +786,9 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Custom, feeCustom) }
 
         verify(txTarget, atMost(2)).address
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).accountBalance
+        verify(sourceAccount).balance
         verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
@@ -937,9 +939,9 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Custom, feeCustom) }
 
         verify(txTarget, atMost(2)).address
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount).accountBalance
+        verify(sourceAccount).balance
         verify(btcDataManager).getAddressBalance(SOURCE_XPUBS)
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
@@ -974,9 +976,17 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
-        on { asset }.thenReturn(ASSET)
-        on { accountBalance }.thenReturn(Single.just(totalBalance))
-        on { actionableBalance }.thenReturn(Single.just(availableBalance))
+        on { currency }.thenReturn(ASSET)
+        on { balance }.thenReturn(
+            Observable.just(
+                AccountBalance(
+                    total = totalBalance,
+                    withdrawable = availableBalance,
+                    pending = Money.zero(totalBalance.currency),
+                    exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
+                )
+            )
+        )
         on { xpubs }.thenReturn(SOURCE_XPUBS)
     }
 

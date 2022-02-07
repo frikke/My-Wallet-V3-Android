@@ -17,9 +17,7 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.takeEnabledIf
-import com.blockchain.coincore.toFiat
 import com.blockchain.coincore.toUserFiat
-import com.blockchain.core.price.ExchangeRates
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
@@ -29,15 +27,14 @@ import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReaso
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.asFiatCurrencyOrThrow
 import info.blockchain.balance.total
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
-import java.math.BigInteger
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal const val transactionFetchCount = 50
@@ -49,21 +46,6 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     final override var hasTransactions: Boolean = true
         private set
-
-    final override val accountBalance: Single<Money>
-        get() = balance.map { it.total }.firstOrError()
-
-    final override val actionableBalance: Single<Money>
-        get() = balance.map { it.actionable }.firstOrError()
-
-    final override val pendingBalance: Single<Money>
-        get() = balance.map { it.pending }.firstOrError()
-
-    final override fun fiatBalance(
-        fiatCurrency: String,
-        exchangeRates: ExchangeRates
-    ): Single<Money> =
-        accountBalance.map { it.toFiat(fiatCurrency, exchangeRates) }
 
     protected fun setHasTransactions(hasTransactions: Boolean) {
         this.hasTransactions = hasTransactions
@@ -98,7 +80,7 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     private fun custodialItemToSummary(item: TradeTransactionItem): TradeActivitySummaryItem {
         val sendingAccount = this
-        val userFiat = item.apiFiatValue.toUserFiat(exchangeRates) as FiatValue
+        val userFiat = item.apiFiatValue.toUserFiat(exchangeRates)
         return with(item) {
             TradeActivitySummaryItem(
                 exchangeRates = exchangeRates,
@@ -111,11 +93,11 @@ abstract class CryptoAccountBase : CryptoAccount {
                 state = state,
                 direction = direction,
                 receivingValue = receivingValue,
-                depositNetworkFee = Single.just(item.currencyPair.toSourceMoney(0.toBigInteger())),
+                depositNetworkFee = Single.just(Money.zero(item.currencyPair.source)),
                 withdrawalNetworkFee = withdrawalNetworkFee,
                 currencyPair = item.currencyPair,
                 fiatValue = userFiat,
-                fiatCurrency = userFiat.currencyCode,
+                fiatCurrency = userFiat.currency.asFiatCurrencyOrThrow(),
                 price = item.price
             )
         }
@@ -141,7 +123,7 @@ abstract class CryptoAccountBase : CryptoAccount {
 
 // To handle Send to PIT
 /*internal*/ class CryptoExchangeAccount internal constructor(
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     override val label: String,
     private val address: String,
     override val exchangeRates: ExchangeRatesDataManager
@@ -153,15 +135,15 @@ abstract class CryptoAccountBase : CryptoAccount {
         Single.just(false)
 
     override fun matches(other: CryptoAccount): Boolean =
-        other is CryptoExchangeAccount && other.asset == asset
+        other is CryptoExchangeAccount && other.currency == currency
 
     override val balance: Observable<AccountBalance>
-        get() = Observable.just(AccountBalance.zero(asset))
+        get() = Observable.just(AccountBalance.zero(currency))
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
             makeExternalAssetAddress(
-                asset = asset,
+                asset = currency,
                 label = label,
                 address = address,
                 postTransactions = onTxCompleted
@@ -190,7 +172,7 @@ abstract class CryptoAccountBase : CryptoAccount {
 abstract class CryptoNonCustodialAccount(
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     protected val payloadDataManager: PayloadDataManager,
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     private val custodialWalletManager: CustodialWalletManager,
     private val identity: UserIdentity
 ) : CryptoAccountBase(), NonCustodialAccount {
@@ -200,12 +182,12 @@ abstract class CryptoNonCustodialAccount(
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
             getOnChainBalance(),
-            exchangeRates.cryptoToUserFiatRate(asset)
+            exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance(
                 total = balance,
-                actionable = balance,
-                pending = CryptoValue.zero(asset),
+                withdrawable = balance,
+                pending = CryptoValue.zero(currency),
                 exchangeRate = rate
             )
         }
@@ -215,7 +197,7 @@ abstract class CryptoNonCustodialAccount(
     // The plan here is once we are caching the non custodial balances to remove this isFunded
     override val actions: Single<AvailableActions>
         get() = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }.zipWith(
-            identity.isEligibleFor(Feature.Interest(asset))
+            identity.isEligibleFor(Feature.Interest(currency))
         ).map { (fiatAccounts, isEligibleForInterest) ->
 
             val isActiveFunded = !isArchived && isFunded
@@ -245,8 +227,8 @@ abstract class CryptoNonCustodialAccount(
     override val directions: Set<TransferDirection> = setOf(TransferDirection.FROM_USERKEY, TransferDirection.ON_CHAIN)
 
     override val sourceState: Single<TxSourceState>
-        get() = actionableBalance.map {
-            if (it.isZero) {
+        get() = balance.firstOrError().map {
+            if (it.withdrawable.isZero) {
                 TxSourceState.NO_FUNDS
             } else {
                 TxSourceState.CAN_TRANSACT
@@ -274,8 +256,7 @@ abstract class CryptoNonCustodialAccount(
             if (hit?.transactionType == TransactionSummary.TransactionType.SENT) {
                 activityList.remove(hit)
                 val updatedSwap = custodialItem.copy(
-                    depositNetworkFee = hit.fee.first((CryptoValue(hit.asset, BigInteger.ZERO)))
-                        .map { it as Money }
+                    depositNetworkFee = hit.fee.first(Money.zero(hit.asset))
                 )
                 activityList.add(updatedSwap)
             }
@@ -285,22 +266,22 @@ abstract class CryptoNonCustodialAccount(
 
     // For editing etc
     open fun updateLabel(newLabel: String): Completable =
-        Completable.error(UnsupportedOperationException("Cannot update account label for $asset accounts"))
+        Completable.error(UnsupportedOperationException("Cannot update account label for $currency accounts"))
 
     open fun archive(): Completable =
-        Completable.error(UnsupportedOperationException("Cannot archive $asset accounts"))
+        Completable.error(UnsupportedOperationException("Cannot archive $currency accounts"))
 
     open fun unarchive(): Completable =
-        Completable.error(UnsupportedOperationException("Cannot unarchive $asset accounts"))
+        Completable.error(UnsupportedOperationException("Cannot unarchive $currency accounts"))
 
     open fun setAsDefault(): Completable =
-        Completable.error(UnsupportedOperationException("$asset doesn't support multiple accounts"))
+        Completable.error(UnsupportedOperationException("$currency doesn't support multiple accounts"))
 
     open val xpubAddress: String
-        get() = throw UnsupportedOperationException("$asset doesn't support xpub")
+        get() = throw UnsupportedOperationException("$currency doesn't support xpub")
 
     override fun matches(other: CryptoAccount): Boolean =
-        other is CryptoNonCustodialAccount && other.asset == asset
+        other is CryptoNonCustodialAccount && other.currency == currency
 }
 
 // Currently only one custodial account is supported for each asset,
@@ -329,15 +310,6 @@ class CryptoAccountCustodialGroup(
     override val balance: Observable<AccountBalance>
         get() = account.balance
 
-    override val accountBalance: Single<Money>
-        get() = account.accountBalance
-
-    override val actionableBalance: Single<Money>
-        get() = account.actionableBalance
-
-    override val pendingBalance: Single<Money>
-        get() = account.pendingBalance
-
     override val activity: Single<ActivitySummaryList>
         get() = account.activity
 
@@ -349,12 +321,6 @@ class CryptoAccountCustodialGroup(
 
     override val hasTransactions: Boolean
         get() = account.hasTransactions
-
-    override fun fiatBalance(
-        fiatCurrency: String,
-        exchangeRates: ExchangeRates
-    ): Single<Money> =
-        accountBalance.map { it.toFiat(fiatCurrency, exchangeRates) }
 
     override fun includes(account: BlockchainAccount): Boolean =
         accounts.contains(account)
@@ -377,21 +343,12 @@ class CryptoAccountNonCustodialGroup(
                 val balances = t.map { it as AccountBalance }
                 AccountBalance(
                     total = balances.map { it.total }.total(),
-                    actionable = balances.map { it.actionable }.total(),
+                    withdrawable = balances.map { it.withdrawable }.total(),
                     pending = balances.map { it.pending }.total(),
                     exchangeRate = balances.first().exchangeRate
                 )
             }
         }
-
-    override val accountBalance: Single<Money>
-        get() = balance.map { it.total }.firstOrError()
-
-    override val actionableBalance: Single<Money>
-        get() = balance.map { it.actionable }.firstOrError()
-
-    override val pendingBalance: Single<Money>
-        get() = balance.map { it.pending }.firstOrError()
 
     // All the activities for all the accounts
     override val activity: Single<ActivitySummaryList>
@@ -421,16 +378,6 @@ class CryptoAccountNonCustodialGroup(
 
     // Are any of the accounts funded
     override val isFunded: Boolean = accounts.map { it.isFunded }.any { it }
-
-    override fun fiatBalance(
-        fiatCurrency: String,
-        exchangeRates: ExchangeRates
-    ): Single<Money> =
-        if (accounts.isEmpty()) {
-            Single.just(FiatValue.zero(fiatCurrency))
-        } else {
-            accountBalance.map { it.toFiat(fiatCurrency, exchangeRates) }
-        }
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.error(IllegalStateException("Accessing receive address on a group is not allowed"))

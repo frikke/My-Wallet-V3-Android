@@ -1,14 +1,15 @@
 package piuk.blockchain.android.cards
 
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.braintreepayments.cardform.utils.CardType
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.base.mvi.MviState
 
 data class CardState(
-    val fiatCurrency: String,
+    val fiatCurrency: FiatCurrency,
     val cardId: String? = null,
     val cardStatus: CardStatus? = null,
     val billingAddress: BillingAddress? = null,

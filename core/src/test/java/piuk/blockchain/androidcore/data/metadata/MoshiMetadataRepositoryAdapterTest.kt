@@ -1,7 +1,7 @@
 package piuk.blockchain.androidcore.data.metadata
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.serialization.BigDecimalAdaptor
+import com.blockchain.serialization.BigDecimalAdapter
 import com.blockchain.serialization.JsonSerializable
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -26,7 +26,7 @@ class MoshiMetadataRepositoryAdapterTest {
         val field2: BigDecimal
     ) : JsonSerializable
 
-    private val moshi: Moshi = Moshi.Builder().add(BigDecimalAdaptor()).build()
+    private val moshi: Moshi = Moshi.Builder().add(BigDecimalAdapter()).build()
 
     @Test
     fun `can save json`() {

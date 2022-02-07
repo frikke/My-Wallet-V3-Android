@@ -4,7 +4,6 @@ import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.internal.createInstance
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.ethereum.data.EthPushTxRequest
 import io.reactivex.rxjava3.core.Observable
@@ -14,7 +13,7 @@ import org.mockito.Mockito
 
 class EthAccountApiTest {
     private val ethEndpoints: EthEndpoints = mock()
-    private val apiCode: ApiCode = mock()
+    private val apiCode = "1234"
     private val subject: EthAccountApi = EthAccountApi(ethEndpoints, apiCode)
 
     @Test
@@ -57,7 +56,7 @@ class EthAccountApiTest {
         val txHash = "0xc88ac065147b34f7a4965f9b0dc539f7863468da61a73b14eb0f8f0fcbb72e5a"
 
         whenever(
-            ethEndpoints.pushTx(withAnyRequestMatching(EthPushTxRequest(rawTx, apiCode.apiCode)))
+            ethEndpoints.pushTx(withAnyRequestMatching(EthPushTxRequest(rawTx, apiCode)))
         ).thenReturn(
             Observable.just(HashMap(mapOf("txHash" to txHash)))
         )

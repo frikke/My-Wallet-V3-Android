@@ -5,6 +5,7 @@ import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.PriceTimescale
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.nabu.USD
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -50,6 +51,7 @@ class ExchangeRatesDataManagerImplTest {
     private val subject = ExchangeRatesDataManagerImpl(
         priceStore = priceStore,
         sparklineCall = sparklineCall,
+        assetCatalogue = mock(),
         assetPriceService = priceService,
         currencyPrefs = currencyPrefs
     )
@@ -63,7 +65,7 @@ class ExchangeRatesDataManagerImplTest {
 
         verify(priceService).getHistoricPriceSeriesSince(
             base = OLD_ASSET.networkTicker,
-            quote = SELECTED_FIAT,
+            quote = SELECTED_FIAT.networkTicker,
             start = OLD_ASSET.startDate!!,
             scale = PriceTimescale.FIVE_DAYS
         )
@@ -82,7 +84,7 @@ class ExchangeRatesDataManagerImplTest {
 
         verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.networkTicker,
-            SELECTED_FIAT,
+            SELECTED_FIAT.networkTicker,
             DATE_ONE_YEAR_AGO_SECS,
             PriceTimescale.ONE_DAY
         )
@@ -102,7 +104,7 @@ class ExchangeRatesDataManagerImplTest {
 
         verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.networkTicker,
-            SELECTED_FIAT,
+            SELECTED_FIAT.networkTicker,
             DATE_ONE_MONTH_AGO_SECS,
             PriceTimescale.TWO_HOURS
         )
@@ -121,7 +123,7 @@ class ExchangeRatesDataManagerImplTest {
 
         verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.networkTicker,
-            SELECTED_FIAT,
+            SELECTED_FIAT.networkTicker,
             DATE_ONE_WEEK_AGO_SECS,
             PriceTimescale.ONE_HOUR
         )
@@ -140,7 +142,7 @@ class ExchangeRatesDataManagerImplTest {
 
         verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.networkTicker,
-            SELECTED_FIAT,
+            SELECTED_FIAT.networkTicker,
             DATE_ONE_DAY_AGO_SECS,
             PriceTimescale.FIFTEEN_MINUTES
         )
@@ -159,12 +161,13 @@ class ExchangeRatesDataManagerImplTest {
 
         verify(priceService).getHistoricPriceSeriesSince(
             OLD_ASSET.networkTicker,
-            SELECTED_FIAT,
+            SELECTED_FIAT.networkTicker,
             NEW_ASSET.startDate!!,
             PriceTimescale.ONE_HOUR
         )
         verifyNoMoreInteractions(priceService)
     }
+
     companion object {
         private const val DATE_NOW_MILLIS = 1626972500000L
         private const val DATE_ONE_YEAR_AGO_SECS = 1595436500L
@@ -172,7 +175,7 @@ class ExchangeRatesDataManagerImplTest {
         private const val DATE_ONE_WEEK_AGO_SECS = 1626367700L
         private const val DATE_ONE_DAY_AGO_SECS = 1626886100L
 
-        private const val SELECTED_FIAT = "USD"
+        private val SELECTED_FIAT = USD
 
         private val OLD_ASSET = object : CryptoCurrency(
             displayTicker = "DUMMY",
@@ -183,7 +186,7 @@ class ExchangeRatesDataManagerImplTest {
             precisionDp = 8,
             requiredConfirmations = 5,
             colour = "#123456"
-        ) { }
+        ) {}
 
         private val NEW_ASSET = object : CryptoCurrency(
             displayTicker = "DUMMY",
@@ -194,12 +197,12 @@ class ExchangeRatesDataManagerImplTest {
             precisionDp = 8,
             requiredConfirmations = 5,
             colour = "#123456"
-        ) { }
+        ) {}
 
         private val PRICE_DATA = listOf(
             AssetPrice(
                 base = OLD_ASSET.networkTicker,
-                quote = SELECTED_FIAT,
+                quote = SELECTED_FIAT.networkTicker,
                 price = 100.toDouble(),
                 timestamp = 200000
             )

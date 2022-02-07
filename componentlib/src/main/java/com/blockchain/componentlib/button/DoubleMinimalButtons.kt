@@ -79,7 +79,6 @@ fun DoubleMinimalButtons(
         )
     }
 
-    //    var dividerAlpha = if (isStartButtonPressed.not() && isEndButtonPressed.not()) 1f else 0f
     var dividerAlpha by remember { mutableStateOf(1f) }
 
     val startTextAlpha = when (startButtonState) {
@@ -202,7 +201,7 @@ fun DoubleMinimalButtons(
                 ),
                 elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
                 content = {
-                    FixedSizeButtonContent(
+                    ButtonContent(
                         state = startButtonState,
                         text = startButtonText,
                         textColor = startTextColor,
@@ -243,7 +242,7 @@ fun DoubleMinimalButtons(
                 ),
                 elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
                 content = {
-                    FixedSizeButtonContent(
+                    ButtonContent(
                         state = endButtonState,
                         text = endButtonText,
                         textColor = endTextColor,

@@ -8,15 +8,14 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
@@ -46,8 +45,8 @@ class InterestDashboardActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.rewards_dashboard_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.rewards_dashboard_title),
             backAction = { onSupportNavigateUp() }
         )
         analytics.logEvent(InterestAnalytics.InterestViewed)
@@ -113,8 +112,8 @@ class InterestDashboardActivity :
         KycNavHostActivity.start(this, CampaignType.Interest)
     }
 
-    override fun showInterestSummarySheet(account: SingleAccount, asset: AssetInfo) {
-        showBottomSheet(InterestSummarySheet.newInstance(account, asset))
+    override fun showInterestSummarySheet(account: CryptoAccount) {
+        showBottomSheet(InterestSummarySheet.newInstance(account))
     }
 
     override fun startAccountSelection(
@@ -128,7 +127,7 @@ class InterestDashboardActivity :
                         startDeposit(account as SingleAccount, toAccount)
                         analytics.logEvent(
                             InterestAnalytics.InterestDepositClicked(
-                                currency = (toAccount as CryptoAccount).asset.networkTicker,
+                                currency = toAccount.currency.networkTicker,
                                 origin = LaunchOrigin.SAVINGS_PAGE
                             )
                         )

@@ -9,17 +9,20 @@
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar_general"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_features"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="@dimen/very_small_margin"
+        android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         tools:listitem="@layout/item_feature_limits_feature" />
 
     <com.airbnb.lottie.LottieAnimationView
@@ -27,24 +30,24 @@
         android:layout_width="@dimen/animated_loader_view"
         android:layout_height="@dimen/animated_loader_view"
         android:layout_gravity="center"
-        app:lottie_autoPlay="true"
-        app:lottie_repeatMode="restart"
         android:visibility="gone"
-        app:lottie_loop="true"
-        app:lottie_imageAssetsFolder="lottie/loader.json"
-        app:lottie_fileName="lottie/loader.json"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="lottie/loader.json"
+        app:lottie_imageAssetsFolder="lottie/loader.json"
+        app:lottie_loop="true"
+        app:lottie_repeatMode="restart" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/error_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/error_icon"

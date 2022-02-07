@@ -1,18 +1,18 @@
 package com.blockchain.nabu.util.fakefactory.nabu
 
 import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.TierResponse
+import com.blockchain.nabu.models.responses.nabu.TiersResponse
 
 object FakeTierLevelsFactory {
     val any = TierLevels(0, 1, 2)
 }
 
 object FakeKycTiersFactory {
-    val any = KycTiers(
-        arrayListOf(
+    val any = TiersResponse(
+        listOf(
             FakeTiersResponseFactory.tierZero,
             FakeTiersResponseFactory.tierOne,
             FakeTiersResponseFactory.tierTwo

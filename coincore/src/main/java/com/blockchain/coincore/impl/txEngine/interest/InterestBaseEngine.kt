@@ -6,10 +6,15 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Single
 
 abstract class InterestBaseEngine(private val walletManager: CustodialWalletManager) : TxEngine() {
+
+    protected val sourceAssetInfo: AssetInfo
+        get() = sourceAsset.asAssetInfoOrThrow()
 
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
@@ -32,7 +37,7 @@ abstract class InterestBaseEngine(private val walletManager: CustodialWalletMana
             )
 
     protected fun getLimits(): Single<InterestLimits> =
-        walletManager.getInterestLimits(sourceAsset)
+        walletManager.getInterestLimits(sourceAssetInfo)
 
     protected fun areOptionsValid(pendingTx: PendingTx): Boolean {
         val terms = getTermsOptionValue(pendingTx)

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.kyc.autocomplete
 
-import piuk.blockchain.android.ui.base.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
 
 sealed class KycAutocompleteAddressIntents : MviIntent<KycAutocompleteAddressState> {

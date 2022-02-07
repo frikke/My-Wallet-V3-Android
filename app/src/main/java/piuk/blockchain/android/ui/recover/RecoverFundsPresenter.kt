@@ -106,7 +106,6 @@ class RecoverFundsPresenter(
                 onComplete = {
                     prefs.sharedKey = payloadDataManager.wallet!!.sharedKey
                     prefs.walletGuid = payloadDataManager.wallet!!.guid
-                    prefs.isOnBoardingComplete = true
                     view.startPinEntryActivity()
                 },
                 onError = {

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.base.FlowFragment
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 interface SimpleBuyScreen : SlidingModalBottomDialog.Host, FlowFragment {
     fun navigator(): SimpleBuyNavigator

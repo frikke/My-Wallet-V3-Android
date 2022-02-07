@@ -2,10 +2,10 @@ package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -16,6 +16,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
@@ -26,11 +27,10 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     private val custodialManager: CustodialWalletManager = mock()
     private val tradingBalances: TradingBalanceDataManager = mock()
     private val identity: UserIdentity = mock()
-    private val features: InternalFeatureFlagApi = mock()
 
     @Before
     fun setup() {
-        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(Observable.just(TEST_TO_USER_RATE))
     }
 
@@ -45,7 +45,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = true,
             interest = true,
-            supportedFiat = listOf("USD"),
+            supportedFiat = listOf(USD),
             custodialAccess = true
         )
 
@@ -68,7 +68,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = true,
             interest = true,
-            supportedFiat = listOf("USD"),
+            supportedFiat = listOf(USD),
             custodialAccess = true
         )
 
@@ -91,7 +91,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             actionableBalance = CryptoValue.zero(TEST_ASSET),
             simpleBuy = true,
             interest = true,
-            supportedFiat = listOf("USD"),
+            supportedFiat = listOf(USD),
             custodialAccess = true
         )
 
@@ -118,7 +118,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = false,
             interest = true,
-            supportedFiat = listOf("USD"),
+            supportedFiat = listOf(USD),
             custodialAccess = false
         )
 
@@ -145,7 +145,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = false,
             interest = true,
-            supportedFiat = listOf("USD"),
+            supportedFiat = listOf(USD),
             custodialAccess = true
         )
 
@@ -174,7 +174,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             actionableBalance = CryptoValue.zero(TEST_ASSET),
             simpleBuy = true,
             interest = true,
-            supportedFiat = listOf("USD"),
+            supportedFiat = listOf(USD),
             custodialAccess = true
         )
 
@@ -204,7 +204,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             actionableBalance = CryptoValue.zero(TEST_ASSET),
             simpleBuy = true,
             interest = false,
-            supportedFiat = listOf("USD"),
+            supportedFiat = listOf(USD),
             custodialAccess = true
         )
 
@@ -269,7 +269,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = true,
             interest = true,
-            supportedFiat = listOf("USD"),
+            supportedFiat = listOf(USD),
             custodialAccess = true
         )
 
@@ -286,13 +286,12 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     private fun configureActionSubject(actions: Set<AssetAction>): CustodialTradingAccount =
         CustodialTradingAccount(
-            asset = TEST_ASSET,
+            currency = TEST_ASSET,
             label = "Test Account",
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
             tradingBalances = tradingBalances,
             identity = identity,
-            features = features,
             baseActions = actions
         )
 
@@ -302,7 +301,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         pendingBalance: CryptoValue = CryptoValue.zero(TEST_ASSET),
         simpleBuy: Boolean,
         interest: Boolean,
-        supportedFiat: List<String>,
+        supportedFiat: List<FiatCurrency>,
         custodialAccess: Boolean
     ) {
         whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
@@ -330,11 +329,11 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = accountBalance,
-            actionable = actionableBalance,
+            withdrawable = actionableBalance,
             pending = pendingBalance,
             hasTransactions = true
         )
-        whenever(tradingBalances.getBalanceForAsset(TEST_ASSET))
+        whenever(tradingBalances.getBalanceForCurrency(TEST_ASSET))
             .thenReturn(Observable.just(balance))
 
         whenever(custodialManager.getSupportedFundsFiats())
@@ -362,7 +361,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             colour = "000000"
         ) {}
 
-        private val TEST_TO_USER_RATE = ExchangeRate.CryptoToFiat(
+        private val TEST_TO_USER_RATE = ExchangeRate(
             from = TEST_ASSET,
             to = TEST_USER_FIAT,
             rate = 1.2.toBigDecimal()

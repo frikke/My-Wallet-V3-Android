@@ -22,6 +22,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -34,33 +35,35 @@ class InterestWithdrawOnChainTxEngine(
 ) : InterestBaseEngine(walletManager) {
 
     private val availableBalance: Single<Money>
-        get() = sourceAccount.actionableBalance
+        get() = sourceAccount.balance.firstOrError().map { it.withdrawable }
 
     override fun assertInputsValid() {
         check(sourceAccount is InterestAccount)
         check(txTarget is CryptoAccount)
         check(txTarget is NonCustodialAccount)
-        check(sourceAsset == (txTarget as CryptoAccount).asset)
+        check(sourceAsset == (txTarget as CryptoAccount).currency)
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.zip(
-            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.SAVINGS),
-            walletManager.getInterestLimits(sourceAsset),
+            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.SAVINGS),
+            walletManager.getInterestLimits(sourceAssetInfo),
             availableBalance,
             { minLimits, maxLimits, balance ->
                 PendingTx(
-                    amount = CryptoValue.zero(sourceAsset),
+                    amount = Money.zero(sourceAsset),
                     limits = TxLimits.fromAmounts(
-                        min = CryptoValue.fromMinor(sourceAsset, minLimits.minLimit),
-                        max = maxLimits.maxWithdrawalFiatValue.toCrypto(exchangeRates, sourceAsset)
+                        min = Money.fromMinor(sourceAsset, minLimits.minLimit),
+                        max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(
+                            exchangeRates, sourceAsset as AssetInfo
+                        )
                     ),
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat,
                     availableBalance = balance,
                     totalBalance = balance,
-                    feeAmount = CryptoValue.fromMinor(sourceAsset, minLimits.fee),
-                    feeForFullAvailable = CryptoValue.zero(sourceAsset)
+                    feeAmount = Money.fromMinor(sourceAsset, minLimits.fee),
+                    feeForFullAvailable = Money.zero(sourceAsset)
                 )
             }
         )
@@ -108,7 +111,7 @@ class InterestWithdrawOnChainTxEngine(
                     TxConfirmationValue.NetworkFee(
                         pendingTx.feeAmount,
                         pendingTx.feeAmount.toUserFiat(exchangeRates),
-                        sourceAsset
+                        sourceAssetInfo
                     ),
                     (txTarget as? CryptoTarget)?.memo?.let {
                         TxConfirmationValue.Memo(
@@ -135,10 +138,10 @@ class InterestWithdrawOnChainTxEngine(
         (txTarget as CryptoAccount).receiveAddress.flatMapCompletable { receiveAddress ->
             (txTarget as? CryptoTarget)?.memo?.let {
                 executeWithdrawal(
-                    sourceAsset, pendingTx.amount, receiveAddress.address, it
+                    sourceAssetInfo, pendingTx.amount, receiveAddress.address, it
                 )
             } ?: kotlin.run {
-                executeWithdrawal(sourceAsset, pendingTx.amount, receiveAddress.address)
+                executeWithdrawal(sourceAssetInfo, pendingTx.amount, receiveAddress.address)
             }
         }.toSingle {
             TxResult.UnHashedTxResult(pendingTx.amount)

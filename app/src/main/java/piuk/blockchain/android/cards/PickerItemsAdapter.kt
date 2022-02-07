@@ -3,9 +3,9 @@ package piuk.blockchain.android.cards
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.databinding.PickerItemBinding
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class PickerItemsAdapter(private val block: (PickerItem) -> Unit) :
     RecyclerView.Adapter<PickerItemsAdapter.ViewHolder>() {

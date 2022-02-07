@@ -1,5 +1,6 @@
 package com.blockchain.coincore.erc20
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeLevel
@@ -9,6 +10,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
@@ -25,7 +27,6 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -76,7 +77,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget).asset
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
         verify(txTarget).address
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -85,7 +86,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount = mock<Erc20NonCustodialAccount>() {
-            on { asset }.thenReturn(WRONG_ASSET)
+            on { currency }.thenReturn(WRONG_ASSET)
         }
         val txTarget: CryptoAddress = mock {
             on { asset }.thenReturn(ASSET)
@@ -103,7 +104,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget).asset
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -127,7 +128,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         assertEquals(asset, ASSET)
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -164,7 +165,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(walletPreferences).getFeeTypeForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
 
@@ -224,9 +225,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(sourceAccount).accountBalance
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(sourceAccount).balance
         verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
@@ -286,9 +286,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(sourceAccount).accountBalance
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(sourceAccount).balance
         verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
@@ -367,9 +366,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
-        verify(sourceAccount, atLeastOnce()).asset
-        verify(sourceAccount).accountBalance
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount, atLeastOnce()).currency
+        verify(sourceAccount).balance
         verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions, times(2)).priorityFee
@@ -531,9 +529,17 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<Erc20NonCustodialAccount> {
-        on { asset }.thenReturn(ASSET)
-        on { accountBalance }.thenReturn(Single.just(totalBalance))
-        on { actionableBalance }.thenReturn(Single.just(availableBalance))
+        on { currency }.thenReturn(ASSET)
+        on { balance }.thenReturn(
+            Observable.just(
+                AccountBalance(
+                    total = totalBalance,
+                    withdrawable = availableBalance,
+                    pending = Money.zero(totalBalance.currency),
+                    exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
+                )
+            )
+        )
     }
 
     private fun withDefaultFeeOptions() {

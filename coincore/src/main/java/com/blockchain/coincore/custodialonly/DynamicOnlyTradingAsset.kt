@@ -9,7 +9,6 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -24,7 +23,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import thepit.PitLinking
 
 internal class DynamicOnlyTradingAsset(
-    override val asset: AssetInfo,
+    override val assetInfo: AssetInfo,
     payloadManager: PayloadDataManager,
     custodialManager: CustodialWalletManager,
     interestBalances: InterestBalanceDataManager,
@@ -35,7 +34,6 @@ internal class DynamicOnlyTradingAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi,
     private val addressValidation: String? = null,
     private val availableActions: Set<AssetAction> = emptySet()
 ) : CryptoAssetBase(
@@ -48,10 +46,9 @@ internal class DynamicOnlyTradingAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ) {
-    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = false
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
@@ -61,13 +58,12 @@ internal class DynamicOnlyTradingAsset(
         Single.just(
             listOf(
                 CustodialTradingAccount(
-                    asset = asset,
+                    currency = assetInfo,
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
                     identity = identity,
-                    features = features,
                     baseActions = availableActions
                 )
             )
@@ -83,7 +79,7 @@ internal class DynamicOnlyTradingAsset(
                 Maybe.just(
                     DynamicCustodialAddress(
                         address = address,
-                        asset = asset
+                        asset = assetInfo as AssetInfo
                     )
                 )
             } else {

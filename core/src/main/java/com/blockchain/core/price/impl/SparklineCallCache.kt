@@ -4,7 +4,7 @@ import com.blockchain.api.services.AssetPriceService
 import com.blockchain.caching.ParameteredMappedSinglesTimedRequests
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
 import java.util.concurrent.atomic.AtomicReference
@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference
 internal class SparklineCallCache(
     private val priceService: AssetPriceService
 ) {
-    private val cacheRequest: ParameteredMappedSinglesTimedRequests<AssetInfo, HistoricalRateList> by lazy {
+    private val cacheRequest: ParameteredMappedSinglesTimedRequests<Currency, HistoricalRateList> by lazy {
         ParameteredMappedSinglesTimedRequests(
             cacheLifetimeSeconds = SPARKLINE_CACHE_TTL_SECONDS,
             refreshFn = ::refreshCache
@@ -21,7 +21,7 @@ internal class SparklineCallCache(
 
     private val userFiat = AtomicReference<String>()
 
-    private fun refreshCache(asset: AssetInfo): Single<HistoricalRateList> {
+    private fun refreshCache(asset: Currency): Single<HistoricalRateList> {
         val span = HistoricalTimeSpan.DAY
         val scale = span.suggestTimescaleInterval()
         val startTime = Calendar.getInstance().getStartTimeForTimeSpan(span, asset)
@@ -34,9 +34,9 @@ internal class SparklineCallCache(
         ).toHistoricalRateList()
     }
 
-    fun fetch(asset: AssetInfo, userFiat: String): Single<HistoricalRateList> {
-        val oldUserFiat = this.userFiat.getAndSet(userFiat)
-        if (oldUserFiat != userFiat) {
+    fun fetch(asset: Currency, userFiat: Currency): Single<HistoricalRateList> {
+        val oldUserFiat = this.userFiat.getAndSet(userFiat.networkTicker)
+        if (oldUserFiat != userFiat.networkTicker) {
             cacheRequest.invalidateAll()
         }
         return cacheRequest.getCachedSingle(asset)

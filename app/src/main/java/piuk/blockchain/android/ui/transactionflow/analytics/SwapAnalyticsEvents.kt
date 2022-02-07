@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.transactionflow.analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigDecimal
@@ -28,22 +28,22 @@ sealed class SwapAnalyticsEvents(
     object CancelTransaction : SwapAnalyticsEvents("swap_checkout_cancel")
     object SwapTabItemClick : SwapAnalyticsEvents("swap_tab_item_click")
     data class SwapConfirmPair(
-        val asset: AssetInfo,
+        val asset: Currency,
         val target: String
     ) : SwapAnalyticsEvents("swap_pair_locked_confirm", params = constructMap(asset = asset, target = target))
 
     data class EnterAmountCtaClick(
-        val source: AssetInfo,
+        val source: Currency,
         val target: String
     ) : SwapAnalyticsEvents("swap_amount_screen_confirm", params = constructMap(source, target))
 
     data class SwapConfirmCta(
-        val source: AssetInfo,
+        val source: Currency,
         val target: String
     ) : SwapAnalyticsEvents("swap_checkout_confirm", params = constructMap(source, target))
 
     data class TransactionSuccess(
-        val asset: AssetInfo,
+        val asset: Currency,
         val source: String,
         val target: String
     ) : SwapAnalyticsEvents(
@@ -56,7 +56,7 @@ sealed class SwapAnalyticsEvents(
     )
 
     data class TransactionFailed(
-        val asset: AssetInfo,
+        val asset: Currency,
         val target: String?,
         val source: String?,
         val error: String
@@ -122,8 +122,8 @@ sealed class SwapAnalyticsEvents(
     }
 
     class SwapAccountsSelected(
-        private val inputCurrency: AssetInfo,
-        private val outputCurrency: AssetInfo,
+        private val inputCurrency: Currency,
+        private val outputCurrency: Currency,
         private val sourceAccountType: TxFlowAnalyticsAccountType,
         private val targetAccountType: TxFlowAnalyticsAccountType,
         private val werePreselected: Boolean

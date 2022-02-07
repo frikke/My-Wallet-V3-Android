@@ -10,7 +10,7 @@ data class TradingBalance(
     val assetTicker: String,
     val pending: BigInteger,
     val total: BigInteger,
-    val actionable: BigInteger
+    val withdrawable: BigInteger
 )
 
 typealias TradingBalanceList = List<TradingBalance>
@@ -31,6 +31,6 @@ private fun TradingBalanceResponseDto.toDomain(assetTicker: String): TradingBala
     TradingBalance(
         assetTicker = assetTicker,
         total = total.toBigInteger(),
-        actionable = actionable.toBigInteger(),
+        withdrawable = withdrawable.toBigInteger(),
         pending = pending.toBigInteger()
     )

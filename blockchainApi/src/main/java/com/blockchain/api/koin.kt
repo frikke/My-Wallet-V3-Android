@@ -13,6 +13,7 @@ import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.nabu.NabuUserApi
+import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
@@ -25,13 +26,14 @@ import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
+import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
-import com.blockchain.api.wallet.WalletApiInterface
+import com.blockchain.api.wallet.WalletApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -48,6 +50,7 @@ val nabuApi = StringQualifier("nabu-api")
 val assetsApi = StringQualifier("assets-api")
 
 private val json = Json {
+    explicitNulls = false
     ignoreUnknownKeys = true
     isLenient = true
 }
@@ -92,6 +95,7 @@ val blockchainApiModule = module {
         // Can't use the standard convertor here, because we need to set a discriminator
         // for some polymorphic objects
         val json = Json {
+            explicitNulls = false
             serializersModule = assetTypeSerializers
             ignoreUnknownKeys = true
             isLenient = true
@@ -141,7 +145,7 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(explorerApi).create(WalletApiInterface::class.java)
+        val api = get<Retrofit>(explorerApi).create(WalletApi::class.java)
         WalletSettingsService(
             api,
             getProperty("api-code")
@@ -183,6 +187,11 @@ val blockchainApiModule = module {
         PaymentsService(
             api
         )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(PaymentMethodsApi::class.java)
+        PaymentMethodsService(api)
     }
 
     factory {

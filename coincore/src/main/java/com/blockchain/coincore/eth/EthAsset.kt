@@ -13,7 +13,6 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -49,7 +48,6 @@ internal class EthAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi,
     private val formatUtils: FormatUtilities
 ) : CryptoAssetBase(
     payloadManager,
@@ -61,14 +59,13 @@ internal class EthAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ),
     NonCustodialSupport {
-    override val asset: AssetInfo
+    override val assetInfo: AssetInfo
         get() = CryptoCurrency.ETHER
 
-    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = false
 
     override fun initToken(): Completable =
@@ -101,20 +98,19 @@ internal class EthAsset(
         Single.just(
             listOf(
                 CustodialTradingAccount(
-                    asset = asset,
+                    currency = assetInfo,
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity,
-                    features = features
+                    identity = identity
                 )
             )
         )
 
     private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
         val notify = NotificationAddresses(
-            assetTicker = asset.networkTicker,
+            assetTicker = assetInfo.networkTicker,
             addressList = listOf(account.address)
         )
         return notificationUpdater.updateNotificationBackend(notify)

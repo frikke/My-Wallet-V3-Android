@@ -2,6 +2,9 @@ package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
@@ -10,17 +13,13 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Date
-import piuk.blockchain.android.ui.activity.CryptoActivityType
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.base.mvi.MviState
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import piuk.blockchain.android.ui.activity.ActivityType
 
 interface Copyable {
     val filed: String
@@ -38,7 +37,7 @@ data class HistoricValue(
 ) : ActivityDetailsType()
 
 data class HistoricCryptoPrice(
-    val price: FiatValue?,
+    val price: Money?,
     val cryptoCurrency: String
 ) : ActivityDetailsType()
 
@@ -51,10 +50,10 @@ data class FeeForTransaction(
 data class To(val toAddress: String?) : ActivityDetailsType()
 data class Description(val description: String? = null) : ActivityDetailsType()
 data class Action(val action: String = "") : ActivityDetailsType()
-data class BuyFee(val feeValue: FiatValue) : ActivityDetailsType()
-data class BuyPurchaseAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
-data class TotalCostAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
-data class FeeAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
+data class BuyFee(val feeValue: Money) : ActivityDetailsType()
+data class BuyPurchaseAmount(val fundedFiat: Money) : ActivityDetailsType()
+data class TotalCostAmount(val fundedFiat: Money) : ActivityDetailsType()
+data class FeeAmount(val fundedFiat: Money) : ActivityDetailsType()
 data class SellPurchaseAmount(val value: Money) : ActivityDetailsType()
 data class TransactionId(val txId: String) : ActivityDetailsType(), Copyable {
     override val filed: String
@@ -118,14 +117,14 @@ class ActivityDetailsModel(
         return when (intent) {
             is LoadActivityDetailsIntent -> {
                 when (intent.activityType) {
-                    CryptoActivityType.NON_CUSTODIAL -> loadNonCustodialActivityDetails(intent)
-                    CryptoActivityType.CUSTODIAL_TRADING -> loadCustodialTradingActivityDetails(intent)
-                    CryptoActivityType.CUSTODIAL_INTEREST -> loadCustodialInterestActivityDetails(intent)
-                    CryptoActivityType.CUSTODIAL_TRANSFER -> loadCustodialTransferActivityDetails(intent)
-                    CryptoActivityType.SWAP -> loadSwapActivityDetails(intent)
-                    CryptoActivityType.SELL -> loadSellActivityDetails(intent)
-                    CryptoActivityType.RECURRING_BUY -> loadRecurringBuyTransactionDetails(intent)
-                    CryptoActivityType.UNKNOWN -> {
+                    ActivityType.NON_CUSTODIAL -> loadNonCustodialActivityDetails(intent)
+                    ActivityType.CUSTODIAL_TRADING -> loadCustodialTradingActivityDetails(intent)
+                    ActivityType.CUSTODIAL_INTEREST -> loadCustodialInterestActivityDetails(intent)
+                    ActivityType.CUSTODIAL_TRANSFER -> loadCustodialTransferActivityDetails(intent)
+                    ActivityType.SWAP -> loadSwapActivityDetails(intent)
+                    ActivityType.SELL -> loadSellActivityDetails(intent)
+                    ActivityType.RECURRING_BUY -> loadRecurringBuyTransactionDetails(intent)
+                    ActivityType.UNKNOWN -> {
                         throw IllegalStateException(
                             "Cannot load activity details for an unknown account type"
                         )

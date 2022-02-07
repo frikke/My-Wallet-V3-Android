@@ -1,13 +1,13 @@
 package com.blockchain.outcome
 
-sealed class Outcome<E, R> {
-    data class Success<E, R>(
+sealed class Outcome<out E, out R> {
+    data class Success<R>(
         val value: R
-    ) : Outcome<E, R>()
+    ) : Outcome<Nothing, R>()
 
-    data class Failure<E, R>(
+    data class Failure<E>(
         val failure: E
-    ) : Outcome<E, R>()
+    ) : Outcome<E, Nothing>()
 }
 
 fun <E, R, T> Outcome<E, R>.map(transform: (R) -> T): Outcome<E, T> {

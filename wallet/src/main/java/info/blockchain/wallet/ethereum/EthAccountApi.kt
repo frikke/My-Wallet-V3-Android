@@ -1,6 +1,5 @@
 package info.blockchain.wallet.ethereum
 
-import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.ethereum.data.EthLatestBlock
@@ -13,7 +12,7 @@ import io.reactivex.rxjava3.core.Single
 
 class EthAccountApi internal constructor(
     private val ethEndpoints: EthEndpoints,
-    private val apiCode: ApiCode
+    private val apiCode: String
 ) {
     /**
      * Returns information about the latest block via a [EthLatestBlock] object.
@@ -68,7 +67,7 @@ class EthAccountApi internal constructor(
      * @return An [Observable] returning the transaction hash of a completed transaction.
      */
     fun pushTx(rawTx: String): Observable<String> {
-        val request = EthPushTxRequest(rawTx, apiCode.apiCode)
+        val request = EthPushTxRequest(rawTx, apiCode)
         return ethEndpoints.pushTx(request)
             .map { map -> map["txHash"]!! }
     }

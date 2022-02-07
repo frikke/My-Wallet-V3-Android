@@ -1,6 +1,7 @@
 package info.blockchain.wallet.bch;
 
 import com.google.common.collect.ImmutableBiMap;
+
 import java.math.BigInteger;
 
 import org.bitcoinj.core.AddressFormatException;
@@ -37,8 +38,8 @@ public class CashAddress {
 
     public CashAddress(String scriptType, String prefix, String hash) {
         this.scriptType = scriptType;
-        this.prefix = prefix;
-        this.hash = hash;
+        this.prefix     = prefix;
+        this.hash       = hash;
     }
 
     private static BigInteger createVersion(String scriptType, int hashLengthBits) {
@@ -129,20 +130,22 @@ public class CashAddress {
         System.arraycopy(cashAddressBuffer, 1, data, 0, cashAddressBuffer.length - 1);
 
         if (isP2SH) {
-            return LegacyAddress.fromP2SHHash(networkParameters, data).toBase58();
-        } else {
+            return LegacyAddress.fromScriptHash(networkParameters, data).toBase58();
+        }
+        else {
             return LegacyAddress.fromPubKeyHash(networkParameters, data).toBase58();
         }
     }
 
     public static String fromLegacyAddress(LegacyAddress address) {
-        if (address.p2sh ) {
+        if (address.p2sh) {
             return CashAddress.encode(
                 address.getParameters().getSegwitAddressHrp(),
                 CashAddress.P2SH,
                 address.getHash()
             );
-        } else {
+        }
+        else {
             return CashAddress.encode(
                 address.getParameters().getSegwitAddressHrp(),
                 CashAddress.P2PKH,
@@ -163,7 +166,7 @@ public class CashAddress {
 
         public VersionPayload(String scriptType, int hashSize) {
             this.scriptType = scriptType;
-            this.hashSize = hashSize;
+            this.hashSize   = hashSize;
         }
     }
 }

@@ -5,6 +5,14 @@ data class TagViewState(
     val type: TagType
 )
 
-enum class TagType {
-    Default, InfoAlt, Success, Warning, Error
+enum class TagSize {
+    Primary, Large
+}
+
+sealed class TagType(open val size: TagSize = TagSize.Primary) {
+    data class Default(override val size: TagSize = TagSize.Primary) : TagType()
+    data class InfoAlt(override val size: TagSize = TagSize.Primary) : TagType()
+    data class Success(override val size: TagSize = TagSize.Primary) : TagType()
+    data class Warning(override val size: TagSize = TagSize.Primary) : TagType()
+    data class Error(override val size: TagSize = TagSize.Primary) : TagType()
 }

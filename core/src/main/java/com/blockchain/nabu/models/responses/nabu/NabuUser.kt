@@ -94,7 +94,7 @@ data class Address(
     val line2: String?,
     val city: String?,
     val state: String?,
-    val postCode: String,
+    val postCode: String?,
     @field:Json(name = "country") val countryCode: String?
 )
 

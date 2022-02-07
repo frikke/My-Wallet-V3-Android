@@ -13,6 +13,7 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.toFiat
 import com.blockchain.core.price.ExchangeRates
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementTransferBinding
@@ -24,7 +25,7 @@ import piuk.blockchain.android.util.context
 class ConfirmAgreementToTransferItemDelegate<in T>(
     private val model: TransactionModel,
     private val exchangeRates: ExchangeRates,
-    private val selectedCurrency: String
+    private val selectedCurrency: FiatCurrency
 ) : AdapterDelegate<T> {
     override fun isForViewType(items: List<T>, position: Int): Boolean =
         (items[position] as? TxConfirmationValue.TxBooleanConfirmation<*>)?.data?.let {
@@ -51,7 +52,7 @@ class ConfirmAgreementToTransferItemDelegate<in T>(
 private class AgreementTextItemViewHolder(
     private val binding: ItemSendConfirmAgreementTransferBinding,
     private val exchangeRates: ExchangeRates,
-    private val selectedCurrency: String
+    private val selectedCurrency: FiatCurrency
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
@@ -78,7 +79,7 @@ private class AgreementTextItemViewHolder(
     private fun agreementText(
         amount: Money,
         exchangeRates: ExchangeRates,
-        selectedCurrency: String,
+        selectedCurrency: FiatCurrency,
         resources: Resources
     ): SpannableStringBuilder {
         val introToHolding = resources.getString(R.string.send_confirmation_rewards_holding_period_1)

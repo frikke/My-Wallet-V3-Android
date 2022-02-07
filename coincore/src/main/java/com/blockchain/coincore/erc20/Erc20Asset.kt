@@ -13,7 +13,6 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -32,7 +31,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import thepit.PitLinking
 
 internal class Erc20Asset(
-    override val asset: AssetInfo,
+    override val assetInfo: AssetInfo,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatus,
@@ -46,7 +45,6 @@ internal class Erc20Asset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi,
     private val availableCustodialActions: Set<AssetAction>,
     private val availableNonCustodialActions: Set<AssetAction>,
     private val formatUtils: FormatUtilities
@@ -60,18 +58,17 @@ internal class Erc20Asset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity,
-    features
+    identity
 ) {
     private val erc20address
         get() = erc20DataManager.accountHash
 
-    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
     override val multiWallet: Boolean = false
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.fromCallable {
-            if (asset.categories.contains(AssetCategory.NON_CUSTODIAL)) {
+            if (assetInfo.categories.contains(AssetCategory.NON_CUSTODIAL)) {
                 listOf(getNonCustodialAccount())
             } else {
                 emptyList()
@@ -79,17 +76,16 @@ internal class Erc20Asset(
         }
 
     override fun loadCustodialAccounts(): Single<SingleAccountList> =
-        if (asset.categories.contains(AssetCategory.CUSTODIAL)) {
+        if (assetInfo.categories.contains(AssetCategory.CUSTODIAL)) {
             Single.just(
                 listOf(
                     CustodialTradingAccount(
-                        asset = asset,
+                        currency = assetInfo,
                         label = labels.getDefaultCustodialWalletLabel(),
                         exchangeRates = exchangeRates,
                         custodialWalletManager = custodialManager,
                         tradingBalances = tradingBalances,
                         identity = identity,
-                        features = features,
                         baseActions = availableCustodialActions
                     )
                 )
@@ -101,7 +97,7 @@ internal class Erc20Asset(
     private fun getNonCustodialAccount(): Erc20NonCustodialAccount =
         Erc20NonCustodialAccount(
             payloadManager,
-            asset,
+            assetInfo,
             erc20DataManager,
             erc20address,
             feeDataManager,
@@ -122,7 +118,7 @@ internal class Erc20Asset(
                         .flatMapMaybe { isContract ->
                             Maybe.just(
                                 Erc20Address(
-                                    asset = asset,
+                                    asset = assetInfo,
                                     address = address,
                                     label = label ?: address,
                                     isContract = isContract

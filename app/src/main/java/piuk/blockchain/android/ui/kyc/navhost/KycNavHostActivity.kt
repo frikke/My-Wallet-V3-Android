@@ -10,6 +10,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
@@ -24,14 +26,12 @@ import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.complete.ApplicationCompleteFragment
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirections
-import piuk.blockchain.android.util.invisibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -78,8 +78,8 @@ class KycNavHostActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.identity_verification),
+        updateToolbar(
+            toolbarTitle = getString(R.string.identity_verification),
             backAction = { onBackPressed() }
         )
         if (!showTiersLimitsSplash) {
@@ -96,7 +96,7 @@ class KycNavHostActivity :
     }
 
     override fun setHostTitle(title: Int) {
-        updateTitleToolbar(getString(title))
+        updateToolbarTitle(getString(title))
     }
 
     override fun displayLoading(loading: Boolean) {
@@ -125,19 +125,15 @@ class KycNavHostActivity :
     }
 
     override fun hideBackButton() {
-        updateTitleToolbar(
-            titleToolbar = getString(R.string.identity_verification)
+        updateToolbarTitle(
+            title = getString(R.string.identity_verification)
         )
     }
 
-    override fun onEmailEntryFragmentShown() {
-        updateTitleToolbar(
-            titleToolbar = getString(R.string.kyc_email_title)
+    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+        updateToolbarTitle(
+            title = getString(R.string.kyc_email_title)
         )
-    }
-
-    override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
-        // do nothing for redesign
     }
 
     override fun onEmailVerified() {

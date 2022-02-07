@@ -1,12 +1,8 @@
 apply plugin: 'java-library'
-apply plugin: 'kotlin'
 apply from: 'integrationTest.gradle'
-apply from: '../quality/ktlint.gradle'
+apply from: rootProject.file('gradle/local/common-feature.gradle')
 
 group = 'info.blockchain'
-
-sourceCompatibility = Versions.javaCompatibilityVersion
-targetCompatibility = Versions.javaCompatibilityVersion
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -32,8 +28,11 @@ dependencies {
     implementation Libraries.kotlin
     // bitcoinj and web3j should both be 'implementation' but there remain a few upstack dependencies
     api (Libraries.bitcoinj) { exclude module: 'protobuf-java' }
-    api (Libraries.web3j) { exclude module: 'jackson' }
-    implementation Libraries.spongyCastle
+    api (Libraries.web3j) {
+        exclude module: 'jackson'
+        exclude group: 'org.bouncycastle'
+    }
+    api Libraries.spongyCastle
     implementation Libraries.json
 
     // Networking

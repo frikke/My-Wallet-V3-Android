@@ -3,6 +3,7 @@ package info.blockchain.wallet.payload;
 import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import com.blockchain.api.bitcoin.data.MultiAddress;
+
 import info.blockchain.wallet.ImportedAddressHelper;
 import info.blockchain.wallet.WalletApiMockedResponseTest;
 import info.blockchain.wallet.exceptions.HDWalletException;
@@ -58,7 +59,9 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
             bitcoinApi,
             new MultiAddressFactoryBtc(bitcoinApi),
             new BalanceManagerBtc(bitcoinApi),
-            new BalanceManagerBch(bitcoinApi)
+            new BalanceManagerBch(bitcoinApi),
+            () -> "android",
+            () -> "8.18"
         );
     }
 

@@ -3,11 +3,9 @@ package info.blockchain.balance
 import java.lang.IllegalStateException
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.Currency
-import java.util.Locale
 
 class UnknownValue private constructor(
-    override val currencyCode: String,
+    override val currency: Currency,
     override val symbol: String
 ) : Money() {
 
@@ -35,8 +33,8 @@ class UnknownValue private constructor(
     override fun toFloat(): Float = 0.0F
 
     override fun ensureComparable(operation: String, other: Money) {
-        if (other !is UnknownValue || other.currencyCode != currencyCode) {
-            throw ValueTypeMismatchException(operation, currencyCode, other.currencyCode)
+        if (other !is UnknownValue || other.currency != currency) {
+            throw ValueTypeMismatchException(operation, currency.networkTicker, other.currency.networkTicker)
         }
     }
 
@@ -50,20 +48,10 @@ class UnknownValue private constructor(
     }
 
     companion object {
-        fun unknownCryptoValue(asset: AssetInfo) =
+        fun unknownValue(currency: Currency) =
             UnknownValue(
-                currencyCode = asset.displayTicker,
-                symbol = asset.displayTicker
-            )
-
-        fun unknownFiatValue(currencyCode: String) =
-            UnknownValue(
-                currencyCode = currencyCode,
-                symbol = try {
-                    Currency.getInstance(currencyCode).getSymbol(Locale.getDefault())
-                } catch (t: IllegalArgumentException) {
-                    throw IllegalArgumentException("${t.message} (currency=$currencyCode)")
-                }
+                currency = currency,
+                symbol = currency.displayTicker
             )
     }
 }

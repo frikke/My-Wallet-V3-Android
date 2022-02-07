@@ -188,7 +188,14 @@ enum class AnalyticsNames(val eventName: String) {
     RECOVERY_OPTION_SELECTED("Recovery Option Selected"),
     RECOVERY_MNEMONIC_ENTERED("Recovery Phrase Entered"),
     RECOVERY_RESET_CANCELLED("Reset Account Cancelled"),
-    RECOVERY_RESET_CLICKED("Reset Account Clicked")
+    RECOVERY_RESET_CLICKED("Reset Account Clicked"),
+    LANDING_CTA_LOGIN_CLICKED("Login Clicked"),
+    LANDING_CTA_SIGNUP_CLICKED("Sign Up Clicked"),
+    DASHBOARD_ONBOARDING_VIEWED("Peeksheet Viewed"),
+    DASHBOARD_ONBOARDING_DISMISSED("Peeksheet Dismissed"),
+    DASHBOARD_ONBOARDING_CARD_CLICKED("Peeksheet Process Clicked"),
+    DASHBOARD_ONBOARDING_STEP_LAUNCHED("Peeksheet Selection Clicked"),
+    CURRENCY_SELECTION_TRADING_CURRENCY_CHANGED("Fiat Currency Selected")
 }
 
 enum class LaunchOrigin {
@@ -216,5 +223,7 @@ enum class LaunchOrigin {
     BUY_CONFIRMATION,
     RECURRING_BUY_DETAILS,
     RECURRING_BUY,
-    LAUNCH_SCREEN;
+    LAUNCH_SCREEN,
+    NUX_LAUNCH_PROMO_LOG_IN,
+    NUX_LAUNCH_PROMO_BUY_CRYPTO;
 }

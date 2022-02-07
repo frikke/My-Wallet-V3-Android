@@ -48,7 +48,6 @@ class LoginPresenter(
                 prefs.apply {
                     walletGuid = dataManager.wallet!!.guid
                     emailVerified = true
-                    isOnBoardingComplete = true
                 }
                 view?.startPinEntryActivity()
 

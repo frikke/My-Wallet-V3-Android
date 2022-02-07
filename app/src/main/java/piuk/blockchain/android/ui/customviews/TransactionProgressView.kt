@@ -8,14 +8,14 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
-import info.blockchain.balance.AssetInfo
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import info.blockchain.balance.Currency
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTransactionProgressBinding
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class TransactionProgressView(context: Context, attrs: AttributeSet) :
     ConstraintLayout(context, attrs), KoinComponent {
@@ -29,18 +29,20 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         binding.txIcon.setImageResource(assetIcon)
     }
 
-    fun setAssetIcon(asset: AssetInfo) {
+    fun setAssetIcon(asset: Currency) {
         assetResources.loadAssetIcon(binding.txIcon, asset)
     }
 
-    fun onCtaClick(fn: () -> Unit) {
-        binding.txOkBtn.setOnClickListener {
-            fn()
+    fun onCtaClick(text: String, fn: () -> Unit) {
+        binding.txOkBtn.apply {
+            visible()
+            this.text = text
+            setOnClickListener { fn() }
         }
     }
 
-    fun configureSecondaryButton(text: String, fn: () -> Unit) {
-        with(binding.secondaryBtn) {
+    fun onSecondaryCtaClicked(text: String, fn: () -> Unit) {
+        binding.secondaryBtn.apply {
             visible()
             this.text = text
             setOnClickListener { fn() }
@@ -97,12 +99,16 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         }
     }
 
-    fun showTxError(title: String, subtitle: String) {
+    fun showTxError(
+        title: String,
+        subtitle: CharSequence,
+        resourceIcon: Int = R.drawable.ic_alert_white_bkgd
+    ) {
         with(binding) {
-            txIcon.setImageResource(R.drawable.ic_alert)
-            txStateIndicator.gone()
+            txStateIndicator.setImageResource(resourceIcon)
+            txStateIndicator.visible()
+            progress.gone()
         }
-        showEndStateUi()
         setText(title, subtitle)
     }
 
@@ -124,7 +130,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showFiatTxError(title: String, subtitle: String, currency: String) {
         setFiatAssetIcon(currency)
         with(binding) {
-            txIcon.setImageResource(R.drawable.ic_alert)
+            txIcon.setImageResource(R.drawable.ic_alert_logo)
             txStateIndicator.gone()
         }
         showEndStateUi()
@@ -147,10 +153,13 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         }
     }
 
-    private fun setText(title: String, subtitle: String) {
+    private fun setText(title: String, subtitle: CharSequence) {
         with(binding) {
             txTitle.text = title
-            txSubtitle.text = subtitle
+            txSubtitle.apply {
+                text = subtitle
+                movementMethod = LinkMovementMethod.getInstance()
+            }
         }
     }
 }

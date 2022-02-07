@@ -1,7 +1,16 @@
 package piuk.blockchain.android.ui.kyc.limits
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.commonarch.presentation.base.HostedBottomSheet
+import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.extensions.exhaustive
@@ -10,16 +19,9 @@ import com.blockchain.nabu.Tier
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycLimitsBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.adapters.Diffable
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
-import piuk.blockchain.android.ui.base.HostedBottomSheet
-import piuk.blockchain.android.ui.base.mvi.MviActivity
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class KycLimitsActivity :
     MviActivity<KycLimitsModel, KycLimitsIntent, KycLimitsState, ActivityKycLimitsBinding>(),
@@ -42,8 +44,8 @@ class KycLimitsActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loadToolbar(
-            titleToolbar = getString(R.string.feature_limits_toolbar),
+        updateToolbar(
+            toolbarTitle = getString(R.string.feature_limits_toolbar),
             backAction = { finish() }
         )
 
@@ -124,6 +126,7 @@ class KycLimitsActivity :
         when (header) {
             Header.NEW_KYC -> model.process(KycLimitsIntent.NewKycHeaderCtaClicked)
             Header.UPGRADE_TO_GOLD -> model.process(KycLimitsIntent.UpgradeToGoldHeaderCtaClicked)
+            Header.HIDDEN,
             Header.MAX_TIER_REACHED -> {
             }
         }
@@ -141,6 +144,10 @@ class KycLimitsActivity :
 
     override fun onSheetClosed() {
         model.process(KycLimitsIntent.CloseSheet)
+    }
+
+    companion object {
+        fun newIntent(context: Context): Intent = Intent(context, KycLimitsActivity::class.java)
     }
 }
 

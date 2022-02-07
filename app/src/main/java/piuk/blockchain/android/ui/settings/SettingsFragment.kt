@@ -41,11 +41,19 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricAuthError.BiometricsNoSuitableMethods
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.mvi.MviFragment.Companion.BOTTOM_SHEET
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.enviroment.Environment
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -56,7 +64,7 @@ import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.mukesh.countrypicker.CountryPicker
-import info.blockchain.wallet.api.Environment
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -76,18 +84,14 @@ import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ModalChangePasswordBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.RemoveLinkedBankBottomSheet
-import piuk.blockchain.android.simplebuy.RemovePaymentMethodBottomSheetHost
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.ui.auth.KEY_VALIDATING_PIN_FOR_RESULT
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.auth.REQUEST_CODE_VALIDATE_PIN
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
-import piuk.blockchain.android.ui.base.mvi.MviFragment.Companion.BOTTOM_SHEET
 import piuk.blockchain.android.ui.customviews.PasswordStrengthView
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -101,7 +105,7 @@ import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_M
 import piuk.blockchain.android.ui.settings.preferences.BankPreference
 import piuk.blockchain.android.ui.settings.preferences.CardPreference
 import piuk.blockchain.android.ui.settings.preferences.ThePitStatusPreference
-import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
+import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
@@ -109,9 +113,6 @@ import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.android.util.RootUtil
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -121,7 +122,8 @@ import timber.log.Timber
 class SettingsFragment :
     PreferenceFragmentCompat(),
     SettingsView,
-    RemovePaymentMethodBottomSheetHost,
+    RemoveCardBottomSheet.Host,
+    RemoveLinkedBankBottomSheet.Host,
     BankLinkingHost {
 
     // Profile
@@ -240,6 +242,7 @@ class SettingsFragment :
 
         limitsPref.onClick {
             startActivity(Intent(requireContext(), KycLimitsActivity::class.java))
+            analytics.logEvent(SettingsAnalytics.LimitsAndFeaturesClicked)
         }
 
         qrConnectPref?.isVisible = environmentConfig.isRunningInDebugMode() &&
@@ -289,10 +292,7 @@ class SettingsFragment :
         }
 
         screenshotPref?.setOnPreferenceChangeListener { _, newValue ->
-            settingsPresenter.updatePreferences(
-                PersistentPrefs.KEY_SCREENSHOTS_ENABLED,
-                newValue as Boolean
-            )
+            settingsPresenter.updateScreenshotPreference(newValue as Boolean)
             true
         }
 
@@ -513,45 +513,52 @@ class SettingsFragment :
         thePit?.setValue(isLinked)
     }
 
-    override fun updateLinkableBanks(linkablePaymentMethods: Set<LinkablePaymentMethods>, linkedBanksCount: Int) {
-        linkablePaymentMethods.forEach { linkableBank ->
-            banksPref?.findPreference<BankPreference>(LINK_BANK_KEY.plus(linkableBank.hashCode()))?.let {
-                it.order = it.order + linkedBanksCount + linkablePaymentMethods.indexOf(linkableBank)
-            } ?: banksPref?.addPreference(
-                BankPreference(context = requireContext(), fiatCurrency = linkableBank.currency).apply {
+    override fun updateLinkNewBank(linkablePaymentMethods: LinkablePaymentMethods) {
+        val enabled = linkablePaymentMethods.linkMethods.isNotEmpty()
+        val addBankPref = banksPref?.findPreference<BankPreference>(LINK_BANK_KEY)
+        if (enabled && addBankPref == null) {
+            banksPref?.addPreference(
+                BankPreference(
+                    context = requireContext(),
+                    fiatCurrency = linkablePaymentMethods.currency.displayTicker
+                ).apply {
                     onClick {
-                        linkBank(linkableBank)
+                        linkBank(linkablePaymentMethods)
                     }
-                    key = LINK_BANK_KEY.plus(linkableBank.hashCode())
+                    key = LINK_BANK_KEY
                 }
             )
+        } else if (!enabled && addBankPref != null) {
+            banksPref?.removePreference(addBankPref)
         }
     }
 
-    override fun updateLinkedBanks(banks: Set<Bank>) {
+    override fun updateLinkedBanks(bankItems: List<BankItem>) {
         val existingBanks = prefsExistingBanks()
 
-        val newBanks = banks.filterNot { existingBanks.contains(it.id) }
+        val newBankItems = bankItems.filterNot { existingBanks.contains(it.bank.id) }
 
-        newBanks.forEach { bank ->
+        newBankItems.forEach { bankItem ->
             banksPref?.addPreference(
-                BankPreference(context = requireContext(), bank = bank, fiatCurrency = bank.currency).apply {
+                BankPreference(
+                    context = requireContext(), bankItem = bankItem, fiatCurrency = bankItem.bank.currency.displayTicker
+                ).apply {
                     onClick {
-                        removeBank(bank)
+                        removeBank(bankItem.bank)
                     }
-                    key = bank.id
+                    key = bankItem.bank.id
                 }
             )
         }
     }
 
-    private fun removeBank(bank: Bank) {
+    private fun removeBank(bank: LinkedPaymentMethod.Bank) {
         RemoveLinkedBankBottomSheet.newInstance(bank).show(childFragmentManager, BOTTOM_SHEET)
     }
 
-    override fun onBankWireTransferSelected(currency: String) {
+    override fun onBankWireTransferSelected(currency: FiatCurrency) {
         WireTransferAccountDetailsBottomSheet.newInstance(currency).show(childFragmentManager, BOTTOM_SHEET)
-        analytics.logEvent(linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, currency))
+        analytics.logEvent(linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, currency.networkTicker))
     }
 
     private fun linkBank(linkablePaymentMethods: LinkablePaymentMethods) {
@@ -584,7 +591,6 @@ class SettingsFragment :
     }
 
     override fun updateCards(cards: List<PaymentMethod.Card>) {
-
         val existingCards = prefsExistingCards()
 
         val newCards = cards.filterNot { existingCards.contains(it.cardId) }
@@ -602,15 +608,7 @@ class SettingsFragment :
 
         cardsPref?.findPreference<CardPreference>(ADD_CARD_KEY)?.let {
             it.order = it.order + newCards.size + 1
-        } ?: cardsPref?.addPreference(
-            CardPreference(context = requireContext()).apply {
-                onClick {
-                    addNewCard()
-                    analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.SETTINGS))
-                }
-                key = ADD_CARD_KEY
-            }
-        )
+        }
     }
 
     private fun prefsExistingCards(): List<String> {
@@ -767,7 +765,7 @@ class SettingsFragment :
     }
 
     override fun launchThePit() {
-        PitLaunchBottomDialog.launch(requireActivity())
+        ExchangeConnectionSheet.launch(requireActivity())
     }
 
     private fun onUpdateEmailClicked() {
@@ -909,11 +907,11 @@ class SettingsFragment :
     }
 
     private fun showDialogFiatUnits() {
-        val currencies = settingsPresenter.currencyLabels.toTypedArray()
-        val strCurrency = currencyPrefs.selectedFiatCurrency
+        val currencies = settingsPresenter.currencyLabels
+        val selectedCurrency = currencyPrefs.selectedFiatCurrency
         var selected = 0
         for (i in currencies.indices) {
-            if (currencies[i].endsWith(strCurrency)) {
+            if (currencies[i] == selectedCurrency) {
                 selected = i
                 break
             }
@@ -921,9 +919,8 @@ class SettingsFragment :
 
         AlertDialog.Builder(settingsActivity, R.style.AlertDialogStyle)
             .setTitle(R.string.select_currency)
-            .setSingleChoiceItems(currencies, selected) { dialog, which ->
-                val fiatUnit = currencies[which].substring(currencies[which].length - 3)
-                settingsPresenter.updateFiatUnit(fiatUnit)
+            .setSingleChoiceItems(currencies.map { it.displayTicker }.toTypedArray(), selected) { dialog, which ->
+                settingsPresenter.updateFiatUnit(currencies[which])
                 dialog.dismiss()
             }
             .show()
@@ -939,7 +936,7 @@ class SettingsFragment :
         val dialog = AlertDialog.Builder(settingsActivity, R.style.AlertDialogStyle)
             .setTitle(R.string.verify_mobile)
             .setMessage(R.string.verify_sms_summary)
-            .setView(ViewUtils.getAlertDialogPaddedView(requireContext(), editText))
+            .setView(requireContext().getAlertDialogPaddedView(editText))
             .setCancelable(false)
             .setPositiveButton(R.string.verify, null)
             .setNegativeButton(android.R.string.cancel, null)
@@ -955,7 +952,7 @@ class SettingsFragment :
                 if (codeS.isNotEmpty()) {
                     settingsPresenter.verifySms(codeS)
                     dialog.dismiss()
-                    ViewUtils.hideKeyboard(settingsActivity)
+                    settingsActivity.hideKeyboard()
                 }
             }
         }
@@ -982,6 +979,7 @@ class SettingsFragment :
                                 ?: return
                         )
                     )
+                    settingsPresenter.updateCanAddNewCard()
                 }
                 BankAuthActivity.LINK_BANK_REQUEST_CODE -> {
                     settingsPresenter.updateBanks()
@@ -1230,6 +1228,7 @@ class SettingsFragment :
         cardsPref?.findPreference<CardPreference>(cardId)?.let {
             cardsPref?.removePreference(it)
         }
+        settingsPresenter.updateCanAddNewCard()
     }
 
     override fun onLinkedBankRemoved(bankId: String) {
@@ -1242,6 +1241,23 @@ class SettingsFragment :
 
     override fun cardsEnabled(enabled: Boolean) {
         cardsPref?.isVisible = enabled
+    }
+
+    override fun addCardEnabled(enabled: Boolean) {
+        val addCardPref = cardsPref?.findPreference<CardPreference>(ADD_CARD_KEY)
+        if (enabled && addCardPref == null) {
+            cardsPref?.addPreference(
+                CardPreference(context = requireContext()).apply {
+                    onClick {
+                        addNewCard()
+                        analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.SETTINGS))
+                    }
+                    key = ADD_CARD_KEY
+                }
+            )
+        } else if (!enabled && addCardPref != null) {
+            cardsPref?.removePreference(addCardPref)
+        }
     }
 
     override fun banksEnabled(enabled: Boolean) {
@@ -1280,6 +1296,6 @@ enum class ReviewAnalytics : AnalyticsEvent {
 }
 
 interface BankLinkingHost : SlidingModalBottomDialog.Host {
-    fun onBankWireTransferSelected(currency: String)
+    fun onBankWireTransferSelected(currency: FiatCurrency)
     fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction)
 }

@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.auth
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import piuk.blockchain.android.databinding.DialogSheetEnrollBiometricsBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 class BiometricsEnrollmentBottomSheet : SlidingModalBottomDialog<DialogSheetEnrollBiometricsBinding>() {
     interface Host : SlidingModalBottomDialog.Host {

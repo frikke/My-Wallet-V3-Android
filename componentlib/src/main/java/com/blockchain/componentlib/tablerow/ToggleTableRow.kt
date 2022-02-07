@@ -14,7 +14,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun ToggleTableRow(
     onCheckedChange: (isChecked: Boolean) -> Unit,
     primaryText: String,
-    secondaryText: String? = null,
+    secondaryText: String = "",
     isChecked: Boolean = false,
     enabled: Boolean = true,
     toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
@@ -27,7 +27,7 @@ fun ToggleTableRow(
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title
                 )
-                if (secondaryText != null) {
+                if (secondaryText.isNotBlank()) {
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
@@ -67,6 +67,20 @@ private fun ToggleTableRow_SingleLine_NotChecked() {
             ToggleTableRow(
                 onCheckedChange = {},
                 primaryText = "Enable this ?"
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ToggleTableRow_SingleLine_Checked() {
+    AppTheme {
+        Surface {
+            ToggleTableRow(
+                onCheckedChange = {},
+                primaryText = "Enable this ?",
+                isChecked = true
             )
         }
     }

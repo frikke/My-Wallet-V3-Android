@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/user_initials"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/xlarge_margin"
+        android:background="@drawable/bkgd_profile_circle_empty"
+        android:gravity="center"
+        android:textColor="@color/purple_700"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="LM" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/div_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/huge_margin"
+        app:layout_constraintTop_toBottomOf="@+id/user_initials" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/name_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/div_1" />
+
+    <TextView
+        android:id="@+id/contact_support"
+        style="@style/TextAppearance.Blockchain.Caption1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/tiny_margin"
+        app:layout_constraintTop_toBottomOf="@id/name_row"
+        tools:text="Need to update your name? Contact support" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/div_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/small_margin"
+        app:layout_constraintTop_toBottomOf="@+id/contact_support" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/email_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/div_2" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/div_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/email_row" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/mobile_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/div_3" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/div_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/mobile_row" />
+</androidx.constraintlayout.widget.ConstraintLayout>

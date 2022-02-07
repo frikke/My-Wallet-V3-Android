@@ -56,6 +56,8 @@
     <string name="common_reset_password">Reset Password</string>
     <string name="common_buy_crypto">Buy Crypto</string>
     <string name="common_preview">Preview</string>
+    <string name="common_unavailable">Unavailable</string>
+    <string name="common_connect">Connect</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -213,7 +215,7 @@
     <string name="strength_label">Password Strength</string>
 
     <string name="btn_continue">Continue</string>
-    <string name="btn_forgot_password">Forgot Password?"</string>
+    <string name="btn_forgot_password">Forgot Password?</string>
 
     <string name="SEND">Send</string>
 
@@ -478,8 +480,9 @@
     <string name="app">App</string>
     <string name="verify">Verify</string>
     <string name="resend">Resend</string>
-    <string name="verified">verified</string>
+    <string name="verified">Verified</string>
     <string name="unverified">unverified</string>
+    <string name="not_verified">Not Verified</string>
     <string name="security">Security</string>
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
@@ -489,12 +492,8 @@
     <string name="settings_pair_wallet">Pair my wallet</string>
     <string name="web_login">Web Log In</string>
 
-    <string name="disable_2fa_first">Please disable 2-step Verification via SMS in the security
-        settings first.
-    </string>
-    <string name="disable_online_only">Please login to your wallet in the web browser to disable
-        2FA.
-    </string>
+    <string name="disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
+    <string name="disable_online_only">Please login to your wallet in the web browser to disable 2FA.</string>
     <string name="settings_error_updating">Error updating settings, please try again</string>
     <string name="request_camera_permission">Camera access is required.</string>
 
@@ -503,8 +502,7 @@
     <string name="verify_mobile">Verify Mobile</string>
     <string name="select_country">Select Country</string>
     <string name="search_country">Search Country</string>
-    <string name="verify_sms_summary">We have sent your mobile phone an SMS message with a
-        verification code. Enter the code to verify your mobile phone number.
+    <string name="verify_sms_summary">We have sent an SMS message to your phone number with a verification code. Enter it below to verify your mobile phone.
     </string>
     <string name="verify_sms_failed">Code invalid, please try again</string>
     <string name="mobile_description">Your mobile phone can be used to enable two-factor
@@ -592,14 +590,10 @@
     </string>
     <string name="common_pin_dialog_try_again">Try again</string>
     <string name="common_pin_dialog_continue">Continue</string>
-    <string name="logged_out_enter_password">You have logged out or there was an error decrypting
-        your wallet. Enter your password below to login.
-    </string>
 
     <!-- PASSWORD REENTRY ACTIVITY -->
-    <string name="logged_out_forget_wallet">If you would like to forget this wallet and start over,
-        press ’Forget Wallet’.
-    </string>
+    <string name="logged_out_enter_password">Not your account? If you would like to sign into a different account, press ‘Forget Wallet’ below.</string>
+    <string name="logged_out_forget_wallet">Forgetting this wallet account will erase all wallet data on this device. Ensure that you have your password and secret private key recovery phrase saved in a safe place before doing so.</string>
     <string name="forget_wallet">Forget wallet</string>
     <string name="forget_wallet_warning">This will erase all wallet data on this device. Please
         confirm you have your wallet information saved elsewhere otherwise any bitcoin in this
@@ -611,6 +605,8 @@
         consolidate many smaller payments you’ve received in the past. This requires a relatively
         high fee in order to be confirmed quickly.
     </string>
+    <string name="password_required">Password Required</string>
+    <string name="password_input_hint">Enter your password</string>
 
     <!-- FEE WARNING -->
     <string name="push_notifications">Push Notifications</string>
@@ -981,8 +977,8 @@
     <string name="re_verify_identity_card_cta">Reverify Account</string>
 
     <!-- CeloEUR announcement -->
-    <string name="ceur_announcement_title">Earn up to 4%% in cEUR Rewards</string>
-    <string name="ceur_announcement_description">Buy cEUR with no fees and earn up to 4%% in annual rewards, paid monthly.</string>
+    <string name="ceur_announcement_title">Limited-Time cEUR Bonus and Rewards</string>
+    <string name="ceur_announcement_description">Buy 25 cEUR, get a 10 cEUR bonus, and earn 16%% in annual rewards.</string>
     <string name="ceur_announcement_action">Learn more</string>
 
     <!-- Rename asset announcement -->
@@ -1370,6 +1366,7 @@
     <string name="payment_deposit_blurb">Securely link a bank and send cash to your Blockchain.com Wallet at anytime.</string>
     <string name="credit_or_debit_card">Credit or Debit Card</string>
     <string name="instantly_buy_crypto_with_card">Instantly buy crypto with any Visa or Mastercard.</string>
+    <string name="google_pay_instructions">Simply tap Buy with Google Pay, no forms or card details needed.</string>
     <string name="send_funds_directly_from_your_bank">Send funds directly from your bank to your Blockchain Wallet. Once we receive the manual transfer, use that cash to buy crypto.</string>
     <string name="payment_method_limit">%1$s Limit</string>
     <string name="payment_method_type_account_info">%1$s Account %2$s</string>
@@ -1426,6 +1423,8 @@
     <string name="buy_asset_now">Buy %1s Now</string>
     <string name="preview_buy">Preview Buy</string>
     <string name="simple_buy_transfer_details_error">Something went wrong while loading the transfer details.\n\nPlease try again later.</string>
+    <string name="payment_methods_bank_transfer">If you\'d prefer to deposit funds directly from your bank account first, follow the instructions on the next screen. Once your deposit arrives in your Blockchain.com account you can come back here to buy crypto.</string>
+    <string name="payment_methods_make_deposit">Make A Deposit -></string>
 
     <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
     <string name="old_default_non_custodial_wallet_label">My %1s Wallet</string>
@@ -1576,9 +1575,6 @@
     <string name="save_my_card">Save My Card</string>
     <string name="card_already_saved">This card has already been saved.</string>
 
-    <string name="pounds">Pounds</string>
-    <string name="euros">Euros</string>
-    <string name="us_dollars">US Dollars</string>
     <string name="deposit_cash">Deposit Cash</string>
     <string name="bank_transfer_only">Bank Transfer Only</string>
     <string name="bank_transfer_only_subtitle">Only send funds from a bank account in your name. If not, your deposit could be delayed or rejected.</string>
@@ -1852,6 +1848,8 @@
     <string name="sell_info_action">Send Now →</string>
     <string name="sell_intro_empty_title">No Wallets to Sell from</string>
     <string name="sell_intro_empty_label">Looks like you have no Wallets with a balance you can Sell, try funding some Wallets first.</string>
+    <string name="buy_large_amounts">Buy Large Amounts</string>
+    <string name="buy_small_amounts">Buy Small Amounts</string>
 
 
     <string name="scan_mismatch_transaction_target">The scanned code is not a %1$s QR code.</string>
@@ -1906,6 +1904,7 @@
     <string name="swap_trading_fees_subtitle">You pay zero network fees by swapping crypto off-chain</string>
     <string name="swap_trading_speed_title">Swap in Seconds</string>
     <string name="swap_trading_speed_subtitle">Increased speed means your Swap trade clears in seconds, not minutes</string>
+    <string name="swap_empty_state_receive_button">Receive Crypto</string>
 
     <string name="trending_label">Trending</string>
     <string name="trending_swap">Swap %1$s</string>
@@ -1969,8 +1968,10 @@
     <string name="swap_better_experience">We’ve updated Swap with a new look and better experience.</string>
     <string name="swap_faster_cheaper_better">Faster. Cheaper. Better. Our new Swap experience lets you exchange crypto in fewer taps.</string>
     <string name="link_a_bank">Link a Bank</string>
+    <string name="easy_bank_transfer">Easy Bank Transfer</string>
     <string name="approve_payment">Approve Your Payment</string>
     <string name="instantly_buy_crypto_with_link_a_bank">Link your bank and instantly buy crypto at anytime.</string>
+    <string name="link_once_and_instantly_buy_crypto_anytime">Link once and instantly buy crypto at anytime.</string>
     <string name="add_payment_method">+ Add New</string>
     <string name="pay_with_my_dotted">Pay with my…</string>
 
@@ -1995,7 +1996,6 @@
 
     <string name="add_a_bank_account">Add a Bank Account</string>
     <string name="add_a_deposit_method">Select a Deposit Method</string>
-    <string name="wire_transfer">Wire Transfer</string>
     <string name="link_a_bank_wire_transfer">Link a bank to your Wallet by sending any amount via wire transfer. Note: This is much slower and high bank fees may apply.</string>
     <string name="link_a_bank_bank_transfer">Securely link a bank to buy crypto, deposit cash and withdraw back to your bank at anytime.</string>
 
@@ -2143,6 +2143,23 @@
     <string name="bank_linking_failure_subtitle">Please try again. If this keeps happening, please contact support.</string>
     <string name="bank_linking_declined_title">Account Access Denied</string>
     <string name="bank_linking_declined_subtitle">Looks like there was an issue with approving the payment, please try again. If this keeps happening, please contact support.</string>
+
+    <!-- Error transfer payments copies -->
+    <string name="bank_transfer_payment_invalid_title">Invalid Account</string>
+    <string name="bank_transfer_payment_invalid_subtitle">The account you selected isn’t active. Please try another account or payment method. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_failed_title">Payment Failed</string>
+    <string name="bank_transfer_payment_failed_subtitle">There was an issue with your bank. Please try again or use a different payment method. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_declined_title">Payment Declined</string>
+    <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support</string>
+    <string name="bank_transfer_payment_rejected_title">Payment Rejected</string>
+    <string name="bank_transfer_payment_rejected_subtitle">We believe you have declined the payment from your bank account. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_expired_title">Payment Request Expired</string>
+    <string name="bank_transfer_payment_expired_subtitle">We haven’t heard from your bank. The payment request has expired. Please try to submit the order again. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_limited_exceeded_title">Incomplete Charges</string>
+    <string name="bank_transfer_payment_limited_exceeded_subtitle">This payment method has incomplete charges against it. To use this payment method again, place <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_insufficient_funds_title">Insufficient Funds</string>
+    <string name="bank_transfer_payment_insufficient_funds_subtitle">Payment failed due to insufficient funds in your account. Try another payment method. If this keep happening, please <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_transfer_go_back">Cancel &amp; Go Back</string>
 
     <string name="wallet_outage_message">We are experiencing an outage. Please rest assured your funds are safe. <annotation link="learn_more">Learn more</annotation></string>
     <string name="wallet_issue_message">There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. <annotation link="learn_more">Learn more →</annotation></string>
@@ -2426,8 +2443,12 @@
     <string name="toolbar_settings">Settings</string>
 
     <string name="select_a_trading_currency">Select a Trading Currency.</string>
+    <string name="select_a_display_currency">Select a Display Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
+    <string name="landing_cta_title">Buy Bitcoin. Own the Future.</string>
+    <string name="landing_cta_subtitle">Create a Blockchain.com Wallet and simply buy, sell and hold crypto. Go from zero to crypto in seconds not minutes.</string>
+    <string name="landing_cta_login">Log In</string>
 
     <!-- Pending buys -->
     <string name="pending_buys_description">Right now, we only allow up to %d buys pending at a time.</string>
@@ -2475,6 +2496,159 @@
     <string name="kyc_upgrade_now_silver_description">Unlock Trade Accounts and Swap.</string>
     <string name="kyc_upgrade_now_silver_info">Unlock Swap - our in-app exchange. </string>
     <string name="kyc_upgrade_now_tier_state_under_review">In Manual Review</string>
+    <string name="dashboard_onboarding_title3">Finish setting up your Blockchain.com account and start buying crypto today.</string>
+    <string name="dashboard_onboarding_title2">Complete Your Profile.\nBuy Crypto Today.</string>
+    <string name="dashboard_onboarding_title1">Your steps towards owning the future.</string>
+    <string name="dashboard_onboarding_step_upgrade_to_gold">Verify Your ID</string>
+    <string name="dashboard_onboarding_step_link_payment_method">Link a Bank or Card</string>
+    <string name="dashboard_onboarding_step_link_buy">Buy Crypto</string>
+    <string name="dashboard_onboarding_step_pending">Processing…</string>
+    <string name="dashboard_onboarding_step_complete">Complete</string>
+    <string name="dashboard_onboarding_step_upgrade_to_gold_time">3 Minutes</string>
+    <string name="dashboard_onboarding_step_link_payment_method_time">2 Minutes</string>
+    <string name="dashboard_onboarding_step_link_buy_time">10 Seconds</string>
+    <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
+    <string name="dashboard_onboarding_card_title">Complete Your Profile</string>
+    <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
     <string name="new_user_fee_waiver">New User Fee Waiver</string>
+    <string name="swap_empty_state_sheet_title">You’ll need some crypto first!</string>
+    <string name="swap_empty_state_sheet_subtitle">Link a bank or card and buy now or receive from a friend. Once you hold a balance, you can swap crypto at anytime.</string>
+
+    <!-- Settings screen -->
+    <string name="settings_see_profile">See Profile</string>
+    <string name="settings_label_payments">Payment Methods</string>
+    <string name="settings_title_no_payments">No Payment Methods</string>
+    <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
+    <string name="settings_label_settings">Settings</string>
+    <string name="settings_title_account">Account</string>
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_notifications_subtitle">Emails and push alerts</string>
+    <string name="settings_subtitle_account">Limits, Currency and more</string>
+    <string name="settings_title_security">Security</string>
+    <string name="settings_subtitle_security">Login Methods, Backup Phrases and more</string>
+    <string name="settings_title_about_app">About App</string>
+    <string name="settings_subtitle_about_app">Support, Airdrops and Policies</string>
+    <string name="settings_sign_out">Sign Out</string>
+    <string name="settings_initials">%1s%2s</string>
+    <string name="settings_add_payment_method">Add Payment Method</string>
+    <string name="settings_bank_transfer_blurb">Send funds directly from your bank to your Blockchain Wallet. Once we receive the wire transfer, we’ll complete your purchase.</string>
+    <string name="settings_logout_error">There was an issue while logging you out, please try again!</string>
+
+    <!-- Account screen -->
+    <string name="account_toolbar">Account</string>
+    <string name="account_limits_title">Limits and Features</string>
+    <string name="account_limits_subtitle">Trading Accounts</string>
+    <string name="account_wallet_id_title">Wallet ID</string>
+    <string name="account_wallet_id_subtitle">Warning: Do Not Share Publicly</string>
+    <string name="account_currency_title">Local Currency</string>
+    <string name="account_exchange_title">Blockchain Exchange</string>
+    <string name="account_exchange_not_connected">Connect to your Exchange Account</string>
+    <string name="account_exchange_connected">Connected</string>
+    <string name="account_airdrops_title">Airdrops</string>
+    <string name="account_wallet_id_copy_error">There was an error copying your Wallet ID, please try again.</string>
+    <string name="account_exchange_connect_title">Connect to Exchange</string>
+    <string name="account_exchange_connect_subtitle">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>
+    <string name="account_exchange_connected_title">Blockchain Exchange</string>
+    <string name="account_exchange_connected_cta">Launch the Exchange</string>
+    <string name="account_load_info_error">There was an error loading your details, please try again</string>
+    <string name="account_load_fiat_error">There was an error loading currency details, please try again</string>
+    <string name="account_fiat_update_error">There was an error updating your currency details, please try again</string>
+    <string name="account_exchange_info_error">There was an error loading Exchange information, please try again</string>
+    <string name="account_load_exchange_error">There was an error loading the Exchange, please try again</string>
+
+    <!-- Profile screen -->
+    <string name="profile_toolbar">Profile</string>
+    <string name="profile_label_name">Name</string>
+    <string name="profile_label_surname">Surname</string>
+    <string name="profile_label_email">Email</string>
+    <string name="profile_toolbar_email">Email</string>
+    <string name="profile_toolbar_mobile">Phone Number</string>
+    <string name="profile_label_mobile">Phone Number</string>
+    <string name="profile_mobile_empty">Add your phone number</string>
+    <string name="profile_update_error_email">Email failed to save</string>
+    <string name="profile_update_error_resend_email">Resending email failed</string>
+    <string name="profile_update_error_resend_sms">Resending SMS failed</string>
+    <string name="profile_update_email">Email saved</string>
+    <string name="profile_update_error_phone">Phone number failed to save</string>
+    <string name="profile_update_phone">Phone number saved</string>
+    <string name="profile_update_success">Updates saved.</string>
+    <string name="profile_label_support">Need to update your name? <annotation link="contact_support">Contact support</annotation></string>
+    <string name="profile_verify_email_msg">Your verified email address is used to send payment alerts, ID reminders, and login codes.</string>
+    <string name="profile_verify_phone_msg">Your phone number can be used to enable 2FA.</string>
+    <string name="profile_disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
+    <string name="profile_verify_email">Verify Email</string>
+    <string name="profile_verify_phone">Verify Phone</string>
+    <string name="profile_send_text">Send Text</string>
+    <string name="profile_hint_phone">Enter Phone Number</string>
+    <string name="profile_update">Update</string>
+    <string name="profile_verify_code">Verify Code</string>
+    <string name="profile_enter_code">Enter Verification Code</string>
+    <string name="profile_verification_code_error">Verification code failed</string>
+    <string name="profile_resend_sms_error">Resending SMS failed</string>
+    <string name="profile_label_dial_code">Dial code</string>
+
+    <!-- Code SMS Verification -->
+    <string name="code_verification_resent_sms">A new code has been sent</string>
+    <string name="code_verification_enter">Enter Verification Code</string>
+    <string name="code_verification_re_send_text">Resend Text</string>
+    <string name="code_verification_verify_code">Verify Code</string>
+    <string name="code_verification_placeholder">--- ---</string>
+    <string name="code_verification_title">Verify Your Phone Number</string>
+
+    <!-- Notifications screen -->
+    <string name="notifications_toolbar">Notifications</string>
+    <string name="email_notifications_title">Email Notifications</string>
+    <string name="push_notifications_title">Push Notifications</string>
+    <string name="notifications_email_update_error">Error updating email preferences, please try again</string>
+    <string name="notifications_push_update_error">Error updating push notification preferences, please try again</string>
+    <string name="notifications_info_load_error">Error getting notification preferences, please try again</string>
+    <string name="notifications_email_unverified_error">Please verify your email before enabling Email Notifications</string>
+
+    <!-- Security screen -->
+    <string name="security_toolbar">Security</string>
+    <string name="security_two_fa_title">2-Step Verification</string>
+    <string name="security_password_title">Change Password</string>
+    <string name="security_password_subtitle">Create a New Password</string>
+    <string name="security_pin_title">Change PIN</string>
+    <string name="security_pin_subtitle">Create a New 4 Digit PIN</string>
+    <string name="security_backup_phrase_title">Backup Phrase</string>
+    <string name="security_backup_phrase_subtitle">Your Secret 12 Word Key</string>
+    <string name="security_backup_phrase_pill_not_backed_up">Not Backed Up</string>
+    <string name="security_backup_phrase_pill_backed_up">Backed Up</string>
+    <string name="security_biometrics_title">Enable Biometric Unlock</string>
+    <string name="security_screenshots_title">Enable Screenshots</string>
+    <string name="security_tor_title">Block Tor Requests</string>
+    <string name="security_tor_subtitle">Block IP addresses known to be part of the Tor anonymizing network.\n(Disabling this setting will be permanent)</string>
+    <string name="security_two_fa_sheet_title">Enable 2FA</string>
+    <string name="security_two_fa_sheet_blurb">Protect your wallet from unauthorized access by enabling 2 Step Verification. Tap Enable to use your phone number to secure your wallet. To use other authentication methods, log into your web wallet and set them up there.</string>
+    <string name="security_two_fa_sheet_cta_enable">Enable SMS 2FA</string>
+    <string name="security_two_fa_sheet_cta_other">Enable Other 2FA Method</string>
+    <string name="security_two_fa_disable_on_web_cta">Open Web Login</string>
+    <string name="security_two_fa_disable_on_web_blurb">This 2FA type can only be disabled through the Web Wallet. Please log in there to proceed.</string>
+    <string name="security_biometrics_disable_title">Disable Biometrics?</string>
+    <string name="security_biometrics_add_title">No Biometrics Added</string>
+    <string name="security_biometrics_cta_disable">Disable Biometrics</string>
+    <string name="security_biometrics_cta_add">Add Biometrics</string>
+    <string name="security_biometrics_add_blurb">No biometrics have been registered on this device yet. Do you want to register your biometrics now?</string>
+    <string name="security_error_initial_info_load">There was an error loading your Security information. Please try again.</string>
+    <string name="security_error_pin_missing">There was an error with your PIN. Please try again.</string>
+    <string name="security_error_biometrics_disable">There was an error disabling your Biometrics, please try again.</string>
+    <string name="security_error_two_fa">There was an error updating Two Factor Authentication, please try again.</string>
+    <string name="security_error_screenshots">There was an error updating Screenshots, please try again.</string>
+
+    <!-- About app screen -->
+    <string name="about_app_toolbar">About App</string>
+    <string name="about_app_contact_support">Contact Support</string>
+    <string name="about_app_airdrops">Airdrops</string>
+    <string name="about_app_rate_app">Rate Our App</string>
+    <string name="about_app_terms_service">Terms of Service</string>
+    <string name="about_app_privacy_policy">Privacy Policy</string>
+
+    <!-- Wallet Connect-->
+    <string name="dapp_wants_to_connect">%1s wants to connect</string>
+    <string name="dapp_is_now_approved">%1s is Now Connected to Your Wallet</string>
+    <string name="dapp_is_now_rejected">%1s Connection was Rejected</string>
+    <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
+
 </resources>

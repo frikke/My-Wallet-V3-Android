@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/grey_000" />
+            <size
+                android:width="124dp"
+                android:height="124dp" />
+        </shape>
+    </item>
+    <item
+        android:bottom="@dimen/large_margin"
+        android:drawable="@drawable/ic_profile"
+        android:left="@dimen/large_margin"
+        android:right="@dimen/large_margin"
+        android:top="@dimen/large_margin" />
+</layer-list>

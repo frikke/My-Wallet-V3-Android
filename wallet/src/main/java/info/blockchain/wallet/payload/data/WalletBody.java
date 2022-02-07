@@ -259,6 +259,42 @@ public class WalletBody {
         return upgradedAccounts;
     }
 
+    public void generateDerivationsForAccount(Account account) {
+        int accountIndex = getAccounts().indexOf(account);
+        HDAccount legacyAccount = HD.getLegacyAccount(accountIndex);
+        HDAccount segWit = HD.getSegwitAccount(accountIndex);
+        List<Derivation> derivations = getDerivations(legacyAccount, segWit);
+
+        accounts.set(
+            accountIndex,
+            new AccountV4(
+                account.getLabel(),
+                Derivation.SEGWIT_BECH32_TYPE,
+                account.isArchived(),
+                derivations
+            )
+        );
+    }
+
+    private List<Derivation> getDerivations(HDAccount legacyAccount, HDAccount segWit) {
+        List<Derivation> derivations = new ArrayList<>();
+
+        Derivation legacy = Derivation.create(
+            legacyAccount.getXPriv(),
+            legacyAccount.getXpub(),
+            AddressCache.Companion.setCachedXPubs(legacyAccount)
+        );
+        Derivation segwit = Derivation.createSegwit(
+            segWit.getXPriv(),
+            segWit.getXpub(),
+            AddressCache.Companion.setCachedXPubs(segWit)
+        );
+
+        derivations.add(legacy);
+        derivations.add(segwit);
+        return derivations;
+    }
+
     private void addSegwitDerivation(AccountV4 accountV4, int accountIdx) throws HDWalletException {
         validateHD();
         if (wrapperVersion != WalletWrapper.V4) {
@@ -310,21 +346,7 @@ public class WalletBody {
         Account accountBody;
 
         if (wrapperVersion == WalletWrapper.V4) {
-            List<Derivation> derivations = new ArrayList<>();
-
-            Derivation legacy = Derivation.create(
-                legacyAccount.getXPriv(),
-                legacyAccount.getXpub(),
-                AddressCache.Companion.setCachedXPubs(legacyAccount)
-            );
-            Derivation segwit = Derivation.createSegwit(
-                segWit.getXPriv(),
-                segWit.getXpub(),
-                AddressCache.Companion.setCachedXPubs(segWit)
-            );
-
-            derivations.add(legacy);
-            derivations.add(segwit);
+            List<Derivation> derivations = getDerivations(legacyAccount, segWit);
             accountBody = new AccountV4(
                 label,
                 Derivation.SEGWIT_BECH32_TYPE,

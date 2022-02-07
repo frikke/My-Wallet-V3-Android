@@ -5,10 +5,10 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.annotation.StringRes
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.google.android.material.textfield.TextInputLayout
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SearchBoxLayoutBinding
-import piuk.blockchain.android.util.visibleIf
 
 class SearchBoxLayout @JvmOverloads constructor(
     context: Context,

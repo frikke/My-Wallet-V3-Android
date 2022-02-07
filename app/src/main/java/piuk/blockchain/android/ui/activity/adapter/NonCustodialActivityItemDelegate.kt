@@ -12,12 +12,13 @@ import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.Date
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
-import piuk.blockchain.android.ui.activity.CryptoActivityType
+import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
@@ -26,7 +27,7 @@ import piuk.blockchain.android.util.setAssetIconColoursWithTint
 class NonCustodialActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,
     private val historicRateFetcher: HistoricRateFetcher,
-    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
+    private val onItemClicked: (AssetInfo, String, ActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<T> {
 
     override fun isForViewType(items: List<T>, position: Int): Boolean =
@@ -57,9 +58,9 @@ private class NonCustodialActivityItemViewHolder(
 
     fun bind(
         tx: NonCustodialActivitySummaryItem,
-        selectedFiatCurrency: String,
+        selectedFiatCurrency: FiatCurrency,
         historicRateFetcher: HistoricRateFetcher,
-        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, ActivityType) -> Unit
     ) {
         disposables.clear()
         with(binding) {
@@ -79,7 +80,7 @@ private class NonCustodialActivityItemViewHolder(
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
 
-            txRoot.setOnClickListener { onAccountClicked(tx.asset, tx.txId, CryptoActivityType.NON_CUSTODIAL) }
+            txRoot.setOnClickListener { onAccountClicked(tx.asset, tx.txId, ActivityType.NON_CUSTODIAL) }
         }
     }
 

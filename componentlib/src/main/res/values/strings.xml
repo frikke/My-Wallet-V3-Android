@@ -4,4 +4,14 @@
     <string name="bottom_nav_prices">Prices</string>
     <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
     <string name="bottom_nav_activity">Activity</string>
+
+    <string name="app_name"></string>
+    <string name="screen_overlay_warning"></string>
+    <string name="screen_overlay_note"></string>
+    <string name="dialog_continue"></string>
+    <string name="exit"></string>
+
+    <string name="common_cancel"></string>
+    <string name="common_confirm"></string>
+    <string name="common_ok"></string>
 </resources>

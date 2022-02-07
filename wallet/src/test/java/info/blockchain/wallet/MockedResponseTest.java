@@ -1,6 +1,5 @@
 package info.blockchain.wallet;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 
@@ -11,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import info.blockchain.wallet.api.Environment;
 import io.reactivex.rxjava3.internal.schedulers.TrampolineScheduler;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.OkHttpClient;
@@ -26,35 +24,6 @@ public abstract class MockedResponseTest {
     @Before
     public void initBlockchainFramework() {
         mockInterceptor = new MockInterceptor();
-        BlockchainFramework.init(frameworkInterface(newOkHttpClient()));
-    }
-
-    private FrameworkInterface frameworkInterface(final OkHttpClient okHttpClient) {
-        return new FrameworkInterface() {
-            @Override
-            public Retrofit getRetrofitApiInstance() {
-                return getRetrofit("https://api.staging.blockchain.info/", okHttpClient);
-            }
-
-            @Override
-            public Environment getEnvironment() {
-                return Environment.STAGING;
-            }
-
-            @NotNull
-            @Override
-            public String getApiCode() { return "API_CODE"; }
-
-            @Override
-            public String getDevice() {
-                return "UnitTest";
-            }
-
-            @Override
-            public String getAppVersion() {
-                return null;
-            }
-        };
     }
 
     @Before
@@ -69,7 +38,6 @@ public abstract class MockedResponseTest {
     @After
     public void tearDownRxCalls() {
         RxJavaPlugins.reset();
-        BlockchainFramework.init(null);
     }
 
     OkHttpClient newOkHttpClient() {

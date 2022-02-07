@@ -30,8 +30,9 @@ class TradingSellTxEngine(
         get() = TransferDirection.INTERNAL
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.accountBalance
-
+        get() = sourceAccount.balance.firstOrError().map {
+            it.total
+        }
     override fun assertInputsValid() {
         check(sourceAccount is CustodialTradingAccount)
         check(txTarget is FiatAccount)
@@ -39,35 +40,35 @@ class TradingSellTxEngine(
 
     override fun doInitialiseTx(): Single<PendingTx> =
         quotesEngine.pricedQuote.firstOrError()
-            .zipWith(sourceAccount.accountBalance)
+            .zipWith(availableBalance)
             .flatMap { (quote, balance) ->
                 Single.just(
                     PendingTx(
-                        amount = CryptoValue.zero(sourceAsset),
+                        amount = Money.zero(sourceAsset),
                         totalBalance = balance,
                         availableBalance = balance,
-                        feeAmount = CryptoValue.zero(sourceAsset),
-                        feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                        selectedFiat = target.fiatCurrency,
+                        feeAmount = Money.zero(sourceAsset),
+                        feeForFullAvailable = Money.zero(sourceAsset),
+                        selectedFiat = target.currency,
                         feeSelection = FeeSelection()
                     )
                 ).flatMap {
-                    updateLimits(target.fiatCurrency, it, quote)
+                    updateLimits(target.currency, it, quote)
                 }
             }.handlePendingOrdersError(
                 PendingTx(
-                    amount = CryptoValue.zero(sourceAsset),
-                    totalBalance = CryptoValue.zero(sourceAsset),
-                    availableBalance = CryptoValue.zero(sourceAsset),
-                    feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                    feeAmount = CryptoValue.zero(sourceAsset),
-                    selectedFiat = target.fiatCurrency,
+                    amount = Money.zero(sourceAsset),
+                    totalBalance = Money.zero(sourceAsset),
+                    availableBalance = Money.zero(sourceAsset),
+                    feeForFullAvailable = Money.zero(sourceAsset),
+                    feeAmount = Money.zero(sourceAsset),
+                    selectedFiat = target.currency,
                     feeSelection = FeeSelection()
                 )
             )
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
-        return sourceAccount.accountBalance
+        return availableBalance
             .map { it as CryptoValue }
             .map { available ->
                 pendingTx.copy(

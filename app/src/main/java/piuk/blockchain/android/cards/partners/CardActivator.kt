@@ -1,6 +1,6 @@
 package piuk.blockchain.android.cards.partners
 
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
+import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.everypay.models.CcDetails

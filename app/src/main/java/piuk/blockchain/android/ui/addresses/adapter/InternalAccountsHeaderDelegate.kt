@@ -5,17 +5,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAccountsRowHeaderBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class InternalAccountsHeaderDelegate(
-    val listener: AccountAdapter.Listener,
-    val features: InternalFeatureFlagApi
+    val listener: AccountAdapter.Listener
 ) : AdapterDelegate<AccountListItem> {
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
@@ -29,7 +26,7 @@ class InternalAccountsHeaderDelegate(
         holder: RecyclerView.ViewHolder
     ) {
         val headerViewHolder = holder as HeaderViewHolder
-        headerViewHolder.bind(items[position] as AccountListItem.InternalHeader, features, listener)
+        headerViewHolder.bind(items[position] as AccountListItem.InternalHeader, listener)
     }
 
     override fun isForViewType(items: List<AccountListItem>, position: Int): Boolean =
@@ -44,12 +41,11 @@ class InternalAccountsHeaderDelegate(
 
         fun bind(
             item: AccountListItem.InternalHeader,
-            features: InternalFeatureFlagApi,
             listener: AccountAdapter.Listener
         ) {
             header.setText(R.string.common_wallets)
 
-            if (item.enableCreate && features.isFeatureEnabled(GatedFeature.ADD_SUB_WALLET_ADDRESSES)) {
+            if (item.enableCreate) {
                 itemView.setOnClickListener { listener.onCreateNewClicked() }
                 plus.visible()
             } else {

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.reset.password
 
-import piuk.blockchain.android.ui.base.mvi.MviState
+import com.blockchain.commonarch.presentation.mvi.MviState
 
 enum class ResetPasswordStatus {
     INIT,

@@ -46,7 +46,6 @@ class AccountRecoveryInteractor(
         payloadDataManager.wallet?.let { wallet ->
             prefs.sharedKey = wallet.sharedKey
             prefs.walletGuid = wallet.guid
-            prefs.isOnBoardingComplete = true
         }
     }
 

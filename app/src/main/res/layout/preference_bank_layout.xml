@@ -37,4 +37,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_add_card" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/ineligible"
+        style="@style/Text.Standard.Centered.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:background="@drawable/expired_status_background"
+        android:text="@string/common_unavailable"
+        android:textColor="@color/red_400"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

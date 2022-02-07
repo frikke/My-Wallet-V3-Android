@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -25,7 +26,7 @@ class RecurringBuysAnnouncement(
         }
 
         return announcementQueries.hasFundedFiatWallets().map {
-            it || currencyPrefs.selectedFiatCurrency == "USD"
+            it || currencyPrefs.selectedFiatCurrency == Dollars
         }
     }
 

@@ -43,9 +43,9 @@ data class InterestAmount(
 )
 
 data class InterestAttributes(
-    val address: String,
-    val confirmations: Int,
-    val hash: String,
+    val address: String?,
+    val confirmations: Int?,
+    val hash: String?,
     val id: String,
     val txHash: String,
     val beneficiary: InterestBeneficiary?

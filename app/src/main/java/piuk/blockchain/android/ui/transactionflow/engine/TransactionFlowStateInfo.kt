@@ -4,7 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import info.blockchain.balance.AssetCategory
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
 interface TransactionFlowStateInfo {
@@ -15,6 +15,6 @@ interface TransactionFlowStateInfo {
     val amount: Money
     val fiatRate: ExchangeRate?
     val availableBalance: Money?
-    val sendingAsset: AssetInfo?
-    val receivingCurrency: String
+    val sendingAsset: Currency?
+    val receivingAsset: Currency
 }

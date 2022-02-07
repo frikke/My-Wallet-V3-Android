@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.linkbank
 
 import com.blockchain.banking.BankPaymentApproval
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
+import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.LinkedBank
 import com.google.gson.Gson
 import java.io.Serializable
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
-import piuk.blockchain.android.ui.base.mvi.MviState
 
 data class BankAuthState(
     val id: String? = null,
@@ -52,8 +52,12 @@ data class BankAuthDeepLinkState(
 fun BankAuthDeepLinkState.toPreferencesValue(): String =
     Gson().toJson(this, BankAuthDeepLinkState::class.java)
 
-internal fun String.fromPreferencesValue(): BankAuthDeepLinkState =
-    Gson().fromJson(this, BankAuthDeepLinkState::class.java)
+internal fun String.fromPreferencesValue(): BankAuthDeepLinkState? =
+    if (this.isNotEmpty()) {
+        Gson().fromJson(this, BankAuthDeepLinkState::class.java)
+    } else {
+        null
+    }
 
 enum class BankAuthFlowState {
     BANK_LINK_PENDING,

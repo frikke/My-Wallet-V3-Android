@@ -13,6 +13,8 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavDirections
 import com.blockchain.coincore.AssetAction
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
@@ -42,10 +44,8 @@ import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.urllinks.URL_LEARN_MORE_REJECTED
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setImageDrawable
 import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class KycTierSplashFragment :
@@ -248,9 +248,9 @@ class KycTierSplashFragment :
     private fun getLimitString(tier: Tier): Int {
         val limits = tier.limits
         return when {
-            limits?.annualFiat != null -> if (tier.state.ordinal == SILVER_TIER_INDEX)
+            limits?.annualLimit != null -> if (tier.state.ordinal == SILVER_TIER_INDEX)
                 R.string.annual_swap_limit else R.string.annual_swap_and_buy_limit
-            limits?.dailyFiat != null -> if (tier.state.ordinal == SILVER_TIER_INDEX)
+            limits?.dailyLimit != null -> if (tier.state.ordinal == SILVER_TIER_INDEX)
                 R.string.daily_swap_limit else R.string.daily_swap_and_buy_limit
             else -> R.string.generic_limit
         }

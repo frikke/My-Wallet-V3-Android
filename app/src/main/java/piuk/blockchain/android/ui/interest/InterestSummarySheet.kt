@@ -13,15 +13,18 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRates
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
@@ -30,14 +33,10 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetInterestDetailsBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetailsBinding>() {
@@ -68,9 +67,6 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
 
-    @Suppress("unused")
-    private val features: InternalFeatureFlagApi by inject()
-
     private val listAdapter: InterestSummaryAdapter by lazy { InterestSummaryAdapter() }
 
     override fun initControls(binding: DialogSheetInterestDetailsBinding) {
@@ -89,7 +85,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
             interestDetailsAssetWithIcon.updateIcon(account as CryptoAccount)
 
             disposables += coincore.allWalletsWithActions(setOf(AssetAction.InterestDeposit)).map { accounts ->
-                accounts.filter { account -> account is CryptoAccount && account.asset == asset }
+                accounts.filter { account -> account is CryptoAccount && account.currency == asset }
             }
                 .onErrorReturn { emptyList() }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -196,12 +192,11 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
     companion object {
         fun newInstance(
-            singleAccount: SingleAccount,
-            selectedAsset: AssetInfo
+            singleAccount: CryptoAccount
         ): InterestSummarySheet =
             InterestSummarySheet().apply {
                 account = singleAccount
-                asset = selectedAsset
+                asset = singleAccount.currency
             }
     }
 
@@ -211,9 +206,9 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     )
 
     private data class CompositeInterestDetails(
-        val balance: CryptoValue,
-        val totalInterest: CryptoValue,
-        val pendingInterest: CryptoValue,
+        val balance: Money,
+        val totalInterest: Money,
+        val pendingInterest: Money,
         var nextInterestPayment: Date,
         val lockupDuration: Int,
         val interestRate: Double

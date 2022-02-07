@@ -1,0 +1,14 @@
+task generateModulesTestCommand(type: GradleBuild) { task ->
+    def command = ""
+
+    getProject().getRootProject().getSubprojects().each { project ->
+        def projectFilePath = getRootDir().path + project.getPath().replace(":".toCharacter(), File.separatorChar)
+        def projectTestFile = new File(projectFilePath + File.separator + "src" + File.separator + "test")
+
+        // Ignore tests in "app" module and modules without a "test" directory
+        if (project.name != "app" && projectTestFile.exists()) {
+            command += project.getPath() + ":test "
+        }
+    }
+    println("TEST_COMMAND" + command + "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon")
+}

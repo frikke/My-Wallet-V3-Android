@@ -1,10 +1,14 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -20,6 +24,13 @@ fun SmallPrimaryButton(
     state: ButtonState,
     modifier: Modifier = Modifier,
 ) {
+    val contentPadding = PaddingValues(
+        start = if (state == ButtonState.Loading) 16.dp else 12.dp,
+        top = ButtonDefaults.ContentPadding.calculateTopPadding(),
+        end = if (state == ButtonState.Loading) 16.dp else 12.dp,
+        bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
+    )
+
     Button(
         text = text,
         onClick = onClick,
@@ -33,9 +44,10 @@ fun SmallPrimaryButton(
         disabledBackgroundLightColor = Blue400,
         disabledBackgroundDarkColor = Grey900,
         pressedBackgroundColor = Blue700,
-        modifier = modifier,
+        modifier = modifier.requiredHeightIn(min = 32.dp),
+        contentPadding = contentPadding,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, _: ImageResource ->
-            ResizableButtonContent(
+            ButtonContentSmall(
                 state = state,
                 text = text,
                 textColor = textColor,

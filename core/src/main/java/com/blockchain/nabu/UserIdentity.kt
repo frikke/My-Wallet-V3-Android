@@ -1,6 +1,6 @@
 package com.blockchain.nabu
 
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -26,7 +26,7 @@ interface UserIdentity {
 sealed class Feature {
     data class TierLevel(val tier: Tier) : Feature()
     object SimplifiedDueDiligence : Feature()
-    data class Interest(val currency: AssetInfo) : Feature()
+    data class Interest(val currency: Currency) : Feature()
     object SimpleBuy : Feature()
     object CustodialAccounts : Feature()
 }
@@ -39,7 +39,7 @@ sealed class Feature {
  3 - simplified due diligence eligible; user with tier 1 verification in specific low risk countries
  */
 enum class Tier {
-    BRONZE, SILVER, GOLD, SILVER_PLUS
+    BRONZE, SILVER, GOLD
 }
 
 data class BasicProfileInfo(

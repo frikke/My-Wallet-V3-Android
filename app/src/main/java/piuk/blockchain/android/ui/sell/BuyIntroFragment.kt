@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.commonarch.presentation.base.trackProgress
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -18,6 +21,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -36,9 +40,6 @@ import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.trackProgress
-import piuk.blockchain.android.util.visible
 
 class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, HomeScreenFragment {
 
@@ -88,14 +89,17 @@ class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, 
     private fun loadBuyDetails(showLoading: Boolean = true) {
 
         custodialWalletManager.getSupportedBuySellCryptoCurrencies().map { pairs ->
-            pairs.map { it.source }.distinct()
+            pairs.map {
+                it.source
+            }.distinct()
+                .filterIsInstance<AssetInfo>()
         }.flatMapObservable { assets ->
             Observable.fromIterable(assets).flatMapMaybe { asset ->
                 coincore[asset].getPricesWith24hDelta().map { priceDelta ->
                     PricedAsset(
                         asset = asset,
                         priceHistory = PriceHistory(
-                            currentExchangeRate = priceDelta.currentRate as ExchangeRate.CryptoToFiat,
+                            currentExchangeRate = priceDelta.currentRate,
                             priceDelta = priceDelta.delta24h
                         )
                     )
@@ -168,7 +172,7 @@ class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, 
                         asset = pricedAsset.asset,
                         price = pricedAsset.priceHistory
                             .currentExchangeRate
-                            .price(),
+                            .price,
                         percentageDelta = pricedAsset.priceHistory.percentageDelta
                     )
                 }
@@ -210,11 +214,11 @@ class BuyIntroFragment : ViewPagerFragment(), BuyPendingOrdersBottomSheet.Host, 
 }
 
 data class PriceHistory(
-    val currentExchangeRate: ExchangeRate.CryptoToFiat,
+    val currentExchangeRate: ExchangeRate,
     val priceDelta: Double
 ) {
     val cryptoCurrency: AssetInfo
-        get() = currentExchangeRate.from
+        get() = currentExchangeRate.from.asAssetInfoOrThrow()
 
     val percentageDelta: Double
         get() = priceDelta

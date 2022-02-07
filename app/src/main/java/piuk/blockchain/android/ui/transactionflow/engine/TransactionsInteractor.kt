@@ -20,16 +20,20 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -43,6 +47,7 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import timber.log.Timber
@@ -52,6 +57,7 @@ class TransactionInteractor(
     private val addressFactory: AddressFactory,
     private val custodialRepository: CustodialRepository,
     private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val identity: UserIdentity,
     private val accountsSorting: AccountsSorting,
@@ -133,7 +139,7 @@ class TransactionInteractor(
         ).map { (accountList, pairs) ->
             accountList.filterIsInstance(FiatAccount::class.java)
                 .filter { account ->
-                    pairs.any { it.source == sourceAccount.asset && account.fiatCurrency == it.destination }
+                    pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
                 }
         }
     }
@@ -146,7 +152,7 @@ class TransactionInteractor(
         ).map { (accountList, pairs, eligible) ->
             accountList.filterIsInstance(CryptoAccount::class.java)
                 .filter { account ->
-                    pairs.any { it.source == sourceAccount.asset && account.asset == it.destination }
+                    pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
                 }.filter { account ->
                     eligible or (account is NonCustodialAccount)
                 }
@@ -174,7 +180,7 @@ class TransactionInteractor(
                 require(targetAccount is CryptoAccount)
                 coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter()).map {
                     it.filter { acc ->
-                        acc is CryptoAccount && acc.asset == targetAccount.asset && acc != targetAccount
+                        acc is CryptoAccount && acc.currency == targetAccount.currency && acc != targetAccount
                     }
                 }
             }
@@ -208,7 +214,8 @@ class TransactionInteractor(
         transactionProcessor?.reset() ?: Timber.i("TxProcessor is not initialised yet")
     }
 
-    fun linkABank(selectedFiat: String): Single<LinkBankTransfer> = custodialWalletManager.linkToABank(selectedFiat)
+    fun linkABank(selectedFiat: FiatCurrency): Single<LinkBankTransfer> =
+        paymentsDataManager.linkBank(selectedFiat)
 
     fun updateFiatDepositState(bankPaymentData: BankPaymentApproval) {
         bankLinkingPrefs.setBankLinkingState(
@@ -232,14 +239,51 @@ class TransactionInteractor(
             }
         )
 
-    private fun showLocksInFiat(available: Money): String {
+    private fun showLocksInFiat(available: Money): Currency {
         return if (available is FiatValue) {
-            available.currencyCode
+            available.currency
         } else {
             currencyPrefs.selectedFiatCurrency
         }
     }
+
+    fun updateFiatDepositOptions(fiatCurrency: FiatCurrency): Single<TransactionIntent> {
+        return paymentsDataManager.getEligiblePaymentMethodTypes(fiatCurrency).map { available ->
+            val availableBankPaymentMethodTypes = available.filter {
+                it.type == PaymentMethodType.BANK_TRANSFER ||
+                    it.type == PaymentMethodType.BANK_ACCOUNT
+            }.filter { it.currency == fiatCurrency }.map { it.type }
+
+            when {
+                availableBankPaymentMethodTypes.size > 1 -> {
+                    TransactionIntent.FiatDepositOptionSelected(
+                        DepositOptionsState.ShowBottomSheet(
+                            LinkablePaymentMethods(fiatCurrency, availableBankPaymentMethodTypes)
+                        )
+                    )
+                }
+                availableBankPaymentMethodTypes.size == 1 -> {
+                    when {
+                        availableBankPaymentMethodTypes.first() == PaymentMethodType.BANK_TRANSFER -> {
+                            TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.LaunchLinkBank)
+                        }
+                        availableBankPaymentMethodTypes.first() == PaymentMethodType.BANK_ACCOUNT -> {
+                            TransactionIntent.FiatDepositOptionSelected(
+                                DepositOptionsState.LaunchWireTransfer(fiatCurrency)
+                            )
+                        }
+                        else -> {
+                            TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.None)
+                        }
+                    }
+                }
+                else -> {
+                    TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.None)
+                }
+            }
+        }
+    }
 }
 
-private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair.CryptoCurrencyPair>): Boolean =
-    pairs.any { it.source == this.asset }
+private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =
+    pairs.any { it.source == this.currency }

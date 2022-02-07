@@ -6,19 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.annotations.CommonCode
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.asAssetInfoOrThrow
+import info.blockchain.balance.asFiatCurrencyOrThrow
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -30,7 +35,6 @@ import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsBottomSheet
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
@@ -40,11 +44,8 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -61,11 +62,9 @@ class ActivitiesFragment :
         ActivitiesDelegateAdapter(
             prefs = get(),
             historicRateFetcher = historicRateFetcher,
-            onCryptoItemClicked = { assetInfo, tx, type ->
-                onCryptoActivityClicked(assetInfo, tx, type)
-                sendAnalyticsOnItemClickEvent(type, assetInfo)
-            },
-            onFiatItemClicked = { cc, tx -> onFiatActivityClicked(cc, tx) }
+            onItemClicked = { currency, tx, type ->
+                onItemClicked(currency, tx, type)
+            }
         )
     }
 
@@ -74,7 +73,6 @@ class ActivitiesFragment :
     private val disposables = CompositeDisposable()
     private val rxBus: RxBus by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
     private val historicRateFetcher: HistoricRateFetcher by scopedInject()
 
@@ -83,7 +81,7 @@ class ActivitiesFragment :
     }
 
     private var state: ActivitiesState? = null
-    private var selectedFiatCurrency: String? = null
+    private var selectedFiatCurrency: FiatCurrency? = null
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentActivitiesBinding =
         FragmentActivitiesBinding.inflate(inflater, container, false)
@@ -107,8 +105,7 @@ class ActivitiesFragment :
                     showBottomSheet(AccountSelectSheet.newInstance(this))
                 }
                 ActivitiesSheet.CRYPTO_ACTIVITY_DETAILS -> {
-                    newState.selectedCryptoCurrency?.let {
-
+                    newState.selectedCurrency?.asAssetInfoOrThrow()?.let {
                         showBottomSheet(
                             CryptoActivityDetailsBottomSheet.newInstance(
                                 it, newState.selectedTxId,
@@ -118,7 +115,7 @@ class ActivitiesFragment :
                     }
                 }
                 ActivitiesSheet.FIAT_ACTIVITY_DETAILS -> {
-                    newState.selectedFiatCurrency?.let {
+                    newState.selectedCurrency?.asFiatCurrencyOrThrow()?.let {
                         showBottomSheet(
                             FiatActivityDetailsBottomSheet.newInstance(it, newState.selectedTxId)
                         )
@@ -151,8 +148,8 @@ class ActivitiesFragment :
         }
     }
 
-    private fun sendAnalyticsOnItemClickEvent(type: CryptoActivityType, assetInfo: AssetInfo) {
-        if (type == CryptoActivityType.RECURRING_BUY) {
+    private fun sendAnalyticsOnItemClickEvent(type: ActivityType, assetInfo: AssetInfo) {
+        if (type == ActivityType.RECURRING_BUY) {
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
                     LaunchOrigin.TRANSACTION_LIST,
@@ -184,7 +181,7 @@ class ActivitiesFragment :
                 check(account is CryptoAccount) {
                     "Indicators are supported only for CryptoAccounts"
                 }
-                val currency = account.asset
+                val currency = account.currency
                 accountIndicator.apply {
                     visible()
                     setImageResource(it)
@@ -192,20 +189,13 @@ class ActivitiesFragment :
                 }
             } ?: accountIndicator.gone()
 
-            // TODO kill this - temporary update to the current design to support Redesign Phase I
-            if (newState.redesignEnabled) {
-                accountSelectBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
-                accountName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-                fiatBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.grey_800))
-                showAccounts.setColorFilter(ContextCompat.getColor(requireContext(), R.color.grey_400))
-                accountSelectFilter.invisible()
-            }
-
             accountName.text = account.label
             fiatBalance.text = ""
             selectedFiatCurrency = currencyPrefs.selectedFiatCurrency
 
-            disposables += account.fiatBalance(currencyPrefs.selectedFiatCurrency, exchangeRates)
+            disposables += account.balance.firstOrError().map {
+                it.totalFiat
+            }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = {
@@ -219,7 +209,6 @@ class ActivitiesFragment :
                         Timber.e("Unable to get balance for ${account.label}")
                     }
                 )
-
             accountSelectBtn.visible()
         }
     }
@@ -307,19 +296,12 @@ class ActivitiesFragment :
         super.onPause()
     }
 
-    private fun onCryptoActivityClicked(
-        asset: AssetInfo,
+    private fun onItemClicked(
+        currency: Currency,
         txHash: String,
-        type: CryptoActivityType
+        type: ActivityType
     ) {
-        model.process(ShowActivityDetailsIntent(asset, txHash, type))
-    }
-
-    private fun onFiatActivityClicked(
-        currency: String,
-        txHash: String
-    ) {
-        model.process(ShowFiatActivityDetailsIntent(currency, txHash))
+        model.process(ShowActivityDetailsIntent(currency, txHash, type))
     }
 
     private fun onShowAllActivity() {

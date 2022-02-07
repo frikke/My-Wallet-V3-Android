@@ -129,9 +129,9 @@ abstract class SellTxEngineBase(
         quotesEngine.pricedQuote
             .firstOrError()
             .map { pricedQuote ->
-                val latestQuoteExchangeRate = ExchangeRate.CryptoToFiat(
+                val latestQuoteExchangeRate = ExchangeRate(
                     from = sourceAsset,
-                    to = target.fiatCurrency,
+                    to = target.currency,
                     rate = pricedQuote.price.toBigDecimal()
                 )
                 buildConfirmation(pendingTx, latestQuoteExchangeRate, pricedQuote)
@@ -162,9 +162,9 @@ abstract class SellTxEngineBase(
         quotesEngine.pricedQuote
             .firstOrError()
             .map { pricedQuote ->
-                val latestQuoteExchangeRate = ExchangeRate.CryptoToFiat(
+                val latestQuoteExchangeRate = ExchangeRate(
                     from = sourceAsset,
-                    to = target.fiatCurrency,
+                    to = target.currency,
                     rate = pricedQuote.price.toBigDecimal()
                 )
                 addOrRefreshConfirmations(pendingTx, pricedQuote, latestQuoteExchangeRate)
@@ -192,9 +192,9 @@ abstract class SellTxEngineBase(
 
     override fun userExchangeRate(): Observable<ExchangeRate> =
         quotesEngine.pricedQuote.map {
-            ExchangeRate.CryptoToFiat(
+            ExchangeRate(
                 from = sourceAsset,
-                to = target.fiatCurrency,
+                to = target.currency,
                 rate = it.price.toBigDecimal()
             )
         }

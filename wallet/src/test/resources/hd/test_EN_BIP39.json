@@ -153,7 +153,7 @@
       "coins": [
         {
           "decription" : "Bitcoin scheme on bitcoin chain",
-          "coinPath": "M/44H/0H",
+          "coinPath": "m/44H/0H",
           "coinUriScheme": "bitcoin",
           "accounts": [
             {
@@ -184,7 +184,7 @@
         },
         {
           "decription" : "Bitcoin cash scheme on bitcoin chain",
-          "coinPath": "M/44H/0H",
+          "coinPath": "m/44H/0H",
           "coinUriScheme": "bitcoincash",
           "accounts": [
             {
@@ -223,7 +223,7 @@
         },
         {
           "decription" : "Bitcoin cash scheme on bitcoin cash chain",
-          "coinPath": "M/44H/145H",
+          "coinPath": "m/44H/145H",
           "coinUriScheme": "bitcoincash",
           "accounts": [
             {

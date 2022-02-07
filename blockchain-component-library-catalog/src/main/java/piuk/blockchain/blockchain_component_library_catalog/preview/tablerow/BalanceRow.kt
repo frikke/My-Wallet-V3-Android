@@ -73,27 +73,27 @@ fun BalanceTagTableRowPreview() {
                 tags = listOf(
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                     TagViewState(
                         value = "Completed",
-                        type = TagType.Success
+                        type = TagType.Success()
                     ),
                     TagViewState(
                         value = "Warning",
-                        type = TagType.Warning
+                        type = TagType.Warning()
                     ),
                 ),
                 onClick = {},

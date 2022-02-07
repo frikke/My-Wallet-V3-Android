@@ -17,6 +17,7 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -44,13 +45,13 @@ open class Erc20OnChainTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.just(
             PendingTx(
-                amount = CryptoValue.zero(sourceAsset),
-                totalBalance = CryptoValue.zero(sourceAsset),
-                availableBalance = CryptoValue.zero(sourceAsset),
-                feeForFullAvailable = CryptoValue.zero(CryptoCurrency.ETHER),
-                feeAmount = CryptoValue.zero(CryptoCurrency.ETHER),
+                amount = Money.zero(sourceAsset),
+                totalBalance = Money.zero(sourceAsset),
+                availableBalance = Money.zero(sourceAsset),
+                feeForFullAvailable = Money.zero(CryptoCurrency.ETHER),
+                feeAmount = Money.zero(CryptoCurrency.ETHER),
                 feeSelection = FeeSelection(
-                    selectedLevel = mapSavedFeeToFeeLevel(fetchDefaultFeeLevel(sourceAsset)),
+                    selectedLevel = mapSavedFeeToFeeLevel(fetchDefaultFeeLevel(sourceAsset as AssetInfo)),
                     availableLevels = AVAILABLE_FEE_LEVELS,
                     asset = CryptoCurrency.ETHER
                 ),
@@ -86,7 +87,7 @@ open class Erc20OnChainTxEngine(
                         feeLevel = pendingTx.feeSelection.selectedLevel
                     ),
                     buildConfirmationTotal(pendingTx),
-                    TxConfirmationValue.Description().takeIf { erc20DataManager.supportsErc20TxNote(sourceAsset) }
+                    TxConfirmationValue.Description().takeIf { erc20DataManager.supportsErc20TxNote(sourceAssetInfo) }
                 )
             )
         )
@@ -119,24 +120,26 @@ open class Erc20OnChainTxEngine(
             FeeLevel.Custom -> priorityFee
         }
 
+    private val sourceAssetInfo: AssetInfo
+        get() = sourceAsset as AssetInfo
+
     private fun feeOptions(): Single<FeeOptions> =
-        feeManager.getErc20FeeOptions(sourceAsset.l2identifier)
+        feeManager.getErc20FeeOptions(sourceAssetInfo.l2identifier)
             .singleOrError()
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
         return Single.zip(
-            sourceAccount.accountBalance.map { it as CryptoValue },
-            sourceAccount.actionableBalance.map { it as CryptoValue },
+            sourceAccount.balance.firstOrError(),
             absoluteFees()
-        ) { total, available, feesForLevels ->
+        ) { balance, feesForLevels ->
             val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(CryptoCurrency.ETHER)
 
             pendingTx.copy(
                 amount = amount,
-                totalBalance = total,
-                availableBalance = available,
+                totalBalance = balance.total,
+                availableBalance = balance.withdrawable,
                 feeForFullAvailable = fee,
                 feeAmount = fee,
                 feeSelection = pendingTx.feeSelection.copy(
@@ -178,13 +181,13 @@ open class Erc20OnChainTxEngine(
 
     private fun validateAmounts(pendingTx: PendingTx): Completable =
         Completable.fromCallable {
-            if (pendingTx.amount <= CryptoValue.zero(sourceAsset)) {
+            if (pendingTx.amount <= Money.zero(sourceAsset)) {
                 throw TxValidationFailure(ValidationState.INVALID_AMOUNT)
             }
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
-        sourceAccount.actionableBalance
+        sourceAccount.balance.firstOrError().map { it.withdrawable }
             .map { balance ->
                 if (pendingTx.amount > balance) {
                     throw TxValidationFailure(
@@ -239,7 +242,7 @@ open class Erc20OnChainTxEngine(
                 pendingTx.getOption<TxConfirmationValue.Description>(
                     TxConfirmation.DESCRIPTION
                 )?.let { notes ->
-                    erc20DataManager.putErc20TxNote(sourceAsset, hash, notes.text)
+                    erc20DataManager.putErc20TxNote(sourceAssetInfo, hash, notes.text)
                 }?.toSingle {
                     hash
                 } ?: Single.just(hash)
@@ -255,7 +258,7 @@ open class Erc20OnChainTxEngine(
         return feeOptions()
             .flatMap { fees ->
                 erc20DataManager.createErc20Transaction(
-                    asset = sourceAsset,
+                    asset = sourceAssetInfo,
                     to = tgt.address,
                     amount = pendingTx.amount.toBigInteger(),
                     gasPriceWei = fees.gasPrice(

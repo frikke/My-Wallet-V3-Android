@@ -9,8 +9,15 @@ import androidx.lifecycle.Lifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -20,10 +27,7 @@ import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -36,10 +40,8 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.ui.transactionflow.transactionFlowActivityScope
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getTarget
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.putTarget
-import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class TransactionFlowActivity :
@@ -67,8 +69,8 @@ class TransactionFlowActivity :
     private val customiser: TransactionFlowCustomisations by inject()
     private val crashLogger: CrashLogger by inject()
 
-    private val sourceAccount: BlockchainAccount by lazy {
-        intent.extras?.getAccount(SOURCE) ?: kotlin.run {
+    private val sourceAccount: SingleAccount by lazy {
+        intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
             crashLogger.logException(IllegalStateException(), "No source account specified for action $action")
             NullCryptoAccount()
         }
@@ -89,7 +91,7 @@ class TransactionFlowActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
+        updateToolbar(
             menuItems = listOf(
                 NavigationBarButton.Icon(R.drawable.ic_close) { finish() }
             ),
@@ -153,8 +155,8 @@ class TransactionFlowActivity :
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
             showFlowStep(step)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
-                updateTitleToolbar(it)
-            } ?: loadToolbar()
+                updateToolbarTitle(it)
+            } ?: updateToolbar()
 
             currentStep = step
         }
@@ -187,7 +189,14 @@ class TransactionFlowActivity :
                     model.process(TransactionIntent.ClearSelectedTarget)
                     model.process(TransactionIntent.ReturnToPreviousStep)
                 }
-                BackNavigationState.ResetPendingTransaction -> model.process(TransactionIntent.InvalidateTransaction)
+                BackNavigationState.ResetPendingTransaction -> {
+                    hideKeyboard()
+                    model.process(TransactionIntent.InvalidateTransaction)
+                }
+                BackNavigationState.ResetPendingTransactionKeepingTarget -> {
+                    hideKeyboard()
+                    model.process(TransactionIntent.InvalidateTransactionKeepingTarget)
+                }
                 BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)
             }
         } else {

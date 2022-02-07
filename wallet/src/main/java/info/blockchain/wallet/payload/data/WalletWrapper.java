@@ -91,8 +91,8 @@ public class WalletWrapper {
     public Wallet decryptPayload(String password)
         throws UnsupportedVersionException,
             IOException,
-            DecryptionException,
-            HDWalletException {
+        DecryptionException,
+        HDWalletException {
 
         validateVersion();
         validatePbkdf2Iterations();

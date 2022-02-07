@@ -5,27 +5,28 @@ import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.home.MainScreenLauncher
+import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(), EmailEntryHost {
 
@@ -36,7 +37,6 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
     private var state: LoaderState? = null
-    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +56,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
             is LoadingStep.Main -> {
-                onStartMainActivity(loaderStep.data, loaderStep.launchBuySellIntro)
+                onStartMainActivity(loaderStep.data, loaderStep.launchDashboardOnboarding)
             }
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.EmailVerification -> launchEmailVerification()
@@ -108,10 +108,8 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         }
     }
 
-    override fun onEmailEntryFragmentShown() = loadToolbar(getString(R.string.security_check))
-
-    override fun onRedesignEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) =
-        loadToolbar(
+    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) =
+        updateToolbar(
             getString(R.string.security_check),
             if (shouldShowButton) {
                 listOf(
@@ -144,13 +142,14 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         startSingleActivity(PinEntryActivity::class.java)
     }
 
-    private fun onStartMainActivity(mainData: String?, launchBuySellIntro: Boolean) {
-        mainScreenLauncher.startMainActivity(
-            context = this,
-            intentData = mainData,
-            shouldLaunchBuySellIntro = launchBuySellIntro,
-            shouldBeNewTask = true,
-            compositeDisposable = compositeDisposable
+    private fun onStartMainActivity(mainData: String?, shouldLaunchDashboardOnboarding: Boolean) {
+        startActivity(
+            MainActivity.newIntent(
+                context = this,
+                intentData = mainData,
+                shouldLaunchDashboardOnboarding = shouldLaunchDashboardOnboarding,
+                shouldBeNewTask = true
+            )
         )
     }
 
@@ -191,7 +190,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             InputType.TYPE_TEXT_VARIATION_PASSWORD or
             InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 
-        val frameLayout = ViewUtils.getAlertDialogPaddedView(this, editText)
+        val frameLayout = getAlertDialogPaddedView(editText)
 
         AlertDialog.Builder(this, R.style.AlertDialogStyle)
             .setTitle(R.string.second_password_dlg_title)
@@ -199,7 +198,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             .setView(frameLayout)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                ViewUtils.hideKeyboard(this)
+                hideKeyboard()
                 model.process(LoaderIntents.DecryptAndSetupMetadata(editText.text.toString()))
             }
             .setOnDismissListener {

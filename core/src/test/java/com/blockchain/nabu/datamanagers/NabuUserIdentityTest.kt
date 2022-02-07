@@ -3,10 +3,11 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
+import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.LimitsJson
-import com.blockchain.nabu.models.responses.nabu.TierResponse
+import com.blockchain.nabu.models.responses.nabu.Limits
+import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -108,36 +109,23 @@ class NabuUserIdentityTest {
     companion object {
         fun createMockTiers(tier1: KycTierState, tier2: KycTierState): KycTiers {
             return KycTiers(
-                tiersResponse = listOf(
-                    TierResponse(
-                        0,
-                        "Tier 0",
-                        state = KycTierState.Verified,
-                        limits = LimitsJson(
-                            currency = "USD",
-                            daily = null,
-                            annual = null
-                        )
-                    ),
-                    TierResponse(
-                        1,
-                        "Tier 1",
-                        state = tier1,
-                        limits = LimitsJson(
-                            currency = "USD",
-                            daily = null,
-                            annual = 1000.0.toBigDecimal()
-                        )
-                    ),
-                    TierResponse(
-                        2,
-                        "Tier 2",
-                        state = tier2,
-                        limits = LimitsJson(
-                            currency = "USD",
-                            daily = 25000.0.toBigDecimal(),
-                            annual = null
-                        )
+                Tiers(
+                    mapOf(
+                        KycTierLevel.BRONZE to
+                            com.blockchain.nabu.models.responses.nabu.Tier(
+                                KycTierState.Verified,
+                                Limits(null, null)
+                            ),
+                        KycTierLevel.SILVER to
+                            com.blockchain.nabu.models.responses.nabu.Tier(
+                                tier1,
+                                Limits(null, null)
+                            ),
+                        KycTierLevel.GOLD to
+                            com.blockchain.nabu.models.responses.nabu.Tier(
+                                tier2,
+                                Limits(null, null)
+                            )
                     )
                 )
             )

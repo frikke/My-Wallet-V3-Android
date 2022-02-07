@@ -14,7 +14,6 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.InterestState
@@ -32,13 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.utils.extensions.mapList
 
 class CryptoInterestAccount(
-    override val asset: AssetInfo,
+    override val currency: AssetInfo,
     override val label: String,
     private val interestBalance: InterestBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    override val exchangeRates: ExchangeRatesDataManager,
-    @Suppress("unused")
-    private val features: InternalFeatureFlagApi
+    override val exchangeRates: ExchangeRatesDataManager
 ) : CryptoAccountBase(), InterestAccount {
 
     override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
@@ -46,9 +43,9 @@ class CryptoInterestAccount(
     private val hasFunds = AtomicBoolean(false)
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = custodialWalletManager.getInterestAccountAddress(asset).map {
+        get() = custodialWalletManager.getInterestAccountAddress(currency).map {
             makeExternalAssetAddress(
-                asset = asset,
+                asset = currency,
                 address = it,
                 label = label,
                 postTransactions = onTxCompleted
@@ -77,18 +74,18 @@ class CryptoInterestAccount(
         Single.just(false)
 
     override fun matches(other: CryptoAccount): Boolean =
-        other is CryptoInterestAccount && other.asset == asset
+        other is CryptoInterestAccount && other.currency == currency
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
-            interestBalance.getBalanceForAsset(asset),
-            exchangeRates.cryptoToUserFiatRate(asset)
+            interestBalance.getBalanceForAsset(currency),
+            exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance.from(balance, rate)
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>
-        get() = custodialWalletManager.getInterestActivity(asset)
+        get() = custodialWalletManager.getInterestActivity(currency)
             .onErrorReturn { emptyList() }
             .mapList { interestActivityToSummary(it) }
             .filterActivityStates()
@@ -134,14 +131,14 @@ class CryptoInterestAccount(
         get() = Single.just(TxSourceState.CAN_TRANSACT)
 
     override val isEnabled: Single<Boolean>
-        get() = custodialWalletManager.getInterestEligibilityForAsset(asset)
+        get() = custodialWalletManager.getInterestEligibilityForAsset(currency)
             .onErrorReturn { Eligibility.notEligible() }
             .map { (enabled, _) ->
                 enabled
             }
 
     override val disabledReason: Single<IneligibilityReason>
-        get() = custodialWalletManager.getInterestEligibilityForAsset(asset)
+        get() = custodialWalletManager.getInterestEligibilityForAsset(currency)
             .onErrorReturn { Eligibility.notEligible() }
             .map { (_, reason) ->
                 reason
@@ -154,7 +151,7 @@ class CryptoInterestAccount(
         ).map { (balance, isEnabled) ->
             setOfNotNull(
                 AssetAction.InterestDeposit.takeIf { isEnabled },
-                AssetAction.InterestWithdraw.takeIf { balance.actionable.isPositive },
+                AssetAction.InterestWithdraw.takeIf { balance.withdrawable.isPositive },
                 AssetAction.ViewStatement.takeIf { hasTransactions },
                 AssetAction.ViewActivity.takeIf { hasTransactions }
             )

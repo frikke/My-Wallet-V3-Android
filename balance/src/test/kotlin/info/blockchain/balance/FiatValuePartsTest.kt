@@ -1,5 +1,9 @@
 package info.blockchain.balance
 
+import com.blockchain.testutils.eur
+import com.blockchain.testutils.gbp
+import com.blockchain.testutils.jpy
+import com.blockchain.testutils.usd
 import java.util.Locale
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test

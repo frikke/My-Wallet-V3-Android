@@ -6,12 +6,14 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -27,8 +29,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class AccountInfoCrypto @JvmOverloads constructor(
@@ -79,7 +79,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
         accountsAreTheSame: Boolean
     ) {
         with(binding) {
-            compositeDisposable += coincore[account.asset]
+            compositeDisposable += (coincore[account.currency] as CryptoAsset)
                 .interestRate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { assetSubtitle.text = resources.getString(R.string.empty) }
@@ -109,18 +109,18 @@ class AccountInfoCrypto @JvmOverloads constructor(
     ) {
 
         with(binding) {
-            root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.asset.networkTicker}_${account.label}"
-            val crypto = account.asset
+            root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.currency.networkTicker}_${account.label}"
+            val crypto = account.currency
             walletName.text = account.label
 
             assetSubtitle.text = crypto.name
 
-            compositeDisposable += account.accountBalance
+            compositeDisposable += account.balance.firstOrError().map { it.total }
                 .doOnSuccess {
                     accountBalance = it
                 }.startWithValueIfCondition(
                     value = accountBalance,
-                    alternativeValue = CryptoValue.zero(account.asset),
+                    alternativeValue = Money.zero(account.currency),
                     condition = accountsAreTheSame
                 )
                 .observeOn(AndroidSchedulers.mainThread())

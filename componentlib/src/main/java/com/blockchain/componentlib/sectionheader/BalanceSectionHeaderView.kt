@@ -6,22 +6,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AbstractComposeView
-import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class BalanceSectionHeaderView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
+    var defaultIcon = ImageResource.Local(R.drawable.ic_star, null)
     var primaryText by mutableStateOf("")
     var secondaryText by mutableStateOf("")
-    var buttonText by mutableStateOf("")
-    var onButtonClick by mutableStateOf({})
-    var buttonState by mutableStateOf(ButtonState.Enabled)
+    var iconResource: ImageResource by mutableStateOf(defaultIcon)
+    var onIconClick by mutableStateOf({})
 
     @Composable
     override fun Content() {
@@ -30,11 +31,17 @@ class BalanceSectionHeaderView @JvmOverloads constructor(
                 BalanceSectionHeader(
                     primaryText = primaryText,
                     secondaryText = secondaryText,
-                    buttonText = buttonText,
-                    onButtonClick = onButtonClick,
-                    buttonState = buttonState,
+                    iconResource = iconResource,
+                    onIconClick = onIconClick
                 )
             }
         }
+    }
+
+    fun clearState() {
+        primaryText = ""
+        secondaryText = ""
+        iconResource = defaultIcon
+        onIconClick = {}
     }
 }

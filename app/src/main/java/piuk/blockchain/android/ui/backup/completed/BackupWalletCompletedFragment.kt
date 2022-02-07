@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.koin.scopedInject
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -16,8 +18,6 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setOnClickListenerDebounced
 
 class BackupWalletCompletedFragment :
     BaseFragment<BackupWalletCompletedView, BackupWalletCompletedPresenter>(),

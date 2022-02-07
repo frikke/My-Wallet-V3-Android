@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.linkbank
 
+import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin

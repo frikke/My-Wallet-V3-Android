@@ -31,7 +31,6 @@ import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
-import org.spongycastle.asn1.cmc.CMCStatus.success
 import org.stellar.sdk.KeyPair
 import org.stellar.sdk.Transaction
 import org.stellar.sdk.responses.TransactionResponse

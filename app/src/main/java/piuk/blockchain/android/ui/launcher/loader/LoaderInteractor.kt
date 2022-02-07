@@ -7,6 +7,8 @@ import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
@@ -35,6 +37,7 @@ class LoaderInteractor(
     private val nabuUserDataManager: NabuUserDataManager,
     private val walletPrefs: WalletStatus,
     private val analytics: Analytics,
+    private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler
 ) {
 
@@ -66,10 +69,10 @@ class LoaderInteractor(
 
     fun initSettings(isAfterWalletCreation: Boolean): Disposable {
         return settings
-            .flatMapCompletable {
+            .flatMap {
+                metadata.toSingle { it }
+            }.flatMapCompletable {
                 syncFiatCurrency(it)
-            }.then {
-                metadata
             }.then {
                 saveInitialCountry()
             }.then {
@@ -96,8 +99,9 @@ class LoaderInteractor(
     private fun syncFiatCurrency(settings: Settings): Completable =
         when {
             prefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
-            settings.currency != currencyPrefs.selectedFiatCurrency -> Completable.fromAction {
-                currencyPrefs.selectedFiatCurrency = settings.currency
+            settings.currency != currencyPrefs.selectedFiatCurrency.networkTicker -> Completable.fromAction {
+                currencyPrefs.selectedFiatCurrency =
+                    assetCatalogue.fiatFromNetworkTicker(settings.currency) ?: Dollars
             }
             else -> Completable.complete()
         }
@@ -119,7 +123,7 @@ class LoaderInteractor(
     }
 
     private fun updateUserFiatIfNotSet(): Completable {
-        return if (noCurrencySet())
+        return if (currencyPrefs.noCurrencySet)
             settingsDataManager.setDefaultUserFiat().ignoreElement()
         else {
             Completable.complete()
@@ -140,9 +144,6 @@ class LoaderInteractor(
             }.onErrorComplete()
         } else Completable.complete()
     }
-
-    private fun noCurrencySet() =
-        currencyPrefs.selectedFiatCurrency.isEmpty()
 
     object LoginAnalyticsEvent : AnalyticsEvent {
         override val event: String

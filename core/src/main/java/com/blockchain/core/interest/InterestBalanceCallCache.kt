@@ -22,7 +22,7 @@ internal class InterestBalanceCallCache(
                 balanceService.getAllInterestAccountBalances(auth)
             }.map { details ->
                 details.mapNotNull { entry ->
-                    assetCatalogue.fromNetworkTicker(entry.assetTicker)?.let { assetInfo ->
+                    (assetCatalogue.fromNetworkTicker(entry.assetTicker) as? AssetInfo)?.let { assetInfo ->
                         assetInfo to entry.toInterestBalance(assetInfo)
                     }
                 }.toMap()

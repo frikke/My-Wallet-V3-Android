@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.login.auth
 
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.extensions.AccountLockedException
 import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
 import piuk.blockchain.androidcore.utils.extensions.InitialErrorException

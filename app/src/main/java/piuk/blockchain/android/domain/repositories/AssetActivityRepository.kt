@@ -15,9 +15,9 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransactionType
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import timber.log.Timber
@@ -44,7 +44,7 @@ class AssetActivityRepository(
                             account.includes(item.account)
                         }
                         is CryptoInterestAccount -> {
-                            account.asset == (item as? CustodialInterestActivitySummaryItem)?.asset
+                            account.currency == (item as? CustodialInterestActivitySummaryItem)?.asset
                         }
                         else -> {
                             account == item.account
@@ -120,20 +120,10 @@ class AssetActivityRepository(
 
     fun findCachedTradeItem(asset: AssetInfo, txHash: String): TradeActivitySummaryItem? =
         transactionCache.filterIsInstance<TradeActivitySummaryItem>().find {
-            when (it.currencyPair) {
-                is CurrencyPair.CryptoCurrencyPair -> {
-                    val pair = it.currencyPair as CurrencyPair.CryptoCurrencyPair
-                    pair.source == asset && it.txId == txHash
-                }
-                is CurrencyPair.CryptoToFiatCurrencyPair -> {
-                    val pair = it.currencyPair as CurrencyPair.CryptoToFiatCurrencyPair
-                    pair.source == asset && it.txId == txHash
-                }
-                is CurrencyPair.FiatToCryptoCurrencyPair -> throw IllegalArgumentException("Source should be crypto")
-            }
+            it.currencyPair.source == asset && it.txId == txHash
         }
 
-    fun findCachedItem(currency: String, txHash: String): FiatActivitySummaryItem? =
+    fun findCachedItem(currency: FiatCurrency, txHash: String): FiatActivitySummaryItem? =
         transactionCache.filterIsInstance<FiatActivitySummaryItem>().find {
             it.currency == currency && it.txId == txHash
         }

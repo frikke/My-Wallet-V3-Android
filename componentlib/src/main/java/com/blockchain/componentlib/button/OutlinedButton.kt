@@ -1,10 +1,11 @@
 package com.blockchain.componentlib.button
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.ripple.LocalRippleTheme
@@ -24,6 +25,7 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Dark300
@@ -48,7 +50,7 @@ fun OutlinedButton(
         loadingIconResId: Int,
         icon: ImageResource,
     ) -> Unit,
-    pressedButtonLightColor: Color = Grey000,
+    pressedButtonLightColor: Color = Blue000,
     pressedButtonDarkColor: Color = Dark800,
     pressedBorderLightColor: Color = Blue600,
     pressedBorderDarkColor: Color = Blue400,
@@ -60,11 +62,14 @@ fun OutlinedButton(
     disabledBorderDarkColor: Color = Grey700,
     defaultBorderLightColor: Color = Grey100,
     defaultBorderDarkColor: Color = Dark300,
+    defaultTextColor: Color? = null,
+    @DrawableRes defaultLoadingIconResId: Int? = null,
     pressedBackgroundTimeShown: Long = 250L,
     shape: Shape = AppTheme.shapes.small,
     state: ButtonState = ButtonState.Enabled,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     icon: ImageResource = ImageResource.None,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
 ) {
     var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
     var borderColor by remember {
@@ -73,7 +78,7 @@ fun OutlinedButton(
         )
     }
 
-    val textColor = when (state) {
+    val textColor = defaultTextColor ?: when (state) {
         ButtonState.Enabled -> AppTheme.colors.primary
         ButtonState.Disabled -> {
             if (isDarkTheme) disabledTextDarkColor else disabledTextLightColor
@@ -124,12 +129,12 @@ fun OutlinedButton(
     ) {
         OutlinedButton(
             onClick = { onClick.takeIf { state == ButtonState.Enabled }?.invoke() },
-            modifier = modifier.requiredHeightIn(min = 48.dp),
+            modifier = modifier,
             enabled = state != ButtonState.Disabled,
             interactionSource = interactionSource,
             shape = shape,
             colors = ButtonDefaults.outlinedButtonColors(
-                backgroundColor = animateColorAsState(targetValue = backgroundColor).value,
+                backgroundColor = backgroundColor,
                 contentColor = Color.Unspecified,
                 disabledContentColor = Color.Unspecified,
             ),
@@ -138,13 +143,14 @@ fun OutlinedButton(
                 color = animateColorAsState(targetValue = borderColor).value
             ),
             elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+            contentPadding = contentPadding,
             content = {
                 buttonContent(
                     state = state,
                     textColor = textColor,
                     text = text,
                     textAlpha = textAlpha,
-                    loadingIconResId = if (isDarkTheme) {
+                    loadingIconResId = defaultLoadingIconResId ?: if (isDarkTheme) {
                         R.drawable.ic_loading_minimal_dark
                     } else {
                         R.drawable.ic_loading_minimal_light
@@ -172,7 +178,7 @@ private fun OutlineButtonPreview() {
                     loadingIconResId: Int,
                     icon: ImageResource,
                     ->
-                    ResizableButtonContent(
+                    ButtonContentSmall(
                         state = state,
                         text = text,
                         textColor = textColor,

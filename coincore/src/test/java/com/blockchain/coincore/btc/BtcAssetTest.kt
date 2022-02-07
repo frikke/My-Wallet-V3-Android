@@ -5,7 +5,6 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -59,7 +58,6 @@ class BtcAssetTest {
     private val walletPreferences: WalletStatus = mock()
     private val identity: NabuUserIdentity = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
-    private val features: InternalFeatureFlagApi = mock()
 
     private val subject = BtcAsset(
         payloadManager = payloadManager,
@@ -76,8 +74,7 @@ class BtcAssetTest {
         crashLogger = crashLogger,
         notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
-        identity = identity,
-        features = features
+        identity = identity
     )
 
     @Test

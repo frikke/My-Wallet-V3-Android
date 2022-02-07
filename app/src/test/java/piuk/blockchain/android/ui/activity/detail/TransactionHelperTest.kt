@@ -12,6 +12,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Observable
@@ -305,7 +306,7 @@ class TestNonCustodialSummaryItem(
     override val transactionType: TransactionSummary.TransactionType = TransactionSummary.TransactionType.RECEIVED,
     override val timeStampMs: Long = 0,
     override val value: CryptoValue = CryptoValue.zero(CryptoCurrency.BTC),
-    override val fee: Observable<CryptoValue> = Observable.just(CryptoValue.zero(CryptoCurrency.BTC)),
+    override val fee: Observable<Money> = Observable.just(CryptoValue.zero(CryptoCurrency.BTC)),
     override val txId: String = "",
     override val inputsMap: Map<String, CryptoValue> = emptyMap(),
     override val outputsMap: Map<String, CryptoValue> = emptyMap(),

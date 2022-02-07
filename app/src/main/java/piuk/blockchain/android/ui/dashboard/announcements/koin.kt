@@ -180,7 +180,7 @@ val dashboardAnnouncementsModule = module {
             FiatFundsKycAnnouncement(
                 dismissRecorder = get(),
                 featureEligibility = get(),
-                custodialWalletManager = get()
+                paymentsDataManager = get()
             )
         }.bind(AnnouncementRule::class)
 

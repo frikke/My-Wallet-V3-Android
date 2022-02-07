@@ -22,8 +22,8 @@ class CustodialRepository(pairsProvider: TradingPairsProvider, activityProvider:
         }
     )
 
-    fun getSwapAvailablePairs(): Single<List<CurrencyPair.CryptoCurrencyPair>> =
-        pairsCache.getCachedSingle().map { it.filterIsInstance<CurrencyPair.CryptoCurrencyPair>() }
+    fun getSwapAvailablePairs(): Single<List<CurrencyPair>> =
+        pairsCache.getCachedSingle()
 
     fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
@@ -31,17 +31,8 @@ class CustodialRepository(pairsProvider: TradingPairsProvider, activityProvider:
     ): Single<List<TradeTransactionItem>> =
         swapActivityCache.getCachedSingle().map { list ->
             list.filter {
-                when (it.currencyPair) {
-                    is CurrencyPair.CryptoCurrencyPair ->
-                        it.currencyPair.source == cryptoCurrency &&
-                            directions.contains(it.direction)
-                    is CurrencyPair.CryptoToFiatCurrencyPair ->
-                        it.currencyPair.source == cryptoCurrency &&
-                            directions.contains(it.direction)
-                    is CurrencyPair.FiatToCryptoCurrencyPair -> throw IllegalArgumentException(
-                        "No swap allowed from fiat->crypto"
-                    )
-                }
+                it.sendingValue.currency == cryptoCurrency &&
+                    directions.contains(it.direction)
             }
         }
 

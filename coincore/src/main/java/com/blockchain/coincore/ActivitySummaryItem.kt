@@ -13,6 +13,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -28,7 +29,7 @@ abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
 }
 
 class FiatActivitySummaryItem(
-    val currency: String,
+    val currency: FiatCurrency,
     override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
@@ -53,7 +54,7 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
 
     abstract val value: Money
 
-    fun fiatValue(selectedFiat: String): Money =
+    fun fiatValue(selectedFiat: FiatCurrency): Money =
         value.toFiat(selectedFiat, exchangeRates)
 
     final override operator fun compareTo(
@@ -67,7 +68,7 @@ data class TradeActivitySummaryItem(
     override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
-    val price: FiatValue? = null,
+    val price: Money? = null,
     val sendingValue: Money,
     val sendingAccount: SingleAccount,
     val sendingAddress: String?,
@@ -78,8 +79,8 @@ data class TradeActivitySummaryItem(
     val depositNetworkFee: Single<Money>,
     val withdrawalNetworkFee: Money,
     val currencyPair: CurrencyPair,
-    val fiatValue: FiatValue,
-    val fiatCurrency: String
+    val fiatValue: Money,
+    val fiatCurrency: FiatCurrency
 ) : ActivitySummaryItem() {
     override val account: SingleAccount
         get() = sendingAccount
@@ -95,10 +96,10 @@ data class RecurringBuyActivitySummaryItem(
     override val timeStampMs: Long,
     override val value: Money,
     override val account: SingleAccount,
-    val fundedFiat: FiatValue,
+    val fundedFiat: Money,
     val transactionState: OrderState,
     val failureReason: RecurringBuyFailureReason?,
-    val fee: FiatValue,
+    val fee: Money,
     val paymentMethodId: String,
     val paymentMethodType: PaymentMethodType,
     val type: OrderType,
@@ -131,11 +132,11 @@ data class CustodialTradingActivitySummaryItem(
     override val timeStampMs: Long,
     override val value: Money,
     override val account: CryptoAccount,
-    val price: FiatValue?,
-    val fundedFiat: FiatValue,
+    val price: Money?,
+    val fundedFiat: Money,
     val status: OrderState,
     val type: OrderType,
-    val fee: FiatValue,
+    val fee: Money,
     val paymentMethodId: String,
     val paymentMethodType: PaymentMethodType,
     val depositPaymentId: String,
@@ -165,7 +166,7 @@ data class CustodialTransferActivitySummaryItem(
 abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
 
     abstract val transactionType: TransactionSummary.TransactionType
-    abstract val fee: Observable<CryptoValue>
+    abstract val fee: Observable<Money>
 
     abstract val inputsMap: Map<String, CryptoValue>
 
@@ -231,7 +232,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
         Completable.error(IllegalStateException("Update description not supported"))
 
     val isConfirmed: Boolean by unsafeLazy {
-        confirmations >= asset.requiredConfirmations
+        confirmations >= (asset as? AssetInfo)?.requiredConfirmations ?: return@unsafeLazy false
     }
 }
 

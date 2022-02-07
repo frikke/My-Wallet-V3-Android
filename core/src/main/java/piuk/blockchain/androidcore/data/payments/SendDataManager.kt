@@ -4,6 +4,7 @@ import com.blockchain.logging.LastTxUpdater
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.wallet.api.dust.data.DustInput
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.XPubs
@@ -170,8 +171,8 @@ class SendDataManager(
         unspentCoins: List<Utxo>,
         targetOutputType: OutputType,
         changeOutputType: OutputType,
-        paymentAmount: CryptoValue,
-        feePerKb: CryptoValue
+        paymentAmount: Money,
+        feePerKb: Money
     ): SpendableUnspentOutputs = paymentService.getSpendableCoins(
         unspentCoins,
         targetOutputType,
@@ -195,7 +196,7 @@ class SendDataManager(
         asset: AssetInfo,
         unspentCoins: List<Utxo>,
         targetOutputType: OutputType,
-        feePerKb: CryptoValue
+        feePerKb: Money
     ): MaxAvailable {
         val available = paymentService.getMaximumAvailable(
             unspentCoins,

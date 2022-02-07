@@ -20,4 +20,13 @@
     <color name="paletteBaseDark">#B1B8C7</color>
 
     <color name="calendarAccent">#0C6CF2</color>
+
+    <color name="overlay800">#CC20242C</color>
+    <color name="overlay600">#A33B3E46</color>
+    <color name="overlay400">#6663676F</color>
+
+    <color name="sheetBackgroundColor">#FFFFFF</color>
+    <color name="primary_blue_accent" />
+    <color name="black" />
+
 </resources>

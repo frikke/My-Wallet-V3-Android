@@ -5,12 +5,15 @@ import android.text.Editable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.viewextensions.afterMeasured
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -21,7 +24,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.text.DecimalFormatSymbols
-import java.util.Currency
 import java.util.Locale
 import kotlin.properties.Delegates
 import org.koin.core.component.KoinComponent
@@ -29,10 +31,6 @@ import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.afterMeasured
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 
 class FiatCryptoInputView(
     context: Context,
@@ -49,9 +47,9 @@ class FiatCryptoInputView(
     private val amountSubject: PublishSubject<Money> = PublishSubject.create()
     private val exchangeSubject: BehaviorSubject<Money> = BehaviorSubject.create()
 
-    private val inputToggleSubject: PublishSubject<CurrencyType> = PublishSubject.create()
+    private val inputToggleSubject: PublishSubject<Currency> = PublishSubject.create()
 
-    val onInputToggle: Observable<CurrencyType>
+    val onInputToggle: Observable<Currency>
         get() = inputToggleSubject
 
     val amount: Observable<Money>
@@ -91,7 +89,7 @@ class FiatCryptoInputView(
             })
 
             currencySwap.setOnClickListener {
-                val newInputAmount = exchangeSubject.value ?: configuration.inputCurrency.zeroValue()
+                val newInputAmount = exchangeSubject.value ?: Money.zero(configuration.inputCurrency)
                 configuration = configuration.copy(
                     inputCurrency = configuration.exchangeCurrency,
                     outputCurrency = configuration.exchangeCurrency,
@@ -137,17 +135,14 @@ class FiatCryptoInputView(
 
     private fun getLastEnteredAmount(configuration: FiatCryptoViewConfiguration): Money =
         binding.enterAmount.bigDecimalValue?.let { enterAmount ->
-            when (configuration.inputCurrency) {
-                is CurrencyType.Fiat -> FiatValue.fromMajor(configuration.inputCurrency.fiatCurrency, enterAmount)
-                is CurrencyType.Crypto -> CryptoValue.fromMajor(configuration.inputCurrency.cryptoCurrency, enterAmount)
-            }
-        } ?: configuration.inputCurrency.zeroValue()
+            Money.fromMajor(configuration.inputCurrency, enterAmount)
+        } ?: Money.zero(configuration.inputCurrency)
 
     var configuration: FiatCryptoViewConfiguration by Delegates.observable(
         FiatCryptoViewConfiguration(
-            inputCurrency = CurrencyType.Fiat(currencyPrefs.selectedFiatCurrency),
-            outputCurrency = CurrencyType.Fiat(currencyPrefs.selectedFiatCurrency),
-            exchangeCurrency = CurrencyType.Fiat(currencyPrefs.selectedFiatCurrency)
+            inputCurrency = currencyPrefs.selectedFiatCurrency,
+            outputCurrency = currencyPrefs.selectedFiatCurrency,
+            exchangeCurrency = currencyPrefs.selectedFiatCurrency
         )
     ) { _, oldValue, newValue ->
         if (oldValue != newValue || !configured) {
@@ -155,7 +150,7 @@ class FiatCryptoInputView(
             with(binding) {
                 enterAmount.filters = emptyArray()
 
-                val inputSymbol = newValue.inputCurrency.symbol()
+                val inputSymbol = newValue.inputCurrency.symbol
                 currencySwap.visibleIf { newValue.swapEnabled }
                 exchangeAmount.visibleIf { !newValue.inputIsSameAsExchange }
 
@@ -168,10 +163,10 @@ class FiatCryptoInputView(
                         )
                 }
 
-                fakeHint.text = newValue.inputCurrency.zeroValue().toStringWithoutSymbol()
+                fakeHint.text = Money.zero(newValue.inputCurrency).toStringWithoutSymbol()
                 enterAmount.configuration = PrefixedOrSuffixedEditText.Configuration(
                     prefixOrSuffix = inputSymbol,
-                    isPrefix = newValue.inputCurrency is CurrencyType.Fiat,
+                    isPrefix = newValue.inputCurrency.type == CurrencyType.FIAT,
                     initialText = newValue.predefinedAmount.toStringWithoutSymbol()
                         .replace(DecimalFormatSymbols(Locale.getDefault()).groupingSeparator.toString(), "")
                         .removeSuffix("${DecimalFormatSymbols(Locale.getDefault()).decimalSeparator}00")
@@ -229,12 +224,6 @@ class FiatCryptoInputView(
         binding.exchangeAmount.gone()
     }
 
-    fun hideLabels() {
-        binding.error.gone()
-        binding.info.gone()
-        showExchangeAmount()
-    }
-
     private fun showExchangeAmount() {
         if (!configuration.inputIsSameAsExchange) {
             binding.exchangeAmount.visible()
@@ -289,11 +278,11 @@ class FiatCryptoInputView(
     }
 
     fun updateValue(amount: Money) {
-        if (configuration.inputCurrency is CurrencyType.Fiat && amount is CryptoValue) {
+        if (configuration.inputCurrency != amount.currency) {
             configuration = configuration.copy(
-                inputCurrency = CurrencyType.Crypto(amount.currency),
+                inputCurrency = amount.currency,
                 exchangeCurrency = configuration.inputCurrency,
-                outputCurrency = CurrencyType.Crypto(amount.currency)
+                outputCurrency = amount.currency
             )
         }
         showValue(amount)
@@ -301,10 +290,10 @@ class FiatCryptoInputView(
 }
 
 data class FiatCryptoViewConfiguration(
-    val inputCurrency: CurrencyType, // the currency used for input by the user
-    val exchangeCurrency: CurrencyType, // the currency used for the exchanged amount
-    val outputCurrency: CurrencyType = inputCurrency, // the currency used for the model output
-    val predefinedAmount: Money = inputCurrency.zeroValue(),
+    val inputCurrency: Currency, // the currency used for input by the user
+    val exchangeCurrency: Currency, // the currency used for the exchanged amount
+    val outputCurrency: Currency = inputCurrency, // the currency used for the model output
+    val predefinedAmount: Money = Money.zero(inputCurrency),
     val canSwap: Boolean = true
 ) {
     val inputIsSameAsExchange: Boolean
@@ -312,30 +301,4 @@ data class FiatCryptoViewConfiguration(
 
     val swapEnabled: Boolean
         get() = canSwap && inputCurrency != exchangeCurrency
-}
-
-private fun CurrencyType.zeroValue(): Money =
-    when (this) {
-        is CurrencyType.Fiat -> FiatValue.zero(fiatCurrency)
-        is CurrencyType.Crypto -> CryptoValue.zero(cryptoCurrency)
-    }
-
-private fun CurrencyType.symbol(): String =
-    when (this) {
-        is CurrencyType.Fiat -> Currency.getInstance(fiatCurrency).getSymbol(Locale.getDefault())
-        is CurrencyType.Crypto -> cryptoCurrency.displayTicker
-    }
-
-sealed class CurrencyType {
-    data class Fiat(val fiatCurrency: String) : CurrencyType()
-    data class Crypto(val cryptoCurrency: AssetInfo) : CurrencyType()
-
-    fun isCrypto() = this is Crypto
-    fun isFiat() = this is Fiat
-
-    fun isSameType(money: Money) =
-        when (this) {
-            is Fiat -> money is FiatValue
-            is Crypto -> money is CryptoValue
-        }
 }

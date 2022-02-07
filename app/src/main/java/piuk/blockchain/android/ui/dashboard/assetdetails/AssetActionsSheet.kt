@@ -10,13 +10,15 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.selectFirstAccount
+import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -24,7 +26,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAssetActionsSheetBinding
 import piuk.blockchain.android.databinding.ItemAssetActionBinding
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
@@ -37,7 +38,6 @@ import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
 class AssetActionsSheet :
@@ -130,7 +130,7 @@ class AssetActionsSheet :
         hasWarning: Boolean,
         account: CryptoAccount
     ): AssetActionItem {
-        val asset: AssetInfo = account.asset
+        val asset = account.currency
         return when (action) {
             // using the secondary ctor ensures the action is always enabled if it is present
             AssetAction.ViewActivity ->
@@ -268,7 +268,7 @@ class AssetActionsSheet :
         }
     }
 
-    private fun logActionEvent(event: AssetDetailsAnalytics, asset: AssetInfo) {
+    private fun logActionEvent(event: AssetDetailsAnalytics, asset: Currency) {
         analytics.logEvent(assetActionEvent(event, asset))
     }
 
@@ -408,7 +408,7 @@ private data class AssetActionItem(
     val title: String,
     val icon: Int,
     val description: String,
-    val asset: AssetInfo,
+    val asset: Currency,
     val action: AssetAction,
     val hasWarning: Boolean,
     val actionCta: () -> Unit
@@ -418,7 +418,7 @@ private data class AssetActionItem(
         icon: Int,
         hasWarning: Boolean,
         description: String,
-        asset: AssetInfo,
+        asset: Currency,
         action: AssetAction,
         actionCta: () -> Unit
     ) : this(

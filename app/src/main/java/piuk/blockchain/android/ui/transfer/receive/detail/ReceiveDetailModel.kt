@@ -4,14 +4,14 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.NullCryptoAddress
+import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.base.mvi.MviIntent
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.android.ui.base.mvi.MviState
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
 internal data class ReceiveDetailState(
@@ -105,7 +105,7 @@ internal class ReceiveDetailModel(
                     process(UpdateAddressAndGenerateQrCode(it))
                 },
                 onError = {
-                    Timber.e("Unable to fetch ${account.asset} address from account")
+                    Timber.e("Unable to fetch ${account.currency} address from account")
                     process(AddressError)
                 }
             )

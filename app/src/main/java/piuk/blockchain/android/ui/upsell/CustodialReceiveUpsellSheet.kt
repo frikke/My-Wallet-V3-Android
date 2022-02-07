@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.upsell
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.HostedBottomSheet
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import piuk.blockchain.android.databinding.DialogSheetUpsellCustodialReceiveBinding
-import piuk.blockchain.android.ui.base.HostedBottomSheet
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 interface UpsellHost : HostedBottomSheet.Host {
     fun startUpsellKyc()

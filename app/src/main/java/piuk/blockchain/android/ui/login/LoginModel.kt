@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.login
 
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.network.PollResult
 import com.blockchain.remoteconfig.FeatureFlag
@@ -12,9 +14,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
 import org.json.JSONObject
-import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import retrofit2.HttpException
 import timber.log.Timber
 

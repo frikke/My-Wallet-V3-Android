@@ -40,8 +40,7 @@ val coincoreModule = module {
                 walletPreferences = get(),
                 notificationUpdater = get(),
                 coinsWebsocket = get(),
-                identity = get(),
-                features = get()
+                identity = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -61,8 +60,7 @@ val coincoreModule = module {
                 labels = get(),
                 walletPreferences = get(),
                 beNotifyUpdate = get(),
-                identity = get(),
-                features = get()
+                identity = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -81,8 +79,7 @@ val coincoreModule = module {
                 crashLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
-                identity = get(),
-                features = get()
+                identity = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -102,7 +99,6 @@ val coincoreModule = module {
                 labels = get(),
                 notificationUpdater = get(),
                 identity = get(),
-                features = get(),
                 assetCatalogue = lazy { get() },
                 formatUtils = get()
             )
@@ -114,6 +110,7 @@ val coincoreModule = module {
                 tradingBalanceDataManager = get(),
                 exchangeRateDataManager = get(),
                 custodialWalletManager = get(),
+                paymentsDataManager = get(),
                 currencyPrefs = get()
             )
         }
@@ -127,7 +124,8 @@ val coincoreModule = module {
                 txProcessorFactory = get(),
                 defaultLabels = get(),
                 crashLogger = get(),
-                paymentsDataManager = get()
+                paymentsDataManager = get(),
+                currencyPrefs = get()
             )
         }
 
@@ -151,7 +149,6 @@ val coincoreModule = module {
                 pitLinking = get(),
                 walletPreferences = get(),
                 identity = get(),
-                features = get(),
                 formatUtils = get()
             )
         }.bind(AssetLoader::class)
@@ -162,6 +159,7 @@ val coincoreModule = module {
                 exchangeRates = get(),
                 interestBalances = get(),
                 walletManager = get(),
+                paymentsDataManager = get(),
                 limitsDataManager = get(),
                 walletPrefs = get(),
                 quotesEngine = get(),
@@ -175,8 +173,7 @@ val coincoreModule = module {
         scoped {
             AddressFactoryImpl(
                 coincore = get(),
-                addressResolver = get(),
-                features = get()
+                addressResolver = get()
             )
         }.bind(AddressFactory::class)
 
@@ -193,7 +190,8 @@ val coincoreModule = module {
 
         factory {
             LinkedBanksFactory(
-                custodialWalletManager = get()
+                custodialWalletManager = get(),
+                paymentsDataManager = get()
             )
         }
 

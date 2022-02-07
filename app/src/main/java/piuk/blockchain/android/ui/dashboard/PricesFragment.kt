@@ -25,6 +25,7 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -49,7 +50,6 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
-import piuk.blockchain.android.ui.dashboard.navigation.LinkBankNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.FiatFundsDetailSheet
 import piuk.blockchain.android.ui.dashboard.sheets.ForceBackupForSendSheet
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
@@ -82,7 +82,6 @@ internal class PricesFragment :
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
     DialogFlow.FlowHost,
-    DashboardScreen,
     AssetDetailsFlow.AssetDetailsHost,
     InterestSummarySheet.Host,
     BuyPendingOrdersBottomSheet.Host,
@@ -296,37 +295,35 @@ internal class PricesFragment :
 
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
         when {
-            navigationAction.isBottomSheet() -> {
+            navigationAction is DashboardNavigationAction.BottomSheet -> {
                 handleBottomSheet(navigationAction)
                 model.process(DashboardIntent.ResetDashboardNavigation)
             }
-            navigationAction is LinkBankNavigationAction -> {
+            navigationAction is DashboardNavigationAction.LinkBankWithPartner -> {
                 startBankLinking(navigationAction)
             }
         }
     }
 
-    private fun startBankLinking(action: DashboardNavigationAction) {
-        (action as? DashboardNavigationAction.LinkBankWithPartner)?.let {
-            startActivityForResult(
-                BankAuthActivity.newInstance(
-                    action.linkBankTransfer,
-                    when (it.assetAction) {
-                        AssetAction.FiatDeposit -> {
-                            BankAuthSource.DEPOSIT
-                        }
-                        AssetAction.Withdraw -> {
-                            BankAuthSource.WITHDRAW
-                        }
-                        else -> {
-                            throw IllegalStateException("Attempting to link from an unsupported action")
-                        }
-                    },
-                    requireContext()
-                ),
-                BankAuthActivity.LINK_BANK_REQUEST_CODE
-            )
-        }
+    private fun startBankLinking(action: DashboardNavigationAction.LinkBankWithPartner) {
+        startActivityForResult(
+            BankAuthActivity.newInstance(
+                action.linkBankTransfer,
+                when (action.assetAction) {
+                    AssetAction.FiatDeposit -> {
+                        BankAuthSource.DEPOSIT
+                    }
+                    AssetAction.Withdraw -> {
+                        BankAuthSource.WITHDRAW
+                    }
+                    else -> {
+                        throw IllegalStateException("Attempting to link from an unsupported action")
+                    }
+                },
+                requireContext()
+            ),
+            BankAuthActivity.LINK_BANK_REQUEST_CODE
+        )
     }
 
     private fun handleBottomSheet(navigationAction: DashboardNavigationAction) {
@@ -357,8 +354,7 @@ internal class PricesFragment :
                 }
                 DashboardNavigationAction.FiatFundsNoKyc -> showFiatFundsKyc()
                 is DashboardNavigationAction.InterestSummary -> InterestSummarySheet.newInstance(
-                    navigationAction.account,
-                    navigationAction.asset
+                    navigationAction.account
                 )
                 else -> null
             }
@@ -366,11 +362,6 @@ internal class PricesFragment :
     }
 
     private fun showFiatFundsKyc(): BottomSheetDialogFragment {
-        val currencyIcon = when (currencyPrefs.selectedFiatCurrency) {
-            "EUR" -> R.drawable.ic_funds_euro
-            "GBP" -> R.drawable.ic_funds_gbp
-            else -> R.drawable.ic_funds_usd // show dollar if currency isn't selected
-        }
 
         return KycBenefitsBottomSheet.newInstance(
             KycBenefitsBottomSheet.BenefitsDetails(
@@ -390,7 +381,7 @@ internal class PricesFragment :
                         getString(R.string.fiat_funds_no_kyc_step_3_description)
                     )
                 ),
-                icon = currencyIcon
+                icon = currencyPrefs.selectedFiatCurrency.logo
             )
         )
     }
@@ -472,18 +463,16 @@ internal class PricesFragment :
         navigator().launchInterestDashboard(LaunchOrigin.CURRENCY_PAGE)
     }
 
-    override fun goToSummary(account: SingleAccount, asset: AssetInfo) {
+    override fun goToSummary(account: CryptoAccount) {
         model.process(
             DashboardIntent.UpdateSelectedCryptoAccount(
-                account,
-                asset
+                account
             )
         )
         model.process(
             DashboardIntent.ShowPortfolioSheet(
                 DashboardNavigationAction.InterestSummary(
-                    account,
-                    asset
+                    account
                 )
             )
         )
@@ -498,7 +487,7 @@ internal class PricesFragment :
                 BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
             }.exhaustive
         } ?: run {
-            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset, true)
         }
     }
 
@@ -510,7 +499,7 @@ internal class PricesFragment :
     }
 
     // BankLinkingHost
-    override fun onBankWireTransferSelected(currency: String) {
+    override fun onBankWireTransferSelected(currency: FiatCurrency) {
         state?.selectedFiatAccount?.let {
             model.process(DashboardIntent.ShowBankLinkingSheet(it))
         }
@@ -567,9 +556,6 @@ internal class PricesFragment :
 
     companion object {
         fun newInstance() = PricesFragment()
-    }
-
-    override fun onBecameVisible() {
     }
 
     private fun CryptoAssetState.toAssetPriceState() =

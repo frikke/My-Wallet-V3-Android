@@ -1,9 +1,9 @@
 package com.blockchain.remoteconfig
 
+import com.blockchain.enviroment.EnvironmentConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.extensions.then
 
 interface ABTestExperiment {
@@ -76,7 +76,8 @@ class RemoteConfiguration(
         configuration.map { it.getLong(key) }
 }
 
-fun RemoteConfig.featureFlag(key: String): FeatureFlag = object :
-    FeatureFlag {
+fun RemoteConfig.featureFlag(key: String, name: String): FeatureFlag = object : FeatureFlag {
+    override val key: String = key
+    override val readableName: String = name
     override val enabled: Single<Boolean> get() = getIfFeatureEnabled(key)
 }

@@ -3,8 +3,9 @@ package piuk.blockchain.android.ui.linkbank.yapily
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetFiatTransactionBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 
 class FiatTransactionBottomSheet : SlidingModalBottomDialog<DialogSheetFiatTransactionBinding>() {
@@ -41,7 +42,9 @@ class FiatTransactionBottomSheet : SlidingModalBottomDialog<DialogSheetFiatTrans
                     title, subtitle, fiatCurrency
                 )
             }
-            transactionProgressView.onCtaClick { dismiss() }
+            transactionProgressView.onCtaClick(
+                text = getString(R.string.common_ok)
+            ) { dismiss() }
         }
     }
 

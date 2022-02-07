@@ -5,17 +5,20 @@ import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -23,6 +26,8 @@ import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.BackpressureStrategy
@@ -37,6 +42,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
+import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
@@ -54,12 +60,14 @@ class DashboardActionAdapter(
     private val exchangeRates: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
+    private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val dashboardBuyButtonFlag: FeatureFlag
+    private val dashboardOnboardingFlag: FeatureFlag
 ) {
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         coincore.fiatAssets.accountGroup()
@@ -68,7 +76,7 @@ class DashboardActionAdapter(
             .toSingle()
             .subscribeBy(
                 onSuccess = { fiatAssets ->
-                    val cryptoAssets = coincore.activeCryptoAssets().map { it.asset }
+                    val cryptoAssets = coincore.activeCryptoAssets().map { it.assetInfo }
                     model.process(
                         DashboardIntent.UpdateAllAssetsAndBalances(
                             cryptoAssets,
@@ -89,7 +97,7 @@ class DashboardActionAdapter(
                 // Load the balances for the active assets for sorting based on balance
                 model.process(
                     DashboardIntent.UpdateAllAssetsAndBalances(
-                        assetList = coincore.activeCryptoAssets().map { it.asset },
+                        assetList = coincore.activeCryptoAssets().map { it.assetInfo },
                         fiatAssetList = emptyList()
                     )
                 )
@@ -146,6 +154,18 @@ class DashboardActionAdapter(
             }
 
         return cd
+    }
+
+    fun refreshFiatBalances(
+        fiatAccounts: Map<Currency, FiatBalanceInfo>,
+        model: DashboardModel
+    ): Disposable {
+        val disposable = CompositeDisposable()
+        fiatAccounts
+            .values.forEach {
+                disposable += refreshFiatAssetBalance(it.account, model)
+            }
+        return disposable
     }
 
     private fun Maybe<AccountGroup>.logGroupLoadError(asset: AssetInfo, filter: AssetFilter) =
@@ -231,7 +251,7 @@ class DashboardActionAdapter(
                         DashboardIntent.FiatBalanceUpdate(
                             balance = balances.total,
                             fiatBalance = balances.totalFiat,
-                            balanceAvailable = balances.actionable
+                            balanceAvailable = balances.withdrawable
                         )
                     )
                 },
@@ -241,7 +261,7 @@ class DashboardActionAdapter(
             )
 
     fun refreshPrices(model: DashboardModel, crypto: AssetInfo): Disposable =
-        coincore[crypto].getPricesWith24hDelta()
+        exchangeRates.getPricesWith24hDelta(crypto).firstOrError()
             .map { pricesWithDelta -> DashboardIntent.AssetPriceUpdate(crypto, pricesWithDelta) }
             .subscribeBy(
                 onSuccess = { model.process(it) },
@@ -252,7 +272,7 @@ class DashboardActionAdapter(
 
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
         if (asset.startDate != null) {
-            coincore[asset].lastDayTrend()
+            (coincore[asset] as CryptoAsset).lastDayTrend()
         } else {
             Single.just(FLATLINE_CHART)
         }.map { DashboardIntent.PriceHistoryUpdate(asset, it) }
@@ -286,7 +306,15 @@ class DashboardActionAdapter(
             )
     }
 
-    fun launchBankTransferFlow(model: DashboardModel, currency: String = "", action: AssetAction) =
+    fun canDeposit(): Single<Boolean> =
+        userIdentity.getHighestApprovedKycTier()
+            .flatMap {
+                if (it == Tier.GOLD) {
+                    paymentsDataManager.canTransactWithBankMethods(currencyPrefs.selectedFiatCurrency)
+                } else Single.just(true)
+            }
+
+    fun launchBankTransferFlow(model: DashboardModel, currencyCode: String = "", action: AssetAction) =
         userIdentity.isEligibleFor(Feature.SimpleBuy)
             .zipWith(coincore.fiatAssets.accountGroup().toSingle())
             .subscribeOn(Schedulers.io())
@@ -295,13 +323,14 @@ class DashboardActionAdapter(
                 onSuccess = { (isEligible, fiatGroup) ->
                     model.process(
                         if (isEligible) {
-                            val selectedFiatCurrency = if (currency.isNotEmpty()) {
-                                currency
+                            val networkTicker = if (currencyCode.isNotEmpty()) {
+                                currencyCode
                             } else {
-                                currencyPrefs.selectedFiatCurrency
+                                currencyPrefs.selectedFiatCurrency.networkTicker
                             }
+
                             val selectedAccount = fiatGroup.accounts.first {
-                                (it as FiatAccount).fiatCurrency == selectedFiatCurrency
+                                (it as FiatAccount).currency.networkTicker == networkTicker
                             }
 
                             DashboardIntent.LaunchBankTransferFlow(
@@ -336,30 +365,31 @@ class DashboardActionAdapter(
         model: DashboardModel,
         action: AssetAction
     ) = Singles.zip(
-        linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.fiatCurrency).map { paymentMethods ->
+        linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.currency).map { paymentMethods ->
             // Ignore any WireTransferMethods In case BankLinkTransfer should launch
             paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }
         },
         linkedBanksFactory.getNonWireTransferBanks().map {
-            it.filter { bank -> bank.currency == targetAccount.fiatCurrency }
+            it.filter { bank -> bank.currency == targetAccount.currency }
         }
     ).doOnSubscribe {
         model.process(DashboardIntent.LongCallStarted)
     }.flatMap { (paymentMethods, linkedBanks) ->
+        val eligibleBanks = linkedBanks.filter { paymentMethods.contains(it.type) }
         when {
-            linkedBanks.isEmpty() -> {
+            eligibleBanks.isEmpty() -> {
                 handleNoLinkedBanks(
                     targetAccount,
                     action,
                     LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         linkablePaymentMethods = LinkablePaymentMethods(
-                            targetAccount.fiatCurrency,
+                            targetAccount.currency,
                             paymentMethods
                         )
                     )
                 )
             }
-            linkedBanks.size == 1 -> {
+            eligibleBanks.size == 1 -> {
                 Single.just(
                     FiatTransactionRequestResult.LaunchDepositFlow(
                         preselectedBankAccount = linkedBanks.first(),
@@ -479,7 +509,7 @@ class DashboardActionAdapter(
                 )
             }
             paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_TRANSFER) -> {
-                linkBankTransfer(targetAccount.fiatCurrency).map {
+                linkBankTransfer(targetAccount.currency).map {
                     FiatTransactionRequestResult.LaunchBankLink(
                         linkBankTransfer = it,
                         action = action
@@ -496,8 +526,8 @@ class DashboardActionAdapter(
             }
         }
 
-    fun linkBankTransfer(currency: String): Single<LinkBankTransfer> =
-        custodialWalletManager.linkToABank(currency)
+    fun linkBankTransfer(currency: FiatCurrency): Single<LinkBankTransfer> =
+        paymentsDataManager.linkBank(currency)
 
     fun getBankWithdrawalFlow(
         model: DashboardModel,
@@ -508,12 +538,13 @@ class DashboardActionAdapter(
         require(sourceAccount is FiatAccount)
 
         return Singles.zip(
-            linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.fiatCurrency).map { paymentMethods ->
-                // Ignore any WireTransferMethods In case BankLinkTransfer should launch
-                paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }
-            },
+            linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency as FiatCurrency)
+                .map { paymentMethods ->
+                    // Ignore any WireTransferMethods In case BankLinkTransfer should launch
+                    paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }
+                },
             linkedBanksFactory.getAllLinkedBanks().map {
-                it.filter { bank -> bank.currency == sourceAccount.fiatCurrency }
+                it.filter { bank -> bank.currency == sourceAccount.currency }
             }
         ).flatMap { (paymentMethods, linkedBanks) ->
             when {
@@ -523,7 +554,7 @@ class DashboardActionAdapter(
                         action,
                         LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw(
                             LinkablePaymentMethods(
-                                sourceAccount.fiatCurrency,
+                                sourceAccount.currency,
                                 paymentMethods
                             )
                         )
@@ -567,13 +598,23 @@ class DashboardActionAdapter(
             }
         )
 
-    fun userCanBuy(model: DashboardModel): Disposable {
-        return userIdentity.userAccessForFeature(Feature.SimpleBuy)
-            .zipWith(dashboardBuyButtonFlag.enabled)
-            .subscribeBy { (buyState, flagEnabled) ->
-                model.process(DashboardIntent.UserBuyAccessStateUpdated(!flagEnabled, buyState))
+    fun getOnboardingSteps(model: DashboardModel): Disposable =
+        dashboardOnboardingFlag.enabled.flatMapMaybe { isEnabled ->
+            if (isEnabled) getDashboardOnboardingStepsUseCase(Unit).toMaybe()
+            else Maybe.empty()
+        }.subscribeBy(
+            onSuccess = { steps ->
+                val onboardingState = if (steps.any { !it.isCompleted }) {
+                    DashboardOnboardingState.Visible(steps)
+                } else {
+                    DashboardOnboardingState.Hidden
+                }
+                model.process(DashboardIntent.FetchOnboardingStepsSuccess(onboardingState))
+            },
+            onError = {
+                Timber.e(it)
             }
-    }
+        )
 
     companion object {
         private val FLATLINE_CHART = listOf(

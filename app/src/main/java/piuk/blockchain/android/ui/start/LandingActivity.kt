@@ -4,17 +4,23 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.koin.landingCtaFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.customviews.toast
@@ -22,9 +28,10 @@ import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.visible
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
+
+    private val landingCtaFF: FeatureFlag by scopedInject(landingCtaFeatureFlag)
 
     override val presenter: LandingPresenter by scopedInject()
     override val view: LandingView = this
@@ -35,13 +42,20 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         ActivityLandingOnboardingBinding.inflate(layoutInflater)
     }
 
-    override val toolbarBinding: ToolbarGeneralBinding?
-        get() = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(binding.root)
+
+        compositeDisposable += landingCtaFF.enabled
+            .onErrorReturnItem(false)
+            .filter { enabled -> enabled }
+            .subscribeBy {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    startActivity(LandingCtaActivity.newIntent(this))
+                    overridePendingTransition(R.anim.slide_up_from_bottom, 0)
+                }, 500)
+            }
 
         with(binding) {
             if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {

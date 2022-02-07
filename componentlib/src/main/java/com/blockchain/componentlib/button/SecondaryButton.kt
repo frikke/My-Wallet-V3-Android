@@ -1,10 +1,12 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -33,10 +35,10 @@ fun SecondaryButton(
         disabledBackgroundLightColor = Grey500,
         disabledBackgroundDarkColor = Dark800,
         pressedBackgroundColor = Grey900,
-        modifier = modifier,
+        modifier = modifier.requiredHeightIn(min = 48.dp),
         icon = icon,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ->
-            FixedSizeButtonContent(
+            ButtonContent(
                 state = state,
                 text = text,
                 textColor = textColor,

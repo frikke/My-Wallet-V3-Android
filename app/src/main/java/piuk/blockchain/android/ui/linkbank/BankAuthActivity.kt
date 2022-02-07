@@ -5,19 +5,20 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.YapilyAttributes
+import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.core.payments.model.YodleeAttributes
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.YapilyAttributes
-import com.blockchain.nabu.models.data.YapilyInstitution
-import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.preferences.BankLinkingPrefs
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentActivityBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.simplebuy.ErrorState
-import piuk.blockchain.android.ui.base.BlockchainActivity
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragment
@@ -84,8 +85,8 @@ class BankAuthActivity :
                 }
             }
         }
-        loadToolbar(
-            titleToolbar = title,
+        updateToolbar(
+            toolbarTitle = title,
             backAction = { onSupportNavigateUp() }
         )
     }
@@ -230,7 +231,7 @@ class BankAuthActivity :
         }
     }
 
-    override fun bankLinkingFinished(bankId: String, currency: String) {
+    override fun bankLinkingFinished(bankId: String, currency: FiatCurrency) {
         val data = Intent()
         data.putExtra(LINKED_BANK_ID_KEY, bankId)
         data.putExtra(LINKED_BANK_CURRENCY, currency)

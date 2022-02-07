@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.launcher.loader
 
-import piuk.blockchain.android.ui.base.mvi.MviState
+import com.blockchain.commonarch.presentation.mvi.MviState
 
 sealed class LoadingStep {
-    data class Main(val data: String?, val launchBuySellIntro: Boolean) : LoadingStep()
+    data class Main(val data: String?, val launchDashboardOnboarding: Boolean) : LoadingStep()
     class Error(val throwable: Throwable) : LoadingStep()
     object Launcher : LoadingStep()
     object EmailVerification : LoadingStep()

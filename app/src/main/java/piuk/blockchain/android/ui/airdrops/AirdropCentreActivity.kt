@@ -8,6 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.koin.scopedInject
 import java.text.DateFormat
 import kotlin.math.max
@@ -16,12 +19,9 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAirdropsBinding
 import piuk.blockchain.android.databinding.ItemAirdropHeaderBinding
 import piuk.blockchain.android.databinding.ItemAirdropStatusBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.base.MvpActivity
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setOnClickListenerDebounced
 
 class AirdropCentreActivity :
     MvpActivity<AirdropCentreView, AirdropCentrePresenter>(),
@@ -42,8 +42,8 @@ class AirdropCentreActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.airdrop_activity_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.airdrop_activity_title),
             backAction = { onBackPressed() }
         )
         binding.airdropList.layoutManager = LinearLayoutManager(this)
@@ -70,9 +70,8 @@ class AirdropCentreActivity :
     }
 
     companion object {
-        fun start(ctx: Context) {
-            Intent(ctx, AirdropCentreActivity::class.java).run { ctx.startActivity(this) }
-        }
+        fun newIntent(context: Context?) =
+            Intent(context, AirdropCentreActivity::class.java)
     }
 
     override fun onSheetClosed() {

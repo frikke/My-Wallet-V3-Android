@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.activity.detail.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.utils.toFormattedString
-import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -41,7 +41,6 @@ import piuk.blockchain.android.ui.activity.detail.TransactionId
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.visible
 
 class ActivityDetailInfoItemDelegate<in T>(
     private val onLongClick: (String) -> Unit
@@ -117,7 +116,7 @@ private class InfoItemViewHolder(
             is SwapReceiveAmount -> context.getString(R.string.activity_details_swap_for)
             is NetworkFee -> context.getString(
                 R.string.tx_confirmation_network_fee,
-                (infoType.feeValue as CryptoValue).currency.displayTicker
+                infoType.feeValue.currency.displayTicker
             )
             is XlmMemo -> context.getString(R.string.xlm_memo_text)
             is RecurringBuyFrequency -> context.getString(R.string.recurring_buy_frequency_label_1)

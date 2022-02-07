@@ -1,52 +1,55 @@
 package com.blockchain.coincore.fiat
 
-import com.blockchain.nabu.datamanagers.BankState
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 
 class LinkedBanksFactory(
-    val custodialWalletManager: CustodialWalletManager
+    val custodialWalletManager: CustodialWalletManager,
+    val paymentsDataManager: PaymentsDataManager
 ) {
 
     fun getAllLinkedBanks(): Single<List<LinkedBankAccount>> =
-        custodialWalletManager.getBanks().map { banks ->
+        paymentsDataManager.getLinkedBanks().map { banks ->
             banks.filter {
                 it.state == BankState.ACTIVE
             }.map {
                 LinkedBankAccount(
                     label = it.name,
-                    accountNumber = it.account,
+                    accountNumber = it.accountEnding,
                     accountId = it.id,
                     accountType = it.toHumanReadableAccount(),
                     currency = it.currency,
                     custodialWalletManager = custodialWalletManager,
-                    type = it.paymentMethodType
+                    type = it.type
                 )
             }
         }
 
     fun getNonWireTransferBanks(): Single<List<LinkedBankAccount>> =
-        custodialWalletManager.getBanks().map { banks ->
-            banks.filter { it.state == BankState.ACTIVE && it.paymentMethodType == PaymentMethodType.BANK_TRANSFER }
+        paymentsDataManager.getLinkedBanks().map { banks ->
+            banks.filter { it.state == BankState.ACTIVE && it.type == PaymentMethodType.BANK_TRANSFER }
                 .map { bank ->
                     LinkedBankAccount(
                         label = bank.name,
-                        accountNumber = bank.account,
+                        accountNumber = bank.accountEnding,
                         accountId = bank.id,
                         accountType = bank.toHumanReadableAccount(),
                         currency = bank.currency,
                         custodialWalletManager = custodialWalletManager,
-                        type = bank.paymentMethodType
+                        type = bank.type
                     )
                 }
         }
 
-    fun eligibleBankPaymentMethods(fiat: String): Single<Set<PaymentMethodType>> =
-        custodialWalletManager.getEligiblePaymentMethodTypes(fiat).map { methods ->
+    fun eligibleBankPaymentMethods(fiat: FiatCurrency): Single<Set<PaymentMethodType>> =
+        paymentsDataManager.getEligiblePaymentMethodTypes(fiat).map { methods ->
             methods.filter {
-                it.paymentMethodType == PaymentMethodType.BANK_TRANSFER ||
-                    it.paymentMethodType == PaymentMethodType.BANK_ACCOUNT
-            }.map { it.paymentMethodType }.toSet()
+                it.type == PaymentMethodType.BANK_TRANSFER ||
+                    it.type == PaymentMethodType.BANK_ACCOUNT
+            }.map { it.type }.toSet()
         }
 }

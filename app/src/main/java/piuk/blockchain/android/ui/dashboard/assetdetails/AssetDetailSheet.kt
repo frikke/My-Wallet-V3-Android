@@ -14,6 +14,11 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.viewextensions.configureWithPinnedView
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -33,11 +38,10 @@ import com.google.android.material.tabs.TabLayout
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import java.math.RoundingMode
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
-import java.util.Currency
 import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
@@ -45,7 +49,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetDashboardAssetDetailsBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
-import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
@@ -53,15 +56,16 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAd
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
-import piuk.blockchain.android.util.configureWithPinnedButton
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.setOnTabSelectedListener
-import piuk.blockchain.android.util.visible
 
-class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
-    AssetDetailsIntent, AssetDetailsState, DialogSheetDashboardAssetDetailsBinding>() {
+class AssetDetailSheet :
+    MviBottomSheet<
+        AssetDetailsModel,
+        AssetDetailsIntent,
+        AssetDetailsState,
+        DialogSheetDashboardAssetDetailsBinding
+        >() {
 
     private val currencyPrefs: CurrencyPrefs by inject()
     private val labels: DefaultLabels by inject()
@@ -70,7 +74,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private val asset: AssetInfo by lazy {
         arguments?.getString(ARG_CRYPTO_ASSET)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         } ?: throw IllegalArgumentException("No cryptoCurrency specified")
     }
 
@@ -125,7 +129,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         chartData = newState.chartData
 
         newState.prices24HrWithDelta?.let {
-            val price = it.currentRate.price().toStringWithSymbol()
+            val price = it.currentRate.price.toStringWithSymbol()
             binding.currentPrice.text = price
             updatePriceChange(it, binding.priceChange, newState.chartData)
         }
@@ -139,13 +143,13 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private fun configureBuyButton(assetDisplayMap: Map<AssetFilter, AssetDisplayInfo>, buyAccess: FeatureAccess) {
         with(binding) {
-            assetList.configureWithPinnedButton(
+            assetList.configureWithPinnedView(
                 buyCryptoBottomButton,
                 assetDisplayMap.containsKey(
                     AssetFilter.Custodial
                 ) && !buyAccess.isBlockedDueToEligibility()
             )
-            buyCryptoBottomButton.text = resources.getString(R.string.tx_title_buy, token.asset.displayTicker)
+            buyCryptoBottomButton.text = resources.getString(R.string.tx_title_buy, asset.displayTicker)
             buyCryptoBottomButton.setOnClickListener {
                 model.process(HandleActionIntent(AssetAction.Buy))
             }
@@ -159,7 +163,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         with(binding) {
             configureChart(
                 chart,
-                getFiatSymbol(currencyPrefs.selectedFiatCurrency),
+                currencyPrefs.selectedFiatCurrency.symbol,
                 numOfDecimalsForChart(asset)
             )
             buyCryptoBottomButton.gone()
@@ -279,7 +283,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         clearList()
 
         if (account is CryptoAccount && assetFilter == AssetFilter.Custodial) {
-            analytics.logEvent(CustodialBalanceClicked(account.asset))
+            analytics.logEvent(CustodialBalanceClicked(account.currency))
         }
 
         model.process(
@@ -315,7 +319,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                     marker = ValueMarker(
                         context,
                         R.layout.price_chart_marker,
-                        getFiatSymbol(currencyPrefs.selectedFiatCurrency),
+                        currencyPrefs.selectedFiatCurrency.symbol,
                         numOfDecimalsForChart(asset)
                     )
                 }
@@ -407,7 +411,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
 
         percentageView.text =
-            FiatValue.fromMajor(
+            Money.fromMajor(
             currencyPrefs.selectedFiatCurrency,
             difference.toBigDecimal()
         ).toStringWithSymbol() + " ($percentChangeTxt%)"
@@ -511,9 +515,6 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 }
             }
         }
-
-        private fun getFiatSymbol(currencyCode: String, locale: Locale = Locale.getDefault()) =
-            Currency.getInstance(currencyCode).getSymbol(locale)
 
         private fun numOfDecimalsForChart(asset: AssetInfo): Int =
             when (asset.networkTicker) {

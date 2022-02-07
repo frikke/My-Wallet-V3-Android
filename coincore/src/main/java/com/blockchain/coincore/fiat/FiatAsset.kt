@@ -8,10 +8,12 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
@@ -20,6 +22,7 @@ class FiatAsset(
     private val exchangeRateDataManager: ExchangeRatesDataManager,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val currencyPrefs: CurrencyPrefs
 ) : Asset {
 
@@ -31,7 +34,7 @@ class FiatAsset(
             AssetFilter.Interest -> Maybe.empty() // Only support single accounts
         }
 
-    private fun setSelectedFiatFirst(fiatList: List<String>): List<String> {
+    private fun setSelectedFiatFirst(fiatList: List<FiatCurrency>): List<FiatCurrency> {
         val fiatMutableList = fiatList.toMutableList()
         if (fiatMutableList.first() != currencyPrefs.selectedFiatCurrency) {
             fiatMutableList.firstOrNull { it == currencyPrefs.selectedFiatCurrency }?.let {
@@ -61,16 +64,17 @@ class FiatAsset(
                 }
             }
 
-    private val accounts = mutableMapOf<String, FiatAccount>()
+    private val accounts = mutableMapOf<FiatCurrency, FiatAccount>()
 
-    private fun getAccount(fiatCurrency: String): FiatAccount =
+    private fun getAccount(fiatCurrency: FiatCurrency): FiatAccount =
         accounts.getOrPut(fiatCurrency) {
             FiatCustodialAccount(
                 label = labels.getDefaultCustodialFiatWalletLabel(fiatCurrency),
-                fiatCurrency = fiatCurrency,
+                currency = fiatCurrency,
                 tradingBalanceDataManager = tradingBalanceDataManager,
                 exchangesRates = exchangeRateDataManager,
-                custodialWalletManager = custodialWalletManager
+                custodialWalletManager = custodialWalletManager,
+                paymentsDataManager = paymentsDataManager
             )
         }
 

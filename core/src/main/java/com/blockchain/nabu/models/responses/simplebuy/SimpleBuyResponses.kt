@@ -1,11 +1,11 @@
 package com.blockchain.nabu.models.responses.simplebuy
 
+import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
-import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.Partner
-import com.blockchain.nabu.models.responses.nabu.Address
 import java.util.Date
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 data class SimpleBuyPairsResp(val pairs: List<SimpleBuyPairResp>)
 
@@ -102,7 +102,7 @@ data class BuySellOrderResponse(
     val processingErrorType: String?,
     val recurringBuyId: String?,
     val failureReason: String?,
-    val paymentError: String
+    val paymentError: String?
 ) {
     companion object {
         const val PENDING_DEPOSIT = "PENDING_DEPOSIT"
@@ -114,10 +114,15 @@ data class BuySellOrderResponse(
         const val FAILED = "FAILED"
         const val EXPIRED = "EXPIRED"
 
+        const val APPROVAL_ERROR_INVALID = "BANK_TRANSFER_PAYMENT_INVALID"
         const val APPROVAL_ERROR_FAILED = "BANK_TRANSFER_PAYMENT_FAILED"
         const val APPROVAL_ERROR_DECLINED = "BANK_TRANSFER_PAYMENT_DECLINED"
         const val APPROVAL_ERROR_REJECTED = "BANK_TRANSFER_PAYMENT_REJECTED"
         const val APPROVAL_ERROR_EXPIRED = "BANK_TRANSFER_PAYMENT_EXPIRED"
+        const val APPROVAL_ERROR_EXCEEDED = "BANK_TRANSFER_PAYMENT_LIMITED_EXCEEDED"
+        const val APPROVAL_ERROR_ACCOUNT_INVALID = "BANK_TRANSFER_PAYMENT_USER_ACCOUNT_INVALID"
+        const val APPROVAL_ERROR_FAILED_INTERNAL = "BANK_TRANSFER_PAYMENT_FAILED_INTERNAL"
+        const val APPROVAL_ERROR_INSUFFICIENT_FUNDS = "BANK_TRANSFER_PAYMENT_INSUFFICIENT_FUNDS"
 
         const val FAILED_INSUFFICIENT_FUNDS = "FAILED_INSUFFICIENT_FUNDS"
         const val FAILED_INTERNAL_ERROR = "FAILED_INTERNAL_ERROR"
@@ -133,47 +138,11 @@ data class TransferRequest(
     val amount: String
 )
 
-data class AddNewCardBodyRequest(
-    private val currency: String,
-    private val address: Address,
-    private val paymentMethodTokens: Map<String, String>?
-)
-
-data class AddNewCardResponse(
-    val id: String,
-    val partner: Partner
-)
-
 class ProductTransferRequestBody(
     val currency: String,
     val amount: String,
     val origin: String,
     val destination: String
-)
-
-data class ActivateCardResponse(
-    val everypay: EveryPayCardCredentialsResponse?,
-    val cardProvider: CardProviderResponse?
-)
-
-data class EveryPayCardCredentialsResponse(
-    val apiUsername: String,
-    val mobileToken: String,
-    val paymentLink: String
-)
-
-// cardAcquirerName and cardAcquirerAccountCode are mandatory
-data class CardProviderResponse(
-    val cardAcquirerName: String, // "STRIPE"
-    val cardAcquirerAccountCode: String,
-    val apiUserID: String?, // is the old apiUserName
-    val apiToken: String?, // is the old mobile token and will be fill with bearer token most of the time
-    val paymentLink: String?, // link should be followed background and if an action is required we should abort
-    val paymentState: String?,
-    val paymentReference: String?,
-    val orderReference: String?,
-    val clientSecret: String?, // use when client secret is needed (stripe)
-    val publishableApiKey: String?
 )
 
 data class PaymentAttributesResponse(
@@ -183,19 +152,37 @@ data class PaymentAttributesResponse(
     val cardProvider: CardProviderPaymentAttributesResponse?
 )
 
+@Serializable
+enum class PaymentStateResponse {
+    @SerialName("INITIAL")
+    INITIAL,
+    @SerialName("WAITING_FOR_3DS_RESPONSE")
+    WAITING_FOR_3DS_RESPONSE,
+    @SerialName("CONFIRMED_3DS")
+    CONFIRMED_3DS,
+    @SerialName("SETTLED")
+    SETTLED,
+    @SerialName("VOIDED")
+    VOIDED,
+    @SerialName("ABANDONED")
+    ABANDONED,
+    @SerialName("FAILED")
+    FAILED
+}
+
 // cardAcquirerName and cardAcquirerAccountCode are mandatory
 data class CardProviderPaymentAttributesResponse(
     val cardAcquirerName: String,
     val cardAcquirerAccountCode: String,
     val paymentLink: String?,
-    val paymentState: String?,
+    val paymentState: PaymentStateResponse?,
     val clientSecret: String?,
     val publishableApiKey: String?
 )
 
 data class EverypayPaymentAttributesResponse(
     val paymentLink: String,
-    val paymentState: String
+    val paymentState: PaymentStateResponse?
 )
 
 data class ConfirmOrderRequestBody(
@@ -246,7 +233,7 @@ data class TransactionResponse(
     val state: String,
     val beneficiaryId: String? = null,
     val error: String? = null,
-    val extraAttributes: TransactionAttributesResponse,
+    val extraAttributes: TransactionAttributesResponse?,
     val txHash: String?
 ) {
     companion object {
@@ -284,21 +271,4 @@ data class AmountResponse(
     val symbol: String
 )
 
-data class SimpleBuyConfirmationAttributes(
-    private val everypay: EveryPayAttrs? = null,
-    private val callback: String? = null,
-    private val redirectURL: String?
-)
-
-data class EveryPayAttrs(private val customerUrl: String)
-
 typealias BuyOrderListResponse = List<BuySellOrderResponse>
-
-private fun OrderState.isPending(): Boolean =
-    this == OrderState.PENDING_CONFIRMATION ||
-        this == OrderState.PENDING_EXECUTION ||
-        this == OrderState.AWAITING_FUNDS
-
-private fun OrderState.hasFailed(): Boolean = this == OrderState.FAILED
-
-private fun OrderState.isFinished(): Boolean = this == OrderState.FINISHED

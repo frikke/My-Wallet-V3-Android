@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
@@ -49,7 +51,7 @@ class RecurringBuysAnnouncementTest {
         whenever(dismissEntry.isDismissed).thenReturn(false)
 
         whenever(announcementQueries.hasFundedFiatWallets()).thenReturn(Single.just(true))
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("EUR")
+        whenever(currencyPrefs.selectedFiatCurrency).thenReturn(EUR)
 
         subject.shouldShow()
             .test()
@@ -63,7 +65,7 @@ class RecurringBuysAnnouncementTest {
         whenever(dismissEntry.isDismissed).thenReturn(false)
 
         whenever(announcementQueries.hasFundedFiatWallets()).thenReturn(Single.just(false))
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
+        whenever(currencyPrefs.selectedFiatCurrency).thenReturn(USD)
 
         subject.shouldShow()
             .test()
@@ -77,7 +79,7 @@ class RecurringBuysAnnouncementTest {
         whenever(dismissEntry.isDismissed).thenReturn(false)
 
         whenever(announcementQueries.hasFundedFiatWallets()).thenReturn(Single.just(false))
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("EUR")
+        whenever(currencyPrefs.selectedFiatCurrency).thenReturn(EUR)
 
         subject.shouldShow()
             .test()

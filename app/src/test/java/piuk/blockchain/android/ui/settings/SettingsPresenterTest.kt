@@ -1,27 +1,40 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.payments.EligiblePaymentMethodType
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankState
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
+import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.nabu.NabuApiException.Companion.fromResponseBody
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs
+import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.GBP
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
+import junit.framework.Assert.assertFalse
+import junit.framework.Assert.assertTrue
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.junit.Before
@@ -31,6 +44,9 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricsController
+import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
+import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
+import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -83,9 +99,11 @@ class SettingsPresenterTest {
     private val featureFlag: FeatureFlag = mock()
 
     private val analytics: Analytics = mock()
-    private val custodialWalletManager: CustodialWalletManager = mock()
+    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase = mock()
     private val cardsFeatureFlag: FeatureFlag = mock()
     private val fundsFeatureFlag: FeatureFlag = mock()
+    private val securityPrefs: SecurityPrefs = mock()
 
     @Before
     fun setUp() {
@@ -97,7 +115,8 @@ class SettingsPresenterTest {
             payloadDataManager = payloadDataManager,
             prefs = prefsUtil,
             pinRepository = pinRepository,
-            custodialWalletManager = custodialWalletManager,
+            paymentsDataManager = paymentsDataManager,
+            getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
             notificationTokenManager = notificationTokenManager,
             exchangeRates = exchangeRates,
             kycStatusHelper = kycStatusHelper,
@@ -106,11 +125,13 @@ class SettingsPresenterTest {
             biometricsController = biometricsController,
             ratingPrefs = ratingPrefs,
             qrProcessor = qrProcessor,
-            secureChannelManager = secureChannelManager
+            secureChannelManager = secureChannelManager,
+            securityPrefs = securityPrefs
         )
         subject.initView(activity)
-        whenever(prefsUtil.selectedFiatCurrency).thenReturn("USD")
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
         whenever(prefsUtil.arePushNotificationsEnabled).thenReturn(false)
+        whenever(securityPrefs.areScreenshotsEnabled).thenReturn(false)
         whenever(biometricsController.isHardwareDetected).thenReturn(false)
         whenever(prefsUtil.getValue(any(), any<Boolean>())).thenReturn(false)
         whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
@@ -128,26 +149,20 @@ class SettingsPresenterTest {
         }
 
         whenever(settingsDataManager.fetchSettings()).thenReturn(Observable.just(mockSettings))
-        whenever(prefsUtil.selectedFiatCurrency).thenReturn("USD")
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(mockSettings))
         whenever(pitLinkState.isLinked).thenReturn(false)
-        whenever(custodialWalletManager.fetchUnawareLimitsCards(ArgumentMatchers.anyList()))
-            .thenReturn(Single.just(emptyList()))
+        whenever(paymentsDataManager.getLinkedCards(any())).thenReturn(Single.just(emptyList()))
         whenever(pitLinking.state).thenReturn(Observable.just(pitLinkState))
 
         whenever(featureFlag.enabled).thenReturn(Single.just(true))
         whenever(cardsFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(fundsFeatureFlag.enabled).thenReturn(Single.just(true))
 
-        whenever(custodialWalletManager.getEligiblePaymentMethodTypes("USD")).thenReturn(
-            Single.just(listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, "USD")))
-        )
-        whenever(custodialWalletManager.canTransactWithBankMethods(any())).thenReturn(Single.just(false))
-        whenever(custodialWalletManager.updateSupportedCardTypes(ArgumentMatchers.anyString())).thenReturn(
-            Completable.complete()
-        )
-        whenever(custodialWalletManager.getBanks()).thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.getEligiblePaymentMethodTypes(any())).thenReturn(Single.just(emptyList()))
+        arrangeEligiblePaymentMethodTypes(USD, listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)))
+        whenever(paymentsDataManager.canTransactWithBankMethods(any())).thenReturn(Single.just(false))
+        arrangeBanks(emptyList())
+        arrangeEligiblePaymentMethodTypes(USD, emptyList())
         // Act
         subject.onViewReady()
         // Assert
@@ -167,21 +182,15 @@ class SettingsPresenterTest {
         whenever(pitLinkState.isLinked).thenReturn(false)
         whenever(pitLinking.state).thenReturn(Observable.just(pitLinkState))
         whenever(featureFlag.enabled).thenReturn(Single.just(false))
-        whenever(prefsUtil.selectedFiatCurrency).thenReturn("USD")
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
         whenever(cardsFeatureFlag.enabled).thenReturn(Single.just(false))
         whenever(fundsFeatureFlag.enabled).thenReturn(Single.just(false))
 
-        whenever(custodialWalletManager.canTransactWithBankMethods(any())).thenReturn(Single.just(false))
-        whenever(custodialWalletManager.getEligiblePaymentMethodTypes("USD")).thenReturn(
-            Single.just(listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, "USD")))
-        )
-        whenever(custodialWalletManager.updateSupportedCardTypes(ArgumentMatchers.anyString())).thenReturn(
-            Completable.complete()
-        )
-        whenever(custodialWalletManager.fetchUnawareLimitsCards(ArgumentMatchers.anyList()))
-            .thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.getBanks()).thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.getEligiblePaymentMethodTypes(any())).thenReturn(Single.just(emptyList()))
+        whenever(paymentsDataManager.getLinkedCards(any())).thenReturn(Single.just(emptyList()))
+        whenever(paymentsDataManager.canTransactWithBankMethods(any())).thenReturn(Single.just(false))
+        arrangeEligiblePaymentMethodTypes(USD, listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)))
+        arrangeBanks(emptyList())
+        arrangeEligiblePaymentMethodTypes(USD, emptyList())
 
         // Act
         subject.onViewReady()
@@ -611,5 +620,114 @@ class SettingsPresenterTest {
         verify(activity).setPushNotificationPref(false)
         verify(notificationTokenManager).disableNotifications()
         verifyNoMoreInteractions(notificationTokenManager)
+    }
+
+    @Test
+    fun updateEligibleLinkedBanks() {
+        // Arrange
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
+        arrangeEligiblePaymentMethodTypes(
+            USD,
+            listOf(
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, USD),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, EUR)
+            )
+        )
+        arrangeBanks(
+            listOf(
+                LinkedPaymentMethod.Bank("", "", "", "", "", true, BankState.ACTIVE, USD),
+                LinkedPaymentMethod.Bank("", "", "", "", "", false, BankState.ACTIVE, USD)
+            )
+        )
+
+        // Act
+        subject.updateBanks()
+
+        // Assert
+        argumentCaptor<List<BankItem>>().apply {
+            verify(activity).updateLinkedBanks(capture())
+
+            assertTrue(firstValue.first { it.bank.type == PaymentMethodType.BANK_TRANSFER }.canBeUsedToTransact)
+            assertFalse(firstValue.first { it.bank.type == PaymentMethodType.BANK_ACCOUNT }.canBeUsedToTransact)
+        }
+    }
+
+    @Test
+    fun `updateEligibleLinkedBanks - no linkable banks`() {
+        // Arrange
+        whenever(prefsUtil.selectedFiatCurrency).thenReturn(USD)
+        arrangeEligiblePaymentMethodTypes(
+            USD,
+            listOf(
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, GBP),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_ACCOUNT, EUR)
+            )
+        )
+        arrangeBanks(
+            listOf(
+                LinkedPaymentMethod.Bank("", "", "", "", "", true, BankState.ACTIVE, USD),
+                LinkedPaymentMethod.Bank("", "", "", "", "", false, BankState.ACTIVE, USD)
+            )
+        )
+
+        // Act
+        subject.updateBanks()
+
+        // Assert
+        argumentCaptor<List<BankItem>>().apply {
+            verify(activity).updateLinkedBanks(capture())
+
+            assertFalse(firstValue.first { it.bank.type == PaymentMethodType.BANK_TRANSFER }.canBeUsedToTransact)
+            assertFalse(firstValue.first { it.bank.type == PaymentMethodType.BANK_ACCOUNT }.canBeUsedToTransact)
+        }
+    }
+
+    @Test
+    fun `when user can add new card the add card view should be enabled`() {
+        reset(activity)
+        arrangeEligiblePaymentMethodTypes(USD, listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)), LinkAccess.GRANTED)
+
+        subject.updateCanAddNewCard()
+
+        verify(activity).addCardEnabled(true)
+    }
+
+    @Test
+    fun `when user cannot add new card the add card view should be disabled`() {
+        reset(activity)
+        arrangeEligiblePaymentMethodTypes(USD, listOf(EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)), LinkAccess.BLOCKED)
+
+        subject.updateCanAddNewCard()
+
+        verify(activity, times(2)).addCardEnabled(false)
+    }
+
+    private fun arrangeEligiblePaymentMethodTypes(
+        currency: FiatCurrency,
+        eligiblePaymentMethodTypes: List<EligiblePaymentMethodType>,
+        linkAccess: LinkAccess = LinkAccess.GRANTED
+    ) {
+        val limits = PaymentLimits(BigInteger.ZERO, BigInteger.ZERO, currency)
+        whenever(
+            getAvailablePaymentMethodsTypesUseCase.invoke(
+                GetAvailablePaymentMethodsTypesUseCase.Request(
+                    currency = currency,
+                    onlyEligible = true,
+                    fetchSddLimits = false
+                )
+            )
+        ).thenReturn(
+            Single.just(
+                eligiblePaymentMethodTypes.map {
+                    AvailablePaymentMethodType(true, linkAccess, it.currency, it.type, limits)
+                }
+            )
+        )
+    }
+
+    private fun arrangeBanks(banks: List<LinkedPaymentMethod.Bank>) {
+        whenever(paymentsDataManager.getLinkedBanks()).thenReturn(
+            Single.just(banks)
+        )
     }
 }

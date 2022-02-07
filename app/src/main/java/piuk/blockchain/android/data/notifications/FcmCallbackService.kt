@@ -4,6 +4,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import com.blockchain.koin.scopedInject
+import com.blockchain.lifecycle.AppState
+import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
@@ -21,9 +23,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.home.MainScreenLauncher
 import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import timber.log.Timber
 
@@ -32,11 +32,18 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val notificationManager: NotificationManager by inject()
     private val notificationTokenManager: NotificationTokenManager by scopedInject()
     private val rxBus: RxBus by inject()
-    private val walletPrefs: WalletStatus by inject()
     private val analytics: Analytics by inject()
+    private val walletPrefs: WalletStatus by inject()
     private val secureChannelManager: SecureChannelManager by scopedInject()
     private val compositeDisposable = CompositeDisposable()
-    private val mainScreenLauncher: MainScreenLauncher by scopedInject()
+    private val lifecycleObservable: LifecycleObservable by inject()
+    private var isAppOnForegrounded = true
+
+    init {
+        compositeDisposable += lifecycleObservable.onStateUpdated.subscribe {
+            isAppOnForegrounded = it == AppState.FOREGROUNDED
+        }
+    }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Check if message contains a data payload.
@@ -48,7 +55,7 @@ class FcmCallbackService : FirebaseMessagingService() {
             rxBus.emitEvent(NotificationPayload::class.java, payload)
             sendNotification(
                 payload = payload,
-                foreground = ApplicationLifeCycle.getInstance().isForeground && walletPrefs.isAppUnlocked
+                foreground = isAppOnForegrounded && walletPrefs.isAppUnlocked
             )
         } else {
             // If there is no data field, provide this default behaviour
@@ -82,9 +89,9 @@ class FcmCallbackService : FirebaseMessagingService() {
     }
 
     /**
-     * Redirects the user to the [LauncherActivity] if [foreground] is set to true, otherwise to the [MainActivity]
-     * unless it is a new device login, in which case [MainActivity] is going to load the
-     * [piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet] .
+     * Redirects the user to the [LauncherActivity] if [foreground] is set to true, otherwise to
+     * the [MainActivity] unless it is a new device login, in which case [MainActivity] is
+     * going to load the [piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet] .
      */
     private fun sendNotification(payload: NotificationPayload, foreground: Boolean) {
         compositeDisposable += createIntentForNotification(payload, foreground)
@@ -132,10 +139,12 @@ class FcmCallbackService : FirebaseMessagingService() {
     private fun createIntentForNotification(payload: NotificationPayload, foreground: Boolean): Maybe<Intent> {
         return when {
             isSecureChannelMessage(payload) -> createSecureChannelIntent(payload.payload, foreground)
-            foreground -> mainScreenLauncher.startMainActivity(
-                context = applicationContext,
-                intentFromNotification = true
-            ).toMaybe()
+            foreground -> Maybe.just(
+                MainActivity.newIntent(
+                    context = applicationContext,
+                    intentFromNotification = true
+                )
+            )
             else -> Maybe.just(
                 LauncherActivity.newInstance(context = applicationContext, intentFromNotification = true)
             )
@@ -154,17 +163,19 @@ class FcmCallbackService : FirebaseMessagingService() {
         val message = secureChannelManager.decryptMessage(pubKeyHash, messageRawEncrypted)
             ?: return Maybe.empty()
 
-        return mainScreenLauncher.startMainActivity(
-            context = applicationContext,
-            launchAuthFlow = true,
-            pubKeyHash = pubKeyHash,
-            message = SecureChannelManager.jsonBuilder.encodeToString(message),
-            originIp = payload[NotificationPayload.ORIGIN_IP],
-            originLocation = payload[NotificationPayload.ORIGIN_COUNTRY],
-            originBrowser = payload[NotificationPayload.ORIGIN_BROWSER],
-            forcePin = !foreground,
-            shouldBeNewTask = foreground
-        ).toMaybe()
+        return Maybe.just(
+            MainActivity.newIntent(
+                context = applicationContext,
+                launchAuthFlow = true,
+                pubKeyHash = pubKeyHash,
+                message = SecureChannelManager.jsonBuilder.encodeToString(message),
+                originIp = payload[NotificationPayload.ORIGIN_IP],
+                originLocation = payload[NotificationPayload.ORIGIN_COUNTRY],
+                originBrowser = payload[NotificationPayload.ORIGIN_BROWSER],
+                forcePin = !foreground,
+                shouldBeNewTask = foreground
+            )
+        )
     }
 
     /**

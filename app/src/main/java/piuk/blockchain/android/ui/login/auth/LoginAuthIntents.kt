@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.login.auth
 
+import com.blockchain.commonarch.presentation.mvi.MviIntent
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
 

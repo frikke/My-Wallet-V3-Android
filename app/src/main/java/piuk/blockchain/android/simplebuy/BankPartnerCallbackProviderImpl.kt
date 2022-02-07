@@ -2,7 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
-import com.blockchain.nabu.models.data.BankPartner
+import com.blockchain.core.payments.model.BankPartner
 import java.lang.IllegalStateException
 import piuk.blockchain.android.BuildConfig
 

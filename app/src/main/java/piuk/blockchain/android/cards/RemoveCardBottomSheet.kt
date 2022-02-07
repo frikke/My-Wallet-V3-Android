@@ -3,8 +3,10 @@ package piuk.blockchain.android.cards
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -12,16 +14,17 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.databinding.RemoveCardBottomSheetBinding
-import piuk.blockchain.android.simplebuy.RemovePaymentMethodBottomSheetHost
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
-import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RemoveCardBottomSheet : SlidingModalBottomDialog<RemoveCardBottomSheetBinding>() {
 
-    private val custodialWalletManager: CustodialWalletManager by scopedInject()
+    interface Host : SlidingModalBottomDialog.Host {
+        fun onCardRemoved(cardId: String)
+    }
+
+    private val paymentsDataManager: PaymentsDataManager by scopedInject()
 
     private val card: PaymentMethod.Card by unsafeLazy {
         arguments?.getSerializable(CARD_KEY) as? PaymentMethod.Card
@@ -36,7 +39,7 @@ class RemoveCardBottomSheet : SlidingModalBottomDialog<RemoveCardBottomSheetBind
             endDigits.text = card.dottedEndDigits()
             icon.setImageResource(card.cardType.icon())
             rmvCardBtn.setOnClickListener {
-                compositeDisposable += custodialWalletManager.deleteCard(card.id)
+                compositeDisposable += paymentsDataManager.deleteCard(card.id)
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSubscribe {
                         updateUi(true)
@@ -45,7 +48,7 @@ class RemoveCardBottomSheet : SlidingModalBottomDialog<RemoveCardBottomSheetBind
                         updateUi(false)
                     }
                     .subscribeBy(onComplete = {
-                        (parentFragment as? RemovePaymentMethodBottomSheetHost)?.onCardRemoved(card.cardId)
+                        (host as? Host)?.onCardRemoved(card.cardId)
                         dismiss()
                         analytics.logEvent(SimpleBuyAnalytics.REMOVE_CARD)
                     }, onError = {})

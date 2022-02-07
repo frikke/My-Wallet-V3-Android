@@ -14,6 +14,7 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
+import piuk.blockchain.android.ui.home.ActionActivity
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -54,7 +55,7 @@ class TransferSendFragment : AccountSelectorFragment() {
                     type = BuySellFragment.BuySellViewType.TYPE_BUY
                 )
             )
-            (activity as? HomeNavigator)?.launchBuySell()
+            (activity as? HomeNavigator)?.launchBuySell() ?: (activity as? ActionActivity)?.navigateToBuy()
         }
 
         initialiseAccountSelectorWithHeader(
@@ -80,7 +81,7 @@ class TransferSendFragment : AccountSelectorFragment() {
         analytics.logEvent(TransferAnalyticsEvent.SourceWalletSelected(account))
         analytics.logEvent(
             SendAnalyticsEvent.SendSourceAccountSelected(
-                currency = account.asset.networkTicker,
+                currency = account.currency.networkTicker,
                 fromAccountType = TxFlowAnalyticsAccountType.fromAccount(
                     account
                 )

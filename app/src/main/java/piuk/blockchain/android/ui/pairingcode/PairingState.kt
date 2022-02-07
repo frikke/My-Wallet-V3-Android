@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.pairingcode
 
-import piuk.blockchain.android.ui.base.mvi.MviState
+import com.blockchain.commonarch.presentation.mvi.MviState
 
 sealed class QrCodeImageStatus {
     object NotInitialised : QrCodeImageStatus()

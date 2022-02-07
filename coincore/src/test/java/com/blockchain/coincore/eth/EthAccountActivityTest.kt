@@ -92,7 +92,7 @@ class EthAccountActivityTest : CoincoreTestBase() {
             sendingValue = CryptoValue.zero(CryptoCurrency.ETHER),
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
+            currencyPair = CurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
             apiFiatValue = FiatValue.zero(TEST_USER_FIAT),
             price = mock()
         )
@@ -113,7 +113,7 @@ class EthAccountActivityTest : CoincoreTestBase() {
                         this is TradeActivitySummaryItem &&
                             txId == swapSummary.txId &&
                             direction == swapSummary.direction &&
-                            currencyPair == CurrencyPair.CryptoCurrencyPair(
+                            currencyPair == CurrencyPair(
                             CryptoCurrency.ETHER,
                             CryptoCurrency.BTC
                         ) &&
@@ -160,7 +160,7 @@ class EthAccountActivityTest : CoincoreTestBase() {
             sendingValue = CryptoValue.zero(CryptoCurrency.ETHER),
             receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
             withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
-            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
+            currencyPair = CurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
             apiFiatValue = FiatValue.zero(TEST_USER_FIAT),
             price = mock()
         )

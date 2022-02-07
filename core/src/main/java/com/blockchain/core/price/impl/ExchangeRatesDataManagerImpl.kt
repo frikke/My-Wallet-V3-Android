@@ -7,7 +7,11 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
@@ -16,68 +20,55 @@ internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
     private val sparklineCall: SparklineCallCache,
     private val assetPriceService: AssetPriceService,
+    private val assetCatalogue: AssetCatalogue,
     private val currencyPrefs: CurrencyPrefs
 ) : ExchangeRatesDataManager {
 
-    private val userFiat: String
+    private val userFiat: Currency
         get() = currencyPrefs.selectedFiatCurrency
 
     override fun init(): Single<SupportedTickerList> =
         priceStore.init()
 
-    override fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate> =
-        priceStore.getPriceForAsset(fromAsset.networkTicker, userFiat)
-            .map {
-                ExchangeRate.CryptoToFiat(
-                    from = fromAsset,
-                    to = it.quote,
-                    rate = it.currentRate
-                )
-            }
+    override fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate> {
+        val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
+        val base = if (shouldInverse) toAsset else fromAsset
+        val quote = if (shouldInverse) fromAsset else toAsset
+        return priceStore.getPriceForAsset(base.networkTicker, quote.networkTicker).map {
+            ExchangeRate(
+                from = base,
+                to = quote,
+                rate = it.currentRate
+            )
+        }.map {
+            if (shouldInverse)
+                it.inverse()
+            else it
+        }
+    }
 
-    override fun cryptoToFiatRate(fromAsset: AssetInfo, toFiat: String): Observable<ExchangeRate> =
-        priceStore.getPriceForAsset(fromAsset.networkTicker, toFiat)
-            .map {
-                ExchangeRate.CryptoToFiat(
-                    from = fromAsset,
-                    to = it.quote,
-                    rate = it.currentRate
-                )
-            }
+    override fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate> =
+        priceStore.getPriceForAsset(fromAsset.networkTicker, userFiat.networkTicker).map {
+            ExchangeRate(
+                from = fromAsset,
+                to = userFiat,
+                rate = it.currentRate
+            )
+        }
 
-    override fun fiatToUserFiatRate(fromFiat: String): Observable<ExchangeRate> =
-        priceStore.getPriceForAsset(fromFiat, userFiat)
-            .map {
-                ExchangeRate.FiatToFiat(
-                    from = fromFiat,
-                    to = it.quote,
-                    rate = it.currentRate
-                )
-            }
-
-    override fun fiatToFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate> =
-        priceStore.getPriceForAsset(fromFiat, toFiat)
-            .map {
-                ExchangeRate.FiatToFiat(
-                    from = fromFiat,
-                    to = it.quote,
-                    rate = it.currentRate
-                )
-            }
-
-    override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat {
+    override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate {
         val price = priceStore.getCachedAssetPrice(sourceCrypto, userFiat)
-        return ExchangeRate.CryptoToFiat(
+        return ExchangeRate(
             from = sourceCrypto,
-            to = price.quote,
+            to = userFiat,
             rate = price.currentRate
         )
     }
 
     override fun getLastCryptoToFiatRate(
         sourceCrypto: AssetInfo,
-        targetFiat: String
-    ): ExchangeRate.CryptoToFiat {
+        targetFiat: FiatCurrency
+    ): ExchangeRate {
         return when (targetFiat) {
             userFiat -> getLastCryptoToUserFiatRate(sourceCrypto)
             else -> getCryptoToFiatRate(sourceCrypto, targetFiat)
@@ -85,9 +76,9 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun getLastFiatToCryptoRate(
-        sourceFiat: String,
+        sourceFiat: FiatCurrency,
         targetCrypto: AssetInfo
-    ): ExchangeRate.FiatToCrypto {
+    ): ExchangeRate {
         return when (sourceFiat) {
             userFiat -> getLastCryptoToUserFiatRate(targetCrypto).inverse()
             else -> getCryptoToFiatRate(targetCrypto, sourceFiat).inverse()
@@ -96,39 +87,38 @@ internal class ExchangeRatesDataManagerImpl(
 
     private fun getCryptoToFiatRate(
         sourceCrypto: AssetInfo,
-        targetFiat: String
-    ): ExchangeRate.CryptoToFiat {
-        // Target fiat should always be one of userFiat or in the "api" fiat list, so we should
-        // always have it. TODO: Add some checking for this case
+        targetFiat: FiatCurrency
+    ): ExchangeRate {
+
         val price = priceStore.getCachedAssetPrice(sourceCrypto, targetFiat)
-        return ExchangeRate.CryptoToFiat(
+        return ExchangeRate(
             from = sourceCrypto,
-            to = price.quote,
+            to = targetFiat,
             rate = price.currentRate
         )
     }
 
-    override fun getLastFiatToUserFiatRate(sourceFiat: String): ExchangeRate.FiatToFiat {
+    override fun getLastFiatToUserFiatRate(sourceFiat: FiatCurrency): ExchangeRate {
         return when (sourceFiat) {
-            userFiat -> ExchangeRate.FiatToFiat(
+            userFiat -> ExchangeRate(
                 from = sourceFiat,
                 to = userFiat,
                 rate = 1.0.toBigDecimal()
             )
             else -> {
                 val price = priceStore.getCachedFiatPrice(sourceFiat, userFiat)
-                return ExchangeRate.FiatToFiat(
+                return ExchangeRate(
                     from = sourceFiat,
-                    to = price.quote,
+                    to = userFiat,
                     rate = price.currentRate
                 )
             }
         }
     }
 
-    override fun getLastFiatToFiatRate(sourceFiat: String, targetFiat: String): ExchangeRate.FiatToFiat {
+    override fun getLastFiatToFiatRate(sourceFiat: FiatCurrency, targetFiat: FiatCurrency): ExchangeRate {
         return when {
-            sourceFiat == targetFiat -> ExchangeRate.FiatToFiat(
+            sourceFiat == targetFiat -> ExchangeRate(
                 from = sourceFiat,
                 to = targetFiat,
                 rate = 1.0.toBigDecimal()
@@ -140,49 +130,47 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun getHistoricRate(
-        fromAsset: AssetInfo,
+        fromAsset: Currency,
         secSinceEpoch: Long
     ): Single<ExchangeRate> {
         return assetPriceService.getHistoricPrices(
             baseTickers = setOf(fromAsset.networkTicker),
-            quoteTickers = setOf(userFiat),
+            quoteTickers = setOf(userFiat.networkTicker),
             time = secSinceEpoch
         ).map { prices ->
-            prices.first().let {
-                ExchangeRate.CryptoToFiat(
-                    from = fromAsset,
-                    to = it.quote,
-                    rate = it.price.toBigDecimal()
-                )
-            }
+            ExchangeRate(
+                from = fromAsset,
+                to = userFiat,
+                rate = prices.first().price.toBigDecimal()
+            )
         }
     }
 
-    override fun getPricesWith24hDelta(fromAsset: AssetInfo): Observable<Prices24HrWithDelta> =
+    override fun getPricesWith24hDelta(fromAsset: Currency): Observable<Prices24HrWithDelta> =
         getPricesWith24hDelta(fromAsset, userFiat)
 
-    override fun getPricesWith24hDelta(fromAsset: AssetInfo, fiat: String): Observable<Prices24HrWithDelta> =
+    override fun getPricesWith24hDelta(fromAsset: Currency, fiat: Currency): Observable<Prices24HrWithDelta> =
         priceStore.getPriceForAsset(
             fromAsset.networkTicker,
-            fiat
+            fiat.networkTicker
         ).map { price ->
             Prices24HrWithDelta(
                 delta24h = price.priceDelta(),
-                previousRate = ExchangeRate.CryptoToFiat(
+                previousRate = ExchangeRate(
                     from = fromAsset,
-                    to = price.quote,
-                    rate = price.yesterdayRate
+                    to = fiat,
+                    rate = price.yesterdayRate!!
                 ),
-                currentRate = ExchangeRate.CryptoToFiat(
+                currentRate = ExchangeRate(
                     from = fromAsset,
-                    to = price.quote,
-                    rate = price.currentRate
+                    to = fiat,
+                    rate = price.currentRate!!
                 )
             )
         }
 
     override fun getHistoricPriceSeries(
-        asset: AssetInfo,
+        asset: Currency,
         span: HistoricalTimeSpan,
         now: Calendar
     ): Single<HistoricalRateList> {
@@ -193,17 +181,19 @@ internal class ExchangeRatesDataManagerImpl(
 
         return assetPriceService.getHistoricPriceSeriesSince(
             base = asset.networkTicker,
-            quote = userFiat,
+            quote = userFiat.networkTicker,
             start = startTime,
             scale = scale
         ).toHistoricalRateList()
     }
 
     override fun get24hPriceSeries(
-        asset: AssetInfo
+        asset: Currency
     ): Single<HistoricalRateList> =
         sparklineCall.fetch(asset, userFiat)
 
-    override val fiatAvailableForRates: List<String>
-        get() = priceStore.fiatQuoteTickers
+    override val fiatAvailableForRates: List<FiatCurrency>
+        get() = priceStore.fiatQuoteTickers.mapNotNull {
+            assetCatalogue.fiatFromNetworkTicker(it)
+        }
 }

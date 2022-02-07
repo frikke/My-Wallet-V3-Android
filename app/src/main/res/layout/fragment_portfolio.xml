@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="empty_portfolio_title, portfolio_description, buy_crypto_button, receive_deposit_button, bottom_background"
+            app:constraint_referenced_ids="empty_portfolio_title, portfolio_description, buy_crypto_button, receive_deposit_button, bottom_background, receive_button"
             tools:visibility="gone" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -98,6 +98,19 @@
             app:leftButtonText="@string/receive"
             app:rightButtonText="@string/common_deposit" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/receive_button"
+            style="@style/CtaButton.White"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/epic_margin"
+            android:text="@string/receive"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buy_crypto_button"/>
+
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/bottom_background"
             android:layout_width="wrap_content"
@@ -108,17 +121,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/ic_simple_buy_intro_splash" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/buy_crypto_bottom_button"
-            style="@style/CtaButton.Blue"
+        <piuk.blockchain.android.ui.customviews.DashboardOnboardingCard
+            android:id="@+id/card_onboarding"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:layout_marginBottom="@dimen/small_margin"
-            android:elevation="@dimen/small_elevation"
-            android:text="@string/common_buy_crypto"
             android:visibility="gone"
+            android:layout_margin="@dimen/standard_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

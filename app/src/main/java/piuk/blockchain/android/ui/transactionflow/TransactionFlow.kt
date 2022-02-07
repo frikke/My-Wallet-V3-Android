@@ -7,10 +7,10 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.mvi.MviFragment.Companion.BOTTOM_SHEET
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.core.component.KoinComponent
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
-import piuk.blockchain.android.ui.base.mvi.MviFragment.Companion.BOTTOM_SHEET
 
 abstract class DialogFlow : SlidingModalBottomDialog.Host {
 

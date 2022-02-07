@@ -15,7 +15,6 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Single
@@ -36,7 +35,9 @@ class OnChainSellTxEngine(
         get() = TransferDirection.FROM_USERKEY
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.accountBalance
+        get() = sourceAccount.balance.firstOrError().map {
+            it.total
+        }
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
@@ -51,21 +52,21 @@ class OnChainSellTxEngine(
             }.flatMap { quote ->
                 engine.doInitialiseTx()
                     .flatMap {
-                        updateLimits(target.fiatCurrency, it, quote)
+                        updateLimits(target.currency, it, quote)
                     }
             }.map { px ->
                 px.copy(
                     feeSelection = defaultFeeSelection(px),
-                    selectedFiat = target.fiatCurrency
+                    selectedFiat = target.currency
                 )
             }.handlePendingOrdersError(
                 PendingTx(
-                    amount = CryptoValue.zero(sourceAsset),
-                    totalBalance = CryptoValue.zero(sourceAsset),
-                    availableBalance = CryptoValue.zero(sourceAsset),
-                    feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                    feeAmount = CryptoValue.zero(sourceAsset),
-                    selectedFiat = target.fiatCurrency,
+                    amount = Money.zero(sourceAsset),
+                    totalBalance = Money.zero(sourceAsset),
+                    availableBalance = Money.zero(sourceAsset),
+                    feeForFullAvailable = Money.zero(sourceAsset),
+                    feeAmount = Money.zero(sourceAsset),
+                    selectedFiat = target.currency,
                     feeSelection = FeeSelection()
                 )
             )
@@ -88,7 +89,7 @@ class OnChainSellTxEngine(
         }
 
     override fun feeInSourceCurrency(pendingTx: PendingTx): Money =
-        if (sourceAsset.isErc20()) CryptoValue.zero(sourceAsset)
+        if (sourceAsset.isErc20()) Money.zero(sourceAsset)
         else pendingTx.feeAmount
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =

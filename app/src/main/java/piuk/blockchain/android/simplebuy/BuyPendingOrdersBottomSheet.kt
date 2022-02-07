@@ -3,10 +3,10 @@ package piuk.blockchain.android.simplebuy
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import java.lang.IllegalArgumentException
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LayoutPendingBuyOrdersBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 class BuyPendingOrdersBottomSheet : SlidingModalBottomDialog<LayoutPendingBuyOrdersBinding>() {
 

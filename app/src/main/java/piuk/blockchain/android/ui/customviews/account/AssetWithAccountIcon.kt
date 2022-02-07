@@ -6,15 +6,15 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewAssetWithAccountIconBinding
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
-import piuk.blockchain.android.util.visible
 
 class AssetWithAccountIcon @JvmOverloads constructor(
     ctx: Context,
@@ -39,7 +39,7 @@ class AssetWithAccountIcon @JvmOverloads constructor(
         accountIcon.indicator?.let {
             binding.accountIcon.apply {
                 visible()
-                setAssetIconColoursNoTint(account.asset)
+                setAssetIconColoursNoTint(account.currency)
                 setImageResource(it)
             }
         } ?: kotlin.run { binding.accountIcon.gone() }

@@ -8,6 +8,7 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.testutils.USD
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -44,7 +45,7 @@ class AssetDetailsInteractorTest {
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
     }
 
-    private val subject = AssetDetailsInteractor(mock(), mock(), mock(), mock())
+    private val subject = AssetDetailsInteractor(mock(), mock(), mock(), mock(), mock())
 
     @Before
     fun setUp() {
@@ -53,36 +54,36 @@ class AssetDetailsInteractorTest {
 
     @Test
     fun `cryptoBalance,fiatBalance & interestBalance return the right values`() {
-        val currentRate = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 30.toBigDecimal())
+        val currentRate = ExchangeRate(30.toBigDecimal(), TEST_ASSET, TEST_FIAT)
 
         val prices = Prices24HrWithDelta(
             currentRate = currentRate,
-            previousRate = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 15.toBigDecimal()),
+            previousRate = ExchangeRate(15.toBigDecimal(), TEST_ASSET, TEST_FIAT),
             delta24h = 100.0
         )
 
         val walletBalance = mock<AccountBalance> {
             on { total }.thenReturn(CryptoValue(TEST_ASSET, 2500.toBigInteger()))
-            on { actionable }.thenReturn(CryptoValue(TEST_ASSET, 2500.toBigInteger()))
+            on { withdrawable }.thenReturn(CryptoValue(TEST_ASSET, 2500.toBigInteger()))
             on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
             on { exchangeRate }.thenReturn(currentRate)
         }
         val custodialBalance = mock<AccountBalance> {
             on { total }.thenReturn(CryptoValue.zero(TEST_ASSET))
-            on { actionable }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { withdrawable }.thenReturn(CryptoValue.zero(TEST_ASSET))
             on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
             on { exchangeRate }.thenReturn(currentRate)
         }
         val interestBalance = mock<AccountBalance> {
             on { total }.thenReturn(CryptoValue.zero(TEST_ASSET))
-            on { actionable }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { withdrawable }.thenReturn(CryptoValue.zero(TEST_ASSET))
             on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
             on { exchangeRate }.thenReturn(currentRate)
         }
 
-        val walletFiat = FiatValue.fromMinor(TEST_FIAT, 2500 * 30)
-        val custodialFiat = FiatValue.fromMinor(TEST_FIAT, 0)
-        val interestFiat = FiatValue.fromMinor(TEST_FIAT, 0)
+        val walletFiat = FiatValue.fromMinor(USD, (2500 * 30).toBigInteger())
+        val custodialFiat = FiatValue.fromMinor(USD, 0.toBigInteger())
+        val interestFiat = FiatValue.fromMinor(USD, 0.toBigInteger())
 
         val expectedResult = mapOf(
             AssetFilter.NonCustodial to AssetDisplayInfo(
@@ -145,13 +146,17 @@ class AssetDetailsInteractorTest {
     fun `cryptoBalance, fiatBalance & interestBalance are never returned if exchange rate fails`() {
         whenever(asset.getPricesWith24hDelta()).thenReturn(Single.error(Throwable()))
 
-        val walletCrypto = CryptoValue(TEST_ASSET, 548621.toBigInteger())
-        val custodialCrypto = CryptoValue.zero(TEST_ASSET)
-        val interestCrypto = CryptoValue.zero(TEST_ASSET)
+        val nonCustodialGroupBalance: AccountBalance = mock {
+            on { total }.thenReturn(CryptoValue(TEST_ASSET, 548621.toBigInteger()))
+            on { withdrawable }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
+        }
+        val custodialCrypto = AccountBalance.zero(TEST_ASSET)
+        val interestCrypto = AccountBalance.zero(TEST_ASSET)
 
-        whenever(nonCustodialGroup.accountBalance).thenReturn(Single.just(walletCrypto))
-        whenever(custodialGroup.accountBalance).thenReturn(Single.just(custodialCrypto))
-        whenever(interestGroup.accountBalance).thenReturn(Single.just(interestCrypto))
+        whenever(nonCustodialGroup.balance).thenReturn(Observable.just(nonCustodialGroupBalance))
+        whenever(custodialGroup.balance).thenReturn(Observable.just(custodialCrypto))
+        whenever(interestGroup.balance).thenReturn(Observable.just(interestCrypto))
         whenever(asset.interestRate()).thenReturn(Single.just(interestRate))
 
         subject.loadAssetDetails(asset)
@@ -161,20 +166,24 @@ class AssetDetailsInteractorTest {
 
     @Test
     fun `cryptoBalance & fiatBalance never return if interest fails`() {
-        val walletCrypto = CryptoValue(TEST_ASSET, 548621.toBigInteger())
-        val custodialCrypto = CryptoValue.zero(TEST_ASSET)
+        val nonCustodialGroupBalance: AccountBalance = mock {
+            on { total }.thenReturn(CryptoValue(TEST_ASSET, 548621.toBigInteger()))
+            on { withdrawable }.thenReturn(CryptoValue.zero(TEST_ASSET))
+            on { pending }.thenReturn(CryptoValue.zero(TEST_ASSET))
+        }
+        val custodialCrypto = AccountBalance.zero(TEST_ASSET)
 
         val prices = Prices24HrWithDelta(
-            currentRate = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 5647899.toBigDecimal()),
-            previousRate = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 564789.toBigDecimal()),
+            currentRate = ExchangeRate(5647899.toBigDecimal(), TEST_ASSET, TEST_FIAT),
+            previousRate = ExchangeRate(564789.toBigDecimal(), TEST_ASSET, TEST_FIAT),
             delta24h = 1000.0
         )
 
         whenever(asset.getPricesWith24hDelta()).thenReturn(Single.just(prices))
         whenever(asset.accountGroup(AssetFilter.Interest)).thenReturn(Maybe.error(Throwable()))
 
-        whenever(nonCustodialGroup.accountBalance).thenReturn(Single.just(walletCrypto))
-        whenever(custodialGroup.accountBalance).thenReturn(Single.just(custodialCrypto))
+        whenever(nonCustodialGroup.balance).thenReturn(Observable.just(nonCustodialGroupBalance))
+        whenever(custodialGroup.balance).thenReturn(Observable.just(custodialCrypto))
         whenever(asset.interestRate()).thenReturn(Single.just(interestRate))
 
         subject.loadAssetDetails(asset)
@@ -213,7 +222,7 @@ class AssetDetailsInteractorTest {
     }
 
     companion object {
-        private const val TEST_FIAT = "USD"
+        private val TEST_FIAT = USD
 
         private val TEST_ASSET = object : CryptoCurrency(
             displayTicker = "NOPE",

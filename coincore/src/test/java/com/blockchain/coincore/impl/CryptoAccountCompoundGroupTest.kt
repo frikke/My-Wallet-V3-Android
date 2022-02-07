@@ -18,7 +18,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
 
     @Before
     fun setup() {
-        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(Observable.just(TEST_TO_USER_RATE))
     }
 
@@ -28,7 +28,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         val accountBalance = AccountBalance(
             total = 100.testValue(),
             pending = 0.testValue(),
-            actionable = 100.testValue(),
+            withdrawable = 100.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
 
@@ -47,7 +47,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
             .assertComplete()
             .assertValue {
                 it.total == accountBalance.total &&
-                    it.actionable == accountBalance.actionable &&
+                    it.withdrawable == accountBalance.withdrawable &&
                     it.pending == accountBalance.pending &&
                     it.exchangeRate == TEST_TO_USER_RATE
             }
@@ -59,7 +59,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         val accountBalance1 = AccountBalance(
             total = 100.testValue(),
             pending = 0.testValue(),
-            actionable = 100.testValue(),
+            withdrawable = 100.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
 
@@ -70,7 +70,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         val accountBalance2 = AccountBalance(
             total = 50.testValue(),
             pending = 0.testValue(),
-            actionable = 40.testValue(),
+            withdrawable = 40.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
         val account2: CryptoAccount = mock {
@@ -89,7 +89,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
             .assertValue {
                 it.total == accountBalance1.total + accountBalance2.total &&
                     it.pending == accountBalance1.pending + accountBalance2.pending &&
-                    it.actionable == accountBalance1.actionable + accountBalance2.actionable &&
+                    it.withdrawable == accountBalance1.withdrawable + accountBalance2.withdrawable &&
                     it.exchangeRate == TEST_TO_USER_RATE
             }
     }
@@ -172,7 +172,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
     }
 
     companion object {
-        private val TEST_TO_USER_RATE = ExchangeRate.CryptoToFiat(
+        private val TEST_TO_USER_RATE = ExchangeRate(
             from = TEST_ASSET,
             to = TEST_USER_FIAT,
             rate = 1.2.toBigDecimal()

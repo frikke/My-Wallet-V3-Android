@@ -6,9 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.braintreepayments.cardform.utils.CardType
@@ -21,19 +24,16 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class AddNewCardFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentAddNewCardBinding>(), AddCardFlowFragment {
 
     override val model: CardModel by scopedInject()
 
-    private var availableCards: List<PaymentMethod.Card> = emptyList()
+    private var availableCards: List<LinkedPaymentMethod.Card> = emptyList()
     private val compositeDisposable = CompositeDisposable()
-    private val custodialWalletManager: CustodialWalletManager by scopedInject()
+    private val paymentsDataManager: PaymentsDataManager by scopedInject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAddNewCardBinding =
@@ -114,17 +114,15 @@ class AddNewCardFragment :
                 }
             }
 
-            compositeDisposable += custodialWalletManager.fetchUnawareLimitsCards(
-                listOf(
-                    CardStatus.PENDING,
-                    CardStatus.ACTIVE
-                )
+            compositeDisposable += paymentsDataManager.getLinkedCards(
+                CardStatus.PENDING,
+                CardStatus.ACTIVE
             ).subscribeBy(onSuccess = {
                 availableCards = it
             })
             cardNumber.displayCardTypeIcon(false)
         }
-        activity.updateTitleToolbar(getString(R.string.add_card_title))
+        activity.updateToolbarTitle(getString(R.string.add_card_title))
         analytics.logEvent(SimpleBuyAnalytics.ADD_CARD)
 
         setupCardInfo()

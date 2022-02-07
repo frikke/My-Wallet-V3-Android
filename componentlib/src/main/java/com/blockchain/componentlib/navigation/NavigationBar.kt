@@ -103,14 +103,14 @@ fun NavigationBar(
                 .padding(end = 24.dp)
         ) {
             endNavigationBarButtons.forEach {
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 Box(
                     modifier = Modifier
                         .clickable {
                             it.onClick.invoke()
                         }
                         .align(CenterVertically)
-                        .padding(start = 8.dp, top = 8.dp, end = 0.dp, bottom = 8.dp)
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
                 ) {
                     when (it) {
                         is NavigationBarButton.Icon -> {

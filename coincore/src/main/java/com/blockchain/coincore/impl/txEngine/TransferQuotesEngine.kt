@@ -10,7 +10,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
-import java.math.BigInteger
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
@@ -26,7 +25,7 @@ class TransferQuotesEngine(
     private val stop = PublishSubject.create<Unit>()
 
     private val amount
-        get() = BehaviorSubject.createDefault(pair.toSourceMoney(BigInteger.ZERO))
+        get() = BehaviorSubject.createDefault(Money.zero(pair.source))
 
     private val quote: Observable<TransferQuote>
         get() = quotesProvider.fetchQuote(direction = direction, pair = pair).flatMapObservable { quote ->

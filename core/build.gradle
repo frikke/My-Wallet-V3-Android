@@ -1,39 +1,14 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.novoda.build-properties'
-apply from: '../quality/ktlint.gradle'
 apply plugin: 'com.squareup.sqldelight'
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 
-buildProperties {
-    secrets {
-        using(file('../app/secrets.properties')) | file('../app/secretsDefaults.properties')
-    }
-}
+final buildProperties = new BuildProperties(
+        file('../app/secrets.properties'), file('../app/secretsDefaults.properties')
+)
 
 android {
-    compileSdkVersion Versions.compileSdk
-    buildToolsVersion Versions.buildTools
-    defaultConfig {
-        minSdkVersion Versions.minSdk
-        targetSdkVersion Versions.targetSdk
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-
     compileOptions {
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    testOptions {
-        // Always show the result of every unit test, even if it passes.
-        unitTests.all {
-            testLogging {
-                events 'skipped', 'failed', 'standardOut', 'standardError'
-            }
-            reports.junitXml.destination = file('../build/test-results/')
-        }
     }
 
     lintOptions {
@@ -45,10 +20,10 @@ android {
     buildTypes {
         release {
             consumerProguardFiles 'proguard-rules.pro'
-            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesReleaseKey'].string]
+            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesReleaseKey'].toString()]
         }
         debug {
-            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesDebugKey'].string]
+            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesDebugKey'].toString()]
         }
     }
 }
@@ -62,7 +37,6 @@ dependencies {
     implementation project(':veriff')
     implementation project(':blockchainApi')
 
-    api project(':payments')
     api project(':balance')
 
     // Networking
@@ -85,8 +59,8 @@ dependencies {
 
     // Firebase
     implementation platform(Libraries.firebaseBom)
-    implementation (Libraries.firebaseConfig) {
-        exclude group:'com.google.protobuf', module: 'protobuf-lite'
+    implementation(Libraries.firebaseConfig) {
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
 
     coreLibraryDesugaring Libraries.desugaring

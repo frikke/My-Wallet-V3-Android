@@ -3,6 +3,8 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.graphics.Color
+import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.navigation.NavigationBarView
 import piuk.blockchain.blockchain_component_library_catalog.R
@@ -15,7 +17,18 @@ class NavigationActivity : AppCompatActivity() {
 
         findViewById<NavigationBarView>(R.id.default_navigation).apply {
             title = "Activity"
-            onBackButtonClick = null
+            endNavigationBarButtons = listOf(
+                NavigationBarButton.Icon(R.drawable.ic_bottom_nav_home) {
+                    Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()
+                },
+                NavigationBarButton.Icon(R.drawable.ic_bottom_nav_activity) {
+                    Toast.makeText(this@NavigationActivity, "Second icon button clicked", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+
+        findViewById<NavigationBarView>(R.id.only_text_navigation).apply {
+            title = "Activity"
         }
 
         findViewById<NavigationBarView>(R.id.text_navigation).apply {
@@ -38,9 +51,18 @@ class NavigationActivity : AppCompatActivity() {
             endNavigationBarButtons = listOf(
                 NavigationBarButton.Icon(R.drawable.ic_bottom_nav_home) {
                     Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()
-                },
-                NavigationBarButton.Icon(R.drawable.ic_bottom_nav_activity) {
-                    Toast.makeText(this@NavigationActivity, "Second icon button clicked", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+
+        findViewById<NavigationBarView>(R.id.icon_navigation).apply {
+            title = "Activity"
+            onBackButtonClick = {
+                Toast.makeText(this@NavigationActivity, "Back button clicked", Toast.LENGTH_SHORT).show()
+            }
+            endNavigationBarButtons = listOf(
+                NavigationBarButton.Text("Done", Color(ContextCompat.getColor(context, R.color.paletteBasePrimary))) {
+                    Toast.makeText(this@NavigationActivity, "Text button clicked", Toast.LENGTH_SHORT).show()
                 }
             )
         }

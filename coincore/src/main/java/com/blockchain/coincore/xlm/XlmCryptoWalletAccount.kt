@@ -55,12 +55,12 @@ internal class XlmCryptoWalletAccount(
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
             getMinBalance(),
-            exchangeRates.cryptoToUserFiatRate(asset)
+            exchangeRates.exchangeRateToUserFiat(currency)
         ) { balanceAndMin, rate ->
             AccountBalance(
                 total = balanceAndMin.balance,
-                actionable = balanceAndMin.actionable,
-                pending = CryptoValue.zero(asset),
+                withdrawable = balanceAndMin.actionable,
+                pending = Money.zero(currency),
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
@@ -90,7 +90,7 @@ internal class XlmCryptoWalletAccount(
                     payloadDataManager
                 )
             }.flatMap {
-                appendTradeActivity(custodialWalletManager, asset, it)
+                appendTradeActivity(custodialWalletManager, currency, it)
             }.doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     override fun updateLabel(newLabel: String): Completable {

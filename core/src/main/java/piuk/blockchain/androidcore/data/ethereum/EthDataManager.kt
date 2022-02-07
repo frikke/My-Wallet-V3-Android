@@ -268,7 +268,9 @@ class EthDataManager(
                         needsSave = true
                     } catch (e: HDWalletException) {
                         // Wallet private key unavailable. First decrypt with second password.
-                        throw InvalidCredentialsException(e.message)
+                        throw InvalidCredentialsException(
+                            e.message
+                        )
                     }
                 }
 

@@ -12,6 +12,11 @@ import android.text.method.LinkMovementMethod
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
@@ -23,9 +28,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.toast
@@ -41,11 +44,8 @@ import piuk.blockchain.android.urllinks.RESET_2FA
 import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.clearErrorState
-import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setErrorState
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
@@ -100,8 +100,8 @@ class LoginAuthActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.login_title),
+        updateToolbar(
+            toolbarTitle = getString(R.string.login_title),
             backAction = { clearKeyboardAndFinish() }
         )
         initControls()
@@ -256,7 +256,7 @@ class LoginAuthActivity :
     }
 
     private fun clearKeyboardAndFinish() {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         finish()
     }
 

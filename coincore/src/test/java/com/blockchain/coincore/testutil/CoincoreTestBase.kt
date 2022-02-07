@@ -9,6 +9,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.FiatCurrency
 import org.junit.After
 import org.junit.Rule
 import org.koin.core.context.startKoin
@@ -42,13 +43,13 @@ open class CoincoreTestBase {
 
     private val mockedCrashLogger: CrashLogger = mock()
 
-    private val userFiatToUserFiat = ExchangeRate.FiatToFiat(
+    private val userFiatToUserFiat = ExchangeRate(
         from = TEST_USER_FIAT,
         to = TEST_USER_FIAT,
         rate = 1.0.toBigDecimal()
     )
 
-    private val apiFiatToUserFiat = ExchangeRate.FiatToFiat(
+    private val apiFiatToUserFiat = ExchangeRate(
         from = TEST_API_FIAT,
         to = TEST_USER_FIAT,
         rate = 2.0.toBigDecimal()
@@ -81,10 +82,10 @@ open class CoincoreTestBase {
 
     companion object {
         @JvmStatic
-        protected val TEST_USER_FIAT = "EUR"
+        protected val TEST_USER_FIAT = EUR
 
         @JvmStatic
-        protected val TEST_API_FIAT = "USD"
+        protected val TEST_API_FIAT = USD
 
         // do not modify these objects, as they're shared between tests
         val TEST_ASSET = object : CryptoCurrency(
@@ -108,3 +109,7 @@ open class CoincoreTestBase {
         ) {}
     }
 }
+
+internal val USD = FiatCurrency.fromCurrencyCode("USD")
+internal val EUR = FiatCurrency.fromCurrencyCode("EUR")
+internal val GBP = FiatCurrency.fromCurrencyCode("GBP")

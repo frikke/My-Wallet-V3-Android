@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.auth.newlogin
 
+import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
@@ -9,8 +11,6 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.serialization.decodeFromString
-import piuk.blockchain.android.ui.base.mvi.MviModel
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.pubKeyHash
 import timber.log.Timber
 

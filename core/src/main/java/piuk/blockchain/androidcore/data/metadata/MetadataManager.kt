@@ -98,7 +98,9 @@ class MetadataManager(
         loadNodes().map { loaded ->
             if (!loaded) {
                 if (payloadDataManager.isDoubleEncrypted) {
-                    throw InvalidCredentialsException("Unable to derive metadata keys, payload is double encrypted")
+                    throw InvalidCredentialsException(
+                        "Unable to derive metadata keys, payload is double encrypted"
+                    )
                 } else {
                     true
                 }

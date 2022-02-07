@@ -1,8 +1,6 @@
 package piuk.blockchain.android.ui.launcher
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -10,7 +8,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
@@ -36,7 +33,6 @@ class LoaderModelTest {
     private val interactor: LoaderInteractor = mock()
     private val appUtil: AppUtil = mock()
     private val payloadDataManager: PayloadDataManager = mock()
-    private val userIdentity: UserIdentity = mock()
     private val prerequisites: Prerequisites = mock()
     private val prefs: PersistentPrefs = mock()
     private val authPrefs: AuthPrefs = mock()
@@ -56,11 +52,9 @@ class LoaderModelTest {
             environmentConfig = mock(),
             crashLogger = mock(),
             interactor = interactor,
-            analytics = mock(),
             appUtil = appUtil,
             payloadDataManager = payloadDataManager,
             prerequisites = prerequisites,
-            userIdentity = userIdentity,
             prefs = prefs,
             authPrefs = authPrefs
         )
@@ -103,38 +97,17 @@ class LoaderModelTest {
     }
 
     @Test
-    fun `OnEmailVerificationFinished launches MainActivity with isUserEligible as false`() {
+    fun `OnEmailVerificationFinished launches MainActivity `() {
         // Arrange
-        val isUserEligible = false
-        whenever(userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(isUserEligible))
         val testState = model.state.test()
 
         model.process(LoaderIntents.OnEmailVerificationFinished)
 
         // Assert
-        verify(userIdentity).isEligibleFor(Feature.SimplifiedDueDiligence)
         testState
             .assertValues(
                 LoaderState(),
-                LoaderState(nextLoadingStep = LoadingStep.Main(null, isUserEligible))
-            )
-    }
-
-    @Test
-    fun `OnEmailVerificationFinished launches MainActivity with isUserEligible as true`() {
-        // Arrange
-        val isUserEligible = true
-        whenever(userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(isUserEligible))
-        val testState = model.state.test()
-
-        model.process(LoaderIntents.OnEmailVerificationFinished)
-
-        // Assert
-        verify(userIdentity).isEligibleFor(Feature.SimplifiedDueDiligence)
-        testState
-            .assertValues(
-                LoaderState(),
-                LoaderState(nextLoadingStep = LoadingStep.Main(null, isUserEligible))
+                LoaderState(nextLoadingStep = LoadingStep.Main(null, true))
             )
     }
 

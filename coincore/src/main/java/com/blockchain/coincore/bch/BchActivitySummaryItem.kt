@@ -27,7 +27,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
     override val description: String?
         get() = payloadDataManager.getTransactionNotes(txId)
 
-    override val fee: Observable<CryptoValue>
+    override val fee: Observable<Money>
         get() = Observable.just(CryptoValue.fromMinor(CryptoCurrency.BCH, transactionSummary.fee))
 
     override val txId: String =

@@ -7,14 +7,13 @@ import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TxSourceState
+import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.ExchangeRates
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
-import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -24,7 +23,7 @@ class LinkedBankAccount(
     val accountNumber: String,
     val accountId: String,
     val accountType: String,
-    val currency: String,
+    override val currency: FiatCurrency,
     val custodialWalletManager: CustodialWalletManager,
     val type: PaymentMethodType
 ) : FiatAccount, BankAccount {
@@ -38,32 +37,17 @@ class LinkedBankAccount(
     fun getWithdrawalFeeAndMinLimit(): Single<FiatWithdrawalFeeAndLimit> =
         custodialWalletManager.fetchFiatWithdrawFeeAndMinLimit(currency, Product.BUY, paymentMethodType = type)
 
-    override val fiatCurrency: String
-        get() = currency
-
     override val balance: Observable<AccountBalance>
-        get() = FiatValue.zero(currency).let { zero ->
+        get() = Money.zero(currency).let { zero ->
             Observable.just(
                 AccountBalance(
                     total = zero,
                     pending = zero,
-                    actionable = zero,
-                    exchangeRate = ExchangeRate.InvalidRate
+                    withdrawable = zero,
+                    exchangeRate = ExchangeRate.zeroRateExchangeRate(currency)
                 )
             )
         }
-
-    override val accountBalance: Single<Money>
-        get() = balance.map { it.total }.firstOrError()
-
-    override val actionableBalance: Single<Money>
-        get() = balance.map { it.actionable }.firstOrError()
-
-    override val pendingBalance: Single<Money>
-        get() = balance.map { it.pending }.firstOrError()
-
-    override fun fiatBalance(fiatCurrency: String, exchangeRates: ExchangeRates): Single<Money> =
-        Single.just(FiatValue.zero(fiatCurrency))
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(BankAccountAddress(accountId, label))
@@ -93,6 +77,7 @@ class LinkedBankAccount(
         get() = Single.just(IneligibilityReason.NONE)
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
+    fun isOpenBankingCurrency(): Boolean = listOf("GBP", "EUR").contains(currency.networkTicker)
 
     internal class BankAccountAddress(
         override val address: String,

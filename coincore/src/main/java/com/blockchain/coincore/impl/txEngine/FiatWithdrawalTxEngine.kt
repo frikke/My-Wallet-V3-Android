@@ -20,7 +20,6 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetCategory
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -47,14 +46,14 @@ class FiatWithdrawalTxEngine(
         check(txTarget is LinkedBankAccount)
         check(sourceAccount is FiatAccount)
         val withdrawFeeAndMinLimit = (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit().cache()
-        val zeroFiat = FiatValue.zero((sourceAccount as FiatAccount).fiatCurrency)
+        val zeroFiat = Money.zero((sourceAccount as FiatAccount).currency)
         return Single.zip(
             sourceAccount.balance.firstOrError(),
             withdrawFeeAndMinLimit,
             limitsDataManager.getLimits(
-                outputCurrency = zeroFiat.currencyCode,
-                sourceCurrency = zeroFiat.currencyCode,
-                targetCurrency = (txTarget as LinkedBankAccount).fiatCurrency,
+                outputCurrency = zeroFiat.currency,
+                sourceCurrency = zeroFiat.currency,
+                targetCurrency = (txTarget as LinkedBankAccount).currency,
                 sourceAccountType = AssetCategory.CUSTODIAL,
                 targetAccountType = AssetCategory.NON_CUSTODIAL,
                 legacyLimits = withdrawFeeAndMinLimit.map { it as LegacyLimits }
@@ -63,7 +62,7 @@ class FiatWithdrawalTxEngine(
                 PendingTx(
                     amount = zeroFiat,
                     limits = limits,
-                    availableBalance = Money.max(balance.actionable - withdrawalFee.fee, zeroFiat),
+                    availableBalance = Money.max(balance.withdrawable - withdrawalFee.fee, zeroFiat),
                     feeForFullAvailable = zeroFiat,
                     totalBalance = balance.total,
                     feeAmount = withdrawalFee.fee,

@@ -14,12 +14,14 @@ import retrofit2.http.Query
 internal interface AssetPriceApiInterface {
 
     @GET("price/symbols")
+    @DoNotLogResponseBody
     fun getAvailableSymbols(
         @Query("api_key") apiKey: String
     ): Single<AvailableSymbolsDto>
 
     // Get the current or at a specific time price index of multiple currency pairs
     @POST("price/index-multi")
+    @DoNotLogResponseBody
     fun getCurrentPrices(
         @Body pairs: List<PriceRequestPairDto>,
         @Query("api_key") apiKey: String
@@ -27,6 +29,7 @@ internal interface AssetPriceApiInterface {
 
     // Get the historic price at specific time price of multiple currency pairs
     @POST("price/index-multi")
+    @DoNotLogResponseBody
     fun getHistoricPrices(
         @Body pairs: List<PriceRequestPairDto>,
         @Query("time") time: Long,

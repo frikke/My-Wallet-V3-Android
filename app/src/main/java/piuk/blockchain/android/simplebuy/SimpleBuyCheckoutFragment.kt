@@ -15,6 +15,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
@@ -31,16 +36,11 @@ import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.databinding.PromoLayoutBinding
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setOnClickListenerDebounced
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuyCheckoutFragment :
@@ -82,8 +82,8 @@ class SimpleBuyCheckoutFragment :
     }
 
     private fun setupToolbar() {
-        activity.loadToolbar(
-            titleToolbar = if (isForPendingPayment) {
+        activity.updateToolbar(
+            toolbarTitle = if (isForPendingPayment) {
                 getString(R.string.order_details)
             } else {
                 getString(R.string.checkout)
@@ -159,6 +159,10 @@ class SimpleBuyCheckoutFragment :
                 if (newState.confirmationActionRequested) {
                     navigator().goToPaymentScreen()
                 }
+            }
+            OrderState.FAILED -> {
+                showBottomSheet(ErrorSlidingBottomDialog.newInstance(activity))
+                binding.buttonAction.isEnabled = false
             }
             OrderState.CANCELED -> {
                 if (activity is SmallSimpleBuyNavigator) {
@@ -301,6 +305,7 @@ class SimpleBuyCheckoutFragment :
                 )
                 PaymentMethodType.BANK_TRANSFER,
                 PaymentMethodType.BANK_ACCOUNT,
+                PaymentMethodType.GOOGLE_PAY,
                 PaymentMethodType.PAYMENT_CARD -> {
                     state.selectedPaymentMethodDetails?.let { details ->
                         SimpleBuyCheckoutItem.ComplexCheckoutItem(
@@ -329,6 +334,7 @@ class SimpleBuyCheckoutFragment :
 
     private fun configureButtons(state: SimpleBuyState) {
         val isOrderAwaitingFunds = state.orderState == OrderState.AWAITING_FUNDS
+        val isGooglePay = state.selectedPaymentMethod?.paymentMethodType == PaymentMethodType.GOOGLE_PAY
 
         with(binding) {
             buttonAction.apply {
@@ -360,13 +366,20 @@ class SimpleBuyCheckoutFragment :
                 visibleIf { !showOnlyOrderData }
             }
 
-            buttonAction.isEnabled = !state.isLoading
+            buttonAction.apply {
+                isEnabled = !state.isLoading && !isGooglePay
+                visibleIf { !isGooglePay }
+            }
             buttonCancel.visibleIf {
                 isOrderAwaitingFunds && state.selectedPaymentMethod?.isBank() == true
             }
             buttonCancel.setOnClickListenerDebounced {
                 analytics.logEvent(SimpleBuyAnalytics.CHECKOUT_SUMMARY_PRESS_CANCEL)
                 showBottomSheet(SimpleBuyCancelOrderBottomSheet.newInstance())
+            }
+            buttonGooglePay.apply {
+                visibleIf { isGooglePay }
+                setOnClickListener { }
             }
         }
     }

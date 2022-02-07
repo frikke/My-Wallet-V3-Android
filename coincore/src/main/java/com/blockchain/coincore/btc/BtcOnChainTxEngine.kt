@@ -22,9 +22,12 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import info.blockchain.wallet.api.data.FeeOptions
 import info.blockchain.wallet.api.dust.data.DustInput
 import info.blockchain.wallet.payload.data.XPubs
@@ -93,18 +96,21 @@ class BtcOnChainTxEngine(
         sourceAccount as BtcCryptoWalletAccount
     }
 
+    private val sourceAssetInfo: AssetInfo
+        get() = sourceAsset.asAssetInfoOrThrow()
+
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.just(
             PendingTx(
-                amount = CryptoValue.zero(sourceAsset),
-                totalBalance = CryptoValue.zero(sourceAsset),
-                availableBalance = CryptoValue.zero(sourceAsset),
-                feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                feeAmount = CryptoValue.zero(sourceAsset),
+                amount = Money.zero(sourceAsset),
+                totalBalance = Money.zero(sourceAsset),
+                availableBalance = Money.zero(sourceAsset),
+                feeForFullAvailable = Money.zero(sourceAsset),
+                feeAmount = Money.zero(sourceAsset),
                 feeSelection = FeeSelection(
-                    selectedLevel = mapSavedFeeToFeeLevel(fetchDefaultFeeLevel(sourceAsset)),
+                    selectedLevel = mapSavedFeeToFeeLevel(fetchDefaultFeeLevel(sourceAssetInfo)),
                     availableLevels = AVAILABLE_FEE_OPTIONS,
-                    asset = sourceAsset
+                    asset = sourceAssetInfo
                 ),
                 selectedFiat = userFiat
             )
@@ -112,7 +118,7 @@ class BtcOnChainTxEngine(
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         Single.zip(
-            sourceAccount.accountBalance.map { it as CryptoValue },
+            sourceAccount.balance.firstOrError().map { it.total as CryptoValue },
             getDynamicFeesPerKb(pendingTx),
             getUnspentApiResponse(btcSource.xpubs)
         ) { total, optionsAndFeesPerKb, coins ->
@@ -148,13 +154,13 @@ class BtcOnChainTxEngine(
         }
     }
 
-    private fun getDynamicFeesPerKb(pendingTx: PendingTx): Single<Pair<FeeOptions, Map<FeeLevel, CryptoValue>>> =
+    private fun getDynamicFeesPerKb(pendingTx: PendingTx): Single<Pair<FeeOptions, Map<FeeLevel, Money>>> =
         feeManager.btcFeeOptions
             .map { feeOptions ->
                 Pair(
                     feeOptions,
                     mapOf(
-                        FeeLevel.None to CryptoValue.zero(sourceAsset),
+                        FeeLevel.None to Money.zero(sourceAsset),
                         FeeLevel.Regular to feeToCrypto(feeOptions.regularFee),
                         FeeLevel.Priority to feeToCrypto(feeOptions.priorityFee),
                         FeeLevel.Custom to feeToCrypto(pendingTx.feeSelection.customAmount)
@@ -162,14 +168,14 @@ class BtcOnChainTxEngine(
                 )
             }.singleOrError()
 
-    private fun feeToCrypto(feePerKb: Long): CryptoValue =
-        CryptoValue.fromMinor(sourceAsset, (feePerKb * 1000).toBigInteger())
+    private fun feeToCrypto(feePerKb: Long): Money =
+        Money.fromMinor(sourceAsset, (feePerKb * 1000).toBigInteger())
 
     private fun updatePendingTxFromAmount(
-        amount: CryptoValue,
-        balance: CryptoValue,
+        amount: Money,
+        balance: Money,
         pendingTx: PendingTx,
-        feesPerKb: Map<FeeLevel, CryptoValue>,
+        feesPerKb: Map<FeeLevel, Money>,
         feeOptions: FeeOptions,
         coins: List<Utxo>
     ): PendingTx {
@@ -183,10 +189,10 @@ class BtcOnChainTxEngine(
         val changeOutputType = btcDataManager.getXpubFormatOutputType(btcSource.xpubs.default.derivation)
         val selectedFeeLevel = pendingTx.feeSelection.selectedLevel
 
-        val feeForLevel = feesPerKb[selectedFeeLevel] ?: CryptoValue.zero(sourceAsset)
+        val feeForLevel = feesPerKb[selectedFeeLevel] ?: Money.zero(sourceAsset)
 
         val available = sendDataManager.getMaximumAvailable(
-            asset = sourceAsset,
+            asset = sourceAssetInfo,
             targetOutputType = targetOutputType,
             unspentCoins = coins,
             feePerKb = feeForLevel
@@ -223,8 +229,8 @@ class BtcOnChainTxEngine(
         val updatedFees = feesPerKb.mapValues {
             when (it.key) {
                 FeeLevel.None -> it.value
-                FeeLevel.Regular -> CryptoValue.fromMinor(sourceAsset, coinsSelectedForRegularFee.absoluteFee)
-                FeeLevel.Priority -> CryptoValue.fromMinor(sourceAsset, coinsSelectedForPriorityFee.absoluteFee)
+                FeeLevel.Regular -> Money.fromMinor(sourceAsset, coinsSelectedForRegularFee.absoluteFee)
+                FeeLevel.Priority -> Money.fromMinor(sourceAsset, coinsSelectedForPriorityFee.absoluteFee)
                 FeeLevel.Custom -> it.value
             }
         }
@@ -234,7 +240,7 @@ class BtcOnChainTxEngine(
             totalBalance = balance,
             availableBalance = available.maxSpendable,
             feeForFullAvailable = available.feeForMax,
-            feeAmount = CryptoValue.fromMinor(sourceAsset, utxoBundle.absoluteFee),
+            feeAmount = Money.fromMinor(sourceAsset, utxoBundle.absoluteFee),
             feeSelection = pendingTx.feeSelection.copy(
                 customLevelRates = feeOptions.toLevelRates(),
                 feesForLevels = updatedFees
@@ -303,7 +309,8 @@ class BtcOnChainTxEngine(
     //  * the Tx size is over 1kB AND
     //  * the ratio of fee/amount is over 1%
     private fun isLargeTransaction(pendingTx: PendingTx): Boolean {
-        val fiatValue = pendingTx.feeAmount.toFiat(LARGE_TX_FIAT, exchangeRates)
+
+        val fiatValue = pendingTx.feeAmount.toFiat(Dollars, exchangeRates)
 
         val outputs = listOf(
             btcDataManager.getAddressOutputType(btcTarget.address),

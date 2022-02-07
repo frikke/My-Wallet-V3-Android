@@ -4,7 +4,10 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.testutil.GBP
+import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -29,6 +32,7 @@ class FiatAssetTransferTest {
     private val exchangeRateDataManager: ExchangeRatesDataManager = mock()
     private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
+    private val paymentsDataManager: PaymentsDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
 
     private val subject = FiatAsset(
@@ -36,6 +40,7 @@ class FiatAssetTransferTest {
         exchangeRateDataManager,
         tradingBalanceDataManager,
         custodialWalletManager,
+        paymentsDataManager,
         currencyPrefs
     )
 
@@ -90,7 +95,7 @@ class FiatAssetTransferTest {
 
     companion object {
         private const val DEFAULT_LABEL = "label"
-        private const val SELECTED_FIAT = "USD"
-        private val FIAT_ACCOUNT_LIST = listOf("USD", "GBP")
+        private val SELECTED_FIAT = USD
+        private val FIAT_ACCOUNT_LIST = listOf(USD, GBP)
     }
 }

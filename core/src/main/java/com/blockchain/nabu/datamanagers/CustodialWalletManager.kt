@@ -1,32 +1,29 @@
 package com.blockchain.nabu.datamanagers
 
-import android.annotation.SuppressLint
+import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
+import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
+import com.blockchain.core.payments.model.Partner
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.nabu.models.data.BankTransferDetails
-import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
-import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.nabu.models.responses.banktransfer.ProviderAccountAttrs
 import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
 import com.blockchain.nabu.models.responses.interest.InterestAttributes
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -34,7 +31,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
-import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Date
 import java.util.Locale
@@ -63,12 +59,12 @@ enum class OrderState {
 }
 
 interface CustodialWalletManager {
-    fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair.CryptoToFiatCurrencyPair>>
+    fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair>>
 
-    fun getSupportedFiatCurrencies(): Single<List<String>>
+    fun getSupportedFiatCurrencies(): Single<List<FiatCurrency>>
 
     fun fetchFiatWithdrawFeeAndMinLimit(
-        asset: String,
+        fiatCurrency: FiatCurrency,
         product: Product,
         paymentMethodType: PaymentMethodType
     ): Single<FiatWithdrawalFeeAndLimit>
@@ -80,7 +76,7 @@ interface CustodialWalletManager {
 
     fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: String
+        fiatCurrency: FiatCurrency
     ): Single<BigInteger>
 
     fun createOrder(
@@ -97,30 +93,26 @@ interface CustodialWalletManager {
         bankId: String
     ): Completable
 
-    fun getPredefinedAmounts(
-        currency: String
-    ): Single<List<FiatValue>>
-
     fun getCustodialFiatTransactions(
-        currency: String,
+        fiatCurrency: FiatCurrency,
         product: Product,
         type: String? = null
     ): Single<List<FiatTransaction>>
 
     fun getCustodialCryptoTransactions(
-        currency: String,
+        asset: AssetInfo,
         product: Product,
         type: String? = null
     ): Single<List<CryptoTransaction>>
 
     fun getBankAccountDetails(
-        currency: String
+        currency: FiatCurrency
     ): Single<BankAccount>
 
-    fun getCustodialAccountAddress(asset: AssetInfo): Single<String>
+    fun getCustodialAccountAddress(asset: Currency): Single<String>
 
     fun isCurrencySupportedForSimpleBuy(
-        fiatCurrency: String
+        fiatCurrency: FiatCurrency
     ): Single<Boolean>
 
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
@@ -135,57 +127,17 @@ interface CustodialWalletManager {
 
     fun deleteBuyOrder(orderId: String): Completable
 
-    fun deleteCard(cardId: String): Completable
-
-    fun removeBank(bank: Bank): Completable
-
     fun transferFundsToWallet(amount: CryptoValue, walletAddress: String): Single<String>
 
     // For test/dev
     fun cancelAllPendingOrders(): Completable
 
-    fun updateSupportedCardTypes(fiatCurrency: String): Completable
-
-    fun linkToABank(fiatCurrency: String): Single<LinkBankTransfer>
-
-    fun updateSelectedBankAccount(
-        linkingId: String,
-        providerAccountId: String = "",
-        accountId: String = "",
-        attributes: ProviderAccountAttrs
-    ): Completable
-
-    fun fetchSuggestedPaymentMethod(
-        fiatCurrency: String,
-        fetchSddLimits: Boolean,
-        onlyEligible: Boolean
-    ): Single<List<PaymentMethod>>
-
-    fun getEligiblePaymentMethodTypes(
-        fiatCurrency: String
-    ): Single<List<EligiblePaymentMethodType>>
-
-    // Returns a map of PaymentCardAcquirers where the keys are the PaymentCardAcquirer.cardAcquirerAccountCode
-    fun getCardAcquirers(): Single<Map<String, PaymentCardAcquirer>>
+    fun getCardAcquirers(): Single<List<PaymentCardAcquirer>>
 
     fun getBankTransferLimits(
-        fiatCurrency: String,
+        fiatCurrency: FiatCurrency,
         onlyEligible: Boolean
     ): Single<PaymentLimits>
-
-    fun addNewCard(
-        fiatCurrency: String,
-        billingAddress: BillingAddress,
-        paymentMethodTokens: Map<String, String>? = null
-    ): Single<CardToBeActivated>
-
-    fun activateCard(cardId: String, attributes: SimpleBuyConfirmationAttributes): Single<PartnerCredentials>
-
-    fun getCardDetails(cardId: String): Single<PaymentMethod.Card>
-
-    fun fetchUnawareLimitsCards(
-        states: List<CardStatus>
-    ): Single<List<PaymentMethod.Card>> // fetches the available
 
     fun confirmOrder(
         orderId: String,
@@ -210,9 +162,7 @@ interface CustodialWalletManager {
 
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
-    fun getSupportedFundsFiats(fiatCurrency: String = defaultFiatCurrency): Single<List<String>>
-
-    fun canTransactWithBankMethods(fiatCurrency: String): Single<Boolean>
+    fun getSupportedFundsFiats(fiatCurrency: FiatCurrency = defaultFiatCurrency): Single<List<FiatCurrency>>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
@@ -237,7 +187,7 @@ interface CustodialWalletManager {
     ): Completable
 
     fun getProductTransferLimits(
-        currency: String,
+        currency: FiatCurrency,
         product: Product,
         orderDirection: TransferDirection? = null
     ): Single<TransferLimits>
@@ -254,23 +204,11 @@ interface CustodialWalletManager {
         success: Boolean
     ): Completable
 
-    fun getLinkedBank(
-        id: String
-    ): Single<LinkedBank>
-
-    fun getBanks(): Single<List<Bank>>
-
     fun isFiatCurrencySupported(destination: String): Boolean
-
-    fun startBankTransfer(id: String, amount: Money, currency: String, callback: String? = null): Single<String>
-
-    fun getBankTransferCharge(paymentId: String): Single<BankTransferDetails>
 
     fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable
 
-    fun updateOpenBankingConsent(url: String, token: String): Completable
-
-    val defaultFiatCurrency: String
+    val defaultFiatCurrency: FiatCurrency
 
     fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>>
 
@@ -343,6 +281,16 @@ data class PaymentAttributes(
     }
 }
 
+enum class CardPaymentState {
+    INITIAL, // Should never happen. It means a case was forgotten by backend
+    WAITING_FOR_3DS, // We have to display a 3DS verification popup
+    CONFIRMED_3DS, // 3DS valid
+    SETTLED, // Ready for capture, no need for 3DS
+    VOIDED, // Payment voided
+    ABANDONED, // Payment abandoned
+    FAILED // Payment failed
+}
+
 sealed class CardAttributes {
 
     object Empty : CardAttributes()
@@ -352,34 +300,30 @@ sealed class CardAttributes {
         val cardAcquirerName: String,
         val cardAcquirerAccountCode: String,
         val paymentLink: String,
-        val paymentState: String,
+        val paymentState: CardPaymentState,
         val clientSecret: String,
         val publishableApiKey: String
     ) : CardAttributes()
 
     data class EveryPay(
         val paymentLink: String,
-        val paymentState: String
-    ) : CardAttributes() {
-        companion object {
-            const val WAITING_3DS = "WAITING_FOR_3DS_RESPONSE"
-        }
-    }
+        val paymentState: CardPaymentState
+    ) : CardAttributes()
 }
 
 data class BuySellOrder(
     val id: String,
     val pair: String,
-    val fiat: FiatValue,
-    val crypto: CryptoValue,
+    val source: Money,
+    val target: Money,
     val paymentMethodId: String,
     val paymentMethodType: PaymentMethodType,
     val state: OrderState = OrderState.UNINITIALISED,
     val expires: Date = Date(),
     val updated: Date = Date(),
     val created: Date = Date(),
-    val fee: FiatValue? = null,
-    val price: FiatValue? = null,
+    val fee: Money? = null,
+    val price: Money? = null,
     val orderValue: Money? = null,
     val attributes: PaymentAttributes? = null,
     val type: OrderType,
@@ -390,10 +334,15 @@ data class BuySellOrder(
 )
 
 enum class ApprovalErrorStatus {
+    INVALID,
     FAILED,
-    REJECTED,
     DECLINED,
+    REJECTED,
     EXPIRED,
+    LIMITED_EXCEEDED,
+    ACCOUNT_INVALID,
+    FAILED_INTERNAL,
+    INSUFFICIENT_FUNDS,
     UNKNOWN,
     NONE
 }
@@ -403,30 +352,6 @@ typealias BuyOrderList = List<BuySellOrder>
 data class OrderInput(private val symbol: String, private val amount: String? = null)
 
 data class OrderOutput(private val symbol: String, private val amount: String? = null)
-
-data class Bank(
-    val id: String,
-    val name: String,
-    val account: String,
-    val state: BankState,
-    val currency: String,
-    val accountType: String,
-    val paymentMethodType: PaymentMethodType,
-    val iconUrl: String
-) : Serializable {
-
-    @SuppressLint("DefaultLocale") // Yes, lint is broken
-    fun toHumanReadableAccount(): String {
-        return accountType.toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
-    }
-}
-
-enum class BankState {
-    PENDING,
-    BLOCKED,
-    ACTIVE,
-    UNKNOWN
-}
 
 data class FiatTransaction(
     val amount: FiatValue,
@@ -446,7 +371,7 @@ data class CryptoTransaction(
     val receivingAddress: String,
     val fee: Money,
     val txHash: String,
-    val currency: String,
+    val currency: FiatCurrency,
     val paymentId: String?
 )
 
@@ -507,17 +432,15 @@ enum class CustodialOrderState {
 }
 
 data class BuySellPair(
-    val cryptoCurrency: AssetInfo,
-    val fiatCurrency: String,
+    val cryptoCurrency: Currency,
+    val fiatCurrency: Currency,
     val buyLimits: BuySellLimits,
     val sellLimits: BuySellLimits
 )
 
-data class BuySellPairs(val pairs: List<BuySellPair>)
-
-data class BuySellLimits(private val min: Long, private val max: Long) {
-    fun minLimit(currency: String): FiatValue = FiatValue.fromMinor(currency, min)
-    fun maxLimit(currency: String): FiatValue = FiatValue.fromMinor(currency, max)
+data class BuySellLimits(private val min: BigInteger, private val max: BigInteger) {
+    fun minLimit(currency: Currency): Money = Money.fromMinor(currency, min)
+    fun maxLimit(currency: Currency): Money = Money.fromMinor(currency, max)
 }
 
 enum class TransferDirection {
@@ -533,7 +456,7 @@ data class BankDetail(val title: String, val value: String, val isCopyable: Bool
 
 data class PaymentCardAcquirer(
     val cardAcquirerName: String,
-    val cardAcquirerAccountCode: String,
+    val cardAcquirerAccountCodes: List<String>,
     val apiKey: String
 )
 
@@ -582,6 +505,25 @@ sealed class PaymentMethod(
     val availableBalance: Money?
         get() = (this as? Funds)?.balance
 
+    data class GooglePay(
+        override val limits: PaymentLimits,
+        override val isEligible: Boolean
+    ) : PaymentMethod(
+        GOOGLE_PAY_PAYMENT_ID,
+        PaymentMethodType.PAYMENT_CARD,
+        limits,
+        GOOGLE_PAY_PAYMENT_METHOD_ORDER,
+        isEligible
+    ) {
+        private val label = "Google Pay"
+
+        override fun detailedLabel() = label
+
+        override fun methodName() = label
+
+        override fun methodDetails() = label
+    }
+
     data class UndefinedCard(
         override val limits: PaymentLimits,
         override val isEligible: Boolean
@@ -592,14 +534,14 @@ sealed class PaymentMethod(
         UndefinedPaymentMethod
 
     data class Funds(
-        val balance: FiatValue,
-        val fiatCurrency: String,
+        val balance: Money,
+        val fiatCurrency: FiatCurrency,
         override val limits: PaymentLimits,
         override val isEligible: Boolean
     ) : PaymentMethod(FUNDS_PAYMENT_ID, PaymentMethodType.FUNDS, limits, FUNDS_PAYMENT_METHOD_ORDER, isEligible)
 
     data class UndefinedBankAccount(
-        val fiatCurrency: String,
+        val fiatCurrency: FiatCurrency,
         override val limits: PaymentLimits,
         override val isEligible: Boolean
     ) :
@@ -611,7 +553,7 @@ sealed class PaymentMethod(
             get() = currenciesRequiringAvailabilityLabel.contains(fiatCurrency)
 
         companion object {
-            private val currenciesRequiringAvailabilityLabel = listOf("USD")
+            private val currenciesRequiringAvailabilityLabel = listOf(FiatCurrency.Dollars)
         }
     }
 
@@ -697,11 +639,11 @@ sealed class PaymentMethod(
             get() = PaymentMethodType.PAYMENT_CARD
     }
 
-    fun canUsedForPaying(): Boolean =
-        this is Card || this is Funds || this is Bank
+    fun canBeUsedForPaying(): Boolean =
+        this is Card || this is Funds || this is Bank || this is GooglePay
 
     fun canBeAdded(): Boolean =
-        this is UndefinedBankTransfer || this is UndefinedBankAccount || this is UndefinedCard
+        this is UndefinedPaymentMethod || this is GooglePay
 
     open fun detailedLabel(): String = ""
 
@@ -710,6 +652,7 @@ sealed class PaymentMethod(
     open fun methodDetails(): String = ""
 
     companion object {
+        const val GOOGLE_PAY_PAYMENT_ID = "GOOGLE_PAY_PAYMENT_ID"
         const val UNDEFINED_CARD_PAYMENT_ID = "UNDEFINED_CARD_PAYMENT_ID"
         const val FUNDS_PAYMENT_ID = "FUNDS_PAYMENT_ID"
         const val UNDEFINED_BANK_ACCOUNT_ID = "UNDEFINED_BANK_ACCOUNT_ID"
@@ -719,17 +662,20 @@ sealed class PaymentMethod(
         private const val CARD_PAYMENT_METHOD_ORDER = 1
         private const val BANK_PAYMENT_METHOD_ORDER = 2
         private const val UNDEFINED_CARD_PAYMENT_METHOD_ORDER = 3
-        private const val UNDEFINED_BANK_TRANSFER_METHOD_ORDER = 4
-        private const val UNDEFINED_BANK_ACCOUNT_METHOD_ORDER = 5
+        private const val GOOGLE_PAY_PAYMENT_METHOD_ORDER = 4
+        private const val UNDEFINED_BANK_TRANSFER_METHOD_ORDER = 5
+        private const val UNDEFINED_BANK_ACCOUNT_METHOD_ORDER = 6
     }
 }
 
 interface UndefinedPaymentMethod
 
-data class PaymentLimits(override val min: FiatValue, override val max: FiatValue) : Serializable, LegacyLimits {
-    constructor(min: Long, max: Long, currency: String) : this(
-        FiatValue.fromMinor(currency, min),
-        FiatValue.fromMinor(currency, max)
+data class PaymentLimits internal constructor(override val min: Money, override val max: Money) :
+    Serializable,
+    LegacyLimits {
+    constructor(min: BigInteger, max: BigInteger, currency: Currency) : this(
+        Money.fromMinor(currency, min),
+        Money.fromMinor(currency, max)
     )
 }
 
@@ -750,40 +696,6 @@ data class BillingAddress(
     val state: String?
 )
 
-data class CardToBeActivated(val partner: Partner, val cardId: String)
-
-sealed class PartnerCredentials {
-    object Unknown : PartnerCredentials()
-    data class EverypayPartner(val everyPay: EveryPayCredentials) : PartnerCredentials()
-    data class CardProviderPartner(val cardProvider: CardProvider) : PartnerCredentials()
-}
-
-data class EveryPayCredentials(
-    val apiUsername: String,
-    val mobileToken: String,
-    val paymentLink: String
-)
-
-// Very similar to CardAttributes.Provider, used for card activation
-data class CardProvider(
-    val cardAcquirerName: String,
-    val cardAcquirerAccountCode: String,
-    val apiUserID: String,
-    val apiToken: String,
-    val paymentLink: String,
-    val paymentState: String,
-    val paymentReference: String,
-    val orderReference: String,
-    val clientSecret: String,
-    val publishableApiKey: String
-)
-
-enum class Partner {
-    EVERYPAY, // The old flow with EveryPay
-    CARDPROVIDER, // The new flow for CardAcquirers, which can be Checkout, Stripe and EveryPay
-    UNKNOWN
-}
-
 data class TransferQuote(
     val id: String = "",
     val prices: List<PriceTier> = emptyList(),
@@ -794,63 +706,20 @@ data class TransferQuote(
     val sampleDepositAddress: String
 )
 
-sealed class CurrencyPair(val rawValue: String) {
-    data class CryptoCurrencyPair(val source: AssetInfo, val destination: AssetInfo) :
-        CurrencyPair("${source.networkTicker}-${destination.networkTicker}")
+data class CurrencyPair(val source: Currency, val destination: Currency) {
 
-    data class CryptoToFiatCurrencyPair(val source: AssetInfo, val destination: String) :
-        CurrencyPair("${source.networkTicker}-$destination")
-
-    data class FiatToCryptoCurrencyPair(val source: String, val destination: AssetInfo) :
-        CurrencyPair("$source-${destination.networkTicker}")
-
-    fun toSourceMoney(value: BigInteger): Money =
-        when (this) {
-            is CryptoCurrencyPair -> CryptoValue.fromMinor(source, value)
-            is CryptoToFiatCurrencyPair -> CryptoValue.fromMinor(source, value)
-            is FiatToCryptoCurrencyPair -> FiatValue.fromMinor(source, value.toLong())
-        }
-
-    fun toDestinationMoney(value: BigInteger): Money =
-        when (this) {
-            is CryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
-            is CryptoToFiatCurrencyPair -> FiatValue.fromMinor(destination, value.toLong())
-            is FiatToCryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
-        }
-
-    fun toDestinationMoney(value: BigDecimal): Money =
-        when (this) {
-            is CryptoCurrencyPair -> CryptoValue.fromMajor(destination, value)
-            is CryptoToFiatCurrencyPair -> FiatValue.fromMajor(destination, value)
-            is FiatToCryptoCurrencyPair -> CryptoValue.fromMinor(destination, value)
-        }
-
-    fun sourceCurrencyCode(): String = when (this) {
-        is CryptoCurrencyPair -> source.networkTicker
-        is CryptoToFiatCurrencyPair -> source.networkTicker
-        is FiatToCryptoCurrencyPair -> source
-    }
-
-    fun destinationCurrencyCode(): String = when (this) {
-        is CryptoCurrencyPair -> destination.networkTicker
-        is CryptoToFiatCurrencyPair -> destination
-        is FiatToCryptoCurrencyPair -> destination.networkTicker
-    }
+    val rawValue: String
+        get() = listOf(source.networkTicker, destination.networkTicker).joinToString("-")
 
     companion object {
         fun fromRawPair(
             rawValue: String,
-            assetCatalogue: AssetCatalogue,
-            supportedFiatCurrencies: List<String> = LiveCustodialWalletManager.SUPPORTED_FUNDS_CURRENCIES
+            assetCatalogue: AssetCatalogue
         ): CurrencyPair? {
             val parts = rawValue.split("-")
-            val source: AssetInfo = assetCatalogue.fromNetworkTicker(parts[0]) ?: return null
-            val destinationCryptoCurrency: AssetInfo? = assetCatalogue.fromNetworkTicker(parts[1])
-            if (destinationCryptoCurrency != null)
-                return CryptoCurrencyPair(source, destinationCryptoCurrency)
-            if (supportedFiatCurrencies.contains(parts[1]))
-                return CryptoToFiatCurrencyPair(source, parts[1])
-            return null
+            val source: Currency = assetCatalogue.fromNetworkTicker(parts[0]) ?: return null
+            val destination: Currency = assetCatalogue.fromNetworkTicker(parts[1]) ?: return null
+            return CurrencyPair(source, destination)
         }
     }
 }
@@ -861,14 +730,14 @@ data class PriceTier(
 )
 
 data class TransferLimits(
-    val minLimit: FiatValue,
-    val maxOrder: FiatValue,
-    val maxLimit: FiatValue
+    val minLimit: Money,
+    val maxOrder: Money,
+    val maxLimit: Money
 ) : LegacyLimits {
-    constructor(currency: String) : this(
-        minLimit = FiatValue.zero(currency),
-        maxOrder = FiatValue.zero(currency),
-        maxLimit = FiatValue.zero(currency)
+    constructor(currency: Currency) : this(
+        minLimit = Money.zero(currency),
+        maxOrder = Money.zero(currency),
+        maxLimit = Money.zero(currency)
     )
 
     override val min: Money
@@ -884,11 +753,6 @@ data class CustodialOrder(
     val createdAt: Date,
     val inputMoney: Money,
     val outputMoney: Money
-)
-
-data class EligiblePaymentMethodType(
-    val paymentMethodType: PaymentMethodType,
-    val currency: String
 )
 
 data class SimplifiedDueDiligenceUserState(

@@ -106,7 +106,9 @@ class WalletAuthService(private val walletApi: WalletApi) {
         walletApi.validateAccess(key, pin)
             .doOnError {
                 if (it.message?.contains("Incorrect PIN") == true) {
-                    throw InvalidCredentialsException("Incorrect PIN")
+                    throw InvalidCredentialsException(
+                        "Incorrect PIN"
+                    )
                 }
             }
 

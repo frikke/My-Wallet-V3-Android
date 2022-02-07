@@ -25,23 +25,13 @@
                 android:id="@+id/account_select_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/grey_900"
+                android:layout_marginStart="@dimen/tiny_margin"
+                android:layout_marginEnd="@dimen/tiny_margin"
+                android:layout_marginBottom="@dimen/tiny_margin"
+                android:background="@color/white"
+                android:paddingBottom="@dimen/tiny_margin"
                 android:visibility="invisible"
                 tools:visibility="visible">
-
-                <View
-                    android:id="@+id/account_select_filter"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/size_massive"
-                    android:layout_marginStart="@dimen/tiny_margin"
-                    android:layout_marginEnd="@dimen/tiny_margin"
-                    android:layout_marginBottom="@dimen/tiny_margin"
-                    android:background="@drawable/bkgd_button_blue_menu_select"
-                    android:paddingBottom="@dimen/tiny_margin"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/account_icon"
@@ -77,7 +67,6 @@
                     android:ellipsize="middle"
                     android:gravity="center_vertical"
                     android:singleLine="true"
-                    android:textColor="@color/white"
                     app:layout_constraintEnd_toStartOf="@id/show_accounts"
                     app:layout_constraintStart_toEndOf="@id/account_icon"
                     app:layout_constraintTop_toTopOf="parent"
@@ -89,7 +78,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:textColor="@color/white"
                     app:layout_constraintEnd_toStartOf="@id/show_accounts"
                     app:layout_constraintStart_toStartOf="@+id/account_name"
                     app:layout_constraintTop_toBottomOf="@+id/account_name"
@@ -101,6 +89,7 @@
                     android:layout_height="@dimen/size_medium"
                     android:layout_marginEnd="22dp"
                     android:importantForAccessibility="no"
+                    android:tint="@color/grey_600"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"

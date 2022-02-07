@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.blockchain.componentlib.sheets.SheetHeaderView
+        android:id="@+id/sheet_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/biometrics_icon"
+        android:layout_width="@dimen/xhuge_margin"
+        android:layout_height="@dimen/xhuge_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sheet_header"
+        app:srcCompat="@drawable/vector_fingerprint"
+        app:tint="@color/primary_blue_accent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/biometrics_blurb"
+        style="@style/Text.Light.16"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/biometrics_icon"
+        tools:text="Enable or add biometrics blurbs" />
+
+    <com.blockchain.componentlib.button.PrimaryButtonView
+        android:id="@+id/positive_cta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constraintTop_toBottomOf="@id/biometrics_blurb"
+        tools:text="@string/code_verification_verify_code" />
+
+    <com.blockchain.componentlib.button.MinimalButtonView
+        android:id="@+id/negative_cta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:paddingBottom="@dimen/standard_margin"
+        app:layout_constraintTop_toBottomOf="@id/positive_cta" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

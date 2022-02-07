@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dapp_wants_to_connect" />
+    <string name="dapp_is_now_approved" />
+    <string name="dapp_is_now_rejected" />
+    <string name="go_back_to_your_browser" />
+</resources>

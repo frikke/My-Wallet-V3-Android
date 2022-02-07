@@ -2,31 +2,32 @@ package com.blockchain.componentlib.controls
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class TextInputView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var value by mutableStateOf("")
     var onValueChange by mutableStateOf({ _: String -> })
-    var isInputEnabled by mutableStateOf(true)
-    var isError by mutableStateOf(false)
-    var assistiveText by mutableStateOf("")
-    var errorText by mutableStateOf("")
+    var state: TextInputState by mutableStateOf(TextInputState.Default())
     var labelText by mutableStateOf("")
     var placeholderText by mutableStateOf("")
     var trailingIconResource: ImageResource by mutableStateOf(ImageResource.None)
     var leadingIconResource: ImageResource by mutableStateOf(ImageResource.None)
+    var singleLine by mutableStateOf(false)
+    var inputType by mutableStateOf(KeyboardType.Text)
 
     @Composable
     override fun Content() {
@@ -35,16 +36,25 @@ class TextInputView @JvmOverloads constructor(
                 TextInput(
                     value = value,
                     onValueChange = onValueChange,
-                    enabled = isInputEnabled,
-                    assistiveText = assistiveText,
+                    state = state,
                     placeholder = placeholderText,
                     label = labelText,
-                    errorMessage = errorText,
-                    isError = isError,
                     trailingIcon = trailingIconResource,
-                    leadingIcon = leadingIconResource
+                    leadingIcon = leadingIconResource,
+                    singleLine = singleLine,
+                    keyboardOptions = KeyboardOptions(keyboardType = inputType)
                 )
             }
         }
+    }
+
+    fun clearState() {
+        value = ""
+        onValueChange = { _: String -> }
+        state = TextInputState.Default()
+        labelText = ""
+        placeholderText = ""
+        trailingIconResource = ImageResource.None
+        leadingIconResource = ImageResource.None
     }
 }

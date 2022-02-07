@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.addresses.adapter
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import kotlin.properties.Delegates
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
@@ -19,8 +18,7 @@ sealed class AccountListItem {
 }
 
 class AccountAdapter(
-    listener: Listener,
-    features: InternalFeatureFlagApi
+    listener: Listener
 ) : DelegationAdapter<AccountListItem>(AdapterDelegatesManager(), emptyList()) {
 
     interface Listener {
@@ -31,7 +29,7 @@ class AccountAdapter(
 
     init {
         delegatesManager.apply {
-            addAdapterDelegate(InternalAccountsHeaderDelegate(listener, features))
+            addAdapterDelegate(InternalAccountsHeaderDelegate(listener))
             addAdapterDelegate(ImportedAccountsHeaderDelegate(listener))
             addAdapterDelegate(AccountDelegate(listener))
         }

@@ -8,6 +8,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.testutils.EUR
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
@@ -34,6 +35,7 @@ class SimpleBuySyncFactoryTest {
 
     private val subject = SimpleBuySyncFactory(
         custodialWallet = remoteState,
+        paymentsDataManager = mock(),
         serializer = serializer
     )
 
@@ -61,8 +63,8 @@ class SimpleBuySyncFactoryTest {
     fun `there is a local buy, in a pre-confirmed state, and no other buys in progress`() {
 
         val localInput = SimpleBuyState(
-            amount = FiatValue.fromMinor("EUR", 1000),
-            fiatCurrency = "EUR",
+            amount = FiatValue.fromMinor(EUR, 1000.toBigInteger()),
+            fiatCurrency = EUR,
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.INITIALISED,
             kycVerificationState = null,
@@ -105,8 +107,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.AWAITING_FUNDS,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = Date(),
@@ -138,8 +140,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.PENDING_EXECUTION,
             expires = Date(),
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
@@ -172,12 +174,12 @@ class SimpleBuySyncFactoryTest {
         val remoteInput1 = BuySellOrder(
             id = ORDER_ID_2,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             state = OrderState.AWAITING_FUNDS,
             expires = MIDDLE_ORDER_DATE,
-            fee = FiatValue.zero("EUR"),
+            fee = FiatValue.zero(EUR),
             paymentMethodType = PaymentMethodType.FUNDS,
             type = OrderType.BUY,
             depositPaymentId = ""
@@ -186,8 +188,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput2 = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.AWAITING_FUNDS,
             expires = LAST_ORDER_DATE,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
@@ -199,8 +201,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput3 = BuySellOrder(
             id = ORDER_ID_3,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.AWAITING_FUNDS,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = EARLY_ORDER_DATE,
@@ -238,8 +240,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput1 = BuySellOrder(
             id = ORDER_ID_1,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.CANCELED,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = MIDDLE_ORDER_DATE,
@@ -251,8 +253,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput2 = BuySellOrder(
             id = ORDER_ID_2,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.PENDING_EXECUTION,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = LAST_ORDER_DATE,
@@ -264,8 +266,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput3 = BuySellOrder(
             id = ORDER_ID_3,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.FINISHED,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = EARLY_ORDER_DATE,
@@ -277,12 +279,12 @@ class SimpleBuySyncFactoryTest {
         val remoteInput4 = BuySellOrder(
             id = ORDER_ID_4,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             paymentMethodId = "123-123",
             state = OrderState.FAILED,
             expires = EARLY_ORDER_DATE,
-            fee = FiatValue.zero("EUR"),
+            fee = FiatValue.zero(EUR),
             paymentMethodType = PaymentMethodType.FUNDS,
             type = OrderType.BUY,
             depositPaymentId = ""
@@ -316,8 +318,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput1 = BuySellOrder(
             id = ORDER_ID_2,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.PENDING_EXECUTION,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = MIDDLE_ORDER_DATE,
@@ -329,8 +331,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput2 = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.PENDING_EXECUTION,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = EARLY_ORDER_DATE,
@@ -342,8 +344,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput3 = BuySellOrder(
             id = ORDER_ID_2,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.AWAITING_FUNDS,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = EARLY_ORDER_DATE,
@@ -355,8 +357,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput4 = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.PENDING_CONFIRMATION,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = LAST_ORDER_DATE,
@@ -395,8 +397,8 @@ class SimpleBuySyncFactoryTest {
 
         val localInput = SimpleBuyState(
             id = EXPECTED_ORDER_ID,
-            amount = FiatValue.fromMinor("EUR", 10000),
-            fiatCurrency = "EUR",
+            amount = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            fiatCurrency = EUR,
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.AWAITING_FUNDS,
             kycVerificationState = null,
@@ -406,8 +408,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.FINISHED,
             paymentMethodId = "123-123",
             expires = LAST_ORDER_DATE,
@@ -443,8 +445,8 @@ class SimpleBuySyncFactoryTest {
 
         val localInput = SimpleBuyState(
             id = EXPECTED_ORDER_ID,
-            amount = FiatValue.fromMinor("EUR", 10000),
-            fiatCurrency = "EUR",
+            amount = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            fiatCurrency = EUR,
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.AWAITING_FUNDS,
             kycVerificationState = null,
@@ -454,8 +456,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.PENDING_EXECUTION,
             paymentMethodId = "123-123",
             expires = LAST_ORDER_DATE,
@@ -491,8 +493,8 @@ class SimpleBuySyncFactoryTest {
 
         val localInput = SimpleBuyState(
             id = EXPECTED_ORDER_ID,
-            amount = FiatValue.fromMinor("EUR", 10000),
-            fiatCurrency = "EUR",
+            amount = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            fiatCurrency = EUR,
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.PENDING_CONFIRMATION,
             kycVerificationState = null,
@@ -502,8 +504,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.AWAITING_FUNDS,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = LAST_ORDER_DATE,
@@ -539,8 +541,8 @@ class SimpleBuySyncFactoryTest {
         // We should use the remote
 
         val localInput = SimpleBuyState(
-            amount = FiatValue.fromMinor("EUR", 10000),
-            fiatCurrency = "EUR",
+            amount = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            fiatCurrency = EUR,
             selectedCryptoAsset = CryptoCurrency.BTC,
             orderState = OrderState.INITIALISED,
             kycVerificationState = null,
@@ -550,8 +552,8 @@ class SimpleBuySyncFactoryTest {
         val remoteInput = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
-            fiat = FiatValue.fromMinor("EUR", 10000),
-            crypto = CryptoValue.zero(CryptoCurrency.BTC),
+            source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+            target = CryptoValue.zero(CryptoCurrency.BTC),
             state = OrderState.AWAITING_FUNDS,
             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
             expires = MIDDLE_ORDER_DATE,

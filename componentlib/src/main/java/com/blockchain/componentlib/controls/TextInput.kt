@@ -8,18 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,28 +24,28 @@ import com.blockchain.componentlib.image.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
-import com.blockchain.componentlib.theme.Dark400
 import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.theme.Dark700
-import com.blockchain.componentlib.theme.Grey100
-import com.blockchain.componentlib.theme.Grey300
-import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey600
+
+sealed class TextInputState(val message: String? = null) {
+    data class Default(val defaultMessage: String? = null) : TextInputState(defaultMessage)
+    data class Success(val successMessage: String? = null) : TextInputState(successMessage)
+    data class Error(val errorMessage: String? = null) : TextInputState(errorMessage)
+    data class Disabled(val disabledMessage: String? = null) : TextInputState(disabledMessage)
+}
 
 @Composable
 fun TextInput(
     value: String,
     onValueChange: (String) -> Unit,
-    enabled: Boolean = true,
     readOnly: Boolean = false,
-    textStyle: TextStyle = LocalTextStyle.current,
+    state: TextInputState = TextInputState.Default(""),
     label: String? = null,
     placeholder: String? = null,
-    assistiveText: String? = null,
     leadingIcon: ImageResource = ImageResource.None,
     trailingIcon: ImageResource = ImageResource.None,
-    isError: Boolean = false,
-    errorMessage: String? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions(),
@@ -59,54 +55,54 @@ fun TextInput(
     onTrailingIconClicked: () -> Unit = {}
 ) {
 
-    val unfocusedColor = if (isError) {
-        AppTheme.colors.error
-    } else {
-        if (!isSystemInDarkTheme()) {
-            Grey300
+    val enabled = state !is TextInputState.Disabled
+
+    val assistiveTextColor = when (state) {
+        is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
+            Grey600
+        } else {
+            Color.White
+        }
+        is TextInputState.Error -> AppTheme.colors.error
+        is TextInputState.Success -> AppTheme.colors.success
+    }
+
+    val unfocusedColor = when (state) {
+        is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
+            Grey000
         } else {
             Dark600
         }
+        is TextInputState.Error -> AppTheme.colors.error
+        is TextInputState.Success -> AppTheme.colors.success
     }
 
-    val focusedColor = if (isError) {
-        AppTheme.colors.error
-    } else {
-        AppTheme.colors.primary
+    val focusedColor = when (state) {
+        is TextInputState.Default, is TextInputState.Disabled -> AppTheme.colors.primary
+        is TextInputState.Error -> AppTheme.colors.error
+        is TextInputState.Success -> AppTheme.colors.success
     }
 
     val textColor = if (enabled) {
         AppTheme.colors.title
     } else {
-        AppTheme.colors.muted
+        Grey600
     }
 
     val backgroundColor = if (enabled) {
         AppTheme.colors.light
     } else {
         if (!isSystemInDarkTheme()) {
-            Grey100
+            Grey000
         } else {
             Dark700
         }
     }
 
     val placeholderColor = if (!isSystemInDarkTheme()) {
-        Grey400
-    } else {
-        Dark200
-    }
-
-    val disabledPlaceholderColor = if (!isSystemInDarkTheme()) {
-        Grey400
-    } else {
-        Dark400
-    }
-
-    val assistiveTextColor = if (!isSystemInDarkTheme()) {
         Grey600
     } else {
-        Color.White
+        Dark200
     }
 
     Column {
@@ -119,7 +115,7 @@ fun TextInput(
                     onFocusChanged.invoke(focusState)
                 },
             label = if (label != null) {
-                { Text(label) }
+                { Text(label, style = AppTheme.typography.caption1) }
             } else null,
             placeholder = if (placeholder != null) {
                 { Text(placeholder) }
@@ -141,7 +137,7 @@ fun TextInput(
             } else null,
             enabled = enabled,
             readOnly = readOnly,
-            textStyle = textStyle,
+            textStyle = AppTheme.typography.body1,
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
@@ -157,22 +153,15 @@ fun TextInput(
                 cursorColor = focusedColor,
                 errorCursorColor = focusedColor,
                 placeholderColor = placeholderColor,
-                disabledPlaceholderColor = disabledPlaceholderColor
+                disabledTextColor = textColor,
+                disabledLabelColor = placeholderColor,
+                disabledPlaceholderColor = placeholderColor
             )
         )
 
-        if (isError) {
+        if (state.message != null) {
             Text(
-                text = errorMessage ?: "",
-                color = AppTheme.colors.error,
-                style = AppTheme.typography.caption1,
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-            )
-        } else if (assistiveText != null) {
-            Text(
-                text = assistiveText,
+                text = state.message,
                 color = assistiveTextColor,
                 style = AppTheme.typography.caption1,
                 modifier = Modifier
@@ -191,8 +180,7 @@ fun TextInput_Preview() {
             TextInput(
                 value = "Input",
                 onValueChange = {},
-                isError = true,
-                errorMessage = "Test Error Message"
+                state = TextInputState.Error("Test Error Message")
             )
         }
     }

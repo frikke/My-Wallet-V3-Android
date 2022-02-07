@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.transfer.analytics
 
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -23,8 +23,8 @@ sealed class TransferAnalyticsEvent(
     ) : TransferAnalyticsEvent(
         "send_wallet_select",
         mapOf(
-            PARAM_ASSET to wallet.asset.networkTicker,
-            PARAM_WALLET to (wallet as BlockchainAccount).toCategory()
+            PARAM_ASSET to wallet.currency.networkTicker,
+            PARAM_WALLET to (wallet as SingleAccount).toCategory()
         )
     )
 

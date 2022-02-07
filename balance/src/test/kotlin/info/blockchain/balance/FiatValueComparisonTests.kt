@@ -1,5 +1,9 @@
 package info.blockchain.balance
 
+import com.blockchain.testutils.cad
+import com.blockchain.testutils.gbp
+import com.blockchain.testutils.jpy
+import com.blockchain.testutils.usd
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.withMessage

@@ -2,9 +2,8 @@ package com.blockchain.coincore
 
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.DomainAddressNotFound
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -38,8 +37,8 @@ interface CryptoTarget : TransactionTarget {
 }
 
 interface CryptoAddress : CryptoTarget, ReceiveAddress {
-    fun toUrl(amount: CryptoValue = CryptoValue.zero(asset)) = address
-    val amount: CryptoValue?
+    fun toUrl(amount: Money = Money.zero(asset)) = address
+    val amount: Money?
         get() = null
 }
 
@@ -50,9 +49,7 @@ interface AddressFactory {
 
 class AddressFactoryImpl(
     private val coincore: Coincore,
-    private val addressResolver: AddressMappingService,
-    @Suppress("unused")
-    private val features: InternalFeatureFlagApi
+    private val addressResolver: AddressMappingService
 ) : AddressFactory {
 
     /** Build the set of possible address for a given input string.

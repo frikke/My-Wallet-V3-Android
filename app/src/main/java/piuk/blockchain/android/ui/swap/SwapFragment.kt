@@ -14,6 +14,10 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.TrendingPair
 import com.blockchain.coincore.TrendingPairsProvider
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialOrder
@@ -28,15 +32,14 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentSwapBinding
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -46,18 +49,25 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.trackProgress
-import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import timber.log.Timber
 
-class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromoBottomSheet.Host {
+class SwapFragment :
+    Fragment(),
+    KycBenefitsBottomSheet.Host,
+    TradingWalletPromoBottomSheet.Host {
+
+    interface Host {
+        fun navigateToReceive()
+        fun navigateToBuy()
+    }
+
     private var _binding: FragmentSwapBinding? = null
 
     private val binding: FragmentSwapBinding
         get() = _binding!!
+
+    private val host: Host
+        get() = requireActivity() as Host
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -78,7 +88,6 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
     private val walletPrefs: WalletStatus by inject()
     private val analytics: Analytics by inject()
     private val assetResources: AssetResources by inject()
-    private val appUtil: AppUtil by inject()
     private val compositeDisposable = CompositeDisposable()
 
     private val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -114,6 +123,13 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
                 DividerItemDecoration.VERTICAL
             )
         )
+        binding.cardBuyNow.setOnClickListener {
+            host.navigateToBuy()
+        }
+        binding.cardReceive.setOnClickListener {
+            host.navigateToReceive()
+        }
+
         analytics.logEvent(SwapAnalyticsEvents.SwapViewedEvent)
         loadSwapOrKyc(showLoading = true)
     }
@@ -140,10 +156,8 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
     }
 
     private fun loadSwapOrKyc(showLoading: Boolean) {
-        val activityIndicator = if (showLoading) appUtil.activityIndicator else null
-
         compositeDisposable +=
-            Singles.zip(
+            Single.zip(
                 kycTierService.tiers(),
                 trendingPairsProvider.getTrendingPairs(),
                 walletManager.getProductTransferLimits(currencyPrefs.selectedFiatCurrency, Product.TRADE),
@@ -164,13 +178,16 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
                 )
             }
                 .observeOn(AndroidSchedulers.mainThread())
-                .trackProgress(activityIndicator)
+                .doOnSubscribe { if (showLoading) showLoading() }
+                .doOnTerminate { hideLoading() }
                 .subscribeBy(
                     onSuccess = { composite ->
                         showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
 
                         if (composite.tiers.isVerified()) {
-                            binding.swapViewSwitcher.displayedChild = SWAP_VIEW
+                            binding.swapViewFlipper.displayedChild =
+                                if (composite.hasAtLeastOneAccountToSwapFrom) SWAP_VIEW
+                                else SWAP_NO_ACCOUNTS
                             binding.swapHeader.toggleBottomSeparator(false)
 
                             val onPairClicked = onTrendingPairClicked()
@@ -185,7 +202,7 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
                                 showKycUpsellIfEligible(composite.limits)
                             }
                         } else {
-                            binding.swapViewSwitcher.displayedChild = KYC_VIEW
+                            binding.swapViewFlipper.displayedChild = KYC_VIEW
                             initKycView()
                         }
                     },
@@ -240,8 +257,8 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
         analytics.logEvent(SwapAnalyticsEvents.TrendingPairClicked)
         analytics.logEvent(
             SwapAnalyticsEvents.SwapAccountsSelected(
-                inputCurrency = pair.sourceAccount.asset,
-                outputCurrency = pair.destinationAccount.asset,
+                inputCurrency = pair.sourceAccount.currency,
+                outputCurrency = pair.destinationAccount.currency,
                 sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.sourceAccount),
                 targetAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.destinationAccount),
                 werePreselected = true
@@ -293,7 +310,7 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
     private fun showSwapUi(orders: List<CustodialOrder>, hasAtLeastOneAccountToSwapFrom: Boolean) {
         val pendingOrders = orders.filter { it.state.isPending }
         val hasPendingOrder = pendingOrders.isNotEmpty()
-        binding.swapViewSwitcher.visible()
+        binding.swapViewFlipper.visible()
         binding.swapError.gone()
         binding.swapCta.visible()
         binding.swapCta.isEnabled = hasAtLeastOneAccountToSwapFrom
@@ -310,10 +327,21 @@ class SwapFragment : Fragment(), KycBenefitsBottomSheet.Host, TradingWalletPromo
         }
     }
 
+    private fun showLoading() {
+        binding.progress.visible()
+        binding.progress.playAnimation()
+    }
+
+    private fun hideLoading() {
+        binding.progress.gone()
+        binding.progress.pauseAnimation()
+    }
+
     companion object {
         private const val KYC_UPSELL_PERCENTAGE = 90
         private const val SWAP_VIEW = 0
-        private const val KYC_VIEW = 1
+        private const val SWAP_NO_ACCOUNTS = 1
+        private const val KYC_VIEW = 2
         private const val TAG = "BOTTOM_SHEET"
         fun newInstance(): SwapFragment =
             SwapFragment()

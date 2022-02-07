@@ -1,5 +1,6 @@
 package com.blockchain.coincore.bch
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeLevel
@@ -9,6 +10,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.satoshiCash
@@ -73,7 +75,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
     @Test
     fun `inputs validate when correct`() {
         val sourceAccount: BchCryptoWalletAccount = mock {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -91,7 +93,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget, atLeastOnce()).asset
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -99,7 +101,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount: BchCryptoWalletAccount = mock {
-            on { asset }.thenReturn(WRONG_ASSET)
+            on { currency }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -117,7 +119,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         verify(txTarget).asset
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -126,7 +128,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
     fun `asset is returned correctly`() {
         // Arrange
         val sourceAccount: BchCryptoWalletAccount = mock {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -144,7 +146,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
 
         // Assert
         assertEquals(asset, ASSET)
-        verify(sourceAccount).asset
+        verify(sourceAccount).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -153,7 +155,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
     fun `PendingTx is correctly initialised`() {
         // Arrange
         val sourceAccount: BchCryptoWalletAccount = mock {
-            on { asset }.thenReturn(ASSET)
+            on { currency }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
@@ -186,7 +188,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
             .assertComplete()
 
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -283,9 +285,9 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
 
         verify(txTarget, atMost(2)).address
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).xpubAddress
-        verify(sourceAccount).accountBalance
+        verify(sourceAccount).balance
         verify(bchDataManager).getAddressBalance(SOURCE_XPUB)
         verify(feeManager).bchFeeOptions
         verify(bchFeeOptions).regularFee
@@ -494,9 +496,18 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
 
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<BchCryptoWalletAccount> {
-            on { asset }.thenReturn(ASSET)
-            on { accountBalance }.thenReturn(Single.just(totalBalance))
-            on { actionableBalance }.thenReturn(Single.just(availableBalance))
+            on { currency }.thenReturn(ASSET)
+            on { balance }.thenReturn(
+                Observable.just(
+                    AccountBalance(
+                        total = totalBalance,
+                        withdrawable = availableBalance,
+                        pending = Money.zero(totalBalance.currency),
+                        exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
+                    )
+                )
+            )
+
             on { xpubAddress }.thenReturn(SOURCE_XPUB)
         }
 

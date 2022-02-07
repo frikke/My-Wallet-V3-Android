@@ -11,8 +11,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.Tier
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
@@ -28,9 +27,9 @@ interface LegacyLimits {
 interface LimitsDataManager {
 
     fun getLimits(
-        outputCurrency: String,
-        sourceCurrency: String,
-        targetCurrency: String,
+        outputCurrency: Currency,
+        sourceCurrency: Currency,
+        targetCurrency: Currency,
         sourceAccountType: AssetCategory,
         targetAccountType: AssetCategory,
         legacyLimits: Single<LegacyLimits>
@@ -47,26 +46,25 @@ class LimitsDataManagerImpl(
 ) : LimitsDataManager {
 
     override fun getLimits(
-        outputCurrency: String,
-        sourceCurrency: String,
-        targetCurrency: String,
+        outputCurrency: Currency,
+        sourceCurrency: Currency,
+        targetCurrency: Currency,
         sourceAccountType: AssetCategory,
         targetAccountType: AssetCategory,
         legacyLimits: Single<LegacyLimits>
     ): Single<TxLimits> = authenticator.authenticate { token ->
-        val outputAsset = assetCatalogue.fromNetworkTicker(outputCurrency)
 
         val legacyLimitsToOutputCurrency = legacyLimits.toOutputCurrency(
-            outputAsset, exchangeRatesDataManager
+            outputCurrency, exchangeRatesDataManager
         )
 
         Single.zip(
             legacyLimitsToOutputCurrency,
             limitsService.getSeamlessLimits(
                 authHeader = token.authHeader,
-                outputCurrency = outputCurrency,
-                sourceCurrency = sourceCurrency,
-                targetCurrency = targetCurrency,
+                outputCurrency = outputCurrency.networkTicker,
+                sourceCurrency = sourceCurrency.networkTicker,
+                targetCurrency = targetCurrency.networkTicker,
                 sourceAccountType = sourceAccountType.name,
                 targetAccountType = targetAccountType.name
             )
@@ -147,27 +145,28 @@ class LimitsDataManagerImpl(
     override fun getFeatureLimits(): Single<List<FeatureWithLimit>> = authenticator.authenticate { token ->
         limitsService.getFeatureLimits(token.authHeader)
             .map { response ->
-                response.limits.mapNotNull { it.toFeatureWithLimit() }
+                response.limits.mapNotNull { it.toFeatureWithLimit(assetCatalogue) }
             }
     }
 
     private fun Single<LegacyLimits>.toOutputCurrency(
-        outputAsset: AssetInfo?,
+        outputCurrency: Currency,
         exchangeRatesDataManager: ExchangeRatesDataManager
     ): Single<LegacyLimits> {
         return flatMap { legacy ->
-            if (outputAsset != null) {
-                exchangeRatesDataManager.cryptoToFiatRate(outputAsset, legacy.currency)
+            val legacyCurrency = assetCatalogue.fromNetworkTicker(legacy.currency)
+            if (legacyCurrency != null && outputCurrency != legacyCurrency) {
+                exchangeRatesDataManager.exchangeRate(outputCurrency, legacyCurrency)
                     .firstOrError()
                     .map { exchangeRate ->
                         object : LegacyLimits {
                             override val min: Money
                                 get() = legacy.min.toOutputCryptoCurrency(
-                                    outputAsset, exchangeRate, RoundingMode.CEILING
+                                    outputCurrency, exchangeRate, RoundingMode.CEILING
                                 )
                             override val max: Money?
                                 get() = legacy.max?.toOutputCryptoCurrency(
-                                    outputAsset, exchangeRate, RoundingMode.FLOOR
+                                    outputCurrency, exchangeRate, RoundingMode.FLOOR
                                 )
                         }
                     }
@@ -179,12 +178,12 @@ class LimitsDataManagerImpl(
 
     private fun Limit.toMoneyValue(): Money =
         assetCatalogue.fromNetworkTicker(currency)?.let {
-            CryptoValue.fromMinor(it, value.toBigInteger())
-        } ?: FiatValue.fromMinor(currency, value.toLong())
+            Money.fromMinor(it, value.toBigInteger())
+        } ?: throw IllegalArgumentException("Unknown Fiat currency")
 }
 
 private fun Money.toOutputCryptoCurrency(
-    outputAsset: AssetInfo?,
+    outputAsset: Currency?,
     exchangeRate: ExchangeRate,
     roundingMode: RoundingMode
 ) = when {
@@ -194,15 +193,16 @@ private fun Money.toOutputCryptoCurrency(
     else -> throw IllegalStateException("Conversion cannot be performed.")
 }
 
-private fun FeatureLimitResponse.toFeatureWithLimit(): FeatureWithLimit? {
+private fun FeatureLimitResponse.toFeatureWithLimit(assetCatalogue: AssetCatalogue): FeatureWithLimit? {
     val feature = name.toFeature() ?: return null
     val featureLimit = when {
         enabled && limit == null -> FeatureLimit.Unspecified
         enabled && limit?.value == null -> FeatureLimit.Infinite
         enabled && limit?.value != null -> {
             val apiMoney = limit?.value!!
+            val currency = assetCatalogue.fromNetworkTicker(apiMoney.currency) ?: return null
             val txPeriod = limit?.period?.toLimitPeriod() ?: return null
-            val limit = FiatValue.fromMinor(apiMoney.currency, apiMoney.value.toLong())
+            val limit = Money.fromMinor(currency, apiMoney.value.toBigInteger())
             FeatureLimit.Limited(TxPeriodicLimit(limit, txPeriod, true))
         }
         else -> FeatureLimit.Disabled

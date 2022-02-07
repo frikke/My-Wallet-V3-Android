@@ -5,19 +5,25 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.custodial.models.QuoteFee
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
+import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
+import com.blockchain.nabu.datamanagers.PaymentLimits
+import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.testutils.EUR
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
@@ -29,14 +35,16 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.math.BigInteger
 import java.util.Date
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
+import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
-import piuk.blockchain.androidcore.data.api.EnvironmentConfig
+import piuk.blockchain.android.domain.usecases.LinkAccess
 
 @Ignore("Ignoring because CI fails on this, re-enabling ASAP")
 class SimpleBuyModelTest {
@@ -49,8 +57,8 @@ class SimpleBuyModelTest {
 
     private val defaultState = SimpleBuyState(
         selectedCryptoAsset = CryptoCurrency.BTC,
-        amount = FiatValue.fromMinor("USD", 1000),
-        fiatCurrency = "USD",
+        amount = FiatValue.fromMinor(USD, 1000.toBigInteger()),
+        fiatCurrency = USD,
         selectedPaymentMethod = SelectedPaymentMethod(
             id = "123-321",
             paymentMethodType = PaymentMethodType.PAYMENT_CARD,
@@ -132,12 +140,12 @@ class SimpleBuyModelTest {
                         id = "testId",
                         expires = date,
                         state = OrderState.AWAITING_FUNDS,
-                        crypto = CryptoValue.zero(CryptoCurrency.BTC),
+                        target = CryptoValue.zero(CryptoCurrency.BTC),
                         orderValue = CryptoValue.zero(CryptoCurrency.BTC),
                         paymentMethodId = "213",
                         updated = Date(),
                         paymentMethodType = PaymentMethodType.FUNDS,
-                        fiat = FiatValue.zero("USD"),
+                        source = FiatValue.zero(USD),
                         pair = "USD-BTC",
                         type = OrderType.BUY,
                         depositPaymentId = ""
@@ -192,8 +200,8 @@ class SimpleBuyModelTest {
     @Test
     fun `make card payment should update price and payment attributes`() {
         val price = FiatValue.fromMinor(
-            "EUR",
-            1000.toLong()
+            EUR,
+            1000.toBigInteger()
         )
 
         val paymentLink = "http://example.com"
@@ -206,8 +214,8 @@ class SimpleBuyModelTest {
                     BuySellOrder(
                         id = id,
                         pair = "EUR-BTC",
-                        fiat = FiatValue.fromMinor("EUR", 10000),
-                        crypto = CryptoValue.zero(CryptoCurrency.BTC),
+                        source = FiatValue.fromMinor(EUR, 10000.toBigInteger()),
+                        target = CryptoValue.zero(CryptoCurrency.BTC),
                         state = OrderState.AWAITING_FUNDS,
                         paymentMethodId = "123-123",
                         expires = Date(),
@@ -218,7 +226,7 @@ class SimpleBuyModelTest {
                             status = null,
                             cardAttributes = CardAttributes.EveryPay(
                                 paymentLink = paymentLink,
-                                paymentState = CardAttributes.EveryPay.WAITING_3DS
+                                paymentState = CardPaymentState.WAITING_FOR_3DS
                             )
                         ),
                         type = OrderType.BUY,
@@ -251,12 +259,12 @@ class SimpleBuyModelTest {
                     id = "testId",
                     expires = Date(),
                     state = OrderState.CANCELED,
-                    crypto = CryptoValue.zero(CryptoCurrency.BTC),
+                    target = CryptoValue.zero(CryptoCurrency.BTC),
                     orderValue = CryptoValue.zero(CryptoCurrency.BTC),
                     paymentMethodId = "213",
                     updated = Date(),
                     paymentMethodType = PaymentMethodType.BANK_TRANSFER,
-                    fiat = FiatValue.zero("USD"),
+                    source = FiatValue.zero(USD),
                     pair = "USD-BTC",
                     type = OrderType.BUY,
                     depositPaymentId = "",
@@ -279,8 +287,8 @@ class SimpleBuyModelTest {
     fun `WHEN eligiblePaymentMethods and getRecurringBuyEligibility success THEN observe state`() {
 
         val eligibleAndNextPaymentDate: EligibleAndNextPaymentRecurringBuy = mock()
-        whenever(interactor.eligiblePaymentMethods("USD"))
-            .thenReturn(Single.just(emptyList()))
+        whenever(interactor.paymentMethods(USD))
+            .thenReturn(Single.just(SimpleBuyInteractor.PaymentMethods(emptyList(), emptyList())))
 
         val eligibleNextPaymentMethodType: EligibleAndNextPaymentRecurringBuy = mock()
         whenever(getEligibilityAndNextPaymentDateUseCase(Unit))
@@ -300,7 +308,7 @@ class SimpleBuyModelTest {
             paymentOptions = PaymentOptions()
         )
 
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD, "123-321"))
         model.state
             .test()
             .awaitCount(3)
@@ -311,7 +319,7 @@ class SimpleBuyModelTest {
 
     @Test
     fun `WHEN eligiblePaymentMethods fails THEN observe state`() {
-        whenever(interactor.eligiblePaymentMethods("USD"))
+        whenever(interactor.paymentMethods(USD))
             .thenReturn(Single.error(Throwable()))
 
         verifyNoMoreInteractions(interactor)
@@ -327,7 +335,7 @@ class SimpleBuyModelTest {
             confirmationActionRequested = false
         )
 
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD, "123-321"))
 
         model.state
             .test()
@@ -339,7 +347,7 @@ class SimpleBuyModelTest {
 
     @Test
     fun `WHEN eligiblePaymentMethods success and getRecurringBuyEligibility fails THEN observe state`() {
-        whenever(interactor.eligiblePaymentMethods("USD"))
+        whenever(interactor.paymentMethods(USD))
             .thenReturn(Single.just(mock()))
 
         whenever(getEligibilityAndNextPaymentDateUseCase(Unit))
@@ -352,12 +360,84 @@ class SimpleBuyModelTest {
             selectedPaymentMethod = null
         )
 
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD, "123-321"))
 
         model.state
             .test()
             .awaitCount(3)
             .assertValueAt(0, defaultState)
             .assertValueAt(1, state1)
+    }
+
+    @Test
+    fun `when card linkaccess is blocked then user should not be able to add new card`() {
+        val limits = PaymentLimits(BigInteger.ZERO, BigInteger.ZERO, USD)
+        val availableMethodType = AvailablePaymentMethodType(
+            true,
+            LinkAccess.BLOCKED,
+            USD,
+            PaymentMethodType.PAYMENT_CARD,
+            limits
+        )
+        whenever(interactor.paymentMethods(USD))
+            .thenReturn(Single.just(SimpleBuyInteractor.PaymentMethods(listOf(availableMethodType), emptyList())))
+
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD))
+
+        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = true)
+        model.state
+            .test()
+            .assertValueAt(1) {
+                !it.paymentOptions.availablePaymentMethods.contains(undefinedCard) &&
+                    !it.paymentOptions.canAddCard
+            }
+    }
+
+    @Test
+    fun `when card linkaccess is NEEDS_UPGRADE then user should be able to select new card but not add it`() {
+        val limits = PaymentLimits(BigInteger.ZERO, BigInteger.ZERO, USD)
+        val availableMethodType = AvailablePaymentMethodType(
+            true,
+            LinkAccess.NEEDS_UPGRADE,
+            USD,
+            PaymentMethodType.PAYMENT_CARD,
+            limits
+        )
+        whenever(interactor.paymentMethods(USD))
+            .thenReturn(Single.just(SimpleBuyInteractor.PaymentMethods(listOf(availableMethodType), emptyList())))
+
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD))
+
+        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = false)
+        model.state
+            .test()
+            .assertValueAt(1) {
+                it.paymentOptions.availablePaymentMethods.contains(undefinedCard) &&
+                    it.paymentOptions.canAddCard
+            }
+    }
+
+    @Test
+    fun `when card linkaccess is GRANTED then user should be able to add new card`() {
+        val limits = PaymentLimits(BigInteger.ZERO, BigInteger.ZERO, USD)
+        val availableMethodType = AvailablePaymentMethodType(
+            true,
+            LinkAccess.GRANTED,
+            USD,
+            PaymentMethodType.PAYMENT_CARD,
+            limits
+        )
+        whenever(interactor.paymentMethods(USD))
+            .thenReturn(Single.just(SimpleBuyInteractor.PaymentMethods(listOf(availableMethodType), emptyList())))
+
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD))
+
+        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = true)
+        model.state
+            .test()
+            .assertValueAt(1) {
+                it.paymentOptions.availablePaymentMethods.contains(undefinedCard) &&
+                    it.paymentOptions.canAddCard
+            }
     }
 }

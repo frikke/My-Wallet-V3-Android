@@ -1,5 +1,6 @@
 package info.blockchain.balance
 
+import com.blockchain.testutils.lumens
 import java.math.BigDecimal
 import java.util.Locale
 import org.amshove.kluent.`should be equal to`

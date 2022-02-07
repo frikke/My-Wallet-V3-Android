@@ -5,7 +5,7 @@ import java.math.BigInteger
 import java.util.Locale
 
 data class CryptoValue(
-    val currency: AssetInfo,
+    override val currency: AssetInfo,
     private val amount: BigInteger // Amount in the minor unit of the currency, Satoshi/Wei for example.
 ) : Money() {
 
@@ -13,7 +13,6 @@ data class CryptoValue(
 
     override val userDecimalPlaces: Int = DISPLAY_DP
 
-    override val currencyCode = currency.displayTicker
     override val symbol = currency.displayTicker
 
     override fun toStringWithSymbol() = formatWithUnit(Locale.getDefault())
@@ -25,7 +24,8 @@ data class CryptoValue(
     /**
      * Amount in the major value of the currency, Bitcoin/Ether for example.
      */
-    override fun toBigDecimal(): BigDecimal = amount.toBigDecimal().movePointLeft(currency.precisionDp)
+    override fun toBigDecimal(): BigDecimal =
+        amount.toBigDecimal().movePointLeft(currency.precisionDp)
 
     override fun toBigInteger(): BigInteger = amount
     override fun toFloat(): Float = toBigDecimal().toFloat()

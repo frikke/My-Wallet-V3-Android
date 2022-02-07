@@ -4,6 +4,8 @@ import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.BuildConfig
 import com.blockchain.core.Database
+import com.blockchain.core.EligibilityDataManager
+import com.blockchain.core.EligibilityDataManagerImpl
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -13,7 +15,6 @@ import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.custodial.BrokerageDataManager
-import com.blockchain.core.custodial.BrokerageQuoteFeatureFlag
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
@@ -26,6 +27,7 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.PaymentsDataManagerImpl
+import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
@@ -41,7 +43,7 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.preferences.InternalFeatureFlagPrefs
+import com.blockchain.preferences.FeatureFlagOverridePrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SecureChannelPrefs
@@ -131,7 +133,7 @@ val coreModule = module {
                 brokerageService = get(),
                 authenticator = get(),
                 nabuService = get(),
-                featureFlag = get()
+                featureFlag = get(pricingQuoteFeatureFlag)
             )
         }
 
@@ -144,6 +146,10 @@ val coreModule = module {
             )
         }.bind(LimitsDataManager::class)
 
+        scoped {
+            EligibilityDataManagerImpl()
+        }.bind(EligibilityDataManager::class)
+
         factory {
             InterestBalanceCallCache(
                 balanceService = get(),
@@ -154,6 +160,14 @@ val coreModule = module {
 
         scoped {
             BuyPairsCache(nabuService = get())
+        }
+
+        scoped {
+            CardsCache(
+                paymentMethodsService = get(),
+                authenticator = get(),
+                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag)
+            )
         }
 
         scoped {
@@ -317,7 +331,14 @@ val coreModule = module {
         scoped {
             PaymentsDataManagerImpl(
                 paymentsService = get(),
-                authenticator = get()
+                paymentMethodsService = get(),
+                tradingBalanceDataManager = get(),
+                simpleBuyPrefs = get(),
+                authenticator = get(),
+                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
+                googlePayFeatureFlag = get(googlePayFeatureFlag),
+                assetCatalogue = get(),
+                cardsCache = get()
             )
         }.bind(PaymentsDataManager::class)
     }
@@ -354,7 +375,7 @@ val coreModule = module {
             backupStore = CloudBackupAgent.backupPrefs(ctx = get()),
             idGenerator = get(),
             uuidGenerator = get(),
-            crashLogger = get(),
+            assetCatalogue = get(),
             environmentConfig = get()
         )
     }.bind(PersistentPrefs::class)
@@ -370,8 +391,8 @@ val coreModule = module {
         .bind(AuthPrefs::class)
         .bind(AppInfoPrefs::class)
         .bind(BankLinkingPrefs::class)
-        .bind(InternalFeatureFlagPrefs::class)
         .bind(SecureChannelPrefs::class)
+        .bind(FeatureFlagOverridePrefs::class)
 
     factory {
         PaymentService(
@@ -399,13 +420,6 @@ val coreModule = module {
     }.bind(PinRepository::class)
 
     factory { AESUtilWrapper() }
-
-    single {
-        BrokerageQuoteFeatureFlag(
-            localApi = get(),
-            remoteConfig = get(pricingQuoteFeatureFlag)
-        )
-    }
 
     single {
         Database(driver = get())

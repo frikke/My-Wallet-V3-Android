@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.databinding.ViewPriceRowBinding
-import com.blockchain.componentlib.utils.toPx
+import com.blockchain.componentlib.viewextensions.px
 import com.bumptech.glide.Glide
 import java.text.NumberFormat
 
@@ -43,7 +43,7 @@ class PriceView : ConstraintLayout {
     }
 
     private fun init() {
-        minHeight = 90.toPx()
+        minHeight = 90.px
     }
 
     var price: Price? = null

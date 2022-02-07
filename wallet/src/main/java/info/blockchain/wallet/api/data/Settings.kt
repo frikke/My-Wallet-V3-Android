@@ -96,11 +96,6 @@ data class Settings(
     val isBlockTorIps: Boolean
         get() = blockTorIps.toBoolean()
 
-    fun isInvitedTo(feature: String) =
-        feature.toLowerCase().let { f ->
-            invited.filterValues { it }.filterKeys { it.equals(f, ignoreCase = true) }.isNotEmpty()
-        }
-
     private fun Int.toBoolean(): Boolean {
         return this != 0
     }
@@ -151,10 +146,10 @@ data class Settings(
         @JsonIgnore
         const val UNIT_UBC = "UBC"
 
-        @JsonIgnore
+     /*   @JsonIgnore
         val UNIT_FIAT = arrayOf(
             "AUD", "BRL", "CAD", "CHF", "CLP", "CNY", "DKK", "EUR", "GBP", "HKD",
             "ISK", "JPY", "KRW", "NZD", "PLN", "RUB", "SEK", "SGD", "THB", "TWD", "USD"
-        )
+        )*/
     }
 }

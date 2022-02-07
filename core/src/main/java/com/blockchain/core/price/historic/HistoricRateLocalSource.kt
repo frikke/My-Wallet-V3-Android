@@ -5,27 +5,28 @@ import com.blockchain.core.price.ExchangeRate
 import com.squareup.sqldelight.runtime.rx3.asObservable
 import com.squareup.sqldelight.runtime.rx3.mapToOne
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 
 internal class HistoricRateLocalSource(private val database: Database) {
     fun get(
-        selectedFiat: String,
+        selectedFiat: FiatCurrency,
         asset: AssetInfo,
         requestedTimestamp: Long
     ): Single<ExchangeRate> =
         database.historicRateQueries
-            .selectByKeys(asset.networkTicker, selectedFiat, requestedTimestamp)
+            .selectByKeys(asset.networkTicker, selectedFiat.networkTicker, requestedTimestamp)
             .asObservable()
             .mapToOne()
             .map {
-                ExchangeRate.CryptoToFiat(
+                ExchangeRate(
                     from = asset,
                     to = selectedFiat,
                     rate = it.price.toBigDecimal()
                 ) as ExchangeRate
             }.firstOrError()
 
-    fun insert(selectedFiat: String, asset: AssetInfo, requestedTimestamp: Long, price: Double) {
-        database.historicRateQueries.insert(asset.networkTicker, selectedFiat, price, requestedTimestamp)
+    fun insert(selectedFiat: FiatCurrency, asset: AssetInfo, requestedTimestamp: Long, price: Double) {
+        database.historicRateQueries.insert(asset.networkTicker, selectedFiat.networkTicker, price, requestedTimestamp)
     }
 }

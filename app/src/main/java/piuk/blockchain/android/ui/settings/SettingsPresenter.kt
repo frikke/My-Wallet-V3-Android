@@ -1,11 +1,12 @@
 package piuk.blockchain.android.ui.settings
 
 import android.annotation.SuppressLint
+import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.BankState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.datamanagers.Bank
-import com.blockchain.nabu.datamanagers.BankState
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -14,6 +15,8 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs
+import com.blockchain.preferences.SecurityPrefs
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.settings.SettingsManager
@@ -25,8 +28,11 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.Serializable
+import java.math.BigInteger
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricsController
+import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
+import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.ScanResult
@@ -55,7 +61,8 @@ class SettingsPresenter(
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
     private val pinRepository: PinRepository,
-    private val custodialWalletManager: CustodialWalletManager,
+    private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
+    private val paymentsDataManager: PaymentsDataManager,
     private val notificationTokenManager: NotificationTokenManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val kycStatusHelper: KycStatusHelper,
@@ -64,10 +71,11 @@ class SettingsPresenter(
     private val biometricsController: BiometricsController,
     private val ratingPrefs: RatingPrefs,
     private val qrProcessor: QrScanResultProcessor,
-    private val secureChannelManager: SecureChannelManager
+    private val secureChannelManager: SecureChannelManager,
+    private val securityPrefs: SecurityPrefs
 ) : BasePresenter<SettingsView>() {
 
-    private val fiatUnit: String
+    private val fiatCurrency: FiatCurrency
         get() = prefs.selectedFiatCurrency
 
     private var pitClickedListener = {}
@@ -97,33 +105,52 @@ class SettingsPresenter(
         updateBanks()
     }
 
+    private fun getAvailablePaymentMethodsTypes(fiatCurrency: FiatCurrency) =
+        getAvailablePaymentMethodsTypesUseCase(
+            GetAvailablePaymentMethodsTypesUseCase.Request(
+                currency = fiatCurrency,
+                onlyEligible = true,
+                fetchSddLimits = false
+            )
+        ).map { available -> available.filter { it.currency == fiatCurrency } }
+
     private fun updateCards() {
         compositeDisposable +=
-            custodialWalletManager.getEligiblePaymentMethodTypes(fiatUnit).map { eligiblePaymentMethods ->
-                eligiblePaymentMethods.firstOrNull { it.paymentMethodType == PaymentMethodType.PAYMENT_CARD } != null
-            }
-                .doOnSuccess { isCardEligible ->
-                    view?.cardsEnabled(isCardEligible)
-                }
-                .flatMap { isCardEligible ->
-                    if (isCardEligible) {
-                        custodialWalletManager.updateSupportedCardTypes(fiatUnit)
-                            .thenSingle {
-                                custodialWalletManager.fetchUnawareLimitsCards(
-                                    listOf(CardStatus.ACTIVE, CardStatus.EXPIRED)
-                                )
-                            }
-                    } else {
-                        Single.just(emptyList())
-                    }
-                }
-                .observeOn(AndroidSchedulers.mainThread())
+            getAvailablePaymentMethodsTypes(fiatCurrency)
+                .zipWith(paymentsDataManager.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED))
                 .doOnSubscribe {
                     view?.cardsEnabled(false)
                     onCardsUpdated(emptyList())
+                    view?.addCardEnabled(false)
                 }
                 .subscribeBy(
-                    onSuccess = { cards ->
+                    onSuccess = { (available, cards) ->
+                        val cardPaymentMethodType = available.find { it.type == PaymentMethodType.PAYMENT_CARD }
+
+                        val nullLimits = PaymentLimits(
+                            BigInteger.ZERO,
+                            BigInteger.ZERO,
+                            fiatCurrency
+                        )
+                        val cards = cards.map {
+                            PaymentMethod.Card(
+                                cardId = it.cardId,
+                                limits = nullLimits,
+                                label = it.label,
+                                endDigits = it.endDigits,
+                                partner = it.partner,
+                                expireDate = it.expireDate,
+                                cardType = it.cardType,
+                                status = it.status,
+                                isEligible = true
+                            )
+                        }
+
+                        view?.cardsEnabled(
+                            (cardPaymentMethodType?.canBeUsedForPayment == true && cards.isNotEmpty()) ||
+                                cardPaymentMethodType?.linkAccess == LinkAccess.GRANTED
+                        )
+                        view?.addCardEnabled(cardPaymentMethodType?.linkAccess == LinkAccess.GRANTED)
                         onCardsUpdated(cards)
                     },
                     onError = {
@@ -138,18 +165,47 @@ class SettingsPresenter(
         }
     }
 
-    fun updateBanks() {
+    fun updateCanAddNewCard() {
         compositeDisposable +=
-            eligibleBankPaymentMethods(fiatUnit).zipWith(linkedBanks().onErrorReturn { emptySet() })
-                .observeOn(AndroidSchedulers.mainThread())
+            getAvailablePaymentMethodsTypes(fiatCurrency)
+                .doOnSubscribe {
+                    view?.addCardEnabled(false)
+                }
+                .subscribeBy(
+                    onSuccess = { available ->
+                        val cardPaymentMethodType = available.find { it.type == PaymentMethodType.PAYMENT_CARD }
+                        view?.addCardEnabled(cardPaymentMethodType?.linkAccess == LinkAccess.GRANTED)
+                    },
+                    onError = {
+                        Timber.i(it)
+                    }
+                )
+    }
+
+    fun updateBanks() {
+        val fiatCurrency = fiatCurrency
+        compositeDisposable +=
+            getAvailablePaymentMethodsTypes(fiatCurrency)
+                .zipWith(linkedBanks().onErrorReturn { emptySet() })
                 .doOnSubscribe {
                     view?.banksEnabled(false)
                 }
                 .subscribeBy(
-                    onSuccess = { (linkableBanks, linkedBanks) ->
-                        view?.banksEnabled(linkedBanks.isNotEmpty() or linkableBanks.isNotEmpty())
-                        view?.updateLinkedBanks(linkedBanks)
-                        view?.updateLinkableBanks(linkableBanks, linkedBanks.size)
+                    onSuccess = { (available, linkedBanks) ->
+                        val availableBankPaymentMethodTypes = available.filter {
+                            it.type == PaymentMethodType.BANK_TRANSFER ||
+                                it.type == PaymentMethodType.BANK_ACCOUNT
+                        }.map { it.type }
+
+                        val bankItems = linkedBanks.map { bank ->
+                            val canBeUsedToTransact = availableBankPaymentMethodTypes.contains(bank.type) &&
+                                fiatCurrency == bank.currency
+                            BankItem(bank, canBeUsedToTransact = canBeUsedToTransact)
+                        }
+
+                        view?.banksEnabled(linkedBanks.isNotEmpty() || availableBankPaymentMethodTypes.isNotEmpty())
+                        view?.updateLinkedBanks(bankItems)
+                        view?.updateLinkNewBank(LinkablePaymentMethods(fiatCurrency, availableBankPaymentMethodTypes))
                     },
                     onError = {
                         Timber.e(it)
@@ -172,23 +228,8 @@ class SettingsPresenter(
         }
     }
 
-    private fun eligibleBankPaymentMethods(fiat: String): Single<Set<LinkablePaymentMethods>> =
-        custodialWalletManager.getEligiblePaymentMethodTypes(fiat).map { methods ->
-            val bankPaymentMethods = methods.filter {
-                it.paymentMethodType == PaymentMethodType.BANK_TRANSFER ||
-                    it.paymentMethodType == PaymentMethodType.BANK_ACCOUNT
-            }
-
-            bankPaymentMethods.map { method ->
-                LinkablePaymentMethods(
-                    method.currency,
-                    bankPaymentMethods.filter { it.currency == method.currency }.map { it.paymentMethodType }.distinct()
-                )
-            }.toSet()
-        }
-
-    private fun linkedBanks(): Single<Set<Bank>> =
-        custodialWalletManager.getBanks().map { banks ->
+    private fun linkedBanks(): Single<Set<LinkedPaymentMethod.Bank>> =
+        paymentsDataManager.getLinkedBanks().map { banks ->
             banks.filter { it.state == BankState.ACTIVE }
         }.map { banks ->
             banks.toSet()
@@ -205,7 +246,7 @@ class SettingsPresenter(
             setGuidSummary(settings.guid)
             setEmailSummary(settings.email, settings.isEmailVerified)
             setSmsSummary(settings.smsNumber, settings.isSmsVerified)
-            setFiatSummary(fiatUnit)
+            setFiatSummary(fiatCurrency.displayTicker)
             setEmailNotificationsVisibility(settings.isEmailVerified)
 
             setEmailNotificationPref(false)
@@ -220,7 +261,7 @@ class SettingsPresenter(
             updateFingerprintPreferenceStatus()
             setTwoFaPreference(settings.authType != Settings.AUTH_TYPE_OFF)
             setTorBlocked(settings.isBlockTorIps)
-            setScreenshotsEnabled(prefs.getValue(PersistentPrefs.KEY_SCREENSHOTS_ENABLED, false))
+            setScreenshotsEnabled(securityPrefs.areScreenshotsEnabled)
             setLauncherShortcutVisibility(AndroidUtils.is25orHigher())
         }
 
@@ -290,10 +331,10 @@ class SettingsPresenter(
      * Write key/value to [android.content.SharedPreferences]
      *
      * @param key The key under which to store the data
-     * @param value The value to be stored as a boolean
+     * @param enabled The value to be stored as a boolean
      */
-    fun updatePreferences(key: String, value: Boolean) {
-        prefs.setValue(key, value)
+    fun updateScreenshotPreference(enabled: Boolean) {
+        securityPrefs.setScreenshotsEnabled(enabled)
     }
 
     /**
@@ -516,7 +557,7 @@ class SettingsPresenter(
     /**
      * Updates the user's fiat unit preference
      */
-    fun updateFiatUnit(fiatUnit: String) {
+    fun updateFiatUnit(fiatUnit: FiatCurrency) {
         compositeDisposable += settingsDataManager.updateFiatUnit(fiatUnit)
             .map { settings ->
                 prefs.clearBuyState()
@@ -554,7 +595,7 @@ class SettingsPresenter(
             )
     }
 
-    val currencyLabels: List<String>
+    val currencyLabels: List<FiatCurrency>
         get() = exchangeRates.fiatAvailableForRates
 
     fun onThePitClicked() {
@@ -598,7 +639,7 @@ class SettingsPresenter(
 
     fun onVerifySmsRequested() {
         compositeDisposable += cachedSettings.subscribeBy {
-            view?.showDialogMobile(it.authType, it.isSmsVerified, it.smsNumber ?: "")
+            view?.showDialogMobile(it.authType, it.isSmsVerified, it.smsNumber)
         }
     }
 
@@ -608,8 +649,8 @@ class SettingsPresenter(
         }
     }
 
-    fun linkBank(currency: String) {
-        compositeDisposable += custodialWalletManager.linkToABank(currency)
+    fun linkBank(currency: FiatCurrency) {
+        compositeDisposable += paymentsDataManager.linkBank(currency)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = {
                 view?.linkBankWithPartner(it)
@@ -620,6 +661,11 @@ class SettingsPresenter(
 }
 
 data class LinkablePaymentMethods(
-    val currency: String,
+    val currency: FiatCurrency,
     val linkMethods: List<PaymentMethodType>
 ) : Serializable
+
+data class BankItem(
+    val bank: LinkedPaymentMethod.Bank,
+    val canBeUsedToTransact: Boolean
+)

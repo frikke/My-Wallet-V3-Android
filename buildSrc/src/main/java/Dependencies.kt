@@ -7,8 +7,8 @@ object Versions {
     const val targetSdk = 30
     const val compileSdk = 30
 
-    const val versionCode = 17886
-    const val versionName = "8.18.1"
+    const val versionCode = 18481
+    const val versionName = "202201.2.0"
 
     const val buildTools = "30.0.2"
 
@@ -20,7 +20,6 @@ object Versions {
     const val coroutines = "1.5.2"
 
     const val googleServicesPlugin = "4.3.3"
-    const val buildProperties = "0.4"
     const val ktlint = "0.43.0"
     const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
@@ -46,10 +45,11 @@ object Versions {
     // Support Libraries
     const val googleServices = "17.1.0"
     const val googleServicesAuth = "19.0.0"
-    const val googleServicesPlaces = "2.4.0"
+    const val googleServicesPlaces = "2.5.0"
     const val googleServicesReCaptcha = "16.0.0"
+    const val googleServicesWallet = "19.0.1"
     const val googlePlayCore = "1.8.2"
-    const val firebaseBom = "28.4.0"
+    const val firebaseBom = "29.0.3"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
     const val adsIdentifier = "17.0.0"
@@ -61,7 +61,7 @@ object Versions {
     const val moshi = "1.8.0"
     const val gson = "2.8.5"
     const val jacksonCore = "2.12.3"
-    const val kotlinJson = "1.2.1"
+    const val kotlinJson = "1.3.2"
     const val kotlinJsonConverter = "0.8.0"
 
     // SqlDelight
@@ -77,19 +77,20 @@ object Versions {
     const val glide = "4.12.0"
 
     // Utils, BTC, Ethereum
-    const val bitcoinj = "0.15.10"
-    const val web3j = "3.3.1-android"
+    const val bitcoinj = "0.16"
+    const val web3j = "4.8.7-android"
     const val spongycastle = "1.54.0.0"
     const val jjwt = "0.9.0"
     const val lambdaWorks = "1.0.0"
-    const val libPhoneNumber = "8.9.10"
+    const val libPhoneNumber = "8.12.41"
     const val commonsCodec = "1.3" // Keep at 1.3 to match Android
     const val commonsLang = "3.4"
     const val commonsCli = "1.3"
     const val commonsIo = "2.6"
+    const val walletConnect = "1.5.4"
     const val urlBuilder = "2.0.9"
     const val yearclass = "2.0.0"
-    const val protobuf = "3.0.1"
+    const val protobuf = "3.18.0"
     const val findbugs = "3.0.2"
     const val guava = "28.0-android"
     const val dexter = "6.2.1"
@@ -103,6 +104,7 @@ object Versions {
     const val compose = "1.0.4"
     const val coil = "1.4.0"
     const val composeActivity = "1.3.1"
+    const val constraintLayoutCompose = "1.0.0-beta02"
 
     // Accompanist
     const val systemUi = "0.20.2"
@@ -121,7 +123,7 @@ object Versions {
     const val xlmSunriver = "0.21.1"
     const val lottieVersion = "3.5.0"
     const val zendeskChatVersion = "3.3.0"
-    const val zendeskMessagingVersion = "5.2.0"
+    const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "18.2.0"
 
@@ -129,15 +131,19 @@ object Versions {
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
 
-    const val firebaseCrashlyticsPlugin = "2.7.1"
+    const val firebaseCrashlyticsPlugin = "2.8.1"
 
     // Debugging
     const val stetho = "1.5.1"
+    const val leakCanary = "2.7"
 
     // Testing
     const val mockito = "3.12.4"
     const val mockitoKotlin = "2.0.0"
     const val kluent = "1.66"
+    const val coroutinesTest = "1.6.0"
+    const val coreTesting = "2.1.0"
+    const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
     const val junit = "4.12"
     const val robolectric = "4.4"
@@ -158,7 +164,6 @@ object Libraries {
     const val androidCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
-    const val buildProperties = "com.novoda:gradle-build-properties-plugin:${Versions.buildProperties}"
     const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
 
     // Support Libraries
@@ -198,9 +203,12 @@ object Libraries {
         "com.google.android.libraries.places:places:${Versions.googleServicesPlaces}"
     const val googleServicesReCaptcha =
         "com.google.android.gms:play-services-recaptcha:${Versions.googleServicesReCaptcha}"
+    const val googleServicesWallet =
+        "com.google.android.gms:play-services-wallet:${Versions.googleServicesWallet}"
     const val googlePlayCore = "com.google.android.play:core:${Versions.googlePlayCore}"
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
     const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
+
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitJacksonConverter = "com.squareup.retrofit2:converter-jackson:${Versions.retrofit}"
@@ -245,6 +253,7 @@ object Libraries {
     // Utils, BTC, Ethereum
     const val bitcoinj = "org.bitcoinj:bitcoinj-core:${Versions.bitcoinj}"
     const val web3j = "org.web3j:core:${Versions.web3j}"
+    const val walletConnect = "com.github.TrustWallet:wallet-connect-kotlin:${Versions.walletConnect}"
     const val spongyCastle = "com.madgag.spongycastle:prov:${Versions.spongycastle}"
     const val jjwt = "io.jsonwebtoken:jjwt:${Versions.jjwt}"
     const val lambdaWorks = "com.lambdaworks:codec:${Versions.lambdaWorks}"
@@ -254,7 +263,7 @@ object Libraries {
     const val commonsIo = "commons-io:commons-io:${Versions.commonsIo}"
     const val urlBuilder = "io.mikael:urlbuilder:${Versions.urlBuilder}"
     const val yearclass = "com.facebook.device.yearclass:yearclass:${Versions.yearclass}"
-    const val protobuf = "com.google.protobuf:protobuf-lite:${Versions.protobuf}"
+    const val protobuf = "com.google.protobuf:protobuf-javalite:${Versions.protobuf}"
     const val findbugs = "com.google.code.findbugs:jsr305:${Versions.findbugs}"
     const val guava = "com.google.guava:guava:${Versions.guava}"
     const val dexter = "com.karumi:dexter:${Versions.dexter}"
@@ -277,6 +286,8 @@ object Libraries {
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
     const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
+    const val constraintLayoutCompose =
+        "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"
 
     // Accompanist
     const val accompanistSystemUi = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemUi}"
@@ -304,12 +315,16 @@ object Libraries {
     // Debugging
     const val stetho = "com.facebook.stetho:stetho:${Versions.stetho}"
     const val stethoOkHttp = "com.facebook.stetho:stetho-okhttp3:${Versions.stetho}"
+    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
 
     // Testing
     const val mockito = "org.mockito:mockito-core:${Versions.mockito}"
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     const val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
     const val kotlinJunit = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
+    const val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutinesTest}"
+    const val coreTesting = "androidx.arch.core:core-testing:${Versions.coreTesting}"
+    const val mockk = "io.mockk:mockk:${Versions.mockk}"
     const val hamcrestJunit = "org.hamcrest:hamcrest-junit:${Versions.hamcrestJunit}"
     const val junit = "junit:junit:${Versions.junit}"
     const val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"

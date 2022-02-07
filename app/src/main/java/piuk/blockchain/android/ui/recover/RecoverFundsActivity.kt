@@ -6,17 +6,17 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import com.blockchain.annotations.CommonCode
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
 import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecoverFundsBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
-import piuk.blockchain.android.util.ViewUtils
 
 internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverFundsPresenter>(), RecoverFundsView {
 
@@ -39,8 +39,8 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        loadToolbar(
-            titleToolbar = getString(R.string.recover_funds),
+        updateToolbar(
+            toolbarTitle = getString(R.string.recover_funds),
             backAction = { onBackPressed() }
         )
         with(binding) {
@@ -62,7 +62,7 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
     }
 
     override fun startPinEntryActivity() {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         PinEntryActivity.startAfterWalletCreation(this)
     }
 

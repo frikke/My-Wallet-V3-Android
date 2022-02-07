@@ -17,32 +17,24 @@ import android.view.animation.Transformation
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
-import com.airbnb.lottie.SimpleColorFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.walletRedesignFeatureFlag
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewExpandingCurrencyHeaderBinding
 import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.setAnimationListener
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ExpandableCurrencyHeader @JvmOverloads constructor(
@@ -55,10 +47,6 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     private val analytics: Analytics by inject()
     private val coincore: Coincore by scopedInject()
     private val compositeDisposable = CompositeDisposable()
-    private val redesignFeatureFlag: FeatureFlag by inject(walletRedesignFeatureFlag)
-    private val redesignEnabled: Single<Boolean> by lazy {
-        redesignFeatureFlag.enabled.cache()
-    }
 
     private var expanded = false
     private var firstOpen = true
@@ -67,10 +55,6 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     private var contentWidth: Int = 0
     private var selectedCurrency: AssetInfo = CryptoCurrency.BTC
 
-    private val redesignTintColour by lazy {
-        ContextCompat.getColor(context, R.color.grey_600)
-    }
-
     private val arrowDrawable: Drawable? by unsafeLazy {
         VectorDrawableCompat.create(
             resources,
@@ -78,10 +62,6 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
             ContextThemeWrapper(context, R.style.AppTheme).theme
         )?.run {
             DrawableCompat.wrap(this)
-        }?.also {
-            updateToRedesignUiIfNeeded({
-                it.colorFilter = SimpleColorFilter(redesignTintColour)
-            })
         }
     }
 
@@ -93,20 +73,11 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         // Inflate layout
         coincore.activeCryptoAssets()
             .filter { it.multiWallet }
-            .map { it.asset }
+            .map { it.assetInfo }
             .forEach { asset ->
-                updateToRedesignUiIfNeeded(
-                    ifEnabledAction = {
-                        redesignTextView(asset)?.apply {
-                            setOnClickListener { closeLayout(asset) }
-                        }
-                    },
-                    ifDisabledAction = {
-                        textView(asset)?.apply {
-                            setOnClickListener { closeLayout(asset) }
-                        }
-                    }
-                )
+                redesignTextView(asset)?.apply {
+                    setOnClickListener { closeLayout(asset) }
+                }
             }
 
         binding.textviewSelectedCurrency.apply {
@@ -114,15 +85,6 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
             invisible()
             setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDrawable, null)
         }
-
-        updateToRedesignUiIfNeeded(
-            ifEnabledAction = {
-                with(binding) {
-                    root.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
-                    textviewSelectedCurrency.setTextColor(redesignTintColour)
-                }
-            }
-        )
     }
 
     override fun onFinishInflate() {
@@ -157,25 +119,6 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         }
     }
 
-    private fun updateToRedesignUiIfNeeded(
-        ifEnabledAction: () -> Unit,
-        ifDisabledAction: () -> Unit = {}
-    ) {
-        compositeDisposable += redesignEnabled
-            .subscribeBy(
-                onSuccess = { enabled ->
-                    if (enabled) {
-                        ifEnabledAction()
-                    } else {
-                        ifDisabledAction()
-                    }
-                },
-                onError = {
-                    // do nothing
-                }
-            )
-    }
-
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         outlineProvider = CustomOutline(w, h)
@@ -190,29 +133,10 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         updateCurrencyUi(selectedCurrency)
     }
 
-    private fun textView(asset: AssetInfo): TextView? =
-        when (asset) {
-            CryptoCurrency.BTC -> binding.textviewBitcoin
-            CryptoCurrency.BCH -> binding.textviewBitcoinCash
-            else -> null
-        }
-
     private fun redesignTextView(asset: AssetInfo): TextView? =
         when (asset) {
-            CryptoCurrency.BTC -> {
-                with(binding) {
-                    textviewBitcoin.gone()
-                    textviewBitcoinRedesign.visible()
-                    textviewBitcoinRedesign
-                }
-            }
-            CryptoCurrency.BCH -> {
-                with(binding) {
-                    textviewBitcoinCash.gone()
-                    textviewBitcoinCashRedesign.visible()
-                    textviewBitcoinCashRedesign
-                }
-            }
+            CryptoCurrency.BTC -> binding.textviewBitcoinRedesign
+            CryptoCurrency.BCH -> binding.textviewBitcoinCashRedesign
             else -> null
         }
 
@@ -281,15 +205,6 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
                 null
             )
 
-            updateToRedesignUiIfNeeded(
-                ifEnabledAction = {
-                    with(binding.textviewSelectedCurrency) {
-                        compoundDrawables.forEach {
-                            it.colorFilter = SimpleColorFilter(redesignTintColour)
-                        }
-                    }
-                }
-            )
             visible()
         }
     }

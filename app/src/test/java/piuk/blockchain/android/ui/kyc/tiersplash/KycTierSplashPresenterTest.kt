@@ -2,10 +2,12 @@ package piuk.blockchain.android.ui.kyc.tiersplash
 
 import androidx.navigation.NavDirections
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.LimitsJson
-import com.blockchain.nabu.models.responses.nabu.TierResponse
+import com.blockchain.nabu.models.responses.nabu.Limits
+import com.blockchain.nabu.models.responses.nabu.Tier
+import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.testutils.usd
@@ -14,6 +16,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
@@ -154,36 +157,29 @@ private fun givenTiers(tiers: KycTiers? = null): TierService =
 
 private fun tiers(tier1: Pair<KycTierState, FiatValue>, tier2: Pair<KycTierState, FiatValue>) =
     KycTiers(
-        tiersResponse = listOf(
-            TierResponse(
-                0,
-                "Tier 0",
-                state = KycTierState.Verified,
-                limits = LimitsJson(
-                    currency = "USD",
-                    daily = null,
-                    annual = null
-                )
-            ),
-            TierResponse(
-                1,
-                "Tier 1",
-                state = tier1.first,
-                limits = LimitsJson(
-                    currency = tier1.second.currencyCode,
-                    daily = null,
-                    annual = tier1.second.toBigDecimal()
-                )
-            ),
-            TierResponse(
-                2,
-                "Tier 2",
-                state = tier2.first,
-                limits = LimitsJson(
-                    currency = tier2.second.currencyCode,
-                    daily = null,
-                    annual = tier2.second.toBigDecimal()
-                )
+        Tiers(
+            mapOf(
+                KycTierLevel.BRONZE to
+                    Tier(
+                        KycTierState.Verified,
+                        Limits(null, null)
+                    ),
+                KycTierLevel.SILVER to
+                    Tier(
+                        tier1.first,
+                        Limits(
+                            null,
+                            Money.fromMinor(tier1.second.currency, tier1.second.toBigInteger())
+                        )
+                    ),
+                KycTierLevel.GOLD to
+                    Tier(
+                        tier2.first,
+                        Limits(
+                            null,
+                            Money.fromMinor(tier2.second.currency, tier2.second.toBigInteger())
+                        )
+                    )
             )
         )
     )

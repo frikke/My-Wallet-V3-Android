@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_alert"
+        android:icon="@drawable/ic_alert_logo"
         android:shortcutDisabledMessage="@string/common_error"
         android:shortcutId="debug_options"
         android:shortcutLongLabel="@string/debug_app_shortcut"
@@ -11,7 +11,7 @@
         tools:targetApi="n_mr1">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="piuk.blockchain.android.ui.FeatureFlagsHandlingActivity"
+            android:targetClass="piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity"
             android:targetPackage="piuk.blockchain.android.staging" />
     </shortcut>
 </shortcuts>

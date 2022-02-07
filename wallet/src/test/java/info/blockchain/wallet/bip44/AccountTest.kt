@@ -43,7 +43,7 @@ class AccountTest {
         val account = HDAccount(MainNetParams.get(), key, 0)
         val address = account.receive.getAddressAt(0, Derivation.LEGACY_PURPOSE).formattedAddress
 
-        assertEquals("M/0H/0", account.receive.path)
+        assertEquals("m/0H/0", account.receive.path)
         assertEquals("1GfNtDKUu9KZt8ae7c9UM6NUD1uViZcsEA", address)
     }
 
@@ -52,7 +52,7 @@ class AccountTest {
         val account = HDAccount(MainNetParams.get(), key, 0)
         val address = account.change.getAddressAt(0, Derivation.LEGACY_PURPOSE).formattedAddress
 
-        assertEquals("M/0H/1", account.change.path)
+        assertEquals("m/0H/1", account.change.path)
         assertEquals("12boKefnALjsXoQXyHg79aU7qSAFfg5Nze", address)
     }
 
@@ -61,7 +61,7 @@ class AccountTest {
         val account = HDAccount(MainNetParams.get(), key, 0)
         val address = account.change.getAddressAt(0, Derivation.SEGWIT_BECH32_PURPOSE).formattedAddress
 
-        assertEquals("M/0H/1", account.change.path)
+        assertEquals("m/0H/1", account.change.path)
         assertEquals("bc1qzxxwlrs88fmjr79hk8vavc2e68ml0q22n9enkm", address)
     }
 
@@ -71,7 +71,7 @@ class AccountTest {
         val address = account.getChain(1)
             .getAddressAt(0, Derivation.LEGACY_PURPOSE).formattedAddress
 
-        assertEquals("M/0H/1", account.getChain(1).path)
+        assertEquals("m/0H/1", account.getChain(1).path)
         assertEquals("12boKefnALjsXoQXyHg79aU7qSAFfg5Nze", address)
     }
 
@@ -81,13 +81,13 @@ class AccountTest {
         val address = account.getChain(1)
             .getAddressAt(0, Derivation.SEGWIT_BECH32_PURPOSE).formattedAddress
 
-        assertEquals("M/0H/1", account.getChain(1).path)
+        assertEquals("m/0H/1", account.getChain(1).path)
         assertEquals("bc1qzxxwlrs88fmjr79hk8vavc2e68ml0q22n9enkm", address)
     }
 
     @Test
     fun getPath() {
         val account = HDAccount(MainNetParams.get(), key, 0)
-        assertEquals("M/0H", account.path)
+        assertEquals("m/0H", account.path)
     }
 }

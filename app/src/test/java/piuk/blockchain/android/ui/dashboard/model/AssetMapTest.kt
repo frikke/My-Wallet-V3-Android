@@ -33,12 +33,12 @@ class AssetMapTest {
     fun `copy with patchAsset works as expected`() {
         val newAsset = CryptoAssetState(
             currency = CryptoCurrency.BTC,
-            accountBalance = mock<AccountBalance> {
+            accountBalance = mock {
                 on { total }.thenReturn(20.bitcoin())
-                on { actionable }.thenReturn(20.bitcoin())
+                on { withdrawable }.thenReturn(20.bitcoin())
                 on { pending }.thenReturn(20.bitcoin())
                 on { exchangeRate }.thenReturn(
-                    ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal())
+                    ExchangeRate(300.toBigDecimal(), FIAT_CURRENCY, CryptoCurrency.BTC)
                 )
             },
             prices24HrWithDelta = mock(),
@@ -58,7 +58,7 @@ class AssetMapTest {
         val newBalance = 20.ether()
         val newAccountBalance = mock<AccountBalance> {
             on { total }.thenReturn(newBalance)
-            on { actionable }.thenReturn(newBalance)
+            on { withdrawable }.thenReturn(newBalance)
             on { pending }.thenReturn(newBalance)
             on { exchangeRate }.thenReturn(mock())
         }

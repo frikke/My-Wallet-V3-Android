@@ -17,7 +17,7 @@ class WalletFactoryTest {
 
         val passphrase = "passphrase"
         val mnemonicLength = 12
-        val path = "M/44H"
+        val path = "m/44H"
 
         // len == 16 (12 words), len == 24 (18 words), len == 32 (24 words)
         val len = mnemonicLength / 3 * 4
@@ -76,7 +76,7 @@ class WalletFactoryTest {
         )
         assertEquals(16, wallet.seed.size.toLong())
         assertEquals("0660cc198330660cc198330660cc1983", wallet.seedHex)
-        assertEquals("M/44H", wallet.path)
+        assertEquals("m/44H", wallet.path)
         assertEquals(mnemonic, wallet.mnemonic.joinToString(" "))
         assertEquals(passphrase, wallet.passphrase)
 
@@ -106,7 +106,7 @@ class WalletFactoryTest {
             wallet.stxAccount.bitcoinSerializedBase58Address
         )
         assertEquals(
-            "M/44H/5757H/0H/0/0",
+            "m/44H/5757H/0H/0/0",
             wallet.stxAccount.address.path
         )
     }

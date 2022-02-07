@@ -1,18 +1,18 @@
 package piuk.blockchain.android.cards.partners
 
-import com.blockchain.nabu.datamanagers.CardProvider
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.EveryPayCredentials
-import com.blockchain.nabu.datamanagers.PartnerCredentials
-import com.blockchain.nabu.models.responses.simplebuy.EveryPayAttrs
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
+import com.blockchain.api.paymentmethods.models.EveryPayAttrs
+import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.CardProvider
+import com.blockchain.core.payments.model.EveryPayCredentials
+import com.blockchain.core.payments.model.PartnerCredentials
 import com.blockchain.payments.core.CardAcquirer
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.everypay.service.EveryPayCardService
 
 class CardProviderActivator(
-    private val custodialWalletManager: CustodialWalletManager,
+    private val paymentsDataManager: PaymentsDataManager,
     private val submitEveryPayCardService: EveryPayCardService
 ) : CardActivator {
 
@@ -20,7 +20,7 @@ class CardProviderActivator(
         cardData: CardData,
         cardId: String
     ): Single<CompleteCardActivation> {
-        return custodialWalletManager.activateCard(
+        return paymentsDataManager.activateCard(
             cardId = cardId,
             attributes = SimpleBuyConfirmationAttributes(
                 everypay = EveryPayAttrs(redirectUrl),
@@ -77,11 +77,17 @@ class CardProviderActivator(
             cardData.toCcDetails(),
             everyPay.apiUsername,
             everyPay.mobileToken
-        ).map {
-            CompleteCardActivation.EverypayCompleteCardActivationDetails(
-                paymentLink = everyPay.paymentLink,
-                exitLink = redirectUrl
-            )
+        ).flatMap { response ->
+            if (response.isSuccess) {
+                Single.just(
+                    CompleteCardActivation.EverypayCompleteCardActivationDetails(
+                        paymentLink = everyPay.paymentLink,
+                        exitLink = redirectUrl
+                    )
+                )
+            } else {
+                Single.error(Exception("Error: failed to activate card with EveryPay with status: ${response.status}"))
+            }
         }
 
     override fun paymentAttributes(): SimpleBuyConfirmationAttributes =

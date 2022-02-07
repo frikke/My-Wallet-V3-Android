@@ -6,13 +6,13 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewAccountCryptoOverviewArchivedBinding
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 
 class AccountInfoCryptoArchived @JvmOverloads constructor(
     ctx: Context,
@@ -34,7 +34,7 @@ class AccountInfoCryptoArchived @JvmOverloads constructor(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit
     ) {
-        val asset = account.asset
+        val asset = account.currency
         with(binding) {
             walletName.text = account.label
             assetResources.loadAssetIcon(icon, asset)

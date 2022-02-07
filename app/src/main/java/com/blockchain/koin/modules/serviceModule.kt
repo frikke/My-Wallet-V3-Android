@@ -1,5 +1,6 @@
 package com.blockchain.koin.modules
 
+import com.blockchain.AppVersion
 import com.blockchain.koin.apiRetrofit
 import com.blockchain.koin.everypayRetrofit
 import com.blockchain.koin.explorerRetrofit
@@ -8,6 +9,7 @@ import com.blockchain.nabu.api.status.ApiStatusService
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.nabu.datamanagers.BlockchainApiStatus
 import info.blockchain.wallet.ApiCode
+import info.blockchain.wallet.Device
 import info.blockchain.wallet.api.FeeApi
 import info.blockchain.wallet.api.FeeEndpoints
 import info.blockchain.wallet.api.WalletApi
@@ -32,8 +34,7 @@ val serviceModule = module {
     factory {
         WalletApi(
             explorerInstance = get(),
-            apiCode = get(),
-            captchaSiteKey = getProperty("site-key")
+            api = get()
         )
     }
 
@@ -57,4 +58,18 @@ val serviceModule = module {
                 get() = getProperty("api-code")
         }
     }.bind(ApiCode::class)
+
+    factory {
+        object : Device {
+            override val osType: String
+                get() = getProperty("os_type")
+        }
+    }.bind(Device::class)
+
+    factory {
+        object : AppVersion {
+            override val appVersion: String
+                get() = getProperty("app-version")
+        }
+    }.bind(AppVersion::class)
 }

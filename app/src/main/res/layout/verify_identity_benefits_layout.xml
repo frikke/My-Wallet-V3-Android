@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,13 +18,12 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/kyc_benefits_default_symbol"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/very_small_margin"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/kyc_benefits_sheet_indicator"
-        tools:src="@drawable/ic_funds_euro" />
+        app:layout_constraintTop_toBottomOf="@id/kyc_benefits_sheet_indicator" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/kyc_benefits_intro_title"

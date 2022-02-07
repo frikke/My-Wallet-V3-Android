@@ -91,7 +91,7 @@ class ToPropertyFormatter(
             )
         } else {
             require(property.sourceAccount is CryptoAccount)
-            val asset = (property.sourceAccount as CryptoAccount).asset
+            val asset = (property.sourceAccount as CryptoAccount).currency
             mapOf(
                 ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_send_to),
                 ConfirmationPropertyKey.TITLE to getLabel(

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.notifications.analytics.Analytics
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -15,7 +16,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
-import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RecurringBuyOnboardingActivity : AppCompatActivity() {
@@ -33,7 +33,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     private val asset: AssetInfo? by unsafeLazy {
         intent?.getStringExtra(ASSET)?.let {
-            assetCatalogue.fromNetworkTicker(it)
+            assetCatalogue.assetInfoFromNetworkTicker(it)
         }
     }
 

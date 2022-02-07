@@ -1,5 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
@@ -10,13 +11,14 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
-import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -26,6 +28,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import org.amshove.kluent.shouldEqual
@@ -35,7 +38,7 @@ import org.junit.Test
 class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
     private fun mockTransactionTarget() = mock<BtcCryptoWalletAccount> {
-        on { asset }.thenReturn(ASSET)
+        on { currency }.thenReturn(ASSET)
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
@@ -50,7 +53,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
         whenever(exchangeRates.getLastCryptoToUserFiatRate(ASSET))
             .thenReturn(
-                ExchangeRate.CryptoToFiat(
+                ExchangeRate(
                     from = ASSET,
                     to = TEST_USER_FIAT,
                     rate = ASSET_TO_USER_FIAT_RATE
@@ -59,7 +62,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
         whenever(exchangeRates.getLastCryptoToFiatRate(ASSET, TEST_API_FIAT))
             .thenReturn(
-                ExchangeRate.CryptoToFiat(
+                ExchangeRate(
                     from = ASSET,
                     to = TEST_API_FIAT,
                     rate = ASSET_TO_API_FIAT_RATE
@@ -76,7 +79,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
     fun `inputs fail validation when assets mismatched`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: BtcCryptoWalletAccount = mock {
-            on { asset }.thenReturn(WRONG_ASSET)
+            on { currency }.thenReturn(WRONG_ASSET)
         }
 
         // Act
@@ -107,7 +110,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
         // Assert
         asset shouldEqual ASSET
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -156,12 +159,12 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertComplete()
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
 
         verify(custodialWalletManager).getInterestLimits(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount).balance
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -190,11 +193,11 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
             .test()
             .assertError(NoSuchElementException::class.java)
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
 
         verify(custodialWalletManager).getInterestLimits(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount).balance
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -221,11 +224,11 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
             .test()
             .assertError(Exception::class.java)
 
-        verify(sourceAccount, atLeastOnce()).asset
+        verify(sourceAccount, atLeastOnce()).currency
 
         verify(custodialWalletManager).getInterestLimits(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).actionableBalance
+        verify(sourceAccount).balance
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -251,7 +254,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
                 money,
                 money,
                 FeeSelection(),
-                "USD",
+                USD,
                 listOf(),
                 TxLimits.fromAmounts(money, money)
             )
@@ -281,9 +284,17 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<CryptoInterestAccount> {
-        on { asset }.thenReturn(ASSET)
-        on { accountBalance }.thenReturn(Single.just(totalBalance))
-        on { actionableBalance }.thenReturn(Single.just(availableBalance))
+        on { currency }.thenReturn(ASSET)
+        on { balance }.thenReturn(
+            Observable.just(
+                AccountBalance(
+                    total = totalBalance,
+                    withdrawable = availableBalance,
+                    pending = Money.zero(totalBalance.currency),
+                    exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
+                )
+            )
+        )
     }
 
     companion object {

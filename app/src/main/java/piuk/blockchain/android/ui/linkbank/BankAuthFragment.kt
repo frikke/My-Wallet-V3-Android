@@ -16,24 +16,25 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatButton
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.LinkedBank
+import com.blockchain.core.payments.model.YapilyAttributes
+import com.blockchain.core.payments.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
-import com.blockchain.nabu.models.data.YapilyAttributes
-import com.blockchain.nabu.models.data.YodleeAttributes
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
 import piuk.blockchain.android.simplebuy.ErrorState
-import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.getResolvedDrawable
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthState, FragmentLinkABankBinding>() {
@@ -81,7 +82,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.loadToolbar(
+        activity.updateToolbar(
             if (isForApproval) {
                 getString(R.string.approve_payment)
             } else {
@@ -521,12 +522,12 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 logAnalytics(BankAuthAnalytics.GENERIC_ERROR, partner)
                 if (partner == BankPartner.YODLEE) {
                     setTitleAndSubtitle(
-                        getString(R.string.bank_linking_failed_ob_title),
+                        getString(R.string.bank_linking_failed_ach_title),
                         getString(R.string.bank_linking_failed_subtitle)
                     )
                 } else {
                     setTitleAndSubtitle(
-                        getString(R.string.bank_linking_failed_ach_title),
+                        getString(R.string.bank_linking_failed_ob_title),
                         getString(R.string.bank_linking_failed_subtitle)
                     )
                 }
@@ -635,18 +636,22 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
     }
 
-    private fun showLinkingSuccess(label: String, id: String, partner: BankPartner?, currency: String) {
+    private fun showLinkingSuccess(label: String, id: String, partner: BankPartner?, currency: FiatCurrency) {
         logAnalytics(BankAuthAnalytics.SUCCESS, partner)
 
         with(binding) {
             linkBankIcon.setImageResource(R.drawable.ic_bank_details_big)
             linkBankProgress.gone()
-            linkBankStateIndicator.setImageResource(R.drawable.ic_check_circle)
-            linkBankStateIndicator.visible()
-            mainCta.text = getString(R.string.common_continue)
-            mainCta.visible()
-            mainCta.setOnClickListener {
-                navigator().bankLinkingFinished(id, currency)
+            linkBankStateIndicator.apply {
+                setImageResource(R.drawable.ic_check_circle)
+                visible()
+            }
+            mainCta.apply {
+                text = getString(R.string.common_continue)
+                visible()
+                setOnClickListener {
+                    navigator().bankLinkingFinished(id, currency)
+                }
             }
             setTitleAndSubtitle(
                 getString(R.string.bank_linking_success_title),

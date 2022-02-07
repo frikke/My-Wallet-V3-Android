@@ -14,20 +14,19 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyQuoteResponse
 import com.blockchain.nabu.service.NabuService
-import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 class BrokerageDataManager(
-    private val featureFlag: BrokerageQuoteFeatureFlag,
+    private val featureFlag: IntegratedFeatureFlag,
     private val authenticator: Authenticator,
     private val nabuService: NabuService,
     private val brokerageService: BrokerageService
 ) {
     fun quoteForTransaction(
-        pair: CurrencyPair.FiatToCryptoCurrencyPair,
+        pair: CurrencyPair,
         amount: Money,
         paymentMethodType: PaymentMethodType,
         paymentMethodId: String?,
@@ -40,7 +39,7 @@ class BrokerageDataManager(
                     inputValue = amount.toBigInteger().toString(),
                     paymentMethod = paymentMethodType.name,
                     paymentMethodId = paymentMethodId,
-                    pair = pair.rawValue,
+                    pair = listOf(pair.source.networkTicker, pair.destination.networkTicker).joinToString("-"),
                     profile = product.toProfileRequestString()
                 ).map { response ->
                     response.toDomainModel(pair)
@@ -49,7 +48,7 @@ class BrokerageDataManager(
                 val simpleBuyQuote = nabuService.getSimpleBuyQuote(
                     sessionToken = tokenResponse,
                     action = product.name,
-                    currencyPair = "${pair.destination.networkTicker}-${pair.source}",
+                    currencyPair = "${pair.destination.networkTicker}-${pair.source.networkTicker}",
                     amount = amount.toBigInteger().toString(),
                     currency = amount.currencyCode
                 ).map { response ->
@@ -65,28 +64,18 @@ class BrokerageDataManager(
 }
 
 private fun SimpleBuyQuoteResponse.toDomainModel(
-    fiatCurrency: String,
-    asset: AssetInfo,
+    fiatCurrency: Currency,
+    asset: Currency,
     amount: Money
 ): BrokerageQuote {
-    val amountCrypto = CryptoValue.fromMajor(
-        asset,
-        (amount.toBigInteger().toFloat().div(rate)).toBigDecimal()
-    )
-
-    val fee = FiatValue.fromMinor(
-        fiatCurrency,
-        fee.times(amountCrypto.toBigInteger().toLong())
-    )
-
     return BrokerageQuote(
         id = null,
-        price = FiatValue.fromMinor(fiatCurrency, rate),
+        price = Money.fromMinor(fiatCurrency, rate.toBigInteger()),
         quoteMargin = null,
         availability = null,
         feeDetails = QuoteFee(
-            fee = fee,
-            feeBeforePromo = fee,
+            fee = Money.zero(fiatCurrency),
+            feeBeforePromo = Money.zero(fiatCurrency),
             promo = Promo.NO_PROMO
         )
     )
@@ -95,12 +84,12 @@ private fun SimpleBuyQuoteResponse.toDomainModel(
 private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair): BrokerageQuote =
     BrokerageQuote(
         id = quoteId,
-        price = pair.toDestinationMoney(price.toBigInteger()),
+        price = Money.fromMinor(pair.destination, price.toBigInteger()),
         quoteMargin = quoteMarginPercent,
         availability = settlementDetails.availability?.toAvailability() ?: Availability.UNAVAILABLE,
         feeDetails = QuoteFee(
-            fee = pair.toSourceMoney(feeDetails.fee.toBigInteger()),
-            feeBeforePromo = pair.toSourceMoney(feeDetails.feeWithoutPromo.toBigInteger()),
+            fee = Money.fromMinor(pair.source, feeDetails.fee.toBigInteger()),
+            feeBeforePromo = Money.fromMinor(pair.source, feeDetails.feeWithoutPromo.toBigInteger()),
             promo = feeDetails.feeFlags.firstOrNull()?.toPromo() ?: Promo.NO_PROMO
         )
     )

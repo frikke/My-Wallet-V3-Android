@@ -11,10 +11,17 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
 import com.blockchain.api.services.Geolocation
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.viewextensions.getTextString
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.CountryIso
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
-import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CountryPickerItem
@@ -23,13 +30,10 @@ import piuk.blockchain.android.cards.PickerItemListener
 import piuk.blockchain.android.cards.SearchPickerItemBottomSheet
 import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
-import piuk.blockchain.android.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.databinding.ViewPasswordStrengthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
@@ -37,10 +41,6 @@ import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.US
-import piuk.blockchain.android.util.ViewUtils
-import piuk.blockchain.android.util.getTextString
-import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -81,8 +81,8 @@ class CreateWalletActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupCta()
-        loadToolbar(
-            titleToolbar = if (recoveryPhrase.isNotEmpty()) {
+        updateToolbar(
+            toolbarTitle = if (recoveryPhrase.isNotEmpty()) {
                 getString(R.string.recover_funds)
             } else {
                 getString(R.string.new_account_title_1)
@@ -93,7 +93,6 @@ class CreateWalletActivity :
 
         createWalletPresenter.getUserGeolocation()
 
-        initializeCountrySpinner()
         initializeStatesSpinner()
 
         with(binding) {
@@ -151,18 +150,6 @@ class CreateWalletActivity :
             binding.commandNext.setText(R.string.dialog_continue)
         } else {
             binding.commandNext.setText(R.string.new_account_cta_text)
-        }
-    }
-
-    private fun initializeCountrySpinner() {
-        binding.country.setOnClickListener {
-            SearchPickerItemBottomSheet.newInstance(
-                Locale.getISOCountries()
-                    .toList()
-                    .map { countryCode ->
-                        CountryPickerItem(countryCode)
-                    }
-            ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
         }
     }
 
@@ -238,7 +225,7 @@ class CreateWalletActivity :
     }
 
     override fun startPinEntryActivity() {
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
         PinEntryActivity.startAfterWalletCreation(this)
     }
 
@@ -252,6 +239,16 @@ class CreateWalletActivity :
     }
 
     override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
+
+    override fun setEligibleCountries(countries: List<CountryIso>) {
+        binding.country.setOnClickListener {
+            SearchPickerItemBottomSheet.newInstance(
+                countries.map { countryCode ->
+                    CountryPickerItem(countryCode)
+                }
+            ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
+        }
+    }
 
     override fun setGeolocationInCountrySpinner(geolocation: Geolocation) {
         if (countryPickerItem == null) {
@@ -304,7 +301,7 @@ class CreateWalletActivity :
                 WalletCreationAnalytics.StateSelectedOnSignUp(item.code)
             }
         }
-        ViewUtils.hideKeyboard(this)
+        hideKeyboard()
     }
 
     private fun changeStatesSpinnerVisibility(showStateSpinner: Boolean) {

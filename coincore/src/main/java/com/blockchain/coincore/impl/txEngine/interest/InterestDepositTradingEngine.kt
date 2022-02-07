@@ -35,11 +35,11 @@ class InterestDepositTradingEngine(
         check(sourceAccount is TradingAccount)
         check(txTarget is InterestAccount)
         check(txTarget is CryptoAccount)
-        check(sourceAsset == (txTarget as CryptoAccount).asset)
+        check(sourceAsset == (txTarget as CryptoAccount).currency)
     }
 
     private val availableBalance: Single<Money>
-        get() = sourceAccount.accountBalance
+        get() = sourceAccount.balance.firstOrError().map { it.total }
 
     override fun doInitialiseTx(): Single<PendingTx> {
         return Single.zip(
@@ -48,7 +48,7 @@ class InterestDepositTradingEngine(
         ) { limits, balance ->
             val cryptoAsset = limits.cryptoCurrency
             PendingTx(
-                amount = CryptoValue.zero(sourceAsset),
+                amount = Money.zero(sourceAsset),
                 limits = TxLimits.withMinAndUnlimitedMax(
                     limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset)
                 ),
@@ -56,8 +56,8 @@ class InterestDepositTradingEngine(
                 selectedFiat = userFiat,
                 availableBalance = balance,
                 totalBalance = balance,
-                feeAmount = CryptoValue.zero(sourceAsset),
-                feeForFullAvailable = CryptoValue.zero(sourceAsset)
+                feeAmount = Money.zero(sourceAsset),
+                feeForFullAvailable = Money.zero(sourceAsset)
             )
         }
     }
@@ -147,7 +147,7 @@ class InterestDepositTradingEngine(
             origin = Product.BUY,
             destination = Product.SAVINGS
         ).doOnComplete {
-            interestBalances.flushCaches(sourceAsset)
+            interestBalances.flushCaches(sourceAssetInfo)
         }.toSingle {
             TxResult.UnHashedTxResult(pendingTx.amount)
         }

@@ -20,6 +20,7 @@ import com.blockchain.koin.modules.xlmModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
+import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -32,13 +33,15 @@ import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
-import piuk.blockchain.android.ui.home.v2.mainModule
+import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
+import piuk.blockchain.android.ui.home.mainModule
 import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.launcher.loader.loaderModule
 import piuk.blockchain.android.ui.login.loginUiModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
+import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
 import piuk.blockchain.android.ui.transactionflow.transactionModule
 import piuk.blockchain.android.ui.transfer.receive.receiveCryptoModule
@@ -64,6 +67,7 @@ object KoinStarter {
                     applicationModule,
                     coroutinesModule,
                     dashboardModule,
+                    walletConnectModule,
                     campaignModule,
                     bitpayModule,
                     coincoreModule,
@@ -93,7 +97,9 @@ object KoinStarter {
                     walletModule,
                     xlmModule,
                     kycAutocompleteModule,
-                    mainModule
+                    mainModule,
+                    redesignSettingsModule,
+                    remoteFeatureFlagsModule
                 )
             )
         }

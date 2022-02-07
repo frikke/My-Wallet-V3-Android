@@ -4,18 +4,20 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
 import java.io.Serializable
-import piuk.blockchain.android.ui.base.mvi.MviState
+import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
@@ -76,27 +78,27 @@ interface BalanceState : DashboardItem {
     val delta: Pair<Money, Double>?
     operator fun get(currency: AssetInfo): CryptoAssetState
     val assetList: List<CryptoAssetState>
-    fun getFundsFiat(fiat: String): Money
+    fun getFundsFiat(fiat: FiatCurrency): Money
 }
 
 data class FiatBalanceInfo(
     val account: FiatAccount,
-    val balance: Money = FiatValue.zero(account.fiatCurrency),
+    val balance: Money = Money.zero(account.currency),
     val userFiat: Money? = null,
     val availableBalance: Money? = null
 )
 
 data class FiatAssetState(
-    val fiatAccounts: Map<String, FiatBalanceInfo> = emptyMap()
+    val fiatAccounts: Map<Currency, FiatBalanceInfo> = emptyMap()
 ) : DashboardItem {
 
     fun updateWith(
-        currencyCode: String,
+        currency: Currency,
         balance: FiatValue,
         userFiatBalance: FiatValue,
         availableBalance: Money
     ): FiatAssetState {
-        val newBalanceInfo = fiatAccounts[currencyCode]?.copy(
+        val newBalanceInfo = fiatAccounts[currency]?.copy(
             balance = balance,
             userFiat = userFiatBalance,
             availableBalance = availableBalance
@@ -104,7 +106,7 @@ data class FiatAssetState(
 
         return newBalanceInfo?.let {
             val newMap = fiatAccounts.toMutableMap()
-            newMap[currencyCode] = it
+            newMap[currency] = it
             FiatAssetState(newMap)
         } ?: this
     }
@@ -156,6 +158,11 @@ data class Locks(
     val fundsLocks: FundsLocks? = null
 ) : DashboardItem, Serializable
 
+sealed class DashboardOnboardingState {
+    object Hidden : DashboardOnboardingState()
+    data class Visible(val steps: List<CompletableDashboardOnboardingStep>) : DashboardOnboardingState()
+}
+
 data class DashboardState(
     val availablePrices: Map<AssetInfo, AssetPriceState> = emptyMap(),
     val dashboardNavigationAction: DashboardNavigationAction? = null,
@@ -172,8 +179,8 @@ data class DashboardState(
     val hasLongCallInProgress: Boolean = false,
     val isLoadingAssets: Boolean = true,
     val locks: Locks = Locks(),
-    val buyAccess: FeatureAccess = FeatureAccess.Unknown,
-    val buyButtonShouldBeHidden: Boolean = true
+    val onboardingState: DashboardOnboardingState = DashboardOnboardingState.Hidden,
+    val canPotentiallyTransactWithBanks: Boolean = true
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 
@@ -230,8 +237,8 @@ data class DashboardState(
     override operator fun get(currency: AssetInfo): CryptoAssetState =
         activeAssets[currency]
 
-    override fun getFundsFiat(fiat: String): Money =
-        fiatAssets.totalBalance ?: FiatValue.zero(fiat)
+    override fun getFundsFiat(fiat: FiatCurrency): Money =
+        fiatAssets.totalBalance ?: Money.zero(fiat)
 
     val assetMapKeys = activeAssets.keys
 

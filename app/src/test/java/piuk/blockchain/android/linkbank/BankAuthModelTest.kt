@@ -2,14 +2,15 @@ package piuk.blockchain.android.linkbank
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.LinkedBank
+import com.blockchain.core.payments.model.LinkedBankErrorState
+import com.blockchain.core.payments.model.LinkedBankState
+import com.blockchain.core.payments.model.YapilyAttributes
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.BankPartner
-import com.blockchain.nabu.models.data.LinkBankTransfer
-import com.blockchain.nabu.models.data.LinkedBank
-import com.blockchain.nabu.models.data.LinkedBankErrorState
-import com.blockchain.nabu.models.data.LinkedBankState
-import com.blockchain.nabu.models.data.YapilyAttributes
 import com.blockchain.network.PollResult
+import com.blockchain.testutils.GBP
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -168,7 +169,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -216,7 +217,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, false)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -264,7 +265,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -306,7 +307,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -348,7 +349,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name", bankName = "bankName",
             accountNumber = "123",
@@ -389,7 +390,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -431,7 +432,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -473,7 +474,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -515,7 +516,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -557,7 +558,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -599,7 +600,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -634,7 +635,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.GetLinkedBankState(linkingBankId, true)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -704,7 +705,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name", bankName = "bankName",
             accountNumber = "123",
@@ -755,7 +756,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -801,7 +802,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -847,7 +848,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name", bankName = "bankName",
             accountNumber = "123",
@@ -892,7 +893,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name", bankName = "bankName",
             accountNumber = "123",
@@ -937,7 +938,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name", bankName = "bankName",
             accountNumber = "123",
@@ -982,7 +983,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -1028,7 +1029,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -1074,7 +1075,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
@@ -1120,7 +1121,7 @@ class BankAuthModelTest {
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
         val expectedBank = LinkedBank(
             id = linkingBankId,
-            currency = "GBP",
+            currency = GBP,
             partner = BankPartner.YAPILY,
             accountName = "name",
             bankName = "bankName",
