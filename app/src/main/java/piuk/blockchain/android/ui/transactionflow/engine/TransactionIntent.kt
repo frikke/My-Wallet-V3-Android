@@ -383,6 +383,13 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             ).updateBackstack(oldState)
     }
 
+    object CancelTransaction : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                nextEnabled = false
+            ).updateBackstack(oldState)
+    }
+
     class FatalTransactionError(
         private val error: Throwable
     ) : TransactionIntent() {
@@ -482,6 +489,13 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             oldState.copy(
                 nextEnabled = true,
                 executionStatus = TxExecutionStatus.Completed
+            ).updateBackstack(oldState)
+    }
+
+    object UpdateTransactionCancelled : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                executionStatus = TxExecutionStatus.Cancelled
             ).updateBackstack(oldState)
     }
 

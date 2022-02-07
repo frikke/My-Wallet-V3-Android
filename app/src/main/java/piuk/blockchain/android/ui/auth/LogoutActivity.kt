@@ -10,7 +10,6 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
-import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.WalletStatus
 import java.io.Serializable
 import org.koin.android.ext.android.inject
@@ -29,7 +28,6 @@ class LogoutActivity : AppCompatActivity() {
     private val assetActivityRepository: AssetActivityRepository by scopedInject()
     private val osUtil: OSUtil by inject()
     private val analytics: Analytics by inject()
-    private val dashboardPrefs: DashboardPrefs by inject()
     private val walletPrefs: WalletStatus by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {

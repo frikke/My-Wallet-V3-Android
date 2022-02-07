@@ -2682,5 +2682,6 @@
     <string name="password_current_hint">Enter current password</string>
     <string name="password_new_hint">Enter new password</string>
     <string name="password_confirm_hint">Re-enter new password</string>
+    <string name="signature_request">Signature Request</string>
 
 </resources>

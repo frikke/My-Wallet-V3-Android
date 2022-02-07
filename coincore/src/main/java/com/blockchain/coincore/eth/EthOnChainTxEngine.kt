@@ -187,22 +187,31 @@ class EthOnChainTxEngine(
             }
 
     private fun createTransaction(pendingTx: PendingTx): Single<RawTransaction> {
-
         return Singles.zip(
             ethDataManager.getNonce(),
             feeOptions(),
             resolvedHotWalletAddress
-        ).flatMap { (nonce, fees, hotWalletAddress) ->
+        ).map { (nonce, fees, hotWalletAddress) ->
+            val useHotWallet = hotWalletAddress.isNotEmpty()
+
             ethDataManager.createEthTransaction(
                 nonce = nonce,
-                to = (txTarget as CryptoAddress).address,
+                to = if (useHotWallet) hotWalletAddress else
+                    (txTarget as CryptoAddress).address,
                 gasPriceWei = fees.gasPrice(pendingTx.feeSelection.selectedLevel),
-                gasLimitGwei = fees.getGasLimit(txTarget.isContract),
+                gasLimitGwei = fees.getGasLimit(txTarget.isContract) + extraGasLimitIfMemoAvailable(useHotWallet),
                 weiValue = pendingTx.amount.toBigInteger(),
-                hotWalletAddress = hotWalletAddress
+                data = if (useHotWallet) (txTarget as CryptoAddress).address else ""
             )
         }
     }
+
+    private fun extraGasLimitIfMemoAvailable(useHotWallet: Boolean): BigInteger =
+        if (useHotWallet) {
+            ethDataManager.extraGasLimitForMemo()
+        } else {
+            BigInteger.ZERO
+        }
 
     // TODO: Have FeeOptions deal with this conversion
     private fun FeeOptions.gasPrice(feeLevel: FeeLevel): BigInteger =

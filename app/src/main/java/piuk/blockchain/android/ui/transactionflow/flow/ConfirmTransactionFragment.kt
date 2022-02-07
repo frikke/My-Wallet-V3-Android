@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
@@ -16,6 +17,7 @@ import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
+import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.flow.adapter.ConfirmTransactionDelegateAdapter
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
@@ -68,11 +70,21 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
             listAdapter.items = newState.pendingTx.confirmations.toList()
         }
 
+        if (newState.executionStatus == TxExecutionStatus.Cancelled) {
+            activity.finish()
+        }
+
         with(binding) {
             with(confirmCtaButton) {
                 text = customiser.confirmCtaText(newState)
                 isEnabled = newState.nextEnabled
                 setOnClickListener { onCtaClick(newState) }
+            }
+
+            with(buttonCancel) {
+                text = customiser.cancelButtonText(newState.action)
+                visibleIf { customiser.cancelButtonVisible(newState.action) }
+                onClick = { onCancelClick() }
             }
 
             if (customiser.confirmDisclaimerVisibility(newState.action)) {
@@ -103,6 +115,10 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
     private fun onCtaClick(state: TransactionState) {
         analyticsHooks.onConfirmationCtaClick(state)
         model.process(TransactionIntent.ExecuteTransaction)
+    }
+
+    private fun onCancelClick() {
+        model.process(TransactionIntent.CancelTransaction)
     }
 
     companion object {

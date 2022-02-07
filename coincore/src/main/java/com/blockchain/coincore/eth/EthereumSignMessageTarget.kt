@@ -1,7 +1,9 @@
 package com.blockchain.coincore.eth
 
+import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxResult
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
@@ -13,13 +15,20 @@ class EthereumSignMessageTarget(
     val dAppLogoUrl: String,
     val currency: Currency = CryptoCurrency.ETHER,
     val message: EthSignMessage,
-    override val onTxCompleted: (TxResult) -> Completable
+    override val onTxCompleted: (TxResult) -> Completable,
+    override val onTxCancelled: () -> Completable
 ) : WalletConnectTarget {
     override val label: String
         get() = dAppName
+    override val asset: AssetInfo
+        get() = CryptoCurrency.ETHER
+    override val address: String
+        get() = message.address
 }
 
-interface WalletConnectTarget : TransactionTarget
+interface WalletConnectTarget : TransactionTarget, CryptoAddress {
+    val onTxCancelled: () -> Completable
+}
 
 data class EthSignMessage(
     val raw: List<String>,

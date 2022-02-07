@@ -30,7 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/confirm_header_slot"
         app:layout_constraintVertical_bias="0"
-        app:layout_goneMarginBottom="@dimen/huge_margin"
+        app:layout_goneMarginBottom="@dimen/epic_margin"
         tools:listitem="@layout/item_send_confirm_details" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -46,6 +46,16 @@
         app:layout_constraintBottom_toTopOf="@id/confirm_cta_button"
         tools:text="Disclaimer blurb that spans several lines that spans several lines"
         tools:visibility="visible" />
+
+    <com.blockchain.componentlib.button.DestructiveMinimalButtonView
+        android:id="@+id/button_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        app:layout_constraintBottom_toTopOf="@+id/confirm_cta_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/confirm_cta_button"

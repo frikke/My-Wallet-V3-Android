@@ -24,6 +24,8 @@ class TxConfirmReadOnlyMapperCheckout(
     fun map(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         return when (property) {
             is TxConfirmationValue.To -> formatters.first { it is ToPropertyFormatter }.format(property)
+            is TxConfirmationValue.ToWithNameAndAddress -> formatters.first { it is ToWithNameAndAddressFormatter }
+                .format(property)
             is TxConfirmationValue.From -> formatters.first { it is FromPropertyFormatter }.format(property)
             is TxConfirmationValue.ExchangePriceConfirmation ->
                 formatters.first { it is ExchangePriceFormatter }.format(property)
@@ -107,6 +109,19 @@ class ToPropertyFormatter(
                 )
             )
         }
+    }
+}
+
+class ToWithNameAndAddressFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.ToWithNameAndAddress)
+        return mapOf(
+            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.common_to),
+            ConfirmationPropertyKey.TITLE to property.label,
+            ConfirmationPropertyKey.SUBTITLE to property.address
+        )
     }
 }
 

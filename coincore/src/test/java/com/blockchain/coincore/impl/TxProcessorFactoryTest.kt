@@ -75,7 +75,9 @@ class TxProcessorFactoryTest {
             analytics = analytics,
             userIdentity = userIdentity,
             withdrawLocksRepository = withdrawalLocksRepository,
-            paymentsDataManager = paymentsDataManager
+            paymentsDataManager = paymentsDataManager,
+            ethDataManager = mock(),
+            fees = mock()
         )
     }
 

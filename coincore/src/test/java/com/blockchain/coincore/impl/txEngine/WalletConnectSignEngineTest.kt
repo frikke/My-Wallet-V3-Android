@@ -141,6 +141,7 @@ class WalletConnectSignEngineTest : CoincoreTestBase() {
                 EthSignMessage.SignType.MESSAGE
             ),
             onTxCompleted = { Completable.complete() },
+            onTxCancelled = { Completable.complete() }
         )
 
         subject.start(
@@ -186,7 +187,7 @@ class WalletConnectSignEngineTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `PendingTx should be in  state INVALID ADDR when dapp address is not same as sourceAccount address`() {
+    fun `PendingTx should be in state INVALID ADDR when dapp address is not same as sourceAccount address`() {
         // Arrange
         val mockReceiveAddress: ReceiveAddress = mock {
             on { address }.thenReturn("123")
@@ -209,6 +210,7 @@ class WalletConnectSignEngineTest : CoincoreTestBase() {
                 EthSignMessage.SignType.MESSAGE
             ),
             onTxCompleted = { Completable.complete() },
+            onTxCancelled = { Completable.complete() }
         )
 
         subject.start(
@@ -261,6 +263,7 @@ class WalletConnectSignEngineTest : CoincoreTestBase() {
                 EthSignMessage.SignType.MESSAGE
             ),
             onTxCompleted = { Completable.complete() },
+            onTxCancelled = { Completable.complete() }
         )
 
         subject.start(
