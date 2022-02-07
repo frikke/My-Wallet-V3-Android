@@ -163,10 +163,6 @@ class PortfolioFragment :
         arguments?.getString(FLOW_FIAT_CURRENCY)
     }
 
-    private val startOnboarding: Boolean by unsafeLazy {
-        arguments?.getBoolean(START_DASHBOARD_ONBOARDING_KEY, false) ?: false
-    }
-
     private var state: DashboardState? =
         null // Hold the 'current' display state, to enable optimising of state updates
 
@@ -191,17 +187,6 @@ class PortfolioFragment :
                 )
                 else -> throw IllegalStateException("Unsupported flow launch for action $flowToLaunch")
             }
-        } else if (startOnboarding) {
-            compositeDisposable += onboardingFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
-                onSuccess = { isEnabled ->
-                    if (isEnabled) {
-                        val steps = DashboardOnboardingStep.values().map { step ->
-                            CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.INCOMPLETE)
-                        }
-                        launchDashboardOnboarding(steps, showCloseButton = true)
-                    }
-                }
-            )
         }
     }
 
@@ -342,16 +327,21 @@ class PortfolioFragment :
         }
     }
 
-    private fun launchDashboardOnboarding(
-        initialSteps: List<CompletableDashboardOnboardingStep>,
-        showCloseButton: Boolean = false
-    ) {
-        activityResultDashboardOnboarding.launch(
-            DashboardOnboardingActivity.ActivityArgs(
-                initialSteps = initialSteps,
-                showCloseButton = showCloseButton
-            )
+    fun launchNewUserDashboardOnboarding() {
+        compositeDisposable += onboardingFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    val steps = DashboardOnboardingStep.values().map { step ->
+                        CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.INCOMPLETE)
+                    }
+                    launchDashboardOnboarding(steps)
+                }
+            }
         )
+    }
+
+    private fun launchDashboardOnboarding(initialSteps: List<CompletableDashboardOnboardingStep>) {
+        activityResultDashboardOnboarding.launch(DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps))
     }
 
     private fun startBankLinking(action: DashboardNavigationAction.LinkBankWithPartner) {
@@ -909,22 +899,18 @@ class PortfolioFragment :
     companion object {
         fun newInstance(
             flowToLaunch: AssetAction? = null,
-            fiatCurrency: String? = null,
-            startOnboarding: Boolean = false
+            fiatCurrency: String? = null
         ) = PortfolioFragment().apply {
             arguments = Bundle().apply {
                 if (flowToLaunch != null && fiatCurrency != null) {
                     putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
                     putString(FLOW_FIAT_CURRENCY, fiatCurrency)
-                } else {
-                    putBoolean(START_DASHBOARD_ONBOARDING_KEY, startOnboarding)
                 }
             }
         }
 
         internal const val FLOW_TO_LAUNCH = "FLOW_TO_LAUNCH"
         internal const val FLOW_FIAT_CURRENCY = "FLOW_FIAT_CURRENCY"
-        internal const val START_DASHBOARD_ONBOARDING_KEY = "START_DASHBOARD_ONBOARDING_KEY"
 
         private const val IDX_CARD_ANNOUNCE = 0
         private const val IDX_CARD_BALANCE = 1

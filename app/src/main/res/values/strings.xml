@@ -2684,4 +2684,17 @@
     <string name="password_confirm_hint">Re-enter new password</string>
     <string name="signature_request">Signature Request</string>
 
+    <!-- Ui Tour -->
+    <string name="ui_tour_home_title">See Your Balances</string>
+    <string name="ui_tour_prices_title">Discover New Coins</string>
+    <string name="ui_tour_middle_button_title">Instantly Trade</string>
+    <string name="ui_tour_activity_title">See All Transactions</string>
+    <string name="ui_tour_buyer_handhold_title">Get Set Up to Buy</string>
+
+    <string name="ui_tour_home_subtitle">Quickly check and know how your portfolio is doing. Never miss a cent.</string>
+    <string name="ui_tour_prices_subtitle">Track the live price of over 1,200 coins and find new ones to add to your wallet.</string>
+    <string name="ui_tour_middle_button_subtitle">Whether you want to swap with speed or send to a friend - we’ve got you covered!</string>
+    <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
+    <string name="ui_tour_buyer_handhold_subtitle">Add a card or link a bank to start buying crypto in seconds.</string>
+
 </resources>

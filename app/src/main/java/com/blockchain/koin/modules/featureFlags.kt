@@ -9,6 +9,7 @@ import com.blockchain.koin.pricingQuoteFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
+import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.koin.unifiedSignInFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
@@ -97,6 +98,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_wallet_connect",
                 "Wallet connect"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(uiTourFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_ui_tour",
+                "Ui Tour"
             )
         )
     }.bind(FeatureFlag::class)
