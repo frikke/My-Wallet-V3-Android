@@ -1770,7 +1770,7 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
     <string name="landing_value_prop_two_1">Gagnez des récompenses sur votre crypto.</string>
     <string name="tx_title_rewards">%s récompenses gagnées</string>
     <string name="dashboard_asset_balance_rewards">Gagnez %1$.1f %% par an</string>
-    <string name="dashboard_asset_actions_deposit_dsc_1">Ajoutez %1$s à votre Compte de récompenses</string>
+    <string name="dashboard_asset_actions_add_dsc_1">Ajoutez %1$s à votre Compte de récompenses</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Retirez %1$s de votre Compte de récompenses</string>
     <string name="dashboard_asset_actions_summary_title_1">Résumé des récompenses</string>
     <string name="dashboard_asset_actions_summary_dsc_1">Afficher vos récompenses %1$s</string>

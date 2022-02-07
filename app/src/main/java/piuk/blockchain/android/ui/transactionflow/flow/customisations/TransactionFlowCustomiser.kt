@@ -193,7 +193,7 @@ class TransactionFlowCustomiserImpl(
                 (state.selectedTarget as CryptoAccount).currency.displayTicker
             )
             AssetAction.InterestDeposit -> resources.getString(
-                R.string.tx_title_deposit,
+                R.string.tx_title_add_with_ticker,
                 state.sendingAsset.displayTicker
             )
             AssetAction.Sell -> resources.getString(

@@ -1790,7 +1790,7 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="landing_value_prop_two_1">Получайте вознаграждение за свою криптовалюту.</string>
     <string name="tx_title_rewards">Получено %s вознаграждений</string>
     <string name="dashboard_asset_balance_rewards">Зарабатывайте %1$.1f %% ежегодно</string>
-    <string name="dashboard_asset_actions_deposit_dsc_1">Добавьте %1$s на свой счет вознаграждений</string>
+    <string name="dashboard_asset_actions_add_dsc_1">Добавьте %1$s на свой счет вознаграждений</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Выведите %1$s со своего счета вознаграждений</string>
     <string name="dashboard_asset_actions_summary_title_1">Сводка вознаграждений</string>
     <string name="dashboard_asset_actions_summary_dsc_1">Просмотреть накопленные вознаграждения %1$s</string>

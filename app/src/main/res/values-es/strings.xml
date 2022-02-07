@@ -1742,7 +1742,7 @@ Mientras tanto, puede vender en efectivo, intercambiar y comerciar dentro de Blo
     <string name="landing_value_prop_two_1">Obtenga recompensas con sus criptomonedas.</string>
     <string name="tx_title_rewards">%s recompensas ganadas</string>
     <string name="dashboard_asset_balance_rewards">Gane %1$.1f %% anualmente</string>
-    <string name="dashboard_asset_actions_deposit_dsc_1">Agregar %1$s a su cuenta de recompensas</string>
+    <string name="dashboard_asset_actions_add_dsc_1">Agregar %1$s a su cuenta de recompensas</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Retirar %1$s de su cuenta de recompensas</string>
     <string name="dashboard_asset_actions_summary_title_1">Resumen de recompensas</string>
     <string name="dashboard_asset_actions_summary_dsc_1">Ver sus recompensas de %1$s acumuladas</string>
