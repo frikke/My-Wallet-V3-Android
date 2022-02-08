@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.start
 
+import com.blockchain.koin.landingCtaFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import org.koin.dsl.module
 
@@ -10,10 +11,12 @@ val startupUiModule = module {
             LandingPresenter(
                 environmentSettings = get(),
                 prefs = get(),
+                onboardingPrefs = get(),
                 rootUtil = get(),
                 apiStatus = get(),
                 assetCatalogue = get(),
-                exchangeRatesDataManager = get()
+                exchangeRatesDataManager = get(),
+                landingCtaFF = get(landingCtaFeatureFlag)
             )
         }
 

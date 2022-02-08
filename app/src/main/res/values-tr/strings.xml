@@ -2137,8 +2137,6 @@ Satın alma veya para yatırma limitleri, hesabınızda tamamlanan doğrulama, s
     <string name="card_cvc">CVC</string>
     <string name="invalid_cvc">Geçersiz CVC</string>
     <string name="common_unavailable">Kullanım dışı</string>
-    <string name="landing_cta_title">Bitcoin satın alın. Geleceğe Sahip Olun.</string>
-    <string name="landing_cta_subtitle">Bir Blockchain.com Wallet oluşturun ve kriptoyu satın alın, satın ve tutun. Dakikalar değil saniyeler içinde sıfırdan kriptoya geçin.</string>
     <string name="landing_cta_login">Oturum Aç</string>
     <string name="settings_see_profile">Profili Gör</string>
     <string name="profile_label_name">Ad</string>

@@ -2140,8 +2140,6 @@ Os limites de compra ou depósito são determinados por muitos fatores, incluind
     <string name="card_cvc">CVC</string>
     <string name="invalid_cvc">CVC inválido</string>
     <string name="common_unavailable">Indisponível</string>
-    <string name="landing_cta_title">Compre Bitcoin. Domine o futuro.</string>
-    <string name="landing_cta_subtitle">Crie uma Blockchain.com Wallet e compre, venda e detenha cripto de uma forma simples. Passe de zero a cripto em segundos, não em minutos.</string>
     <string name="landing_cta_login">Iniciar sessão</string>
     <string name="settings_see_profile">Ver perfil</string>
     <string name="profile_label_name">Nome</string>

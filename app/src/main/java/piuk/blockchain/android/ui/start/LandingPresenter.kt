@@ -6,7 +6,9 @@ import com.blockchain.componentlib.price.PriceView
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.ApiStatus
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.isCustodial
@@ -21,6 +23,7 @@ import timber.log.Timber
 
 interface LandingView : MvpView {
     fun showSnackbar(message: String, type: SnackbarType)
+    fun showLandingCta()
     fun showIsRootedWarning()
     fun showApiOutageMessage()
     fun onLoadPrices(assets: List<PriceView.Price>)
@@ -29,10 +32,12 @@ interface LandingView : MvpView {
 class LandingPresenter(
     private val environmentSettings: EnvironmentConfig,
     private val prefs: SecurityPrefs,
+    private val onboardingPrefs: OnboardingPrefs,
     private val rootUtil: RootUtil,
     private val apiStatus: ApiStatus,
     private val assetCatalogue: AssetCatalogueImpl,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
+    private val landingCtaFF: FeatureFlag
 ) : MvpPresenter<LandingView>() {
 
     override val alwaysDisableScreenshots = false
@@ -49,6 +54,16 @@ class LandingPresenter(
             )
         }
         checkApiStatus()
+    }
+
+    fun checkShouldShowLandingCta() {
+        if (onboardingPrefs.isLandingCtaDismissed) return
+        compositeDisposable += landingCtaFF.enabled
+            .onErrorReturnItem(false)
+            .filter { enabled -> enabled }
+            .subscribeBy {
+                view?.showLandingCta()
+            }
     }
 
     fun loadAssets() {

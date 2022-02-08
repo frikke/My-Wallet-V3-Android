@@ -13,12 +13,9 @@ import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.koin.landingCtaFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
@@ -32,8 +29,6 @@ import piuk.blockchain.android.util.StringUtils
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
-    private val landingCtaFF: FeatureFlag by scopedInject(landingCtaFeatureFlag)
-
     override val presenter: LandingPresenter by scopedInject()
     override val view: LandingView = this
 
@@ -45,18 +40,9 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(binding.root)
 
-        compositeDisposable += landingCtaFF.enabled
-            .onErrorReturnItem(false)
-            .filter { enabled -> enabled }
-            .subscribeBy {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    startActivity(LandingCtaActivity.newIntent(this))
-                    overridePendingTransition(R.anim.slide_up_from_bottom, 0)
-                }, 500)
-            }
+        presenter.checkShouldShowLandingCta()
 
         with(binding) {
             if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
@@ -153,6 +139,13 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 }
                 .create()
         )
+
+    override fun showLandingCta() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            startActivity(LandingCtaActivity.newIntent(this))
+            overridePendingTransition(R.anim.slide_up_from_bottom, 0)
+        }, 500)
+    }
 
     override fun showIsRootedWarning() =
         showAlert(

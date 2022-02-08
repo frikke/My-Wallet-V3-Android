@@ -33,6 +33,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.network.PollResult
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
@@ -59,6 +60,7 @@ class SimpleBuyModel(
     prefs: CurrencyPrefs,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val ratingPrefs: RatingPrefs,
+    private val onboardingPrefs: OnboardingPrefs,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
     private val serializer: SimpleBuyPrefsSerializer,
@@ -839,6 +841,7 @@ class SimpleBuyModel(
     private fun updatePersistingCountersForCompletedOrders() {
         ratingPrefs.preRatingActionCompletedTimes = ratingPrefs.preRatingActionCompletedTimes + 1
         simpleBuyPrefs.hasCompletedAtLeastOneBuy = true
+        onboardingPrefs.isLandingCtaDismissed = true
     }
 
     private fun shouldShowAppRating(orderCreatedSuccessFully: Boolean): Boolean =

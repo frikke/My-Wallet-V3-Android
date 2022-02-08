@@ -431,6 +431,11 @@ class PrefsUtil(
         get() = getValue(KEY_EMAIL_VERIFIED, false)
         set(value) = setValue(KEY_EMAIL_VERIFIED, value)
 
+    // Onboarding Prefs
+    override var isLandingCtaDismissed: Boolean
+        get() = getValue(KEY_IS_LANDING_CTA_DISMISSED, false)
+        set(value) = setValue(KEY_IS_LANDING_CTA_DISMISSED, value)
+
     override fun clearSessionId() = removeValue(SESSION_ID)
 
     private fun encodeToBase64(data: String) =
@@ -486,12 +491,14 @@ class PrefsUtil(
         val installedVersion = store.getString(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
             ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
         val firebaseToken = store.getString(KEY_FIREBASE_TOKEN, "").orEmpty()
+        val isLandingCtaDismissed = store.getBoolean(KEY_IS_LANDING_CTA_DISMISSED, false)
 
         store.edit().clear().apply()
 
         setValue(APP_CURRENT_VERSION_CODE, versionCode)
         setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
         setValue(KEY_FIREBASE_TOKEN, firebaseToken)
+        setValue(KEY_IS_LANDING_CTA_DISMISSED, isLandingCtaDismissed)
 
         clearBackup()
     }
@@ -638,6 +645,9 @@ class PrefsUtil(
         // Rating
         private const val HAS_SEEN_RATING = "has_seen_rating"
         private const val PRE_RATING_ACTION_COMPLETED_TIMES = "pre_rating_action_completed_times"
+
+        // Onboarding
+        private const val KEY_IS_LANDING_CTA_DISMISSED = "KEY_IS_LANDING_PAGE_DISMISSED"
 
         // Auth prefs
         // NOTE: for historical purposes, should be used as the cryptography cipher key

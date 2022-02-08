@@ -38,6 +38,7 @@ val dashboardModule = module {
                 exchangeRates = get(),
                 payloadManager = get(),
                 currencyPrefs = get(),
+                onboardingPrefs = get(),
                 custodialWalletManager = get(),
                 paymentsDataManager = get(),
                 simpleBuyPrefs = get(),

@@ -468,6 +468,7 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
                 ratingPrefs = get(),
+                onboardingPrefs = get(),
                 prefs = get(),
                 simpleBuyPrefs = get(),
                 serializer = get(),

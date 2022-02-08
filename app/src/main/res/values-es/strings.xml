@@ -2043,8 +2043,6 @@ Obtenga más información sobre las cuentas comerciales, los límites y las func
     <string name="card_cvc">CVC</string>
     <string name="invalid_cvc">CVC no válido</string>
     <string name="common_unavailable">No disponible</string>
-    <string name="landing_cta_title">Compre Bitcoin. Domine el futuro.</string>
-    <string name="landing_cta_subtitle">Cree un Blockchain.com Wallet y compre, venda y mantenga criptomonedas de forma sencilla. Consiga criptomonedas en segundos, no en minutos.</string>
     <string name="landing_cta_login">Iniciar sesión</string>
     <string name="settings_see_profile">Ver perfil</string>
     <string name="profile_label_name">Nombre</string>

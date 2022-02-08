@@ -93,6 +93,7 @@ class SimpleBuyModelTest {
         interactor = interactor,
         cardActivator = cardActivator,
         ratingPrefs = ratingPrefs,
+        onboardingPrefs = mock(),
         environmentConfig = environmentConfig,
         crashLogger = mock(),
         _activityIndicator = mock(),

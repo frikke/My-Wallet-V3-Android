@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
@@ -42,6 +43,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
+import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
@@ -59,6 +61,7 @@ class DashboardActionAdapter(
     private val payloadManager: PayloadDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
+    private val onboardingPrefs: OnboardingPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val paymentsDataManager: PaymentsDataManager,
     private val linkedBanksFactory: LinkedBanksFactory,
@@ -610,6 +613,8 @@ class DashboardActionAdapter(
                     DashboardOnboardingState.Hidden
                 }
                 model.process(DashboardIntent.FetchOnboardingStepsSuccess(onboardingState))
+                val hasBoughtCrypto = steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
+                if (hasBoughtCrypto) onboardingPrefs.isLandingCtaDismissed = true
             },
             onError = {
                 Timber.e(it)

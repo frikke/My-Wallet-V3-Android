@@ -2073,8 +2073,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="card_cvc">CVC</string>
     <string name="invalid_cvc">CVC invalide</string>
     <string name="common_unavailable">Indisponible</string>
-    <string name="landing_cta_title">Achetez des Bitcoins. Posséder l\'avenir.</string>
-    <string name="landing_cta_subtitle">Créez un Blockchain.com Wallet et achetez, vendez et conservez simplement des cryptos. Passez de zéro à crypto en quelques secondes et non en quelques minutes.</string>
     <string name="landing_cta_login">Se connecter</string>
     <string name="settings_see_profile">Afficher le profil</string>
     <string name="profile_label_name">Nom</string>

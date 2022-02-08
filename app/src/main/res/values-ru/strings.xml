@@ -2093,8 +2093,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="card_cvc">Код CVC</string>
     <string name="invalid_cvc">Неверный код CVC</string>
     <string name="common_unavailable">Недоступно</string>
-    <string name="landing_cta_title">Купите биткойн. Владейте будущим.</string>
-    <string name="landing_cta_subtitle">Создайте кошелек Blockchain.com и просто покупайте, продавайте и храните криптовалюту. Приобретайте криптовалюту за считанные секунды.</string>
     <string name="landing_cta_login">Вход</string>
     <string name="settings_see_profile">Просмотреть профиль</string>
     <string name="profile_label_name">Имя</string>
