@@ -7,13 +7,11 @@ import android.net.Uri
 import android.os.Bundle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.nabu.BasicProfileInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAboutAppBinding
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
-import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
-import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import timber.log.Timber
@@ -29,10 +27,6 @@ class AboutAppActivity : BlockchainActivity() {
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
-    private val basicProfileInfo by lazy {
-        intent.getSerializableExtra(BASIC_INFO) as BasicProfileInfo
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -45,7 +39,7 @@ class AboutAppActivity : BlockchainActivity() {
             supportOption.apply {
                 primaryText = getString(R.string.about_app_contact_support)
                 onClick = {
-                    startActivity(ZendeskSubjectActivity.newInstance(context, basicProfileInfo))
+                    startActivity(SupportCentreActivity.newIntent(context))
                 }
             }
             airdropsOption.apply {
@@ -109,9 +103,7 @@ class AboutAppActivity : BlockchainActivity() {
     }
 
     companion object {
-        fun newIntent(context: Context, basicProfileInfo: BasicProfileInfo) =
-            Intent(context, AboutAppActivity::class.java).apply {
-                putExtra(BASIC_INFO, basicProfileInfo)
-            }
+        fun newIntent(context: Context) =
+            Intent(context, AboutAppActivity::class.java)
     }
 }

@@ -51,10 +51,10 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
-import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.settings.SettingsFragment
@@ -63,9 +63,7 @@ import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsActivit
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityActivity
 import piuk.blockchain.android.ui.settings.v2.sheets.AddPaymentMethodsBottomSheet
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.AndroidUtils
-import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 
 class RedesignSettingsPhase2Activity :
     MviActivity<SettingsModel, SettingsIntent, SettingsState, ActivityRedesignPhase2SettingsBinding>(),
@@ -113,9 +111,6 @@ class RedesignSettingsPhase2Activity :
     override fun render(newState: SettingsState) {
         setupMenuItems(newState.basicProfileInfo, newState.tier)
         newState.basicProfileInfo?.let { userInfo ->
-            if (newState.tier.isSupportChatEnabled()) {
-                setupActiveSupportButton(userInfo)
-            }
             setInfoHeader(userInfo, newState.tier)
         } ?: setupEmptyHeader()
 
@@ -417,9 +412,7 @@ class RedesignSettingsPhase2Activity :
                 primaryText = getString(R.string.settings_title_about_app)
                 secondaryText = getString(R.string.settings_subtitle_about_app)
                 onClick = {
-                    basicProfileInfo?.let {
-                        startActivity(AboutAppActivity.newIntent(context, it))
-                    }
+                    startActivity(AboutAppActivity.newIntent(context))
                 }
             }
 
@@ -495,8 +488,6 @@ class RedesignSettingsPhase2Activity :
         }
     }
 
-    private fun Tier.isSupportChatEnabled(): Boolean = this == Tier.GOLD
-
     private fun setUserInfo(userInformation: BasicProfileInfo) {
         with(binding) {
             name.text = getString(
@@ -554,26 +545,15 @@ class RedesignSettingsPhase2Activity :
             toolbarTitle = getString(R.string.toolbar_settings),
             backAction = { onBackPressed() }
         )
-        setupDefaultSupportButton()
+        setupSupportSupportButton()
     }
 
-    private fun setupDefaultSupportButton() {
+    private fun setupSupportSupportButton() {
         updateToolbarMenuItems(
             listOf(
                 NavigationBarButton.Icon(R.drawable.ic_support_chat) {
                     analytics.logEvent(AnalyticsEvents.Support)
-                    calloutToExternalSupportLinkDlg(this, URL_CONTACT_SUPPORT)
-                }
-            )
-        )
-    }
-
-    private fun setupActiveSupportButton(userInformation: BasicProfileInfo) {
-        updateToolbarMenuItems(
-            listOf(
-                NavigationBarButton.Icon(R.drawable.ic_support_chat) {
-                    analytics.logEvent(AnalyticsEvents.Support)
-                    startActivity(ZendeskSubjectActivity.newInstance(this, userInformation))
+                    startActivity(SupportCentreActivity.newIntent(this))
                 }
             )
         )

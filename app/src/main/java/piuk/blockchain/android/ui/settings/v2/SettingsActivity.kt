@@ -10,23 +10,15 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.Singles
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRedesignSettingsBinding
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
-import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.settings.SettingsFragment
-import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
-import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 
 class SettingsActivity : BlockchainActivity() {
 
@@ -123,47 +115,16 @@ class SettingsActivity : BlockchainActivity() {
     }
 
     private fun setupToolbar() {
-        compositeDisposable += Singles.zip(
-            userIdentity.isEligibleFor(Feature.SimpleBuy),
-            userIdentity.getBasicProfileInformation()
-        ).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnTerminate {
-                updateToolbarTitle(getString(R.string.toolbar_settings))
-                updateToolbarBackAction { onBackPressed() }
-            }
-            .subscribeBy(
-                onSuccess = { (isSimpleBuyEligible, userInformation) ->
-                    if (isSimpleBuyEligible) {
-                        updateToolbarMenuItems(
-                            listOf(
-                                NavigationBarButton.Icon(R.drawable.ic_support_chat) {
-                                    analytics.logEvent(AnalyticsEvents.Support)
-                                    startActivity(ZendeskSubjectActivity.newInstance(this, userInformation))
-                                }
-                            )
-                        )
-                    } else {
-                        updateToolbarMenuItems(
-                            listOf(
-                                NavigationBarButton.Icon(R.drawable.ic_support_chat) {
-                                    analytics.logEvent(AnalyticsEvents.Support)
-                                    calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
-                                }
-                            )
-                        )
-                    }
-                }, onError = {
-                updateToolbarMenuItems(
-                    listOf(
-                        NavigationBarButton.Icon(R.drawable.ic_support_chat) {
-                            analytics.logEvent(AnalyticsEvents.Support)
-                            calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
-                        }
-                    )
-                )
-            }
+        updateToolbarMenuItems(
+            listOf(
+                NavigationBarButton.Icon(R.drawable.ic_support_chat) {
+                    analytics.logEvent(AnalyticsEvents.Support)
+                    startActivity(SupportCentreActivity.newIntent(this))
+                }
             )
+        )
+        updateToolbarTitle(getString(R.string.toolbar_settings))
+        updateToolbarBackAction { onBackPressed() }
     }
 
     companion object {

@@ -30,8 +30,8 @@ import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
 import piuk.blockchain.android.simplebuy.ErrorState
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.getResolvedDrawable
@@ -505,14 +505,13 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 with(binding) {
                     linkBankTitle.text = getString(R.string.bank_linking_rejected_title)
 
-                    val linksMap = mapOf<String, Uri>(
-                        "contact_support" to Uri.parse(URL_CONTACT_SUPPORT)
-                    )
-
                     val text = StringUtils.getStringWithMappedAnnotations(
                         requireContext(),
                         R.string.bank_linking_rejected_subtitle,
-                        linksMap
+                        emptyMap(),
+                        onClick = {
+                            requireActivity().startActivity(SupportCentreActivity.newIntent(requireContext()))
+                        }
                     )
 
                     linkBankSubtitle.text = text

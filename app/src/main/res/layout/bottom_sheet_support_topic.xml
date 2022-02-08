@@ -6,10 +6,10 @@
     android:paddingBottom="@dimen/standard_margin"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar_general"
-        android:fitsSystemWindows="true" />
+    <com.blockchain.componentlib.sheets.SheetHeaderView
+        android:id="@+id/topics_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/zendesk_title"

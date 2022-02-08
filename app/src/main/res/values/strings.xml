@@ -241,10 +241,6 @@
     <string name="use_password">Use password</string>
 
     <string name="wipe_wallet">Forget wallet</string>
-
-    <string name="support_leaving_app_warning">This will leave the app and take you to your browser.
-        Continue?
-    </string>
     <string name="weak_password">The selected password is too weak to secure your funds. Please define a different password.</string>
 
     <string name="confirm_details">Confirm Payment</string>
@@ -2541,6 +2537,7 @@
     <string name="settings_add_payment_method">Add Payment Method</string>
     <string name="settings_bank_transfer_blurb">Send funds directly from your bank to your Blockchain Wallet. Once we receive the wire transfer, we’ll complete your purchase.</string>
     <string name="settings_logout_error">There was an issue while logging you out, please try again!</string>
+    <string name="settings_contact_support_error">There was an error loading your information</string>
 
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>
@@ -2657,7 +2654,6 @@
     <string name="change_password_error_new_too_weak">Your new password is too weak, please use a stronger password</string>
     <string name="change_password_error_general">There was an issue updating your password, please try again.</string>
     <string name="change_password_success">Password successfully updated!</string>
-
 
     <!-- About app screen -->
     <string name="about_app_toolbar">About App</string>

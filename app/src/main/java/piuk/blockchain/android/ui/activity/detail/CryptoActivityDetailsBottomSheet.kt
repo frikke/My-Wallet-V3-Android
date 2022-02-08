@@ -40,6 +40,7 @@ import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.activity.ActivityType
 import piuk.blockchain.android.ui.activity.detail.adapter.ActivityDetailsDelegateAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
@@ -48,7 +49,6 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.transactionflow.analytics.DepositAnalytics
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.StringUtils
 
 class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
@@ -273,14 +273,14 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         failureReason: RecurringBuyFailureReason,
         transactionState: OrderState
     ) {
-        val linksMap = mapOf<String, Uri>(
-            "contact_support_link" to Uri.parse(URL_CONTACT_SUPPORT)
-        )
 
         val errorExplanation = StringUtils.getStringWithMappedAnnotations(
             requireContext(),
             toErrorMessage(failureReason, transactionState),
-            linksMap
+            emptyMap(),
+            onClick = {
+                requireActivity().startActivity(SupportCentreActivity.newIntent(requireContext()))
+            }
         )
         binding.errorReason.apply {
             visible()

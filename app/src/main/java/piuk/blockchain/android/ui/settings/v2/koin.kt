@@ -5,6 +5,9 @@ import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import piuk.blockchain.android.support.SupportInteractor
+import piuk.blockchain.android.support.SupportModel
+import piuk.blockchain.android.support.SupportState
 import piuk.blockchain.android.ui.settings.v2.account.AccountInteractor
 import piuk.blockchain.android.ui.settings.v2.account.AccountModel
 import piuk.blockchain.android.ui.settings.v2.account.AccountState
@@ -166,6 +169,22 @@ val redesignSettingsModule = module {
                 payloadManager = get(),
                 authDataManager = get(),
                 pinRepository = get()
+            )
+        }
+
+        factory {
+            SupportModel(
+                initialState = SupportState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+
+        factory {
+            SupportInteractor(
+                userIdentity = get()
             )
         }
     }

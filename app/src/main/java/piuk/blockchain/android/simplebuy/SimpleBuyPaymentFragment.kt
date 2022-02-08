@@ -42,16 +42,14 @@ import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.simplebuy.sheets.UnlockHigherLimitsBottomSheet
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
-import piuk.blockchain.android.ui.home.ZendeskSubjectActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.launchUrlInBrowser
 import timber.log.Timber
 
 class SimpleBuyPaymentFragment :
@@ -213,61 +211,57 @@ class SimpleBuyPaymentFragment :
         }
     }
 
-    private fun addLink(stringResource: Int, verificationState: KycState?): CharSequence {
+    private fun addLink(stringResource: Int): CharSequence {
         return StringUtils.getStringWithMappedAnnotations(
             requireContext(),
             stringResource,
             emptyMap()
         ) {
-            if (verificationState != null && verificationState == KycState.VERIFIED_AND_ELIGIBLE) {
-                startActivity(ZendeskSubjectActivity.newInstance(requireContext(), null, SUPPORT_SB_SUBJECT))
-            } else {
-                requireContext().launchUrlInBrowser(URL_CONTACT_SUPPORT)
-            }
+            startActivity(SupportCentreActivity.newIntent(requireContext(), SUPPORT_SB_SUBJECT))
             requireActivity().finish()
         }
     }
 
-    private fun handleErrorStates(errorState: ErrorState, verificationState: KycState?) =
+    private fun handleErrorStates(errorState: ErrorState) =
         when (errorState) {
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid -> showError(
                 title = getString(R.string.bank_transfer_payment_invalid_title),
-                subtitle = addLink(R.string.bank_transfer_payment_invalid_subtitle, verificationState),
+                subtitle = addLink(R.string.bank_transfer_payment_invalid_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedBankFailed,
             ErrorState.ApprovedBankFailedInternal -> showError(
                 title = getString(R.string.bank_transfer_payment_failed_title),
-                subtitle = addLink(R.string.bank_transfer_payment_failed_subtitle, verificationState)
+                subtitle = addLink(R.string.bank_transfer_payment_failed_subtitle)
             )
             ErrorState.ApprovedBankDeclined -> showError(
                 title = getString(R.string.bank_transfer_payment_declined_title),
-                subtitle = addLink(R.string.bank_transfer_payment_declined_subtitle, verificationState),
+                subtitle = addLink(R.string.bank_transfer_payment_declined_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedBankRejected -> showError(
                 title = getString(R.string.bank_transfer_payment_rejected_title),
-                subtitle = addLink(R.string.bank_transfer_payment_rejected_subtitle, verificationState),
+                subtitle = addLink(R.string.bank_transfer_payment_rejected_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedBankExpired -> showError(
                 title = getString(R.string.bank_transfer_payment_expired_title),
-                subtitle = addLink(R.string.bank_transfer_payment_expired_subtitle, verificationState),
+                subtitle = addLink(R.string.bank_transfer_payment_expired_subtitle),
                 resourceIcon = R.drawable.ic_pending_icon_circle
             )
             ErrorState.ApprovedBankLimitedExceed -> showError(
                 title = getString(R.string.bank_transfer_payment_limited_exceeded_title),
-                subtitle = addLink(R.string.bank_transfer_payment_limited_exceeded_subtitle, verificationState),
+                subtitle = addLink(R.string.bank_transfer_payment_limited_exceeded_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedBankInsufficientFunds -> showError(
                 title = getString(R.string.bank_transfer_payment_insufficient_funds_title),
-                subtitle = addLink(R.string.bank_transfer_payment_insufficient_funds_subtitle, verificationState),
+                subtitle = addLink(R.string.bank_transfer_payment_insufficient_funds_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedGenericError -> showError(
-                getString(R.string.common_oops), addLink(R.string.sb_checkout_contact_support, verificationState)
+                getString(R.string.common_oops), addLink(R.string.sb_checkout_contact_support)
             )
             else -> {
                 // do nothing - we only want to handle OB approval errors in this fragment
@@ -421,7 +415,7 @@ class SimpleBuyPaymentFragment :
                 }
             }
             newState.buyErrorState != null -> {
-                handleErrorStates(newState.buyErrorState, newState.kycVerificationState)
+                handleErrorStates(newState.buyErrorState)
             }
         }
     }

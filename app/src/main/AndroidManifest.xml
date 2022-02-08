@@ -219,7 +219,7 @@
         <activity
             android:name=".ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity android:name=".ui.home.ZendeskSubjectActivity" />
+        <activity android:name=".support.SupportCentreActivity" />
         <activity
             android:name=".ui.locks.LocksDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
