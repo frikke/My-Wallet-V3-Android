@@ -209,7 +209,11 @@ class PaymentsDataManagerImpl(
         ) { methods, isGooglePayFeatureFlagEnabled, isGooglePayAvailableOnDevice ->
             if (isGooglePayFeatureFlagEnabled && isGooglePayAvailableOnDevice) {
                 return@zip methods.toMutableList().apply {
-                    val googlePayPaymentMethod = this.firstOrNull { it.mobilePayment?.contains("google_pay") ?: false }
+                    val googlePayPaymentMethod = this.firstOrNull {
+                        it.mobilePayment?.any { payment ->
+                            payment.equals(PaymentMethodResponse.GOOGLE_PAY, true)
+                        } ?: false
+                    }
                     googlePayPaymentMethod?.let {
                         this.add(
                             PaymentMethodResponse(
