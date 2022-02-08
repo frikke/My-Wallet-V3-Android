@@ -38,7 +38,7 @@ class DepositTooltipDelegate : AdapterDelegate<PaymentMethodItem> {
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
                 paymentMethodTitle.text =
                     if (paymentMethodItem.paymentMethod.fiatCurrency.networkTicker == "USD")
-                        binding.root.context.getString(R.string.payment_wire_transfer)
+                        binding.root.context.getString(R.string.wire_transfer)
                     else binding.root.context.getString(R.string.bank_transfer)
             }
         }

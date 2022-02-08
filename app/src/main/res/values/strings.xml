@@ -1357,9 +1357,8 @@
     <string name="bank_wire_transfer_fee_default">Wire Fee</string>
     <string name="bank_wire_transfer_fee">%1$s Fee</string>
     <string name="bank_wire_transfer_min_withdrawal">%1$s Min Withdraw</string>
-    <string name="bank_wire_transfer">Bank Wire Transfer</string>
+    <string name="wire_transfer">Wire Transfer</string>
     <string name="bank_transfer">Bank Transfer</string>
-    <string name="payment_wire_transfer">Wire Transfer</string>
     <string name="payment_wire_transfer_subtitle">3 – 5 Business Days</string>
     <string name="payment_wire_transfer_blurb">Send funds directly from your bank account to your Blockchain.com Wallet. Bank fees may apply.</string>
     <string name="payment_deposit">Bank Deposit</string>

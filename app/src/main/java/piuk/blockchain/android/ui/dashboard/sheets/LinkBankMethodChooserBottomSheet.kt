@@ -129,11 +129,7 @@ class LinkBankMethodChooserAdapter(
 private fun PaymentMethodType.toLinkBankMethodItemUI(isForPayment: Boolean): LinkBankMethodItem =
     when (this) {
         PaymentMethodType.BANK_ACCOUNT -> LinkBankMethodItem(
-            title = if (isForPayment) {
-                R.string.payment_wire_transfer
-            } else {
-                R.string.bank_wire_transfer
-            },
+            title = R.string.wire_transfer,
             subtitle = if (isForPayment) {
                 R.string.payment_wire_transfer_subtitle
             } else {
