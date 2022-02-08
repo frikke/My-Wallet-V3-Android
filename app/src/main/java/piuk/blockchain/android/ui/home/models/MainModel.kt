@@ -74,8 +74,8 @@ class MainModel(
                 is WalletConnectSessionEvent.DidReject -> process(
                     MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionRejected(sessionEvent.session))
                 )
-                else -> {
-                    // todo next PRs
+                is WalletConnectSessionEvent.DidDisconnect -> {
+                    Timber.i("Session ${sessionEvent.session.url} Disconnected")
                 }
             }.exhaustive
         }

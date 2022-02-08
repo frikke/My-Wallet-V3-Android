@@ -10,6 +10,7 @@ interface WalletConnectServiceAPI {
     fun init()
     fun acceptConnection(session: WalletConnectSession): Completable
     fun denyConnection(session: WalletConnectSession): Completable
+    fun clear()
     fun disconnect(session: WalletConnectSession): Completable
 
     val sessionEvents: Observable<WalletConnectSessionEvent>

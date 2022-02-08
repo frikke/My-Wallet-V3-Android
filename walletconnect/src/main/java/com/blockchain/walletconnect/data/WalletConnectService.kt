@@ -2,6 +2,8 @@ package com.blockchain.walletconnect.data
 
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
+import com.blockchain.extensions.exhaustive
+import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.DAppInfo
@@ -37,11 +39,12 @@ class WalletConnectService(
     private val featureFlag: IntegratedFeatureFlag,
     private val ethRequestSign: EthRequestSign,
     private val ethSendTransactionRequest: EthSendTransactionRequest,
-    lifecycleObservable: LifecycleObservable,
+    private val lifecycleObservable: LifecycleObservable,
     private val client: OkHttpClient
 ) : WalletConnectServiceAPI, WalletConnectUrlValidator, WebSocketListener() {
 
     private val wcClients: HashMap<String, WCClient> = hashMapOf()
+    private val connectedSessions = mutableListOf<WalletConnectSession>()
     private val compositeDisposable = CompositeDisposable()
 
     private val _sessionEvents = PublishSubject.create<WalletConnectSessionEvent>()
@@ -52,10 +55,14 @@ class WalletConnectService(
     override val userEvents: Observable<WalletConnectUserEvent>
         get() = _walletConnectUserEvents
 
-    init {
-        compositeDisposable += lifecycleObservable.onStateUpdated.subscribe {
-            // TODO connect and disconnect
+    private fun reconnectToPreviouslyApprovedSessions() {
+        connectedSessions.forEach {
+            it.connect()
         }
+    }
+
+    private fun disconnectAllClients() {
+        wcClients.disconnectAndClear()
     }
 
     override fun init() {
@@ -65,20 +72,34 @@ class WalletConnectService(
             else sessionRepository.removeAll().toSingle { emptyList() }
         }.zipWith(walletConnectAccountProvider.address()).subscribe { (sessions, _) ->
             sessions.forEach { session ->
-                val wcClient = WCClient(httpClient = client)
-                val wcSession = WCSession.from(session.url) ?: throw IllegalArgumentException(
-                    "Not a valid wallet connect url ${session.url}"
-                )
-                wcClient.connect(
-                    session = wcSession,
-                    peerId = session.walletInfo.clientId,
-                    remotePeerId = session.dAppInfo.peerId,
-                    peerMeta = session.dAppInfo.toWCPeerMeta()
-                )
-                wcClient.addSignEthHandler(session)
-                wcClient.addEthSendTransactionHandler(session)
+                session.connect()
+                connectedSessions.add(session)
             }
         }
+
+        compositeDisposable += lifecycleObservable.onStateUpdated.subscribe { state ->
+            when (state) {
+                AppState.BACKGROUNDED -> disconnectAllClients()
+                AppState.FOREGROUNDED -> reconnectToPreviouslyApprovedSessions()
+            }.exhaustive
+        }
+    }
+
+    private fun WalletConnectSession.connect() {
+        val wcClient = WCClient(httpClient = client)
+        val wcSession = WCSession.from(url) ?: throw IllegalArgumentException(
+            "Not a valid wallet connect url $url"
+        )
+
+        wcClient.connect(
+            session = wcSession,
+            peerId = walletInfo.clientId,
+            remotePeerId = dAppInfo.peerId,
+            peerMeta = dAppInfo.toWCPeerMeta()
+        )
+        wcClients[url] = wcClient
+        wcClient.addSignEthHandler(this)
+        wcClient.addEthSendTransactionHandler(this)
     }
 
     override fun attemptToConnect(url: String): Completable {
@@ -105,6 +126,7 @@ class WalletConnectService(
     private fun onSessionApproved(session: WalletConnectSession) {
         _sessionEvents.onNext(WalletConnectSessionEvent.DidConnect(session))
         compositeDisposable += sessionRepository.store(session).onErrorComplete().emptySubscribe()
+        connectedSessions.add(session)
         wcClients[session.url]?.addSignEthHandler(session)
         wcClients[session.url]?.addEthSendTransactionHandler(session)
     }
@@ -136,6 +158,7 @@ class WalletConnectService(
         }.ignoreElement()
 
     private fun onFailToConnect(session: WalletConnectSession) {
+        wcClients[session.url]?.disconnect()
         _sessionEvents.onNext(WalletConnectSessionEvent.FailToConnect(session))
         wcClients.remove(session.url)
     }
@@ -145,6 +168,19 @@ class WalletConnectService(
         wcClients[session.url]?.disconnect()
     }.onErrorComplete().doOnComplete {
         onSessionRejected(session)
+    }
+
+    override fun clear() {
+        compositeDisposable.clear()
+        connectedSessions.clear()
+        wcClients.disconnectAndClear()
+    }
+
+    private fun HashMap<String, WCClient>.disconnectAndClear() {
+        wcClients.forEach { (_, client) ->
+            client.disconnect()
+        }
+        wcClients.clear()
     }
 
     private fun onSessionRejected(session: WalletConnectSession) {

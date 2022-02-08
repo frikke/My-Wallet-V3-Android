@@ -11,6 +11,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import java.io.Serializable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
@@ -25,6 +26,7 @@ class LogoutActivity : AppCompatActivity() {
     private val bchDataManager: BchDataManager by scopedInject()
     private val walletOptionsState: WalletOptionsState by scopedInject()
     private val nabuDataManager: NabuDataManager by scopedInject()
+    private val walletConnectServiceAPI: WalletConnectServiceAPI by scopedInject()
     private val assetActivityRepository: AssetActivityRepository by scopedInject()
     private val osUtil: OSUtil by inject()
     private val analytics: Analytics by inject()
@@ -39,9 +41,6 @@ class LogoutActivity : AppCompatActivity() {
             if (osUtil.isServiceRunning(CoinsWebSocketService::class.java)) {
                 stopService(intent)
             }
-
-            // TODO: 30/06/20 We shouldn't need this any more now we have koin scopes
-            // TODO: see Jira AND-3312
             clearData()
             analytics.logEvent(LogOutAnalyticsEvent)
         }
@@ -52,7 +51,7 @@ class LogoutActivity : AppCompatActivity() {
         bchDataManager.clearAccountDetails()
         assetActivityRepository.clear()
         nabuDataManager.clearAccessToken()
-
+        walletConnectServiceAPI.clear()
         walletOptionsState.wipe()
 
         walletPrefs.isAppUnlocked = false
