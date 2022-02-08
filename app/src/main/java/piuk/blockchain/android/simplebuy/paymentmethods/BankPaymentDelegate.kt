@@ -35,9 +35,14 @@ class BankPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
             with(binding) {
                 (paymentMethodItem.paymentMethod as? PaymentMethod.Bank)?.let {
                     paymentMethodTitle.text = it.bankName
+
+                    val accountType = if (it.uiAccountType.isNotEmpty()) it.uiAccountType + " " else ""
+                    val accountEnding = if (it.accountEnding.isNotEmpty()) " " + it.accountEnding else ""
+
                     paymentMethodDetails.text = context.getString(
-                        R.string.payment_method_type_account_info, it.uiAccountType, it.accountEnding
+                        R.string.payment_method_type_account_info, accountType, accountEnding
                     )
+
                     if (it.iconUrl.isNotEmpty()) {
                         Glide.with(context).load(it.iconUrl).into(paymentMethodIcon)
                     }
