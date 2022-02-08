@@ -143,7 +143,7 @@ data class UpdateProviderAccountBody(
 @Serializable
 data class LinkedBankDetailsResponse(
     @SerialName("accountNumber")
-    val accountNumber: String,
+    val accountNumber: String?,
     @SerialName("accountName")
     val accountName: String?,
     @SerialName("bankName")
