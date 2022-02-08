@@ -51,7 +51,7 @@ class UiTourView @JvmOverloads constructor(
 
         binding.pagerIndicator.selectedIndex = step.ordinal
         val bottomNavigationSelectedNavigationItem = when (step) {
-            UiTourStep.HOME -> NavigationItem.Home
+            UiTourStep.BUY_AND_SELL -> NavigationItem.BuyAndSell
             UiTourStep.PRICES -> NavigationItem.Prices
             UiTourStep.BUYER_HANDHOLD,
             UiTourStep.MIDDLE_BUTTON -> null
@@ -60,7 +60,7 @@ class UiTourView @JvmOverloads constructor(
         binding.bottomNavigation.selectedNavigationItem = bottomNavigationSelectedNavigationItem
 
         val cardTriangleIndex = when (step) {
-            UiTourStep.HOME -> 0
+            UiTourStep.BUY_AND_SELL -> 3
             UiTourStep.PRICES -> 1
             UiTourStep.BUYER_HANDHOLD,
             UiTourStep.MIDDLE_BUTTON -> 2
@@ -73,19 +73,17 @@ class UiTourView @JvmOverloads constructor(
         binding.pagerIndicator.count = UiTourStep.values().size
         binding.pagerIndicator.selectedIndex = 0
         binding.bottomNavigation.apply {
-            isPulseAnimationEnabled = true
             onNavigationItemClick = {
                 val step = when (it) {
-                    NavigationItem.Home -> UiTourStep.HOME
+                    NavigationItem.Home -> null
                     NavigationItem.Prices -> UiTourStep.PRICES
-                    NavigationItem.BuyAndSell -> null
+                    NavigationItem.BuyAndSell -> UiTourStep.BUY_AND_SELL
                     NavigationItem.Activity -> UiTourStep.ACTIVITY
                     else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
                 }
                 if (step != null) currentStep = step
             }
             onMiddleButtonClick = {
-                isPulseAnimationEnabled = false
                 currentStep = UiTourStep.MIDDLE_BUTTON
             }
         }
@@ -110,7 +108,7 @@ class UiTourView @JvmOverloads constructor(
 
     private val UiTourStep.banner: Int
         @DrawableRes get() = when (this) {
-            UiTourStep.HOME -> R.drawable.ui_tour_home
+            UiTourStep.BUY_AND_SELL -> R.drawable.ui_tour_buy_and_sell
             UiTourStep.PRICES -> R.drawable.ui_tour_prices
             UiTourStep.MIDDLE_BUTTON -> R.drawable.ui_tour_middle_button
             UiTourStep.ACTIVITY -> R.drawable.ui_tour_activity
@@ -120,7 +118,7 @@ class UiTourView @JvmOverloads constructor(
     private val UiTourStep.title: String
         get() = context.getString(
             when (this) {
-                UiTourStep.HOME -> R.string.ui_tour_home_title
+                UiTourStep.BUY_AND_SELL -> R.string.ui_tour_buy_and_sell_title
                 UiTourStep.PRICES -> R.string.ui_tour_prices_title
                 UiTourStep.MIDDLE_BUTTON -> R.string.ui_tour_middle_button_title
                 UiTourStep.ACTIVITY -> R.string.ui_tour_activity_title
@@ -131,7 +129,7 @@ class UiTourView @JvmOverloads constructor(
     private val UiTourStep.subtitle: String
         get() = context.getString(
             when (this) {
-                UiTourStep.HOME -> R.string.ui_tour_home_subtitle
+                UiTourStep.BUY_AND_SELL -> R.string.ui_tour_buy_and_sell_subtitle
                 UiTourStep.PRICES -> R.string.ui_tour_prices_subtitle
                 UiTourStep.MIDDLE_BUTTON -> R.string.ui_tour_middle_button_subtitle
                 UiTourStep.ACTIVITY -> R.string.ui_tour_activity_subtitle
@@ -141,9 +139,9 @@ class UiTourView @JvmOverloads constructor(
 }
 
 enum class UiTourStep {
-    BUYER_HANDHOLD,
+    BUY_AND_SELL,
     PRICES,
     MIDDLE_BUTTON,
-    HOME,
-    ACTIVITY
+    ACTIVITY,
+    BUYER_HANDHOLD
 }
