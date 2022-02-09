@@ -60,13 +60,8 @@ import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboarding
 import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.setOnTabSelectedListener
 
-class AssetDetailSheet :
-    MviBottomSheet<
-        AssetDetailsModel,
-        AssetDetailsIntent,
-        AssetDetailsState,
-        DialogSheetDashboardAssetDetailsBinding
-        >() {
+class AssetDetailSheet : MviBottomSheet<
+    AssetDetailsModel, AssetDetailsIntent, AssetDetailsState, DialogSheetDashboardAssetDetailsBinding>() {
 
     private val currencyPrefs: CurrencyPrefs by inject()
     private val labels: DefaultLabels by inject()

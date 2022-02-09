@@ -233,6 +233,7 @@
         <activity android:name=".ui.settings.v2.account.AccountActivity" />
         <activity android:name=".ui.settings.v2.notifications.NotificationsActivity" />
         <activity android:name=".ui.settings.v2.security.SecurityActivity" />
+        <activity android:name=".ui.dashboard.fullscreen.CoinViewActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

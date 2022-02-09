@@ -39,6 +39,12 @@ enum class AssetDetailsStep(val addToBackStack: Boolean = false) {
     SELECT_ACCOUNT(true)
 }
 
+object FullScreenCoinViewFlow : DialogFlow() {
+    override fun onSheetClosed() {
+        // do nothing
+    }
+}
+
 class AssetDetailsFlow(
     val asset: AssetInfo
 ) : DialogFlow(), KoinComponent, AccountSelectSheet.SelectAndBackHost {

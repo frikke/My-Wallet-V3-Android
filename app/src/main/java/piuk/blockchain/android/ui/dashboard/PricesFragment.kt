@@ -42,7 +42,9 @@ import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.dashboard.adapter.PricesDelegateAdapter
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
+import piuk.blockchain.android.ui.dashboard.assetdetails.FullScreenCoinViewFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
+import piuk.blockchain.android.ui.dashboard.fullscreen.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.AssetPriceState
 import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
@@ -137,17 +139,24 @@ internal class PricesFragment :
             }
 
             newState.activeFlow?.let {
-                if (it is TransactionFlow) {
-                    startActivity(
-                        TransactionFlowActivity.newInstance(
-                            context = requireActivity(),
-                            sourceAccount = it.txSource,
-                            target = it.txTarget,
-                            action = it.txAction
+                when (it) {
+                    is TransactionFlow -> {
+                        startActivity(
+                            TransactionFlowActivity.newInstance(
+                                context = requireActivity(),
+                                sourceAccount = it.txSource,
+                                target = it.txTarget,
+                                action = it.txAction
+                            )
                         )
-                    )
-                } else {
-                    it.startFlow(childFragmentManager, this)
+                    }
+                    is FullScreenCoinViewFlow -> {
+                        startActivity(CoinViewActivity.newIntent(requireContext()))
+                        model.process(DashboardIntent.ClearActiveFlow)
+                    }
+                    else -> {
+                        it.startFlow(childFragmentManager, this)
+                    }
                 }
             }
         }
@@ -392,12 +401,12 @@ internal class PricesFragment :
 
     // DialogBottomSheet.Host
     override fun onSheetClosed() {
-        model.process(DashboardIntent.ClearBottomSheet)
+        model.process(DashboardIntent.ClearActiveFlow)
     }
 
     // DialogFlow.FlowHost
     override fun onFlowFinished() {
-        model.process(DashboardIntent.ClearBottomSheet)
+        model.process(DashboardIntent.ClearActiveFlow)
     }
 
     private fun launchSendFor(account: SingleAccount, action: AssetAction) {

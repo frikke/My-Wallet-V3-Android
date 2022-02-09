@@ -8,7 +8,7 @@ import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 
 class HideAssetDetailsTest {
 
-    val subject = DashboardIntent.ClearBottomSheet
+    val subject = DashboardIntent.ClearActiveFlow
 
     @Test
     fun `clearing empty asset sheet no effect`() {
@@ -22,7 +22,7 @@ class HideAssetDetailsTest {
             announcement = testAnnouncementCard_1
         )
 
-        val result = DashboardIntent.ClearBottomSheet.reduce(initialState)
+        val result = DashboardIntent.ClearActiveFlow.reduce(initialState)
         assertEquals(result, initialState)
     }
 
@@ -39,7 +39,7 @@ class HideAssetDetailsTest {
             announcement = testAnnouncementCard_1
         )
 
-        val result = DashboardIntent.ClearBottomSheet.reduce(initialState)
+        val result = DashboardIntent.ClearActiveFlow.reduce(initialState)
 
         assertEquals(result.activeAssets, initialState.activeAssets)
         assertNull(result.dashboardNavigationAction)
@@ -59,7 +59,7 @@ class HideAssetDetailsTest {
             announcement = testAnnouncementCard_1
         )
 
-        val result = DashboardIntent.ClearBottomSheet.reduce(initialState)
+        val result = DashboardIntent.ClearActiveFlow.reduce(initialState)
 
         assertEquals(result.activeAssets, initialState.activeAssets)
         assertNull(result.dashboardNavigationAction)

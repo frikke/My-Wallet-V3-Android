@@ -70,8 +70,13 @@ class DashboardActionAdapter(
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val dashboardOnboardingFlag: FeatureFlag
+    private val dashboardOnboardingFlag: FeatureFlag,
+    private val redesignCoinViewFlag: FeatureFlag
 ) {
+
+    fun isRedesignCoinViewFlagEnabled(): Single<Boolean> =
+        redesignCoinViewFlag.enabled
+
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         coincore.fiatAssets.accountGroup()
             .map { g -> g.accounts }

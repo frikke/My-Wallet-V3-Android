@@ -43,7 +43,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    object ClearBottomSheet : DashboardIntent() {
+    object ClearActiveFlow : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = null,
@@ -128,7 +128,13 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     internal class UpdateLaunchDetailsFlow(
-        private val flow: AssetDetailsFlow
+        val flow: AssetDetailsFlow
+    ) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
+    }
+
+    class LaunchDetailsFlow(
+        private val flow: DialogFlow
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(

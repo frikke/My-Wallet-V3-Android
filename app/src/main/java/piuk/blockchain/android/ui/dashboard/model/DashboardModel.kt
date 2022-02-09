@@ -9,6 +9,7 @@ import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.ui.dashboard.assetdetails.FullScreenCoinViewFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import timber.log.Timber
 
@@ -51,6 +52,24 @@ class DashboardModel(
                 process(DashboardIntent.RefreshPrices(intent.asset))
                 null
             }
+            is DashboardIntent.UpdateLaunchDetailsFlow -> {
+                interactor.isRedesignCoinViewFlagEnabled().subscribeBy(
+                    onSuccess = {
+                        process(
+                            DashboardIntent.LaunchDetailsFlow(
+                                if (it) {
+                                    FullScreenCoinViewFlow
+                                } else {
+                                    intent.flow
+                                }
+                            )
+                        )
+                    },
+                    onError = {
+                        DashboardIntent.LaunchDetailsFlow(intent.flow)
+                    }
+                )
+            }
             is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
             is DashboardIntent.AssetPriceUpdate -> interactor.refreshPriceHistory(this, intent.asset)
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
@@ -71,7 +90,7 @@ class DashboardModel(
             is DashboardIntent.ShowBankLinkingSheet,
             is DashboardIntent.ShowPortfolioSheet,
             is DashboardIntent.UpdateLaunchDialogFlow,
-            is DashboardIntent.ClearBottomSheet,
+            is DashboardIntent.ClearActiveFlow,
             is DashboardIntent.UpdateSelectedCryptoAccount,
             is DashboardIntent.ShowBackupSheet,
             is DashboardIntent.AssetListUpdate,
@@ -81,12 +100,12 @@ class DashboardModel(
             is DashboardIntent.LongCallStarted,
             is DashboardIntent.LongCallEnded,
             is DashboardIntent.FilterAssets,
-            is DashboardIntent.UpdateLaunchDetailsFlow,
             is DashboardIntent.FundsLocksLoaded,
             is DashboardIntent.FetchOnboardingStepsSuccess,
             is DashboardIntent.LaunchDashboardOnboarding,
             is DashboardIntent.SetDepositVisibility,
-            is DashboardIntent.ResetDashboardAssets -> null
+            is DashboardIntent.ResetDashboardAssets,
+            is DashboardIntent.LaunchDetailsFlow -> null
         }
     }
 
@@ -151,7 +170,7 @@ class DashboardModel(
     ): Boolean {
         return when {
             previousIntent is DashboardIntent.UpdateLaunchDialogFlow &&
-                nextIntent is DashboardIntent.ClearBottomSheet -> true
+                nextIntent is DashboardIntent.ClearActiveFlow -> true
             else -> super.distinctIntentFilter(previousIntent, nextIntent)
         }
     }
