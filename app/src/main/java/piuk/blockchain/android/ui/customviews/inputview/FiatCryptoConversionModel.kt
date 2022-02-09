@@ -20,7 +20,6 @@ internal class FiatCryptoConversionModel(
     private val exchangeRates: ExchangeRatesDataManager
 ) {
     private val inputValue: PublishSubject<Money> = PublishSubject.create()
-
     private val internalRate: BehaviorSubject<ExchangeRate> = BehaviorSubject.create()
     private val outputRate: BehaviorSubject<ExchangeRate> = BehaviorSubject.create()
 

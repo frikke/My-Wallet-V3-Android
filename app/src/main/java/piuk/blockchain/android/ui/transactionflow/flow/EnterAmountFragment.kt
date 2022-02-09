@@ -178,8 +178,8 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     if (customiser.shouldShowMaxLimit(newState)) {
                         amountSheetInput.maxLimit = newState.availableBalance
                     }
-                    if (amountSheetInput.customInternalExchangeRate != newState.fiatRate) {
-                        amountSheetInput.customInternalExchangeRate = newState.fiatRate
+                    newState.fiatRate?.takeIf { it != amountSheetInput.customInternalExchangeRate }?.let {
+                        amountSheetInput.customInternalExchangeRate = it
                     }
                 }
 

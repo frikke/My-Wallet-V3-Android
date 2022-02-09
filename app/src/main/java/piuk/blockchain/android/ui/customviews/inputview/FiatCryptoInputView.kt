@@ -65,12 +65,12 @@ class FiatCryptoInputView(
         FiatCryptoConversionModel(exchangeRates)
     }
 
-    var customInternalExchangeRate: ExchangeRate? = null
+    var customInternalExchangeRate: ExchangeRate = ExchangeRate.identityExchangeRate(currencyPrefs.defaultFiatCurrency)
         set(value) {
             field = value
-            if (value != null) {
-                conversionModel.updateInternalExchangeRate(value)
-            }
+            conversionModel.updateInternalExchangeRate(
+                value.normaliseForInputAndExchange(configuration.inputCurrency, configuration.exchangeCurrency)
+            )
             convertAmount()
         }
 
@@ -289,6 +289,20 @@ class FiatCryptoInputView(
             )
         }
         showValue(amount)
+    }
+
+    private fun ExchangeRate.normaliseForInputAndExchange(
+        inputCurrency: Currency,
+        exchangeCurrency: Currency
+    ): ExchangeRate {
+        return when {
+            from == inputCurrency && exchangeCurrency == to -> this
+
+            from == exchangeCurrency && to == inputCurrency ->
+                return this.inverse()
+
+            else -> throw IllegalArgumentException("Invalid exchange Rate $this")
+        }
     }
 }
 
