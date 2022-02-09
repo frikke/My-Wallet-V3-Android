@@ -1834,7 +1834,7 @@ Bu sırada Blockchain.com üzerinden nakde geçebilir veya Swap ve Al-Sat işlem
     <string name="landing_value_prop_two_1">Kripto Paranız Üzerinden Ödüller Kazanın.</string>
     <string name="tx_title_rewards">%s Ödüller Kazanıldı</string>
     <string name="dashboard_asset_balance_rewards">Yıllık %%%1$.1f kazanın</string>
-    <string name="dashboard_asset_actions_deposit_dsc_1">Ödül Hesabınıza %1$s ekleyin</string>
+    <string name="dashboard_asset_actions_add_dsc">Ödül Hesabınıza %1$s ekleyin</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Ödül Hesabınızdan %1$s çekin</string>
     <string name="dashboard_asset_actions_summary_title_1">Ödül Özeti</string>
     <string name="dashboard_asset_actions_summary_dsc_1">Biriken %1$s Ödüllerinizi görüntüleyin</string>

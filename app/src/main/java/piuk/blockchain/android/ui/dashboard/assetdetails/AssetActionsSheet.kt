@@ -214,10 +214,10 @@ class AssetActionsSheet :
                 goToSummary()
             }
             AssetAction.InterestDeposit -> AssetActionItem(
-                title = getString(R.string.common_transfer),
+                title = getString(R.string.dashboard_asset_actions_add_title),
                 icon = R.drawable.ic_tx_deposit_arrow,
                 hasWarning = hasWarning,
-                description = getString(R.string.dashboard_asset_actions_deposit_dsc_1, asset.displayTicker),
+                description = getString(R.string.dashboard_asset_actions_add_dsc, asset.displayTicker),
                 asset = asset,
                 action = action
             ) {
