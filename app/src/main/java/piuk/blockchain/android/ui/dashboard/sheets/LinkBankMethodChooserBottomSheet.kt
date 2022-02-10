@@ -133,7 +133,6 @@ class LinkBankMethodChooserAdapter(
             with(binding) {
                 paymentMethodTitle.setText(item.title)
                 paymentMethodSubtitle.setText(item.subtitle)
-                paymentMethodSubtitle.visibleIf { isForPayment }
                 paymentMethodBlurb.setText(item.blurb)
                 paymentMethodIcon.setImageResource(item.icon)
                 paymentMethodRoot.setOnClickListener {
@@ -164,33 +163,21 @@ private fun PaymentMethodType.toLinkBankMethodItemUI(isForPayment: Boolean, targ
     when (this) {
         PaymentMethodType.BANK_ACCOUNT -> LinkBankMethodItem(
             title = StringLocalizationUtil.getBankDepositTitle(targetCurrencyTicker),
-            subtitle = if (isForPayment) {
-                R.string.payment_wire_transfer_subtitle
-            } else {
-                R.string.empty
-            },
+            subtitle = R.string.payment_wire_transfer_subtitle,
             blurb = if (isForPayment) {
                 R.string.payment_wire_transfer_blurb
             } else {
-                R.string.link_a_bank_wire_transfer
+                R.string.bank_transfer_blurb
             },
             icon = R.drawable.ic_funds_deposit
         )
         PaymentMethodType.BANK_TRANSFER -> LinkBankMethodItem(
-            title = if (isForPayment) {
-                R.string.payment_deposit
-            } else {
-                R.string.link_a_bank
-            },
-            subtitle = if (isForPayment) {
-                R.string.payment_deposit_subtitle
-            } else {
-                R.string.empty
-            },
+            title = R.string.easy_bank_transfer,
+            subtitle = R.string.payment_deposit_subtitle,
             blurb = if (isForPayment) {
                 R.string.payment_deposit_blurb
             } else {
-                R.string.link_a_bank_bank_transfer
+                R.string.easy_bank_transfer_blurb
             },
             icon = R.drawable.ic_bank_transfer
         )
