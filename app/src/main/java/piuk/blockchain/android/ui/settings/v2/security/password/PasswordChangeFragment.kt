@@ -5,7 +5,9 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.button.ButtonState
@@ -13,10 +15,10 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
-import com.google.android.material.snackbar.Snackbar
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentPasswordUpdateBinding
 import piuk.blockchain.android.ui.base.updateTitleToolbar
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class PasswordChangeFragment :
@@ -95,7 +97,7 @@ class PasswordChangeFragment :
                     binding.passwordProgress.visible()
                 }
                 PasswordViewState.PasswordUpdated -> {
-                    Snackbar.make(binding.root, R.string.change_password_success, Snackbar.LENGTH_LONG).show()
+                    showSnackBar(R.string.change_password_success, type = SnackbarType.Success)
                     with(binding) {
                         fieldPassword.setText("")
                         fieldNewPassword.setText("")
@@ -119,22 +121,22 @@ class PasswordChangeFragment :
     private fun processError(errorState: PasswordChangeError) {
         when (errorState) {
             PasswordChangeError.USING_SAME_PASSWORDS -> {
-                Snackbar.make(binding.root, R.string.change_password_error_old_new_match, Snackbar.LENGTH_LONG).show()
+                showSnackBar(R.string.change_password_error_old_new_match, type = SnackbarType.Error)
             }
             PasswordChangeError.CURRENT_PASSWORD_WRONG -> {
-                Snackbar.make(binding.root, R.string.change_password_error_old_incorrect, Snackbar.LENGTH_LONG).show()
+                showSnackBar(R.string.change_password_error_old_incorrect, type = SnackbarType.Error)
             }
             PasswordChangeError.NEW_PASSWORDS_DONT_MATCH -> {
-                Snackbar.make(binding.root, R.string.change_password_error_new_dont_match, Snackbar.LENGTH_LONG).show()
+                showSnackBar(R.string.change_password_error_new_dont_match, type = SnackbarType.Error)
             }
             PasswordChangeError.NEW_PASSWORD_INVALID_LENGTH -> {
-                Snackbar.make(binding.root, R.string.change_password_error_new_length, Snackbar.LENGTH_LONG).show()
+                showSnackBar(R.string.change_password_error_new_length, type = SnackbarType.Error)
             }
             PasswordChangeError.NEW_PASSWORD_TOO_WEAK -> {
-                Snackbar.make(binding.root, R.string.change_password_error_new_too_weak, Snackbar.LENGTH_LONG).show()
+                showSnackBar(R.string.change_password_error_new_too_weak, type = SnackbarType.Error)
             }
             PasswordChangeError.UNKNOWN_ERROR -> {
-                Snackbar.make(binding.root, R.string.change_password_error_general, Snackbar.LENGTH_LONG).show()
+                showSnackBar(R.string.change_password_error_general, type = SnackbarType.Error)
             }
             PasswordChangeError.NONE -> {
                 // do nothing
@@ -142,6 +144,10 @@ class PasswordChangeFragment :
         }
 
         model.process(PasswordChangeIntent.ResetErrorState)
+    }
+
+    private fun showSnackBar(@StringRes stringId: Int, type: SnackbarType) {
+        BlockchainSnackbar.make(binding.root, getString(stringId), type = type).show()
     }
 
     companion object {
