@@ -7,6 +7,7 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DepositTooltipLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
+import piuk.blockchain.android.util.StringLocalizationUtil
 
 class DepositTooltipDelegate : AdapterDelegate<PaymentMethodItem> {
 
@@ -36,10 +37,10 @@ class DepositTooltipDelegate : AdapterDelegate<PaymentMethodItem> {
             require(paymentMethodItem.paymentMethod is PaymentMethod.UndefinedBankAccount)
             binding.apply {
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
-                paymentMethodTitle.text =
-                    if (paymentMethodItem.paymentMethod.fiatCurrency.networkTicker == "USD")
-                        binding.root.context.getString(R.string.wire_transfer)
-                    else binding.root.context.getString(R.string.bank_transfer)
+                paymentMethodTitle.text = binding.root.context.getString(
+                    StringLocalizationUtil.getBankDepositTitle(paymentMethodItem.paymentMethod.fiatCurrency.networkTicker)
+                )
+
             }
         }
     }
