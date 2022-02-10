@@ -50,8 +50,14 @@ class SettingsInteractor internal constructor(
     fun getExistingPaymentMethods(): Single<PaymentMethods> {
         val fiatCurrency = userSelectedFiat
         return getAvailablePaymentMethodsTypes(fiatCurrency).flatMap { available ->
+            val limitsInfo = available.find { it.type == PaymentMethodType.PAYMENT_CARD }?.limits ?: PaymentLimits(
+                BigInteger.ZERO,
+                BigInteger.ZERO,
+                fiatCurrency
+            )
+
             val getLinkedCards =
-                if (available.any { it.type == PaymentMethodType.PAYMENT_CARD }) getLinkedCards(fiatCurrency)
+                if (available.any { it.type == PaymentMethodType.PAYMENT_CARD }) getLinkedCards(limitsInfo)
                 else Single.just(emptyList())
             Singles.zip(
                 getLinkedCards,
@@ -88,15 +94,9 @@ class SettingsInteractor internal constructor(
             available.filter { it.currency == fiatCurrency && allowedTypes.contains(it.type) }
         }
 
-    private fun getLinkedCards(fiatCurrency: FiatCurrency): Single<List<PaymentMethod.Card>> =
+    private fun getLinkedCards(limits: PaymentLimits): Single<List<PaymentMethod.Card>> =
         paymentsDataManager.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { cards ->
-            val nullLimits = PaymentLimits(
-                BigInteger.ZERO,
-                BigInteger.ZERO,
-                fiatCurrency
-            )
-
-            cards.map { it.toPaymentCard(nullLimits) }
+            cards.map { it.toPaymentCard(limits) }
         }
 
     private fun getLinkedBanks(
