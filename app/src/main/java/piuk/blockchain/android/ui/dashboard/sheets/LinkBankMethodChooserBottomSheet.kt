@@ -159,7 +159,10 @@ class LinkBankMethodChooserAdapter(
     override fun getItemCount(): Int = paymentMethods.size
 }
 
-private fun PaymentMethodType.toLinkBankMethodItemUI(isForPayment: Boolean, targetCurrencyTicker: String): LinkBankMethodItem =
+private fun PaymentMethodType.toLinkBankMethodItemUI(
+    isForPayment: Boolean,
+    targetCurrencyTicker: String
+): LinkBankMethodItem =
     when (this) {
         PaymentMethodType.BANK_ACCOUNT -> LinkBankMethodItem(
             title = StringLocalizationUtil.getBankDepositTitle(targetCurrencyTicker),
