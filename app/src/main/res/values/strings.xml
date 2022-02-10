@@ -619,7 +619,7 @@
     <string name="tx_title_sold">Sold %s</string>
     <string name="tx_title_buy">Buy %1s</string>
     <string name="tx_title_bought">Bought %1s</string>
-    <string name="tx_title_deposit">Deposit %s</string>
+    <string name="tx_title_deposit">Add %s</string>
     <string name="tx_title_deposited">Deposited %s</string>
     <string name="tx_title_withdrawn">Withdrawn %s</string>
     <string name="tx_title_withdraw">Withdraw %s</string>
