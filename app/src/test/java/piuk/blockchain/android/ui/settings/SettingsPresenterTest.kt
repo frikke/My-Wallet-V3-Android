@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.core.payments.EligiblePaymentMethodType
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentsDataManager
@@ -236,7 +237,7 @@ class SettingsPresenterTest {
 
         // Assert
         verify(emailSyncUpdater).updateEmailAndSync(email)
-        verify(activity).showError(R.string.update_failed)
+        verify(activity).showSnackbar(R.string.update_failed)
         verifyNoMoreInteractions(activity)
     }
 
@@ -311,7 +312,7 @@ class SettingsPresenterTest {
         // Assert
         verify(settingsDataManager).updateSms(phoneNumber)
         verifyNoMoreInteractions(settingsDataManager)
-        verify(activity).showError(R.string.update_failed)
+        verify(activity).showSnackbar(R.string.update_failed)
         verifyNoMoreInteractions(activity)
     }
 
@@ -373,7 +374,7 @@ class SettingsPresenterTest {
         subject.updateTor(true)
         // Assert
         verify(settingsDataManager).updateTor(true)
-        verify(activity).showError(R.string.update_failed)
+        verify(activity).showSnackbar(R.string.update_failed)
     }
 
     @Test
@@ -402,7 +403,7 @@ class SettingsPresenterTest {
         subject.updateTwoFa(authType)
         // Assert
         verify(settingsDataManager).updateTwoFactor(authType)
-        verify(activity).showError(R.string.update_failed)
+        verify(activity).showSnackbar(R.string.update_failed)
     }
 
     @Test
@@ -528,7 +529,7 @@ class SettingsPresenterTest {
             SettingsManager.NOTIFICATION_TYPE_EMAIL,
             listOf(SettingsManager.NOTIFICATION_TYPE_NONE)
         )
-        verify(activity).showError(R.string.update_failed)
+        verify(activity).showSnackbar(R.string.update_failed)
     }
 
     @Test
@@ -564,7 +565,7 @@ class SettingsPresenterTest {
         verify(payloadDataManager).syncPayloadWithServer()
         verify(activity).showProgress()
         verify(activity).hideProgress()
-        verify(activity).showError(R.string.password_changed)
+        verify(activity).showSnackbar(R.string.password_changed, SnackbarType.Success)
     }
 
     @Test
@@ -590,8 +591,8 @@ class SettingsPresenterTest {
         verify(payloadManager).tempPassword = oldPassword
         verify(activity).showProgress()
         verify(activity).hideProgress()
-        verify(activity).showError(R.string.remote_save_failed)
-        verify(activity).showError(R.string.password_unchanged)
+        verify(activity).showSnackbar(R.string.remote_save_failed)
+        verify(activity).showSnackbar(R.string.password_unchanged)
     }
 
     @Test

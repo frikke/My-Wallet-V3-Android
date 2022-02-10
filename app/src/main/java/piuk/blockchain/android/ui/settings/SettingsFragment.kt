@@ -381,16 +381,13 @@ class SettingsFragment :
         progressDialog = null
     }
 
-    override fun showError(@StringRes message: Int) {
-        showSnackbar(message)
-    }
-
     override fun showScanTargetError(error: QrScanError) {
-        showError(
-            message = when (error.errorCode) {
+        showSnackbar(
+            when (error.errorCode) {
                 QrScanError.ErrorCode.ScanFailed -> R.string.error_scan_failed_general
                 QrScanError.ErrorCode.BitPayScanFailed -> R.string.error_scan_failed_bitpay
-            }
+            },
+            SnackbarType.Error
         )
     }
 
@@ -873,7 +870,7 @@ class SettingsFragment :
                     val sms = countryTextView.text.toString() + mobileNumber.text.toString()
 
                     if (!formatChecker.isValidMobileNumber(sms)) {
-                        showSnackbar(R.string.invalid_mobile)
+                        showSnackbar(R.string.invalid_mobile, SnackbarType.Error)
                     } else {
                         settingsPresenter.updateSms(sms)
                         dialog.dismiss()
@@ -895,7 +892,7 @@ class SettingsFragment :
                     settingsActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clip = ClipData.newPlainText("guid", guidPref!!.summary)
                 clipboard.setPrimaryClip(clip)
-                showSnackbar(R.string.copied_to_clipboard)
+                showSnackbar(R.string.copied_to_clipboard, SnackbarType.Success)
                 analytics.logEvent(SettingsAnalytics.WalletIdCopyCopied)
             }
             .setNegativeButton(R.string.common_no, null)
@@ -1078,7 +1075,7 @@ class SettingsFragment :
                         if (currentPw == walletPassword) {
                             if (newPw == newConfirmedPw) {
                                 if (newConfirmedPw.length < 4 || newConfirmedPw.length > 255) {
-                                    showSnackbar(R.string.invalid_password)
+                                    showSnackbar(R.string.invalid_password, SnackbarType.Error)
                                 } else if (PasswordUtil.getStrength(newPw).roundToInt() < 50) {
                                     AlertDialog.Builder(settingsActivity, R.style.AlertDialogStyle)
                                         .setTitle(R.string.app_name)
@@ -1105,18 +1102,18 @@ class SettingsFragment :
                             } else {
                                 confirmPassword.setText("")
                                 confirmPassword.requestFocus()
-                                showSnackbar(R.string.password_mismatch_error)
+                                showSnackbar(R.string.password_mismatch_error, SnackbarType.Error)
                             }
                         } else {
                             currentPassword.setText("")
                             currentPassword.requestFocus()
-                            showSnackbar(R.string.invalid_password)
+                            showSnackbar(R.string.invalid_password, SnackbarType.Error)
                         }
                     } else {
                         newPassword.setText("")
                         confirmPassword.setText("")
                         newPassword.requestFocus()
-                        showSnackbar(R.string.change_password_new_matches_current)
+                        showSnackbar(R.string.change_password_new_matches_current, SnackbarType.Error)
                     }
                 }
             }
@@ -1124,11 +1121,11 @@ class SettingsFragment :
         }
     }
 
-    private fun showSnackbar(@StringRes stringId: Int) {
+    override fun showSnackbar(@StringRes stringId: Int, type: SnackbarType) {
         BlockchainSnackbar.make(
             this.requireView(),
             getString(stringId),
-            type = SnackbarType.Error
+            type = type
         ).show()
     }
 

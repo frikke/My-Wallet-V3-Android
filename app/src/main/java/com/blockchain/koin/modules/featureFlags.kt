@@ -6,7 +6,7 @@ import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.landingCtaFeatureFlag
 import com.blockchain.koin.pricingQuoteFeatureFlag
-import com.blockchain.koin.redesignPart2CoinviewFeatureFlag
+import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
@@ -85,7 +85,7 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(redesignPart2CoinviewFeatureFlag) {
+    single(redesignPart2CoinViewFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_redesign_pt2_coinview",

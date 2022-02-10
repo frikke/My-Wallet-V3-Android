@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import android.annotation.SuppressLint
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankState
@@ -91,7 +92,7 @@ class SettingsPresenter(
                 },
                 onError = {
                     handleUpdate(Settings())
-                    view?.showError(R.string.settings_error_updating)
+                    view?.showSnackbar(R.string.settings_error_updating)
                 }
             )
 
@@ -361,7 +362,7 @@ class SettingsPresenter(
                     view?.showDialogEmailVerification()
                 },
                 onError = {
-                    view?.showError(R.string.update_failed)
+                    view?.showSnackbar(R.string.update_failed)
                 }
             )
     }
@@ -389,7 +390,7 @@ class SettingsPresenter(
                     view?.showDialogVerifySms()
                 },
                 onError = {
-                    view?.showError(R.string.update_failed)
+                    view?.showSnackbar(R.string.update_failed)
                 }
             )
     }
@@ -436,7 +437,7 @@ class SettingsPresenter(
         compositeDisposable += settingsDataManager.updateTor(blocked)
             .subscribeBy(
                 onNext = { updateUi(it) },
-                onError = { view?.showError(R.string.update_failed) }
+                onError = { view?.showSnackbar(R.string.update_failed) }
             )
     }
 
@@ -450,7 +451,7 @@ class SettingsPresenter(
         compositeDisposable += settingsDataManager.updateTwoFactor(type)
             .subscribeBy(
                 onNext = { updateUi(it) },
-                onError = { view?.showError(R.string.update_failed) }
+                onError = { view?.showSnackbar(R.string.update_failed) }
             )
     }
 
@@ -462,7 +463,7 @@ class SettingsPresenter(
                     view?.setEmailNotificationPref(enabled)
                 },
                 onError = {
-                    view?.showError(R.string.update_failed)
+                    view?.showSnackbar(R.string.update_failed)
                 }
             )
     }
@@ -539,7 +540,7 @@ class SettingsPresenter(
             .andThen(payloadDataManager.syncPayloadWithServer())
             .subscribeBy(
                 onComplete = {
-                    view?.showError(R.string.password_changed)
+                    view?.showSnackbar(R.string.password_changed, SnackbarType.Success)
 
                     analytics.logEvent(SettingsAnalytics.PasswordChanged_Old)
                     analytics.logEvent(SettingsAnalytics.PasswordChanged(TxFlowAnalyticsAccountType.USERKEY))
@@ -550,8 +551,8 @@ class SettingsPresenter(
 
     private fun showUpdatePasswordFailed(fallbackPassword: String) {
         payloadManager.tempPassword = fallbackPassword
-        view?.showError(R.string.remote_save_failed)
-        view?.showError(R.string.password_unchanged)
+        view?.showSnackbar(R.string.remote_save_failed)
+        view?.showSnackbar(R.string.password_unchanged)
     }
 
     /**
@@ -566,7 +567,7 @@ class SettingsPresenter(
             }.observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = { updateUi(it) },
-                onError = { view?.showError(R.string.update_failed) }
+                onError = { view?.showSnackbar(R.string.update_failed) }
             )
     }
 
@@ -655,7 +656,7 @@ class SettingsPresenter(
             .subscribeBy(onSuccess = {
                 view?.linkBankWithPartner(it)
             }, onError = {
-                view?.showError(R.string.failed_to_link_bank)
+                view?.showSnackbar(R.string.failed_to_link_bank)
             })
     }
 }
