@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.home
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.NotificationTokenManager
-import info.blockchain.wallet.payload.PayloadManagerWiper
+import info.blockchain.wallet.payload.PayloadScopeWiper
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -16,7 +16,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class CredentialsWiper(
-    private val payloadManagerWiper: PayloadManagerWiper,
+    private val payloadScopeWiper: PayloadScopeWiper,
     private val ethDataManager: EthDataManager,
     private val appUtil: AppUtil,
     private val notificationTokenManager: NotificationTokenManager,
@@ -28,7 +28,7 @@ class CredentialsWiper(
     fun wipe() {
         notificationTokenManager.revokeAccessToken().then {
             Completable.fromAction {
-                payloadManagerWiper.wipe()
+                payloadScopeWiper.wipe()
                 appUtil.unpairWallet()
                 ethDataManager.clearAccountDetails()
                 bchDataManager.clearAccountDetails()

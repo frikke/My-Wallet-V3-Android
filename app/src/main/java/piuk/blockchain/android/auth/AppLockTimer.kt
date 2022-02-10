@@ -10,7 +10,7 @@ import com.blockchain.auth.LogoutTimer
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import piuk.blockchain.android.ui.auth.LogoutActivity
 
-class AppLogoutTimer(private val application: Application) : LogoutTimer {
+class AppLockTimer(private val application: Application) : LogoutTimer {
     private lateinit var logoutPendingIntent: PendingIntent
 
     override fun start() {

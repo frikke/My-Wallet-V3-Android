@@ -56,7 +56,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.binds
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.auth.AppLogoutTimer
+import piuk.blockchain.android.auth.AppLockTimer
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
@@ -153,6 +153,8 @@ import piuk.blockchain.android.util.OSUtil
 import piuk.blockchain.android.util.ResourceDefaultLabels
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.wiper.DataWiper
+import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
@@ -168,7 +170,7 @@ val applicationModule = module {
     single {
         AppUtil(
             context = get(),
-            payloadManager = get(),
+            payloadScopeWiper = get(),
             prefs = get(),
             trust = get(),
             pinRepository = get()
@@ -176,7 +178,7 @@ val applicationModule = module {
     }.bind(AppUtilAPI::class)
 
     single {
-        AppLogoutTimer(
+        AppLockTimer(
             application = get()
         )
     }.bind(LogoutTimer::class)
@@ -232,7 +234,7 @@ val applicationModule = module {
 
         scoped {
             CredentialsWiper(
-                payloadManagerWiper = get(),
+                payloadScopeWiper = get(),
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
@@ -805,6 +807,19 @@ val applicationModule = module {
                 submitEveryPayCardService = get()
             )
         }.bind(CardActivator::class)
+
+        factory {
+            DataWiperImpl(
+                ethDataManager = get(),
+                bchDataManager = get(),
+                walletOptionsState = get(),
+                nabuDataManager = get(),
+                walletConnectServiceAPI = get(),
+                assetActivityRepository = get(),
+                walletPrefs = get(),
+                payloadScopeWiper = get()
+            )
+        }.bind(DataWiper::class)
     }
 
     factory {

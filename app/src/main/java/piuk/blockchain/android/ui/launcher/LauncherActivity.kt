@@ -20,6 +20,7 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {

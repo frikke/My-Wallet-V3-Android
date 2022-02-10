@@ -91,6 +91,7 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
+import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
 class MainActivity :
@@ -126,6 +127,8 @@ class MainActivity :
     private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
 
     private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
+
+    private val dataWiper: DataWiper by scopedInject()
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -210,6 +213,9 @@ class MainActivity :
         compositeDisposable.clear()
         // stopgap to be able to clear separate calls on Rx on the model
         model.clearDisposables()
+        if (isFinishing) {
+            dataWiper.clearData()
+        }
         super.onDestroy()
     }
 

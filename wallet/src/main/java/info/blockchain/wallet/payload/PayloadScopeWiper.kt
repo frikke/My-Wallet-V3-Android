@@ -1,5 +1,5 @@
 package info.blockchain.wallet.payload
 
-interface PayloadManagerWiper {
+interface PayloadScopeWiper {
     fun wipe()
 }
