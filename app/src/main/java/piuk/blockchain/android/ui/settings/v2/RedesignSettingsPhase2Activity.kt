@@ -18,6 +18,7 @@ import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButtonView
@@ -499,6 +500,7 @@ class RedesignSettingsPhase2Activity :
                 style = ComposeTypographies.Body1
                 textColor = ComposeColors.Body
                 this.animate().alpha(1f)
+                gravity = ComposeGravities.Centre
             }
             userInitials.background = ContextCompat.getDrawable(
                 this@RedesignSettingsPhase2Activity,
