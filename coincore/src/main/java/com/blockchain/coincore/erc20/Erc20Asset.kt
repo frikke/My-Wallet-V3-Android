@@ -22,6 +22,8 @@ import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
@@ -114,34 +116,92 @@ internal class Erc20Asset(
         )
 
     @CommonCode("Exists in EthAsset")
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
-        Single.just(isValidAddress(address))
-            .flatMapMaybe { isValid ->
-                if (isValid) {
-                    erc20DataManager.isContractAddress(address)
-                        .flatMapMaybe { isContract ->
-                            Maybe.just(
-                                Erc20Address(
-                                    asset = assetInfo,
-                                    address = address,
-                                    label = label ?: address,
-                                    isContract = isContract
+    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> {
+
+        return if (address.startsWith(FormatUtilities.ETHEREUM_PREFIX)) {
+            processEip681Format(address, label)
+        } else {
+            Single.just(isValidAddress(address))
+                .flatMapMaybe { isValid ->
+                    if (isValid) {
+                        erc20DataManager.isContractAddress(address)
+                            .flatMapMaybe { isContract ->
+                                Maybe.just(
+                                    Erc20Address(
+                                        asset = assetInfo,
+                                        address = address,
+                                        label = label ?: address,
+                                        isContract = isContract
+                                    )
                                 )
-                            )
-                        }
-                } else {
-                    Maybe.empty()
+                            }
+                    } else {
+                        Maybe.empty()
+                    }
                 }
-            }
+        }
+    }
 
     override fun isValidAddress(address: String): Boolean =
         formatUtils.isValidEthereumAddress(address)
+
+    private fun processEip681Format(address: String, label: String?): Maybe<ReceiveAddress> {
+        // Example: ethereum:contract_address@chain_id/transfer?address=receive_address&uint256=amount
+        val normalisedAddress = address.removePrefix(FormatUtilities.ETHEREUM_PREFIX)
+        val segments = normalisedAddress.split(FormatUtilities.ETHEREUM_ADDRESS_DELIMITER)
+        val addressSegment = segments.getOrNull(0)
+            ?.split(FormatUtilities.ETHEREUM_CHAIN_ID_DELIMITER) // Get rid of the optional chainId for now
+            ?.getOrNull(0)
+            ?.removeSuffix(ERC20_ADDRESS_METHOD_PART) // Remove the "/transfer" part if it's there
+            ?: return Maybe.empty()
+
+        // Return if the normalised address segment is invalid or the original address doesn't have the transfer
+        // method param - in that case it's not an ERC20 payment request.
+        if (!isValidAddress(addressSegment) || !address.contains(ERC20_ADDRESS_METHOD_PART)) return Maybe.empty()
+
+        val params = if (segments.size > 1) {
+            segments[1].split(FormatUtilities.ETHEREUM_PARAMS_DELIMITER)
+        } else {
+            emptyList()
+        }
+        val amountParam = params.find {
+            it.startsWith(ERC20_ADDRESS_AMOUNT_PART, true)
+        }?.let { param ->
+            CryptoValue.fromMinor(
+                assetInfo, param.removePrefix(ERC20_ADDRESS_AMOUNT_PART).toBigDecimal()
+            )
+        }
+
+        val receiveAddress = params.find {
+            it.startsWith(ERC20_ADDRESS_PART, true)
+        }?.removePrefix(ERC20_ADDRESS_PART) ?: return Maybe.empty()
+
+        return erc20DataManager.isContractAddress(addressSegment)
+            .flatMapMaybe { isContract ->
+                Maybe.just(
+                    Erc20Address(
+                        asset = assetInfo,
+                        address = receiveAddress,
+                        label = label ?: receiveAddress,
+                        amount = amountParam,
+                        isContract = isContract
+                    )
+                )
+            }
+    }
+
+    companion object {
+        private const val ERC20_ADDRESS_PART = "address="
+        private const val ERC20_ADDRESS_AMOUNT_PART = "uint256="
+        private const val ERC20_ADDRESS_METHOD_PART = "/transfer"
+    }
 }
 
 internal class Erc20Address(
     final override val asset: AssetInfo,
     override val address: String,
     override val label: String = address,
+    override val amount: Money? = null,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
     val isContract: Boolean = false
 ) : CryptoAddress {

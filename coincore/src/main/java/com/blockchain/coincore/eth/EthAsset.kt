@@ -122,13 +122,16 @@ internal class EthAsset(
 
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> {
         val normalisedAddress = address.removePrefix(FormatUtilities.ETHEREUM_PREFIX)
-        val segments = normalisedAddress.split("?")
-        val addressSegment = segments.getOrNull(0) ?: return Maybe.empty()
+        val segments = normalisedAddress.split(FormatUtilities.ETHEREUM_ADDRESS_DELIMITER)
+        val addressSegment = segments.getOrNull(0)
+            ?.split(FormatUtilities.ETHEREUM_CHAIN_ID_DELIMITER)
+            ?.getOrNull(0)
+            ?: return Maybe.empty()
 
         if (!isValidAddress(addressSegment)) return Maybe.empty()
 
         val params = if (segments.size > 1) {
-            segments[1].split("&")
+            segments[1].split(FormatUtilities.ETHEREUM_PARAMS_DELIMITER)
         } else {
             emptyList()
         }
@@ -145,7 +148,7 @@ internal class EthAsset(
             .map { isContract ->
                 EthAddress(
                     address = addressSegment,
-                    label = label ?: address,
+                    label = label ?: addressSegment,
                     amount = amountParam,
                     isContract = isContract
                 ) as ReceiveAddress
