@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
@@ -22,7 +23,6 @@ import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentProfileBinding
 import piuk.blockchain.android.support.SupportCentreActivity
-import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION

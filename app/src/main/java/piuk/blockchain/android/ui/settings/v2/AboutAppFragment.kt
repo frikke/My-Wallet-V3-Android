@@ -1,51 +1,63 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityAboutAppBinding
-import piuk.blockchain.android.support.SupportCentreActivity
-import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
+import piuk.blockchain.android.databinding.FragmentAboutAppBinding
+import piuk.blockchain.android.ui.base.updateToolbar
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import timber.log.Timber
 
-class AboutAppActivity : BlockchainActivity() {
+class AboutAppFragment : Fragment(), SettingsScreen {
 
-    private val binding: ActivityAboutAppBinding by lazy {
-        ActivityAboutAppBinding.inflate(layoutInflater)
+    private var _binding: FragmentAboutAppBinding? = null
+    private val binding: FragmentAboutAppBinding
+        get() = _binding!!
+
+    override fun navigator(): SettingsNavigator =
+        (activity as? SettingsNavigator) ?: throw IllegalStateException(
+            "Parent must implement SettingsNavigator"
+        )
+
+    override fun onBackPressed(): Boolean = true
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAboutAppBinding.inflate(layoutInflater, container, false)
+        return binding.root
     }
 
-    override val alwaysDisableScreenshots: Boolean = true
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        updateToolbar(
+            toolbarTitle = getString(R.string.about_app_toolbar),
+            menuItems = emptyList()
+        )
 
-    override val toolbarBinding: ToolbarGeneralBinding
-        get() = binding.toolbar
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-        setupToolbar()
-        setMenuOptions()
+        initUi()
     }
 
-    private fun setMenuOptions() {
+    private fun initUi() {
         with(binding) {
             supportOption.apply {
                 primaryText = getString(R.string.about_app_contact_support)
                 onClick = {
-                    startActivity(SupportCentreActivity.newIntent(context))
+                    navigator().goToSupportCentre()
                 }
             }
-            airdropsOption.apply {
-                primaryText = getString(R.string.about_app_airdrops)
-                onClick = { startActivity(AirdropCentreActivity.newIntent(context)) }
-            }
+
             rateOption.apply {
                 primaryText = getString(R.string.about_app_rate_app)
                 onClick = { goToPlayStore() }
@@ -61,20 +73,13 @@ class AboutAppActivity : BlockchainActivity() {
         }
     }
 
-    private fun setupToolbar() {
-        updateToolbar(
-            toolbarTitle = getString(R.string.about_app_toolbar),
-            backAction = { onBackPressed() }
-        )
-    }
-
     private fun goToPlayStore() {
         val flags = Intent.FLAG_ACTIVITY_NO_HISTORY or
             Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_NEW_DOCUMENT
         try {
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("market://details?id=$packageName")
+                Uri.parse("market://details?id=${requireActivity().packageName}")
             ).let {
                 it.addFlags(flags)
                 startActivity(it)
@@ -85,7 +90,7 @@ class AboutAppActivity : BlockchainActivity() {
     }
 
     private fun onTermsOfServiceClicked() {
-        analytics.logEvent(
+        (requireActivity() as BlockchainActivity).analytics.logEvent(
             SettingsAnalytics.SettingsHyperlinkClicked(
                 SettingsAnalytics.AnalyticsHyperlinkDestination.TERMS_OF_SERVICE
             )
@@ -94,7 +99,7 @@ class AboutAppActivity : BlockchainActivity() {
     }
 
     private fun onPrivacyClicked() {
-        analytics.logEvent(
+        (requireActivity() as BlockchainActivity).analytics.logEvent(
             SettingsAnalytics.SettingsHyperlinkClicked(
                 SettingsAnalytics.AnalyticsHyperlinkDestination.PRIVACY_POLICY
             )
@@ -103,7 +108,6 @@ class AboutAppActivity : BlockchainActivity() {
     }
 
     companion object {
-        fun newIntent(context: Context) =
-            Intent(context, AboutAppActivity::class.java)
+        fun newInstance(): AboutAppFragment = AboutAppFragment()
     }
 }

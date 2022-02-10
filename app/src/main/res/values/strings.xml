@@ -2528,11 +2528,11 @@
     <string name="settings_title_account">Account</string>
     <string name="settings_notifications_title">Notifications</string>
     <string name="settings_notifications_subtitle">Emails and push alerts</string>
-    <string name="settings_subtitle_account">Limits, Currency and more</string>
+    <string name="settings_subtitle_account">Limits, Currency, Airdrops and more</string>
     <string name="settings_title_security">Security</string>
     <string name="settings_subtitle_security">Login Methods, Backup Phrases and more</string>
     <string name="settings_title_about_app">About App</string>
-    <string name="settings_subtitle_about_app">Support, Airdrops and Policies</string>
+    <string name="settings_subtitle_about_app">Support, Policies and more</string>
     <string name="settings_sign_out">Sign Out</string>
     <string name="settings_initials">%1s%2s</string>
     <string name="settings_add_payment_method">Add Payment Method</string>

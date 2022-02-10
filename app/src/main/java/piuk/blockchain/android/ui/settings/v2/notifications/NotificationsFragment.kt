@@ -1,33 +1,42 @@
 package piuk.blockchain.android.ui.settings.v2.notifications
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StringRes
-import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.abstract.SnackbarType
-import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityNotificationsBinding
+import piuk.blockchain.android.databinding.FragmentNotificationsBinding
+import piuk.blockchain.android.ui.base.updateToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
+import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
+import piuk.blockchain.android.ui.settings.v2.SettingsScreen
 
-class NotificationsActivity :
-    MviActivity<NotificationsModel, NotificationsIntent, NotificationsState, ActivityNotificationsBinding>() {
+class NotificationsFragment :
+    MviFragment<NotificationsModel, NotificationsIntent, NotificationsState, FragmentNotificationsBinding>(),
+    SettingsScreen {
 
     override val model: NotificationsModel by scopedInject()
 
-    override fun initBinding(): ActivityNotificationsBinding = ActivityNotificationsBinding.inflate(layoutInflater)
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentNotificationsBinding =
+        FragmentNotificationsBinding.inflate(inflater, container, false)
 
-    override val alwaysDisableScreenshots: Boolean = true
+    override fun navigator(): SettingsNavigator =
+        (activity as? SettingsNavigator) ?: throw IllegalStateException(
+            "Parent must implement SettingsNavigator"
+        )
 
-    override val toolbarBinding: ToolbarGeneralBinding
-        get() = binding.toolbar
+    override fun onBackPressed(): Boolean = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-        setupToolbar()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        updateToolbar(
+            toolbarTitle = getString(R.string.notifications_toolbar),
+            menuItems = emptyList()
+        )
 
         with(binding) {
             emailNotifications.apply {
@@ -88,14 +97,7 @@ class NotificationsActivity :
         ).show()
     }
 
-    private fun setupToolbar() {
-        updateToolbar(
-            toolbarTitle = getString(R.string.notifications_toolbar),
-            backAction = { onBackPressed() }
-        )
-    }
-
     companion object {
-        fun newIntent(context: Context) = Intent(context, NotificationsActivity::class.java)
+        fun newInstance() = NotificationsFragment()
     }
 }

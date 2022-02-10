@@ -1,18 +1,20 @@
 package piuk.blockchain.android.ui.settings.v2.security
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
-import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.abstract.SnackbarType
-import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
@@ -23,33 +25,38 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
-import piuk.blockchain.android.databinding.ActivitySecurityBinding
+import piuk.blockchain.android.databinding.FragmentSecurityBinding
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
-import piuk.blockchain.android.ui.base.addAnimationTransaction
+import piuk.blockchain.android.ui.base.updateToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeFragment
+import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
+import piuk.blockchain.android.ui.settings.v2.SettingsScreen
 import piuk.blockchain.android.ui.settings.v2.sheets.BackupPhraseInfoSheet
 import piuk.blockchain.android.ui.settings.v2.sheets.BiometricsInfoSheet
 import piuk.blockchain.android.ui.settings.v2.sheets.TwoFactorInfoSheet
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.urllinks.WEB_WALLET_LOGIN_URI
 
-class SecurityActivity :
-    MviActivity<SecurityModel, SecurityIntent, SecurityState, ActivitySecurityBinding>(),
+class SecurityFragment :
+    MviFragment<SecurityModel, SecurityIntent, SecurityState, FragmentSecurityBinding>(),
     SMSPhoneVerificationBottomSheet.Host,
     TwoFactorInfoSheet.Host,
     BiometricsInfoSheet.Host,
-    BackupPhraseInfoSheet.Host {
+    BackupPhraseInfoSheet.Host,
+    SettingsScreen {
+
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSecurityBinding =
+        FragmentSecurityBinding.inflate(inflater, container, false)
+
+    override fun navigator(): SettingsNavigator =
+        (activity as? SettingsNavigator) ?: throw IllegalStateException(
+            "Parent must implement SettingsNavigator"
+        )
+
+    override fun onBackPressed(): Boolean = true
 
     override val model: SecurityModel by scopedInject()
-
-    override fun initBinding(): ActivitySecurityBinding = ActivitySecurityBinding.inflate(layoutInflater)
-
-    override val alwaysDisableScreenshots: Boolean = true
-
-    override val toolbarBinding: ToolbarGeneralBinding
-        get() = binding.toolbar
 
     private val biometricsController: BiometricsController by scopedInject()
 
@@ -71,12 +78,15 @@ class SecurityActivity :
         model.process(SecurityIntent.LoadInitialInformation)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initUi()
+    }
+
+    private fun initUi() {
         updateToolbar(
             toolbarTitle = getString(R.string.security_toolbar),
-            backAction = { onBackPressed() }
+            menuItems = emptyList()
         )
 
         with(binding) {
@@ -107,7 +117,7 @@ class SecurityActivity :
                 primaryText = getString(R.string.security_backup_phrase_title)
                 secondaryText = getString(R.string.security_backup_phrase_subtitle)
                 onClick = {
-                    onBackupResult.launch(BackupWalletActivity.newIntent(this@SecurityActivity))
+                    onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
                 }
             }
 
@@ -164,15 +174,6 @@ class SecurityActivity :
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        supportFragmentManager.findFragmentByTag(PasswordChangeFragment::class.simpleName)?.let {
-            supportFragmentManager.beginTransaction().remove(it).commitNowAllowingStateLoss()
-            this@SecurityActivity.updateToolbarTitle(getString(R.string.security_toolbar))
-            binding.securityContentFrame.gone()
-        } ?: finish()
-    }
-
     private fun renderViewState(viewState: SecurityViewState) {
         when (viewState) {
             SecurityViewState.ConfirmBiometricsDisabling -> {
@@ -196,15 +197,7 @@ class SecurityActivity :
                 showBottomSheet(TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.ENABLE))
             }
             SecurityViewState.LaunchPasswordChange -> {
-                supportFragmentManager.beginTransaction()
-                    .addAnimationTransaction()
-                    .add(
-                        R.id.security_content_frame, PasswordChangeFragment.newInstance(),
-                        PasswordChangeFragment::class.simpleName
-                    )
-                    .addToBackStack(PasswordChangeFragment::class.simpleName)
-                    .commitAllowingStateLoss()
-                binding.securityContentFrame.visible()
+                navigator().goToPasswordChange()
             }
             SecurityViewState.ShowMustBackWalletUp -> {
                 showBottomSheet(BackupPhraseInfoSheet.newInstance())
@@ -246,11 +239,11 @@ class SecurityActivity :
         when (errorState) {
             SecurityError.LOAD_INITIAL_INFO_FAIL -> {
                 showErrorSnackbar(R.string.security_error_initial_info_load)
-                finish()
+                (requireActivity() as BlockchainActivity).onBackPressed()
             }
             SecurityError.PIN_MISSING_EXCEPTION -> {
                 showErrorSnackbar(R.string.security_error_pin_missing)
-                finish()
+                (requireActivity() as BlockchainActivity).onBackPressed()
             }
             SecurityError.BIOMETRICS_DISABLING_FAIL -> {
                 showErrorSnackbar(R.string.security_error_biometrics_disable)
@@ -301,7 +294,7 @@ class SecurityActivity :
     private fun handleAuthFailed(error: BiometricAuthError) {
         when (error) {
             is BiometricAuthError.BiometricKeysInvalidated -> BiometricPromptUtil.showActionableInvalidatedKeysDialog(
-                this,
+                requireContext(),
                 positiveActionCallback = {
                     model.process(SecurityIntent.ToggleBiometrics)
                 },
@@ -318,11 +311,11 @@ class SecurityActivity :
                 }
             )
             is BiometricAuthError.BiometricsNoSuitableMethods -> showNoBiometricsAddedSheet()
-            is BiometricAuthError.BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(this)
+            is BiometricAuthError.BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(requireContext())
             is BiometricAuthError.BiometricAuthLockoutPermanent ->
-                BiometricPromptUtil.showPermanentAuthLockoutDialog(this)
+                BiometricPromptUtil.showPermanentAuthLockoutDialog(requireContext())
             is BiometricAuthError.BiometricAuthOther ->
-                BiometricPromptUtil.showBiometricsGenericError(this, error.error)
+                BiometricPromptUtil.showBiometricsGenericError(requireContext(), error.error)
             else -> {
                 // do nothing
             }
@@ -375,7 +368,7 @@ class SecurityActivity :
     }
 
     override fun onBackupNow() {
-        onBackupResult.launch(BackupWalletActivity.newIntent(this@SecurityActivity))
+        onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
     }
 
     override fun onSheetClosed() {
@@ -383,6 +376,6 @@ class SecurityActivity :
     }
 
     companion object {
-        fun newIntent(context: Context) = Intent(context, SecurityActivity::class.java)
+        fun newInstance() = SecurityFragment()
     }
 }

@@ -8,11 +8,11 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import piuk.blockchain.android.R
 
 fun Fragment.updateToolbar(
-    titleToolbar: String = "",
+    toolbarTitle: String = "",
     menuItems: List<NavigationBarButton>? = null,
     backAction: (() -> Unit)? = null
 ) {
-    (activity as? BlockchainActivity)?.updateToolbar(titleToolbar, menuItems, backAction)
+    (activity as? BlockchainActivity)?.updateToolbar(toolbarTitle, menuItems, backAction)
 }
 
 fun Fragment.updateTitleToolbar(titleToolbar: String = "") {

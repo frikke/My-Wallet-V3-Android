@@ -117,11 +117,6 @@ class CurrencySelectionSheet :
     }
 }
 
-data class CurrencyItem(
-    val name: String,
-    val symbol: String
-)
-
 interface ChangeCurrencyOptionHost : SimpleBuyScreen {
     fun skip()
 }

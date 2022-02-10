@@ -3,52 +3,57 @@ package piuk.blockchain.android.ui.settings.v2.account
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StringRes
-import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityAccountBinding
+import piuk.blockchain.android.databinding.FragmentAccountBinding
 import piuk.blockchain.android.simplebuy.CurrencySelectionSheet
-import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
+import piuk.blockchain.android.ui.base.updateToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
-import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
+import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
+import piuk.blockchain.android.ui.settings.v2.SettingsScreen
 import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
-import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.urllinks.URL_THE_PIT_LAUNCH_SUPPORT
 import piuk.blockchain.android.util.launchUrlInBrowser
 
-class AccountActivity :
-    MviActivity<AccountModel, AccountIntent, AccountState, ActivityAccountBinding>(),
-    CurrencySelectionSheet.Host {
+class AccountFragment :
+    MviFragment<AccountModel, AccountIntent, AccountState, FragmentAccountBinding>(),
+    CurrencySelectionSheet.Host,
+    SettingsScreen {
 
-    override val alwaysDisableScreenshots: Boolean = true
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAccountBinding =
+        FragmentAccountBinding.inflate(inflater, container, false)
+
+    override fun navigator(): SettingsNavigator =
+        (activity as? SettingsNavigator) ?: throw IllegalStateException(
+            "Parent must implement SettingsNavigator"
+        )
+
+    override fun onBackPressed(): Boolean = true
 
     override val model: AccountModel by scopedInject()
 
-    override val toolbarBinding: ToolbarGeneralBinding
-        get() = binding.toolbar
-
-    override fun initBinding(): ActivityAccountBinding =
-        ActivityAccountBinding.inflate(layoutInflater, null, false)
-
     private lateinit var walletId: String
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         updateToolbar(
             toolbarTitle = getString(R.string.account_toolbar),
-            backAction = { onBackPressed() }
+            menuItems = emptyList()
         )
 
         with(binding) {
@@ -56,7 +61,7 @@ class AccountActivity :
                 primaryText = getString(R.string.account_limits_title)
                 secondaryText = getString(R.string.account_limits_subtitle)
                 onClick = {
-                    startActivity(KycLimitsActivity.newIntent(this@AccountActivity))
+                    navigator().goToKycLimits()
                 }
             }
 
@@ -68,7 +73,8 @@ class AccountActivity :
                     analytics.logEvent(SettingsAnalytics.WalletIdCopyClicked)
 
                     if (::walletId.isInitialized) {
-                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clipboard =
+                            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("walletId", walletId)
                         clipboard.setPrimaryClip(clip)
                         BlockchainSnackbar.make(
@@ -104,7 +110,7 @@ class AccountActivity :
             settingsAirdrops.apply {
                 primaryText = getString(R.string.account_airdrops_title)
                 onClick = {
-                    startActivity(AirdropCentreActivity.newIntent(this@AccountActivity))
+                    navigator().goToAirdrops()
                 }
             }
         }
@@ -172,6 +178,7 @@ class AccountActivity :
             type = SnackbarType.Error
         ).show()
     }
+
     private fun renderWalletInformation(accountInformation: AccountInformation) {
         walletId = accountInformation.walletId
 
@@ -203,9 +210,9 @@ class AccountActivity :
                                     ctaButtonText = R.string.common_connect,
                                     icon = R.drawable.ic_exchange_logo
                                 ),
-                                emptyList(),
+                                tags = emptyList(),
                                 primaryCtaClick = {
-                                    PitPermissionsActivity.start(this, "")
+                                    navigator().goToExchange()
                                 }
                             )
                         )
@@ -222,10 +229,10 @@ class AccountActivity :
                                 listOf(TagViewState(getString(R.string.account_exchange_connected), TagType.Success())),
                                 // TODO this will be changed to support the Exchange app?
                                 primaryCtaClick = {
-                                    launchUrlInBrowser(BuildConfig.PIT_LAUNCHING_URL)
+                                    requireActivity().launchUrlInBrowser(BuildConfig.PIT_LAUNCHING_URL)
                                 },
                                 secondaryCtaClick = {
-                                    launchUrlInBrowser(URL_THE_PIT_LAUNCH_SUPPORT)
+                                    requireActivity().launchUrlInBrowser(URL_THE_PIT_LAUNCH_SUPPORT)
                                 }
                             )
                         )
@@ -248,6 +255,6 @@ class AccountActivity :
     }
 
     companion object {
-        fun newIntent(context: Context) = Intent(context, AccountActivity::class.java)
+        fun newInstance() = AccountFragment()
     }
 }

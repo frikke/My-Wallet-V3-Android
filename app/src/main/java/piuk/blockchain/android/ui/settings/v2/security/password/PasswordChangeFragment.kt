@@ -17,7 +17,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentPasswordUpdateBinding
-import piuk.blockchain.android.ui.base.updateTitleToolbar
+import piuk.blockchain.android.ui.base.updateToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
@@ -30,7 +30,10 @@ class PasswordChangeFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        this.updateTitleToolbar(getString(R.string.change_password_title))
+        updateToolbar(
+            toolbarTitle = getString(R.string.change_password_title),
+            menuItems = emptyList()
+        )
 
         with(binding) {
             passwordBlurb.apply {
