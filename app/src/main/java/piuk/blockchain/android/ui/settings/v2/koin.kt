@@ -23,6 +23,9 @@ import piuk.blockchain.android.ui.settings.v2.security.SecurityState
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeInteractor
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeModel
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeState
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinInteractor
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinModel
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinState
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationInteractor
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationModel
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationState
@@ -147,10 +150,11 @@ val redesignSettingsModule = module {
             SecurityInteractor(
                 settingsDataManager = get(),
                 biometricsController = get(),
-                securityPrefs = get(),
                 pinRepository = get(),
                 payloadManager = get(),
-                backupPrefs = get()
+                backupPrefs = get(),
+                authPrefs = get(),
+                securityPrefs = get()
             )
         }
 
@@ -169,6 +173,35 @@ val redesignSettingsModule = module {
                 payloadManager = get(),
                 authDataManager = get(),
                 pinRepository = get()
+            )
+        }
+
+        factory {
+            PinModel(
+                initialState = PinState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                environmentConfig = get(),
+                crashLogger = get(),
+                specificAnalytics = get(),
+                analytics = get()
+            )
+        }
+
+        factory {
+            PinInteractor(
+                apiStatus = get(),
+                authDataManager = get(),
+                payloadManager = get(),
+                pinRepository = get(),
+                biometricsController = get(),
+                mobileNoticeRemoteConfig = get(),
+                persistentPrefs = get(),
+                walletStatus = get(),
+                authPrefs = get(),
+                credentialsWiper = get(),
+                walletOptionsDataManager = get(),
+                defaultLabels = get()
             )
         }
 

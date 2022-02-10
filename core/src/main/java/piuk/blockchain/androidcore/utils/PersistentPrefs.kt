@@ -33,8 +33,6 @@ interface PersistentPrefs :
     val deviceId: String // Pre-IDV device identifier
     var devicePreIDVCheckFailed: Boolean // Pre-IDV check has failed! Don't show 'gold' announce cards etc
 
-    var pinId: String
-
     var newSwapEnabled: Boolean
 
     fun getValue(name: String): String?

@@ -109,4 +109,8 @@ sealed class SecurityIntent : MviIntent<SecurityState> {
             securityInfo = oldState.securityInfo?.copy(isCloudBackupEnabled = backupEnabled)
         )
     }
+
+    object ClearPrefs : SecurityIntent() {
+        override fun reduce(oldState: SecurityState): SecurityState = oldState
+    }
 }

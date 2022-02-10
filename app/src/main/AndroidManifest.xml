@@ -94,7 +94,6 @@
             android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".ui.home.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -130,6 +129,11 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.settings.v2.security.pin.PinActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.login.auth.LoginAuthActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

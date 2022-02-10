@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.security
 
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
@@ -29,6 +30,7 @@ class SecurityInteractorTest {
     private val settingsDataManager: SettingsDataManager = mock()
     private val biometricsController: BiometricsController = mock()
     private val securityPrefs: SecurityPrefs = mock()
+    private val authPrefs: AuthPrefs = mock()
     private val pinRepository: PinRepository = mock()
     private val payloadManager: PayloadDataManager = mock()
     private val encryptedPrefs: EncryptedPrefs = mock()
@@ -41,7 +43,8 @@ class SecurityInteractorTest {
             securityPrefs = securityPrefs,
             pinRepository = pinRepository,
             payloadManager = payloadManager,
-            backupPrefs = encryptedPrefs
+            backupPrefs = encryptedPrefs,
+            authPrefs = authPrefs
         )
     }
 

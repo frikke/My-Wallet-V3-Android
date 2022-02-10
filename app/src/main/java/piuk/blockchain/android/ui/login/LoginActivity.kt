@@ -15,12 +15,16 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
+import org.koin.core.component.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
@@ -31,6 +35,7 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import timber.log.Timber
@@ -52,6 +57,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
         GoogleReCaptchaClient(this, environmentConfig)
     }
+
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     private lateinit var state: LoginState
 
@@ -168,9 +175,18 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             }
             LoginStep.ENTER_PIN -> {
                 showLoginApprovalStatePrompt(newState.loginApprovalState)
-                startActivity(
-                    Intent(this, PinEntryActivity::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                // TODO remove ff
+                redesign.enabled.onErrorReturnItem(false).subscribeBy(
+                    onSuccess = { isEnabled ->
+                        if (isEnabled) {
+                            startActivity(PinActivity.newIntent(this))
+                        } else {
+                            startActivity(
+                                Intent(this, PinEntryActivity::class.java).apply {
+                                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            )
+                        }
                     }
                 )
             }

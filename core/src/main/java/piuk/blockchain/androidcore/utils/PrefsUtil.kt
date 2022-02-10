@@ -438,6 +438,10 @@ class PrefsUtil(
 
     override fun clearSessionId() = removeValue(SESSION_ID)
 
+    override fun removePinID() {
+        removeValue(KEY_PIN_FAILS)
+    }
+
     private fun encodeToBase64(data: String) =
         Base64.encodeToString(data.toByteArray(charset("UTF-8")), Base64.DEFAULT)
 
@@ -657,7 +661,7 @@ class PrefsUtil(
         private const val KEY_WALLET_GUID = "guid"
         private const val KEY_SHARED_KEY = "sharedKey"
         private const val KEY_ENCRYPTED_PASSWORD = "encrypted_password"
-        const val KEY_PIN_FAILS = "pin_fails"
+        private const val KEY_PIN_FAILS = "pin_fails"
         const val SESSION_ID = "session_id"
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"

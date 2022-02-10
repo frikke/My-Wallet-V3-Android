@@ -2693,4 +2693,12 @@
     <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
     <string name="ui_tour_buyer_handhold_subtitle">Add a card or link a bank to start buying crypto in seconds.</string>
 
+    <!-- Pin screen -->
+    <string name="pin_title_create">Choose a Wallet PIN.</string>
+    <string name="pin_subtitle">This will be used for Biometric Unlock Backup.</string>
+    <string name="pin_title_confirm">Confirm Your PIN.</string>
+    <string name="pin_mismatch_error_msg">PINs do not match. Please try again.</string>
+    <string name="pin_num_digits">Pin must contain 4 digits.</string>
+    <string name="pin_toolbar_change">Change PIN</string>
+
 </resources>

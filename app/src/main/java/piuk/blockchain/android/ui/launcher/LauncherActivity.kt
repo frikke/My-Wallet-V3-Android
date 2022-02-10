@@ -7,16 +7,22 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.notifications.analytics.NotificationAppOpened
+import com.blockchain.remoteconfig.FeatureFlag
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
 import timber.log.Timber
 
 class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), LauncherView {
+
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +50,16 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
     }
 
     override fun onRequestPin() {
-        startSingleActivity(PinEntryActivity::class.java, null)
+        // TODO remove ff
+        redesign.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    startActivity(PinActivity.newIntent(this))
+                } else {
+                    startSingleActivity(PinEntryActivity::class.java, null)
+                }
+            }
+        )
     }
 
     override fun onReenterPassword() {

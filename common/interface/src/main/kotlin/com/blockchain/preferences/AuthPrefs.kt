@@ -1,6 +1,7 @@
 package com.blockchain.preferences
 
 interface AuthPrefs {
+    var pinId: String
     var encodedPin: String
     var biometricsEnabled: Boolean
 
@@ -15,4 +16,6 @@ interface AuthPrefs {
     var emailVerified: Boolean
 
     fun clearSessionId()
+
+    fun removePinID()
 }

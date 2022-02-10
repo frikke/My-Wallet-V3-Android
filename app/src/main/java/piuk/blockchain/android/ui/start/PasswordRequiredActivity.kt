@@ -8,8 +8,11 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -22,6 +25,7 @@ import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 
 class PasswordRequiredActivity :
     MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),
@@ -47,6 +51,8 @@ class PasswordRequiredActivity :
             }
         }
     }
+
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,7 +109,16 @@ class PasswordRequiredActivity :
     }
 
     override fun goToPinPage() {
-        startActivity(Intent(this, PinEntryActivity::class.java))
+        // TODO remove ff
+        redesign.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    startActivity(PinActivity.newIntent(this))
+                } else {
+                    startActivity(Intent(this, PinEntryActivity::class.java))
+                }
+            }
+        )
     }
 
     override fun updateWaitingForAuthDialog(secondsRemaining: Int) =

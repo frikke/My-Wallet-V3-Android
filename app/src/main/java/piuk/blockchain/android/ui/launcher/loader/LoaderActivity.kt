@@ -14,10 +14,14 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
@@ -26,6 +30,7 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
 
 class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(), EmailEntryHost {
@@ -38,6 +43,8 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
 
     private var state: LoaderState? = null
     private val compositeDisposable = CompositeDisposable()
+
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,7 +152,16 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     }
 
     private fun onRequestPin() {
-        startSingleActivity(PinEntryActivity::class.java)
+        // TODO remove ff
+        redesign.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    startActivity(PinActivity.newIntent(this))
+                } else {
+                    startSingleActivity(PinEntryActivity::class.java)
+                }
+            }
+        )
     }
 
     private fun onStartMainActivity(mainData: String?, shouldLaunchUiTour: Boolean) {

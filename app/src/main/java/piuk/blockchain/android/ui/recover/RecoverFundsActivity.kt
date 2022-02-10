@@ -10,14 +10,19 @@ import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecoverFundsBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 
 internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverFundsPresenter>(), RecoverFundsView {
 
@@ -36,6 +41,8 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
     private var progressDialog: MaterialProgressDialog? = null
     private val recoveryPhrase: String
         get() = binding.fieldPassphrase.text.toString().toLowerCase(Locale.US).trim()
+
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +71,21 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
 
     override fun startPinEntryActivity() {
         hideKeyboard()
-        PinEntryActivity.startAfterWalletCreation(this)
+        // TODO remove ff
+        redesign.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    startActivity(
+                        PinActivity.newIntent(
+                            this,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.CREATE_WALLET
+                        )
+                    )
+                } else {
+                    PinEntryActivity.startAfterWalletCreation(this)
+                }
+            }
+        )
     }
 
     override fun onSupportNavigateUp(): Boolean {

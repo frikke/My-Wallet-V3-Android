@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.security
 
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Completable
@@ -14,11 +15,17 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 class SecurityInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val biometricsController: BiometricsController,
-    private val securityPrefs: SecurityPrefs,
     private val pinRepository: PinRepository,
     private val payloadManager: PayloadDataManager,
+    private val securityPrefs: SecurityPrefs,
+    private val authPrefs: AuthPrefs,
     private val backupPrefs: EncryptedPrefs
 ) {
+
+    fun pinCodeValidatedForChange() {
+        authPrefs.pinFails = 0
+        authPrefs.pinId = ""
+    }
 
     fun loadInitialInformation(): Single<SecurityInfo> =
         Singles.zip(

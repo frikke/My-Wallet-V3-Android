@@ -125,6 +125,10 @@ class SecurityModel(
                     null
                 }
             }
+            is SecurityIntent.ClearPrefs -> {
+                interactor.pinCodeValidatedForChange()
+                null
+            }
             is SecurityIntent.UpdateViewState,
             is SecurityIntent.UpdateSecurityInfo,
             is SecurityIntent.UpdateErrorState,
