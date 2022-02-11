@@ -30,6 +30,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.DepositOptionsState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.SourceSelectionCustomisations
+import piuk.blockchain.android.util.StringLocalizationUtil
 
 class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSelectorBinding>(), BankLinkingHost {
 
@@ -65,9 +66,9 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             updateSources(newState)
             binding.depositTooltip.root.apply {
                 visibleIf { customiser.selectSourceShouldShowDepositTooltip(newState) }
-                binding.depositTooltip.paymentMethodTitle.text =
-                    if (newState.receivingAsset.networkTicker == "USD") getString(R.string.wire_transfer)
-                    else getString(R.string.bank_transfer)
+                binding.depositTooltip.paymentMethodTitle.text = binding.root.context.getString(
+                    StringLocalizationUtil.getBankDepositTitle(newState.receivingAsset.networkTicker)
+                )
                 setOnClickListener {
                     showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance())
                 }
@@ -96,9 +97,10 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             is DepositOptionsState.ShowBottomSheet -> {
                 binding.progress.gone()
                 LinkBankMethodChooserBottomSheet.newInstance(
-                    LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
+                    linkablePaymentMethodsForAction = LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         newState.depositOptionsState.linkablePaymentMethods
-                    )
+                    ),
+                    transactionTarget = newState.selectedTarget
                 ).show(childFragmentManager, BOTTOM_SHEET)
             }
             is DepositOptionsState.Error -> {

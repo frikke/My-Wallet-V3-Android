@@ -255,7 +255,7 @@ class TransactionInteractor(
             val availableBankPaymentMethodTypes = available.filter {
                 it.type == PaymentMethodType.BANK_TRANSFER ||
                     it.type == PaymentMethodType.BANK_ACCOUNT
-            }.filter { it.currency == fiatCurrency }.map { it.type }
+            }.filter { it.currency == fiatCurrency }.map { it.type }.sortedBy { it.ordinal }
 
             when {
                 availableBankPaymentMethodTypes.size > 1 -> {
