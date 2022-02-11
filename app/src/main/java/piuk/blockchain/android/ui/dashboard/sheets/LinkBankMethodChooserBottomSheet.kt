@@ -108,7 +108,7 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
                     putSerializable(LINKABLE_METHODS, linkablePaymentMethodsForAction)
                     putBoolean(FOR_PAYMENT, isForPayment)
                     if (transactionTarget is SingleAccount)
-                        putSerializable(TARGET_CURRENCY_TICKER, transactionTarget.currency.networkTicker)
+                        putString(TARGET_CURRENCY_TICKER, transactionTarget.currency.networkTicker)
                 }
             }
     }
