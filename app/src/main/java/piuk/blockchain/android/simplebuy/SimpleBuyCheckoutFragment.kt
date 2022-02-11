@@ -414,10 +414,9 @@ class SimpleBuyCheckoutFragment :
                 showBottomSheet(SimpleBuyCancelOrderBottomSheet.newInstance())
             }
             buttonGooglePay.apply {
-                isEnabled = true
                 visibleIf { isGooglePay }
                 setOnClickListener {
-                    buttonGooglePay.isEnabled = false
+                    buttonGooglePay.showLoading()
                     model.process(SimpleBuyIntent.GooglePayInfoRequested)
                 }
             }
