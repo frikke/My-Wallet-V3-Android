@@ -3,6 +3,7 @@ package com.blockchain.componentlib.basic
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import com.blockchain.componentlib.theme.AppTheme
 
 enum class ComposeColors {
@@ -84,5 +85,12 @@ enum class ComposeGravities {
             Start -> Alignment.Start
             Centre -> Alignment.CenterHorizontally
             End -> Alignment.End
+        }
+
+    fun toTextAlignment(): TextAlign =
+        when (this) {
+            Start -> TextAlign.Start
+            Centre -> TextAlign.Center
+            End -> TextAlign.End
         }
 }

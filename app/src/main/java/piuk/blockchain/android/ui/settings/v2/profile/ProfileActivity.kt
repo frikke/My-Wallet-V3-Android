@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.v2.profile
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
@@ -13,7 +14,6 @@ import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityProfileBinding
-import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.USER_TIER

@@ -5,7 +5,7 @@ object Versions {
     // Release info
     const val minSdk = 24
     const val targetSdk = 30
-    const val compileSdk = 30
+    const val compileSdk = 31
 
     const val versionCode = 16830
     const val versionName = "202202.2.0"
@@ -105,6 +105,8 @@ object Versions {
     const val coil = "1.4.0"
     const val composeActivity = "1.3.1"
     const val constraintLayoutCompose = "1.0.0-beta02"
+    const val composeRx = "1.1.0"
+    const val composeKotlinCompile = "1.5.3"
 
     // Accompanist
     const val systemUi = "0.20.2"
@@ -287,7 +289,7 @@ object Libraries {
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
     const val constraintLayoutCompose =
         "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"
-
+    const val composeRx = "androidx.compose.runtime:runtime-rxjava3:${Versions.composeRx}"
     // Accompanist
     const val accompanistSystemUi = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemUi}"
 

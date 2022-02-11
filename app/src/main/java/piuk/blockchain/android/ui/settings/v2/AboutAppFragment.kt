@@ -9,9 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.updateToolbar
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAboutAppBinding
-import piuk.blockchain.android.ui.base.updateToolbar
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY

@@ -22,6 +22,7 @@ dependencies {
     implementation Libraries.koinAndroid
     implementation Libraries.rxJava
     implementation Libraries.design
+    implementation Libraries.composeUi
     implementation Libraries.rxKotlin
     implementation Libraries.rxRelay
     implementation Libraries.rxAndroid

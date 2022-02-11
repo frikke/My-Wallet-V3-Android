@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.basic
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -16,16 +15,12 @@ fun SimpleText(
     color: ComposeColors,
     gravity: ComposeGravities
 ) {
-    Column(
+    Text(
         modifier = Modifier.fillMaxWidth(),
-        content = {
-            Text(
-                modifier = Modifier.align(alignment = gravity.toComposeGravity()),
-                text = text,
-                style = style.toComposeTypography(),
-                color = color.toComposeColor()
-            )
-        }
+        text = text,
+        style = style.toComposeTypography(),
+        color = color.toComposeColor(),
+        textAlign = gravity.toTextAlignment()
     )
 }
 

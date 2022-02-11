@@ -6,16 +6,17 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.FlowFragment
+import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRedesignPhase2SettingsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
-import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.settings.v2.account.AccountFragment
@@ -112,6 +113,10 @@ class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
         startActivity(KycLimitsActivity.newIntent(this))
     }
 
+    override fun goToWalletConnect() {
+        replaceCurrentFragment(DappsListFragment.newInstance())
+    }
+
     private fun replaceCurrentFragment(newFragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
@@ -139,6 +144,7 @@ interface SettingsNavigator {
     fun goToFeatureFlags()
     fun goToSupportCentre()
     fun goToAirdrops()
+    fun goToWalletConnect()
     fun goToExchange()
     fun goToKycLimits()
     fun goToPasswordChange()

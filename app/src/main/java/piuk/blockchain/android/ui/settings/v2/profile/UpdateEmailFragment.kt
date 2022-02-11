@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.commonarch.presentation.base.FlowFragment
+import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
@@ -18,7 +19,6 @@ import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdateEmailBinding
-import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.FormatChecker
 

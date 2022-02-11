@@ -2548,6 +2548,7 @@
     <string name="account_wallet_id_subtitle">Warning: Do Not Share Publicly</string>
     <string name="account_currency_title">Local Currency</string>
     <string name="account_exchange_title">Blockchain Exchange</string>
+    <string name="account_wallet_connect">Wallet Connect</string>
     <string name="account_exchange_not_connected">Connect to your Exchange Account</string>
     <string name="account_exchange_connected">Connected</string>
     <string name="account_airdrops_title">Airdrops</string>

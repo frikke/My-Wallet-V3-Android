@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
@@ -19,7 +20,6 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountBinding
 import piuk.blockchain.android.simplebuy.CurrencySelectionSheet
-import piuk.blockchain.android.ui.base.updateToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
@@ -104,6 +104,13 @@ class AccountFragment :
                 primaryText = getString(R.string.account_exchange_title)
                 onClick = {
                     model.process(AccountIntent.LoadExchange)
+                }
+            }
+
+            settingsWalletConnect.apply {
+                primaryText = getString(R.string.account_wallet_connect)
+                onClick = {
+                    navigator().goToWalletConnect()
                 }
             }
 
