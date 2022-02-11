@@ -8,12 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject

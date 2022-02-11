@@ -50,7 +50,7 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
         with(binding) {
             recycler.layoutManager = LinearLayoutManager(activity)
             recycler.adapter = LinkBankMethodChooserAdapter(
-                paymentMethods= paymentMethods.linkablePaymentMethods.linkMethods,
+                paymentMethods = paymentMethods.linkablePaymentMethods.linkMethods,
                 isForPayment = isForPayment,
                 targetCurrencyTicker = targetCurrencyTicker
             ) {
@@ -125,7 +125,7 @@ class LinkBankMethodChooserAdapter(
         private val binding: LinkBankMethodItemBinding,
         private val isForPayment: Boolean,
         private val targetCurrencyTicker: String
-        ) : RecyclerView.ViewHolder(binding.root) {
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(paymentMethod: PaymentMethodType, onClick: (PaymentMethodType) -> Unit) {
             val item = paymentMethod.toLinkBankMethodItemUI(isForPayment, targetCurrencyTicker)
