@@ -197,6 +197,7 @@ class TransactionFlowActivity :
                 }
                 BackNavigationState.ResetPendingTransactionKeepingTarget -> {
                     hideKeyboard()
+                    binding.txProgress.visible()
                     model.process(TransactionIntent.InvalidateTransactionKeepingTarget)
                 }
                 BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)

@@ -14,6 +14,7 @@ import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
 import com.blockchain.core.limits.TxLimit
@@ -1037,7 +1038,7 @@ class TransactionFlowCustomiserImpl(
         when (state.currentStep) {
             TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
             TransactionStep.ENTER_AMOUNT -> {
-                if (state.sendingAccount is LinkedBankAccount) {
+                if (state.sendingAccount is LinkedBankAccount || (state.selectedTarget is CryptoInterestAccount && state.action == AssetAction.InterestDeposit)) {
                     BackNavigationState.ResetPendingTransactionKeepingTarget
                 } else {
                     BackNavigationState.ResetPendingTransaction
