@@ -38,9 +38,10 @@ class DepositTooltipDelegate : AdapterDelegate<PaymentMethodItem> {
             binding.apply {
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
                 paymentMethodTitle.text = binding.root.context.getString(
-                    StringLocalizationUtil.getBankDepositTitle(paymentMethodItem.paymentMethod.fiatCurrency.networkTicker)
+                    StringLocalizationUtil.getBankDepositTitle(
+                        paymentMethodItem.paymentMethod.fiatCurrency.networkTicker
+                    )
                 )
-
             }
         }
     }
