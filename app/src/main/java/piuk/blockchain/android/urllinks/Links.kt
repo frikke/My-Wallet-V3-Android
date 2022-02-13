@@ -54,6 +54,8 @@ const val EXCHANGE_SWAP_RATE_EXPLANATION = "https://support.blockchain.com/hc/en
 const val CHECKOUT_PRICE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651"
 const val CHECKOUT_REFUND_POLICY = "https://support.blockchain.com/hc/en-us/articles/360061942111"
 
+const val UK_ENTITY_SWITCH = "https://support.blockchain.com/hc/en-us/articles/4418431131668"
+
 const val SECOND_PASSWORD_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360000882646"
 const val RESET_2FA = "https://login.blockchain.com/#/reset-2fa"
 

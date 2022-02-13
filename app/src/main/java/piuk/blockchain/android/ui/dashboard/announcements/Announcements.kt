@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import android.content.Context
 import androidx.annotation.VisibleForTesting
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
@@ -14,6 +15,7 @@ import timber.log.Timber
 
 interface AnnouncementHost {
     val disposables: CompositeDisposable
+    val context: Context?
 
     fun showAnnouncementCard(card: AnnouncementCard)
     fun dismissAnnouncementCard()

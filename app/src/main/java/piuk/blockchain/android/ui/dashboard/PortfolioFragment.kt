@@ -3,14 +3,19 @@ package piuk.blockchain.android.ui.dashboard
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AssetAction
@@ -22,6 +27,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.isVisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.extensions.exhaustive
@@ -34,6 +40,8 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.remoteconfig.FeatureFlag
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -58,9 +66,13 @@ import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.dashboard.adapter.PortfolioDelegateAdapter
+import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementAnalyticsEvent
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
+import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
+import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
+import piuk.blockchain.android.ui.dashboard.announcements.rule.UkEntitySwitchAnnouncement
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.FullScreenCoinViewFlow
@@ -318,6 +330,7 @@ class PortfolioFragment :
                 }
             }
         }
+        updateUkEntitySwitchAnnouncementOnEmptyState()
     }
 
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
@@ -432,12 +445,137 @@ class PortfolioFragment :
         )
     }
 
+    // TODO: Remove when we're no longer showing the UK Entity Switch announcement in Prod
+    private var ukEntitySwitchAnnouncement: StandardAnnouncementCard? = null
+    private fun updateUkEntitySwitchAnnouncementOnEmptyState() = with(binding.announcement) {
+        val announcement = ukEntitySwitchAnnouncement
+        if (announcement == null || !binding.emptyPortfolioGroup.isVisible()) {
+            root.gone()
+            return
+        } else {
+            root.visible()
+        }
+        when {
+            announcement.titleText != 0 -> {
+                msgTitle.text = msgTitle.context.getString(
+                    announcement.titleText, *announcement.titleFormatParams
+                )
+            }
+            else -> {
+                msgTitle.gone()
+            }
+        }
+
+        if (announcement.background != 0) {
+            cardContainer.setBackgroundResource(announcement.background)
+        } else {
+            cardContainer.setBackgroundColor(Color.WHITE)
+        }
+
+        when {
+            announcement.bodyTextSpannable != null -> {
+                val text = announcement.bodyTextSpannable
+                msgBody.text = text
+                val hasClickableSpans = text.getSpans(0, text.length, ClickableSpan::class.java).isNotEmpty()
+                if (hasClickableSpans) msgBody.movementMethod = LinkMovementMethod.getInstance()
+            }
+            announcement.bodyText != 0 -> {
+                msgBody.text = msgBody.context.getString(
+                    announcement.bodyText, *announcement.bodyFormatParams
+                )
+                msgBody.visible()
+            }
+            else -> {
+                msgBody.gone()
+            }
+        }
+
+        when {
+            announcement.iconImage != 0 -> {
+                check(announcement.iconUrl.isEmpty()) { "Can't set both a drawable and a URL on an announcement" }
+
+                icon.setImageDrawable(ContextCompat.getDrawable(icon.context, announcement.iconImage))
+                if (announcement.shouldWrapIconWidth) {
+                    // This is only used to display the vector_aave_yfi_dot_announcement icon in the correct size
+                    icon.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+
+                icon.visible()
+            }
+            announcement.iconUrl.isNotEmpty() -> {
+                check(announcement.iconImage == 0) { "Can't set both a drawable and a URL on an announcement" }
+
+                Glide.with(icon.context)
+                    .load(announcement.iconUrl)
+                    .apply(RequestOptions().placeholder(R.drawable.ic_default_asset_logo))
+                    .into(icon)
+
+                icon.visible()
+            }
+            else -> {
+                icon.gone()
+            }
+        }
+
+        if (announcement.ctaText != 0) {
+            btnCta1.text = btnCta1.context.getString(announcement.ctaText, *announcement.ctaFormatParams)
+            btnCta1.setOnClickListener {
+                analytics.logEvent(AnnouncementAnalyticsEvent.CardActioned(announcement.name))
+                announcement.ctaClicked()
+            }
+            btnCta1.visible()
+        } else {
+            btnCta1.gone()
+        }
+
+        if (announcement.dismissText != 0) {
+            btnDismiss.setText(announcement.dismissText)
+            btnDismiss.setOnClickListener {
+                analytics.logEvent(AnnouncementAnalyticsEvent.CardDismissed(announcement.name))
+                announcement.dismissClicked()
+            }
+            btnDismiss.visible()
+            btnClose.gone()
+        } else {
+            btnDismiss.gone()
+        }
+
+        if (announcement.dismissRule != DismissRule.CardPersistent) {
+            btnClose.setOnClickListener {
+                analytics.logEvent(AnnouncementAnalyticsEvent.CardDismissed(announcement.name))
+                announcement.dismissClicked()
+            }
+            btnClose.visible()
+        } else {
+            btnClose.gone()
+            btnDismiss.gone()
+        }
+
+        val colour = ContextCompat.getColor(btnCta1.context, announcement.buttonColor)
+        if (btnCta1.isVisible()) {
+            btnCta1.setBackgroundColor(colour)
+        }
+
+        if (btnDismiss.isVisible()) {
+            val bgColour = ContextCompat.getColor(btnCta1.context, R.color.announce_background)
+            val gd = GradientDrawable()
+            gd.setColor(bgColour)
+            gd.setStroke(2, colour)
+            btnDismiss.background = gd
+            btnDismiss.setTextColor(colour)
+        }
+    }
+
     private fun showAnnouncement(card: AnnouncementCard?) {
         displayList[IDX_CARD_ANNOUNCE] = card ?: EmptyDashboardItem()
         theAdapter.notifyItemChanged(IDX_CARD_ANNOUNCE)
         card?.let {
             binding.portfolioRecyclerView.smoothScrollToPosition(IDX_CARD_ANNOUNCE)
         }
+        ukEntitySwitchAnnouncement =
+            if (card?.name == UkEntitySwitchAnnouncement.ANNOUNCEMENT_NAME) card as? StandardAnnouncementCard
+            else null
+        updateUkEntitySwitchAnnouncementOnEmptyState()
     }
 
     private fun updateAnalytics(oldState: DashboardState?, newState: DashboardState) {
@@ -645,6 +783,9 @@ class PortfolioFragment :
 
         override val disposables: CompositeDisposable
             get() = compositeDisposable
+
+        override val context: Context?
+            get() = this@PortfolioFragment.context
 
         override fun showAnnouncementCard(card: AnnouncementCard) {
             model.process(DashboardIntent.ShowAnnouncement(card))

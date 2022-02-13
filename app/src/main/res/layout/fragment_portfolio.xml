@@ -36,13 +36,26 @@
             tools:listitem="@layout/item_dashboard_asset_card"
             tools:visibility="visible" />
 
+        <include
+            android:id="@+id/announcement"
+            layout="@layout/item_announcement_standard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_margin="@dimen/tiny_margin"
+            tools:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
         <androidx.constraintlayout.widget.Group
             android:id="@+id/empty_portfolio_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:constraint_referenced_ids="empty_portfolio_title, portfolio_description, buy_crypto_button, receive_deposit_button, bottom_background, receive_button"
-            tools:visibility="gone" />
+            tools:visibility="visible" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/empty_portfolio_title"
