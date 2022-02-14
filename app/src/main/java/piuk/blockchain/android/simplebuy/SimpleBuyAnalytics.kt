@@ -82,6 +82,7 @@ fun PaymentMethod.toNabuAnalyticsString(): String =
         is PaymentMethod.Card -> "PAYMENT_CARD"
         is PaymentMethod.Bank -> "BANK_TRANSFER"
         is PaymentMethod.Funds -> "FUNDS"
+        is PaymentMethod.GooglePay -> "GOOGLE_PAY"
         else -> ""
     }
 
@@ -210,7 +211,11 @@ class BuySellClicked(
         get() = AnalyticsNames.BUY_SELL_CLICKED.eventName
     override val params: Map<String, Serializable>
         get() = mapOf(
-            "type" to type?.name
+            "type" to when (type) {
+                BuySellFragment.BuySellViewType.TYPE_BUY -> "BUY"
+                BuySellFragment.BuySellViewType.TYPE_SELL -> "SELL"
+                else -> null
+            }
         ).withoutNullValues()
 }
 
