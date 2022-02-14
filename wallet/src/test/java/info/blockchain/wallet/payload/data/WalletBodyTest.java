@@ -229,6 +229,24 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
         assertEquals(4, map.get("xpub6DEe2bJAU7GbYjCHygUwVDJYv5fjCUyQ1AHvkM1ecRL2PZ7vYv9a5iRiHjxmRgi3auyaA9NSAw88VwHm4hvw4C8zLbuFjNBcw2Cx7Ymq5zk").intValue());
     }
 
+    @Test
+    public void getDerivationsAfterV4Upgrade() throws Exception {
+        final int expectedDerivationsCount = 2;
+        String body = loadResourceContent("hd_wallet_body_1.txt");
+        WalletBody walletBody = WalletBody.fromJson(body, mapperV3);
+        walletBody.decryptHDWallet(
+            "hello",
+            "d14f3d2c-f883-40da-87e2-c8448521ee64",
+            5000
+        );
+        List<Account> upgradedAccounts = walletBody.upgradeAccountsToV4();
+        for (Account account: upgradedAccounts) {
+            if (account instanceof AccountV4) {
+                assertEquals(expectedDerivationsCount, ((AccountV4) account).getDerivations().size());
+            }
+        }
+    }
+
     private final String recoverBalance_1 ="{\n"
           + "    \"xpub6BvvF1nwmp51CapAefmDYrKWeGC2Y96TcGtB6BTfiTJezHLjBxgsWdKRvWWChGAhWPjdRjSUsDeEgnSar2xjenixNArkytRU2heAWr3HmQ5\": {\n"
           + "        \"final_balance\": 0,\n"
