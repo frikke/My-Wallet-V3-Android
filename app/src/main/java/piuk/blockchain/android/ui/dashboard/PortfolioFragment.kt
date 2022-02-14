@@ -319,12 +319,12 @@ class PortfolioFragment :
                 }
                 isLoading -> {
                     portfolioRecyclerView.gone()
-                    emptyPortfolioGroup.gone()
+                    emptyPortfolio.gone()
                     dashboardProgress.visible()
                 }
                 else -> {
                     portfolioRecyclerView.visibleIf { showPortfolio }
-                    emptyPortfolioGroup.visibleIf { !showPortfolio }
+                    emptyPortfolio.visibleIf { !showPortfolio }
                     setupCtaButtons(showDepositButton, showPortfolio)
                     dashboardProgress.gone()
                 }
@@ -449,7 +449,7 @@ class PortfolioFragment :
     private var ukEntitySwitchAnnouncement: StandardAnnouncementCard? = null
     private fun updateUkEntitySwitchAnnouncementOnEmptyState() = with(binding.announcement) {
         val announcement = ukEntitySwitchAnnouncement
-        if (announcement == null || !binding.emptyPortfolioGroup.isVisible()) {
+        if (announcement == null || !binding.emptyPortfolio.isVisible()) {
             root.gone()
             return
         } else {
