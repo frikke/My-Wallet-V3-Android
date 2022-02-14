@@ -1038,7 +1038,8 @@ class TransactionFlowCustomiserImpl(
         when (state.currentStep) {
             TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
             TransactionStep.ENTER_AMOUNT -> {
-                if (state.sendingAccount is LinkedBankAccount || (state.selectedTarget is CryptoInterestAccount && state.action == AssetAction.InterestDeposit)) {
+                if (state.sendingAccount is LinkedBankAccount
+                    || (state.selectedTarget is CryptoInterestAccount && state.action == AssetAction.InterestDeposit)) {
                     BackNavigationState.ResetPendingTransactionKeepingTarget
                 } else {
                     BackNavigationState.ResetPendingTransaction
