@@ -11,6 +11,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi.MviActivity
@@ -21,6 +22,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.logging.CrashLogger
+import com.blockchain.preferences.DashboardPrefs
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -68,6 +70,7 @@ class TransactionFlowActivity :
     private val analyticsHooks: TxFlowAnalytics by inject()
     private val customiser: TransactionFlowCustomisations by inject()
     private val crashLogger: CrashLogger by inject()
+    private val dashboardPrefs: DashboardPrefs by inject()
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
@@ -213,7 +216,10 @@ class TransactionFlowActivity :
             TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
             TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance()
             TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()
-            TransactionStep.ENTER_AMOUNT -> EnterAmountFragment.newInstance()
+            TransactionStep.ENTER_AMOUNT -> {
+                checkRemainingSendAttemptsWithoutBackup()
+                EnterAmountFragment.newInstance()
+            }
             TransactionStep.SELECT_TARGET_ACCOUNT -> SelectTargetAccountFragment.newInstance()
             TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance()
             TransactionStep.IN_PROGRESS -> TransactionProgressFragment.newInstance()
@@ -229,6 +235,15 @@ class TransactionFlowActivity :
             }
 
             transaction.commit()
+        }
+    }
+
+    private fun checkRemainingSendAttemptsWithoutBackup() {
+        if (state.action == AssetAction.Send &&
+            state.sendingAccount is CustodialTradingAccount &&
+            dashboardPrefs.remainingSendsWithoutBackup > 0
+        ) {
+            dashboardPrefs.remainingSendsWithoutBackup = dashboardPrefs.remainingSendsWithoutBackup - 1
         }
     }
 
