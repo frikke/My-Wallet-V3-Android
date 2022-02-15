@@ -2527,7 +2527,7 @@
     <string name="swap_empty_state_sheet_subtitle">Link a bank or card and buy now or receive from a friend. Once you hold a balance, you can swap crypto at anytime.</string>
 
     <!-- Settings screen -->
-    <string name="settings_see_profile">See Profile</string>
+    <string name="settings_see_profile">Edit Profile</string>
     <string name="settings_label_payments">Payment Methods</string>
     <string name="settings_title_no_payments">No Payment Methods</string>
     <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>

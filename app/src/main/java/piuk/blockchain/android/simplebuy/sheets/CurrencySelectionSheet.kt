@@ -1,4 +1,4 @@
-package piuk.blockchain.android.simplebuy
+package piuk.blockchain.android.simplebuy.sheets
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +15,9 @@ import java.io.Serializable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBinding
-import piuk.blockchain.android.simplebuy.sheets.CurrenciesAdapter
+import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.simplebuy.SimpleBuyNavigator
+import piuk.blockchain.android.simplebuy.SimpleBuyScreen
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class CurrencySelectionSheet :
@@ -41,10 +43,6 @@ class CurrencySelectionSheet :
 
     private val selectionType: CurrencySelectionType by unsafeLazy {
         arguments?.getSerializable(SELECTION_TYPE) as CurrencySelectionType
-    }
-
-    private val adapter = CurrenciesAdapter(true) {
-        updateFiat(it)
     }
 
     private fun updateFiat(currency: FiatCurrency) {
@@ -76,8 +74,12 @@ class CurrencySelectionSheet :
             }
 
             recycler.layoutManager = LinearLayoutManager(activity)
-            recycler.adapter = adapter
-            adapter.items = currencies.sortedWith(compareBy { it.name })
+            recycler.adapter = CurrenciesAdapter(
+                showSectionDivider = true,
+                items = currencies.sortedWith(compareBy { it.name })
+            ) {
+                updateFiat(it)
+            }
         }
     }
 

@@ -44,7 +44,7 @@ class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
 
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
-            .add(
+            .replace(
                 binding.settingsContentFrame.id, RedesignSettingsFragment.newInstance()
             )
             .commitNowAllowingStateLoss()
