@@ -55,6 +55,18 @@ class AccountModel(
                         }
                     )
             }
+
+            is AccountIntent.LoadDebitCard -> {
+                interactor.getDebitCardState()
+                    .subscribeBy(
+                        onSuccess = {
+                            //process(AccountIntent.UpdateViewToLaunch(ViewToLaunch.ExchangeLink(it)))
+                        },
+                        onError = {
+                            process(AccountIntent.UpdateErrorState(AccountError.EXCHANGE_LOAD_FAIL))
+                        }
+                    )
+            }
             is AccountIntent.LoadFiatList -> interactor.getAvailableFiatList()
                 .subscribeBy(
                     onSuccess = { list ->

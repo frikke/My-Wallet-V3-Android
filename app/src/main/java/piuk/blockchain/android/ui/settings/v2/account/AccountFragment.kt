@@ -107,6 +107,13 @@ class AccountFragment :
                 }
             }
 
+            settingsDebitCard.apply {
+                primaryText = "Blockchain Debit Card"
+                onClick = {
+                    //model.process(AccountIntent.LoadDebitCard)
+                }
+            }
+
             settingsWalletConnect.apply {
                 primaryText = getString(R.string.account_wallet_connect)
                 onClick = {
@@ -153,6 +160,19 @@ class AccountFragment :
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.account_exchange_connected), TagType.Success()))
                 }
+            }
+        }
+
+    private fun renderDebitCardInformation(debitCardOrderState: DebitCardState) =
+        when (debitCardOrderState) {
+            DebitCardState.NOT_ELIGIBLE -> {
+                binding.settingsExchange.secondaryText = "Not Eligible"
+            }
+            DebitCardState.NOT_ORDERED -> {
+                binding.settingsExchange.secondaryText = "Order Card"
+            }
+            DebitCardState.ORDERED -> {
+                binding.settingsExchange.secondaryText = null
             }
         }
 

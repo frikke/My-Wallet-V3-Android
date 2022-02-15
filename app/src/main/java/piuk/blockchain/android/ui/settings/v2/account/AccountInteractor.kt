@@ -13,7 +13,8 @@ class AccountInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
-    private val exchangeLinkingState: PitLinking
+    private val exchangeLinkingState: PitLinking,
+    private val debitCardState: PitLinking
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
@@ -41,4 +42,13 @@ class AccountInteractor internal constructor(
                 ExchangeLinkingState.NOT_LINKED
             }
         }
+
+    fun getDebitCardState(): Single<DebitCardState> {
+        debitCardState.state.firstOrError().map {
+            // TODO add logic to check if there are any available cards for this user. No cards -> means we should allow the user to order if eligible
+            // if there are cards -> we should not allow the user to order but we should still show the option in the menu
+        }
+
+        return Single.just(null)
+    }
 }

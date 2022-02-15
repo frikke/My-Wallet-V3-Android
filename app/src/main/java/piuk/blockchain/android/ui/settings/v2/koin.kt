@@ -132,7 +132,8 @@ val redesignSettingsModule = module {
                 settingsDataManager = get(),
                 exchangeRates = get(),
                 currencyPrefs = get(),
-                exchangeLinkingState = get()
+                exchangeLinkingState = get(),
+                debitCardState = get()
             )
         }
 

@@ -237,7 +237,7 @@ class TransactionModel(
                 intent.action, intent.target
             )
             is TransactionIntent.ReInitialiseWithTargetAndNoSource -> processSourceAccountsListUpdate(
-                intent.action, intent.target, true
+                intent.action, intent.target, false
             )
             is TransactionIntent.ValidatePassword -> processPasswordValidation(intent.password)
             is TransactionIntent.UpdatePasswordIsValidated -> null

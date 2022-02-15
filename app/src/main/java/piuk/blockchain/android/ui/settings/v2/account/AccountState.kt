@@ -22,6 +22,12 @@ enum class ExchangeLinkingState {
     LINKED
 }
 
+enum class DebitCardState {
+    NOT_ELIGIBLE,
+    NOT_ORDERED,
+    ORDERED
+}
+
 data class AccountInformation(
     val walletId: String,
     val userCurrency: FiatCurrency,
