@@ -181,17 +181,7 @@ data class BankTransferPaymentResponse(
     @SerialName("paymentId")
     val paymentId: String,
     @SerialName("bankAccountType")
-    val bankAccountType: String?,
-    @SerialName("attributes")
-    val attributes: BankTransferPaymentResponseAttributes
-)
-
-@Serializable
-data class BankTransferPaymentResponseAttributes(
-    @SerialName("paymentId")
-    val paymentId: String?,
-    @SerialName("callbackPath")
-    val callbackPath: String
+    val bankAccountType: String?
 )
 
 @Serializable
