@@ -94,7 +94,8 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
                     dismiss()
                 }, onError = {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.settings_bank_remove_error),
+                    dialog?.window?.decorView ?: binding.root,
+                    getString(R.string.settings_bank_remove_error),
                     type = SnackbarType.Error
                 ).show()
             }

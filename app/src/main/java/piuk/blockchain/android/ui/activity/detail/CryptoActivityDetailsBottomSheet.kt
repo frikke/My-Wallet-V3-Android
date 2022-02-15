@@ -228,7 +228,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         }
         if (state.recurringBuyId == null) {
             BlockchainSnackbar.make(
-                binding.root,
+                dialog?.window?.decorView ?: binding.root,
                 getString(R.string.recurring_buy_cancelled_toast),
                 type = SnackbarType.Success
             ).show()
@@ -237,7 +237,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
         if (state.hasDeleteError) {
             BlockchainSnackbar.make(
-                binding.root,
+                dialog?.window?.decorView ?: binding.root,
                 getString(R.string.recurring_buy_cancelled_error_toast),
                 type = SnackbarType.Error
             ).show()
@@ -474,7 +474,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("value", value))
         BlockchainSnackbar.make(
-            binding.root,
+            dialog?.window?.decorView ?: binding.root,
             getString(R.string.copied_to_clipboard),
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Success
