@@ -6,15 +6,16 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.androidcore.data.bccard.BcCardDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import thepit.PitLinking
 
 class AccountInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
+    private val bcCardDataManager: BcCardDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeLinkingState: PitLinking,
-    private val debitCardState: PitLinking
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
@@ -43,12 +44,12 @@ class AccountInteractor internal constructor(
             }
         }
 
-    fun getDebitCardState(): Single<DebitCardState> {
-        debitCardState.state.firstOrError().map {
-            // TODO add logic to check if there are any available cards for this user. No cards -> means we should allow the user to order if eligible
-            // if there are cards -> we should not allow the user to order but we should still show the option in the menu
+    fun getDebitCardState(): Single<DebitCardState> =
+        bcCardDataManager.getProducts().flatMap {
+            if (it.isNotEmpty())
+                Single.just(DebitCardState.ORDERED)
+            else
+                Single.just(DebitCardState.NOT_ORDERED)
         }
 
-        return Single.just(null)
-    }
 }

@@ -110,7 +110,7 @@ class AccountFragment :
             settingsDebitCard.apply {
                 primaryText = "Blockchain Debit Card"
                 onClick = {
-                    //model.process(AccountIntent.LoadDebitCard)
+                    model.process(AccountIntent.LoadDebitCard)
                 }
             }
 
@@ -166,13 +166,13 @@ class AccountFragment :
     private fun renderDebitCardInformation(debitCardOrderState: DebitCardState) =
         when (debitCardOrderState) {
             DebitCardState.NOT_ELIGIBLE -> {
-                binding.settingsExchange.secondaryText = "Not Eligible"
+                binding.settingsDebitCard.secondaryText = "Not Eligible"
             }
             DebitCardState.NOT_ORDERED -> {
-                binding.settingsExchange.secondaryText = "Order Card"
+                binding.settingsDebitCard.secondaryText = "Order Card"
             }
             DebitCardState.ORDERED -> {
-                binding.settingsExchange.secondaryText = null
+                binding.settingsDebitCard.secondaryText = null
             }
         }
 
@@ -192,6 +192,9 @@ class AccountFragment :
             }
             AccountError.EXCHANGE_LOAD_FAIL -> {
                 showErrorSnackbar(R.string.account_load_exchange_error)
+            }
+            AccountError.BLOCKCHAIN_CARD_LOAD_FAIL -> {
+                showErrorSnackbar(R.string.account_load_bc_card_error)
             }
             AccountError.NONE -> {
                 // do nothing
@@ -265,6 +268,9 @@ class AccountFragment :
                         )
                     }
                 }
+            }
+            is ViewToLaunch.BcDebitCardState -> {
+                renderDebitCardInformation(debitCardOrderState = view.bcDebitCardState)
             }
             ViewToLaunch.None -> {
                 // do nothing

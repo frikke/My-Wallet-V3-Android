@@ -14,6 +14,7 @@ sealed class ViewToLaunch {
     object None : ViewToLaunch()
     class CurrencySelection(val selectedCurrency: FiatCurrency, val currencyList: List<FiatCurrency>) : ViewToLaunch()
     class ExchangeLink(val exchangeLinkingState: ExchangeLinkingState) : ViewToLaunch()
+    class BcDebitCardState(val bcDebitCardState: DebitCardState) : ViewToLaunch()
 }
 
 enum class ExchangeLinkingState {
@@ -39,5 +40,6 @@ enum class AccountError {
     FIAT_LIST_FAIL,
     ACCOUNT_FIAT_UPDATE_FAIL,
     EXCHANGE_INFO_FAIL,
-    EXCHANGE_LOAD_FAIL
+    EXCHANGE_LOAD_FAIL,
+    BLOCKCHAIN_CARD_LOAD_FAIL
 }

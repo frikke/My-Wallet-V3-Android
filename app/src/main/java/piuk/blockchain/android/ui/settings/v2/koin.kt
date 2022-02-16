@@ -131,9 +131,9 @@ val redesignSettingsModule = module {
             AccountInteractor(
                 settingsDataManager = get(),
                 exchangeRates = get(),
+                bcCardDataManager = get(),
                 currencyPrefs = get(),
                 exchangeLinkingState = get(),
-                debitCardState = get()
             )
         }
 

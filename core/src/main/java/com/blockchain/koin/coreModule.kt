@@ -65,6 +65,8 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
+import piuk.blockchain.androidcore.data.bccard.BcCardDataManager
+import piuk.blockchain.androidcore.data.bccard.impl.BcCardDataManagerImpl
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
@@ -345,6 +347,13 @@ val coreModule = module {
                 cardsCache = get()
             )
         }.bind(PaymentsDataManager::class)
+
+        scoped {
+            BcCardDataManagerImpl(
+                bcCardService = get(),
+                authenticator = get()
+            )
+        }.bind(BcCardDataManager::class)
     }
 
     single {
