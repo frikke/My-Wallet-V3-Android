@@ -48,6 +48,7 @@ class UiTourView @JvmOverloads constructor(
     private fun updateNavigationIndicators(step: UiTourStep) {
         binding.bottomNavigation.invisibleIf { step == UiTourStep.BUYER_HANDHOLD }
         binding.cardOnboardingWrapper.visibleIf { step == UiTourStep.BUYER_HANDHOLD }
+        binding.viewDismissableZoneBottom.visibleIf { step == UiTourStep.BUYER_HANDHOLD }
 
         binding.pagerIndicator.selectedIndex = step.ordinal
         val bottomNavigationSelectedNavigationItem = when (step) {
@@ -95,7 +96,10 @@ class UiTourView @JvmOverloads constructor(
         binding.buttonClose.setOnClickListener {
             host.dismiss()
         }
-        binding.viewDismissableZone.setOnClickListener {
+        binding.viewDismissableZoneTop.setOnClickListener {
+            host.dismiss()
+        }
+        binding.viewDismissableZoneBottom.setOnClickListener {
             host.dismiss()
         }
         binding.cardOnboarding.setOnClickListener {

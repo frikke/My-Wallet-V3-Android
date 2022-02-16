@@ -18,16 +18,13 @@ package piuk.blockchain.android.ui.home.ui_tour
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Path
 import android.graphics.RectF
 import android.util.AttributeSet
 import com.blockchain.componentlib.viewextensions.px
 import com.google.android.material.R
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.RoundedCornerTreatment
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.shape.ShapeAppearancePathProvider
@@ -44,33 +41,30 @@ class UiTourCardView @JvmOverloads constructor(
     @SuppressLint("RestrictedApi")
     private val pathProvider = ShapeAppearancePathProvider()
     private val path: Path = Path()
-    private val defaultShapeAppearanceBuilder: ShapeAppearanceModel.Builder = ShapeAppearanceModel().toBuilder()
-        .setAllCorners(RoundedCornerTreatment())
-        .setAllCornerSizes(8.px.toFloat())
+    private val defaultShapeAppearanceBuilder: ShapeAppearanceModel.Builder
+        get() = this.shapeAppearanceModel.toBuilder()
+            .setAllCorners(RoundedCornerTreatment())
+            .setAllCornerSizes(8.px.toFloat())
 
     private val rectF = RectF(0f, 0f, 0f, 0f)
 
     fun updateEdgeTriangle(indexSelected: Int, maxIndex: Int) {
-        background = createMaterialShapeDrawable(indexSelected, maxIndex)
+        shapeAppearanceModel = createShapeAppearanceModel(indexSelected, maxIndex)
     }
 
-    private fun createMaterialShapeDrawable(indexSelected: Int, maxIndex: Int): MaterialShapeDrawable {
+    private fun createShapeAppearanceModel(indexSelected: Int, maxIndex: Int): ShapeAppearanceModel {
         val translate = indexSelected.toFloat() / maxIndex.toFloat()
         // We have to invert because we're drawing on the bottom edge which has the coordinates flipped
         val inverted = 1.0f - translate
-        return MaterialShapeDrawable(
-            defaultShapeAppearanceBuilder
-                .setBottomEdge(
-                    TriangleTranslationEdgeTreatment(
-                        triangleHeight = 12.px.toFloat(),
-                        inset = 4.px.toFloat(),
-                        translate = inverted
-                    )
+        return defaultShapeAppearanceBuilder
+            .setBottomEdge(
+                TriangleTranslationEdgeTreatment(
+                    triangleHeight = 12.px.toFloat(),
+                    inset = 4.px.toFloat(),
+                    translate = inverted
                 )
-                .build()
-        ).apply {
-            fillColor = ColorStateList.valueOf(Color.WHITE)
-        }
+            )
+            .build()
     }
 
     override fun onDraw(canvas: Canvas) {
