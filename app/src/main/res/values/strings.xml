@@ -2559,6 +2559,7 @@
     <string name="account_exchange_not_connected">Connect to your Exchange Account</string>
     <string name="account_exchange_connected">Connected</string>
     <string name="account_airdrops_title">Airdrops</string>
+    <string name="account_addresses_title">Addresses</string>
     <string name="account_wallet_id_copy_error">There was an error copying your Wallet ID, please try again.</string>
     <string name="account_exchange_connect_title">Connect to Exchange</string>
     <string name="account_exchange_connect_subtitle">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>

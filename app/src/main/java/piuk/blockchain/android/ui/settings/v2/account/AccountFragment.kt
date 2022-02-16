@@ -120,6 +120,12 @@ class AccountFragment :
                     navigator().goToAirdrops()
                 }
             }
+            settingsAddresses.apply {
+                primaryText = getString(R.string.account_addresses_title)
+                onClick = {
+                    navigator().goToAddresses()
+                }
+            }
         }
     }
 
