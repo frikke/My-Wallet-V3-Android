@@ -32,6 +32,7 @@
     <string name="common_transfer">Transfer</string>
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_confirm">Confirm</string>
+    <string name="common_disconnect">Disconnect</string>
     <string name="common_parametrised_confirm">Confirm %1$s</string>
     <string name="common_linked_learn_more"><annotation link="learn_more_link">Learn more.</annotation></string>
     <string name="common_empty_title">Can’t load your Wallets</string>
@@ -2688,6 +2689,10 @@
     <string name="password_new_hint">Enter new password</string>
     <string name="password_confirm_hint">Re-enter new password</string>
     <string name="signature_request">Signature Request</string>
+    <string name="no_dapps_connected">No Connected Dapps</string>
+    <string name="connect_with_wallet_connect">Connect to a dapp using WalletConnect.</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="you_are_about_disconnect">You\'re about to disconnect %1$s.</string>
 
     <!-- Ui Tour -->
     <string name="ui_tour_buy_and_sell_title">Buy &amp; Sell</string>

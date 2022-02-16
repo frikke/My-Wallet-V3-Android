@@ -4,7 +4,10 @@
     <string name="dapp_is_now_approved" />
     <string name="dapp_is_now_rejected" />
     <string name="go_back_to_your_browser" />
-    <string name="no_dapps_connected">No Connected Dapps</string>
-    <string name="connect_with_wallet_connect">Connect to a dapp using WalletConnect.</string>
+    <string name="no_dapps_connected"/>
+    <string name="connect_with_wallet_connect"/>
     <string name="account_wallet_connect"/>
+    <string name="common_disconnect"/>
+    <string name="are_you_sure" />
+    <string name="you_are_about_disconnect" />
 </resources>

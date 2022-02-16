@@ -18,7 +18,7 @@ import com.blockchain.componentlib.theme.Red900
 fun DestructivePrimaryButton(
     text: String,
     onClick: () -> Unit,
-    state: ButtonState,
+    state: ButtonState = ButtonState.Enabled,
     modifier: Modifier = Modifier,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None

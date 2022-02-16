@@ -106,7 +106,8 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             is DepositOptionsState.Error -> {
                 displayErrorMessage()
             }
-            DepositOptionsState.None -> {}
+            DepositOptionsState.None -> {
+            }
         }
 
         if (newState.depositOptionsState != DepositOptionsState.None) {

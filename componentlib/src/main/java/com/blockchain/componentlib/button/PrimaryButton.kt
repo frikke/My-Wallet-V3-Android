@@ -20,7 +20,7 @@ import com.blockchain.componentlib.theme.Grey900
 fun PrimaryButton(
     text: String,
     onClick: () -> Unit,
-    state: ButtonState,
+    state: ButtonState = ButtonState.Enabled,
     modifier: Modifier = Modifier,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None
