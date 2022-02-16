@@ -16,14 +16,13 @@ class BcCardDataManagerImpl(
 
     override fun getProducts(): Single<List<BcCardProduct>> =
         authenticator.authenticate { tokenResponse ->
-            val products = bcCardService.getProducts(
+            bcCardService.getProducts(
                 tokenResponse.authHeader
             ).map { response ->
                 response.map {
                     it.toDomainModel()
                 }
             }
-            products
         }
 }
 
