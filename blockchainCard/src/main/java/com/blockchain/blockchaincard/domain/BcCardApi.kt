@@ -1,4 +1,4 @@
-package com.blockchain.api.bccardapi
+package com.blockchain.blockchaincard.domain
 
 import com.blockchain.api.bccardapi.models.ProductsResponse
 import io.reactivex.rxjava3.core.Single

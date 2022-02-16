@@ -1,20 +1,15 @@
-package piuk.blockchain.androidcore.data.bccard.impl
+package com.blockchain.blockchaincard.data
 
 import com.blockchain.api.bccardapi.models.ProductsResponse
-import com.blockchain.api.services.BcCardService
 import com.blockchain.nabu.Authenticator
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.bccard.BcCardBrand
-import piuk.blockchain.androidcore.data.bccard.BcCardDataManager
-import piuk.blockchain.androidcore.data.bccard.BcCardProduct
-import piuk.blockchain.androidcore.data.bccard.BcCardType
 
-class BcCardDataManagerImpl(
+class BcCardDataRepository(
     val bcCardService: BcCardService,
     private val authenticator: Authenticator
-) : BcCardDataManager {
+) {
 
-    override fun getProducts(): Single<List<BcCardProduct>> =
+    fun getProducts(): Single<List<BcCardProduct>> =
         authenticator.authenticate { tokenResponse ->
             bcCardService.getProducts(
                 tokenResponse.authHeader
@@ -33,3 +28,22 @@ private fun ProductsResponse.toDomainModel(): BcCardProduct =
         brand = BcCardBrand.valueOf(brand),
         type = BcCardType.valueOf(type)
     )
+
+data class BcCardProduct(
+    val productCode: String,
+    val fee: Long,
+    val brand: BcCardBrand,
+    val type: BcCardType
+)
+
+enum class BcCardBrand {
+    VISA,
+    MASTERCARD,
+    UNKNOWN // TODO should we have this safe guard??
+}
+
+enum class BcCardType {
+    VIRTUAL,
+    PHYSICAL,
+    UNKNOWN // TODO should we have this safe guard??
+}

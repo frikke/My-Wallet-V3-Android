@@ -1,6 +1,5 @@
 package com.blockchain.api.bccardapi.models
 
-import com.blockchain.api.paymentmethods.models.DailyLimits
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
