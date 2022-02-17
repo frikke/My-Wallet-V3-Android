@@ -73,7 +73,9 @@ class BuySellFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentBuySellBinding.inflate(inflater, container, false)
+        _binding = FragmentBuySellBinding.inflate(inflater, container, false).apply {
+            this.redesignTabLayout.items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
+        }
         return binding.root
     }
 

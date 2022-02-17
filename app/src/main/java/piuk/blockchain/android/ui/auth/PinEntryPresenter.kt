@@ -355,7 +355,7 @@ class PinEntryPresenter(
 
     private fun handlePasswordValidated() {
         showMessageSnackbar(R.string.pin_4_strikes_password_accepted) {
-            view.restartPageAndClearTop()
+            view?.restartPageAndClearTop()
         }
         prefs.removeValue(PersistentPrefs.KEY_PIN_FAILS)
         prefs.pinId = ""
@@ -440,7 +440,7 @@ class PinEntryPresenter(
                         handleValidateFailure()
                     } else {
                         showErrorSnackbar(R.string.api_fail) {
-                            view.restartPageAndClearTop()
+                            view?.restartPageAndClearTop()
                         }
                     }
                 }
@@ -469,7 +469,7 @@ class PinEntryPresenter(
         var fails = prefs.pinFails
         prefs.pinFails = ++fails
         showErrorSnackbar(R.string.invalid_pin) {
-            view.restartPageAndClearTop()
+            view?.restartPageAndClearTop()
         }
     }
 
@@ -510,26 +510,26 @@ class PinEntryPresenter(
     @Suppress("SameParameterValue")
     @UiThread
     private fun showMessageSnackbar(@StringRes message: Int, doOnDismiss: () -> Unit = {}) {
-        view.showSnackbar(message, SnackbarType.Success, doOnDismiss)
+        view?.showSnackbar(message, SnackbarType.Success, doOnDismiss)
     }
 
     @UiThread
     private fun showErrorSnackbar(@StringRes message: Int, doOnDismiss: () -> Unit = {}) {
-        view.dismissProgressDialog()
-        view.showSnackbar(message, SnackbarType.Error, doOnDismiss)
+        view?.dismissProgressDialog()
+        view?.showSnackbar(message, SnackbarType.Error, doOnDismiss)
     }
 
     @UiThread
     private fun showMaxAttemptsSnackbar(maxAttempts: Int) {
-        view.dismissProgressDialog()
-        view.showParameteredSnackbar(R.string.pin_max_strikes, SnackbarType.Error, maxAttempts) {}
+        view?.dismissProgressDialog()
+        view?.showParameteredSnackbar(R.string.pin_max_strikes, SnackbarType.Error, maxAttempts) {}
     }
 
     private class PinEntryLogException(cause: Throwable) : Exception(cause)
 
     @UiThread
     private fun showFatalErrorSnackbarAndRestart(@StringRes message: Int, t: Throwable) {
-        view.showSnackbar(message, SnackbarType.Error) {
+        view?.showSnackbar(message, SnackbarType.Error) {
             appUtil.restartApp()
         }
         crashLogger.logException(PinEntryLogException(t))
