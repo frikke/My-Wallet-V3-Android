@@ -11,20 +11,24 @@ android {
 }
 
 dependencies {
-    implementation Libraries.koin
-    implementation Libraries.gson
-    implementation Libraries.timber
     implementation project(':coincore')
     implementation project(':core')
     implementation project(':commonarch')
     implementation project(':componentlib')
+    implementation project(':common:interface')
+    implementation project(':common-mp:utils')
+    implementation project(':blockchainApi')
+
+    implementation Libraries.koin
+    implementation Libraries.gson
+    implementation Libraries.timber
     implementation Libraries.retrofit
+    implementation Libraries.retrofitRxJavaAdapter
+    implementation Libraries.retrofitKotlinJsonConverter
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin
     implementation Libraries.rxAndroid
-    implementation project(':common:interface')
-    implementation project(':common-mp:utils')
-    implementation project(':blockchainApi')
+
 }
