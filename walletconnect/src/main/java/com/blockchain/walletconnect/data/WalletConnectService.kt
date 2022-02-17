@@ -22,16 +22,19 @@ import com.trustwallet.walletconnect.models.ethereum.WCEthereumTransaction
 import com.trustwallet.walletconnect.models.session.WCSession
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 import java.util.UUID
 import okhttp3.OkHttpClient
 import okhttp3.WebSocketListener
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
+import piuk.blockchain.androidcore.utils.extensions.then
 
 class WalletConnectService(
     private val walletConnectAccountProvider: WalletConnectAddressProvider,
@@ -62,14 +65,14 @@ class WalletConnectService(
     }
 
     private fun disconnectAllClients() {
-        wcClients.disconnectAndClear()
+        disconnectAndClear()
     }
 
     override fun init() {
         compositeDisposable += featureFlag.enabled.flatMap { enabled ->
             if (enabled)
                 sessionRepository.retrieve()
-            else sessionRepository.removeAll().toSingle { emptyList() }
+            else Single.just(emptyList())
         }.zipWith(walletConnectAccountProvider.address()).subscribe { (sessions, _) ->
             sessions.forEach { session ->
                 session.connect()
@@ -79,6 +82,7 @@ class WalletConnectService(
 
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe { state ->
             when (state) {
+                null -> { } // warning removal
                 AppState.BACKGROUNDED -> disconnectAllClients()
                 AppState.FOREGROUNDED -> reconnectToPreviouslyApprovedSessions()
             }.exhaustive
@@ -148,7 +152,7 @@ class WalletConnectService(
             wcClients[session.url]?.approveSession(
                 listOf(address),
                 WalletConnectSession.DEFAULT_WALLET_CONNECT_CHAIN_ID
-            )
+            ) ?: throw IllegalStateException("No connected client found")
         }.map { approved ->
             if (approved == true) {
                 onSessionApproved(session)
@@ -173,10 +177,10 @@ class WalletConnectService(
     override fun clear() {
         compositeDisposable.clear()
         connectedSessions.clear()
-        wcClients.disconnectAndClear()
+        disconnectAndClear()
     }
 
-    private fun HashMap<String, WCClient>.disconnectAndClear() {
+    private fun disconnectAndClear() {
         wcClients.forEach { (_, client) ->
             client.disconnect()
         }
@@ -190,8 +194,13 @@ class WalletConnectService(
 
     override fun disconnect(session: WalletConnectSession): Completable =
         Completable.fromCallable {
-            wcClients[session.url]?.disconnect()
+            wcClients[session.url]?.killSession()
+        }.then {
+            sessionRepository.remove(session)
         }.onErrorComplete().doOnComplete {
+            wcClients[session.url]?.disconnect()
+            wcClients.remove(session.url)
+            connectedSessions.remove(session)
             _sessionEvents.onNext(WalletConnectSessionEvent.DidDisconnect(session))
         }
 

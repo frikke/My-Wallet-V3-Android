@@ -77,5 +77,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <com.blockchain.componentlib.tablerow.DefaultTableRowView
+            android:id="@+id/settings_addresses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.divider.HorizontalDividerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 </ScrollView>

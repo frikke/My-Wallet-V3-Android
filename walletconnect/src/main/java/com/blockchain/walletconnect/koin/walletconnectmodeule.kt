@@ -59,7 +59,8 @@ val walletConnectModule = module {
                 uiSchedulers = AndroidSchedulers.mainThread(),
                 enviromentConfig = get(),
                 crashLogger = get(),
-                sessionsRepository = get()
+                sessionsRepository = get(),
+                walletConnectServiceAPI = get()
             )
         }
     }

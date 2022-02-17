@@ -50,8 +50,7 @@ abstract class MviComposeFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviS
         super.onDestroy()
     }
 
-    private fun render(newState: S) {
-    }
+    private fun render(newState: S) {}
 
     protected open fun renderError(t: Throwable) {
         Timber.e(t)

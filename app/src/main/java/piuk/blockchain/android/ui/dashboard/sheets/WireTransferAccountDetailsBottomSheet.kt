@@ -141,7 +141,7 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
         override fun onFieldCopied(field: String) {
             analytics.logEvent(linkBankFieldCopied(field, fiatCurrency.networkTicker))
             BlockchainSnackbar.make(
-                binding.root,
+                dialog?.window?.decorView ?: binding.root,
                 getString(R.string.simple_buy_copied_to_clipboard),
                 duration = Snackbar.LENGTH_SHORT,
                 type = SnackbarType.Success

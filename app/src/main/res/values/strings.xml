@@ -32,6 +32,7 @@
     <string name="common_transfer">Transfer</string>
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_confirm">Confirm</string>
+    <string name="common_disconnect">Disconnect</string>
     <string name="common_parametrised_confirm">Confirm %1$s</string>
     <string name="common_linked_learn_more"><annotation link="learn_more_link">Learn more.</annotation></string>
     <string name="common_empty_title">Can’t load your Wallets</string>
@@ -1371,7 +1372,7 @@
     <string name="google_pay_instructions">Simply tap Buy with Google Pay, no forms or card details needed.</string>
     <string name="send_funds_directly_from_your_bank">Send funds directly from your bank to your Blockchain Wallet. Once we receive the manual transfer, use that cash to buy crypto.</string>
     <string name="payment_method_limit">%1$s Limit</string>
-    <string name="payment_method_type_account_info">%1$sAccount%2$s</string>
+    <string name="payment_method_type_account_info">%1$s Account %2$s</string>
     <string name="checkout">Checkout</string>
     <string name="order_details">Order Details</string>
     <string name="fees">Fees</string>
@@ -2527,7 +2528,7 @@
     <string name="swap_empty_state_sheet_subtitle">Link a bank or card and buy now or receive from a friend. Once you hold a balance, you can swap crypto at anytime.</string>
 
     <!-- Settings screen -->
-    <string name="settings_see_profile">See Profile</string>
+    <string name="settings_see_profile">Edit Profile</string>
     <string name="settings_label_payments">Payment Methods</string>
     <string name="settings_title_no_payments">No Payment Methods</string>
     <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
@@ -2559,6 +2560,7 @@
     <string name="account_exchange_not_connected">Connect to your Exchange Account</string>
     <string name="account_exchange_connected">Connected</string>
     <string name="account_airdrops_title">Airdrops</string>
+    <string name="account_addresses_title">Addresses</string>
     <string name="account_wallet_id_copy_error">There was an error copying your Wallet ID, please try again.</string>
     <string name="account_exchange_connect_title">Connect to Exchange</string>
     <string name="account_exchange_connect_subtitle">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>
@@ -2688,6 +2690,10 @@
     <string name="password_new_hint">Enter new password</string>
     <string name="password_confirm_hint">Re-enter new password</string>
     <string name="signature_request">Signature Request</string>
+    <string name="no_dapps_connected">No Connected Dapps</string>
+    <string name="connect_with_wallet_connect">Connect to a dapp using WalletConnect.</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="you_are_about_disconnect">You\'re about to disconnect %1$s.</string>
 
     <!-- Ui Tour -->
     <string name="ui_tour_buy_and_sell_title">Buy &amp; Sell</string>

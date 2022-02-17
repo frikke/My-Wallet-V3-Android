@@ -56,7 +56,6 @@ class Prerequisites(
                     .logAndCompleteOnError(WALLET_CREDENTIALS)
             }.then {
                 Completable.fromCallable {
-                    walletConnectServiceAPI.clear()
                     walletConnectServiceAPI.init()
                 }
             }

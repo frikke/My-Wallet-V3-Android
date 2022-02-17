@@ -125,7 +125,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
 
     private fun showError(@StringRes msgId: Int) =
         BlockchainSnackbar.make(
-            binding.root,
+            dialog?.window?.decorView ?: binding.root,
             getString(msgId),
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error

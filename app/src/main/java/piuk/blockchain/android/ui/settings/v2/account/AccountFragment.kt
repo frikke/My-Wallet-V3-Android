@@ -19,7 +19,7 @@ import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountBinding
-import piuk.blockchain.android.simplebuy.CurrencySelectionSheet
+import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
@@ -125,6 +125,12 @@ class AccountFragment :
                 primaryText = getString(R.string.account_airdrops_title)
                 onClick = {
                     navigator().goToAirdrops()
+                }
+            }
+            settingsAddresses.apply {
+                primaryText = getString(R.string.account_addresses_title)
+                onClick = {
+                    navigator().goToAddresses()
                 }
             }
         }

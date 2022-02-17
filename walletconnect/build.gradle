@@ -36,6 +36,7 @@ dependencies {
     implementation Libraries.rxKotlin
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
+    implementation Libraries.composeActivity
     implementation Libraries.rxAndroid
     implementation Libraries.design
     implementation Libraries.composeCoil

@@ -60,7 +60,7 @@ class SMSPhoneVerificationBottomSheet :
 
     private fun showSnackbar(type: SnackbarType, @StringRes message: Int) {
         BlockchainSnackbar.make(
-            binding.root,
+            dialog?.window?.decorView ?: binding.root,
             getString(message),
             type = type
         ).show()

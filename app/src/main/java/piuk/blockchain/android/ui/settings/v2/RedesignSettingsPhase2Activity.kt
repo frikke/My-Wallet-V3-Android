@@ -16,6 +16,7 @@ import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRedesignPhase2SettingsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
+import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
@@ -44,7 +45,7 @@ class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
 
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
-            .add(
+            .replace(
                 binding.settingsContentFrame.id, RedesignSettingsFragment.newInstance()
             )
             .commitNowAllowingStateLoss()
@@ -105,6 +106,10 @@ class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
         startActivity(AirdropCentreActivity.newIntent(this))
     }
 
+    override fun goToAddresses() {
+        startActivity(AddressesActivity.newIntent(this))
+    }
+
     override fun goToExchange() {
         PitPermissionsActivity.start(this, "")
     }
@@ -144,6 +149,7 @@ interface SettingsNavigator {
     fun goToFeatureFlags()
     fun goToSupportCentre()
     fun goToAirdrops()
+    fun goToAddresses()
     fun goToWalletConnect()
     fun goToExchange()
     fun goToKycLimits()

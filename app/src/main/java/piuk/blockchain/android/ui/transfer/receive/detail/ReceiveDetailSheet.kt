@@ -186,7 +186,8 @@ internal class ReceiveDetailSheet :
                     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     val clip = ClipData.newPlainText("Send address", address)
                     BlockchainSnackbar.make(
-                        binding.root, getString(R.string.copied_to_clipboard), type = SnackbarType.Success
+                        dialog?.window?.decorView ?: binding.root,
+                        getString(R.string.copied_to_clipboard), type = SnackbarType.Success
                     ).show()
                     clipboard.setPrimaryClip(clip)
                 }
@@ -242,7 +243,8 @@ private class ShareListAdapter(private val paymentCodeData: List<SendPaymentCode
                     itemView.context.startActivity(data.intent)
                 } catch (e: SecurityException) {
                     BlockchainSnackbar.make(
-                        itemView, itemView.context.getString(R.string.share_failed, data.title),
+                        itemView,
+                        itemView.context.getString(R.string.share_failed, data.title),
                         type = SnackbarType.Error
                     ).show()
                 }

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -414,11 +415,11 @@ class PinEntryFragment :
     }
 
     override fun restartPageAndClearTop() {
-//        Handler(Looper.getMainLooper()).postDelayed({
-        val intent = Intent(context, PinEntryActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-        //      }, 300)
+        Handler(Looper.getMainLooper()).postDelayed({
+            val intent = Intent(context, PinEntryActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }, 300)
     }
 
     override fun showCommonPinWarning(callback: DialogButtonCallback) {
