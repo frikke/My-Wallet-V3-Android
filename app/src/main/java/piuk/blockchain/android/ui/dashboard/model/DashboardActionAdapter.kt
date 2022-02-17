@@ -392,7 +392,7 @@ class DashboardActionAdapter(
                     LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         linkablePaymentMethods = LinkablePaymentMethods(
                             targetAccount.currency,
-                            paymentMethods
+                            paymentMethods.sortedBy { it.ordinal }
                         )
                     )
                 )
