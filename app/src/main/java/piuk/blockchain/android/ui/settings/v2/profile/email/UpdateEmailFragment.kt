@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.settings.v2.profile
+package piuk.blockchain.android.ui.settings.v2.profile.email
 
 import android.content.Intent
 import android.os.Bundle
@@ -15,25 +15,20 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.scopedInject
 import org.koin.android.ext.android.inject
-import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdateEmailBinding
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.FormatChecker
 
 class UpdateEmailFragment :
-    MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdateEmailBinding>(),
+    MviFragment<EmailModel, EmailIntent, EmailState, FragmentUpdateEmailBinding>(),
     FlowFragment {
 
     private val formatChecker: FormatChecker by inject()
 
-    private val scope: Scope by lazy {
-        (requireActivity() as ProfileActivity).scope
-    }
-
-    override val model: ProfileModel
-        get() = scope.get()
+    override val model: EmailModel by scopedInject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentUpdateEmailBinding =
         FragmentUpdateEmailBinding.inflate(inflater, container, false)
@@ -46,33 +41,38 @@ class UpdateEmailFragment :
         binding.updateEmail.buttonState = ButtonState.Disabled
     }
 
-    override fun render(newState: ProfileState) {
+    override fun onResume() {
+        super.onResume()
+        model.process(EmailIntent.LoadProfile)
+    }
+
+    override fun render(newState: EmailState) {
         if (!newState.isLoading) {
             newState.userInfoSettings?.let { updateUI(it.emailVerified, it.email.orEmpty()) }
         }
 
-        if (newState.error == ProfileError.SaveEmailError) {
+        if (newState.error == EmailError.SaveEmailError) {
             BlockchainSnackbar.make(
                 binding.root, getString(R.string.profile_update_error_email), type = SnackbarType.Error
             ).show()
-            model.process(ProfileIntent.ClearErrors)
+            model.process(EmailIntent.ClearErrors)
         }
 
-        if (newState.error == ProfileError.ResendEmailError) {
+        if (newState.error == EmailError.ResendEmailError) {
             BlockchainSnackbar.make(
                 binding.root, getString(R.string.profile_update_error_resend_email), type = SnackbarType.Error
             ).show()
-            model.process(ProfileIntent.ClearErrors)
+            model.process(EmailIntent.ClearErrors)
         }
 
-        if (newState.isVerificationSent?.emailSent == true) {
+        if (newState.emailSent) {
             showDialogEmailVerification()
-            model.process(ProfileIntent.ResetEmailSentVerification)
+            model.process(EmailIntent.ResetEmailSentVerification)
         }
     }
 
     private fun onVerifyEmailClicked() {
-        model.process(ProfileIntent.ResendEmail)
+        model.process(EmailIntent.ResendEmail)
     }
 
     private fun isValidEmailAddress(): Boolean {
@@ -118,7 +118,7 @@ class UpdateEmailFragment :
                 text = getString(R.string.profile_update)
                 onClick = {
                     if (isValidEmailAddress()) {
-                        model.process(ProfileIntent.SaveEmail(binding.email.value))
+                        model.process(EmailIntent.SaveEmail(binding.email.value))
                     }
                 }
             }
@@ -138,6 +138,11 @@ class UpdateEmailFragment :
             addCategory(Intent.CATEGORY_APP_EMAIL)
             startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        model.process(EmailIntent.InvalidateCache)
     }
 
     private fun showDialogEmailVerification() {

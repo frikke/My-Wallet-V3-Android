@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.settings
+package piuk.blockchain.android.ui.settings.profile.phone
 
 import com.blockchain.nabu.NabuUserSync
 import com.nhaarman.mockitokotlin2.mock

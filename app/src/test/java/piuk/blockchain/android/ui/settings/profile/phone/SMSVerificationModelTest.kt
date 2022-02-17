@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.settings
+package piuk.blockchain.android.ui.settings.profile.phone
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig

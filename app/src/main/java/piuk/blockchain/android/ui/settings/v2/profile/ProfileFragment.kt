@@ -16,11 +16,11 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.utils.capitalizeFirstChar
-import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentProfileBinding
 import piuk.blockchain.android.support.SupportCentreActivity
@@ -33,12 +33,7 @@ class ProfileFragment :
     ProfileNavigatorScreen,
     FlowFragment {
 
-    private val scope: Scope by lazy {
-        (requireActivity() as ProfileActivity).scope
-    }
-
-    override val model: ProfileModel
-        get() = scope.get()
+    override val model: ProfileModel by scopedInject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentProfileBinding =
         FragmentProfileBinding.inflate(inflater, container, false)

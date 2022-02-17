@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.settings.v2.profile
+package piuk.blockchain.android.ui.settings.v2.profile.phone
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,11 +14,11 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.scopedInject
 import com.mukesh.countrypicker.CountryPicker
 import info.blockchain.wallet.api.data.Settings
 import java.util.Locale
 import org.koin.android.ext.android.inject
-import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdatePhoneBinding
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
@@ -26,18 +26,13 @@ import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSPhoneVerificationBot
 import piuk.blockchain.android.util.FormatChecker
 
 class UpdatePhoneFragment :
-    MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentUpdatePhoneBinding>(),
+    MviFragment<PhoneModel, PhoneIntent, PhoneState, FragmentUpdatePhoneBinding>(),
     SMSPhoneVerificationBottomSheet.Host,
     FlowFragment {
 
     private val formatChecker: FormatChecker by inject()
 
-    private val scope: Scope by lazy {
-        (requireActivity() as ProfileActivity).scope
-    }
-
-    override val model: ProfileModel
-        get() = scope.get()
+    override val model: PhoneModel by scopedInject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentUpdatePhoneBinding =
         FragmentUpdatePhoneBinding.inflate(inflater, container, false)
@@ -50,49 +45,58 @@ class UpdatePhoneFragment :
         binding.updatePhone.buttonState = ButtonState.Disabled
     }
 
-    override fun render(newState: ProfileState) {
+    override fun onResume() {
+        super.onResume()
+        model.process(PhoneIntent.LoadProfile)
+    }
+
+    override fun render(newState: PhoneState) {
         if (!newState.isLoading) {
             newState.userInfoSettings?.let {
-                updateUI(
-                    mobileVerified = it.mobileVerified,
-                    mobileNoPrefix = it.mobileNoPrefix,
-                    authType = it.authType,
-                    mobileWithPrefix = it.mobileWithPrefix.orEmpty()
-                )
-                if (binding.dialCodeValue.text.toString().isEmpty()) {
-                    setCountryListener(it.smsDialCode, it.mobileWithPrefix.orEmpty())
-                }
+                init(it.mobileVerified, it.mobileNoPrefix, it.authType, it.mobileWithPrefix.orEmpty(), it.smsDialCode)
             }
         }
 
-        if (newState.error != ProfileError.None) handleErrors(newState.error)
+        if (newState.error != PhoneError.None) handleErrors(newState.error)
 
-        if (newState.error == ProfileError.ResendSmsError) {
-            BlockchainSnackbar.make(
-                binding.root, getString(R.string.profile_update_error_resend_sms), type = SnackbarType.Warning
-            ).show()
-            model.process(ProfileIntent.ClearErrors)
-        }
-
-        if (newState.isVerificationSent?.codeSent == true) {
+        if (newState.codeSent) {
             showDialogVerifySms(newState.userInfoSettings?.mobileWithPrefix.orEmpty())
-            model.process(ProfileIntent.ResetCodeSentVerification)
+            model.process(PhoneIntent.ResetCodeSentVerification)
         }
     }
 
-    private fun handleErrors(error: ProfileError) {
+    private fun init(
+        mobileVerified: Boolean,
+        mobileNoPrefix: String,
+        authType: Int,
+        mobileWithPrefix: String,
+        smsDialCode: String
+    ) {
+        updateUI(
+            mobileVerified = mobileVerified,
+            mobileNoPrefix = mobileNoPrefix,
+            authType = authType,
+            mobileWithPrefix = mobileWithPrefix
+        )
+        if (binding.dialCodeValue.text.toString().isEmpty()) {
+            setCountryListener(smsDialCode, mobileWithPrefix)
+        }
+    }
+
+    private fun handleErrors(error: PhoneError) {
         BlockchainSnackbar.make(
             view = binding.root,
             message = getString(
                 when (error) {
-                    ProfileError.PhoneNumberNotValidError -> R.string.profile_update_error_phone_invalid
+                    PhoneError.PhoneNumberNotValidError -> R.string.profile_update_error_phone_invalid
+                    PhoneError.ResendSmsError -> R.string.profile_update_error_resend_sms
                     else -> R.string.profile_update_error_phone
                 }
             ),
             type = SnackbarType.Error
         ).show()
 
-        model.process(ProfileIntent.ClearErrors)
+        model.process(PhoneIntent.ClearErrors)
     }
 
     private fun changeStateCta(newPhone: String, currentPhone: String) {
@@ -143,11 +147,11 @@ class UpdatePhoneFragment :
     }
 
     private fun onVerifyPhoneClicked() {
-        model.process(ProfileIntent.ResendCodeSMS)
+        model.process(PhoneIntent.ResendCodeSMS)
     }
 
     private fun onUpdatePhoneClicked() {
-        model.process(ProfileIntent.SavePhoneNumber(binding.dialCodeValue.text.toString() + binding.phone.value))
+        model.process(PhoneIntent.SavePhoneNumber(binding.dialCodeValue.text.toString() + binding.phone.value))
     }
 
     private fun isValidMobileNumber(authType: Int): Boolean = showWarningToDisable2fa(authType) && isValidMobile()
@@ -226,7 +230,7 @@ class UpdatePhoneFragment :
     }
 
     override fun onPhoneNumberVerified() {
-        model.process(ProfileIntent.LoadProfile)
+        model.process(PhoneIntent.LoadProfile)
     }
 
     override fun onSheetClosed() {
