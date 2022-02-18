@@ -344,7 +344,11 @@ class RedesignSettingsFragment :
                 DefaultTableRowView(requireContext()).apply {
                     alpha = 0f
                     primaryText = bank.name
-                    startImageResource = ImageResource.Remote(url = bank.iconUrl, null)
+                    startImageResource = if (bank.iconUrl.isEmpty()) {
+                        ImageResource.Local(R.drawable.ic_bank_transfer, null)
+                    } else {
+                        ImageResource.Remote(url = bank.iconUrl, null)
+                    }
                     secondaryText = bank.accountEnding
                     endTag = if (bankItem.canBeUsedToTransact) null else
                         TagViewState(
