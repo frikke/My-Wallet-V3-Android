@@ -2556,7 +2556,7 @@
     <string name="account_wallet_id_subtitle">Warning: Do Not Share Publicly</string>
     <string name="account_currency_title">Local Currency</string>
     <string name="account_exchange_title">Blockchain Exchange</string>
-    <string name="account_wallet_connect">Wallet Connect</string>
+    <string name="account_wallet_connect">WalletConnect</string>
     <string name="account_exchange_not_connected">Connect to your Exchange Account</string>
     <string name="account_exchange_connected">Connected</string>
     <string name="account_airdrops_title">Airdrops</string>
@@ -2714,5 +2714,14 @@
     <string name="pin_mismatch_error_msg">PINs do not match. Please try again.</string>
     <string name="pin_num_digits">Pin must contain 4 digits.</string>
     <string name="pin_toolbar_change">Change PIN</string>
+    <string name="scan_connect">Scan &amp; Connect</string>
+    <string name="allow_camera_access">Allow Camera Access</string>
+    <string name="scan_friends_qr">Scan a Friend’s QR Code</string>
+    <string name="scan_friends_qr_description">Point your phone at a friend’s QR code and we’ll paste the address.</string>
+    <string name="web_access">Access Your Wallet on the Web</string>
+    <string name="web_access_description">Logging in blockchain.com? Scan the code with your phone to log in.</string>
+    <string name="connect_to_dapps">Connect to Dapps</string>
+    <string name="connect_to_dapps_description">Securely connect your wallet to any web 3.0 application.</string>
+    <string name="beta" translatable="false">beta</string>
 
 </resources>

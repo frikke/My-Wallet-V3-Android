@@ -14,8 +14,13 @@ import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.walletConnectFeatureFlag
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.FiatCurrency
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountBinding
@@ -45,7 +50,9 @@ class AccountFragment :
     override fun onBackPressed(): Boolean = true
 
     override val model: AccountModel by scopedInject()
+    private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
 
+    private val compositeDisposable = CompositeDisposable()
     private lateinit var walletId: String
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,6 +62,10 @@ class AccountFragment :
             toolbarTitle = getString(R.string.account_toolbar),
             menuItems = emptyList()
         )
+
+        compositeDisposable += walletConnectFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            binding.settingsWalletConnect.visibleIf { enabled }
+        }
 
         with(binding) {
             settingsLimits.apply {
@@ -108,6 +119,7 @@ class AccountFragment :
             }
 
             settingsWalletConnect.apply {
+
                 primaryText = getString(R.string.account_wallet_connect)
                 onClick = {
                     navigator().goToWalletConnect()
@@ -265,6 +277,11 @@ class AccountFragment :
 
     override fun onSheetClosed() {
         // do nothing
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
     }
 
     companion object {

@@ -1,9 +1,11 @@
 package piuk.blockchain.android.ui.home
 
+import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Bundle
@@ -27,6 +29,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.uiTourFeatureFlag
+import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
@@ -80,6 +83,7 @@ import piuk.blockchain.android.ui.onboarding.OnboardingActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
+import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
@@ -104,6 +108,7 @@ class MainActivity :
     RedesignActionsBottomSheet.Host,
     SmallSimpleBuyNavigator,
     BuyPendingOrdersBottomSheet.Host,
+    ScanAndConnectBottomSheet.Host,
     UiTourView.Host {
 
     override val alwaysDisableScreenshots: Boolean
@@ -127,6 +132,7 @@ class MainActivity :
     private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
 
     private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
+    private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
 
     private val dataWiper: DataWiper by scopedInject()
 
@@ -239,7 +245,7 @@ class MainActivity :
         updateToolbarMenuItems(
             listOf(
                 NavigationBarButton.Icon(R.drawable.ic_qr_scan) {
-                    launchQrScan()
+                    tryToLaunchQrScan()
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
                     showLoading()
@@ -263,9 +269,27 @@ class MainActivity :
         )
     }
 
+    private fun tryToLaunchQrScan() {
+        compositeDisposable += walletConnectFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            if (
+                enabled &&
+                checkSelfPermission(Manifest.permission.CAMERA) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                showScanAndConnectBottomSheet()
+            } else {
+                launchQrScan()
+            }
+        }
+        analytics.logEvent(SendAnalytics.QRButtonClicked)
+    }
+
     private fun launchQrScan() {
         QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
-        analytics.logEvent(SendAnalytics.QRButtonClicked)
+    }
+
+    private fun showScanAndConnectBottomSheet() {
+        showBottomSheet(ScanAndConnectBottomSheet.newInstance())
     }
 
     private fun setupNavigation() {
@@ -698,6 +722,10 @@ class MainActivity :
 
     override fun onSessionRejected(session: WalletConnectSession) {
         model.process(MainIntent.RejectWCSession(session))
+    }
+
+    override fun onCameraAccessAllowed() {
+        launchQrScan()
     }
 
     override fun onSheetClosed() {
