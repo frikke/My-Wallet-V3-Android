@@ -563,7 +563,7 @@ class DashboardActionAdapter(
                         LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw(
                             LinkablePaymentMethods(
                                 sourceAccount.currency,
-                                paymentMethods
+                                paymentMethods.sortedBy { it.ordinal }
                             )
                         )
                     )
