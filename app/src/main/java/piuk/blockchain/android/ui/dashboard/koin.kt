@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.dashboard
 
-import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -48,7 +47,6 @@ val dashboardModule = module {
                 crashLogger = get(),
                 linkedBanksFactory = get(),
                 getDashboardOnboardingStepsUseCase = get(),
-                dashboardOnboardingFlag = get(dashboardOnboardingFeatureFlag),
                 redesignCoinViewFlag = get(redesignPart2CoinViewFeatureFlag)
             )
         }

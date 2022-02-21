@@ -1,7 +1,6 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.blockchainCardFeatureFlag
-import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
@@ -55,15 +54,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_landing_cta",
                 "Landing CTA"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(dashboardOnboardingFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_dashboard_onboarding",
-                "Dashboard Onboarding"
             )
         )
     }.bind(FeatureFlag::class)

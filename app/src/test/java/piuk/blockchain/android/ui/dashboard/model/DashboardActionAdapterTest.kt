@@ -60,7 +60,6 @@ class DashboardActionAdapterTest {
             onboardingPrefs = mock(),
             userIdentity = userIdentity,
             getDashboardOnboardingStepsUseCase = mock(),
-            dashboardOnboardingFlag = mock(),
             exchangeRates = mock(),
             paymentsDataManager = paymentsDataManager,
             redesignCoinViewFlag = mock()

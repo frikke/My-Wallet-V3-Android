@@ -31,7 +31,6 @@ import com.blockchain.componentlib.viewextensions.isVisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -39,7 +38,6 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -47,7 +45,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -142,8 +139,6 @@ class PortfolioFragment :
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private var activeFiat = currencyPrefs.selectedFiatCurrency
-
-    private val onboardingFeatureFlag: FeatureFlag by inject(dashboardOnboardingFeatureFlag)
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
@@ -350,16 +345,10 @@ class PortfolioFragment :
     }
 
     fun launchNewUserDashboardOnboarding() {
-        compositeDisposable += onboardingFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    val steps = DashboardOnboardingStep.values().map { step ->
-                        CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.INCOMPLETE)
-                    }
-                    launchDashboardOnboarding(steps)
-                }
-            }
-        )
+        val steps = DashboardOnboardingStep.values().map { step ->
+            CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.INCOMPLETE)
+        }
+        launchDashboardOnboarding(steps)
     }
 
     private fun launchDashboardOnboarding(initialSteps: List<CompletableDashboardOnboardingStep>) {
