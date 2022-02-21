@@ -234,7 +234,6 @@ val applicationModule = module {
 
         scoped {
             CredentialsWiper(
-                payloadScopeWiper = get(),
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),

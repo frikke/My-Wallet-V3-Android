@@ -27,6 +27,7 @@ import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
@@ -219,7 +220,7 @@ class MainActivity :
         compositeDisposable.clear()
         // stopgap to be able to clear separate calls on Rx on the model
         model.clearDisposables()
-        if (isFinishing) {
+        if (isFinishing && payloadScope.isNotClosed()) {
             dataWiper.clearData()
         }
         super.onDestroy()
