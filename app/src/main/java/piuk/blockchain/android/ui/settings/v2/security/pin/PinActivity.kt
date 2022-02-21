@@ -214,7 +214,7 @@ class PinActivity :
 
         newState.progressDialog?.let {
             if (it.hasToShow) {
-                showProgressDialog(it.messageTowShow)
+                showProgressDialog(it.messageToShow)
             } else {
                 dismissDialog()
             }

@@ -44,7 +44,7 @@ data class UpgradeWalletStatus(
 
 data class ProgressDialogStatus(
     val hasToShow: Boolean = false,
-    val messageTowShow: Int = 0
+    val messageToShow: Int = 0
 )
 
 data class AppUpgradeStatus(

@@ -63,9 +63,10 @@ class PinModel(
                         .handleProgress(R.string.creating_pin)
                         .subscribeBy(
                             onComplete = {
+                                process(PinIntent.CreatePINSucceeded)
                                 process(PinIntent.SetFingerprintEnabled(false))
-                                interactor.resetPinFailureCount()
                                 process(PinIntent.UpdatePayload(tempPassword, true))
+                                interactor.resetPinFailureCount()
                             },
                             onError = {
                                 process(PinIntent.UpdatePinErrorState(PinError.CREATE_PIN_FAILED))
@@ -166,13 +167,13 @@ class PinModel(
                             handlePayloadUpdateError(it)
                         }
                     )
+                null
             }
             is PinIntent.UpgradeWallet -> {
                 interactor.doUpgradeWallet(intent.secondPassword, intent.isFromPinCreation)
                     .handleProgress(R.string.upgrading)
                     .subscribeBy(
                         onComplete = {
-                            process(PinIntent.HandleProgressDialog(false))
                             process(PinIntent.UpgradeWalletResponse(true))
                             analytics.logEvent(WalletUpgradeEvent(true))
                         },
@@ -204,6 +205,7 @@ class PinModel(
             is PinIntent.HandleProgressDialog,
             is PinIntent.UpgradeWalletResponse,
             is PinIntent.SetFingerprintEnabled,
+            is PinIntent.CreatePINSucceeded,
             is PinIntent.SetShowFingerprint -> null
         }
 
