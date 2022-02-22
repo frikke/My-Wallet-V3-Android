@@ -83,8 +83,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                     this@with.background.alpha = it
                 }
             }
-
-            presenter.loadAssets()
         }
     }
 
@@ -93,6 +91,11 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         setupSSOControls(
             binding.btnLoginRestore.rightButton, binding.btnLoginRestore.leftButton
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        presenter.loadAssets()
     }
 
     override fun onStop() {
