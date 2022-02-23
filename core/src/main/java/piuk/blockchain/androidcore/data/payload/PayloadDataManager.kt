@@ -76,7 +76,7 @@ class PayloadDataManager internal constructor(
     var importedAddresses: List<ImportedAddress>
         get() = wallet?.importedAddressList?.filter { !it.isWatchOnly() } ?: emptyList()
         set(addresses) {
-            wallet!!.importedAddressList = addresses
+            wallet!!.setImportedAddresses(addresses)
         }
 
     val importedAddressStringList: List<String>
@@ -112,7 +112,7 @@ class PayloadDataManager internal constructor(
         get() = payloadManager.isWalletBackedUp
 
     val mnemonic: List<String>
-        get() = payloadManager.payload!!.walletBody?.mnemonic ?: throw NoSuchElementException()
+        get() = payloadManager.payload!!.walletBody?.getMnemonic() ?: throw NoSuchElementException()
 
     val guid: String
         get() = wallet!!.guid

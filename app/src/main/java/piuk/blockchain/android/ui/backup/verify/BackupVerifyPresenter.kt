@@ -53,7 +53,7 @@ class BackupVerifyPresenter(
     @SuppressLint("CheckResult")
     @VisibleForTesting
     internal fun updateBackupStatus() {
-        payloadDataManager.wallet!!.walletBody?.isMnemonicVerified = true
+        payloadDataManager.wallet!!.walletBody?.mnemonicVerified = true
 
         compositeDisposable += payloadDataManager.syncPayloadWithServer()
             .doOnSubscribe { view.showProgressDialog() }

@@ -381,7 +381,7 @@ class PayloadDataManagerTest {
         // Arrange
         val index = 0
         val mockAccount: Account = mock()
-        val accounts = listOf(mockAccount)
+        val accounts = mutableListOf(mockAccount)
         val address = "ADDRESS"
         whenever(payloadManager.payload?.walletBody?.accounts).thenReturn(accounts)
         whenever(payloadManager.getNextReceiveAddress(mockAccount)).thenReturn(address)
@@ -416,7 +416,7 @@ class PayloadDataManagerTest {
         val addressLabel = "ADDRESS_LABEL"
         val address = "ADDRESS"
         val mockAccount: Account = mock()
-        val accounts = listOf(mockAccount)
+        val accounts = mutableListOf(mockAccount)
         whenever(payloadManager.payload?.walletBody?.accounts).thenReturn(accounts)
         whenever(
             payloadManager.getNextReceiveAddressAndReserve(
@@ -440,7 +440,7 @@ class PayloadDataManagerTest {
         // Arrange
         val index = 0
         val mockAccount: Account = mock()
-        val accounts = listOf(mockAccount)
+        val accounts = mutableListOf(mockAccount)
         val address = "ADDRESS"
 
         whenever(payloadManager.payload?.walletBody?.accounts).thenReturn(accounts)
@@ -534,7 +534,7 @@ class PayloadDataManagerTest {
     fun `getAccounts returns list of accounts`() {
         // Arrange
         val mockAccount: Account = mock()
-        val accounts = listOf(mockAccount)
+        val accounts = mutableListOf(mockAccount)
         whenever(payloadManager.payload?.walletBody?.accounts)
             .thenReturn(accounts)
         // Act
@@ -768,7 +768,7 @@ class PayloadDataManagerTest {
         // Arrange
         val txHash = "TX_HASH"
         val note = "NOTES"
-        val map = mapOf(txHash to note)
+        val map = mutableMapOf(txHash to note)
         whenever(payloadManager.payload?.txNotes).thenReturn(map)
         // Act
         val result = subject.getTransactionNotes(txHash)

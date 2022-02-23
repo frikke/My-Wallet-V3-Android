@@ -11,7 +11,7 @@ import java.util.HashMap
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(
-    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.ANY,
     getterVisibility = JsonAutoDetect.Visibility.NONE,
     setterVisibility = JsonAutoDetect.Visibility.NONE,
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
@@ -23,14 +23,14 @@ class Erc20TokenData {
     @JsonProperty("label")
     var label: String = ""
 
-    @JsonProperty("contract")
+    @field:JsonProperty("contract")
     var contractAddress: String = ""
         private set
 
-    @JsonProperty("has_seen")
+    @field:JsonProperty("has_seen")
     var hasSeen: Boolean = false
 
-    @JsonProperty("tx_notes")
+    @field:JsonProperty("tx_notes")
     val txNotes: HashMap<String, String> = HashMap()
 
     fun putTxNote(txHash: String, txNote: String) {

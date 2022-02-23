@@ -25,21 +25,18 @@ internal class PayloadDataManagerSeedAccessAdapter(
         getSeedGivenPassword(null)
 
     private fun getSeedGivenPassword(validatedSecondPassword: String?): Maybe<Seed> {
-        try {
-            if (validatedSecondPassword != null) {
+        return try {
+            validatedSecondPassword?.let {
                 payloadDataManager.decryptHDWallet(
                     validatedSecondPassword
                 )
             }
             val hdWallet = payloadDataManager.wallet?.walletBody
-            val hdSeed = hdWallet?.hdSeed
-            return if (hdSeed == null) {
-                Maybe.empty()
-            } else {
+            hdWallet?.getHdSeed()?.let { hdSeed ->
                 Maybe.just(Seed(hdSeed = hdSeed))
-            }
+            } ?: Maybe.empty()
         } catch (hd: HDWalletException) {
-            return Maybe.empty()
+            Maybe.empty()
         }
     }
 }

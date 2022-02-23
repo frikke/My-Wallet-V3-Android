@@ -61,11 +61,11 @@ class WalletTest : WalletApiMockedResponseTest() {
         }
 
         // Options parsing tested in OptionsTest
-        assertNotNull(wallet.options)
+        assertNotNull(wallet.getOptions())
 
         // HdWallets parsing tested in HdWalletsBodyTest
         assertNotNull(wallet.walletBodies)
-        for (account in wallet.walletBody!!.accounts) {
+        for (account in wallet.walletBody!!.accounts!!) {
             assertNotNull(account.label)
             assertNotNull(account.getDefaultXpub())
             assertNotNull(account.xpriv)
@@ -76,7 +76,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         assertNotNull(wallet.importedAddressList)
 
         // AddressBook parsing tested in AddressBookTest
-        assertNotNull(wallet.addressBook)
+        assertNotNull(wallet.addressBooks)
     }
 
     @Test
@@ -93,7 +93,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         }
 
         // Options parsing tested in OptionsTest
-        assertNotNull(wallet.options)
+        assertNotNull(wallet.getOptions())
 
         // HdWallets parsing tested in HdWalletsBodyTest
         assertNotNull(wallet.walletBodies)
@@ -102,7 +102,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         assertNotNull(wallet.importedAddressList)
 
         // AddressBook parsing tested in AddressBookTest
-        assertNotNull(wallet.addressBook)
+        assertNotNull(wallet.addressBooks)
     }
 
     @Test
@@ -114,7 +114,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         assertNull(wallet.dpasswordhash)
 
         // Options parsing tested in OptionsTest
-        assertNotNull(wallet.options)
+        assertNotNull(wallet.getOptions())
 
         // Keys parsing tested in KeysBodyTest
         assertNotNull(wallet.importedAddressList)
@@ -130,11 +130,11 @@ class WalletTest : WalletApiMockedResponseTest() {
 
         // Options parsing tested in OptionsTest
         assertNotNull(wallet.walletOptions) // very old key for options
-        assertEquals(10, wallet.walletOptions.pbkdf2Iterations.toLong())
+        assertEquals(10, wallet.walletOptions!!.pbkdf2Iterations.toLong())
 
         // old wallet_options should have created new options
-        assertNotNull(wallet.options)
-        assertEquals(10, wallet.options.pbkdf2Iterations.toLong())
+        assertNotNull(wallet.getOptions())
+        assertEquals(10, wallet.getOptions().pbkdf2Iterations.toLong())
 
         // Keys parsing tested in KeysBodyTest
         assertNotNull(wallet.importedAddressList)
@@ -171,12 +171,12 @@ class WalletTest : WalletApiMockedResponseTest() {
     @Test @Throws(Exception::class)
     fun addAccount() {
         val wallet = givenWalletFromResource("wallet_body_6.txt")
-        assertEquals(1, wallet.walletBody!!.accounts.size.toLong())
+        assertEquals(1, wallet.walletBody!!.accounts!!.size.toLong())
 
         wallet.addAccount("Some Label", null, 3)
-        assertEquals(2, wallet.walletBody!!.accounts.size.toLong())
+        assertEquals(2, wallet.walletBody!!.accounts!!.size.toLong())
 
-        val account = wallet.walletBody?.getAccount(wallet.walletBody!!.accounts.size - 1)
+        val account = wallet.walletBody?.getAccount(wallet.walletBody!!.accounts!!.size - 1)
         assertEquals(
             "xpub6DTFzKMsjf1Tt9KwHMYnQxMLGuVRcobDZdz" +
                 "Duhtc6xfvafsBFqsBS4RNM54kdJs9zK8RKkSbjSbwCeUJjxiySaBKTf8dmyXgUgVnFY7yS9x",
@@ -192,19 +192,19 @@ class WalletTest : WalletApiMockedResponseTest() {
     @Test(expected = DecryptionException::class)
     fun addAccount_doubleEncryptionError() {
         val wallet = givenWalletFromResource("wallet_body_6.txt")
-        assertEquals(1, wallet.walletBody!!.accounts.size.toLong())
+        assertEquals(1, wallet.walletBody!!.accounts!!.size.toLong())
         wallet.addAccount("Some Label", "hello", 3)
     }
 
     @Test
     fun addAccount_doubleEncrypted() {
         val wallet = givenWalletFromResource("wallet_body_7.txt")
-        assertEquals(2, wallet.walletBody!!.accounts.size.toLong())
+        assertEquals(2, wallet.walletBody!!.accounts!!.size.toLong())
 
         wallet.addAccount("Some Label", "hello", 3)
-        assertEquals(3, wallet.walletBody!!.accounts.size.toLong())
+        assertEquals(3, wallet.walletBody!!.accounts!!.size.toLong())
 
-        val account = wallet.walletBody?.getAccount(wallet.walletBody!!.accounts.size - 1)
+        val account = wallet.walletBody?.getAccount(wallet.walletBody!!.accounts!!.size - 1)
         assertEquals(
             "xpub6DEe2bJAU7GbUw3HDGPUY9c77mUcP9xvAWEhx9GRe" +
                 "uJM9gppeGxHqBcaYAfrsyY8R6cfVRsuFhi2PokQFYLEQBVpM8p4MTLzEHpVu4SWq9a",
@@ -214,7 +214,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         // Private key will be encrypted
         val decryptedXpriv = DoubleEncryptionFactory.decrypt(
             account?.xpriv, wallet.sharedKey, "hello",
-            wallet.options.pbkdf2Iterations
+            wallet.getOptions().pbkdf2Iterations
         )
 
         assertEquals(
@@ -239,7 +239,7 @@ class WalletTest : WalletApiMockedResponseTest() {
 
         assertNotNull(address.privateKey)
         assertNotNull(address.address)
-        assertEquals("1", address.address.substring(0, 1))
+        assertEquals("1", address.address!!.substring(0, 1))
     }
 
     @Test
@@ -256,8 +256,8 @@ class WalletTest : WalletApiMockedResponseTest() {
         val address = wallet.importedAddressList[wallet.importedAddressList.size - 1]
         assertNotNull(address.privateKey)
         assertNotNull(address.address)
-        assertEquals("==", address.privateKey.substring(address.privateKey.length - 2))
-        assertEquals("1", address.address.substring(0, 1))
+        assertEquals("==", address.privateKey!!.substring(address.privateKey!!.length - 2))
+        assertEquals("1", address.address!!.substring(0, 1))
     }
 
     @Test
@@ -296,7 +296,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         val decryptedOriginalPrivateKey = AESUtil
             .decrypt(
                 address.privateKey, wallet.sharedKey + "hello",
-                wallet.options.pbkdf2Iterations
+                wallet.getOptions().pbkdf2Iterations
             )
 
         // Remove private key so we can set it again
@@ -315,7 +315,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         val decryptedSetPrivateKey = AESUtil
             .decrypt(
                 address.privateKey, wallet.sharedKey + "hello",
-                wallet.options.pbkdf2Iterations
+                wallet.getOptions().pbkdf2Iterations
             )
 
         // Original private key must match newly set private key (unencrypted)
@@ -333,7 +333,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         val decryptedOriginalPrivateKey = AESUtil
             .decrypt(
                 address.privateKey, wallet.sharedKey + "hello",
-                wallet.options.pbkdf2Iterations
+                wallet.getOptions().pbkdf2Iterations
             )
 
         // Remove private key so we can set it again
@@ -366,7 +366,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         wallet.decryptHDWallet("hello")
         assertEquals(
             "4NPYyXS5fhyoTHgDPt81cQ4838j1tRwmeRbK8pGLB1Xg",
-            Base58.encode(wallet.walletBody!!.masterKey.toDeterministicKey().privKeyBytes)
+            Base58.encode(wallet.walletBody!!.getMasterKey()!!.toDeterministicKey().privKeyBytes)
         )
     }
 
@@ -378,7 +378,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         assertEquals(
             "a55d76ccbd8a996fc3ae734db75aacf7cfa6d52f8e9e279" +
                 "2bbbdbd54ba14fae6a24f34a90f635cdb70b544dd65828cac857de70d6aacda09fa082ed4632e7ce0",
-            Hex.toHexString(seedAccess!!.hdSeed)
+            Hex.toHexString(seedAccess!!.getHdSeed())
         )
     }
 
@@ -386,7 +386,7 @@ class WalletTest : WalletApiMockedResponseTest() {
     fun getMasterKey_DecryptionException() {
         val wallet = givenWalletFromResource("wallet_body_1.txt")
         wallet.decryptHDWallet("bogus")
-        wallet.walletBody!!.masterKey
+        wallet.walletBody!!.getMasterKey()
     }
 
     @Test
@@ -395,7 +395,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         wallet.decryptHDWallet("hello")
         assertEquals(
             "[car, region, outdoor, punch, poverty, shadow, insane, claim, one, whisper, learn, alert]",
-            wallet.walletBody!!.mnemonic.toString()
+            wallet.walletBody!!.getMnemonic().toString()
         )
     }
 
@@ -403,7 +403,7 @@ class WalletTest : WalletApiMockedResponseTest() {
     fun getMnemonic_DecryptionException() {
         val wallet = givenWalletFromResource("wallet_body_1.txt")
         wallet.decryptHDWallet("bogus")
-        wallet.walletBody!!.mnemonic
+        wallet.walletBody!!.getMnemonic()
     }
 
     @Test
@@ -441,11 +441,11 @@ class WalletTest : WalletApiMockedResponseTest() {
         val label = "HDAccount 1"
         val payload = Wallet(label, true)
         assertEquals(36, payload.guid.length.toLong()) // GUIDs are 36 in length
-        assertEquals(label, payload.walletBody!!.accounts[0].label)
-        assertEquals(1, payload.walletBody!!.accounts.size.toLong())
-        assertEquals(5000, payload.options.pbkdf2Iterations.toLong())
-        assertEquals(600000, payload.options.logoutTime)
-        assertEquals(10000, payload.options.feePerKb)
+        assertEquals(label, payload.walletBody!!.accounts?.get(0)!!.label)
+        assertEquals(1, payload.walletBody!!.accounts!!.size.toLong())
+        assertEquals(5000, payload.getOptions().pbkdf2Iterations.toLong())
+        assertEquals(600000, payload.getOptions().logoutTime)
+        assertEquals(10000, payload.getOptions().feePerKb)
     }
 }
 

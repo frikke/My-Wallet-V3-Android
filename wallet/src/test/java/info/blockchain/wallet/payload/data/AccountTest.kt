@@ -24,7 +24,7 @@ class AccountTest {
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
         val wallet = Wallet.fromJson(body)
         val hdWallet = wallet.walletBody
-        val accounts = hdWallet!!.accounts
+        val accounts = hdWallet!!.accounts!!
         assertEquals(68, accounts.size.toLong())
         assertEquals("My Wallet", accounts[0].label)
         assertFalse(accounts[0].isArchived)
@@ -66,7 +66,7 @@ class AccountTest {
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
         val wallet = Wallet.fromJson(body)
         val hdWallet = wallet.walletBody
-        val accounts = hdWallet!!.accounts
+        val accounts = hdWallet!!.accounts!!
         assertEquals(1, accounts.size.toLong())
         assertEquals("My Bitcoin Wallet", accounts[0].label)
         assertFalse(accounts[0].isArchived)

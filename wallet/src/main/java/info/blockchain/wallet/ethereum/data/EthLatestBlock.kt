@@ -18,6 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
 data class EthLatestBlock(
-    @JsonProperty("number")
+    @field:JsonProperty("number")
     val blockHeight: Long = 0
 )

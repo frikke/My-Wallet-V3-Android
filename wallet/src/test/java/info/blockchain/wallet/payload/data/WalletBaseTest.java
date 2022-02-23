@@ -3,6 +3,7 @@ package info.blockchain.wallet.payload.data;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import info.blockchain.wallet.MockedResponseTest;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONObject;
 import org.junit.Assert;

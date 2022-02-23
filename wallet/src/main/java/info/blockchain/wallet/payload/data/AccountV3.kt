@@ -19,13 +19,13 @@ data class AccountV3(
     @JsonProperty("label")
     override var label: String = "",
 
-    @JsonProperty("archived")
+    @field:JsonProperty("archived")
     override var isArchived: Boolean = false,
 
     @JsonProperty("xpriv")
     override var xpriv: String = "",
 
-    @JsonProperty("xpub")
+    @field:JsonProperty("xpub")
     val legacyXpub: String = ""
 ) : Account {
 
@@ -34,10 +34,10 @@ data class AccountV3(
         XPubs(XPub(address = legacyXpub, derivation = XPub.Format.LEGACY))
     }
 
-    @JsonProperty("cache")
+    @field:JsonProperty("cache")
     override val addressCache: AddressCache = AddressCache()
 
-    @JsonProperty("address_labels")
+    @field:JsonProperty("address_labels")
     override val addressLabels: MutableList<AddressLabel> = mutableListOf()
 
     constructor(xPub: String) : this(legacyXpub = xPub)

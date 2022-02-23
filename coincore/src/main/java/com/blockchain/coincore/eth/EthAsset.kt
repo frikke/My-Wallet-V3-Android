@@ -79,19 +79,21 @@ internal class EthAsset(
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(ethDataManager.getEthWallet() ?: throw Exception("No ether wallet found"))
-            .map {
-                EthCryptoWalletAccount(
-                    payloadManager = payloadManager,
-                    ethDataManager = ethDataManager,
-                    fees = feeDataManager,
-                    jsonAccount = it.account,
-                    walletPreferences = walletPrefs,
-                    exchangeRates = exchangeRates,
-                    custodialWalletManager = custodialManager,
-                    identity = identity,
-                    assetCatalogue = assetCatalogue.value,
-                    addressResolver = addressResolver
-                )
+            .map { ethereumWallet ->
+                ethereumWallet.account?.let { ethereumAccount ->
+                    EthCryptoWalletAccount(
+                        payloadManager = payloadManager,
+                        ethDataManager = ethDataManager,
+                        fees = feeDataManager,
+                        jsonAccount = ethereumAccount,
+                        walletPreferences = walletPrefs,
+                        exchangeRates = exchangeRates,
+                        custodialWalletManager = custodialManager,
+                        identity = identity,
+                        assetCatalogue = assetCatalogue.value,
+                        addressResolver = addressResolver
+                    )
+                } ?: throw Exception("No ethereum account found")
             }.doOnSuccess {
                 updateBackendNotificationAddresses(it)
             }.map {

@@ -37,7 +37,7 @@ class BackupWalletUtil(
     fun getMnemonic(secondPassword: String?): List<String>? = try {
         payloadDataManager.wallet?.let {
             it.decryptHDWallet(secondPassword)
-            it.walletBody?.mnemonic?.toList()
+            it.walletBody?.getMnemonic()?.toList()
         }
     } catch (e: Exception) {
         Timber.e(e)

@@ -15,7 +15,7 @@ class FeeOptions constructor(
      * Returns a "regular" fee, which should result in a transaction being included in a block
      * within the next 4-6 hours. The fee is in Satoshis per byte.
      */
-    @JsonProperty("regular")
+    @field:JsonProperty("regular")
     val regularFee: Long = 0,
     /**
      * Returns a "gasLimit" for Erc20 contract
@@ -27,7 +27,7 @@ class FeeOptions constructor(
      * Returns a "priority" fee, which should result in a transaction being included in a block in
      * an hour or so. The fee is in Satoshis per byte.
      */
-    @JsonProperty("priority")
+    @field:JsonProperty("priority")
     val priorityFee: Long = 0,
 
     /**

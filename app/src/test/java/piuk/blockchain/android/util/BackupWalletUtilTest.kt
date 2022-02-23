@@ -28,7 +28,7 @@ class BackupWalletUtilTest {
         // Arrange
         val expectedMnemonic = listOf("one", "two", "three", "four")
         val hdwallet: WalletBody = mock {
-            on { mnemonic }.thenReturn(expectedMnemonic)
+            on { getMnemonic() }.thenReturn(expectedMnemonic)
         }
 
         val wallet: Wallet = mock {
@@ -51,7 +51,7 @@ class BackupWalletUtilTest {
         // Arrange
         val expectedMnemonic = listOf("one", "two", "three", "four")
         val hdwallet: WalletBody = mock {
-            on { mnemonic }.thenReturn(expectedMnemonic)
+            on { getMnemonic() }.thenReturn(expectedMnemonic)
         }
 
         val wallet: Wallet = mock {
