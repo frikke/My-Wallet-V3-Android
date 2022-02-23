@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.basic
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,10 +14,20 @@ fun SimpleText(
     text: String,
     style: ComposeTypographies,
     color: ComposeColors,
-    gravity: ComposeGravities
+    gravity: ComposeGravities,
+    onClick: (() -> Unit)? = null
 ) {
     Text(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                enabled = true,
+                onClick = {
+                    onClick?.let {
+                        it()
+                    }
+                }
+            ),
         text = text,
         style = style.toComposeTypography(),
         color = color.toComposeColor(),

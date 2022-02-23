@@ -67,6 +67,19 @@ enum class AssetAction(
     Sign(ActionOrigin.FROM_SOURCE)
 }
 
+class StateAwareAction(
+    val state: ActionState,
+    val action: AssetAction
+)
+
+enum class ActionState {
+    Available,
+    LockedForBalance,
+    LockedForTier,
+    LockedDueToAvailability,
+    LockedForOther
+}
+
 typealias AvailableActions = Set<AssetAction>
 
 internal inline fun AssetAction.takeEnabledIf(

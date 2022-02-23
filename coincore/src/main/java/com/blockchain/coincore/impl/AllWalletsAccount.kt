@@ -2,6 +2,7 @@ package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
@@ -9,6 +10,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -40,6 +42,12 @@ class AllWalletsAccount(
 
     override val actions: Single<AvailableActions>
         get() = Single.just(setOf(AssetAction.ViewActivity))
+
+    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(
+        setOf(
+            StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
+        )
+    )
 
     override val isFunded: Boolean
         get() = true

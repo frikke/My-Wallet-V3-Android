@@ -2724,4 +2724,11 @@
     <string name="connect_to_dapps_description">Securely connect your wallet to any web 3.0 application.</string>
     <string name="beta" translatable="false">beta</string>
 
+    <!-- CoinView -->
+    <string name="coinview_interest_with_balance">Earning %1$s%%</string>
+    <string name="coinview_interest_no_balance">Earn %1$s%% APY</string>
+    <string name="coinview_nc_desc">Non-custodial</string>
+    <string name="coinview_c_unavailable_desc">Buy &amp; Sell %1$s</string>
+    <string name="coinview_c_available_desc">Custodial</string>
+
 </resources>

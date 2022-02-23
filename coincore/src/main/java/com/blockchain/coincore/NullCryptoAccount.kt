@@ -36,6 +36,7 @@ class NullCryptoAccount(
         get() = Single.just(emptyList())
 
     override val actions: Single<AvailableActions> = Single.just(emptySet())
+    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
     override val isFunded: Boolean = false
 
@@ -75,6 +76,8 @@ object NullFiatAccount : FiatAccount {
         get() = Single.just(emptyList())
 
     override val actions: Single<AvailableActions> = Single.just(emptySet())
+    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
+
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
 
@@ -96,6 +99,7 @@ class NullAccountGroup : AccountGroup {
     override val balance: Observable<AccountBalance> = Observable.error(NotImplementedError())
     override val activity: Single<ActivitySummaryList> = Single.just(emptyList())
     override val actions: Single<AvailableActions> = Single.just(emptySet())
+    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
 

@@ -11,6 +11,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -92,6 +93,9 @@ import java.util.concurrent.atomic.AtomicBoolean
                 }
             }
 
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = Single.just(emptySet())
+
     override val isFunded: Boolean
         get() = hasFunds.get()
 
@@ -141,6 +145,17 @@ class FiatAccountGroup(
                 accounts.map { it.actions }
             ) { t: Array<Any> ->
                 t.filterIsInstance<AvailableActions>().flatten().toSet()
+            }
+        }
+
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = if (accounts.isEmpty()) {
+            Single.just(emptySet())
+        } else {
+            Single.zip(
+                accounts.map { it.stateAwareActions }
+            ) { t: Array<Any> ->
+                t.filterIsInstance<StateAwareAction>().toSet()
             }
         }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,4 +14,108 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="@dimen/very_small_margin"
+        android:requiresFadingEdge="vertical"
+        app:layout_constraintBottom_toTopOf="@id/ctas_divider"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.blockchain.componentlib.charts.BalanceView
+                android:id="@+id/asset_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.charts.ChartView
+                android:id="@+id/asset_chart"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+            <com.blockchain.componentlib.control.TabLayoutLiveView
+                android:id="@+id/chart_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
+                android:id="@+id/asset_balance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/asset_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/very_small_margin"
+                android:fadeScrollbars="false"
+                android:fadingEdge="vertical"
+                android:fadingEdgeLength="@dimen/very_small_margin"
+                android:requiresFadingEdge="vertical"
+                android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:scrollbarSize="@dimen/minuscule_margin"
+                android:scrollbarTrackVertical="@color/grey_100"
+                android:scrollbars="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constrainedHeight="true" />
+
+            <com.blockchain.componentlib.basic.SimpleTextView
+                android:id="@+id/asset_about_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginEnd="@dimen/standard_margin" />
+
+            <com.blockchain.componentlib.basic.SimpleTextView
+                android:id="@+id/asset_about_blurb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/tiny_margin"
+                android:layout_marginEnd="@dimen/standard_margin" />
+
+            <com.blockchain.componentlib.basic.SimpleTextView
+                android:id="@+id/asset_website"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/tiny_margin"
+                android:paddingBottom="@dimen/very_small_margin"
+                android:layout_marginEnd="@dimen/standard_margin" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/ctas_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/medium_margin"
+        app:layout_constraintBottom_toTopOf="@id/secondary_cta" />
+
+    <com.blockchain.componentlib.button.SecondaryButtonView
+        android:id="@+id/secondary_cta"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/very_small_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/primary_cta"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.blockchain.componentlib.button.PrimaryButtonView
+        android:id="@+id/primary_cta"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/secondary_cta" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -82,6 +82,31 @@ fun Image(
                 )
             }
         }
+        is ImageResource.LocalWithBackgroundAndExternalFilterResources -> {
+            val filterColor = Color(android.graphics.Color.parseColor(imageResource.filterColor))
+            val tintColor = Color(android.graphics.Color.parseColor(imageResource.tintColor))
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .alpha(imageResource.alpha)
+                        .background(
+                            color = tintColor,
+                            shape = CircleShape
+                        )
+                        .size(32.dp)
+                )
+                androidx.compose.foundation.Image(
+                    painter = painterResource(id = imageResource.id),
+                    contentDescription = imageResource.contentDescription,
+                    modifier = modifier,
+                    colorFilter = ColorFilter.tint(filterColor),
+                    contentScale = contentScale,
+                )
+            }
+        }
         ImageResource.None -> return
     }
 }

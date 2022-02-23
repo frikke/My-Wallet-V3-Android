@@ -4,6 +4,7 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.InterestAccountBalance
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
 import com.nhaarman.mockitokotlin2.mock
@@ -21,13 +22,15 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
     private val custodialManager: CustodialWalletManager = mock()
     private val interestBalance: InterestBalanceDataManager = mock()
+    private val identity: UserIdentity = mock()
 
     private val subject = CryptoInterestAccount(
         currency = TEST_ASSET,
         label = "Test Account",
         exchangeRates = exchangeRates,
         custodialWalletManager = custodialManager,
-        interestBalance = interestBalance
+        interestBalance = interestBalance,
+        identity = identity
     )
 
     @Before

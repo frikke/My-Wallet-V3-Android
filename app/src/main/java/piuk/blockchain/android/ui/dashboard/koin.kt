@@ -10,6 +10,9 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetActionsComparator
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsInteractor
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewInteractor
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewModel
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewState
 import piuk.blockchain.android.ui.dashboard.model.DashboardActionAdapter
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
@@ -107,6 +110,25 @@ val dashboardModule = module {
                 custodialWalletManager = get(),
                 paymentsDataManager = get(),
                 getAvailablePaymentMethodsTypesUseCase = get()
+            )
+        }
+
+        factory {
+            CoinViewModel(
+                initialState = CoinViewState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+        factory {
+            CoinViewInteractor(
+                dashboardPrefs = get(),
+                coincore = get(),
+                userIdentity = get(),
+                custodialWalletManager = get(),
+                paymentsDataManager = get()
             )
         }
     }
