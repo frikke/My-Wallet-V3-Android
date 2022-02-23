@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.coincore.loader.AssetCatalogueImpl
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig

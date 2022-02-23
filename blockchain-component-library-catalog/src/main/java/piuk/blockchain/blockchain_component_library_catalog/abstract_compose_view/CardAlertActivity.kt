@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.blockchain.componentlib.alert.AlertType
-import com.blockchain.componentlib.alert.abstract.CardAlertView
+import com.blockchain.componentlib.alert.CardAlertView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class CardAlertActivity : AppCompatActivity() {

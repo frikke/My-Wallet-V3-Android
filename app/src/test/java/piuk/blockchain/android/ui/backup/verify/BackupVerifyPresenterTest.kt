@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.backup.verify
 
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq

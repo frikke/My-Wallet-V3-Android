@@ -2693,6 +2693,11 @@
     <string name="connect_with_wallet_connect">Connect to a dapp using WalletConnect.</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="you_are_about_disconnect">You\'re about to disconnect %1$s.</string>
+    <plurals name="wallet_connect_connected_apps">
+        <item quantity="zero" />
+        <item quantity="one">%d Connected App</item>
+        <item quantity="other">%d Connected Apps</item>
+    </plurals>
 
     <!-- Ui Tour -->
     <string name="ui_tour_buy_and_sell_title">Buy &amp; Sell</string>

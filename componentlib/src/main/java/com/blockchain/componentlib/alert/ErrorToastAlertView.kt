@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.alert.abstract
+package com.blockchain.componentlib.alert
 
 import android.content.Context
 import android.util.AttributeSet
@@ -7,12 +7,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.res.ResourcesCompat
-import com.blockchain.componentlib.alert.SuccessToastAlert
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
-class SuccessToastAlertView @JvmOverloads constructor(
+class ErrorToastAlertView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -25,7 +24,7 @@ class SuccessToastAlertView @JvmOverloads constructor(
     override fun Content() {
         AppTheme {
             AppSurface {
-                SuccessToastAlert(
+                ErrorToastAlert(
                     text = text,
                     startIconDrawableRes = startIconDrawableRes
                 )
