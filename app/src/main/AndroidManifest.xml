@@ -83,7 +83,6 @@
             android:name=".ui.launcher.loader.LoaderActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask"
-            android:noHistory="true"
             android:theme="@style/AppTheme.Loader" />
         <activity
             android:name=".ui.debug.FeatureFlagsHandlingActivity"
