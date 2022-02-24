@@ -623,7 +623,7 @@ class PinModelTest {
             it == PinState(
                 payloadStatus = PayloadStatus(
                     isPayloadCompleted = false,
-                    payloadError = PayloadError.UNSUPORTTED_VERSION_EXCEPTION
+                    payloadError = PayloadError.UNSUPPORTED_VERSION_EXCEPTION
                 ),
                 progressDialog = it.progressDialog
             )

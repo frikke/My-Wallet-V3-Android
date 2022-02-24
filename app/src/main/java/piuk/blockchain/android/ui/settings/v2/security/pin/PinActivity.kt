@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
-import android.view.KeyEvent
-import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.annotation.StringRes
@@ -67,7 +67,7 @@ class PinActivity :
         PinState,
         ActivityPinBinding>(),
     BiometricsEnrollmentBottomSheet.Host,
-    View.OnKeyListener {
+    TextWatcher {
 
     override val model: PinModel by scopedInject()
 
@@ -98,6 +98,8 @@ class PinActivity :
 
     private val pinBoxList = mutableListOf<AppCompatImageView>()
     private var tempNewPin = ""
+    private var pinLastLength = 0
+
     private var materialProgressDialog: MaterialProgressDialog? = null
     private lateinit var lastState: PinState
     private lateinit var appUpdateManager: AppUpdateManager
@@ -111,8 +113,8 @@ class PinActivity :
         init()
 
         with(binding) {
-            keyboard.setOnKeyListener(this@PinActivity)
             keyboard.requestFocus()
+            keyboard.addTextChangedListener(this@PinActivity)
             pinLogout.apply {
                 text = getString(R.string.logout)
                 setOnClickListener { model.process(PinIntent.PinLogout) }
@@ -123,17 +125,6 @@ class PinActivity :
     override fun showLoading() = binding.progress.visible()
 
     override fun hideLoading() = binding.progress.gone()
-
-    override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-        if (event?.action == KeyEvent.ACTION_UP) {
-            when (keyCode) {
-                KeyEvent.KEYCODE_DEL -> onDeleteClicked()
-                KeyEvent.KEYCODE_ENTER -> onEnteredClicked()
-                else -> onPadClicked()
-            }
-        }
-        return false
-    }
 
     override fun render(newState: PinState) {
         lastState = newState
@@ -228,6 +219,28 @@ class PinActivity :
 
     override fun onSheetClosed() {
         finishSignupProcess()
+    }
+
+    override fun beforeTextChanged(previousPin: CharSequence?, start: Int, count: Int, after: Int) {
+        previousPin?.let { pinLastLength = it.length }
+    }
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+    override fun afterTextChanged(currentPin: Editable?) {
+        currentPin?.let {
+            when {
+                it.length > pinLastLength -> {
+                    onPadClicked()
+                }
+                it.length < pinLastLength -> {
+                    onDeleteClicked()
+                }
+                else -> {
+                    // do nothing (enter key pressed)
+                }
+            }
+        }
     }
 
     private fun loadComposableData() {
@@ -328,7 +341,7 @@ class PinActivity :
                 ).show()
                 util.restartApp()
             }
-            PayloadError.UNSUPORTTED_VERSION_EXCEPTION -> showWalletVersionNotSupportedDialog("")
+            PayloadError.UNSUPPORTED_VERSION_EXCEPTION -> showWalletVersionNotSupportedDialog("")
             PayloadError.HD_WALLET_EXCEPTION -> {
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.unexpected_error), type = SnackbarType.Error
@@ -527,14 +540,6 @@ class PinActivity :
         checkFingerprintStatus()
     }
 
-    // TODO ideally we should find the way to hide this button from keyboard
-    // imeAction to noAction in xml doesnt seem to work
-    private fun onEnteredClicked() {
-        if (getPinIntroduced().length < PIN_LENGTH) {
-            model.process(PinIntent.UpdatePinErrorState(PinError.PIN_INCOMPLETE))
-        }
-    }
-
     private fun onAddDigitChangePinBoxesUI() {
         fillPinBoxAtIndex(getPinIntroduced().length - 1)
         setCursorPinBoxAtIndex(getPinIntroduced().length)
@@ -685,6 +690,7 @@ class PinActivity :
         } else {
             clearPinBoxAtIndex(getPinIntroduced().length + 1)
         }
+
         setCursorPinBoxAtIndex(getPinIntroduced().length)
     }
 
@@ -878,7 +884,7 @@ class PinActivity :
             image = ImageResource.Local(R.drawable.vector_fingerprint)
             imageSize = 24
             visible()
-            setOnClickListener { checkFingerprintStatus() }
+            onClick = { checkFingerprintStatus() }
         }
 
         if (lastState.biometricStatus.canShowFingerprint) {

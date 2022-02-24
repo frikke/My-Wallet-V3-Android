@@ -300,7 +300,7 @@ class PinModel(
             is SocketTimeoutException ->
                 process(PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_TIMEOUT))
             is UnsupportedVersionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPORTTED_VERSION_EXCEPTION))
+                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPPORTED_VERSION_EXCEPTION))
             is DecryptionException ->
                 process(PinIntent.UpdatePayloadErrorState(PayloadError.DECRYPTION_EXCEPTION))
             is HDWalletException -> {
