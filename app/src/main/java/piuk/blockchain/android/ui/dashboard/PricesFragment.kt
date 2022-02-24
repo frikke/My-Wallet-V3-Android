@@ -179,7 +179,7 @@ internal class PricesFragment :
         }
 
         binding.searchBoxLayout.apply {
-            updateResults(resultCount = availableAssets.size.toString(), shouldShow = newState.filterBy.isNotEmpty())
+            updateResults(resultCount = sortedAssets.size.toString(), shouldShow = newState.filterBy.isNotEmpty())
             updateLayoutState()
         }
 

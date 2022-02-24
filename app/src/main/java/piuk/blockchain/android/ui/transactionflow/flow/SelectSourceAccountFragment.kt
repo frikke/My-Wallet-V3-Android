@@ -173,18 +173,23 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     private fun doOnListLoaded(isEmpty: Boolean) {
         with(binding) {
             accountListEmpty.visibleIf { isEmpty }
+            accountList.visibleIf { !isEmpty }
             progress.gone()
         }
     }
 
     private fun doOnLoadError(it: Throwable) {
-        binding.accountListEmpty.visible()
-        binding.progress.gone()
+        with(binding) {
+            accountListEmpty.visible()
+            progress.gone()
+        }
     }
 
     private fun doOnListLoading() {
-        binding.accountListEmpty.gone()
-        binding.progress.visible()
+        with(binding) {
+            accountListEmpty.gone()
+            progress.visible()
+        }
     }
 
     override fun onBankWireTransferSelected(currency: FiatCurrency) {
