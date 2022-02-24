@@ -129,7 +129,8 @@ import thepit.PitLinking
 
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
         Maybe.fromCallable {
-            val normalisedAddress = address.removePrefix(FormatsUtil.BTC_PREFIX)
+            // Remove any potential trailing white spaces
+            val normalisedAddress = address.removePrefix(FormatsUtil.BTC_PREFIX).trim()
             val parts = normalisedAddress.split("?")
             val addressPart = parts.getOrNull(0)
             val amountPart = parts.find {
