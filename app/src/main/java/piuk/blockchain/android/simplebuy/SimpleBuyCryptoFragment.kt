@@ -360,6 +360,11 @@ class SimpleBuyCryptoFragment :
             newState.selectedPaymentMethod?.isActive() == true -> {
                 navigator().goToCheckOutScreen()
             }
+            newState.selectedPaymentMethod?.paymentMethodType == PaymentMethodType.GOOGLE_PAY &&
+                newState.kycVerificationState == KycState.VERIFIED_AND_ELIGIBLE -> {
+                // We need to ensure that only verified and eligible users can use Google Pay
+                navigator().goToCheckOutScreen()
+            }
             newState.selectedPaymentMethod?.isEligible == true -> {
                 addPaymentMethod(newState.selectedPaymentMethod.paymentMethodType, newState.fiatCurrency)
             }

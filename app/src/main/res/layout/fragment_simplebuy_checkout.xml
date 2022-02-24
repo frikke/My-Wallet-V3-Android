@@ -105,11 +105,18 @@
         android:background="@drawable/bkgd_grey_000_rounded"
         android:padding="@dimen/small_margin"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/button_action"
+        app:layout_constraintBottom_toTopOf="@id/barrier_action"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="@string/checkout_item_private_key_wallet_explanation"
         tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="button_google_pay, button_action"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_action"
