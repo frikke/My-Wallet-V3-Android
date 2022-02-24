@@ -157,6 +157,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             onSuccess = { isEnabled ->
                 if (isEnabled) {
                     startActivity(PinActivity.newIntent(this))
+                    finish()
                 } else {
                     startSingleActivity(PinEntryActivity::class.java)
                 }
@@ -173,6 +174,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
                 shouldBeNewTask = true
             )
         )
+        finish()
     }
 
     private fun launchEmailVerification() {
@@ -239,6 +241,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         startActivity(intent)
+        finish()
     }
 
     companion object {
