@@ -109,7 +109,7 @@ class SecurityFragment :
                 primaryText = getString(R.string.security_pin_title)
                 secondaryText = getString(R.string.security_pin_subtitle)
                 onClick = {
-                    BlockchainSnackbar.make(binding.root, "Coming soon", type = SnackbarType.Warning).show()
+                    navigator().goToPinChange()
                 }
             }
 

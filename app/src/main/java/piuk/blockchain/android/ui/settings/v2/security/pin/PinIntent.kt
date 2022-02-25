@@ -38,7 +38,11 @@ sealed class PinIntent : MviIntent<PinState> {
             )
     }
 
-    data class ValidatePIN(val pin: String, val isForValidatingPinForResult: Boolean = false) : PinIntent() {
+    data class ValidatePIN(
+        val pin: String,
+        val isForValidatingPinForResult: Boolean = false,
+        val isChangingPin: Boolean = false
+    ) : PinIntent() {
         override fun reduce(oldState: PinState): PinState = oldState
     }
 

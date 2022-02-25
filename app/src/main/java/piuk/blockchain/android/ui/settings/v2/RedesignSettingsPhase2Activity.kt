@@ -25,6 +25,7 @@ import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsFragmen
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityFragment
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeFragment
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 
 class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
@@ -76,6 +77,15 @@ class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
 
     override fun goToPasswordChange() {
         replaceCurrentFragment(PasswordChangeFragment.newInstance())
+    }
+
+    override fun goToPinChange() {
+        startActivity(
+            PinActivity.newIntent(
+                context = this,
+                originScreen = PinActivity.Companion.OriginScreenToPin.CHANGE_PIN_SECURITY
+            )
+        )
     }
 
     override fun goToProfile(basicProfileInfo: BasicProfileInfo, tier: Tier) {
@@ -154,6 +164,7 @@ interface SettingsNavigator {
     fun goToExchange()
     fun goToKycLimits()
     fun goToPasswordChange()
+    fun goToPinChange()
 }
 
 interface SettingsScreen : FlowFragment {

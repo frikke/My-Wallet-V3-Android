@@ -80,7 +80,7 @@ class PinModel(
                     .handleProgress(R.string.validating_pin)
                     .subscribeBy(
                         onSuccess = { password ->
-                            if (intent.isForValidatingPinForResult) {
+                            if (intent.isForValidatingPinForResult || intent.isChangingPin) {
                                 process(PinIntent.ValidatePINSucceeded)
                             } else {
                                 process(PinIntent.UpdatePayload(password, false))
