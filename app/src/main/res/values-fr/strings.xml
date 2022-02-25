@@ -851,7 +851,7 @@ Confirmations</string>
  sans la clé privée correspondante) n\'est pas pris en charge. Veuillez réessayer avec 
  une adresse et une clé privée. 
 </string>
-    <string name="tx_title_deposit">Dépôt en %s</string>
+    <string name="tx_title_deposit">Ajouter %s</string>
     <string name="tx_title_withdraw">Retirer %s</string>
     <string name="bank_transfer">Virement bancaire</string>
     <string name="send_funds_directly_from_your_bank">Envoyez des fonds directement de votre banque vers votre Blockchain Wallet. Une fois que nous recevons le transfert manuel, utilisez cet argent pour acheter de la crypto.</string>
@@ -1133,6 +1133,8 @@ Veuillez réessayer plus tard.</string>
     <string name="common_retry">Réessayer</string>
     <string name="strength_hint">Utilisez au moins 8 caractères, un mélange de lettres, de chiffres et de symboles.</string>
     <string name="content_desc_enter_amount">Entrer le montant</string>
+    <string name="min_with_value">%1$s Min</string>
+    <string name="max_with_value">%1$s Max</string>
     <string name="upgrade_now">Mettre à jour maintenant</string>
     <string name="swap_faster_cheaper">Échangez plus rapidement. À de meilleurs taux. Dans de meilleures conditions.</string>
     <string name="swap_better">Échangez mieux.</string>
@@ -1873,8 +1875,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="kyc_enter_address_manually">Entrer manuellement - &gt;</string>
     <string name="kyc_autocomplete_addresses_error">Échec de la récupération des adresses</string>
     <string name="kyc_autocomplete_selected_address_error">Échec de la récupération de l\'adresse</string>
-    <string name="min_with_value">%1$s Min</string>
-    <string name="max_with_value">%1$s Max</string>
     <string name="unification_sheet_title">Améliorer le compte</string>
     <string name="unification_sheet_later_cta">Je le ferai plus tard</string>
     <string name="unification_sheet_now_cta">Mettre à niveau mon compte</string>
@@ -2094,7 +2094,7 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="settings_subtitle_no_payments">Ajouter une carte de crédit/débit</string>
     <string name="settings_label_settings">Réglages</string>
     <string name="settings_title_account">Compte</string>
-    <string name="settings_subtitle_account">Limites, devise, notifications et plus</string>
+    <string name="settings_subtitle_account">Limites, devise, airdrops et plus</string>
     <string name="settings_title_security">Sécurité</string>
     <string name="settings_subtitle_security">Méthodes de connexion, phrases de sauvegarde et plus</string>
     <string name="settings_title_about_app">À propos de l\'application</string>
@@ -2109,7 +2109,7 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="about_app_privacy_policy">Politique de confidentialité</string>
     <string name="swap_empty_state_sheet_title">Vous aurez d\'abord besoin de crypto !</string>
     <string name="swap_empty_state_sheet_subtitle">Liez une banque ou une carte et achetez maintenant ou recevez d\'un ami. Une fois que vous détenez un solde, vous pouvez échanger des cryptos à tout moment.</string>
-    <string name="settings_initials">%1s %2s</string>
+    <string name="settings_initials">%1s%2s</string>
     <string name="settings_add_payment_method">Ajoutez un mode de paiement</string>
     <string name="settings_bank_transfer_blurb">Envoyez des fonds directement de votre banque vers votre Blockchain Wallet. Une fois que nous aurons reçu le virement, nous finaliserons votre achat.</string>
     <string name="settings_logout_error">Un problème est survenu lors de votre déconnexion, veuillez réessayer !</string>
@@ -2286,14 +2286,37 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="dashboard_asset_actions_add_title">Ajouter</string>
     <string name="pin_title_create">Choisissez un code PIN de portefeuille.</string>
     <string name="pin_subtitle">Cela sera utilisé pour la sauvegarde de déverrouillage biométrique.</string>
-    <string name="pin_title_confirm">Confirmez votre NIP.</string>
+    <string name="pin_title_confirm">Confirmez votre code PIN.</string>
     <string name="pin_mismatch_error_msg">Les codes PIN ne correspondent pas. Veuillez réessayer.</string>
     <string name="pin_num_digits">Le code PIN doit contenir 4 chiffres.</string>
     <string name="pin_toolbar_change">Modifier le code PIN</string>
-    <string name="account_wallet_connect">Connexion au Portefeuille</string>
+    <string name="account_wallet_connect">WalletConnect</string>
     <string name="bank_transfer_blurb">Suivez les instructions sur l\'écran suivant pour déposer des fonds de votre compte bancaire sur votre compte Blockchain.com. Des frais bancaires peuvent s\'appliquer.</string>
     <string name="easy_bank_transfer_blurb">Connectez-vous une fois et envoyez de l\'argent sur votre compte Blockchain.com à tout moment.</string>
     <string name="ukentityswitch_announcement_title">Nouvelle entité juridique</string>
-    <string name="ukentityswitch_announcement_description">À partir de ce mois-ci, les clients britanniques seront servis par notre filiale européenne, Blockchain (LT), UAB. Vous ne subirez aucun changement dans l\'expérience utilisateur ni ne perdrez l\'accès à vos fonds pendant cette transition. <annotation link="learn_more"> En savoir plus &gt; </annotation></string>
+    <string name="ukentityswitch_announcement_description">À partir de ce mois-ci, les clients britanniques seront servis par notre filiale européenne, Blockchain (LT), UAB. Vous ne subirez aucun changement dans l\'expérience utilisateur ni ne perdrez l\'accès à vos fonds pendant cette transition. <annotation link="learn_more">En savoir plus &gt;</annotation></string>
     <string name="ukentityswitch_announcement_action">Je comprends</string>
+    <string name="account_addresses_title">Adresses</string>
+    <string name="common_disconnect">Déconnecter</string>
+    <string name="no_dapps_connected">Aucune application connectée</string>
+    <string name="connect_with_wallet_connect">Connectez-vous à une application à l\'aide de WalletConnect.</string>
+    <string name="are_you_sure">Êtes-vous sûr ?</string>
+    <string name="you_are_about_disconnect">Vous êtes sur le point de déconnecter %1$s .</string>
+    <string name="scan_connect">Numériser et connecter</string>
+    <string name="allow_camera_access">Autoriser l\'accès à la caméra</string>
+    <string name="scan_friends_qr">Scannez le code QR d\'un ami</string>
+    <string name="scan_friends_qr_description">Dirigez votre téléphone vers le code QR d\'un ami et nous collerons l\'adresse.</string>
+    <string name="web_access">Accédez à votre Wallet sur le Web</string>
+    <string name="web_access_description">Connexion à blockchain.com ? Scannez le code avec votre téléphone pour vous connecter.</string>
+    <string name="connect_to_dapps">Connectez-vous aux Dapps</string>
+    <string name="connect_to_dapps_description">Connectez en toute sécurité votre portefeuille à n\'importe quelle application Web 3.0.</string>
+    <string name="coinview_interest_with_balance">Gagnez %1$s %%</string>
+    <string name="coinview_interest_no_balance">Gagnez %1$s %% APY</string>
+    <string name="coinview_nc_desc">Non privative de liberté</string>
+    <string name="coinview_c_unavailable_desc">Acheter et vendre %1$s</string>
+    <string name="coinview_c_available_desc">Dépositaire</string>
+    <plurals name="wallet_connect_connected_apps">
+        <item quantity="one">%d application connectée</item>
+        <item quantity="other">%d applications connectées</item>
+    </plurals>
 </resources>
