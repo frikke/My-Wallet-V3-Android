@@ -826,7 +826,7 @@ Al depositar fondos en esta cuenta, acepta los <annotation link="modular_terms_a
     <string name="fiat_funds_no_kyc_announcement_description">Verifique su identidad para depositar efectivo en el monedero y comprar criptomonedas.</string>
     <string name="received_usdt">Tether recibido</string>
     <string name="watch_only_not_supported">No es posible importar una dirección no disponible para gastar (una dirección o script de clave pública sin su correspondiente clave privada). Vuelva a intentarlo con una dirección y clave privadas.</string>
-    <string name="tx_title_deposit">Depósito %s</string>
+    <string name="tx_title_deposit">Añadir %s</string>
     <string name="tx_title_withdraw">Retirar %s</string>
     <string name="bank_transfer">Transferencia bancaria</string>
     <string name="send_funds_directly_from_your_bank">Envíe fondos directamente desde su banco a su Blockchain Wallet. Una vez que recibamos la transferencia manual, use ese dinero para comprar criptomonedas.</string>
@@ -1104,6 +1104,8 @@ Convierta criptomonedas con su monedero de operaciones.</string>
     <string name="common_retry">Reintentar</string>
     <string name="strength_hint">Utilice al menos 8 caracteres, una combinación de letras, números y símbolos.</string>
     <string name="content_desc_enter_amount">Ingrese la cantidad</string>
+    <string name="min_with_value">%1$s mín.</string>
+    <string name="max_with_value">%1$s máx.</string>
     <string name="upgrade_now">Actualizar ahora</string>
     <string name="swap_faster_cheaper">Intercambios más rápidos. Más baratos. Mejores.</string>
     <string name="swap_better">Intercambios mejores.</string>
@@ -1224,7 +1226,7 @@ Una vez hecho esto, inténtelo de nuevo.</string>
 
 Escriba estas 12 palabras en orden y guárdelas en un lugar seguro. Nunca lo compartas con nadie. Su frase secreta de recuperación de la clave privada es la clave para recuperar sus criptomonedas si alguna vez queda bloqueado.</string>
     <string name="kyc_address_address_zip_code_hint_1">Código postal</string>
-    <string name="payment_method_type_account_info">%1$s Cuenta %2$s</string>
+    <string name="payment_method_type_account_info">Cuenta de %1$s %2$s</string>
     <string name="address_line_1">Línea de dirección 1</string>
     <string name="address_line_2">Línea de dirección 2</string>
     <string name="address_city">Ciudad</string>
@@ -1841,8 +1843,6 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="kyc_enter_address_manually">Introducir manualmente -&gt;</string>
     <string name="kyc_autocomplete_addresses_error">Error al recuperar las direcciones</string>
     <string name="kyc_autocomplete_selected_address_error">Error al recuperar la dirección</string>
-    <string name="min_with_value">%1$s mín.</string>
-    <string name="max_with_value">%1$s máx.</string>
     <string name="unification_sheet_title">Actualizar cuenta</string>
     <string name="unification_sheet_later_cta">Lo haré más tarde</string>
     <string name="unification_sheet_now_cta">Actualizar mi cuenta</string>
@@ -2038,7 +2038,7 @@ Obtenga más información sobre las cuentas comerciales, los límites y las func
     <string name="landing_cta_title">Su primera compra corre a nuestra cuenta.</string>
     <string name="landing_cta_subtitle">Verifique su ID y cubriremos las tarifas de su primera operación. ¡Es nuestra manera de darle la bienvenida a Blockchain.com!</string>
     <string name="landing_cta_login">Iniciar sesión</string>
-    <string name="settings_see_profile">Ver perfil</string>
+    <string name="settings_see_profile">Editar perfil</string>
     <string name="profile_label_name">Nombre</string>
     <string name="profile_label_surname">Apellido</string>
     <string name="profile_label_email">Correo electrónico</string>
@@ -2062,11 +2062,11 @@ Compre hoy criptomonedas.</string>
     <string name="settings_subtitle_no_payments">Agregar una tarjeta de crédito/débito</string>
     <string name="settings_label_settings">Ajustes</string>
     <string name="settings_title_account">Cuenta</string>
-    <string name="settings_subtitle_account">Límites, moneda, etc.</string>
+    <string name="settings_subtitle_account">Límites, moneda, airdrops y más</string>
     <string name="settings_title_security">Seguridad</string>
     <string name="settings_subtitle_security">Métodos de inicio de sesión, frases de recuperación, etc.</string>
     <string name="settings_title_about_app">Acerca de la aplicación</string>
-    <string name="settings_subtitle_about_app">Soporte, airdrops y políticas</string>
+    <string name="settings_subtitle_about_app">Asistencia, políticas y más</string>
     <string name="settings_sign_out">Cerrar sesión</string>
     <string name="profile_toolbar">Perfil</string>
     <string name="about_app_toolbar">Acerca de la aplicación</string>
@@ -2077,7 +2077,7 @@ Compre hoy criptomonedas.</string>
     <string name="about_app_privacy_policy">Política de privacidad</string>
     <string name="swap_empty_state_sheet_title">¡Primero necesitará algunas criptomonedas!</string>
     <string name="swap_empty_state_sheet_subtitle">Vincule un banco o una tarjeta y compre ahora o reciba pagos de un amigo. Una vez que tenga saldo, puede intercambiar criptomonedas en cualquier momento.</string>
-    <string name="settings_initials">%1s %2s</string>
+    <string name="settings_initials">%1s%2s</string>
     <string name="settings_add_payment_method">Añada el método de pago</string>
     <string name="settings_bank_transfer_blurb">Envíe fondos directamente desde su banco a su Blockchain Wallet. Una vez que recibamos la transferencia bancaria, completaremos su compra.</string>
     <string name="settings_logout_error">Hubo un problema al cerrar la sesión. Inténtelo de nuevo.</string>
@@ -2159,7 +2159,7 @@ Compre hoy criptomonedas.</string>
     <string name="code_verification_enter">Introduce el código de verificación</string>
     <string name="code_verification_re_send_text">Reenviar texto</string>
     <string name="code_verification_verify_code">Verificar código</string>
-    <string name="code_verification_placeholder">--- ---</string>
+    <string name="code_verification_placeholder">-----</string>
     <string name="profile_verify_code">Verificar código</string>
     <string name="profile_enter_code">Introduce el código de verificación</string>
     <string name="security_toolbar">Seguridad</string>
@@ -2248,20 +2248,43 @@ Compre hoy criptomonedas.</string>
     <string name="ui_tour_buy_and_sell_title">Comprar y vender</string>
     <string name="ui_tour_buy_and_sell_subtitle">Use su tarjeta o vincule su banco para comprar criptomonedas en segundos. Rápido, fácil y seguro.</string>
     <string name="wire_transfer">Transferencia bancaria</string>
-    <string name="settings_contact_support_error">Hubo un error al cargar su información</string>
-    <string name="tx_title_add_with_ticker">Agregar %s</string>
+    <string name="settings_contact_support_error">Se produjo un error al cargar su información</string>
+    <string name="tx_title_add_with_ticker">Añadir %s</string>
     <string name="dashboard_asset_actions_add_dsc">Agregar %1$s a su cuenta de recompensas</string>
     <string name="dashboard_asset_actions_add_title">Añadir</string>
-    <string name="pin_title_create">Elija un PIN de billetera.</string>
-    <string name="pin_subtitle">Esto se utilizará para la copia de seguridad de desbloqueo biométrico.</string>
+    <string name="pin_title_create">Elija un PIN de Wallet.</string>
+    <string name="pin_subtitle">Esta información se utilizará para la copia de seguridad de desbloqueo biométrico.</string>
     <string name="pin_title_confirm">Confirme su PIN.</string>
-    <string name="pin_mismatch_error_msg">Los PIN no coinciden. Inténtalo de nuevo.</string>
+    <string name="pin_mismatch_error_msg">Los PIN no coinciden. Inténtelo de nuevo.</string>
     <string name="pin_num_digits">El PIN debe contener 4 dígitos.</string>
     <string name="pin_toolbar_change">Cambiar PIN</string>
-    <string name="account_wallet_connect">Conexión con el monedero</string>
-    <string name="bank_transfer_blurb">Siga las instrucciones en la siguiente pantalla para depositar fondos desde su cuenta bancaria a su cuenta de Blockchain.com. Se pueden aplicar tarifas bancarias.</string>
-    <string name="easy_bank_transfer_blurb">Enlace una vez y envíe efectivo a su cuenta de Blockchain.com en cualquier momento.</string>
+    <string name="account_wallet_connect">WalletConnect</string>
+    <string name="bank_transfer_blurb">Siga las instrucciones en la siguiente pantalla para depositar fondos desde su cuenta bancaria a su cuenta de Blockchain.com. Pueden aplicarse comisiones bancarias.</string>
+    <string name="easy_bank_transfer_blurb">Vincule su banco una vez y envíe dinero a su cuenta de Blockchain.com en cualquier momento.</string>
     <string name="ukentityswitch_announcement_title">Nueva entidad legal</string>
-    <string name="ukentityswitch_announcement_description">A partir de finales de este mes, los clientes del Reino Unido serán atendidos por nuestra subsidiaria europea, Blockchain (LT), UAB. No experimentará ningún cambio en la experiencia del usuario ni perderá el acceso a sus fondos durante esta transición. <annotation link="learn_more"> Más información &gt; </annotation></string>
+    <string name="ukentityswitch_announcement_description">A partir de este mes, los clientes del Reino Unido serán atendidos por nuestra filial europea, Blockchain (LT), UAB. No notará ningún cambio en la experiencia de usuario ni perderá el acceso a sus fondos durante esta transición. <annotation link="learn_more">Más información &gt;</annotation></string>
     <string name="ukentityswitch_announcement_action">Entiendo</string>
+    <string name="account_addresses_title">Direcciones</string>
+    <string name="common_disconnect">Desconectar</string>
+    <string name="no_dapps_connected">No hay Dapps conectadas</string>
+    <string name="connect_with_wallet_connect">Conectar a una Dapp usando WalletConnect.</string>
+    <string name="are_you_sure">¿Está seguro?</string>
+    <string name="you_are_about_disconnect">Está a punto de desconectarse %1$s.</string>
+    <string name="scan_connect">Escanear y conectar</string>
+    <string name="allow_camera_access">Permitir acceso a la cámara</string>
+    <string name="scan_friends_qr">Escanear el código QR de un amigo</string>
+    <string name="scan_friends_qr_description">Escanee con su teléfono el código QR de un amigo y pegaremos la dirección.</string>
+    <string name="web_access">Acceda a su Wallet en la web</string>
+    <string name="web_access_description">¿Va a iniciar sesión en blockchain.com? Escanee el código con su teléfono para iniciar sesión.</string>
+    <string name="connect_to_dapps">Conectar a Dapps</string>
+    <string name="connect_to_dapps_description">Conecte de forma segura su billetera a cualquier aplicación web 3.0.</string>
+    <string name="coinview_interest_with_balance">Ganando %1$s %%</string>
+    <string name="coinview_interest_no_balance">Gane %1$s %% APY</string>
+    <string name="coinview_nc_desc">sin custodia</string>
+    <string name="coinview_c_unavailable_desc">Compra y vende %1$s</string>
+    <string name="coinview_c_available_desc">custodia</string>
+    <plurals name="wallet_connect_connected_apps">
+        <item quantity="one">%d aplicación conectada</item>
+        <item quantity="other">%d aplicaciones conectadas</item>
+    </plurals>
 </resources>

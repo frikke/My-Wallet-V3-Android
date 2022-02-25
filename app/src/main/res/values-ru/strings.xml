@@ -875,7 +875,7 @@ Blockchain.com</string>
  без соответствующего закрытого ключа) не поддерживается. Пожалуйста, попробуйте еще раз с 
  адресом и закрытым ключом.
     </string>
-    <string name="tx_title_deposit">Внести на счет %s</string>
+    <string name="tx_title_deposit">Добавить %s</string>
     <string name="tx_title_withdraw">Вывести %s</string>
     <string name="bank_transfer">Банковский перевод</string>
     <string name="send_funds_directly_from_your_bank">Отправляйте средства прямо из банка на свой кошелек Blockchain Wallet. Как только мы получим перевод вручную, используйте эти деньги для покупки криптовалюты.</string>
@@ -1156,6 +1156,8 @@ Blockchain.com</string>
     <string name="common_retry">Повторить</string>
     <string name="strength_hint">Используйте не менее 8 символов, сочетание букв, цифр и символов.</string>
     <string name="content_desc_enter_amount">Введите сумму</string>
+    <string name="min_with_value">%1$s Минимум</string>
+    <string name="max_with_value">%1$s Максимум</string>
     <string name="upgrade_now">Обновить сейчас</string>
     <string name="swap_faster_cheaper">Обменивайте быстрее. Дешевле. Лучше.</string>
     <string name="swap_better">Обменивайте лучше.</string>
@@ -1890,8 +1892,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="kyc_enter_address_manually">Ввести вручную - &gt;</string>
     <string name="kyc_autocomplete_addresses_error">Не удалось получить адреса</string>
     <string name="kyc_autocomplete_selected_address_error">Не удалось получить адрес</string>
-    <string name="min_with_value">Минимум %1$s</string>
-    <string name="max_with_value">Максимум %1$s</string>
     <string name="unification_sheet_title">Обновить аккаунт</string>
     <string name="unification_sheet_later_cta">Я сделаю это позже</string>
     <string name="unification_sheet_now_cta">Обновить мой аккаунт</string>
@@ -2087,7 +2087,7 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="landing_cta_title">Мы позаботимся о вашей первой покупке.</string>
     <string name="landing_cta_subtitle">Подтвердите свою личность и мы возместим комиссию за вашу первую сделку. Это наш подарок новым пользователям Blockchain.com!</string>
     <string name="landing_cta_login">Вход</string>
-    <string name="settings_see_profile">Просмотреть профиль</string>
+    <string name="settings_see_profile">Редактировать профиль</string>
     <string name="profile_label_name">Имя</string>
     <string name="profile_label_surname">Фамилия</string>
     <string name="profile_label_email">Электронная почта</string>
@@ -2111,11 +2111,11 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="settings_subtitle_no_payments">Добавить кредитную / дебетовую карту</string>
     <string name="settings_label_settings">Настройки</string>
     <string name="settings_title_account">Учетная запись</string>
-    <string name="settings_subtitle_account">Лимиты, валюта и прочее</string>
+    <string name="settings_subtitle_account">Лимиты, валюта, Airdrops и другое</string>
     <string name="settings_title_security">Безопасность</string>
     <string name="settings_subtitle_security">Способы входа, фразы для восстановления и многое другое</string>
     <string name="settings_title_about_app">О приложении</string>
-    <string name="settings_subtitle_about_app">Поддержка, Airdrops и политики</string>
+    <string name="settings_subtitle_about_app">Служба поддержки, политики и другое</string>
     <string name="settings_sign_out">Выйти</string>
     <string name="profile_toolbar">Профиль</string>
     <string name="about_app_toolbar">О приложении</string>
@@ -2126,7 +2126,7 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="about_app_privacy_policy">Политика конфиденциальности</string>
     <string name="swap_empty_state_sheet_title">Сначала вам понадобится немного криптовалюты!</string>
     <string name="swap_empty_state_sheet_subtitle">Привяжите банк или карту и купите криптовалюту сейчас или получите ее от друга. Как только она появится на вашем балансе, вы можете в любой момент обменять ее.</string>
-    <string name="settings_initials">%1s %2s</string>
+    <string name="settings_initials">%1s%2s</string>
     <string name="settings_add_payment_method">Добавить способ оплаты</string>
     <string name="settings_bank_transfer_blurb">Отправляйте средства прямо со своего банковского счета на свой кошелек Blockchain. Как только мы получим банковский перевод, мы завершим вашу покупку.</string>
     <string name="settings_logout_error">При выходе из системы возникла проблема, попробуйте еще раз!</string>
@@ -2209,7 +2209,7 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="code_verification_enter">Введите проверочный код</string>
     <string name="code_verification_re_send_text">Отправить текст повторно</string>
     <string name="code_verification_verify_code">Подтвердить код</string>
-    <string name="code_verification_placeholder">--- ---</string>
+    <string name="code_verification_placeholder">-----</string>
     <string name="profile_verify_code">Подтвердить код</string>
     <string name="profile_enter_code">Введите проверочный код</string>
     <string name="security_toolbar">Безопасность</string>
@@ -2298,20 +2298,45 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="ui_tour_buy_and_sell_title">Покупка и продажа</string>
     <string name="ui_tour_buy_and_sell_subtitle">Используйте свою карту или привяжите свой банк, чтобы купить криптовалюту за считанные секунды. Быстро, легко и безопасно.</string>
     <string name="wire_transfer">Электронный денежный перевод</string>
-    <string name="settings_contact_support_error">Произошла ошибка при загрузке вашей информации</string>
+    <string name="settings_contact_support_error">При загрузке вашей информации произошла ошибка</string>
     <string name="tx_title_add_with_ticker">Добавить %s</string>
     <string name="dashboard_asset_actions_add_dsc">Добавьте %1$s на свой счет вознаграждений</string>
     <string name="dashboard_asset_actions_add_title">Добавить</string>
-    <string name="pin_title_create">Выберите PIN-код кошелька.</string>
+    <string name="pin_title_create">Выберите PIN-код Wallet.</string>
     <string name="pin_subtitle">Это будет использоваться для резервного копирования биометрической разблокировки.</string>
     <string name="pin_title_confirm">Подтвердите свой PIN-код.</string>
     <string name="pin_mismatch_error_msg">PIN-коды не совпадают. Пожалуйста, попробуйте еще раз.</string>
     <string name="pin_num_digits">PIN-код должен содержать 4 цифры.</string>
     <string name="pin_toolbar_change">Изменить PIN</string>
-    <string name="account_wallet_connect">Подключить Криптовалютный Кошелек</string>
+    <string name="account_wallet_connect">WalletConnect</string>
     <string name="bank_transfer_blurb">Следуйте инструкциям на следующем экране, чтобы внести средства со своего банковского счета на свой счет Blockchain.com. Могут взиматься банковские сборы.</string>
-    <string name="easy_bank_transfer_blurb">Свяжите один раз и отправляйте деньги на свой счет Blockchain.com в любое время.</string>
+    <string name="easy_bank_transfer_blurb">Подключите один раз и отправляйте деньги на свой счет Blockchain.com в любое время.</string>
     <string name="ukentityswitch_announcement_title">Новое юридическое лицо</string>
-    <string name="ukentityswitch_announcement_description">Начиная с конца этого месяца, клиентов из Великобритании будет обслуживать наша европейская дочерняя компания Blockchain (LT), UAB. Вы не заметите никаких изменений в пользовательском опыте и не потеряете доступ к своим средствам во время этого перехода. <annotation link="learn_more"> Подробнее &gt; </annotation></string>
+    <string name="ukentityswitch_announcement_description">Начиная с конца этого месяца, клиентов из Великобритании будет обслуживать наша европейская дочерняя компания Blockchain (LT), UAB. Вы не заметите никаких изменений в пользовательском обслуживании и не потеряете доступ к своим средствам во время этого перехода. <annotation link="learn_more">Подробнее &gt;</annotation></string>
     <string name="ukentityswitch_announcement_action">Я понимаю</string>
+    <string name="account_addresses_title">Адреса</string>
+    <string name="common_disconnect">Отключить</string>
+    <string name="no_dapps_connected">Нет подключенных приложений</string>
+    <string name="connect_with_wallet_connect">Подключитесь к децентрализованному приложению с помощью WalletConnect.</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="you_are_about_disconnect">Вы собираетесь отключить %1$s.</string>
+    <string name="scan_connect">Сканировать и подключить</string>
+    <string name="allow_camera_access">Разрешить доступ к камере</string>
+    <string name="scan_friends_qr">Отсканировать QR-код друга</string>
+    <string name="scan_friends_qr_description">Наведите телефон на QR-код друга, и мы вставим адрес.</string>
+    <string name="web_access">Получите доступ к своему Wallet в интернете</string>
+    <string name="web_access_description">Входите в blockchain.com? Чтобы войти, отсканируйте код с помощью телефона.</string>
+    <string name="connect_to_dapps">Подключиться к Dapps</string>
+    <string name="connect_to_dapps_description">Надежно подключите свой кошелек к любому приложению Web 3.0.</string>
+    <string name="coinview_interest_with_balance">Заработок %1$s %%</string>
+    <string name="coinview_interest_no_balance">Заработайте %1$s %% APY</string>
+    <string name="coinview_nc_desc">Не связанный с лишением свободы</string>
+    <string name="coinview_c_unavailable_desc">Купить и продать %1$s</string>
+    <string name="coinview_c_available_desc">Опекунство</string>
+    <plurals name="wallet_connect_connected_apps">
+        <item quantity="one">%d подключенное приложение</item>
+        <item quantity="few"></item>
+        <item quantity="many"></item>
+        <item quantity="other">%d подключенных приложений</item>
+    </plurals>
 </resources>
