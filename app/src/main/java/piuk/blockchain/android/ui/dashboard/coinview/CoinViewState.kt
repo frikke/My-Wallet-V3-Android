@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
@@ -18,11 +19,16 @@ data class CoinViewState(
 
 sealed class CoinViewViewState {
     object None : CoinViewViewState()
-    object Loading : CoinViewViewState()
-    class ShowAccountInfo(val assetDisplay: List<AssetDisplayInfo>) : CoinViewViewState()
+    object LoadingWallets : CoinViewViewState()
+    object LoadingChart : CoinViewViewState()
+    class ShowAccountInfo(val displayList: List<AssetDisplayInfo>) : CoinViewViewState()
+    class ShowChartInfo(val entries: List<ChartEntry>) : CoinViewViewState()
 }
 enum class CoinViewError {
-    None
+    None,
+    UnknownAsset,
+    WalletLoadError,
+    ChartLoadError
 }
 
 sealed class AssetDetailsItem {

@@ -12,11 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.TagsRow
+import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -32,9 +36,19 @@ fun BalanceTableRow(
 ) {
 
     TableRow(
+        contentStart = {
+            Image(
+                imageResource = startImageResource,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .size(24.dp)
+            )
+        },
         content = {
+            val startPadding = if (startImageResource != ImageResource.None) 16.dp else 0.dp
             Column(
                 modifier = Modifier
+                    .padding(start = startPadding)
                     .fillMaxWidth()
                     .wrapContentHeight()
             ) {
@@ -79,16 +93,6 @@ fun BalanceTableRow(
                 }
             }
         },
-        contentStart = {
-            Image(
-                imageResource = startImageResource,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(end = 16.dp)
-                    .size(24.dp),
-                coilImageBuilderScope = null
-            )
-        },
         contentBottom = {
             if (!isInlineTags && !tags.isNullOrEmpty()) {
                 TagsRow(
@@ -99,4 +103,22 @@ fun BalanceTableRow(
         },
         onContentClicked = onClick
     )
+}
+
+@Preview
+@Composable
+fun BalanceTableRow_Local_ImageStart() {
+    AppTheme {
+        AppSurface {
+            BalanceTableRow(
+                titleStart = buildAnnotatedString { append("Some title here") },
+                bodyStart = buildAnnotatedString { append("Some body here") },
+                onClick = {},
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.ic_blockchain,
+                ),
+                tags = emptyList()
+            )
+        }
+    }
 }

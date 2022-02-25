@@ -35,6 +35,7 @@ fun TabLayoutLive(
     onItemSelected: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
     selectedItemIndex: Int = 0,
+    showLiveIndicator: Boolean = true
 ) {
     TabRow(
         selectedTabIndex = selectedItemIndex,
@@ -46,7 +47,7 @@ fun TabLayoutLive(
         items.forEachIndexed { index, itemName ->
             val isSelected = selectedItemIndex == index
 
-            if (index == 0) {
+            if (index == 0 && showLiveIndicator) {
                 LiveTabLayoutItem(
                     itemName = itemName,
                     isSelected = isSelected,

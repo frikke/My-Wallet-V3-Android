@@ -8,12 +8,16 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
 
-enum class HistoricalTimeSpan {
-    DAY,
-    WEEK,
-    MONTH,
-    YEAR,
-    ALL_TIME
+enum class HistoricalTimeSpan(val value: Int) {
+    DAY(0),
+    WEEK(1),
+    MONTH(2),
+    YEAR(3),
+    ALL_TIME(4);
+
+    companion object {
+        fun fromInt(value: Int) = values().first { it.value == value }
+    }
 }
 
 data class HistoricalRate(

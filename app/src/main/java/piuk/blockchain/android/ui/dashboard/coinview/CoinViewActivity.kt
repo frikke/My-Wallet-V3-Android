@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
-import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -15,6 +14,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -81,7 +81,7 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
 
             // TODO update these in relevant story - placeholder texts
             assetAboutTitle.apply {
-                text = "About $assetName"
+                text = getString(R.string.coinview_about_asset, assetName)
                 textColor = ComposeColors.Title
                 style = ComposeTypographies.Body2
             }
@@ -97,29 +97,29 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 style = ComposeTypographies.Paragraph1
             }
 
-            // TODO load this from interactor
-            assetChart.apply {
-                val entries =
-                    listOf(
-                        ChartEntry(1.6389783E9F, 50666.23f),
-                        ChartEntry(1.6389792E9F, 50697.32f),
-                        ChartEntry(1.6389801E9F, 50737.23f),
-                        ChartEntry(1.6389809E9F, 50620.23f),
-                        ChartEntry(1.6389818E9F, 50516.23f),
-                        ChartEntry(1.6389827E9F, 50424.23f),
-                        ChartEntry(1.6389836E9F, 50499.23f),
-                        ChartEntry(1.6389845E9F, 50454.23f),
-                        ChartEntry(1.6389854E9F, 50340.35f),
-                        ChartEntry(1.63898637E9F, 50263.35f)
-                    )
-                setData(entries)
+            assetChartViewSwitcher.apply {
+                displayedChild = CHART_LOADING
             }
 
-            // TODO make this properly
+            assetAccountsViewSwitcher.apply {
+                displayedChild = ACCOUNTS_LOADING
+            }
+
+            assetChart.isChartLive = false
+
             chartControls.apply {
-                items = listOf("1D", "1W", "1M", "1Y", "All")
-                onItemSelected = {}
+                items = listOf(
+                    getString(R.string.coinview_chart_tab_day),
+                    getString(R.string.coinview_chart_tab_week),
+                    getString(R.string.coinview_chart_tab_month),
+                    getString(R.string.coinview_chart_tab_year),
+                    getString(R.string.coinview_chart_tab_all)
+                )
+                onItemSelected = {
+                    model.process(CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.fromInt(it)))
+                }
                 selectedItemIndex = 0
+                showLiveIndicator = false
             }
 
             // TODO load through interactor
@@ -165,17 +165,46 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 }
             }
         }
-        model.process(CoinViewIntent.LoadAssetInformation(assetTicker))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        model.process(CoinViewIntent.LoadAsset(assetTicker))
     }
 
     override fun render(newState: CoinViewState) {
+        newState.asset?.let {
+            with(binding) {
+                assetAboutTitle.text = getString(R.string.coinview_about_asset, it.assetInfo.name)
+                assetPrice.endIcon = ImageResource.Remote(it.assetInfo.logo)
+            }
+        }
+
         if (newState.viewState != CoinViewViewState.None) {
             when (val state = newState.viewState) {
-                CoinViewViewState.Loading -> {
-                    BlockchainSnackbar.make(binding.root, "Loading details").show()
+                CoinViewViewState.LoadingWallets -> {
+                    binding.assetAccountsViewSwitcher.apply {
+                        displayedChild = ACCOUNTS_LOADING
+                    }
                 }
                 is CoinViewViewState.ShowAccountInfo -> {
-                    onGotAssetDetails(state.assetDisplay)
+                    renderAccountsDetails(state.displayList)
+                    binding.assetAccountsViewSwitcher.apply {
+                        displayedChild = ACCOUNTS_LIST
+                    }
+                }
+                CoinViewViewState.LoadingChart -> {
+                    binding.assetChartViewSwitcher.apply {
+                        displayedChild = CHART_LOADING
+                    }
+                }
+                is CoinViewViewState.ShowChartInfo -> {
+                    with(binding) {
+                        assetChartViewSwitcher.apply {
+                            displayedChild = CHART_VIEW
+                        }
+                        assetChart.setData(state.entries)
+                    }
                 }
                 CoinViewViewState.None -> {
                     // do nothing
@@ -186,7 +215,7 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         }
     }
 
-    private fun onGotAssetDetails(assetDetails: List<AssetDisplayInfo>) {
+    private fun renderAccountsDetails(assetDetails: List<AssetDisplayInfo>) {
         val itemList = mutableListOf<AssetDetailsItemNew>()
 
         assetDetails.map {
@@ -255,8 +284,13 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
     }
 
     companion object {
+        private const val CHART_LOADING = 0
+        private const val CHART_VIEW = 1
+        private const val ACCOUNTS_LOADING = 0
+        private const val ACCOUNTS_LIST = 1
         private const val ASSET_TICKER = "ASSET_TICKER"
         private const val ASSET_NAME = "ASSET_NAME"
+
         fun newIntent(context: Context, asset: AssetInfo): Intent =
             Intent(context, CoinViewActivity::class.java).apply {
                 putExtra(ASSET_TICKER, asset.networkTicker)

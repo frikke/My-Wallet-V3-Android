@@ -13,7 +13,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 class CoinViewInteractor(
@@ -24,12 +23,11 @@ class CoinViewInteractor(
     private val paymentsDataManager: PaymentsDataManager
 ) {
 
-    fun loadAssetDetails(assetTicker: String): Maybe<Pair<CryptoAsset, List<AssetDisplayInfo>>> =
-        coincore[assetTicker]?.let { cryptoAsset ->
-            getAssetDisplayDetails(cryptoAsset).toMaybe().map { displayMap ->
-                Pair(cryptoAsset, displayMap)
-            }
-        } ?: Maybe.empty()
+    fun loadAssetDetails(assetTicker: String): CryptoAsset? =
+        coincore[assetTicker]
+
+    fun loadAccountDetails(asset: CryptoAsset): Single<List<AssetDisplayInfo>> =
+        getAssetDisplayDetails(asset)
 
     fun loadHistoricPrices(asset: CryptoAsset, timeSpan: HistoricalTimeSpan): Single<HistoricalRateList> =
         asset.historicRateSeries(timeSpan)

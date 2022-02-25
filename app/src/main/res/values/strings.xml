@@ -2735,5 +2735,11 @@
     <string name="coinview_nc_desc">Non-custodial</string>
     <string name="coinview_c_unavailable_desc">Buy &amp; Sell %1$s</string>
     <string name="coinview_c_available_desc">Custodial</string>
+    <string name="coinview_about_asset">About %1$s</string>
+    <string name="coinview_chart_tab_day">1D</string>
+    <string name="coinview_chart_tab_week">1W</string>
+    <string name="coinview_chart_tab_month">1M</string>
+    <string name="coinview_chart_tab_year">1Y</string>
+    <string name="coinview_chart_tab_all">All</string>
 
 </resources>
