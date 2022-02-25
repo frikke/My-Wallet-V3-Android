@@ -663,12 +663,18 @@ class SimpleBuyCryptoFragment :
     companion object {
         private const val ARG_CRYPTO_ASSET = "CRYPTO"
         private const val ARG_PAYMENT_METHOD_ID = "PAYMENT_METHOD_ID"
+        private const val ARG_AMOUNT = "AMOUNT"
 
-        fun newInstance(asset: AssetInfo, preselectedMethodId: String? = null): SimpleBuyCryptoFragment {
+        fun newInstance(
+            asset: AssetInfo,
+            preselectedMethodId: String? = null,
+            preselectedAmount: String? = null
+        ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_CRYPTO_ASSET, asset.networkTicker)
                     preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, preselectedMethodId) }
+                    preselectedAmount?.let { putString(ARG_AMOUNT, preselectedAmount) }
                 }
             }
         }

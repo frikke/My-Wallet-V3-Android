@@ -16,10 +16,12 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.google.gson.JsonSyntaxException
+import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -49,12 +51,14 @@ class MainModel(
     private val interactor: MainInteractor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
-) : MviModel<MainState, MainIntent>(
+    crashLogger: CrashLogger,
+    private val deeplinkFeatureFlag: IntegratedFeatureFlag,
+    private val assetCatalogue: AssetCatalogue
+    ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    crashLogger,
 ) {
 
     private val compositeDisposable = CompositeDisposable()
@@ -87,7 +91,9 @@ class MainModel(
                 interactor.checkForUserWalletErrors()
                     .subscribeBy(
                         onComplete = {
-                            // Nothing to do here
+                            if (previousState.deeplinkIntent != null) {
+                                process(MainIntent.CheckForPendingLinks(previousState.deeplinkIntent))
+                            }
                         },
                         onError = { throwable ->
                             if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
@@ -100,16 +106,33 @@ class MainModel(
                         }
                     )
             }
-            is MainIntent.CheckForPendingLinks ->
-                interactor.checkForDeepLinks(intent.appIntent)
-                    .subscribeBy(
-                        onSuccess = { linkState ->
-                            if ((intent.appIntent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
-                                dispatchDeepLink(linkState)
+            is MainIntent.CheckForPendingLinks -> {
+                deeplinkFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
+                    onSuccess = { isEnabled ->
+                        if (true) { // TODO !!!ADD FEATURE FLAG HERE!!!
+                            intent.appIntent.data?.let { uri ->
+                                interactor.processDeepLinkV2(uri).subscribeBy(
+                                    onSuccess = {
+                                        process(MainIntent.UpdateDeepLinkResult(it))
+                                    },
+                                    onError = { Timber.e(it) }
+                                )
                             }
-                        },
-                        onError = { Timber.e(it) }
-                    )
+                        } else {
+                            interactor.checkForDeepLinks(intent.appIntent)
+                                .subscribeBy(
+                                    onSuccess = { linkState ->
+                                        if ((intent.appIntent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
+                                            dispatchDeepLink(linkState)
+                                        }
+                                    },
+                                    onError = { Timber.e(it) }
+                                )
+                        }
+                    }
+                )
+            }
+
             is MainIntent.ValidateAccountAction ->
                 interactor.checkIfShouldUpsell(intent.action, intent.account)
                     .subscribeBy(
@@ -173,6 +196,9 @@ class MainModel(
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             MainIntent.ResetViewState,
             is MainIntent.UpdateViewToLaunch -> null
+            is MainIntent.UpdateDeepLinkResult -> null
+            is MainIntent.SaveDeeplinkIntent -> null
+            is MainIntent.ClearDeepLinkIntent -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {

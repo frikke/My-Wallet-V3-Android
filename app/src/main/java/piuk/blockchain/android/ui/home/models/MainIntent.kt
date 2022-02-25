@@ -4,6 +4,7 @@ import android.content.Intent
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.walletconnect.domain.WalletConnectSession
 
 sealed class MainIntent : MviIntent<MainState> {
@@ -54,5 +55,26 @@ sealed class MainIntent : MviIntent<MainState> {
 
     class ApproveWCSession(val session: WalletConnectSession) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class UpdateDeepLinkResult(val deeplinkResult: DeepLinkResult) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(
+                deeplinkResult = deeplinkResult
+            )
+    }
+
+    class SaveDeeplinkIntent(val deeplinkIntent: Intent) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(
+                deeplinkIntent = deeplinkIntent
+            )
+    }
+
+    object ClearDeepLinkIntent : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(
+                deeplinkResult = DeepLinkResult.DeepLinkResultFailed
+            )
     }
 }

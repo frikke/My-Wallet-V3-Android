@@ -26,6 +26,8 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.deeplinking.navigation.Destination
+import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
@@ -43,6 +45,7 @@ import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomShe
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -67,6 +70,7 @@ import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
@@ -137,6 +141,8 @@ class MainActivity :
 
     private val dataWiper: DataWiper by scopedInject()
 
+    private val assetCatalogue: AssetCatalogue by scopedInject()
+
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             (
@@ -174,7 +180,7 @@ class MainActivity :
         }
 
         if (savedInstanceState == null) {
-            model.process(MainIntent.CheckForPendingLinks(intent))
+            model.process(MainIntent.SaveDeeplinkIntent(intent))
         }
 
         val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
@@ -466,6 +472,11 @@ class MainActivity :
         ).show()
 
     override fun render(newState: MainState) {
+        if (newState.deeplinkResult is DeepLinkResult.DeepLinkResultSuccess) {
+            navigateToDeeplinkDestination(newState.deeplinkResult.destination)
+            model.process(MainIntent.ClearDeepLinkIntent)
+        }
+
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
             is ViewToLaunch.LaunchAssetAction -> launchAssetAction(view.action, view.account)
@@ -603,6 +614,42 @@ class MainActivity :
         if (newState.viewToLaunch != ViewToLaunch.None) {
             model.process(MainIntent.ResetViewState)
         }
+    }
+
+    private fun navigateToDeeplinkDestination(mainDestination: Destination) {
+        when (mainDestination) {
+            is Destination.AssetViewDestination -> {
+                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(mainDestination.networkTicker)
+                if (assetInfo != null) {
+                    startActivity(
+                        CoinViewActivity.newIntent(
+                            context = this,
+                            asset = assetInfo
+                        )
+                    )
+                } else {
+                    Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
+                }
+            }
+
+            is Destination.AssetBuyDestination -> {
+                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(mainDestination.code)
+                if (assetInfo != null) {
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            asset = assetInfo
+                        )
+                    )
+                } else {
+                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
+            }
+
+            is Destination.ActivityDestination -> {
+                startActivitiesFragment()
+            }
+        }.exhaustive
     }
 
     private fun launchWalletConnectSessionApproval(walletConnectSession: WalletConnectSession) {

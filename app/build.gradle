@@ -315,6 +315,7 @@ dependencies {
     implementation project(':payments:stripe')
     implementation project(':payments:googlepay')
     implementation project(':payments:core')
+    implementation project(':deeplinking')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

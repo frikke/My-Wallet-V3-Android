@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.home
 
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -21,13 +22,16 @@ val mainModule = module {
                 interactor = get(),
                 walletConnectServiceAPI = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                crashLogger = get(),
+                deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
+                assetCatalogue = get()
             )
         }
 
         factory {
             MainInteractor(
                 deepLinkProcessor = get(),
+                deeplinkProcessorV2 = get(),
                 exchangeLinking = get(),
                 exchangePrefs = get(),
                 assetCatalogue = get(),
