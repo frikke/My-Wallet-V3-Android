@@ -198,7 +198,7 @@ class MainModel(
             is MainIntent.UpdateViewToLaunch -> null
             is MainIntent.UpdateDeepLinkResult -> null
             is MainIntent.SaveDeeplinkIntent -> null
-            is MainIntent.ClearDeepLinkIntent -> null
+            is MainIntent.ClearDeepLinkResult -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {

@@ -474,7 +474,7 @@ class MainActivity :
     override fun render(newState: MainState) {
         if (newState.deeplinkResult is DeepLinkResult.DeepLinkResultSuccess) {
             navigateToDeeplinkDestination(newState.deeplinkResult.destination)
-            model.process(MainIntent.ClearDeepLinkIntent)
+            model.process(MainIntent.ClearDeepLinkResult)
         }
 
         when (val view = newState.viewToLaunch) {

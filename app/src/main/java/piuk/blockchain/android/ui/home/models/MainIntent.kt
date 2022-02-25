@@ -71,7 +71,7 @@ sealed class MainIntent : MviIntent<MainState> {
             )
     }
 
-    object ClearDeepLinkIntent : MainIntent() {
+    object ClearDeepLinkResult : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 deeplinkResult = DeepLinkResult.DeepLinkResultFailed
