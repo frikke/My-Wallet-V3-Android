@@ -57,6 +57,7 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.FragmentPinEntryBinding
+import piuk.blockchain.android.ui.auth.PinEntryActivity.Companion.KEY_ORIGIN_SETTINGS
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
@@ -232,6 +233,9 @@ class PinEntryFragment :
     override val isForValidatingAndLoadingPayloadResult: Boolean
         get() = activity?.intent?.extras?.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD, false)
             ?: false
+
+    override val isSettingsOrigin: Boolean
+        get() = activity?.intent?.extras?.getBoolean(KEY_ORIGIN_SETTINGS, false) ?: false
 
     override fun enrollBiometrics() {
         biometricsController.authenticate(
@@ -748,6 +752,10 @@ class PinEntryFragment :
 
     override fun restartAppWithVerifiedPin() {
         appUtil.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterWalletCreation)
+    }
+
+    override fun closePinChangeScreen() {
+        activity?.finish()
     }
 
     override fun createPresenter(): PinEntryPresenter = pinEntryPresenter
