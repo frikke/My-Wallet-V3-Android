@@ -158,7 +158,7 @@ class MainInteractor internal constructor(
             }
     }
 
-    fun processQrScanResult(decodedData: String): Single<ScanResult> =
+    fun processQrScanResult(decodedData: String): Single<out ScanResult> =
         qrScanResultProcessor.processScan(decodedData)
 
     fun sendSecureChannelHandshake(handshake: String) =

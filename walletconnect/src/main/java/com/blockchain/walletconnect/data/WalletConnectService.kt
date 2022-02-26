@@ -5,17 +5,20 @@ import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.extensions.exhaustive
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectAddressProvider
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
+import com.blockchain.walletconnect.domain.toAnalyticsMethod
 import com.trustwallet.walletconnect.WCClient
 import com.trustwallet.walletconnect.models.WCPeerMeta
 import com.trustwallet.walletconnect.models.ethereum.WCEthereumTransaction
@@ -43,6 +46,7 @@ class WalletConnectService(
     private val ethRequestSign: EthRequestSign,
     private val ethSendTransactionRequest: EthSendTransactionRequest,
     private val lifecycleObservable: LifecycleObservable,
+    private val analytics: Analytics,
     private val client: OkHttpClient
 ) : WalletConnectServiceAPI, WalletConnectUrlValidator, WebSocketListener() {
 
@@ -82,7 +86,8 @@ class WalletConnectService(
 
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe { state ->
             when (state) {
-                null -> { } // warning removal
+                null -> {
+                } // warning removal
                 AppState.BACKGROUNDED -> disconnectAllClients()
                 AppState.FOREGROUNDED -> reconnectToPreviouslyApprovedSessions()
             }.exhaustive
@@ -221,9 +226,6 @@ class WalletConnectService(
         onFailure = {
             onSessionConnectFailedOrDisconnected(wcSession)
         }
-        onDisconnect = { _, _ ->
-            onSessionConnectFailedOrDisconnected(wcSession)
-        }
     }
 
     companion object {
@@ -244,15 +246,28 @@ class WalletConnectService(
                     (txResult as? TxResult.HashedTxResult)?.let { result ->
                         Completable.fromCallable {
                             this.approveRequest(id, result.txId)
+                            analytics.logEvent(
+                                WalletConnectAnalytics.DappRequestActioned(
+                                    method = message.toAnalyticsMethod(),
+                                    action = WalletConnectAnalytics.DappConnectionAction.CONFIRM,
+                                    appName = session.dAppInfo.peerMeta.name
+                                )
+                            )
                         }
                     } ?: Completable.complete()
-                },
-                onTxCancelled = {
-                    Completable.fromCallable {
-                        this.rejectRequest(id)
-                    }
                 }
-            ).subscribeBy(onSuccess = {
+            ) {
+                Completable.fromCallable {
+                    analytics.logEvent(
+                        WalletConnectAnalytics.DappRequestActioned(
+                            method = message.toAnalyticsMethod(),
+                            action = WalletConnectAnalytics.DappConnectionAction.CANCEL,
+                            appName = session.dAppInfo.peerMeta.name
+                        )
+                    )
+                    this.rejectRequest(id)
+                }
+            }.subscribeBy(onSuccess = {
                 _walletConnectUserEvents.onNext(it)
             }, onError = {})
         }
@@ -267,20 +282,35 @@ class WalletConnectService(
     private fun WCClient.ethTransactionHandler(
         method: EthereumSendTransactionTarget.Method,
         session: WalletConnectSession
-    ): (Long, WCEthereumTransaction) -> Unit = { id, message ->
+    ): (Long, WCEthereumTransaction) -> Unit = { id, transaction ->
         compositeDisposable += ethSendTransactionRequest.onSendTransaction(
-            transaction = message,
+            transaction = transaction,
             session = session,
             method = method,
             onTxCompleted = { txResult ->
                 (txResult as? TxResult.HashedTxResult)?.let { result ->
                     Completable.fromCallable {
                         this.approveRequest(id, result.txId)
+
+                        analytics.logEvent(
+                            WalletConnectAnalytics.DappRequestActioned(
+                                method = method.toAnalyticsMethod(),
+                                action = WalletConnectAnalytics.DappConnectionAction.CONFIRM,
+                                appName = session.dAppInfo.peerMeta.name
+                            )
+                        )
                     }
                 } ?: Completable.complete()
             },
             onTxCancelled = {
                 Completable.fromCallable {
+                    analytics.logEvent(
+                        WalletConnectAnalytics.DappRequestActioned(
+                            method = method.toAnalyticsMethod(),
+                            action = WalletConnectAnalytics.DappConnectionAction.CANCEL,
+                            appName = session.dAppInfo.peerMeta.name
+                        )
+                    )
                     this.rejectRequest(id)
                 }
             }

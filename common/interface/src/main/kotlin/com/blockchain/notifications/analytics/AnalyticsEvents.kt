@@ -195,7 +195,19 @@ enum class AnalyticsNames(val eventName: String) {
     DASHBOARD_ONBOARDING_DISMISSED("Peeksheet Dismissed"),
     DASHBOARD_ONBOARDING_CARD_CLICKED("Peeksheet Process Clicked"),
     DASHBOARD_ONBOARDING_STEP_LAUNCHED("Peeksheet Selection Clicked"),
-    CURRENCY_SELECTION_TRADING_CURRENCY_CHANGED("Fiat Currency Selected")
+    CURRENCY_SELECTION_TRADING_CURRENCY_CHANGED("Fiat Currency Selected"),
+    CAMERA_PERMISSION_CHECKED("Camera Permission Checked"),
+    CAMERA_PERMISSION_REQUESTED("Camera Permission Requested Actioned"),
+    CONNECTED_DAPP_ACTIONED("Connected Dapp Actioned"),
+    CONNECTED_DAPP_CLICKED("Connected Dapp Clicked"),
+    CONNECTED_DAPPS_LIST_CLICKED("Connected Dapps List Clicked"),
+    CONNECTED_DAPPS_LIST_VIEWED("Connected Dapps List Viewed"),
+    DAPP_CONNECTION_ACTIONED("Dapp Connection Actioned"),
+    DAPP_CONNECTION_CONFIRMED("Dapp Connection Confirmed"),
+    DAPP_CONNECTION_REJECTED("Dapp Connection Rejected"),
+    DAPP_REQUEST_ACTIONED("Dapp Request Actioned"),
+    QR_CODE_CLICKED("Qr Code Clicked"),
+    QR_CODE_SCANNED("Qr Code Scanned")
 }
 
 enum class LaunchOrigin {
@@ -206,6 +218,7 @@ enum class LaunchOrigin {
     RESUBMISSION,
     SIMPLETRADE,
     DASHBOARD_PROMO,
+    DASHBOARD,
     TRANSACTION_LIST,
     TRANSACTION_DETAILS,
     DEPOSIT,
@@ -223,6 +236,8 @@ enum class LaunchOrigin {
     BUY_CONFIRMATION,
     RECURRING_BUY_DETAILS,
     RECURRING_BUY,
+    APPS_LIST,
+    QR_CODE,
     LAUNCH_SCREEN,
     NUX_LAUNCH_PROMO_LOG_IN,
     NUX_LAUNCH_PROMO_BUY_CRYPTO;

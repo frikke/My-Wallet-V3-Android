@@ -26,6 +26,7 @@ val walletConnectModule = module {
             WalletConnectService(
                 sessionRepository = get(),
                 client = get(),
+                analytics = get(),
                 ethRequestSign = get(),
                 lifecycleObservable = get(),
                 featureFlag = get(walletConnectFeatureFlag),

@@ -430,6 +430,7 @@ val applicationModule = module {
             QrScanResultProcessor(
                 bitPayDataManager = get(),
                 walletConnectUrlValidator = get(),
+                analytics = get(),
                 featureFlag = get(walletConnectFeatureFlag)
             )
         }

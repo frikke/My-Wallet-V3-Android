@@ -33,6 +33,7 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
                 text = getString(R.string.allow_camera_access)
                 onClick = {
                     (host as? Host)?.onCameraAccessAllowed()
+                    dismiss()
                 }
             }
             recycler.layoutManager = LinearLayoutManager(context)
