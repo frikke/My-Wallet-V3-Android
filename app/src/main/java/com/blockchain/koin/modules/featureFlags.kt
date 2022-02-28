@@ -2,16 +2,10 @@ package com.blockchain.koin.modules
 
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
-import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
-import com.blockchain.koin.landingCtaFeatureFlag
-import com.blockchain.koin.pricingQuoteFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
-import com.blockchain.koin.ssoSignInPolling
-import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.uiTourFeatureFlag
-import com.blockchain.koin.unifiedSignInFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
@@ -22,50 +16,6 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
-
-    factory(ssoSignInPolling) {
-        get<RemoteConfig>().featureFlag("android_ff_sso_polling", "Single Sign-on Polling")
-    }
-
-    factory(unifiedSignInFeatureFlag) {
-        get<RemoteConfig>().featureFlag("android_sso_unified_sign_in", "SSO Unified Sign In")
-    }
-
-    single(pricingQuoteFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_new_pricing_quote",
-                "New Pricing Quote"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(stripeAndCheckoutPaymentsFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_checkout_stripe_payments",
-                "Checkout And Stripe Payments"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(landingCtaFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_landing_cta",
-                "Landing CTA"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(fabSheetOrderingFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_fab_buy_cta_on_right",
-                "Fab Buy CTA On Right"
-            )
-        )
-    }.bind(FeatureFlag::class)
 
     single(redesignPart2FeatureFlag) {
         IntegratedFeatureFlag(

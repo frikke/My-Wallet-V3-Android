@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.home
 
-import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
@@ -60,8 +59,7 @@ val mainModule = module {
 
         factory {
             ActionsSheetInteractor(
-                userIdentity = get(),
-                fabSheetBuySellOrderingFeatureFlag = get(fabSheetOrderingFeatureFlag)
+                userIdentity = get()
             )
         }
     }

@@ -4,26 +4,19 @@ import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.caching.TimedCacheRequest
 import com.blockchain.nabu.Authenticator
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 
 class CardsCache(
     private val paymentMethodsService: PaymentMethodsService,
     private val authenticator: Authenticator,
-    private val stripeAndCheckoutFeatureFlag: FeatureFlag,
 ) {
-    private val cardProvidersEnabled: Single<Boolean> by lazy {
-        stripeAndCheckoutFeatureFlag.enabled.cache()
-    }
 
     private val refresh: () -> Single<List<CardResponse>> = {
-        cardProvidersEnabled.flatMap { cardProvidersEnabled ->
-            authenticator.getAuthHeader().flatMap { authToken ->
-                paymentMethodsService.getCards(
-                    authorization = authToken,
-                    cardProvidersSupported = cardProvidersEnabled
-                )
-            }
+        authenticator.getAuthHeader().flatMap { authToken ->
+            paymentMethodsService.getCards(
+                authorization = authToken,
+                cardProvidersSupported = true
+            )
         }
     }
 

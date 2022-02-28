@@ -133,9 +133,7 @@ val coreModule = module {
         scoped {
             BrokerageDataManager(
                 brokerageService = get(),
-                authenticator = get(),
-                nabuService = get(),
-                featureFlag = get(pricingQuoteFeatureFlag)
+                authenticator = get()
             )
         }
 
@@ -167,8 +165,7 @@ val coreModule = module {
         scoped {
             CardsCache(
                 paymentMethodsService = get(),
-                authenticator = get(),
-                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag)
+                authenticator = get()
             )
         }
 

@@ -40,8 +40,7 @@ class LoginAuthModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             crashLogger = mock(),
-            interactor = interactor,
-            unifiedSignInFlag = unifiedSignInFlag
+            interactor = interactor
         )
     }
 

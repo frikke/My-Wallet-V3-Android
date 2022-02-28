@@ -19,7 +19,6 @@ import com.blockchain.koin.gbp
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.redesignPart2FeatureFlag
-import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -455,7 +454,6 @@ val applicationModule = module {
                 analytics = get(),
                 exchangeRatesDataManager = get(),
                 bankPartnerCallbackProvider = get(),
-                stripeAndCheckoutPaymentsFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
                 brokerageDataManager = get(),
                 cardProcessors = getCardProcessors().associateBy { it.acquirer },
                 cancelOrderUseCase = get(),
