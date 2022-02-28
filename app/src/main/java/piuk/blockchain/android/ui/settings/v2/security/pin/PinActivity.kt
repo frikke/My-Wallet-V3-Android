@@ -755,13 +755,14 @@ class PinActivity :
 
     private fun handleBackButton() {
         when {
-            isForValidatingPinForResult -> {
-                finishWithResultCanceled()
-            }
-            else -> {
-                finish()
-            }
+            isForValidatingPinForResult -> { finishWithResultCanceled() }
+            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> { super.onBackPressed() }
+            else -> { appUtil.logout() }
         }
+    }
+
+    override fun onBackPressed() {
+        handleBackButton()
     }
 
     private fun showDebugEnv() {

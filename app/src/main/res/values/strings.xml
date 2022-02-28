@@ -2551,6 +2551,9 @@
     <string name="settings_bank_transfer_blurb">Send funds directly from your bank to your Blockchain Wallet. Once we receive the wire transfer, we’ll complete your purchase.</string>
     <string name="settings_logout_error">There was an issue while logging you out, please try again!</string>
     <string name="settings_contact_support_error">There was an error loading your information</string>
+    <string name="settings_signout_wallet">Sign Out</string>
+    <string name="settings_ask_you_sure_signout">Are you sure you want to sign out from this wallet?</string>
+    <string name="settings_btn_signout">Sign out</string>
 
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>
