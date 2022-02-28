@@ -78,15 +78,16 @@ class AddressFactoryImpl(
     private fun resolveDomainAddress(address: String, asset: AssetInfo): Maybe<ReceiveAddress> =
         addressResolver.resolveAssetAddress(address, asset.networkTicker)
             .flatMapMaybe { resolved ->
-                if (resolved.isEmpty())
-                    Maybe.empty()
-                else
+                if (resolved.isEmpty()) {
+                    Maybe.error(TxValidationFailure(ValidationState.INVALID_DOMAIN))
+                } else {
                     coincore[asset].parseAddress(resolved, address)
+                }
             }.onErrorResumeNext(::handleResolutionApiError)
 
     private fun handleResolutionApiError(t: Throwable): Maybe<ReceiveAddress> =
         when (t) {
-            is DomainAddressNotFound -> Maybe.empty()
+            is DomainAddressNotFound -> Maybe.error(TxValidationFailure(ValidationState.INVALID_DOMAIN))
             else -> {
                 Timber.e(t, "Failed to resolve domain address")
                 throw IllegalStateException(t)

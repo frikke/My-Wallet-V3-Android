@@ -62,6 +62,7 @@ enum class TransactionErrorState {
     NONE,
     INVALID_PASSWORD,
     INVALID_ADDRESS,
+    INVALID_DOMAIN,
     ADDRESS_IS_CONTRACT,
     INSUFFICIENT_FUNDS,
     INVALID_AMOUNT,
@@ -254,7 +255,7 @@ class TransactionModel(
                 processValidateAddress(intent.targetAddress, intent.expectedCrypto)
             is TransactionIntent.CancelTransaction -> processCancelTransaction()
             is TransactionIntent.TargetAddressValidated -> null
-            is TransactionIntent.TargetAddressInvalid -> null
+            is TransactionIntent.TargetAddressOrDomainInvalid -> null
             is TransactionIntent.InitialiseWithSourceAndTargetAccount -> {
                 processTargetSelectionConfirmed(
                     sourceAccount = intent.fromAccount,
@@ -458,7 +459,7 @@ class TransactionModel(
                 onError = { t ->
                     errorLogger.log(TxFlowLogError.AddressFail(t))
                     when (t) {
-                        is TxValidationFailure -> process(TransactionIntent.TargetAddressInvalid(t))
+                        is TxValidationFailure -> process(TransactionIntent.TargetAddressOrDomainInvalid(t))
                         else -> process(TransactionIntent.FatalTransactionError(t))
                     }
                 }
