@@ -210,7 +210,7 @@ class WalletBody {
         validateHD()
         val index = HD.addAccount()
         val legacyAccount = HD.getLegacyAccount(index)
-        val segwitAccount = HD.getLegacyAccount(index)
+        val segwitAccount = HD.getSegwitAccount(index)
         return addAccount(label, legacyAccount!!, segwitAccount!!)
     }
 
