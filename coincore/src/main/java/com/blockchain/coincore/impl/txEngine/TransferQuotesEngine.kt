@@ -70,4 +70,4 @@ class TransferQuotesEngine(
 
 data class PricedQuote(val price: Money, val transferQuote: TransferQuote)
 
-private fun Date.diffInSeconds(other: Date): Long = (this.time - other.time).absoluteValue / 100
+private fun Date.diffInSeconds(other: Date): Long = (this.time - other.time).absoluteValue / 1000
