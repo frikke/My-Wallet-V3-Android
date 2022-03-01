@@ -14,9 +14,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
@@ -62,7 +62,7 @@ fun Image(
             val tintColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.tintColorId))
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.large_margin))
             ) {
                 Box(
                     modifier = Modifier
@@ -71,7 +71,7 @@ fun Image(
                             color = tintColor,
                             shape = CircleShape
                         )
-                        .size(32.dp)
+                        .size(dimensionResource(R.dimen.large_margin))
                 )
                 androidx.compose.foundation.Image(
                     painter = painterResource(id = imageResource.id),
@@ -87,7 +87,7 @@ fun Image(
             val tintColor = Color(android.graphics.Color.parseColor(imageResource.tintColor))
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.large_margin))
             ) {
                 Box(
                     modifier = Modifier
@@ -96,7 +96,7 @@ fun Image(
                             color = tintColor,
                             shape = CircleShape
                         )
-                        .size(32.dp)
+                        .size(dimensionResource(R.dimen.large_margin))
                 )
                 androidx.compose.foundation.Image(
                     painter = painterResource(id = imageResource.id),
@@ -118,7 +118,7 @@ fun Image_Local_24() {
         AppSurface {
             Image(
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain, ""),
-                Modifier.size(24.dp),
+                Modifier.size(dimensionResource(R.dimen.standard_margin)),
             )
         }
     }

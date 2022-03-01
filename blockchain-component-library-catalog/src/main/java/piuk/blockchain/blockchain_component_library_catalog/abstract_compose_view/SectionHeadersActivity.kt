@@ -20,6 +20,7 @@ class SectionHeadersActivity : AppCompatActivity() {
         }
 
         findViewById<BalanceSectionHeaderView>(R.id.balance).apply {
+            labelText = "Balance label"
             primaryText = "\$12,293.21"
             secondaryText = "0.1393819 BTC"
             onIconClick = {

@@ -14,12 +14,18 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityCoinviewBinding
@@ -97,13 +103,10 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 style = ComposeTypographies.Paragraph1
             }
 
-            assetChartViewSwitcher.apply {
-                displayedChild = CHART_LOADING
-            }
-
-            assetAccountsViewSwitcher.apply {
-                displayedChild = ACCOUNTS_LOADING
-            }
+            assetChartViewSwitcher.displayedChild = CHART_LOADING
+            assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LOADING
+            assetPricesSwitcher.displayedChild = PRICES_LOADING
+            assetBalancesSwitcher.displayedChild = BALANCES_LOADING
 
             assetChart.isChartLive = false
 
@@ -122,20 +125,9 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 showLiveIndicator = false
             }
 
-            // TODO load through interactor
-            assetPrice.apply {
-                title = "Current $assetTicker Price"
-                price = "1000000.00€"
-                percentageChangeData = PercentageChangeData("500%", 500.0, "Last Hour")
-                endIcon = ImageResource.Local(R.drawable.ic_blockchain)
-            }
-
-            // TODO load through interactor
             assetBalance.apply {
-                primaryText = "15,000.00€"
-                secondaryText = "0.1 BTC"
                 onIconClick = {
-                    // TODO change icon type and update watchlist endpoint
+                    // model.process(ToggleWatchlist)
                 }
             }
 
@@ -181,37 +173,88 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         }
 
         if (newState.viewState != CoinViewViewState.None) {
-            when (val state = newState.viewState) {
-                CoinViewViewState.LoadingWallets -> {
-                    binding.assetAccountsViewSwitcher.apply {
-                        displayedChild = ACCOUNTS_LOADING
+            renderUiState(newState)
+        }
+    }
+
+    private fun renderUiState(newState: CoinViewState) {
+        when (val state = newState.viewState) {
+            CoinViewViewState.LoadingWallets -> {
+                binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LOADING
+            }
+            is CoinViewViewState.ShowAccountInfo -> {
+                renderAccountsDetails(state.assetInfo.accountsList)
+                renderBalanceInformation(state.assetInfo.totalCryptoBalance, state.assetInfo.totalFiatBalance)
+
+                binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+            }
+            CoinViewViewState.LoadingChart -> {
+                binding.assetChartViewSwitcher.displayedChild = CHART_LOADING
+            }
+            is CoinViewViewState.ShowAssetInfo -> {
+                with(binding) {
+                    assetChartViewSwitcher.displayedChild = CHART_VIEW
+                    assetChart.setData(state.entries)
+                }
+                renderPriceInformation(state.prices, state.historicalRateList, state.selectedFiat)
+            }
+            CoinViewViewState.None -> {
+                // do nothing
+            }
+        }
+
+        model.process(CoinViewIntent.ResetViewState)
+    }
+
+    private fun renderBalanceInformation(totalCryptoBalance: CryptoValue, totalFiatBalance: FiatValue) {
+        with(binding) {
+            assetBalance.apply {
+                labelText = getString(R.string.coinview_balance_label, assetTicker)
+                primaryText = totalFiatBalance.toStringWithSymbol()
+                secondaryText = totalCryptoBalance.toStringWithSymbol()
+            }
+            assetBalancesSwitcher.displayedChild = BALANCES_VIEW
+        }
+    }
+
+    private fun renderPriceInformation(
+        prices: Prices24HrWithDelta,
+        historicalRateList: HistoricalRateList,
+        selectedFiat: FiatCurrency
+    ) {
+        val currentPrice = prices.currentRate.price.toStringWithSymbol()
+        // We have filtered out nulls by here, so we can 'safely' default to zeros for the price
+        val firstPrice: Double = historicalRateList.firstOrNull()?.rate ?: 0.0
+        val lastPrice: Double = historicalRateList.lastOrNull()?.rate ?: 0.0
+        val difference = lastPrice - firstPrice
+
+        with(binding) {
+            val percentChange =
+                if (chartControls.selectedItemIndex == HistoricalTimeSpan.DAY.ordinal) {
+                    prices.delta24h
+                } else {
+                    (difference / firstPrice) * 100
+                }
+
+            val changeDifference = Money.fromMajor(selectedFiat, difference.toBigDecimal()).toStringWithSymbol()
+
+            assetPrice.apply {
+                price = currentPrice
+                percentageChangeData = PercentageChangeData(
+                    changeDifference, percentChange / 100,
+                    when (chartControls.selectedItemIndex) {
+                        HistoricalTimeSpan.DAY.ordinal -> getString(R.string.coinview_price_day)
+                        HistoricalTimeSpan.WEEK.ordinal -> getString(R.string.coinview_price_week)
+                        HistoricalTimeSpan.MONTH.ordinal -> getString(R.string.coinview_price_month)
+                        HistoricalTimeSpan.YEAR.ordinal -> getString(R.string.coinview_price_year)
+                        HistoricalTimeSpan.ALL_TIME.ordinal -> getString(R.string.coinview_price_all)
+                        else -> getString(R.string.empty)
                     }
-                }
-                is CoinViewViewState.ShowAccountInfo -> {
-                    renderAccountsDetails(state.displayList)
-                    binding.assetAccountsViewSwitcher.apply {
-                        displayedChild = ACCOUNTS_LIST
-                    }
-                }
-                CoinViewViewState.LoadingChart -> {
-                    binding.assetChartViewSwitcher.apply {
-                        displayedChild = CHART_LOADING
-                    }
-                }
-                is CoinViewViewState.ShowChartInfo -> {
-                    with(binding) {
-                        assetChartViewSwitcher.apply {
-                            displayedChild = CHART_VIEW
-                        }
-                        assetChart.setData(state.entries)
-                    }
-                }
-                CoinViewViewState.None -> {
-                    // do nothing
-                }
+                )
+                title = getString(R.string.coinview_price_label, assetName)
             }
 
-            model.process(CoinViewIntent.ResetViewState)
+            assetPricesSwitcher.displayedChild = PRICES_VIEW
         }
     }
 
@@ -288,6 +331,10 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         private const val CHART_VIEW = 1
         private const val ACCOUNTS_LOADING = 0
         private const val ACCOUNTS_LIST = 1
+        private const val PRICES_LOADING = 0
+        private const val PRICES_VIEW = 1
+        private const val BALANCES_LOADING = 0
+        private const val BALANCES_VIEW = 1
         private const val ASSET_TICKER = "ASSET_TICKER"
         private const val ASSET_NAME = "ASSET_NAME"
 

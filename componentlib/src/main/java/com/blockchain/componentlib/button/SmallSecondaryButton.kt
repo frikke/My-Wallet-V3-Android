@@ -7,8 +7,9 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -25,9 +26,15 @@ fun SmallSecondaryButton(
     modifier: Modifier = Modifier,
 ) {
     val contentPadding = PaddingValues(
-        start = if (state == ButtonState.Loading) 16.dp else 12.dp,
+        start = if (state == ButtonState.Loading) {
+            dimensionResource(R.dimen.medium_margin)
+        } else {
+            dimensionResource(R.dimen.very_small_margin)
+        },
         top = ButtonDefaults.ContentPadding.calculateTopPadding(),
-        end = if (state == ButtonState.Loading) 16.dp else 12.dp,
+        end = if (state == ButtonState.Loading) dimensionResource(R.dimen.medium_margin) else dimensionResource(
+            R.dimen.very_small_margin
+        ),
         bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
     )
 
@@ -44,7 +51,7 @@ fun SmallSecondaryButton(
         disabledBackgroundLightColor = Grey500,
         disabledBackgroundDarkColor = Dark800,
         pressedBackgroundColor = Grey900,
-        modifier = modifier.requiredHeightIn(min = 32.dp),
+        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_margin)),
         contentPadding = contentPadding,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, _: ImageResource ->
             ButtonContentSmall(

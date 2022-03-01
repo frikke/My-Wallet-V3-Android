@@ -11,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,11 +42,15 @@ fun BalanceTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(24.dp)
+                    .size(dimensionResource(R.dimen.standard_margin))
             )
         },
         content = {
-            val startPadding = if (startImageResource != ImageResource.None) 16.dp else 0.dp
+            val startPadding = if (startImageResource != ImageResource.None) {
+                dimensionResource(R.dimen.medium_margin)
+            } else {
+                dimensionResource(R.dimen.zero_margin)
+            }
             Column(
                 modifier = Modifier
                     .padding(start = startPadding)

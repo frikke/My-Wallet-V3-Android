@@ -13,8 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
@@ -37,7 +39,10 @@ fun ToastAlert(
             .clip(AppTheme.shapes.extraLarge)
             .background(backgroundColor)
             .wrapContentWidth()
-            .padding(horizontal = 24.dp, vertical = 12.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.standard_margin),
+                vertical = dimensionResource(R.dimen.very_small_margin)
+            )
     ) {
         val composeImage =
             (startIcon as? ImageResource.Local)?.withColorFilter(ColorFilter.tint(iconColor)) ?: startIcon
@@ -52,9 +57,11 @@ fun ToastAlert(
 
         Text(
             text = text,
-            modifier = Modifier.align(alignment = Alignment.CenterVertically).clickable {
-                onClick()
-            },
+            modifier = Modifier
+                .align(alignment = Alignment.CenterVertically)
+                .clickable {
+                    onClick()
+                },
             style = AppTheme.typography.body2,
             color = textColor
         )

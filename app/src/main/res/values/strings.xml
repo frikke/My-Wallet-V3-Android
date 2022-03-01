@@ -2748,5 +2748,13 @@
     <string name="coinview_chart_tab_month">1M</string>
     <string name="coinview_chart_tab_year">1Y</string>
     <string name="coinview_chart_tab_all">All</string>
+    <string name="coinview_price_day">Past 24 hrs</string>
+    <string name="coinview_price_week">Past week</string>
+    <string name="coinview_price_month">Past month</string>
+    <string name="coinview_price_year">Past year</string>
+    <string name="coinview_price_all">All time</string>
+    <string name="coinview_price_label">Current %1$s Price</string>
+    <string name="coinview_balance_label">Your Total %1$s</string>
+
 
 </resources>

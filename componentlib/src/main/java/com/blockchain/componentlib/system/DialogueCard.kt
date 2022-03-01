@@ -19,10 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Dark700
@@ -65,12 +67,17 @@ fun DialogueCard(
         shape = AppTheme.shapes.small,
         backgroundColor = backgroundColor,
         modifier = Modifier
-            .padding(4.dp)
+            .padding(dimensionResource(R.dimen.smallest_margin))
             .defaultMinSize(280.dp)
     ) {
         Surface(
             modifier = Modifier
-                .padding(top = 24.dp, bottom = 16.dp, start = 24.dp, end = 24.dp)
+                .padding(
+                    top = dimensionResource(R.dimen.standard_margin),
+                    bottom = dimensionResource(R.dimen.medium_margin),
+                    start = dimensionResource(R.dimen.standard_margin),
+                    end = dimensionResource(R.dimen.standard_margin)
+                )
                 .background(backgroundColor),
         ) {
             Column(
@@ -100,7 +107,10 @@ fun DialogueCard(
                 Text(
                     modifier = Modifier
                         .background(backgroundColor)
-                        .padding(top = 16.dp, bottom = 32.dp),
+                        .padding(
+                            top = dimensionResource(R.dimen.medium_margin),
+                            bottom = dimensionResource(R.dimen.large_margin)
+                        ),
                     text = body,
                     style = AppTheme.typography.paragraph1,
                     color = bodyColor

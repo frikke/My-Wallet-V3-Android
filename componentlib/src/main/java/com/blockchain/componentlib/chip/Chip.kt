@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -112,14 +113,17 @@ fun Chip(
             }
             .animateContentSize()
             .background(backgroundColor, AppTheme.shapes.extraLarge)
-            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.very_small_margin),
+                vertical = dimensionResource(R.dimen.smallest_margin)
+            )
     ) {
         Image(
             modifier = Modifier
                 .align(alignment = Alignment.CenterVertically)
                 .height(size)
                 .width(size)
-                .padding(end = 6.dp),
+                .padding(end = dimensionResource(R.dimen.minuscule_margin)),
             painter = painterResource(id = R.drawable.ic_chip_checkmark),
             contentDescription = null,
             colorFilter = ColorFilter.tint(textColor)

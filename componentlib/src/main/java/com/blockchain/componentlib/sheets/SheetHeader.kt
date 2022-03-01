@@ -13,6 +13,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,13 +46,13 @@ fun SheetHeader(
         )
         Column {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Spacer(Modifier.width(24.dp))
+                Spacer(Modifier.width(dimensionResource(R.dimen.standard_margin)))
 
                 if (startImageResource != ImageResource.None) {
                     Image(
                         imageResource = startImageResource,
                         modifier = Modifier
-                            .padding(top = 24.dp)
+                            .padding(top = dimensionResource(R.dimen.standard_margin))
                             .size(28.dp)
                     )
                     Spacer(Modifier.width(8.dp))
@@ -63,7 +64,7 @@ fun SheetHeader(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            top = 24.dp,
+                            top = dimensionResource(R.dimen.standard_margin),
                             bottom = if (byline.isNullOrBlank()) 10.dp else 5.dp
                         )
                 )
@@ -71,7 +72,10 @@ fun SheetHeader(
                 SheetHeaderCloseButton(
                     onClosePress = onClosePress,
                     backPressContentDescription = closePressContentDescription,
-                    modifier = Modifier.padding(top = 16.dp, end = 16.dp)
+                    modifier = Modifier.padding(
+                        top = dimensionResource(R.dimen.medium_margin),
+                        end = dimensionResource(R.dimen.medium_margin)
+                    )
                 )
             }
             title?.let {

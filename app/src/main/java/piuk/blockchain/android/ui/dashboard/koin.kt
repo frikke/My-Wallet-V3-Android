@@ -128,7 +128,8 @@ val dashboardModule = module {
                 coincore = get(),
                 userIdentity = get(),
                 custodialWalletManager = get(),
-                paymentsDataManager = get()
+                paymentsDataManager = get(),
+                currencyPrefs = get()
             )
         }
     }

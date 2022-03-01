@@ -3,10 +3,12 @@ package piuk.blockchain.android.ui.dashboard.coinview
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
+import info.blockchain.balance.FiatCurrency
 
 sealed class CoinViewIntent : MviIntent<CoinViewState> {
 
-    class LoadAssetInformation(val asset: CryptoAsset) : CoinViewIntent() {
+    class LoadAccounts(val asset: CryptoAsset) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(viewState = CoinViewViewState.LoadingWallets)
     }
@@ -15,9 +17,9 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState
     }
 
-    class AssetLoaded(private val asset: CryptoAsset) : CoinViewIntent() {
+    class AssetLoaded(private val asset: CryptoAsset, private val selectedFiat: FiatCurrency) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
-            oldState.copy(asset = asset)
+            oldState.copy(asset = asset, selectedFiat = selectedFiat)
     }
 
     class LoadNewChartPeriod(val timePeriod: HistoricalTimeSpan) : CoinViewIntent() {
@@ -26,10 +28,22 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
     }
 
     class LoadAssetChart(
-        val asset: CryptoAsset
+        val asset: CryptoAsset,
+        val assetPrice: Prices24HrWithDelta,
+        val selectedFiat: FiatCurrency
     ) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(viewState = CoinViewViewState.LoadingChart)
+    }
+
+    class UpdateAccountDetails(
+        val assetInformation: AssetInformation,
+        val asset: CryptoAsset
+    ) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState =
+            oldState.copy(
+                viewState = CoinViewViewState.ShowAccountInfo(assetInformation), assetPrices = assetInformation.prices
+            )
     }
 
     class UpdateViewState(private val viewState: CoinViewViewState) : CoinViewIntent() {

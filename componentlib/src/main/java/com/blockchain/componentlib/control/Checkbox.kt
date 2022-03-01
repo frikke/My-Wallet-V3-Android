@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -93,7 +94,7 @@ fun Checkbox(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
                             bounded = false,
-                            radius = 24.dp,
+                            radius = dimensionResource(R.dimen.standard_margin),
                         ),
                     ) {
                         onCheckChanged(
@@ -106,11 +107,11 @@ fun Checkbox(
                     }
                 }
             }
-            .padding(12.dp)
-            .size(24.dp)
+            .padding(dimensionResource(R.dimen.very_small_margin))
+            .size(dimensionResource(R.dimen.standard_margin))
             .background(
                 color = animateColorAsState(targetValue = checkboxBorderColor).value,
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(dimensionResource(R.dimen.smallest_margin)),
             )
             .padding(2.dp)
             .background(
