@@ -746,9 +746,7 @@ class SettingsFragment :
     }
 
     override fun goToPinEntryPage() {
-        val intent = Intent(activity, PinEntryActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
+        PinEntryActivity.startPinChange(requireContext())
         analytics.logEvent(SettingsAnalytics.PinChanged_Old)
         analytics.logEvent(SettingsAnalytics.PinCodeChanged)
     }
@@ -954,6 +952,7 @@ class SettingsFragment :
 
     private fun showDialogChangePin() {
         val intent = Intent(activity, PinEntryActivity::class.java)
+        intent.putExtra(PinEntryActivity.KEY_ORIGIN_SETTINGS, true)
         intent.putExtra(KEY_VALIDATING_PIN_FOR_RESULT, true)
         startActivityForResult(intent, REQUEST_CODE_VALIDATE_PIN)
     }

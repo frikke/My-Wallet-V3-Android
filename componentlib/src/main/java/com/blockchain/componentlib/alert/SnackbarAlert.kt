@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
@@ -60,7 +61,7 @@ fun SnackbarAlert(
         modifier = Modifier
             .fillMaxWidth()
             .background(backgroundColour)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = dimensionResource(R.dimen.medium_margin), vertical = 14.dp),
         horizontalArrangement = if (icon != null) {
             Arrangement.Start
         } else {
@@ -72,7 +73,7 @@ fun SnackbarAlert(
             Image(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterVertically)
-                    .padding(end = 16.dp),
+                    .padding(end = dimensionResource(R.dimen.medium_margin)),
                 painter = painterResource(id = icon),
                 contentDescription = null
             )
@@ -93,7 +94,7 @@ fun SnackbarAlert(
                 text = actionLabel.toUpperCase(Locale.current),
                 modifier = Modifier
                     .align(alignment = Alignment.CenterVertically)
-                    .padding(start = 24.dp)
+                    .padding(start = dimensionResource(R.dimen.standard_margin))
                     .clickable {
                         onActionClicked()
                     },

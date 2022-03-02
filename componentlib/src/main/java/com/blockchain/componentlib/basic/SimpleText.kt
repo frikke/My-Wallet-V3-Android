@@ -21,7 +21,7 @@ fun SimpleText(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
-                enabled = true,
+                enabled = onClick != null,
                 onClick = {
                     onClick?.let {
                         it()

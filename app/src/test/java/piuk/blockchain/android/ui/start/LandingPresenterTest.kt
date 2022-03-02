@@ -5,7 +5,6 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.OnboardingPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -33,7 +32,6 @@ class LandingPresenterTest {
 
     private val prefs: PersistentPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
-    private val landingCtaFF: FeatureFlag = mock()
     private val rootUtil: RootUtil = mock()
 
     @Before
@@ -41,7 +39,7 @@ class LandingPresenterTest {
         subject =
             LandingPresenter(
                 environmentSettings, prefs, onboardingPrefs, rootUtil, apiStatus, assetCatalogue,
-                exchangeRatesDataManager, landingCtaFF
+                exchangeRatesDataManager
             )
     }
 

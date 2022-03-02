@@ -10,11 +10,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.SparkLine
@@ -51,7 +53,7 @@ fun BalanceTableRowLarge(
                     )
                     SparkLine(
                         historicalRates = historicalRates,
-                        modifier = Modifier.size(64.dp, 16.dp),
+                        modifier = Modifier.size(64.dp, dimensionResource(R.dimen.medium_margin)),
                     )
                 }
                 TableRowText(
@@ -67,8 +69,8 @@ fun BalanceTableRowLarge(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = 16.dp)
-                    .size(24.dp),
+                    .padding(end = dimensionResource(R.dimen.medium_margin))
+                    .size(dimensionResource(R.dimen.standard_margin)),
                 coilImageBuilderScope = null
             )
         },

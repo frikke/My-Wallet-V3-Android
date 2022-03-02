@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -47,21 +47,21 @@ fun ButtonContent(
                 is ImageResource.Local -> {
                     Image(
                         imageResource = icon.withColorFilter(ColorFilter.tint(textColor)),
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
                 }
                 is ImageResource.LocalWithBackground -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
                 }
                 is ImageResource.Remote -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
                 }

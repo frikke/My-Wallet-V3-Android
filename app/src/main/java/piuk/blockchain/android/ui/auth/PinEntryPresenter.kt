@@ -299,10 +299,14 @@ class PinEntryPresenter(
     }
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) {
-        if (isFromPinCreation && biometricsController.isBiometricAuthEnabled) {
-            view.askToUseBiometrics()
-        } else {
-            view.restartAppWithVerifiedPin()
+        when {
+            view.isSettingsOrigin -> {
+                view.closePinChangeScreen()
+            }
+            isFromPinCreation && biometricsController.isBiometricAuthEnabled -> {
+                view.askToUseBiometrics()
+            }
+            else -> view.restartAppWithVerifiedPin()
         }
     }
 

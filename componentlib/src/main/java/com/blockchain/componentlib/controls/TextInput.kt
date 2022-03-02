@@ -16,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
@@ -166,7 +168,11 @@ fun TextInput(
                 style = AppTheme.typography.caption1,
                 modifier = Modifier
                     .background(Color.Transparent)
-                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                    .padding(
+                        start = dimensionResource(R.dimen.medium_margin),
+                        end = dimensionResource(R.dimen.medium_margin),
+                        top = 8.dp
+                    )
             )
         }
     }

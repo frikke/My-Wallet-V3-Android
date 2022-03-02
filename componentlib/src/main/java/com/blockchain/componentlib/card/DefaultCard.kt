@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -53,7 +54,7 @@ fun DefaultCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(dimensionResource(R.dimen.medium_margin))
                 .background(backgroundColor)
                 .clip(AppTheme.shapes.small)
 
@@ -64,7 +65,7 @@ fun DefaultCard(
                 Row {
                     Image(
                         modifier = Modifier
-                            .size(32.dp),
+                            .size(dimensionResource(R.dimen.large_margin)),
                         imageResource = iconResource
                     )
                     Spacer(
@@ -92,7 +93,7 @@ fun DefaultCard(
                 if (callToActionButton != null) {
                     PrimaryButton(
                         modifier = Modifier
-                            .padding(top = 16.dp)
+                            .padding(top = dimensionResource(R.dimen.medium_margin))
                             .fillMaxWidth(),
                         defaultBackgroundColor = callToActionButton.backgroundColor,
                         text = callToActionButton.text,

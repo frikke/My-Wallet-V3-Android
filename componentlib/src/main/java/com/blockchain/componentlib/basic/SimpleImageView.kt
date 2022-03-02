@@ -2,6 +2,7 @@ package com.blockchain.componentlib.basic
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ class SimpleImageView @JvmOverloads constructor(
     var image by mutableStateOf(ImageResource.None as ImageResource)
     var imageSize by mutableStateOf(24)
     var scaleType by mutableStateOf(ContentScale.Fit)
+    var onClick by mutableStateOf(null as? (() -> Unit)?)
 
     @Composable
     override fun Content() {
@@ -30,8 +32,17 @@ class SimpleImageView @JvmOverloads constructor(
             AppSurface {
                 Image(
                     imageResource = image,
-                    modifier = Modifier.size(imageSize.dp),
-                    contentScale = scaleType
+                    modifier = Modifier
+                        .size(imageSize.dp)
+                        .clickable(
+                            enabled = onClick != null,
+                            onClick = {
+                                onClick?.let {
+                                    it()
+                                }
+                            }
+                        ),
+                    contentScale = scaleType,
                 )
             }
         }

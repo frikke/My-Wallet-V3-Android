@@ -98,11 +98,40 @@ class TransactionFlowCustomiserImpl(
     override fun selectTargetAddressInputHint(state: TransactionState): String =
         when (state.action) {
             AssetAction.Send -> resources.getString(
-                R.string.send_enter_asset_address_hint,
-                state.sendingAsset.name
+                R.string.send_enter_asset_address_or_domain_hint
             )
             AssetAction.Sell -> ""
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
+        }
+
+    override fun selectTargetAddressInputWarning(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Send -> resources.getString(
+                R.string.send_address_warning,
+                state.sendingAsset.networkTicker,
+                state.sendingAsset.name
+            )
+            else -> ""
+        }
+
+    override fun selectTargetShouldShowInputWarning(state: TransactionState): Boolean =
+        when (state.action) {
+            AssetAction.Send -> true
+            else -> false
+        }
+
+    override fun selectTargetAddressTitlePick(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Send -> resources.getString(
+                R.string.send_transfer_accounts_title
+            )
+            else -> ""
+        }
+
+    override fun selectTargetShouldShowTargetPickTitle(state: TransactionState): Boolean =
+        when (state.action) {
+            AssetAction.Send -> true
+            else -> false
         }
 
     override fun selectTargetNoAddressMessageText(state: TransactionState): String? =
@@ -246,7 +275,7 @@ class TransactionFlowCustomiserImpl(
                     amount.toStringWithSymbol()
                 )
             }
-            else -> resources.getString(R.string.send_enter_amount_to, state.selectedTarget.label)
+            else -> resources.getString(R.string.send_enter_amount_to, state.selectedTargetLabel)
         }
 
     override fun enterAmountLoadSourceIcon(imageView: ImageView, state: TransactionState) {
@@ -728,6 +757,9 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.INVALID_ADDRESS -> resources.getString(
                 R.string.send_error_not_valid_asset_address,
                 (state.sendingAccount as SingleAccount).uiCurrency()
+            )
+            TransactionErrorState.INVALID_DOMAIN -> resources.getString(
+                R.string.send_error_invalid_domain
             )
             TransactionErrorState.ADDRESS_IS_CONTRACT -> resources.getString(
                 R.string.send_error_address_is_eth_contract

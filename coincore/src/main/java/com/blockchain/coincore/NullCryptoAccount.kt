@@ -11,6 +11,7 @@ object NullCryptoAddress : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
     override val label: String = ""
     override val address = ""
+    override val isDomain: Boolean = false
 }
 
 // Stub invalid accounts; use as an initialisers to avoid nulls.

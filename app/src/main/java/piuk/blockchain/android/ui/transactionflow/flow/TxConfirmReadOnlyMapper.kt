@@ -4,8 +4,10 @@ import android.content.Context
 import android.text.SpannableStringBuilder
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
@@ -102,8 +104,8 @@ class ToPropertyFormatter(
             val asset = (property.sourceAccount as CryptoAccount).currency
             mapOf(
                 ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_send_to),
-                ConfirmationPropertyKey.TITLE to getLabel(
-                    property.txTarget.label,
+                ConfirmationPropertyKey.TITLE to getLabelForTarget(
+                    property.txTarget,
                     defaultLabel.getDefaultNonCustodialWalletLabel(),
                     asset.displayTicker
                 )
@@ -472,3 +474,14 @@ fun getLabel(label: String, defaultLabel: String, displayTicker: String): String
     } else {
         label
     }
+
+fun getLabelForTarget(target: TransactionTarget, defaultLabel: String, displayTicker: String): String =
+    when {
+        target is CryptoAddress && target.isDomain -> target.getLabelForDomain()
+        else -> getLabel(target.label, defaultLabel, displayTicker)
+    }
+
+fun CryptoAddress.getLabelForDomain(): String {
+    val numOfCharsToShow = 4
+    return "$label (${address.take(numOfCharsToShow)}...${address.takeLast(numOfCharsToShow)})"
+}

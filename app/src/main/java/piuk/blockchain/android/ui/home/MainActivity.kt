@@ -41,6 +41,7 @@ import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
@@ -87,6 +88,7 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
+import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -265,6 +267,7 @@ class MainActivity :
             listOf(
                 NavigationBarButton.Icon(R.drawable.ic_qr_scan) {
                     tryToLaunchQrScan()
+                    analytics.logEvent(CameraAnalytics.QrCodeClicked())
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
                     showLoading()
@@ -292,8 +295,7 @@ class MainActivity :
         compositeDisposable += walletConnectFF.enabled.onErrorReturn { false }.subscribe { enabled ->
             if (
                 enabled &&
-                checkSelfPermission(Manifest.permission.CAMERA) !=
-                PackageManager.PERMISSION_GRANTED
+                !isCameraPermissionGranted()
             ) {
                 showScanAndConnectBottomSheet()
             } else {
@@ -303,12 +305,21 @@ class MainActivity :
         analytics.logEvent(SendAnalytics.QRButtonClicked)
     }
 
+    private fun isCameraPermissionGranted(): Boolean {
+        return (
+            checkSelfPermission(Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED
+            ).also {
+            analytics.logEvent(CameraAnalytics.CameraPermissionChecked(it))
+        }
+    }
+
     private fun launchQrScan() {
         QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
     }
 
     private fun showScanAndConnectBottomSheet() {
-        showBottomSheet(ScanAndConnectBottomSheet.newInstance())
+        showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = true))
     }
 
     private fun setupNavigation() {
@@ -785,10 +796,22 @@ class MainActivity :
 
     override fun onSessionApproved(session: WalletConnectSession) {
         model.process(MainIntent.ApproveWCSession(session))
+        analytics.logEvent(
+            WalletConnectAnalytics.DappConectionActioned(
+                action = WalletConnectAnalytics.DappConnectionAction.CONFIRM,
+                appName = session.dAppInfo.peerMeta.name
+            )
+        )
     }
 
     override fun onSessionRejected(session: WalletConnectSession) {
         model.process(MainIntent.RejectWCSession(session))
+        analytics.logEvent(
+            WalletConnectAnalytics.DappConectionActioned(
+                action = WalletConnectAnalytics.DappConnectionAction.CANCEL,
+                appName = session.dAppInfo.peerMeta.name
+            )
+        )
     }
 
     override fun onCameraAccessAllowed() {

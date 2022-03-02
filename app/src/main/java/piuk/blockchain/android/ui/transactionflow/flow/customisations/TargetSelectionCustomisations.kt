@@ -10,6 +10,10 @@ import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 interface TargetSelectionCustomisations {
     fun selectTargetAddressTitle(state: TransactionState): String
     fun selectTargetAddressInputHint(state: TransactionState): String
+    fun selectTargetAddressInputWarning(state: TransactionState): String
+    fun selectTargetAddressTitlePick(state: TransactionState): String
+    fun selectTargetShouldShowInputWarning(state: TransactionState): Boolean
+    fun selectTargetShouldShowTargetPickTitle(state: TransactionState): Boolean
     fun selectTargetNoAddressMessageText(state: TransactionState): String?
     fun selectTargetShowManualEnterAddress(state: TransactionState): Boolean
     fun selectTargetShouldShowSubtitle(state: TransactionState): Boolean

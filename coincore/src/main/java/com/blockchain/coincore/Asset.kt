@@ -91,7 +91,7 @@ internal inline fun AssetAction.takeEnabledIf(
 interface Asset {
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>
     fun transactionTargets(account: SingleAccount): Single<SingleAccountList>
-    fun parseAddress(address: String, label: String? = null): Maybe<ReceiveAddress>
+    fun parseAddress(address: String, label: String? = null, isDomainAddress: Boolean = false): Maybe<ReceiveAddress>
     fun isValidAddress(address: String): Boolean = false
 }
 

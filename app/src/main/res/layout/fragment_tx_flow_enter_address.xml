@@ -20,27 +20,14 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Blurb about screen" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
         android:id="@+id/title_from"
-        style="@style/Text.Semibold.14"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/small_margin"
-        android:text="@string/common_from"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/subtitle" />
-
-    <View
-        style="@style/SeparatorWithoutMargins"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="@dimen/tiny_margin"
-        app:layout_constraintBottom_toBottomOf="@id/title_from"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/title_from" />
+        app:layout_constraintTop_toBottomOf="@id/subtitle"/>
 
     <FrameLayout
         android:id="@+id/from_details"
@@ -51,27 +38,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title_from" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
         android:id="@+id/title_to"
-        style="@style/Text.Semibold.14"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/small_margin"
-        android:text="@string/common_to"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/from_details" />
-
-    <View
-        style="@style/SeparatorWithoutMargins"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="@dimen/tiny_margin"
-        app:layout_constraintBottom_toBottomOf="@id/title_to"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/title_to" />
+        app:layout_constraintTop_toBottomOf="@id/from_details"/>
 
     <!-- Visibility is deliberately set to gone here to prevent the bottom sheet from taking up unnecessary space -->
     <ViewSwitcher
@@ -85,57 +59,52 @@
         app:layout_constraintTop_toBottomOf="@id/title_to"
         tools:visibility="visible">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/external_address"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/address_entry"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:layout_marginBottom="@dimen/small_margin">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:paddingStart="@dimen/very_small_margin"
+            android:paddingTop="@dimen/very_small_margin"
+            android:paddingEnd="@dimen/very_small_margin"
+            android:paddingBottom="@dimen/very_small_margin"
+            app:boxStrokeColor="@color/text_input_color_states"
+            app:endIconMode="custom"
+            app:endIconTint="@color/grey_400"
+            app:endIconDrawable="@drawable/ic_qr_scan_inverse"
+            android:imeOptions="actionDone"
+            android:inputType="textNoSuggestions"
+            app:expandedHintEnabled="true"
+            app:hintEnabled="false"
+            app:hintTextAppearance="@style/TextAppearance.Blockchain.Body1"
+            >
 
-            <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/address_entry"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/field_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/grey_000"
-                android:hint="@string/send_enter_asset_address_hint"
-                android:imeOptions="actionDone"
+                android:hint="@string/send_enter_asset_address_or_domain_hint"
                 android:inputType="textNoSuggestions"
-                android:paddingStart="@dimen/very_small_margin"
-                android:paddingTop="@dimen/very_small_margin"
-                android:paddingEnd="@dimen/xlarge_margin"
-                android:paddingBottom="@dimen/very_small_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:maxLines="1" />
 
             <TextView
-                android:id="@+id/error_msg"
-                style="@style/Text.Red.Semibold.12"
+                android:id="@+id/warning_message"
+                style="@style/Text.Semibold.12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/tiny_margin"
                 android:layout_marginTop="@dimen/minuscule_margin"
-                android:text="@string/send_error_not_valid_asset_address"
-                android:visibility="gone"
+                android:text="@string/send_address_warning"
+                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/address_entry"
                 tools:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/btn_scan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/tiny_margin"
-                android:contentDescription="@string/send_scan_qr_code"
-                android:src="@drawable/ic_qr_scan_inverse"
-                app:layout_constraintBottom_toBottomOf="@id/address_entry"
-                app:layout_constraintEnd_toEndOf="@id/address_entry"
-                app:layout_constraintTop_toTopOf="@id/address_entry" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -188,29 +157,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_switcher" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
         android:id="@+id/title_pick"
-        style="@style/Text.Semibold.14"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/very_small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        android:text="@string/send_select_a_wallet_title"
+        android:layout_marginTop="@dimen/small_margin"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/on_hold_cell" />
-
-    <View
-        android:id="@+id/pick_separator"
-        style="@style/SeparatorWithoutMargins"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="@dimen/tiny_margin"
-        app:layout_constraintBottom_toBottomOf="@id/title_pick"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/title_pick" />
+        app:layout_constraintTop_toBottomOf="@id/on_hold_cell"/>
 
     <!-- Visibility is deliberately set to gone here to prevent the bottom sheet from taking up unnecessary space -->
     <piuk.blockchain.android.ui.customviews.account.AccountList

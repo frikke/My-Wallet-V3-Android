@@ -20,9 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
@@ -35,6 +37,7 @@ fun TabLayoutLive(
     onItemSelected: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
     selectedItemIndex: Int = 0,
+    showLiveIndicator: Boolean = true
 ) {
     TabRow(
         selectedTabIndex = selectedItemIndex,
@@ -46,7 +49,7 @@ fun TabLayoutLive(
         items.forEachIndexed { index, itemName ->
             val isSelected = selectedItemIndex == index
 
-            if (index == 0) {
+            if (index == 0 && showLiveIndicator) {
                 LiveTabLayoutItem(
                     itemName = itemName,
                     isSelected = isSelected,
@@ -75,14 +78,14 @@ private fun LiveTabLayoutItem(
         Row(modifier) {
             Box(
                 modifier = Modifier
-                    .size(4.dp)
+                    .size(dimensionResource(R.dimen.smallest_margin))
                     .background(
                         color = if (isSelected) Green600 else Grey400,
                         shape = CircleShape
                     )
                     .align(Alignment.CenterVertically)
             )
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(dimensionResource(R.dimen.minuscule_margin)))
             TabLayoutItem(
                 itemName = itemName,
                 isSelected = isSelected,

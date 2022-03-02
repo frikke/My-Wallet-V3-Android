@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,7 +69,12 @@ fun AnnouncementCard(
         Surface(
             modifier = Modifier
                 .background(Color.Transparent)
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+                .padding(
+                    start = dimensionResource(R.dimen.medium_margin),
+                    end = dimensionResource(R.dimen.medium_margin),
+                    top = dimensionResource(R.dimen.very_small_margin),
+                    bottom = dimensionResource(R.dimen.very_small_margin)
+                ),
             color = Color.Transparent
         ) {
             Row(
@@ -78,14 +84,14 @@ fun AnnouncementCard(
             ) {
                 Image(
                     modifier = Modifier
-                        .size(32.dp),
+                        .size(dimensionResource(R.dimen.large_margin)),
                     imageResource = iconResource
                 )
 
                 Column(
                     modifier = Modifier
                         .weight(1f, true)
-                        .padding(start = 16.dp, end = 8.dp)
+                        .padding(start = dimensionResource(R.dimen.medium_margin), end = 8.dp)
                         .align(Alignment.Top)
                 ) {
 

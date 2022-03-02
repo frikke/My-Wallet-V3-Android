@@ -11,9 +11,13 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Maybe
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 class CoinViewInteractor(
@@ -21,15 +25,15 @@ class CoinViewInteractor(
     private val coincore: Coincore,
     private val userIdentity: UserIdentity,
     private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager
+    private val paymentsDataManager: PaymentsDataManager,
+    private val currencyPrefs: CurrencyPrefs
 ) {
 
-    fun loadAssetDetails(assetTicker: String): Maybe<Pair<CryptoAsset, List<AssetDisplayInfo>>> =
-        coincore[assetTicker]?.let { cryptoAsset ->
-            getAssetDisplayDetails(cryptoAsset).toMaybe().map { displayMap ->
-                Pair(cryptoAsset, displayMap)
-            }
-        } ?: Maybe.empty()
+    fun loadAssetDetails(assetTicker: String): Pair<CryptoAsset?, FiatCurrency> =
+        Pair(coincore[assetTicker], currencyPrefs.selectedFiatCurrency)
+
+    fun loadAccountDetails(asset: CryptoAsset): Single<AssetInformation> =
+        getAssetDisplayDetails(asset)
 
     fun loadHistoricPrices(asset: CryptoAsset, timeSpan: HistoricalTimeSpan): Single<HistoricalRateList> =
         asset.historicRateSeries(timeSpan)
@@ -43,18 +47,26 @@ class CoinViewInteractor(
             }.defaultIfEmpty(false)
     }
 
-    fun load24hPriceDelta(asset: AssetInfo) =
-        coincore[asset].getPricesWith24hDelta()
+    private fun load24hPriceDelta(asset: CryptoAsset) =
+        asset.getPricesWith24hDelta()
 
-    private fun getAssetDisplayDetails(asset: CryptoAsset): Single<List<AssetDisplayInfo>> {
+    private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetInformation> {
         return Single.zip(
             splitAccountsInGroup(asset, AssetFilter.NonCustodial),
-            asset.getPricesWith24hDelta(),
+            load24hPriceDelta(asset),
             splitAccountsInGroup(asset, AssetFilter.Custodial),
             splitAccountsInGroup(asset, AssetFilter.Interest),
             asset.interestRate()
         ) { nonCustodialAccounts, prices, custodialAccounts, interestAccounts, interestRate ->
-            mapAccounts(nonCustodialAccounts, prices.currentRate, custodialAccounts, interestAccounts, interestRate)
+            val list =
+                mapAccounts(nonCustodialAccounts, prices.currentRate, custodialAccounts, interestAccounts, interestRate)
+            var totalCryptoBalance = Money.zero(asset.assetInfo)
+            var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
+            list.forEach { account ->
+                totalCryptoBalance = totalCryptoBalance.plus(account.amount)
+                totalFiatBalance = totalFiatBalance.plus(account.fiatValue)
+            }
+            return@zip AssetInformation(prices, list, totalCryptoBalance as CryptoValue, totalFiatBalance as FiatValue)
         }
     }
 

@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -206,7 +207,7 @@ fun BottomNavigationItemWithIndicator(
                     .absoluteOffset(y = (-2).dp)
                     .fillMaxWidth(0.6f)
                     .clip(AppTheme.shapes.small),
-                thickness = 4.dp,
+                thickness = dimensionResource(R.dimen.smallest_margin),
                 color = AppTheme.colors.primary
             )
         }

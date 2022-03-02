@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,7 @@ fun CtaAnnouncementCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(dimensionResource(R.dimen.medium_margin))
         ) {
             Column(
                 modifier = Modifier
@@ -68,7 +69,7 @@ fun CtaAnnouncementCard(
                 ) {
                     Image(
                         modifier = Modifier
-                            .size(32.dp),
+                            .size(dimensionResource(R.dimen.large_margin)),
                         imageResource = iconResource
                     )
 
@@ -99,7 +100,7 @@ fun CtaAnnouncementCard(
                 }
 
                 Text(
-                    modifier = Modifier.padding(top = 16.dp),
+                    modifier = Modifier.padding(top = dimensionResource(R.dimen.medium_margin)),
                     text = title,
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title
@@ -113,7 +114,7 @@ fun CtaAnnouncementCard(
 
                 PrimaryButton(
                     modifier = Modifier
-                        .padding(top = 16.dp)
+                        .padding(top = dimensionResource(R.dimen.medium_margin))
                         .fillMaxWidth(),
                     defaultBackgroundColor = callToActionButton.backgroundColor,
                     text = callToActionButton.text,

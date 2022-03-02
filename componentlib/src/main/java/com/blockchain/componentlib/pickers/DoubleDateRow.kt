@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -36,8 +37,19 @@ fun DoubleDateRow(
         Grey900
     }
 
-    val topRowShape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomEnd = 0.dp, bottomStart = 0.dp)
-    val bottomRowShape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomEnd = 4.dp, bottomStart = 4.dp)
+    val topRowShape = RoundedCornerShape(
+        topStart = dimensionResource(R.dimen.smallest_margin),
+        topEnd = dimensionResource(R.dimen.smallest_margin),
+        bottomEnd = dimensionResource(R.dimen.zero_margin),
+        bottomStart = dimensionResource(R.dimen.zero_margin)
+
+    )
+    val bottomRowShape = RoundedCornerShape(
+        topStart = dimensionResource(R.dimen.zero_margin),
+        topEnd = dimensionResource(R.dimen.zero_margin),
+        bottomEnd = dimensionResource(R.dimen.smallest_margin),
+        bottomStart = dimensionResource(R.dimen.smallest_margin)
+    )
 
     Column {
         Row(
@@ -48,7 +60,10 @@ fun DoubleDateRow(
                     color = getDateRowBackgroundColor(isActive = topDateRowData.isActive, isDarkMode = isDarkMode),
                     shape = topRowShape
                 )
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.medium_margin),
+                    vertical = dimensionResource(R.dimen.very_small_margin)
+                )
         ) {
             Text(
                 modifier = Modifier
@@ -86,7 +101,10 @@ fun DoubleDateRow(
                     color = getDateRowBackgroundColor(isActive = bottomDateRowData.isActive, isDarkMode = isDarkMode),
                     shape = bottomRowShape
                 )
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.medium_margin),
+                    vertical = dimensionResource(R.dimen.very_small_margin)
+                )
         ) {
             Text(
                 modifier = Modifier

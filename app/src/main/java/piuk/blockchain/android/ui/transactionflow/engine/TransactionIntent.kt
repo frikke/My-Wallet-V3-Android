@@ -223,7 +223,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             ).updateBackstack(oldState)
     }
 
-    class TargetAddressInvalid(private val error: TxValidationFailure) : TransactionIntent() {
+    class TargetAddressOrDomainInvalid(private val error: TxValidationFailure) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 errorState = error.state.mapToTransactionError(),
@@ -591,6 +591,7 @@ private fun ValidationState.mapToTransactionError() =
         ValidationState.CAN_EXECUTE -> TransactionErrorState.NONE
         ValidationState.UNINITIALISED -> TransactionErrorState.NONE
         ValidationState.INVALID_ADDRESS -> TransactionErrorState.INVALID_ADDRESS
+        ValidationState.INVALID_DOMAIN -> TransactionErrorState.INVALID_DOMAIN
         ValidationState.ADDRESS_IS_CONTRACT -> TransactionErrorState.ADDRESS_IS_CONTRACT
         ValidationState.UNDER_MIN_LIMIT -> TransactionErrorState.BELOW_MIN_LIMIT
         ValidationState.PENDING_ORDERS_LIMIT_REACHED -> TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED

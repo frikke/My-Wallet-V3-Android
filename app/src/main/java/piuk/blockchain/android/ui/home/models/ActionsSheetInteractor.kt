@@ -5,12 +5,10 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import io.reactivex.rxjava3.core.Single
 
 class ActionsSheetInteractor internal constructor(
     private val userIdentity: UserIdentity,
-    private val fabSheetBuySellOrderingFeatureFlag: IntegratedFeatureFlag
 ) {
     fun getUserAccessToSimpleBuy(): Single<ActionsSheetIntent> =
         userIdentity.userAccessForFeature(Feature.SimpleBuy).map { accessState ->
@@ -30,11 +28,5 @@ class ActionsSheetInteractor internal constructor(
         }
 
     fun getFabCtaOrdering(): Single<SplitButtonCtaOrdering> =
-        fabSheetBuySellOrderingFeatureFlag.enabled.map {
-            if (it) {
-                SplitButtonCtaOrdering.BUY_END
-            } else {
-                SplitButtonCtaOrdering.BUY_START
-            }
-        }
+        Single.just(SplitButtonCtaOrdering.BUY_END)
 }

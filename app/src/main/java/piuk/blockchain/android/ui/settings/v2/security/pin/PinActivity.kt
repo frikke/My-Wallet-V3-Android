@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
-import android.view.KeyEvent
-import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.annotation.StringRes
@@ -67,7 +67,7 @@ class PinActivity :
         PinState,
         ActivityPinBinding>(),
     BiometricsEnrollmentBottomSheet.Host,
-    View.OnKeyListener {
+    TextWatcher {
 
     override val model: PinModel by scopedInject()
 
@@ -96,8 +96,14 @@ class PinActivity :
         originScreen == OriginScreenToPin.CREATE_WALLET
     }
 
+    private val isChangingPin: Boolean by lazy {
+        originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY
+    }
+
     private val pinBoxList = mutableListOf<AppCompatImageView>()
     private var tempNewPin = ""
+    private var pinLastLength = 0
+
     private var materialProgressDialog: MaterialProgressDialog? = null
     private lateinit var lastState: PinState
     private lateinit var appUpdateManager: AppUpdateManager
@@ -111,8 +117,8 @@ class PinActivity :
         init()
 
         with(binding) {
-            keyboard.setOnKeyListener(this@PinActivity)
             keyboard.requestFocus()
+            keyboard.addTextChangedListener(this@PinActivity)
             pinLogout.apply {
                 text = getString(R.string.logout)
                 setOnClickListener { model.process(PinIntent.PinLogout) }
@@ -124,21 +130,19 @@ class PinActivity :
 
     override fun hideLoading() = binding.progress.gone()
 
-    override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-        if (event?.action == KeyEvent.ACTION_UP) {
-            when (keyCode) {
-                KeyEvent.KEYCODE_DEL -> onDeleteClicked()
-                KeyEvent.KEYCODE_ENTER -> onEnteredClicked()
-                else -> onPadClicked()
-            }
-        }
-        return false
-    }
-
     override fun render(newState: PinState) {
         lastState = newState
-
         setPinView(newState.action)
+
+        if (newState.pinStatus.isPinValidated) {
+            when {
+                isChangingPin && newState.action == PinScreenView.LoginWithPin -> {
+                    model.process(PinIntent.UpdateAction(PinScreenView.CreateNewPin))
+                    clearPin()
+                }
+                !isChangingPin -> finishWithResultOk(getIntroducedPin())
+            }
+        }
 
         // We don't seem to use this "mobile_notice" from firebase but we keep old logic in the redesign.
         if (newState.action != PinScreenView.CreateNewPin) {
@@ -172,12 +176,7 @@ class PinActivity :
             model.process(PinIntent.ClearStateAlreadyHandled)
         }
 
-        if (newState.pinStatus.isPinValidated) {
-            finishWithResultOk(getPinIntroduced())
-        }
-
         binding.layoutWarning.root.visibleIf { !newState.isApiHealthyStatus }
-
         newState.showMobileNotice?.let { showMobileNotice(it) }
 
         newState.appUpgradeStatus.let {
@@ -228,6 +227,28 @@ class PinActivity :
 
     override fun onSheetClosed() {
         finishSignupProcess()
+    }
+
+    override fun beforeTextChanged(previousPin: CharSequence?, start: Int, count: Int, after: Int) {
+        previousPin?.let { pinLastLength = it.length }
+    }
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+    override fun afterTextChanged(currentPin: Editable?) {
+        currentPin?.let {
+            when {
+                it.length > pinLastLength -> {
+                    onPadClicked()
+                }
+                it.length < pinLastLength -> {
+                    onDeleteClicked()
+                }
+                else -> {
+                    // do nothing (enter key pressed)
+                }
+            }
+        }
     }
 
     private fun loadComposableData() {
@@ -328,7 +349,7 @@ class PinActivity :
                 ).show()
                 util.restartApp()
             }
-            PayloadError.UNSUPORTTED_VERSION_EXCEPTION -> showWalletVersionNotSupportedDialog("")
+            PayloadError.UNSUPPORTED_VERSION_EXCEPTION -> showWalletVersionNotSupportedDialog("")
             PayloadError.HD_WALLET_EXCEPTION -> {
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.unexpected_error), type = SnackbarType.Error
@@ -518,7 +539,7 @@ class PinActivity :
             }.show()
     }
 
-    private fun getPinIntroduced(): String = binding.keyboard.text.toString()
+    private fun getIntroducedPin(): String = binding.keyboard.text.toString()
 
     private fun clearPin() {
         binding.keyboard.setText("")
@@ -527,29 +548,21 @@ class PinActivity :
         checkFingerprintStatus()
     }
 
-    // TODO ideally we should find the way to hide this button from keyboard
-    // imeAction to noAction in xml doesnt seem to work
-    private fun onEnteredClicked() {
-        if (getPinIntroduced().length < PIN_LENGTH) {
-            model.process(PinIntent.UpdatePinErrorState(PinError.PIN_INCOMPLETE))
-        }
-    }
-
     private fun onAddDigitChangePinBoxesUI() {
-        fillPinBoxAtIndex(getPinIntroduced().length - 1)
-        setCursorPinBoxAtIndex(getPinIntroduced().length)
+        fillPinBoxAtIndex(getIntroducedPin().length - 1)
+        setCursorPinBoxAtIndex(getIntroducedPin().length)
     }
 
     private fun onAddDigitValidation() {
-        if (getPinIntroduced().length == PIN_LENGTH) {
+        if (getIntroducedPin().length == PIN_LENGTH) {
             when (lastState.action) {
                 PinScreenView.CreateNewPin -> {
                     when {
-                        getPinIntroduced() == "0000" -> {
+                        getIntroducedPin() == "0000" -> {
                             model.process(PinIntent.UpdatePinErrorState(PinError.ZEROS_PIN))
                             errorPinBoxes()
                         }
-                        isPinCommon(getPinIntroduced()) -> {
+                        isPinCommon(getIntroducedPin()) -> {
                             showCommonPinWarning()
                         }
                         lastState.isNewPinEqualToCurrentPin() -> {
@@ -572,17 +585,23 @@ class PinActivity :
         when {
             lastState.action == PinScreenView.LoginWithPin -> {
                 correctPinBoxes()
-                model.process(PinIntent.ValidatePIN(getPinIntroduced(), isForValidatingPinForResult))
+                model.process(
+                    PinIntent.ValidatePIN(
+                        getIntroducedPin(),
+                        isForValidatingPinForResult,
+                        isChangingPin
+                    )
+                )
             }
             lastState.action == PinScreenView.CreateNewPin -> {
                 correctPinBoxes()
-                tempNewPin = getPinIntroduced()
+                tempNewPin = getIntroducedPin()
                 clearPin()
                 model.process(PinIntent.UpdateAction(PinScreenView.ConfirmNewPin))
             }
-            lastState.action == PinScreenView.ConfirmNewPin && getPinIntroduced() == tempNewPin -> {
+            lastState.action == PinScreenView.ConfirmNewPin && getIntroducedPin() == tempNewPin -> {
                 correctPinBoxes()
-                model.process(PinIntent.CreatePIN(getPinIntroduced()))
+                model.process(PinIntent.CreatePIN(getIntroducedPin()))
             }
             else -> {
                 model.process(PinIntent.UpdatePinErrorState(PinError.DONT_MATCH))
@@ -621,7 +640,7 @@ class PinActivity :
     }
 
     private fun sendAnalytics() {
-        if (getPinIntroduced().length == PIN_LENGTH) {
+        if (getIntroducedPin().length == PIN_LENGTH) {
             when (lastState.action) {
                 PinScreenView.CreateNewPin -> analytics.logEventOnce(AnalyticsEvents.WalletSignupPINFirst)
                 PinScreenView.ConfirmNewPin -> analytics.logEventOnce(AnalyticsEvents.WalletSignupPINSecond)
@@ -630,7 +649,7 @@ class PinActivity :
         }
     }
 
-    private fun PinState.isNewPinEqualToCurrentPin(): Boolean = this.pinStatus.currentPin == getPinIntroduced()
+    private fun PinState.isNewPinEqualToCurrentPin(): Boolean = this.pinStatus.currentPin == getIntroducedPin()
 
     private fun showWalletVersionNotSupportedDialog(walletVersion: String) {
         AlertDialog.Builder(this, R.style.AlertDialogStyle)
@@ -683,9 +702,10 @@ class PinActivity :
         if (lastState.error != PinError.NONE) {
             clearPin()
         } else {
-            clearPinBoxAtIndex(getPinIntroduced().length + 1)
+            clearPinBoxAtIndex(getIntroducedPin().length + 1)
         }
-        setCursorPinBoxAtIndex(getPinIntroduced().length)
+
+        setCursorPinBoxAtIndex(getIntroducedPin().length)
     }
 
     private fun fillPinBoxAtIndex(index: Int) {
@@ -735,13 +755,14 @@ class PinActivity :
 
     private fun handleBackButton() {
         when {
-            isForValidatingPinForResult -> {
-                finishWithResultCanceled()
-            }
-            else -> {
-                util.logout()
-            }
+            isForValidatingPinForResult -> { finishWithResultCanceled() }
+            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> { super.onBackPressed() }
+            else -> { appUtil.logout() }
         }
+    }
+
+    override fun onBackPressed() {
+        handleBackButton()
     }
 
     private fun showDebugEnv() {
@@ -854,10 +875,16 @@ class PinActivity :
     }
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) {
-        if (isFromPinCreation && biometricsController.isBiometricAuthEnabled) {
-            askToUseBiometrics()
-        } else {
-            util.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterCreateWallet)
+        when {
+            isFromPinCreation && biometricsController.isBiometricAuthEnabled -> {
+                askToUseBiometrics()
+            }
+            isChangingPin -> {
+                finish()
+            }
+            else -> {
+                util.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterCreateWallet)
+            }
         }
     }
 
@@ -878,7 +905,7 @@ class PinActivity :
             image = ImageResource.Local(R.drawable.vector_fingerprint)
             imageSize = 24
             visible()
-            setOnClickListener { checkFingerprintStatus() }
+            onClick = { checkFingerprintStatus() }
         }
 
         if (lastState.biometricStatus.canShowFingerprint) {
@@ -979,7 +1006,7 @@ class PinActivity :
             Intent(context, PinActivity::class.java).apply {
                 putExtra(KEY_VALIDATING_PIN_FOR_RESULT, startForResult)
                 putExtra(ORIGIN_SCREEN, originScreen)
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK and Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
         enum class OriginScreenToPin {

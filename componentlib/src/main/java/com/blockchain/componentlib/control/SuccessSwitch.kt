@@ -6,8 +6,9 @@ import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark600
@@ -44,7 +45,7 @@ fun SuccessSwitch(
         ),
         enabled = enabled,
         modifier = modifier
-            .padding(12.dp),
+            .padding(dimensionResource(R.dimen.very_small_margin)),
     )
 }
 

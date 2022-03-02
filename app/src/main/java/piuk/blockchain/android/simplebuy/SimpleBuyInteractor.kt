@@ -50,7 +50,6 @@ import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.PaymentToken
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -88,7 +87,6 @@ class SimpleBuyInteractor(
     private val coincore: Coincore,
     private val brokerageDataManager: BrokerageDataManager,
     private val bankLinkingPrefs: BankLinkingPrefs,
-    private val stripeAndCheckoutPaymentsFeatureFlag: IntegratedFeatureFlag,
     private val cardProcessors: Map<CardAcquirer, CardProcessor>,
     private val cancelOrderUseCase: CancelOrderUseCase,
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
@@ -444,13 +442,7 @@ class SimpleBuyInteractor(
         fiatCurrency: FiatCurrency,
         billingAddress: BillingAddress
     ): Single<CardToBeActivated> =
-        stripeAndCheckoutPaymentsFeatureFlag.enabled.flatMap { enabled ->
-            if (enabled) {
-                addCardWithPaymentTokens(cardData, fiatCurrency, billingAddress)
-            } else {
-                paymentsDataManager.addNewCard(fiatCurrency, billingAddress)
-            }
-        }
+        addCardWithPaymentTokens(cardData, fiatCurrency, billingAddress)
 
     private fun addCardWithPaymentTokens(
         cardData: CardData,

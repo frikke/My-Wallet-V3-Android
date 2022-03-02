@@ -64,6 +64,8 @@ interface PinEntryView : View {
 
     fun restartAppWithVerifiedPin()
 
+    fun closePinChangeScreen()
+
     fun setupCommitHashView()
 
     fun askToUseBiometrics()
@@ -71,6 +73,8 @@ interface PinEntryView : View {
     fun showApiOutageMessage()
 
     val isForValidatingPinForResult: Boolean
+
+    val isSettingsOrigin: Boolean
 
     val isForValidatingAndLoadingPayloadResult: Boolean
 }

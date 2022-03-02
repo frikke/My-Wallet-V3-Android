@@ -50,7 +50,9 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.componentlib.viewextensions.windowRect
 import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.walletconnect.domain.SessionRepository
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.ui.dapps.ConnectedDappsActivity
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.DecodeHintType
@@ -170,10 +172,13 @@ class QrScanActivity : BlockchainActivity() {
         val window = window
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(binding.root)
-        updateToolbar(
-            toolbarTitle = getString(R.string.scan_qr),
-            backAction = { onBackPressed() }
-        )
+        binding.infoIcon.apply {
+            image = ImageResource.Local(R.drawable.ic_information_large)
+            onClick = {
+                showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = false))
+            }
+        }
+
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
@@ -246,6 +251,11 @@ class QrScanActivity : BlockchainActivity() {
                         startIcon = ImageResource.Local(R.drawable.ic_vector_world_small)
                         onClick = {
                             startActivity(ConnectedDappsActivity.newIntent(this@QrScanActivity))
+                            analytics.logEvent(
+                                WalletConnectAnalytics.ConnectedDappsListClicked(
+                                    origin = LaunchOrigin.QR_CODE
+                                )
+                            )
                         }
                     }
                 }

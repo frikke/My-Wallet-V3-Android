@@ -80,7 +80,7 @@ class PinModel(
                     .handleProgress(R.string.validating_pin)
                     .subscribeBy(
                         onSuccess = { password ->
-                            if (intent.isForValidatingPinForResult) {
+                            if (intent.isForValidatingPinForResult || intent.isChangingPin) {
                                 process(PinIntent.ValidatePINSucceeded)
                             } else {
                                 process(PinIntent.UpdatePayload(password, false))
@@ -300,7 +300,7 @@ class PinModel(
             is SocketTimeoutException ->
                 process(PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_TIMEOUT))
             is UnsupportedVersionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPORTTED_VERSION_EXCEPTION))
+                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPPORTED_VERSION_EXCEPTION))
             is DecryptionException ->
                 process(PinIntent.UpdatePayloadErrorState(PayloadError.DECRYPTION_EXCEPTION))
             is HDWalletException -> {

@@ -17,7 +17,9 @@ import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.walletConnectFeatureFlag
+import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -123,6 +125,11 @@ class AccountFragment :
                 primaryText = getString(R.string.account_wallet_connect)
                 onClick = {
                     navigator().goToWalletConnect()
+                    analytics.logEvent(
+                        WalletConnectAnalytics.ConnectedDappsListClicked(
+                            origin = LaunchOrigin.SETTINGS
+                        )
+                    )
                 }
             }
 

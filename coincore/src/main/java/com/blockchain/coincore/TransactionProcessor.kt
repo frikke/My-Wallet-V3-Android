@@ -35,6 +35,7 @@ enum class ValidationState {
     INSUFFICIENT_FUNDS,
     INSUFFICIENT_GAS,
     INVALID_ADDRESS,
+    INVALID_DOMAIN,
     ADDRESS_IS_CONTRACT,
     OPTION_INVALID,
     MEMO_INVALID,
@@ -449,6 +450,7 @@ class TransactionProcessor(
             ValidationState.INSUFFICIENT_FUNDS -> Completable.error(TransactionError.InsufficientBalance)
             ValidationState.INSUFFICIENT_GAS -> Completable.error(TransactionError.InsufficientBalance)
             ValidationState.INVALID_ADDRESS -> Completable.error(TransactionError.InvalidCryptoAddress)
+            ValidationState.INVALID_DOMAIN -> Completable.error(TransactionError.InvalidDomainAddress)
             ValidationState.ADDRESS_IS_CONTRACT -> Completable.error(TransactionError.InvalidCryptoAddress)
             ValidationState.OPTION_INVALID,
             ValidationState.MEMO_INVALID -> Completable.error(TransactionError.UnexpectedError)

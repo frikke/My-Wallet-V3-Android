@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.scan
 
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
@@ -17,13 +16,13 @@ class CameraPermissionListener(
 
     override fun onPermissionGranted(response: PermissionGrantedResponse?) {
         granted()
-        analytics.logEvent(AnalyticsEvents.CameraSystemPermissionApproved)
+        analytics.logEvent(CameraAnalytics.CameraPermissionRequestActioned(true))
         super.onPermissionGranted(response)
     }
 
     override fun onPermissionDenied(response: PermissionDeniedResponse?) {
         denied()
-        analytics.logEvent(AnalyticsEvents.CameraSystemPermissionDeclined)
+        analytics.logEvent(CameraAnalytics.CameraPermissionRequestActioned(false))
         super.onPermissionDenied(response)
     }
 }
