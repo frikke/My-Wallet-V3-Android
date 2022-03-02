@@ -29,6 +29,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.uiTourFeatureFlag
@@ -43,6 +44,7 @@ import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
+import com.google.android.gms.common.Feature
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetCatalogue
@@ -138,6 +140,7 @@ class MainActivity :
 
     private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
+    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
     private val dataWiper: DataWiper by scopedInject()
 
@@ -180,7 +183,16 @@ class MainActivity :
         }
 
         if (savedInstanceState == null) {
-            model.process(MainIntent.SaveDeeplinkIntent(intent))
+            deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
+                onSuccess = { isEnabled ->
+                    if (isEnabled) {
+                        model.process(MainIntent.SaveDeeplinkIntent(intent))
+                    } else {
+                        model.process(MainIntent.CheckForPendingLinks(intent))
+
+                    }
+                }
+            )
         }
 
         val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
@@ -472,10 +484,17 @@ class MainActivity :
         ).show()
 
     override fun render(newState: MainState) {
-        if (newState.deeplinkResult is DeepLinkResult.DeepLinkResultSuccess) {
-            navigateToDeeplinkDestination(newState.deeplinkResult.destination)
-            model.process(MainIntent.ClearDeepLinkResult)
-        }
+
+        deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    if (newState.deeplinkResult is DeepLinkResult.DeepLinkResultSuccess) {
+                        navigateToDeeplinkDestination(newState.deeplinkResult.destination)
+                        model.process(MainIntent.ClearDeepLinkResult)
+                    }
+                }
+            }
+        )
 
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
