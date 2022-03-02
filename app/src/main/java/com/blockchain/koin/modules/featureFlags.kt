@@ -134,8 +134,8 @@ val featureFlagsModule = module {
     single(deeplinkingFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_deeplinking",
-                "Deeplinking"
+                "android_ff_deeplinking_v2",
+                "Deeplinking V2"
             )
         )
     }.bind(FeatureFlag::class)

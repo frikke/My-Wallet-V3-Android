@@ -91,9 +91,15 @@ class MainModel(
                 interactor.checkForUserWalletErrors()
                     .subscribeBy(
                         onComplete = {
-                            if (previousState.deeplinkIntent != null) {
-                                process(MainIntent.CheckForPendingLinks(previousState.deeplinkIntent))
-                            }
+                            deeplinkFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
+                                onSuccess = { isEnabled ->
+                                    if (isEnabled) {
+                                        if (previousState.deeplinkIntent != null) {
+                                            process(MainIntent.CheckForPendingLinks(previousState.deeplinkIntent))
+                                        }
+                                    }
+                                }
+                            )
                         },
                         onError = { throwable ->
                             if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
@@ -109,7 +115,7 @@ class MainModel(
             is MainIntent.CheckForPendingLinks -> {
                 deeplinkFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
                     onSuccess = { isEnabled ->
-                        if (true) { // TODO !!!ADD FEATURE FLAG HERE!!!
+                        if (isEnabled) {
                             intent.appIntent.data?.let { uri ->
                                 interactor.processDeepLinkV2(uri).subscribeBy(
                                     onSuccess = {
