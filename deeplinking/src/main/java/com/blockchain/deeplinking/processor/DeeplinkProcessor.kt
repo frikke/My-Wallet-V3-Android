@@ -11,17 +11,21 @@ class DeeplinkProcessor {
 
         Timber.d("deeplink uri: %s", deeplinkUri.path)
 
-        return when(deeplinkUri.path) {
+        return when (deeplinkUri.path) {
             ASSET_URL -> {
                 val networkTicker = getAssetNetworkTicker(deeplinkUri)
                 Timber.d("deeplink: openAsset with args $networkTicker")
 
                 if (!networkTicker.isNullOrEmpty()) {
                     val destination = Destination.AssetViewDestination(networkTicker)
-                    Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, showNotification=true))
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            showNotification = true
+                        )
+                    )
                 } else
                     Single.just(DeepLinkResult.DeepLinkResultFailed)
-
             }
 
             BUY_URL -> {
@@ -31,7 +35,12 @@ class DeeplinkProcessor {
 
                 if (!code.isNullOrEmpty() && !amount.isNullOrEmpty()) {
                     val destination = Destination.AssetBuyDestination(code, amount)
-                    Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, showNotification=true))
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            showNotification = true
+                        )
+                    )
                 } else {
                     Single.just(DeepLinkResult.DeepLinkResultFailed)
                 }
@@ -44,7 +53,7 @@ class DeeplinkProcessor {
                 Timber.d("deeplink: Activity")
 
                 val destination = Destination.ActivityDestination()
-                Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, showNotification=true))
+                Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, showNotification = true))
             }
             else -> Single.just(DeepLinkResult.DeepLinkResultFailed)
         }
@@ -72,10 +81,9 @@ class DeeplinkProcessor {
 
     private fun getFilter(deeplinkUri: Uri): String? =
         deeplinkUri.getQueryParameter(PARAMETER_FILTER)
-
 }
 
 sealed class DeepLinkResult {
-    data class DeepLinkResultSuccess (val destination: Destination, val showNotification: Boolean): DeepLinkResult()
-    object DeepLinkResultFailed: DeepLinkResult()
+    data class DeepLinkResultSuccess(val destination: Destination, val showNotification: Boolean) : DeepLinkResult()
+    object DeepLinkResultFailed : DeepLinkResult()
 }

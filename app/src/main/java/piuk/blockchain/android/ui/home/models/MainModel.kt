@@ -54,7 +54,7 @@ class MainModel(
     crashLogger: CrashLogger,
     private val deeplinkFeatureFlag: IntegratedFeatureFlag,
     private val assetCatalogue: AssetCatalogue
-    ) : MviModel<MainState, MainIntent>(
+) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
@@ -128,7 +128,11 @@ class MainModel(
                             interactor.checkForDeepLinks(intent.appIntent)
                                 .subscribeBy(
                                     onSuccess = { linkState ->
-                                        if ((intent.appIntent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
+                                        if ((
+                                            intent.appIntent.flags
+                                                and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
+                                            ) == 0
+                                        ) {
                                             dispatchDeepLink(linkState)
                                         }
                                     },

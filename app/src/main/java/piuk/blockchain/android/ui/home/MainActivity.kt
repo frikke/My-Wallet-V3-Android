@@ -45,7 +45,6 @@ import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
-import com.google.android.gms.common.Feature
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetCatalogue
@@ -191,7 +190,6 @@ class MainActivity :
                         model.process(MainIntent.SaveDeeplinkIntent(intent))
                     } else {
                         model.process(MainIntent.CheckForPendingLinks(intent))
-
                     }
                 }
             )
@@ -495,7 +493,6 @@ class MainActivity :
         ).show()
 
     override fun render(newState: MainState) {
-
         deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
             onSuccess = { isEnabled ->
                 if (isEnabled) {
@@ -649,6 +646,7 @@ class MainActivity :
     private fun navigateToDeeplinkDestination(mainDestination: Destination) {
         when (mainDestination) {
             is Destination.AssetViewDestination -> {
+                // TODO maybe this should come from the model?
                 val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(mainDestination.networkTicker)
                 if (assetInfo != null) {
                     startActivity(
