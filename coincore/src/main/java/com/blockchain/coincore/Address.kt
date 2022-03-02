@@ -40,6 +40,7 @@ interface CryptoAddress : CryptoTarget, ReceiveAddress {
     fun toUrl(amount: Money = Money.zero(asset)) = address
     val amount: Money?
         get() = null
+    val isDomain: Boolean
 }
 
 interface AddressFactory {
@@ -81,7 +82,7 @@ class AddressFactoryImpl(
                 if (resolved.isEmpty()) {
                     Maybe.error(TxValidationFailure(ValidationState.INVALID_DOMAIN))
                 } else {
-                    coincore[asset].parseAddress(resolved, address)
+                    coincore[asset].parseAddress(resolved, address, true)
                 }
             }.onErrorResumeNext(::handleResolutionApiError)
 

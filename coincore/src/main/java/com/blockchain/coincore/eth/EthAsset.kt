@@ -122,7 +122,7 @@ internal class EthAsset(
         return notificationUpdater.updateNotificationBackend(notify)
     }
 
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> {
+    override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> {
         val normalisedAddress = address.removePrefix(FormatUtilities.ETHEREUM_PREFIX)
         val segments = normalisedAddress.split(FormatUtilities.ETHEREUM_ADDRESS_DELIMITER)
         val addressSegment = segments.getOrNull(0)
@@ -151,6 +151,7 @@ internal class EthAsset(
                 EthAddress(
                     address = addressSegment,
                     label = label ?: addressSegment,
+                    isDomain = isDomainAddress,
                     amount = amountParam,
                     isContract = isContract
                 ) as ReceiveAddress
@@ -168,6 +169,7 @@ internal class EthAsset(
 internal class EthAddress(
     override val address: String,
     override val label: String = address,
+    override val isDomain: Boolean = false,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
     override val amount: CryptoValue? = null,
     val isContract: Boolean = false

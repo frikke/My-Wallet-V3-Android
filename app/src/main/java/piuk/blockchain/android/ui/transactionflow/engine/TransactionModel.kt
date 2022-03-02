@@ -44,6 +44,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
@@ -174,6 +175,12 @@ data class TransactionState(
                     (it.limits?.max as? TxLimit.Limited)?.amount ?: available
                 )
             } ?: sendingAccount.getZeroAmountForAccount()
+        }
+
+    val selectedTargetLabel: String
+        get() = when {
+            selectedTarget is CryptoAddress && selectedTarget.isDomain -> selectedTarget.getLabelForDomain()
+            else -> selectedTarget.label
         }
 
     private fun availableToAmountCurrency(available: Money, amount: Money): Money =

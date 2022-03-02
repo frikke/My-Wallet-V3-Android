@@ -275,7 +275,7 @@ class TransactionFlowCustomiserImpl(
                     amount.toStringWithSymbol()
                 )
             }
-            else -> resources.getString(R.string.send_enter_amount_to, state.selectedTarget.label)
+            else -> resources.getString(R.string.send_enter_amount_to, state.selectedTargetLabel)
         }
 
     override fun enterAmountLoadSourceIcon(imageView: ImageView, state: TransactionState) {
