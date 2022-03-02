@@ -301,7 +301,7 @@ class MainActivity :
     }
 
     private fun showScanAndConnectBottomSheet() {
-        showBottomSheet(ScanAndConnectBottomSheet.newInstance())
+        showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = true))
     }
 
     private fun setupNavigation() {

@@ -172,10 +172,13 @@ class QrScanActivity : BlockchainActivity() {
         val window = window
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(binding.root)
-        updateToolbar(
-            toolbarTitle = getString(R.string.scan_qr),
-            backAction = { onBackPressed() }
-        )
+        binding.infoIcon.apply {
+            image = ImageResource.Local(R.drawable.ic_information_large)
+            onClick = {
+                showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = false))
+            }
+        }
+
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 

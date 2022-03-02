@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.scan
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -8,6 +9,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.viewextensions.visibleIf
 import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemScanBenefitLayoutBinding
@@ -17,6 +19,10 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
 
     interface Host : SlidingModalBottomDialog.Host {
         fun onCameraAccessAllowed()
+    }
+
+    private val showCta by lazy {
+        arguments?.getBoolean(SHOW_CTA_KEY) ?: false
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): ScanAndConnectBottomSheetLayoutBinding =
@@ -35,6 +41,7 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
                     (host as? Host)?.onCameraAccessAllowed()
                     dismiss()
                 }
+                visibleIf { showCta }
             }
             recycler.layoutManager = LinearLayoutManager(context)
             recycler.adapter =
@@ -62,7 +69,12 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
     }
 
     companion object {
-        fun newInstance(): ScanAndConnectBottomSheet = ScanAndConnectBottomSheet()
+        private const val SHOW_CTA_KEY = "SHOW_CTA_KEY"
+        fun newInstance(showCta: Boolean): ScanAndConnectBottomSheet = ScanAndConnectBottomSheet().apply {
+            arguments = Bundle().apply {
+                putBoolean(SHOW_CTA_KEY, showCta)
+            }
+        }
     }
 }
 
