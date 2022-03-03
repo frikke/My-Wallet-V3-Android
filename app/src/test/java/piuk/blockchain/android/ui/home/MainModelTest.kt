@@ -13,6 +13,7 @@ import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.EUR
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
@@ -66,6 +67,10 @@ class MainModelTest {
         on { sessionEvents }.thenReturn(Observable.empty())
     }
 
+    private val deeplinkFeatureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
+
     @get:Rule
     val rx = rxInit {
         mainTrampoline()
@@ -82,8 +87,7 @@ class MainModelTest {
             crashLogger = mock(),
             walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor,
-            deeplinkFeatureFlag = mock(),
-            assetCatalogue = mock()
+            deeplinkFeatureFlag = deeplinkFeatureFlag
         )
     }
 
@@ -780,6 +784,7 @@ class MainModelTest {
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
             Single.just(PollResult.TimeOut(transferDetails))
         )
+
 
         val testState = model.state.test()
         model.process(MainIntent.CheckForPendingLinks(mockIntent))

@@ -23,7 +23,6 @@ val mainModule = module {
                 environmentConfig = get(),
                 crashLogger = get(),
                 deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
-                assetCatalogue = get()
             )
         }
 

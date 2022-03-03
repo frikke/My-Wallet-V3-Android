@@ -16,6 +16,7 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
@@ -52,8 +53,7 @@ class MainModel(
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger,
-    private val deeplinkFeatureFlag: IntegratedFeatureFlag,
-    private val assetCatalogue: AssetCatalogue
+    private val deeplinkFeatureFlag: FeatureFlag,
 ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
