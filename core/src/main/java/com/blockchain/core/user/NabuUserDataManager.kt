@@ -1,6 +1,7 @@
 package com.blockchain.core.user
 
 import com.blockchain.api.services.Geolocation
+import com.blockchain.api.services.LatestTermsAndConditions
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.caching.TimedCacheRequest
@@ -16,6 +17,10 @@ interface NabuUserDataManager {
     fun tiers(): Single<KycTiers>
 
     fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable
+
+    fun getLatestTermsAndConditions(): Single<LatestTermsAndConditions>
+
+    fun signLatestTermsAndConditions(): Completable
 }
 
 class NabuUserDataManagerImpl(
@@ -48,6 +53,16 @@ class NabuUserDataManagerImpl(
                 stateIsoCode
             )
         }.flatMapCompletable { it }
+
+    override fun getLatestTermsAndConditions(): Single<LatestTermsAndConditions> =
+        authenticator.getAuthHeader().flatMap {
+            nabuUserService.getLatestTermsAndConditions(it)
+        }
+
+    override fun signLatestTermsAndConditions(): Completable =
+        authenticator.getAuthHeader().flatMapCompletable {
+            nabuUserService.signLatestTermsAndConditions(it)
+        }
 }
 
 private const val TIERS_CACHING_LIFETIME_SECS = 100L

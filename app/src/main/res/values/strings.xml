@@ -2757,4 +2757,9 @@
     <string name="coinview_balance_label">Your Total %1$s</string>
 
 
+    <!--  Terms and Conditions  -->
+    <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
+    <string name="terms_and_conditions_accept_label">I agree to Blockchain.com’s Terms of Service &amp; Privacy Policy.</string>
+    <string name="terms_and_conditions_review_button">Review</string>
+
 </resources>
