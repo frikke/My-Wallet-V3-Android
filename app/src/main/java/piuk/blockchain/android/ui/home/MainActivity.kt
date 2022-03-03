@@ -27,7 +27,6 @@ import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
@@ -98,7 +97,6 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
 class MainActivity :
@@ -136,8 +134,6 @@ class MainActivity :
 
     private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
-
-    private val dataWiper: DataWiper by scopedInject()
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -222,9 +218,7 @@ class MainActivity :
         compositeDisposable.clear()
         // stopgap to be able to clear separate calls on Rx on the model
         model.clearDisposables()
-        if (isFinishing && payloadScope.isNotClosed()) {
-            dataWiper.clearData()
-        }
+        // TODO consider invoking the DataWiper here
         super.onDestroy()
     }
 
