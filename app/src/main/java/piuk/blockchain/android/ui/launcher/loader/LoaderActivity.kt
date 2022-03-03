@@ -31,9 +31,13 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.termsconditions.TermsAndConditionsFragment
 import piuk.blockchain.android.util.AppUtil
 
-class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(), EmailEntryHost {
+class LoaderActivity :
+    MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(),
+    EmailEntryHost,
+    TermsAndConditionsFragment.Host {
 
     override val model: LoaderModel by scopedInject()
 
@@ -68,6 +72,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.EmailVerification -> launchEmailVerification()
             is LoadingStep.RequestPin -> onRequestPin()
+            is LoadingStep.NewTermsAndConditions -> launchTermsAndConditions(loaderStep.markdown)
             null -> {
             }
         }
@@ -146,6 +151,10 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 
+    override fun termsAndConditionsSigned() {
+        model.process(LoaderIntents.OnTermsAndConditionsSigned)
+    }
+
     override fun onDestroy() {
         compositeDisposable.clear()
         super.onDestroy()
@@ -183,6 +192,19 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_frame, KycEmailEntryFragment(), KycEmailEntryFragment::class.simpleName)
+            .commitAllowingStateLoss()
+    }
+
+    private fun launchTermsAndConditions(markdown: String) {
+        updateToolbarTitle(getString(R.string.terms_and_conditions_toolbar))
+        binding.progress.gone()
+        binding.contentFrame.visible()
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.content_frame,
+                TermsAndConditionsFragment.newInstance(markdown),
+                TermsAndConditionsFragment::class.simpleName
+            )
             .commitAllowingStateLoss()
     }
 

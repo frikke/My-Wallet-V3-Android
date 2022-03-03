@@ -30,7 +30,6 @@ import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.deeplinkingFeatureFlag
-import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
@@ -103,7 +102,6 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
 class MainActivity :
@@ -142,8 +140,6 @@ class MainActivity :
     private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
-
-    private val dataWiper: DataWiper by scopedInject()
 
     private val assetCatalogue: AssetCatalogue by scopedInject()
 
@@ -238,9 +234,7 @@ class MainActivity :
         compositeDisposable.clear()
         // stopgap to be able to clear separate calls on Rx on the model
         model.clearDisposables()
-        if (isFinishing && payloadScope.isNotClosed()) {
-            dataWiper.clearData()
-        }
+        // TODO consider invoking the DataWiper here
         super.onDestroy()
     }
 

@@ -207,7 +207,9 @@ enum class AnalyticsNames(val eventName: String) {
     DAPP_CONNECTION_REJECTED("Dapp Connection Rejected"),
     DAPP_REQUEST_ACTIONED("Dapp Request Actioned"),
     QR_CODE_CLICKED("Qr Code Clicked"),
-    QR_CODE_SCANNED("Qr Code Scanned")
+    QR_CODE_SCANNED("Qr Code Scanned"),
+    TERMS_CONDITIONS_VIEWED("T&C Viewed"),
+    TERMS_CONDITIONS_ACCEPTED("T&C Accepted")
 }
 
 enum class LaunchOrigin {
