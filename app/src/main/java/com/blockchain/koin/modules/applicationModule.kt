@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
@@ -883,7 +884,8 @@ val applicationModule = module {
             deepLinkPersistence = get(),
             envSettings = get(),
             authPrefs = get(),
-            securityPrefs = get()
+            securityPrefs = get(),
+            deeplinkingV2FF = get(deeplinkingFeatureFlag)
         )
     }
 

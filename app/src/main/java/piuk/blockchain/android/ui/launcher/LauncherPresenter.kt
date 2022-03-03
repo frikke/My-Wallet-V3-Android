@@ -5,6 +5,8 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.remoteconfig.FeatureFlag
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
@@ -36,6 +38,7 @@ class LauncherPresenter internal constructor(
     private val envSettings: EnvironmentConfig,
     private val authPrefs: AuthPrefs,
     private val securityPrefs: SecurityPrefs,
+    private val deeplinkingV2FF: FeatureFlag
 ) : MvpPresenter<LauncherView>() {
 
     override fun onViewAttached() {
@@ -71,7 +74,14 @@ class LauncherPresenter internal constructor(
         val isWalletIdInValid = walletId.isNotEmpty() && !walletId.isValidGuid()
         val hasUnPairedWallet = walletId.isNotEmpty() && pinId.isEmpty()
         val hasLoggedIn = walletId.isNotEmpty() && pinId.isNotEmpty()
-        val skipPinAndProcessDeeplink = !securityPrefs.isPinRequired && viewIntentData?.data != null
+        var skipPinAndProcessDeeplink = false
+        deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    skipPinAndProcessDeeplink = !securityPrefs.isPinRequired && viewIntentData?.data != null
+                }
+            }
+        )
 
         Timber.d("skipPinAndProcessDeeplink: $skipPinAndProcessDeeplink")
 
