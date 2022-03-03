@@ -81,7 +81,9 @@ class MainModelTest {
             environmentConfig = environmentConfig,
             crashLogger = mock(),
             walletConnectServiceAPI = walletConnectServiceAPI,
-            interactor = interactor
+            interactor = interactor,
+            deeplinkFeatureFlag = mock(),
+            assetCatalogue = mock()
         )
     }
 

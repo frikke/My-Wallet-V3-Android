@@ -5,7 +5,7 @@ import com.blockchain.deeplinking.navigation.Destination
 import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
-class DeeplinkProcessor {
+class DeeplinkProcessorV2 {
 
     fun process(deeplinkUri: Uri): Single<DeepLinkResult> {
 

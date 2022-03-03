@@ -10,7 +10,7 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.deeplinking.processor.DeeplinkProcessor
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -50,7 +50,7 @@ import timber.log.Timber
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
-    private val deeplinkProcessorV2: DeeplinkProcessor,
+    private val deeplinkProcessorV2: DeeplinkProcessorV2,
     private val exchangeLinking: PitLinking,
     private val exchangePrefs: ThePitLinkingPrefs,
     private val assetCatalogue: AssetCatalogue,
