@@ -785,7 +785,6 @@ class MainModelTest {
             Single.just(PollResult.TimeOut(transferDetails))
         )
 
-
         val testState = model.state.test()
         model.process(MainIntent.CheckForPendingLinks(mockIntent))
 

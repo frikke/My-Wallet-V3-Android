@@ -17,12 +17,10 @@ import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.google.gson.JsonSyntaxException
-import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
