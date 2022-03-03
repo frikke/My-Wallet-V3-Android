@@ -6,6 +6,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetCatalogue
@@ -39,6 +40,7 @@ class LoaderInteractor(
     private val currencyPrefs: CurrencyPrefs,
     private val nabuUserDataManager: NabuUserDataManager,
     private val walletPrefs: WalletStatus,
+    private val securityPrefs: SecurityPrefs,
     private val analytics: Analytics,
     private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler,
@@ -140,6 +142,7 @@ class LoaderInteractor(
         }
         emitter.onComplete()
         walletPrefs.isAppUnlocked = true
+        securityPrefs.setPinNotRequired()
         analytics.logEvent(LoginAnalyticsEvent)
     }
 

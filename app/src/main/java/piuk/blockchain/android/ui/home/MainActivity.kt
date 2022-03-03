@@ -492,7 +492,6 @@ class MainActivity :
                 if (isEnabled) {
                     if (newState.deeplinkResult is DeepLinkResult.DeepLinkResultSuccess) {
                         navigateToDeeplinkDestination(newState.deeplinkResult.destination)
-                        model.process(MainIntent.ClearDeepLinkResult)
                     }
                 }
             }
@@ -672,6 +671,8 @@ class MainActivity :
                 startActivitiesFragment()
             }
         }.exhaustive
+
+        model.process(MainIntent.ClearDeepLinkResult)
     }
 
     private fun launchWalletConnectSessionApproval(walletConnectSession: WalletConnectSession) {

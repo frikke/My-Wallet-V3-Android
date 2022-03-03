@@ -40,6 +40,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
+import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
@@ -51,6 +52,7 @@ import timber.log.Timber
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
     private val deeplinkProcessorV2: DeeplinkProcessorV2,
+    private val deepLinkPersistence: DeepLinkPersistence,
     private val exchangeLinking: PitLinking,
     private val exchangePrefs: ThePitLinkingPrefs,
     private val assetCatalogue: AssetCatalogue,
@@ -172,4 +174,9 @@ class MainInteractor internal constructor(
 
     fun processDeepLinkV2(uri: Uri): Single<DeepLinkResult> =
         deeplinkProcessorV2.process(uri)
+
+    fun clearDeepLink(): Completable =
+        Completable.fromAction {
+            deepLinkPersistence.popDataFromSharedPrefs()
+        }
 }

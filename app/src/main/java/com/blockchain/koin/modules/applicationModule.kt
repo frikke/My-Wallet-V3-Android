@@ -882,7 +882,8 @@ val applicationModule = module {
             prefs = get(),
             deepLinkPersistence = get(),
             envSettings = get(),
-            authPrefs = get()
+            authPrefs = get(),
+            securityPrefs = get()
         )
     }
 

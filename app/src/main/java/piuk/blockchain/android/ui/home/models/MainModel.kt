@@ -140,7 +140,9 @@ class MainModel(
                     }
                 )
             }
-
+            is MainIntent.ClearDeepLinkResult -> interactor.clearDeepLink()
+                .onErrorComplete()
+                .subscribe()
             is MainIntent.ValidateAccountAction ->
                 interactor.checkIfShouldUpsell(intent.action, intent.account)
                     .subscribeBy(
@@ -206,7 +208,6 @@ class MainModel(
             is MainIntent.UpdateViewToLaunch -> null
             is MainIntent.UpdateDeepLinkResult -> null
             is MainIntent.SaveDeeplinkIntent -> null
-            is MainIntent.ClearDeepLinkResult -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {

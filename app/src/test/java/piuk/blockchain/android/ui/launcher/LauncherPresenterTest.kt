@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.launcher
 import android.content.Intent
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -22,13 +23,15 @@ class LauncherPresenterTest {
     private val appUtil: AppUtil = mock()
     private val viewIntentData: ViewIntentData = mock()
     private val authPrefs: AuthPrefs = mock()
+    private val walletPrefs: WalletStatus = mock()
 
     private val subject = LauncherPresenter(
         appUtil,
         prefsUtil,
         deepLinkPersistence,
         environmentConfig,
-        authPrefs
+        authPrefs,
+        walletPrefs
     )
 
     @Test

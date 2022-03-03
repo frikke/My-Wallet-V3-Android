@@ -4,11 +4,13 @@ import android.content.Intent
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.SecurityPrefs
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
+import timber.log.Timber
 
 interface LauncherView : MvpView {
     fun onCorruptPayload()
@@ -16,6 +18,7 @@ interface LauncherView : MvpView {
     fun onNoGuid()
     fun onRequestPin()
     fun onReenterPassword()
+    fun onLaunchDeepLink(intentData: String?)
 }
 
 data class ViewIntentData(
@@ -31,7 +34,8 @@ class LauncherPresenter internal constructor(
     private val prefs: PersistentPrefs,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val envSettings: EnvironmentConfig,
-    private val authPrefs: AuthPrefs
+    private val authPrefs: AuthPrefs,
+    private val securityPrefs: SecurityPrefs,
 ) : MvpPresenter<LauncherView>() {
 
     override fun onViewAttached() {
@@ -67,9 +71,13 @@ class LauncherPresenter internal constructor(
         val isWalletIdInValid = walletId.isNotEmpty() && !walletId.isValidGuid()
         val hasUnPairedWallet = walletId.isNotEmpty() && pinId.isEmpty()
         val hasLoggedIn = walletId.isNotEmpty() && pinId.isNotEmpty()
+        val skipPinAndProcessDeeplink = !securityPrefs.isPinRequired && viewIntentData?.data != null
+
+        Timber.d("skipPinAndProcessDeeplink: $skipPinAndProcessDeeplink")
 
         when {
             isWalletIdInValid -> view?.onCorruptPayload()
+            skipPinAndProcessDeeplink -> view?.onLaunchDeepLink(viewIntentData?.data)
             hasLoggedIn -> view?.onRequestPin()
             hasUnPairedWallet -> view?.onReenterPassword()
             walletId.isEmpty() -> if (hasBackup) view?.onRequestPin() else view?.onNoGuid()

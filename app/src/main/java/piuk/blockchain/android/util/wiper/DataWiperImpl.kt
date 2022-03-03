@@ -8,6 +8,7 @@ import info.blockchain.wallet.payload.PayloadScopeWiper
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
+import timber.log.Timber
 
 class DataWiperImpl constructor(
     private val ethDataManager: EthDataManager,
@@ -29,5 +30,6 @@ class DataWiperImpl constructor(
         walletOptionsState.wipe()
         payloadScopeWiper.wipe()
         walletPrefs.isAppUnlocked = false
+        Timber.d("skipPinAndProcessDeeplink: isAppUnlocked = false")
     }
 }

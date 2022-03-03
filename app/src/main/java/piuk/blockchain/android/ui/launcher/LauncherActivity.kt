@@ -15,6 +15,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
+import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
@@ -75,6 +76,17 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
                 presenter.clearCredentialsAndRestart()
             }
             .show()
+    }
+
+    override fun onLaunchDeepLink(intentData: String?) {
+        startActivity(
+            MainActivity.newIntent(
+                context = this,
+                intentData = intentData,
+                shouldLaunchUiTour = false,
+                shouldBeNewTask = true
+            )
+        )
     }
 
     private fun startSingleActivity(clazz: Class<*>, extras: Bundle?, uri: Uri? = null) {

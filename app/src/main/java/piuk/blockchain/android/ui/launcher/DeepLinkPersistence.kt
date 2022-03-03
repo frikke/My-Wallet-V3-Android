@@ -16,6 +16,7 @@ class DeepLinkPersistence(private val prefs: PersistentPrefs) {
         val data = prefs.getValue(KEY_DEEP_LINK_URI)
         Timber.d("DeepLink: Read uri: $data")
         prefs.removeValue(KEY_DEEP_LINK_URI)
+        Timber.d("DeepLink: Cleared uri: $data")
         return data
     }
 }

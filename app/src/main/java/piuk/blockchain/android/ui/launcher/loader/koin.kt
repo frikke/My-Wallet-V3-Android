@@ -27,6 +27,7 @@ val loaderModule = module {
         factory {
             LoaderInteractor(
                 walletPrefs = get(),
+                securityPrefs = get(),
                 payloadDataManager = get(),
                 prefs = get(),
                 analytics = get(),
