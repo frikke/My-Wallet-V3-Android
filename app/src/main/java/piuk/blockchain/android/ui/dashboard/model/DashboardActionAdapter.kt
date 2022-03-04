@@ -296,6 +296,9 @@ class DashboardActionAdapter(
                 onNext = {
                     model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, !it.total.isZero))
                 },
+                onComplete = {
+                    model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, false))
+                },
                 onError = { model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, false)) }
             )
     }
