@@ -51,5 +51,4 @@ class AccountInteractor internal constructor(
             else
                 Single.just(DebitCardOrderState.NOT_ELIGIBLE)
         }
-
 }
