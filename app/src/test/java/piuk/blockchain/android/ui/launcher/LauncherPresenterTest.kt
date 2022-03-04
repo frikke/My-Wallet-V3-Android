@@ -3,10 +3,13 @@ package piuk.blockchain.android.ui.launcher
 import android.content.Intent
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -23,7 +26,11 @@ class LauncherPresenterTest {
     private val appUtil: AppUtil = mock()
     private val viewIntentData: ViewIntentData = mock()
     private val authPrefs: AuthPrefs = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val securityPrefs: SecurityPrefs = mock()
+    private val deeplinkFeatureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
+
 
     private val subject = LauncherPresenter(
         appUtil,
@@ -31,7 +38,8 @@ class LauncherPresenterTest {
         deepLinkPersistence,
         environmentConfig,
         authPrefs,
-        walletPrefs
+        securityPrefs,
+        deeplinkFeatureFlag
     )
 
     @Test
