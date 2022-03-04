@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
@@ -279,11 +280,21 @@ private fun renderNoDapps() {
         Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
         Text(
             text = stringResource(R.string.no_dapps_connected),
+            modifier = Modifier.padding(
+                start = dimensionResource(R.dimen.small_margin),
+                end = dimensionResource(R.dimen.small_margin)
+            ),
+            textAlign = TextAlign.Center,
             style = AppTheme.typography.title3,
             color = AppTheme.colors.title
         )
         Text(
             text = stringResource(R.string.connect_with_wallet_connect),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(
+                start = dimensionResource(R.dimen.standard_margin),
+                end = dimensionResource(R.dimen.standard_margin)
+            ),
             style = AppTheme.typography.paragraph1,
             color = AppTheme.colors.medium
         )
