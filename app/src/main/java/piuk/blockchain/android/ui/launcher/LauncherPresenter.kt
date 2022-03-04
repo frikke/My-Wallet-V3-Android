@@ -83,8 +83,6 @@ class LauncherPresenter internal constructor(
             }
         )
 
-        Timber.d("skipPinAndProcessDeeplink: $skipPinAndProcessDeeplink")
-
         when {
             isWalletIdInValid -> view?.onCorruptPayload()
             skipPinAndProcessDeeplink -> view?.onLaunchDeepLink(viewIntentData?.data)

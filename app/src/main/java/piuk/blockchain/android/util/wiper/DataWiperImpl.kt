@@ -30,6 +30,5 @@ class DataWiperImpl constructor(
         walletOptionsState.wipe()
         payloadScopeWiper.wipe()
         walletPrefs.isAppUnlocked = false
-        Timber.d("skipPinAndProcessDeeplink: isAppUnlocked = false")
     }
 }
