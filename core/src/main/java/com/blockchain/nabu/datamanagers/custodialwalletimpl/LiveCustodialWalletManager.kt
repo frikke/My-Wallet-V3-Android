@@ -419,6 +419,7 @@ class LiveCustodialWalletManager(
         return dailyMax.coerceAtMost(max)
     }
 
+    // TODO (dserrano-bc): Remove these methods when we clean up old AssetDetailsSheet
     override fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>> =
         authenticator.authenticate { sessionToken ->
             nabuService.getRecurringBuysForAsset(sessionToken, asset.networkTicker)
@@ -448,6 +449,7 @@ class LiveCustodialWalletManager(
         authenticator.authenticateCompletable { sessionToken ->
             nabuService.cancelRecurringBuy(sessionToken, recurringBuyId)
         }
+    // TODO (dserrano-bc): end ------------------
 
     override fun getCardAcquirers(): Single<List<PaymentCardAcquirer>> =
         authenticator.authenticate { nabuSessionToken ->

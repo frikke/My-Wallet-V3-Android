@@ -13,6 +13,9 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewInteractor
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewModel
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewState
+import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyInteractor
+import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyModel
+import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyModelState
 import piuk.blockchain.android.ui.dashboard.model.DashboardActionAdapter
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
@@ -124,12 +127,26 @@ val dashboardModule = module {
         }
         factory {
             CoinViewInteractor(
-                dashboardPrefs = get(),
                 coincore = get(),
-                userIdentity = get(),
-                custodialWalletManager = get(),
-                paymentsDataManager = get(),
+                tradeDataManager = get(),
                 currencyPrefs = get()
+            )
+        }
+
+        factory {
+            RecurringBuyModel(
+                initialState = RecurringBuyModelState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
+
+        factory {
+            RecurringBuyInteractor(
+                tradeDataManager = get(),
+                paymentsDataManager = get()
             )
         }
     }

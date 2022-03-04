@@ -82,7 +82,7 @@ fun Image(
                 )
             }
         }
-        is ImageResource.LocalWithBackgroundAndExternalFilterResources -> {
+        is ImageResource.LocalWithBackgroundAndExternalResources -> {
             val filterColor = Color(android.graphics.Color.parseColor(imageResource.filterColor))
             val tintColor = Color(android.graphics.Color.parseColor(imageResource.tintColor))
             Box(

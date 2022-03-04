@@ -61,6 +61,8 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.data.Mapper
+import piuk.blockchain.android.data.RecurringBuyResponseToRecurringBuyMapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
@@ -536,9 +538,16 @@ val applicationModule = module {
                 tradeService = get(),
                 authenticator = get(),
                 accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
-                nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper()
+                nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
+                recurringBuyMapper = get()
             )
         }.bind(TradeDataManager::class)
+
+        factory {
+            RecurringBuyResponseToRecurringBuyMapper(
+                assetCatalogue = get()
+            )
+        }.bind(Mapper::class)
 
         factory {
             SimpleBuyPrefsSerializerImpl(

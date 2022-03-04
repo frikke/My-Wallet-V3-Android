@@ -28,6 +28,7 @@ class CoinViewModel(
                     asset?.let {
                         process(CoinViewIntent.AssetLoaded(it, fiatCurrency))
                         process(CoinViewIntent.LoadAccounts(it))
+                        process(CoinViewIntent.LoadRecurringBuys(it.assetInfo))
                     } ?: process(CoinViewIntent.UpdateErrorState(CoinViewError.UnknownAsset))
                 }
                 null
@@ -104,6 +105,16 @@ class CoinViewModel(
                             }
                         )
                 }
+            is CoinViewIntent.LoadRecurringBuys ->
+                interactor.loadRecurringBuys(intent.asset)
+                    .subscribeBy(
+                        onSuccess = {
+                            process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowRecurringBuys(it)))
+                        },
+                        onError = {
+                            process(CoinViewIntent.UpdateErrorState(CoinViewError.RecurringBuysLoadError))
+                        }
+                    )
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
             is CoinViewIntent.UpdateErrorState,

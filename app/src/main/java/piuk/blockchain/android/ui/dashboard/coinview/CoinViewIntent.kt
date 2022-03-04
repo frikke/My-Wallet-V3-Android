@@ -4,6 +4,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 
 sealed class CoinViewIntent : MviIntent<CoinViewState> {
@@ -15,6 +16,12 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
 
     class LoadAsset(val assetTicker: String) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState
+    }
+
+    class LoadRecurringBuys(val asset: AssetInfo) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState = oldState.copy(
+            viewState = CoinViewViewState.LoadingRecurringBuys
+        )
     }
 
     class AssetLoaded(private val asset: CryptoAsset, private val selectedFiat: FiatCurrency) : CoinViewIntent() {

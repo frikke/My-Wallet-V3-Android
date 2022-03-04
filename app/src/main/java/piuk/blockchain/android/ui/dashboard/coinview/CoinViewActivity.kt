@@ -35,10 +35,15 @@ import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItemNew
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
+import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
+import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
+import timber.log.Timber
 
-class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>() {
+class CoinViewActivity :
+    MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>(),
+    RecurringBuyDetailsSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -175,11 +180,18 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         if (newState.viewState != CoinViewViewState.None) {
             renderUiState(newState)
         }
+
+        if (newState.error != CoinViewError.None) {
+            Timber.e("---- error in coinview ${newState.error.name}")
+
+            model.process(CoinViewIntent.ResetErrorState)
+        }
     }
 
     private fun renderUiState(newState: CoinViewState) {
         when (val state = newState.viewState) {
-            CoinViewViewState.LoadingWallets -> {
+            CoinViewViewState.LoadingWallets,
+            CoinViewViewState.LoadingRecurringBuys -> {
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LOADING
             }
             is CoinViewViewState.ShowAccountInfo -> {
@@ -198,12 +210,25 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 }
                 renderPriceInformation(state.prices, state.historicalRateList, state.selectedFiat)
             }
+            is CoinViewViewState.ShowRecurringBuys -> renderRecurringBuys(state.recurringBuys)
             CoinViewViewState.None -> {
                 // do nothing
             }
         }
 
         model.process(CoinViewIntent.ResetViewState)
+    }
+
+    private fun renderRecurringBuys(recurringBuys: List<RecurringBuy>) {
+        if (recurringBuys.isNotEmpty()) {
+            val recurringBuysItems = recurringBuys.map {
+                AssetDetailsItemNew.RecurringBuyInfo(it)
+            }
+            listItems.addAll(recurringBuysItems)
+        } else {
+            listItems.add(AssetDetailsItemNew.RecurringBuyBanner)
+        }
+        updateList()
     }
 
     private fun renderBalanceInformation(totalCryptoBalance: CryptoValue, totalFiatBalance: FiatValue) {
@@ -279,7 +304,7 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
     }
 
     private fun onAccountSelected(account: BlockchainAccount, assetFilter: AssetFilter) {
-        clearList()
+        // clearList()
 
         if (account is CryptoAccount && assetFilter == AssetFilter.Custodial) {
             analytics.logEvent(CustodialBalanceClicked(account.currency))
@@ -292,19 +317,16 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
 
     private fun openOnboardingForRecurringBuy() {
         analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
-        //        startActivity(
-        //            RecurringBuyOnboardingActivity.newInstance(
-        //                context = this,
-        //                fromCoinView = true,
-        //                asset = asset
-        //            )
-        //        )
-        //        dismiss()
+        startActivity(
+            RecurringBuyOnboardingActivity.newIntent(
+                context = this,
+                fromCoinView = true,
+                assetTicker = assetTicker
+            )
+        )
     }
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
-        clearList()
-
         recurringBuy.asset.let {
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
@@ -313,7 +335,12 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 )
             )
         }
-        //        model.process(ShowRecurringBuySheet(recurringBuy))
+
+        showBottomSheet(RecurringBuyDetailsSheet.newInstance(recurringBuy))
+    }
+
+    override fun onRecurringBuyDeleted(asset: AssetInfo) {
+        model.process(CoinViewIntent.LoadRecurringBuys(asset))
     }
 
     private fun clearList() {
@@ -324,6 +351,10 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
     private fun updateList() {
         adapterDelegate.items = listItems
         adapterDelegate.notifyDataSetChanged()
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
     }
 
     companion object {

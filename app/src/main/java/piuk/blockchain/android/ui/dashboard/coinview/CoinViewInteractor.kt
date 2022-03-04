@@ -5,27 +5,22 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.NullAccountGroup
-import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.android.domain.repositories.TradeDataManager
 
 class CoinViewInteractor(
-    private val dashboardPrefs: DashboardPrefs,
     private val coincore: Coincore,
-    private val userIdentity: UserIdentity,
-    private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val tradeDataManager: TradeDataManager,
     private val currencyPrefs: CurrencyPrefs
 ) {
 
@@ -39,13 +34,8 @@ class CoinViewInteractor(
         asset.historicRateSeries(timeSpan)
             .onErrorResumeNext { Single.just(emptyList()) }
 
-    fun shouldShowCustody(asset: AssetInfo): Single<Boolean> {
-        return coincore[asset].accountGroup(AssetFilter.Custodial)
-            .flatMapSingle { it.balance.firstOrError() }
-            .map {
-                !dashboardPrefs.isCustodialIntroSeen && !it.total.isZero
-            }.defaultIfEmpty(false)
-    }
+    fun loadRecurringBuys(asset: AssetInfo): Single<List<RecurringBuy>> =
+        tradeDataManager.getRecurringBuysForAsset(asset)
 
     private fun load24hPriceDelta(asset: CryptoAsset) =
         asset.getPricesWith24hDelta()

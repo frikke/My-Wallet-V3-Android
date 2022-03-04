@@ -2755,7 +2755,8 @@
     <string name="coinview_price_all">All time</string>
     <string name="coinview_price_label">Current %1$s Price</string>
     <string name="coinview_balance_label">Your Total %1$s</string>
-
+    <string name="coinview_rb_card_title">Don’t know when to buy?</string>
+    <string name="coinview_rb_card_blurb">Timing the market is hard, which is why many investors use dollar cost averaging.</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>

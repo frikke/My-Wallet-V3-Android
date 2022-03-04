@@ -4,6 +4,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import java.util.Date
+import kotlinx.serialization.Serializable
 
 enum class RecurringBuyState {
     ACTIVE,
@@ -26,7 +27,7 @@ data class EligibleAndNextPaymentRecurringBuy(
     val eligibleMethods: List<PaymentMethodType>
 )
 
-interface RecurringBuyPaymentDetails {
+interface RecurringBuyPaymentDetails : java.io.Serializable {
     val paymentDetails: PaymentMethodType
 }
 
@@ -46,4 +47,4 @@ data class RecurringBuy(
     val asset: AssetInfo,
     val createDate: Date,
     val paymentDetails: RecurringBuyPaymentDetails? = null
-)
+) : java.io.Serializable

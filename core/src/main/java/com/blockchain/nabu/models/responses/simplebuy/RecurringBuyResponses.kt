@@ -11,6 +11,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Money
 import java.util.Date
 
+// TODO(dserrano-bc): remove this in favour of the one defined in the blockchainApi module
 data class RecurringBuyResponse(
     val id: String,
     val userId: String,

@@ -150,5 +150,14 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
             putExtra(ORIGIN_ON_BOARDING_RBS, fromCoinView)
             putExtra(ASSET, asset?.networkTicker)
         }
+
+        fun newIntent(
+            context: Context,
+            fromCoinView: Boolean,
+            assetTicker: String
+        ): Intent = Intent(context, RecurringBuyOnboardingActivity::class.java).apply {
+            putExtra(ORIGIN_ON_BOARDING_RBS, fromCoinView)
+            putExtra(ASSET, assetTicker)
+        }
     }
 }

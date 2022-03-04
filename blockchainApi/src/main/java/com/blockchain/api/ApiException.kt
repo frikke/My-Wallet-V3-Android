@@ -1,5 +1,6 @@
 package com.blockchain.api
 
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
@@ -42,5 +43,12 @@ internal fun <T> Maybe<T>.wrapErrorMessage(): Maybe<T> = this.onErrorResumeNext 
     when (it) {
         is HttpException -> Maybe.error(ApiException(it))
         else -> Maybe.error(it)
+    }
+}
+
+internal fun Completable.wrapErrorMessage(): Completable = this.onErrorResumeNext {
+    when (it) {
+        is HttpException -> Completable.error(ApiException(it))
+        else -> Completable.error(it)
     }
 }

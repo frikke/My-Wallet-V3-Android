@@ -33,7 +33,11 @@ sealed class ImageResource(
         contentDescription: String? = null
     ) : ImageResource(contentDescription)
 
-    class LocalWithBackgroundAndExternalFilterResources(
+    /**
+     * [filterColorId] controls the colour of the background circle
+     * [tintColorId] controls the fill colour of the given icon
+     */
+    class LocalWithBackgroundAndExternalResources(
         @DrawableRes val id: Int,
         val filterColor: String,
         val tintColor: String,

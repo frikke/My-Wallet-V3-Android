@@ -33,22 +33,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <!-- TODO(dserrano-bc): WCL-37 replace this with shimmer component -->
-                <com.airbnb.lottie.LottieAnimationView
+                <com.blockchain.componentlib.system.LoadingTableRowView
                     android:id="@+id/asset_prices_loading"
-                    android:layout_width="@dimen/animated_loader_view"
-                    android:layout_height="@dimen/animated_loader_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="lottie/loader.json"
-                    app:lottie_imageAssetsFolder="lottie/loader.json"
-                    app:lottie_loop="true"
-                    app:lottie_repeatMode="restart" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.blockchain.componentlib.charts.BalanceView
                     android:id="@+id/asset_price"
@@ -90,22 +84,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <!-- TODO(dserrano-bc): WCL-37 replace this with shimmer component -->
-                <com.airbnb.lottie.LottieAnimationView
+                <com.blockchain.componentlib.system.LoadingTableRowView
                     android:id="@+id/asset_balances_loading"
-                    android:layout_width="@dimen/animated_loader_view"
-                    android:layout_height="@dimen/animated_loader_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="lottie/loader.json"
-                    app:lottie_imageAssetsFolder="lottie/loader.json"
-                    app:lottie_loop="true"
-                    app:lottie_repeatMode="restart" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
                     android:id="@+id/asset_balance"
@@ -119,21 +107,16 @@
                 android:layout_height="wrap_content">
 
                 <!-- TODO(dserrano-bc): WCL-37 replace this with shimmer component -->
-                <com.airbnb.lottie.LottieAnimationView
+                <com.blockchain.componentlib.system.LoadingTableRowView
                     android:id="@+id/asset_accounts_loading"
-                    android:layout_width="@dimen/animated_loader_view"
-                    android:layout_height="@dimen/animated_loader_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="lottie/loader.json"
-                    app:lottie_imageAssetsFolder="lottie/loader.json"
-                    app:lottie_loop="true"
-                    app:lottie_repeatMode="restart" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/asset_list"

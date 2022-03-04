@@ -8,10 +8,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.core.view.isVisible
 import com.blockchain.componentlib.card.CardButton
-import com.blockchain.componentlib.card.abstract.AnnouncementCardView
-import com.blockchain.componentlib.card.abstract.CallOutCardView
-import com.blockchain.componentlib.card.abstract.CtaAnnouncementCardView
-import com.blockchain.componentlib.card.abstract.DefaultCardView
+import com.blockchain.componentlib.card.AnnouncementCardView
+import com.blockchain.componentlib.card.CallOutCardView
+import com.blockchain.componentlib.card.CtaAnnouncementCardView
+import com.blockchain.componentlib.card.DefaultCardView
 import com.blockchain.componentlib.basic.ImageResource
 import piuk.blockchain.blockchain_component_library_catalog.R
 
