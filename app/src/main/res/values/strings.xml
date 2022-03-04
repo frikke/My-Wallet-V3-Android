@@ -2579,6 +2579,9 @@
     <string name="account_exchange_info_error">There was an error loading Exchange information, please try again</string>
     <string name="account_load_exchange_error">There was an error loading the Exchange, please try again</string>
     <string name="account_load_bc_card_error">There was an error loading the Blockchain Debit Card, please try again</string>
+    <string name="account_not_eligible">Not Eligible</string>
+    <string name="order_card">Order Card</string>
+    <string name="blockchain_debit_card">Blockchain Debit Card</string>
 
     <!-- Profile screen -->
     <string name="profile_toolbar">Profile</string>

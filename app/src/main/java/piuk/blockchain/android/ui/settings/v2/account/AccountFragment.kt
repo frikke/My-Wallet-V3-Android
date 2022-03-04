@@ -121,7 +121,7 @@ class AccountFragment :
             }
 
             settingsDebitCard.apply {
-                primaryText = "Blockchain Debit Card"
+                primaryText = getString(R.string.blockchain_debit_card)
                 onClick = {
                     // TODO Navigate to order card screen
                 }
@@ -196,12 +196,12 @@ class AccountFragment :
                 binding.settingsDebitCard.secondaryText = ""
             }
             DebitCardOrderState.NOT_ELIGIBLE -> {
-                binding.settingsDebitCard.secondaryText = "Not Eligible"
+                binding.settingsDebitCard.secondaryText = getString(R.string.account_not_eligible)
             }
             DebitCardOrderState.ELIGIBLE -> {
                 with(binding.settingsDebitCard) {
                     secondaryText = null
-                    tags = listOf(TagViewState("Order Card", TagType.InfoAlt()))
+                    tags = listOf(TagViewState(getString(R.string.account_order_card), TagType.InfoAlt()))
                 }
             }
         }
