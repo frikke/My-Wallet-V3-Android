@@ -199,7 +199,10 @@ class AccountFragment :
                 binding.settingsDebitCard.secondaryText = "Not Eligible"
             }
             DebitCardOrderState.ELIGIBLE -> {
-                binding.settingsDebitCard.secondaryText = "Order Card"
+                with(binding.settingsDebitCard) {
+                    secondaryText = null
+                    tags = listOf(TagViewState("Order Card", TagType.InfoAlt()))
+                }
             }
         }
 
