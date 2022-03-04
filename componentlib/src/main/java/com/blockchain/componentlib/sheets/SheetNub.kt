@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark300
@@ -21,10 +22,12 @@ fun SheetNub(
 ) {
     Box(
         modifier = modifier
-            .size(width = 24.dp, height = 4.dp)
+            .size(
+                width = dimensionResource(R.dimen.standard_margin), height = dimensionResource(R.dimen.smallest_margin)
+            )
             .background(
                 color = if (isDarkMode) Dark300 else Grey100,
-                shape = RoundedCornerShape(size = 4.dp)
+                shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_margin))
             )
     )
 }

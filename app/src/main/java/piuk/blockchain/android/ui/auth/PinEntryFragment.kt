@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.text.InputType
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -25,7 +24,7 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.Visibility
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
@@ -58,6 +57,7 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.FragmentPinEntryBinding
+import piuk.blockchain.android.ui.auth.PinEntryActivity.Companion.KEY_ORIGIN_SETTINGS
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
@@ -233,6 +233,9 @@ class PinEntryFragment :
     override val isForValidatingAndLoadingPayloadResult: Boolean
         get() = activity?.intent?.extras?.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD, false)
             ?: false
+
+    override val isSettingsOrigin: Boolean
+        get() = activity?.intent?.extras?.getBoolean(KEY_ORIGIN_SETTINGS, false) ?: false
 
     override fun enrollBiometrics() {
         biometricsController.authenticate(
@@ -415,11 +418,9 @@ class PinEntryFragment :
     }
 
     override fun restartPageAndClearTop() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(context, PinEntryActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }, 300)
+        val intent = Intent(context, PinEntryActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     override fun showCommonPinWarning(callback: DialogButtonCallback) {
@@ -695,7 +696,7 @@ class PinEntryFragment :
         alertDialog.show()
         // Buttons are done this way to avoid dismissing the dialog
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val appPackageName = context?.packageName
+            val appPackageName = context?.packageName.orEmpty()
             try {
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(APP_STORE_URI + appPackageName)))
             } catch (e: ActivityNotFoundException) {
@@ -751,6 +752,10 @@ class PinEntryFragment :
 
     override fun restartAppWithVerifiedPin() {
         appUtil.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterWalletCreation)
+    }
+
+    override fun closePinChangeScreen() {
+        activity?.finish()
     }
 
     override fun createPresenter(): PinEntryPresenter = pinEntryPresenter

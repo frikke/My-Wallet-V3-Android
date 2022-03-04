@@ -20,9 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -55,14 +57,14 @@ fun SheetHeaderBackAndAction(
                     .weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(dimensionResource(R.dimen.very_small_margin)))
 
                 SheetHeaderBackButton(
                     onBackPress = onBackPress,
                     backPressContentDescription = backPressContentDescription,
                     modifier = Modifier
                         .fillMaxHeight()
-                        .size(24.dp)
+                        .size(dimensionResource(R.dimen.standard_margin))
                 )
 
                 Text(
@@ -73,8 +75,8 @@ fun SheetHeaderBackAndAction(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            start = 24.dp,
-                            top = 4.dp
+                            start = dimensionResource(R.dimen.standard_margin),
+                            top = dimensionResource(R.dimen.smallest_margin)
                         ),
                 )
 
@@ -93,10 +95,10 @@ fun SheetHeaderBackAndAction(
                             onClick = { onActionPress() }
                         )
                         .widthIn(min = 48.dp)
-                        .padding(top = 4.dp),
+                        .padding(top = dimensionResource(R.dimen.smallest_margin)),
                 )
 
-                Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.width(dimensionResource(R.dimen.medium_margin)))
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }

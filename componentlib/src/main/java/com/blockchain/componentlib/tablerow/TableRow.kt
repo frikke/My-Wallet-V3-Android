@@ -12,7 +12,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -36,7 +37,10 @@ fun TableRow(
                 }
             }
             .background(AppTheme.colors.background)
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.standard_margin),
+                vertical = dimensionResource(R.dimen.medium_margin)
+            )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

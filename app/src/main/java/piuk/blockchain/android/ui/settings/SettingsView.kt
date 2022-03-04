@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import androidx.annotation.StringRes
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import piuk.blockchain.android.scan.QrScanError

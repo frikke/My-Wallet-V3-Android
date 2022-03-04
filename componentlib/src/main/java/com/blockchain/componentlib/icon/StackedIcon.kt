@@ -9,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
@@ -23,12 +25,12 @@ fun StackedIcons(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.size(width = 32.dp, height = 40.dp)
+        modifier = modifier.size(width = dimensionResource(R.dimen.large_margin), height = 40.dp)
     ) {
         Image(
             imageResource = bottomImageResource,
             modifier = Modifier
-                .size(24.dp)
+                .size(dimensionResource(R.dimen.standard_margin))
                 .clip(CircleShape)
                 .background(AppTheme.colors.background)
                 .align(Alignment.BottomEnd),

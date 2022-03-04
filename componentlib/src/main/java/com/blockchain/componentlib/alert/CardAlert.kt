@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,7 +62,7 @@ fun CardAlert(
     }
 
     var boxModifier = Modifier
-        .padding(4.dp)
+        .padding(dimensionResource(R.dimen.smallest_margin))
         .defaultMinSize(minWidth = 340.dp)
         .background(color = AppTheme.colors.light, shape = AppTheme.shapes.small)
 
@@ -74,7 +75,7 @@ fun CardAlert(
     ) {
         Surface(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(dimensionResource(R.dimen.medium_margin))
                 .background(AppTheme.colors.light)
                 .clip(AppTheme.shapes.small)
 
@@ -123,7 +124,7 @@ fun CardCloseButton(
             .clickable {
                 onClick.invoke()
             }
-            .size(24.dp)
+            .size(dimensionResource(R.dimen.standard_margin))
             .background(color = backgroundColor, shape = CircleShape)
     ) {
         Image(

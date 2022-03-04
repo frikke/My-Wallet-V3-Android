@@ -161,7 +161,7 @@ class EthDataManager(
      */
     fun updateTransactionNotes(hash: String, note: String): Completable =
         ethDataStore.ethWallet?.let {
-            it.txNotes[hash] = note
+            it.txNotes?.set(hash, note)
             return@let save()
         } ?: Completable.error { IllegalStateException("ETH Wallet is null") }
             .applySchedulers()
@@ -295,7 +295,7 @@ class EthDataManager(
                 var ethWallet = EthereumWallet.load(walletJson)
                 var needsSave = false
 
-                if (ethWallet?.account == null || !ethWallet.account.isCorrect) {
+                if (ethWallet?.account == null || !ethWallet.account!!.isCorrect) {
                     try {
                         val masterKey = payloadDataManager.masterKey
                         ethWallet = EthereumWallet(masterKey, label)
@@ -308,12 +308,13 @@ class EthDataManager(
                     }
                 }
 
-                if (!ethWallet.account.isAddressChecksummed()) {
-                    ethWallet.account.apply {
-                        address = withChecksummedAddress()
+                ethWallet.account?.let { ethereumAccount ->
+                    if (!ethereumAccount.isAddressChecksummed()) {
+                        ethereumAccount.address = ethereumAccount.withChecksummedAddress()
+                        needsSave = true
                     }
-                    needsSave = true
                 }
+
                 ethWallet to needsSave
             }
 

@@ -73,6 +73,8 @@ interface BlockchainAccount {
     val receiveAddress: Single<ReceiveAddress>
 
     fun requireSecondPassword(): Single<Boolean> = Single.just(false)
+
+    val stateAwareActions: Single<Set<StateAwareAction>>
 }
 
 interface SingleAccount : BlockchainAccount, TransactionTarget {

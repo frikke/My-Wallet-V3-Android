@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.CrashLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq

@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
@@ -19,6 +20,7 @@ class BalanceView @JvmOverloads constructor(
     var title by mutableStateOf("Current Balance")
     var price by mutableStateOf("$0.00")
     var percentageChangeData by mutableStateOf(PercentageChangeData("$0.00", 0.0, ""))
+    var endIcon by mutableStateOf(ImageResource.None as ImageResource)
 
     @Composable
     override fun Content() {
@@ -27,7 +29,8 @@ class BalanceView @JvmOverloads constructor(
                 Balance(
                     title = title,
                     price = price,
-                    percentageChangeData = percentageChangeData
+                    percentageChangeData = percentageChangeData,
+                    endIcon = endIcon
                 )
             }
         }
@@ -37,5 +40,6 @@ class BalanceView @JvmOverloads constructor(
         title = "Current Balance"
         price = "$0.00"
         percentageChangeData = PercentageChangeData("$0.00", 0.0, "")
+        endIcon = ImageResource.None
     }
 }

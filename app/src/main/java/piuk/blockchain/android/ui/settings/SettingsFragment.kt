@@ -43,7 +43,7 @@ import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment.Companion.BOTTOM_SHEET
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.hideKeyboard
@@ -746,9 +746,7 @@ class SettingsFragment :
     }
 
     override fun goToPinEntryPage() {
-        val intent = Intent(activity, PinEntryActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
+        PinEntryActivity.startPinChange(requireContext())
         analytics.logEvent(SettingsAnalytics.PinChanged_Old)
         analytics.logEvent(SettingsAnalytics.PinCodeChanged)
     }
@@ -954,6 +952,7 @@ class SettingsFragment :
 
     private fun showDialogChangePin() {
         val intent = Intent(activity, PinEntryActivity::class.java)
+        intent.putExtra(PinEntryActivity.KEY_ORIGIN_SETTINGS, true)
         intent.putExtra(KEY_VALIDATING_PIN_FOR_RESULT, true)
         startActivityForResult(intent, REQUEST_CODE_VALIDATE_PIN)
     }

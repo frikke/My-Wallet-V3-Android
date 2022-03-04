@@ -19,6 +19,7 @@ class BalanceSectionHeaderView @JvmOverloads constructor(
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var defaultIcon = ImageResource.Local(R.drawable.ic_star, null)
+    var labelText by mutableStateOf("")
     var primaryText by mutableStateOf("")
     var secondaryText by mutableStateOf("")
     var iconResource: ImageResource by mutableStateOf(defaultIcon)
@@ -29,6 +30,7 @@ class BalanceSectionHeaderView @JvmOverloads constructor(
         AppTheme {
             AppSurface {
                 BalanceSectionHeader(
+                    labelText = labelText,
                     primaryText = primaryText,
                     secondaryText = secondaryText,
                     iconResource = iconResource,
@@ -39,6 +41,7 @@ class BalanceSectionHeaderView @JvmOverloads constructor(
     }
 
     fun clearState() {
+        labelText = ""
         primaryText = ""
         secondaryText = ""
         iconResource = defaultIcon

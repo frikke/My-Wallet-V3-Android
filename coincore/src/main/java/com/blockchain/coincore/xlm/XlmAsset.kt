@@ -104,17 +104,18 @@ internal class XlmAsset(
             )
         )
 
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
+    override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> =
         Maybe.fromCallable {
             if (address.isValidXlmQr()) {
                 val payment = address.fromStellarUri()
                 XlmAddress(
                     _address = payment.public.accountId,
+                    isDomain = isDomainAddress,
                     stellarPayment = payment
                 )
             } else {
                 if (isValidAddress(address)) {
-                    XlmAddress(address, label ?: address)
+                    XlmAddress(address, label ?: address, isDomainAddress)
                 } else {
                     null
                 }
@@ -128,6 +129,7 @@ internal class XlmAsset(
 internal class XlmAddress(
     _address: String,
     _label: String? = null,
+    override val isDomain: Boolean = false,
     val stellarPayment: StellarPayment? = null,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() }
 ) : CryptoAddress {

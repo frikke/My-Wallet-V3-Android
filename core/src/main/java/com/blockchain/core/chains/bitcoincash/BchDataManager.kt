@@ -47,7 +47,7 @@ class BchDataManager(
     }
 
     /**
-     * Fetches EthereumWallet stored in metadata. If metadata entry doesn't exists it will be created.
+     * Fetches BCH Wallet stored in metadata. If metadata entry doesn't exists it will be created.
      *
      * @param defaultLabel The ETH address default label to be used if metadata entry doesn't exist
      * @return An [Completable]
@@ -296,7 +296,7 @@ class BchDataManager(
 
     fun updateAllBalances(): Completable {
         val importedAddresses = payloadDataManager.importedAddresses
-            .map { it.address }
+            .mapNotNull { it.address }
 
         val xpubs = getActiveXpubs()
 

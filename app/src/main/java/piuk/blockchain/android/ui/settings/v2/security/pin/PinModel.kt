@@ -63,9 +63,10 @@ class PinModel(
                         .handleProgress(R.string.creating_pin)
                         .subscribeBy(
                             onComplete = {
+                                process(PinIntent.CreatePINSucceeded)
                                 process(PinIntent.SetFingerprintEnabled(false))
-                                interactor.resetPinFailureCount()
                                 process(PinIntent.UpdatePayload(tempPassword, true))
+                                interactor.resetPinFailureCount()
                             },
                             onError = {
                                 process(PinIntent.UpdatePinErrorState(PinError.CREATE_PIN_FAILED))
@@ -79,7 +80,7 @@ class PinModel(
                     .handleProgress(R.string.validating_pin)
                     .subscribeBy(
                         onSuccess = { password ->
-                            if (intent.isForValidatingPinForResult) {
+                            if (intent.isForValidatingPinForResult || intent.isChangingPin) {
                                 process(PinIntent.ValidatePINSucceeded)
                             } else {
                                 process(PinIntent.UpdatePayload(password, false))
@@ -166,13 +167,13 @@ class PinModel(
                             handlePayloadUpdateError(it)
                         }
                     )
+                null
             }
             is PinIntent.UpgradeWallet -> {
                 interactor.doUpgradeWallet(intent.secondPassword, intent.isFromPinCreation)
                     .handleProgress(R.string.upgrading)
                     .subscribeBy(
                         onComplete = {
-                            process(PinIntent.HandleProgressDialog(false))
                             process(PinIntent.UpgradeWalletResponse(true))
                             analytics.logEvent(WalletUpgradeEvent(true))
                         },
@@ -204,6 +205,7 @@ class PinModel(
             is PinIntent.HandleProgressDialog,
             is PinIntent.UpgradeWalletResponse,
             is PinIntent.SetFingerprintEnabled,
+            is PinIntent.CreatePINSucceeded,
             is PinIntent.SetShowFingerprint -> null
         }
 
@@ -298,7 +300,7 @@ class PinModel(
             is SocketTimeoutException ->
                 process(PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_TIMEOUT))
             is UnsupportedVersionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPORTTED_VERSION_EXCEPTION))
+                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPPORTED_VERSION_EXCEPTION))
             is DecryptionException ->
                 process(PinIntent.UpdatePayloadErrorState(PayloadError.DECRYPTION_EXCEPTION))
             is HDWalletException -> {

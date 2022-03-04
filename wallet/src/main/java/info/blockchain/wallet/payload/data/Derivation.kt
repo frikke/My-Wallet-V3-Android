@@ -31,7 +31,7 @@ data class Derivation(
     @JsonProperty("cache")
     var cache: AddressCache = AddressCache(),
 
-    @JsonProperty("address_labels")
+    @field:JsonProperty("address_labels")
     var addressLabels: MutableList<AddressLabel> = mutableListOf()
 ) {
     constructor(type: String, purpose: Int) : this(type, purpose, "", "")

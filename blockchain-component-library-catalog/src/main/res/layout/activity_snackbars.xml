@@ -19,7 +19,7 @@
             android:text="Info"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.alert.abstract.SnackbarAlertView
+        <com.blockchain.componentlib.alert.SnackbarAlertView
             android:id="@+id/info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -31,7 +31,7 @@
             android:text="Info with Action"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.alert.abstract.SnackbarAlertView
+        <com.blockchain.componentlib.alert.SnackbarAlertView
             android:id="@+id/info_with_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -43,7 +43,7 @@
             android:text="Success no Action"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.alert.abstract.SnackbarAlertView
+        <com.blockchain.componentlib.alert.SnackbarAlertView
             android:id="@+id/success"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -55,7 +55,7 @@
             android:text="Warning no Action"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.alert.abstract.SnackbarAlertView
+        <com.blockchain.componentlib.alert.SnackbarAlertView
             android:id="@+id/warning"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -67,7 +67,7 @@
             android:text="Error no Action"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.alert.abstract.SnackbarAlertView
+        <com.blockchain.componentlib.alert.SnackbarAlertView
             android:id="@+id/error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -79,7 +79,7 @@
             android:text="Success with Action"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.alert.abstract.SnackbarAlertView
+        <com.blockchain.componentlib.alert.SnackbarAlertView
             android:id="@+id/success_with_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -91,7 +91,7 @@
             android:text="Error with Action"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.alert.abstract.SnackbarAlertView
+        <com.blockchain.componentlib.alert.SnackbarAlertView
             android:id="@+id/error_with_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -103,7 +103,7 @@
             android:text="Warning with Action"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.alert.abstract.SnackbarAlertView
+        <com.blockchain.componentlib.alert.SnackbarAlertView
             android:id="@+id/warning_with_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

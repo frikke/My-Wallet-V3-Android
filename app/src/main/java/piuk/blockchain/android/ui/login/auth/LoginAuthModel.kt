@@ -3,14 +3,12 @@ package piuk.blockchain.android.ui.login.auth
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.androidcore.utils.extensions.AccountLockedException
 import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
 import piuk.blockchain.androidcore.utils.extensions.InitialErrorException
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import timber.log.Timber
 
 class LoginAuthModel(
@@ -18,8 +16,7 @@ class LoginAuthModel(
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger,
-    private val interactor: LoginAuthInteractor,
-    private val unifiedSignInFlag: FeatureFlag
+    private val interactor: LoginAuthInteractor
 ) : MviModel<LoginAuthState, LoginAuthIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
 
     override fun performAction(previousState: LoginAuthState, intent: LoginAuthIntents): Disposable? {
@@ -165,11 +162,9 @@ class LoginAuthModel(
 
     private fun updateAccount(isMobileSetup: Boolean, deviceType: Int, shouldRequestUpgrade: Boolean) =
         interactor.updateMobileSetup(isMobileSetup, deviceType)
-            .thenSingle {
-                unifiedSignInFlag.enabled
-            }.subscribeBy(
-                onSuccess = { featureEnabled ->
-                    if (featureEnabled && shouldRequestUpgrade) {
+            .subscribeBy(
+                onComplete = {
+                    if (shouldRequestUpgrade) {
                         process(LoginAuthIntents.ShowAccountUnification)
                     } else {
                         process(LoginAuthIntents.ShowAuthComplete)

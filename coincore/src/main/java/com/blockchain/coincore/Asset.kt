@@ -67,6 +67,19 @@ enum class AssetAction(
     Sign(ActionOrigin.FROM_SOURCE)
 }
 
+class StateAwareAction(
+    val state: ActionState,
+    val action: AssetAction
+)
+
+enum class ActionState {
+    Available,
+    LockedForBalance,
+    LockedForTier,
+    LockedDueToAvailability,
+    LockedForOther
+}
+
 typealias AvailableActions = Set<AssetAction>
 
 internal inline fun AssetAction.takeEnabledIf(
@@ -78,7 +91,7 @@ internal inline fun AssetAction.takeEnabledIf(
 interface Asset {
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>
     fun transactionTargets(account: SingleAccount): Single<SingleAccountList>
-    fun parseAddress(address: String, label: String? = null): Maybe<ReceiveAddress>
+    fun parseAddress(address: String, label: String? = null, isDomainAddress: Boolean = false): Maybe<ReceiveAddress>
     fun isValidAddress(address: String): Boolean = false
 }
 

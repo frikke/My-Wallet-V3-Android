@@ -48,7 +48,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
         assertEquals(68, walletBody.getAccounts().size());
         assertEquals("i3gtswW35zfbS/23fnh3IzKzcrpD04Tp+zeKbj++rODMOGRMO1aMQukwE3Q+63ds8pUMzBFnzomkjntprhisrQ==", walletBody.getSeedHex());
         assertEquals("", walletBody.getPassphrase());
-        assertTrue(walletBody.isMnemonicVerified());
+        assertTrue(walletBody.getMnemonicVerified());
         assertEquals(0, walletBody.getDefaultAccountIdx());
     }
 
@@ -57,7 +57,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
         String body = loadResourceContent("wallet_body_2.txt");
 
         Wallet wallet = Wallet.fromJson(body);
-        Assert.assertEquals(0, wallet.getWalletBodies().size());
+        Assert.assertEquals(null, wallet.getWalletBodies());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
         assertEquals(1, walletBody.getAccounts().size());
         assertEquals("bfb70136ef9f973e866dff00817b8070", walletBody.getSeedHex());
         assertEquals("somePassPhrase", walletBody.getPassphrase());
-        assertFalse(walletBody.isMnemonicVerified());
+        assertFalse(walletBody.getMnemonicVerified());
         assertEquals(2, walletBody.getDefaultAccountIdx());
     }
 
@@ -106,7 +106,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
             .thenReturn(balanceResponse3);
 
         String label = "HDAccount 1";
-        WalletBody walletBody = WalletBody.recoverFromMnemonic(mnemonic, label, bitcoinApi, false);
+        WalletBody walletBody = WalletBody.Companion.recoverFromMnemonic(mnemonic, label, bitcoinApi, false);
 
         assertEquals(walletBody.getAccounts().get(0).getLabel(), label);
         assertEquals(10, walletBody.getAccounts().size());
@@ -128,7 +128,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
         mockInterceptor.setResponseStringList(xpubs);
 
         String label = "HDAccount 1";
-        WalletBody walletBody = WalletBody.recoverFromMnemonic(
+        WalletBody walletBody = WalletBody.Companion.recoverFromMnemonic(
             mnemonic,
             "somePassphrase",
             label,
@@ -143,7 +143,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test
     public void getHDKeysForSigning() throws Exception {
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
 
         walletBody.decryptHDWallet(
             "hello",
@@ -184,7 +184,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
         String body = loadResourceContent("hd_wallet_body_2.txt");
 
         //HD seed is encrypted, only xpubs available
-        WalletBody walletBody = WalletBody.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
 
         assertEquals("5F8YjqPVSq9HnXBrDxUmUoDKXsya8q5LGHnAopadTRYE",
                 Base58.encode(walletBody.getMasterKey().toDeterministicKey().getPrivKeyBytes()));
@@ -193,7 +193,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test(expected = HDWalletException.class)
     public void getMasterKey_DecryptionException() throws Exception {
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
 
         walletBody.getMasterKey();
     }
@@ -201,7 +201,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test
     public void getMnemonic() throws Exception {
         String body = loadResourceContent("hd_wallet_body_2.txt");
-        WalletBody walletBody = WalletBody.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
 
         assertEquals("[car, region, outdoor, punch, poverty, shadow, insane, claim, one, whisper, learn, alert]",
                      walletBody.getMnemonic().toString());
@@ -210,7 +210,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test(expected = HDWalletException.class)
     public void getMnemonic_DecryptionException() throws Exception {
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
 
         walletBody.getMnemonic();
     }
@@ -218,7 +218,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test
     public void getXpubToAccountIndexMap() throws Exception {
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
 
         BiMap<String, Integer> map = walletBody.getXpubToAccountIndexMap();
 
@@ -233,7 +233,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     public void getDerivationsAfterV4Upgrade() throws Exception {
         final int expectedDerivationsCount = 2;
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
         walletBody.decryptHDWallet(
             "hello",
             "d14f3d2c-f883-40da-87e2-c8448521ee64",

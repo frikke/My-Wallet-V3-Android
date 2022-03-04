@@ -4,6 +4,7 @@ import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.api.nabu.data.InitialAddressRequest
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
+import com.blockchain.api.nabu.data.LatestTermsAndConditionsResponse
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
@@ -38,6 +39,11 @@ class NabuUserService internal constructor(
         stateIsoCode: String?
     ): Completable =
         api.saveUserInitialLocation(authHeader, InitialAddressRequest(countryIsoCode, stateIsoCode))
+
+    fun getLatestTermsAndConditions(authHeader: String): Single<LatestTermsAndConditions> =
+        api.getLatestTermsAndConditions(authHeader).map { it.toDomain() }
+
+    fun signLatestTermsAndConditions(authHeader: String) = api.signLatestTermsAndConditions(authHeader)
 }
 
 private fun Map<String, InterestEligibilityResponse>.toDomain(): InterestEligibility =
@@ -49,3 +55,7 @@ data class Geolocation(
     val countryCode: String,
     val state: String? = null
 )
+
+private fun LatestTermsAndConditionsResponse.toDomain() = LatestTermsAndConditions(termsAndConditionsMarkdown)
+
+data class LatestTermsAndConditions(val termsAndConditionsMarkdown: String?)

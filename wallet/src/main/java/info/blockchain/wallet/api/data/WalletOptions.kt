@@ -13,31 +13,25 @@ typealias WalletAddress = String
 @JsonIgnoreProperties(ignoreUnknown = true)
 class WalletOptions {
 
-    @JsonProperty("showBuySellTab")
+    @field:JsonProperty("showBuySellTab")
     val buySellCountries: List<String> = emptyList()
 
-    @JsonProperty("partners")
-    val partners: Partners = Partners()
-
-    @JsonProperty("androidBuyPercent")
+    @field:JsonProperty("androidBuyPercent")
     val rolloutPercentage: Double = 0.toDouble()
 
-    @JsonProperty("android")
+    @field:JsonProperty("android")
     var androidFlags: MutableMap<String, Boolean> = mutableMapOf()
-
-    @JsonProperty("ethereum")
-    val ethereum: EthereumOptions = EthereumOptions()
 
     @JsonProperty("hotWalletAddresses")
     val hotWalletAddresses: Map<Product, Map<Asset, WalletAddress>> = HashMap()
 
-    @JsonProperty("android_update")
+    @field:JsonProperty("android_update")
     val androidUpdate: AndroidUpgrade = AndroidUpgrade()
 
     @JsonProperty("mobileInfo")
     val mobileInfo: Map<String, String> = HashMap()
 
-    @JsonProperty("bcash")
+    @field:JsonProperty("bcash")
     private val bitcoinCashFees = HashMap<String, Int>()
 
     @JsonProperty("xlm")

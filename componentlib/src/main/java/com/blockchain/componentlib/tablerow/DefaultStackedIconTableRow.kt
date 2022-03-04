@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.StackedIcons
 import com.blockchain.componentlib.theme.AppSurface
@@ -61,6 +62,22 @@ fun DefaultStackedIconTableRow_Basic() {
                 secondaryText = "Secondary text",
                 topImageResource = ImageResource.Remote("", null),
                 bottomImageResource = ImageResource.Remote("", null),
+                onClick = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultStackedIconTableRow_Basic_With_Icons() {
+    AppTheme {
+        AppSurface {
+            DefaultStackedIconTableRow(
+                primaryText = "Primary text",
+                secondaryText = "Secondary text",
+                topImageResource = ImageResource.Local(R.drawable.ic_blockchain, null),
+                bottomImageResource = ImageResource.Local(R.drawable.ic_alert, null),
                 onClick = {},
             )
         }

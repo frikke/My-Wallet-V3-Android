@@ -3,20 +3,14 @@ package com.blockchain.koin
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 
-val unifiedSignInFeatureFlag = StringQualifier("ff_unified_sign_in")
-val pricingQuoteFeatureFlag = StringQualifier("ff_pricing_quote")
-val fabSheetOrderingFeatureFlag = StringQualifier("ff_fab_sheet_ordering")
 val redesignPart2FeatureFlag = StringQualifier("ff_redesign_part_2")
 val redesignPart2CoinViewFeatureFlag = StringQualifier("ff_redesign_part_2coinview")
 val walletConnectFeatureFlag = StringQualifier("ff_wallet_connect")
 val uiTourFeatureFlag = StringQualifier("ff_ui_tour")
-val stripeAndCheckoutPaymentsFeatureFlag = StringQualifier("ff_stripe_checkout_payments")
-val landingCtaFeatureFlag = StringQualifier("ff_landing_cta")
-val dashboardOnboardingFeatureFlag = StringQualifier("ff_dashboard_onboarding")
-val ssoSignInPolling = StringQualifier("ff_sso_polling")
 val googlePayFeatureFlag = StringQualifier("ff_gpay")
 val ethMemoHotWalletFeatureFlag = StringQualifier("ff_eth_memo")
 val blockchainCardFeatureFlag = StringQualifier("ff_blockchain_card")
+val termsAndConditionsFeatureFlag = StringQualifier("ff_terms_and_conditions")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")
 val kotlinApiRetrofit = StringQualifier("kotlin-api")

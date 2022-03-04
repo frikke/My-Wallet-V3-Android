@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -50,19 +51,19 @@ fun CallOutCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(dimensionResource(R.dimen.medium_margin))
         ) {
             Row(modifier = Modifier.background(backgroundColor), verticalAlignment = CenterVertically) {
                 Image(
                     modifier = Modifier
-                        .size(32.dp),
+                        .size(dimensionResource(R.dimen.large_margin)),
                     imageResource = iconResource
                 )
 
                 Column(
                     modifier = Modifier
                         .weight(1f, true)
-                        .padding(start = 16.dp)
+                        .padding(start = dimensionResource(R.dimen.medium_margin))
                         .background(backgroundColor)
                 ) {
 
@@ -83,7 +84,7 @@ fun CallOutCard(
 
                 SmallPrimaryButton(
                     modifier = Modifier
-                        .padding(start = 16.dp)
+                        .padding(start = dimensionResource(R.dimen.medium_margin))
                         .background(backgroundColor),
                     text = callToActionButton?.text ?: "",
                     onClick = callToActionButton?.onClick ?: {},

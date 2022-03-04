@@ -116,10 +116,10 @@ internal class Erc20Asset(
         )
 
     @CommonCode("Exists in EthAsset")
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> {
+    override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> {
 
         return if (address.startsWith(FormatUtilities.ETHEREUM_PREFIX)) {
-            processEip681Format(address, label)
+            processEip681Format(address, label, isDomainAddress)
         } else {
             Single.just(isValidAddress(address))
                 .flatMapMaybe { isValid ->
@@ -131,6 +131,7 @@ internal class Erc20Asset(
                                         asset = assetInfo,
                                         address = address,
                                         label = label ?: address,
+                                        isDomain = isDomainAddress,
                                         isContract = isContract
                                     )
                                 )
@@ -145,7 +146,7 @@ internal class Erc20Asset(
     override fun isValidAddress(address: String): Boolean =
         formatUtils.isValidEthereumAddress(address)
 
-    private fun processEip681Format(address: String, label: String?): Maybe<ReceiveAddress> {
+    private fun processEip681Format(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> {
         // Example: ethereum:contract_address@chain_id/transfer?address=receive_address&uint256=amount
         val normalisedAddress = address.removePrefix(FormatUtilities.ETHEREUM_PREFIX)
         val segments = normalisedAddress.split(FormatUtilities.ETHEREUM_ADDRESS_DELIMITER)
@@ -183,6 +184,7 @@ internal class Erc20Asset(
                         asset = assetInfo,
                         address = receiveAddress,
                         label = label ?: receiveAddress,
+                        isDomain = isDomainAddress,
                         amount = amountParam,
                         isContract = isContract
                     )
@@ -198,9 +200,10 @@ internal class Erc20Asset(
 }
 
 internal class Erc20Address(
-    final override val asset: AssetInfo,
+    override val asset: AssetInfo,
     override val address: String,
     override val label: String = address,
+    override val isDomain: Boolean = false,
     override val amount: Money? = null,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
     val isContract: Boolean = false

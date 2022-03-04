@@ -76,13 +76,14 @@ internal class DynamicOnlyTradingAsset(
         addressValidation?.toRegex()
     }
 
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
+    override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> =
         addressRegex?.let {
             if (address.matches(it)) {
                 Maybe.just(
                     DynamicCustodialAddress(
                         address = address,
-                        asset = assetInfo as AssetInfo
+                        asset = assetInfo as AssetInfo,
+                        isDomain = isDomainAddress
                     )
                 )
             } else {
@@ -94,5 +95,6 @@ internal class DynamicOnlyTradingAsset(
 internal class DynamicCustodialAddress(
     override val address: String,
     override val asset: AssetInfo,
-    override val label: String = address
+    override val label: String = address,
+    override val isDomain: Boolean = false
 ) : CryptoAddress

@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -173,18 +173,23 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     private fun doOnListLoaded(isEmpty: Boolean) {
         with(binding) {
             accountListEmpty.visibleIf { isEmpty }
+            accountList.visibleIf { !isEmpty }
             progress.gone()
         }
     }
 
     private fun doOnLoadError(it: Throwable) {
-        binding.accountListEmpty.visible()
-        binding.progress.gone()
+        with(binding) {
+            accountListEmpty.visible()
+            progress.gone()
+        }
     }
 
     private fun doOnListLoading() {
-        binding.accountListEmpty.gone()
-        binding.progress.visible()
+        with(binding) {
+            accountListEmpty.gone()
+            progress.visible()
+        }
     }
 
     override fun onBankWireTransferSelected(currency: FiatCurrency) {

@@ -3,12 +3,14 @@ package piuk.blockchain.blockchain_component_library_catalog.preview.charts
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.charts.SparkLine
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import piuk.blockchain.blockchain_component_library_catalog.R
 
 @Preview
 @Composable
@@ -24,7 +26,7 @@ fun SparkLinePreview() {
         AppSurface {
             SparkLine(
                 historicalRates = data,
-                modifier = Modifier.size(64.dp, 16.dp)
+                modifier = Modifier.size(64.dp, dimensionResource(R.dimen.medium_margin))
             )
         }
     }

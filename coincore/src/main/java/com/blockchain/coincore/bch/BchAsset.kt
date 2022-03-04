@@ -141,11 +141,15 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
         return beNotifyUpdate.updateNotificationBackend(notify)
     }
 
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
+    override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> =
         Maybe.fromCallable {
             val normalisedAddress = address.removePrefix(BCH_URL_PREFIX)
             if (isValidAddress(normalisedAddress)) {
-                BchAddress(normalisedAddress, label ?: address)
+                BchAddress(
+                    normalisedAddress,
+                    label ?: address,
+                    isDomainAddress
+                )
             } else {
                 null
             }
@@ -167,6 +171,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
 internal class BchAddress(
     address_: String,
     override val label: String = address_,
+    override val isDomain: Boolean = false,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() }
 ) : CryptoAddress {
     override val address: String = address_.removeBchUri()

@@ -1,9 +1,11 @@
 package piuk.blockchain.android.ui.home
 
+import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Bundle
@@ -17,7 +19,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.BottomNavigationState
 import com.blockchain.componentlib.navigation.NavigationBarButton
@@ -27,6 +29,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.uiTourFeatureFlag
+import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
@@ -34,6 +37,7 @@ import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
@@ -77,9 +81,11 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
+import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
+import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
@@ -91,7 +97,6 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
 class MainActivity :
@@ -104,6 +109,7 @@ class MainActivity :
     RedesignActionsBottomSheet.Host,
     SmallSimpleBuyNavigator,
     BuyPendingOrdersBottomSheet.Host,
+    ScanAndConnectBottomSheet.Host,
     UiTourView.Host {
 
     override val alwaysDisableScreenshots: Boolean
@@ -127,8 +133,7 @@ class MainActivity :
     private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
 
     private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
-
-    private val dataWiper: DataWiper by scopedInject()
+    private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -213,9 +218,7 @@ class MainActivity :
         compositeDisposable.clear()
         // stopgap to be able to clear separate calls on Rx on the model
         model.clearDisposables()
-        if (isFinishing) {
-            dataWiper.clearData()
-        }
+        // TODO consider invoking the DataWiper here
         super.onDestroy()
     }
 
@@ -239,7 +242,8 @@ class MainActivity :
         updateToolbarMenuItems(
             listOf(
                 NavigationBarButton.Icon(R.drawable.ic_qr_scan) {
-                    launchQrScan()
+                    tryToLaunchQrScan()
+                    analytics.logEvent(CameraAnalytics.QrCodeClicked())
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
                     showLoading()
@@ -263,9 +267,35 @@ class MainActivity :
         )
     }
 
+    private fun tryToLaunchQrScan() {
+        compositeDisposable += walletConnectFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            if (
+                enabled &&
+                !isCameraPermissionGranted()
+            ) {
+                showScanAndConnectBottomSheet()
+            } else {
+                launchQrScan()
+            }
+        }
+        analytics.logEvent(SendAnalytics.QRButtonClicked)
+    }
+
+    private fun isCameraPermissionGranted(): Boolean {
+        return (
+            checkSelfPermission(Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED
+            ).also {
+            analytics.logEvent(CameraAnalytics.CameraPermissionChecked(it))
+        }
+    }
+
     private fun launchQrScan() {
         QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
-        analytics.logEvent(SendAnalytics.QRButtonClicked)
+    }
+
+    private fun showScanAndConnectBottomSheet() {
+        showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = true))
     }
 
     private fun setupNavigation() {
@@ -694,10 +724,26 @@ class MainActivity :
 
     override fun onSessionApproved(session: WalletConnectSession) {
         model.process(MainIntent.ApproveWCSession(session))
+        analytics.logEvent(
+            WalletConnectAnalytics.DappConectionActioned(
+                action = WalletConnectAnalytics.DappConnectionAction.CONFIRM,
+                appName = session.dAppInfo.peerMeta.name
+            )
+        )
     }
 
     override fun onSessionRejected(session: WalletConnectSession) {
         model.process(MainIntent.RejectWCSession(session))
+        analytics.logEvent(
+            WalletConnectAnalytics.DappConectionActioned(
+                action = WalletConnectAnalytics.DappConnectionAction.CANCEL,
+                appName = session.dAppInfo.peerMeta.name
+            )
+        )
+    }
+
+    override fun onCameraAccessAllowed() {
+        launchQrScan()
     }
 
     override fun onSheetClosed() {

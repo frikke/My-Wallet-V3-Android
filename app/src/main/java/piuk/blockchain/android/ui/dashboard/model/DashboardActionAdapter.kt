@@ -70,7 +70,6 @@ class DashboardActionAdapter(
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val dashboardOnboardingFlag: FeatureFlag,
     private val redesignCoinViewFlag: FeatureFlag
 ) {
 
@@ -392,7 +391,7 @@ class DashboardActionAdapter(
                     LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         linkablePaymentMethods = LinkablePaymentMethods(
                             targetAccount.currency,
-                            paymentMethods
+                            paymentMethods.sortedBy { it.ordinal }
                         )
                     )
                 )
@@ -563,7 +562,7 @@ class DashboardActionAdapter(
                         LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw(
                             LinkablePaymentMethods(
                                 sourceAccount.currency,
-                                paymentMethods
+                                paymentMethods.sortedBy { it.ordinal }
                             )
                         )
                     )
@@ -607,10 +606,7 @@ class DashboardActionAdapter(
         )
 
     fun getOnboardingSteps(model: DashboardModel): Disposable =
-        dashboardOnboardingFlag.enabled.flatMapMaybe { isEnabled ->
-            if (isEnabled) getDashboardOnboardingStepsUseCase(Unit).toMaybe()
-            else Maybe.empty()
-        }.subscribeBy(
+        getDashboardOnboardingStepsUseCase(Unit).subscribeBy(
             onSuccess = { steps ->
                 val onboardingState = if (steps.any { !it.isCompleted }) {
                     DashboardOnboardingState.Visible(steps)

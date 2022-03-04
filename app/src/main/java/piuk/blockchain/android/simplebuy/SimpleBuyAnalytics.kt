@@ -199,7 +199,7 @@ class BuySellViewedEvent(private val type: BuySellFragment.BuySellViewType? = nu
         get() = AnalyticsNames.BUY_SELL_VIEWED.eventName
     override val params: Map<String, Serializable>
         get() = mapOf(
-            "type" to type?.name
+            "type" to type?.toAnalyticsString()
         ).withoutNullValues()
 }
 
@@ -211,13 +211,15 @@ class BuySellClicked(
         get() = AnalyticsNames.BUY_SELL_CLICKED.eventName
     override val params: Map<String, Serializable>
         get() = mapOf(
-            "type" to when (type) {
-                BuySellFragment.BuySellViewType.TYPE_BUY -> "BUY"
-                BuySellFragment.BuySellViewType.TYPE_SELL -> "SELL"
-                else -> null
-            }
+            "type" to type?.toAnalyticsString()
         ).withoutNullValues()
 }
+
+private fun BuySellFragment.BuySellViewType.toAnalyticsString(): String =
+    when (this) {
+        BuySellFragment.BuySellViewType.TYPE_BUY -> "BUY"
+        BuySellFragment.BuySellViewType.TYPE_SELL -> "SELL"
+    }
 
 class BuyPaymentMethodSelected(type: String) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_PAYMENT_METHOD_CHANGED.eventName

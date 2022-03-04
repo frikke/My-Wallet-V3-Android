@@ -31,6 +31,10 @@ class LoaderModel(
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
             is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(intent.isPinValidated, intent.isAfterWalletCreation)
+            is LoaderIntents.OnTermsAndConditionsSigned -> {
+                process(LoaderIntents.StartMainActivity(null, false))
+                null
+            }
             is LoaderIntents.OnEmailVerificationFinished -> {
                 process(LoaderIntents.StartMainActivity(null, true))
                 null

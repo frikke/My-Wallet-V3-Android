@@ -16,13 +16,14 @@ object ImportedAddressHelper {
     fun getImportedAddress(privateKeyBase58Wif: String = "KwfQ7kP96qiXW7TXekvnjUi7QaRz7Wk4Y9QKMnrK2QDCEF9Gdn6F") =
         privateKeyWifToEcKey(privateKeyBase58Wif).let {
             val address = LegacyAddress.fromKey(MainNetParams.get(), it).toString()
-            ImportedAddress().apply {
+            ImportedAddress(
+                address = address,
+                createdDeviceName = "",
+                createdTime = System.currentTimeMillis(),
+                createdDeviceVersion = "",
+                labelField = "Some Label"
+            ).apply {
                 setPrivateKeyFromBytes(it.privKeyBytes)
-                this.address = address
-                createdDeviceName = ""
-                createdTime = System.currentTimeMillis()
-                createdDeviceVersion = ""
-                label = "Some Label"
             }
         }
 

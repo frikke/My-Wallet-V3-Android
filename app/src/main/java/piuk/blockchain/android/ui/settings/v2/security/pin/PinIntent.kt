@@ -31,11 +31,19 @@ sealed class PinIntent : MviIntent<PinState> {
             )
     }
 
-    data class ValidatePIN(val pin: String, val isForValidatingPinForResult: Boolean = false) : PinIntent() {
+    object CreatePINSucceeded : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
-                isLoading = true
+                isLoading = false
             )
+    }
+
+    data class ValidatePIN(
+        val pin: String,
+        val isForValidatingPinForResult: Boolean = false,
+        val isChangingPin: Boolean = false
+    ) : PinIntent() {
+        override fun reduce(oldState: PinState): PinState = oldState
     }
 
     object ValidatePINSucceeded : PinIntent() {
@@ -60,7 +68,10 @@ sealed class PinIntent : MviIntent<PinState> {
 
     class UpdatePinErrorState(val errorState: PinError) : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
-            oldState.copy(error = errorState)
+            oldState.copy(
+                isLoading = false,
+                error = errorState
+            )
     }
 
     class UpdatePasswordErrorState(
@@ -91,7 +102,8 @@ sealed class PinIntent : MviIntent<PinState> {
                     isFromPinCreation = isFromPinCreation,
                     currentPin = oldState.pinStatus.currentPin,
                     isPinValidated = oldState.pinStatus.isPinValidated
-                )
+                ),
+                isLoading = false
             )
     }
 
@@ -253,7 +265,7 @@ sealed class PinIntent : MviIntent<PinState> {
             oldState.copy(
                 progressDialog = ProgressDialogStatus(
                     hasToShow = showDialog,
-                    messageTowShow = msgResource
+                    messageToShow = msgResource
                 )
             )
     }

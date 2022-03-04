@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -33,7 +33,7 @@ fun CardCloseButton(
             .clickable {
                 onClick.invoke()
             }
-            .size(24.dp)
+            .size(dimensionResource(R.dimen.standard_margin))
             .background(color = backgroundColor, shape = CircleShape)
     ) {
         Image(

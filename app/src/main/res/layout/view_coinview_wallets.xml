@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+        android:id="@+id/wallets_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/common_wallets"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <com.blockchain.componentlib.tablerow.DefaultTableRowView
+        android:id="@+id/asset_details_not_available"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="wrap_content" />
+
+    <com.blockchain.componentlib.tablerow.BalanceTableRowView
+        android:id="@+id/asset_details_available"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="wrap_content" />
+</androidx.appcompat.widget.LinearLayoutCompat>

@@ -45,6 +45,7 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.scopedInject
 import com.blockchain.walletconnect.R
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 
 class DappsListFragment :
@@ -64,6 +65,13 @@ class DappsListFragment :
         updateToolbar(
             toolbarTitle = getString(R.string.account_wallet_connect),
             menuItems = emptyList()
+        )
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        analytics.logEvent(
+            WalletConnectAnalytics.ConnectedDappsListViewed
         )
     }
 
@@ -127,13 +135,32 @@ class DappsListFragment :
                                     onConfirmClick = {
                                         model.process(DappsListIntent.Disconnect(session))
                                         bottomSheetState = ModalBottomSheetValue.Hidden
+                                        analytics.logEvent(
+                                            WalletConnectAnalytics.ConnectedDappActioned(
+                                                dappName = session.dAppInfo.peerMeta.name,
+                                                action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT_INTENT
+                                            )
+                                        )
                                     }
                                 )
                                 bottomSheetState = ModalBottomSheetValue.Hidden
                                 bottomSheetState = ModalBottomSheetValue.Expanded
+
+                                analytics.logEvent(
+                                    WalletConnectAnalytics.ConnectedDappActioned(
+                                        dappName = session.dAppInfo.peerMeta.name,
+                                        action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT
+                                    )
+                                )
                             }
                         )
                         bottomSheetState = ModalBottomSheetValue.Expanded
+
+                        analytics.logEvent(
+                            WalletConnectAnalytics.ConnectedDappClicked(
+                                dappName = session.dAppInfo.peerMeta.name
+                            )
+                        )
                     }
                 }
             }

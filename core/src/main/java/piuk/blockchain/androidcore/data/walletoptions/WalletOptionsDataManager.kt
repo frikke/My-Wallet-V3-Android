@@ -124,11 +124,6 @@ class WalletOptionsDataManager(
         return result
     }
 
-    fun getLastEthTransactionFuse(): Observable<Long> {
-        return walletOptionsState.walletOptionsSource
-            .map { return@map it.ethereum.lastTxFuse }
-    }
-
     override fun transactionTimeout(): Single<Long> =
         walletOptionsState.walletOptionsSource
             .map { it.xlmTransactionTimeout }

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.auth
 
 import androidx.annotation.StringRes
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.Visibility
 import piuk.blockchain.android.ui.base.View
 
@@ -64,6 +64,8 @@ interface PinEntryView : View {
 
     fun restartAppWithVerifiedPin()
 
+    fun closePinChangeScreen()
+
     fun setupCommitHashView()
 
     fun askToUseBiometrics()
@@ -71,6 +73,8 @@ interface PinEntryView : View {
     fun showApiOutageMessage()
 
     val isForValidatingPinForResult: Boolean
+
+    val isSettingsOrigin: Boolean
 
     val isForValidatingAndLoadingPayloadResult: Boolean
 }

@@ -26,6 +26,7 @@ val walletConnectModule = module {
             WalletConnectService(
                 sessionRepository = get(),
                 client = get(),
+                analytics = get(),
                 ethRequestSign = get(),
                 lifecycleObservable = get(),
                 featureFlag = get(walletConnectFeatureFlag),
@@ -50,7 +51,8 @@ val walletConnectModule = module {
 
         factory {
             WalletConnectMetadataRepository(
-                metadataManager = get()
+                metadataManager = get(),
+                featureFlag = get(walletConnectFeatureFlag),
             )
         }.bind(SessionRepository::class)
 

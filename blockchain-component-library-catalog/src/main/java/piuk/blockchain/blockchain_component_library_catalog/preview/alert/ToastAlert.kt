@@ -7,6 +7,7 @@ import com.blockchain.componentlib.alert.DefaultToastAlert
 import com.blockchain.componentlib.alert.ErrorToastAlert
 import com.blockchain.componentlib.alert.SuccessToastAlert
 import com.blockchain.componentlib.alert.WarningToastAlert
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -25,7 +26,7 @@ fun DefaultToastAlert_Text() {
 fun DefaultToastAlert_TextIcon() {
     AppTheme {
         AppSurface {
-            DefaultToastAlert(text = "Default", startIconDrawableRes = R.drawable.ic_refresh)
+            DefaultToastAlert(text = "Default", startIcon = ImageResource.Local(R.drawable.ic_refresh))
         }
     }
 }

@@ -44,6 +44,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
@@ -62,6 +63,7 @@ enum class TransactionErrorState {
     NONE,
     INVALID_PASSWORD,
     INVALID_ADDRESS,
+    INVALID_DOMAIN,
     ADDRESS_IS_CONTRACT,
     INSUFFICIENT_FUNDS,
     INVALID_AMOUNT,
@@ -175,6 +177,12 @@ data class TransactionState(
             } ?: sendingAccount.getZeroAmountForAccount()
         }
 
+    val selectedTargetLabel: String
+        get() = when {
+            selectedTarget is CryptoAddress && selectedTarget.isDomain -> selectedTarget.getLabelForDomain()
+            else -> selectedTarget.label
+        }
+
     private fun availableToAmountCurrency(available: Money, amount: Money): Money =
         when (amount) {
             is FiatValue -> fiatRate?.convert(available) ?: Money.zero(amount.currency)
@@ -254,7 +262,7 @@ class TransactionModel(
                 processValidateAddress(intent.targetAddress, intent.expectedCrypto)
             is TransactionIntent.CancelTransaction -> processCancelTransaction()
             is TransactionIntent.TargetAddressValidated -> null
-            is TransactionIntent.TargetAddressInvalid -> null
+            is TransactionIntent.TargetAddressOrDomainInvalid -> null
             is TransactionIntent.InitialiseWithSourceAndTargetAccount -> {
                 processTargetSelectionConfirmed(
                     sourceAccount = intent.fromAccount,
@@ -458,7 +466,7 @@ class TransactionModel(
                 onError = { t ->
                     errorLogger.log(TxFlowLogError.AddressFail(t))
                     when (t) {
-                        is TxValidationFailure -> process(TransactionIntent.TargetAddressInvalid(t))
+                        is TxValidationFailure -> process(TransactionIntent.TargetAddressOrDomainInvalid(t))
                         else -> process(TransactionIntent.FatalTransactionError(t))
                     }
                 }

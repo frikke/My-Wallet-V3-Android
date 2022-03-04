@@ -23,7 +23,7 @@ import org.web3j.crypto.TransactionEncoder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(
-    fieldVisibility = Visibility.NONE,
+    fieldVisibility = Visibility.ANY,
     getterVisibility = Visibility.NONE,
     setterVisibility = Visibility.NONE,
     creatorVisibility = Visibility.NONE,
@@ -37,10 +37,10 @@ class EthereumAccount : JsonSerializableAccount {
     @JsonProperty("label")
     override var label = ""
 
-    @JsonProperty("correct")
+    @field:JsonProperty("correct")
     var isCorrect: Boolean = false
 
-    @JsonProperty("addr")
+    @field:JsonProperty("addr")
     var address: String = ""
 
     constructor() {

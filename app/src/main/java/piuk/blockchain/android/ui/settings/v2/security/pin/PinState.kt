@@ -44,7 +44,7 @@ data class UpgradeWalletStatus(
 
 data class ProgressDialogStatus(
     val hasToShow: Boolean = false,
-    val messageTowShow: Int = 0
+    val messageToShow: Int = 0
 )
 
 data class AppUpgradeStatus(
@@ -95,7 +95,7 @@ enum class PayloadError {
     CREDENTIALS_INVALID,
     SERVER_CONNECTION_EXCEPTION,
     SERVER_TIMEOUT,
-    UNSUPORTTED_VERSION_EXCEPTION,
+    UNSUPPORTED_VERSION_EXCEPTION,
     DECRYPTION_EXCEPTION,
     HD_WALLET_EXCEPTION,
     INVALID_CIPHER_TEXT,

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import android.annotation.SuppressLint
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankState

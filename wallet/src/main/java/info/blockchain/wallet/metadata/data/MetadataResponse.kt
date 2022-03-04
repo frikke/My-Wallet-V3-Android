@@ -21,13 +21,13 @@ data class MetadataResponse(
     val version: Int = 0,
     val payload: String = "",
     val signature: String = "",
-    @JsonProperty("prev_magic_hash")
+    @field:JsonProperty("prev_magic_hash")
     val prevMagicHash: String? = null,
-    @JsonProperty("type_id")
+    @field:JsonProperty("type_id")
     val typeId: Int = 0,
-    @JsonProperty("created_at")
+    @field:JsonProperty("created_at")
     val createdAt: Long = 0,
-    @JsonProperty("updated_at")
+    @field:JsonProperty("updated_at")
     val updatedAt: Long = 0,
     val address: String = ""
 ) {

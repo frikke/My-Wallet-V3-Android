@@ -477,6 +477,7 @@ private fun TransactionErrorState.isAmountRelated(): Boolean =
     when (this) {
         TransactionErrorState.NONE,
         TransactionErrorState.INVALID_ADDRESS,
+        TransactionErrorState.INVALID_DOMAIN,
         TransactionErrorState.ADDRESS_IS_CONTRACT,
         TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED,
         TransactionErrorState.UNEXPECTED_ERROR,

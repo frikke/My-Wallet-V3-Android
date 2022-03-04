@@ -11,16 +11,14 @@ import java.math.BigInteger
 class CombinedEthModel(private val ethAddressResponseMap: EthAddressResponseMap) {
 
     fun getTotalBalance(): BigInteger {
-        val values = ethAddressResponseMap.ethAddressResponseMap.values
-        var total = BigInteger.ZERO
-        for (it in values) {
-            total += total.add(it?.balance ?: BigInteger.ZERO)
+        val values = ethAddressResponseMap.getEthAddressResponseMap().values
+        return values.sumOf { ethAddressResponse ->
+            ethAddressResponse.getBalance() ?: BigInteger.ZERO
         }
-        return total
     }
 
     fun getTransactions(): List<EthTransaction> {
-        val values = ethAddressResponseMap.ethAddressResponseMap.values
+        val values = ethAddressResponseMap.getEthAddressResponseMap().values
         val transactions = mutableListOf<EthTransaction>()
         for (it in values) {
             transactions.addAll(it.transactions)
@@ -31,10 +29,12 @@ class CombinedEthModel(private val ethAddressResponseMap: EthAddressResponseMap)
     /**
      * Main eth account
      */
-    fun getAddressResponse(): EthAddressResponse? =
-        ethAddressResponseMap.ethAddressResponseMap.values.first()
+    private fun getAddressResponse(): EthAddressResponse =
+        ethAddressResponseMap.getEthAddressResponseMap().values.first()
 
     fun getNonce(): BigInteger {
-        return BigInteger.valueOf(getAddressResponse()!!.nonce.toLong())
+        // Force-unwrap should not be used, but if we don't get a value for nonce, there's no correct choice
+        // to fall back to. Web3j is calling into Java so even a null would be fine.
+        return BigInteger.valueOf(getAddressResponse().getNonce()!!.toLong())
     }
 }

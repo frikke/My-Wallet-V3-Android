@@ -484,6 +484,7 @@ sealed class TransactionError : Throwable() {
     object SwapWeeklyLimitExceeded : TransactionError()
     object SwapYearlyLimitExceeded : TransactionError()
     object InvalidCryptoAddress : TransactionError()
+    object InvalidDomainAddress : TransactionError()
     object InvalidCryptoCurrency : TransactionError()
     object InvalidFiatCurrency : TransactionError()
     object OrderDirectionDisabled : TransactionError()

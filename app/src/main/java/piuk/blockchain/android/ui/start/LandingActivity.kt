@@ -9,7 +9,7 @@ import android.os.Looper
 import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
@@ -83,8 +83,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                     this@with.background.alpha = it
                 }
             }
-
-            presenter.loadAssets()
         }
     }
 
@@ -93,6 +91,11 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         setupSSOControls(
             binding.btnLoginRestore.rightButton, binding.btnLoginRestore.leftButton
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        presenter.loadAssets()
     }
 
     override fun onStop() {

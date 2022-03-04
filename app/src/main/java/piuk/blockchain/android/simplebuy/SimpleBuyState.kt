@@ -309,6 +309,5 @@ data class SelectedPaymentMethod(
 
     fun isActive() =
         concreteId() != null ||
-            (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID) ||
-            paymentMethodType == PaymentMethodType.GOOGLE_PAY
+            (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID)
 }

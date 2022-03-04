@@ -301,7 +301,9 @@ val nabuModule = module {
         .bind(Analytics::class)
 
     factory {
-        AnalyticsContextProviderImpl()
+        AnalyticsContextProviderImpl(
+            context = get()
+        )
     }.bind(AnalyticsContextProvider::class)
 
     single {

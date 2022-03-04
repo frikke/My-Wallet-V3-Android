@@ -26,6 +26,8 @@ class SettingsDataManager(
     fun getSettings(): Observable<Settings> =
         attemptFetchSettingsFromMemory()
 
+    fun clearSettingsCache() = clearSettingsFromMemory()
+
     /**
      * Updates the settings object by syncing it with the server. Must be called to set up the
      * [SettingsManager] class before a fetch is called.
@@ -213,6 +215,8 @@ class SettingsDataManager(
 
     private fun fetchSettingsFromWeb(): Observable<Settings> =
         Observable.defer { settingsDataStore.fetchSettings() }
+
+    private fun clearSettingsFromMemory() = settingsDataStore.invalidateCacheSettings()
 
     private fun attemptFetchSettingsFromMemory(): Observable<Settings> =
         Observable.defer { settingsDataStore.getSettings() }

@@ -20,65 +20,65 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Settings(
 
-    @JsonProperty("btc_currency")
+    @field:JsonProperty("btc_currency")
     private val btcCurrency: String = "",
-    @JsonProperty("notifications_type")
+    @field:JsonProperty("notifications_type")
     val notificationsType: List<Int> = emptyList(),
     @JsonProperty("language")
     private val language: String = "",
-    @JsonProperty("notifications_on")
+    @field:JsonProperty("notifications_on")
     private val notificationsOn: Int = 0,
-    @JsonProperty("ip_lock_on")
+    @field:JsonProperty("ip_lock_on")
     private val ipLockOn: Int = 0,
-    @JsonProperty("dial_code")
+    @field:JsonProperty("dial_code")
     private val dialCode: String = "",
 
-    @JsonProperty("block_tor_ips")
+    @field:JsonProperty("block_tor_ips")
     private val blockTorIps: Int = 0,
     @JsonProperty("currency")
     val currency: String = "",
 
-    @JsonProperty("notifications_confirmations")
+    @field:JsonProperty("notifications_confirmations")
     private val notificationsConfirmations: Int = 0,
-    @JsonProperty("auto_email_backup")
+    @field:JsonProperty("auto_email_backup")
     private val autoEmailBackup: Int = 0,
 
-    @JsonProperty("never_save_auth_type")
+    @field:JsonProperty("never_save_auth_type")
     private val neverSaveAuthType: Int = 0,
 
     @JsonProperty("email")
     val email: String = "",
 
-    @JsonProperty("sms_number")
+    @field:JsonProperty("sms_number")
     private val _smsNumber: String? = null,
-    @JsonProperty("sms_dial_code")
+    @field:JsonProperty("sms_dial_code")
     val smsDialCode: String = "",
 
-    @JsonProperty("sms_verified")
+    @field:JsonProperty("sms_verified")
     private val smsVerified: Int = 0,
 
-    @JsonProperty("is_api_access_enabled")
+    @field:JsonProperty("is_api_access_enabled")
     private val isApiAccessEnabled: Int = 0,
 
-    @JsonProperty("auth_type")
+    @field:JsonProperty("auth_type")
     val authType: Int = 0,
 
-    @JsonProperty("my_ip")
+    @field:JsonProperty("my_ip")
     private val myIp: String = "",
 
-    @JsonProperty("email_verified")
+    @field:JsonProperty("email_verified")
     private val emailVerified: Int = 0,
 
-    @JsonProperty("password_hint1")
+    @field:JsonProperty("password_hint1")
     private val passwordHint1: String = "",
 
-    @JsonProperty("country_code")
+    @field:JsonProperty("country_code")
     val countryCode: String = "",
 
     @JsonProperty("state")
     private val state: String = "",
 
-    @JsonProperty("logging_level")
+    @field:JsonProperty("logging_level")
     private val loggingLevel: Int = 0,
 
     @JsonProperty("guid")

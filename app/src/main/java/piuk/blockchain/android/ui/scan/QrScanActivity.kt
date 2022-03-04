@@ -42,16 +42,26 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.componentlib.viewextensions.windowRect
+import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.walletconnect.domain.SessionRepository
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
+import com.blockchain.walletconnect.ui.dapps.ConnectedDappsActivity
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.DecodeHintType
 import com.google.zxing.Result
 import com.karumi.dexter.Dexter
 import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import java.util.EnumMap
 import java.util.EnumSet
 import java.util.concurrent.ExecutorService
@@ -86,6 +96,9 @@ sealed class QrExpected : Parcelable {
     object BitPayQr : QrExpected()
 
     @Parcelize
+    object WalletConnectQr : QrExpected()
+
+    @Parcelize
     object ImportWalletKeysQr : QrExpected() // Import a wallet.
 
     @Parcelize
@@ -97,7 +110,7 @@ sealed class QrExpected : Parcelable {
     companion object {
         val IMPORT_KEYS_QR = setOf(ImportWalletKeysQr)
         val LEGACY_PAIRING_QR = setOf(LegacyPairingQr)
-        val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr /*, WebLoginQr */, BitPayQr)
+        val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr /*, WebLoginQr */, BitPayQr, WalletConnectQr)
 
         @Suppress("FunctionName")
         fun ASSET_ADDRESS_QR(asset: AssetInfo) = setOf(AssetAddressQr(asset.networkTicker))
@@ -127,8 +140,7 @@ class QrScanActivity : BlockchainActivity() {
     private val characterSet: String? by unsafeLazy {
         intent?.getStringExtra(QrScanIntents.CHARACTER_SET)
     }
-
-    private lateinit var binding: ActivityScanBinding
+    private val compositeDisposable = CompositeDisposable()
 
     private val inactivityTimer = InactivityTimer(this)
 
@@ -136,6 +148,8 @@ class QrScanActivity : BlockchainActivity() {
     private val hasFlashLight: Boolean by unsafeLazy {
         packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
     }
+
+    private val sessionsRepository: SessionRepository by scopedInject()
 
     private val expectedSet: Set<QrExpected>
         get() = intent?.getParcelableArrayExtra(PARAM_EXPECTED_QR)
@@ -147,18 +161,24 @@ class QrScanActivity : BlockchainActivity() {
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
+    private val binding: ActivityScanBinding by lazy {
+        ActivityScanBinding.inflate(layoutInflater)
+    }
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = currentOrientation
 
         val window = window
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        binding = ActivityScanBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        updateToolbar(
-            toolbarTitle = getString(R.string.scan_qr),
-            backAction = { onBackPressed() }
-        )
+        binding.infoIcon.apply {
+            image = ImageResource.Local(R.drawable.ic_information_large)
+            onClick = {
+                showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = false))
+            }
+        }
+
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
@@ -212,15 +232,41 @@ class QrScanActivity : BlockchainActivity() {
                 is QrExpected.ImportWalletKeysQr -> getString(R.string.qr_activity_hint_import_wallet)
                 is QrExpected.LegacyPairingQr -> getString(R.string.qr_activity_hint_pairing_code)
                 is QrExpected.WebLoginQr -> getString(R.string.qr_activity_hint_new_web_login)
+                is QrExpected.WalletConnectQr -> getString(R.string.empty)
             }
+        }
+
+        if (expectedSet.contains(QrExpected.WalletConnectQr)) {
+            compositeDisposable += sessionsRepository.retrieve()
+                .onErrorReturn { emptyList() }
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    binding.walletConnectApps.gone()
+                }
+                .subscribe { apps ->
+                    binding.walletConnectApps.visibleIf { apps.isNotEmpty() }
+                    binding.walletConnectApps.apply {
+                        text =
+                            resources.getQuantityString(R.plurals.wallet_connect_connected_apps, apps.size, apps.size)
+                        startIcon = ImageResource.Local(R.drawable.ic_vector_world_small)
+                        onClick = {
+                            startActivity(ConnectedDappsActivity.newIntent(this@QrScanActivity))
+                            analytics.logEvent(
+                                WalletConnectAnalytics.ConnectedDappsListClicked(
+                                    origin = LaunchOrigin.QR_CODE
+                                )
+                            )
+                        }
+                    }
+                }
+        } else {
+            binding.walletConnectApps.gone()
         }
     }
 
     override fun onPause() {
         inactivityTimer.onActivityPaused()
-
-        // Close scanner when going to background
-        finish()
+        compositeDisposable.clear()
         super.onPause()
     }
 

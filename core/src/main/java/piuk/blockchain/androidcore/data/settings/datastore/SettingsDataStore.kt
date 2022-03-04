@@ -15,4 +15,6 @@ class SettingsDataStore(
 
     fun fetchSettings(): Observable<Settings> =
         FreshFetchStrategy(webSource, memoryStore).fetch()
+
+    fun invalidateCacheSettings() = memoryStore.invalidate()
 }

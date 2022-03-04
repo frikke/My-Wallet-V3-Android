@@ -2,6 +2,7 @@ package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
@@ -14,6 +15,7 @@ import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
@@ -163,6 +165,9 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     override val actions: Single<AvailableActions> = Single.just(emptySet())
 
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = Single.just(emptySet())
+
     // No activity on exchange accounts, so just return the activity list
     // unmodified - they should both be empty anyway
     override fun reconcileSwaps(
@@ -224,6 +229,61 @@ abstract class CryptoNonCustodialAccount(
             }
 
             setOfNotNull(
+                activity, receive, send, swap, sell, interest
+            )
+        }
+
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }.zipWith(
+            identity.isEligibleFor(Feature.Interest(currency))
+        ).map { (fiatAccounts, isEligibleForInterest) ->
+
+            val isActiveFunded = !isArchived && isFunded
+
+            val activity = StateAwareAction(
+                if (hasTransactions) ActionState.Available else ActionState.LockedForOther, AssetAction.ViewActivity
+            )
+
+            val receive = StateAwareAction(
+                if (baseActions.contains(
+                        AssetAction.Receive
+                    ) && !isArchived
+                ) ActionState.Available else ActionState.LockedForOther,
+                AssetAction.Receive
+            )
+
+            val send = StateAwareAction(
+                if (baseActions.contains(
+                        AssetAction.Send
+                    ) && isActiveFunded
+                ) ActionState.Available else ActionState.LockedForOther,
+                AssetAction.Send
+            )
+
+            val swap = StateAwareAction(
+                if (baseActions.contains(
+                        AssetAction.Swap
+                    ) && isActiveFunded
+                ) ActionState.Available else ActionState.LockedForOther,
+                AssetAction.Swap
+            )
+            val sell = StateAwareAction(
+                if (baseActions.contains(
+                        AssetAction.Sell
+                    ) && isActiveFunded && fiatAccounts.isNotEmpty()
+                ) ActionState.Available else ActionState.LockedForOther,
+                AssetAction.Sell
+            )
+
+            val interest = StateAwareAction(
+                if (baseActions.contains(
+                        AssetAction.InterestDeposit
+                    ) && isActiveFunded && isEligibleForInterest
+                ) ActionState.Available else ActionState.LockedForOther,
+                AssetAction.InterestDeposit
+            )
+
+            setOf(
                 activity, receive, send, swap, sell, interest
             )
         }
@@ -320,6 +380,9 @@ class CryptoAccountCustodialGroup(
     override val actions: Single<AvailableActions>
         get() = account.actions
 
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = account.stateAwareActions
+
     override val isFunded: Boolean
         get() = account.isFunded
 
@@ -373,6 +436,15 @@ class CryptoAccountNonCustodialGroup(
         } else {
             Single.zip(accounts.map { it.actions }) { t: Array<Any> ->
                 t.filterIsInstance<AvailableActions>().flatten().toSet()
+            }
+        }
+
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = if (accounts.isEmpty()) {
+            Single.just(emptySet())
+        } else {
+            Single.zip(accounts.map { it.stateAwareActions }) { t: Array<Any> ->
+                t.filterIsInstance<StateAwareAction>().toSet()
             }
         }
 

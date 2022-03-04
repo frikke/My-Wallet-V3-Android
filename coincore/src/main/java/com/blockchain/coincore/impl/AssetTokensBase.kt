@@ -118,7 +118,8 @@ interface AccountRefreshTrigger {
                             label = labels.getDefaultInterestWalletLabel(),
                             interestBalance = interestBalance,
                             custodialWalletManager = custodialManager,
-                            exchangeRates = exchangeRates
+                            exchangeRates = exchangeRates,
+                            identity = identity
                         )
                     )
                 } else {

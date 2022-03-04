@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.redesignPart2FeatureFlag

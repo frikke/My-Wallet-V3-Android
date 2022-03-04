@@ -177,7 +177,7 @@ public class PayloadManager {
         walletBase = new WalletBase();
 
         Wallet wallet = new Wallet();
-        WalletBody walletBody = WalletBody.recoverFromMnemonic(
+        WalletBody walletBody = WalletBody.Companion.recoverFromMnemonic(
             mnemonic,
             defaultAccountName,
             bitcoinApi,
@@ -199,7 +199,7 @@ public class PayloadManager {
         if (payload != null) {
             List<WalletBody> wallets = payload.getWalletBodies();
             if (!wallets.isEmpty()) {
-                return wallets.get(0).isMnemonicVerified();
+                return wallets.get(0).getMnemonicVerified();
             }
         }
         return false;

@@ -178,7 +178,9 @@ class MainModel(
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {
         compositeDisposable += interactor.checkForDeepLinks(scanResult)
             .subscribeBy(
-                onSuccess = { dispatchDeepLink(it) },
+                onSuccess = {
+                    dispatchDeepLink(it)
+                },
                 onError = { Timber.e(it) }
             )
     }

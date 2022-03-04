@@ -76,7 +76,7 @@
         android:layout_width="@dimen/pin_box_size"
         android:layout_height="@dimen/pin_box_size"
         android:layout_marginStart="@dimen/tiny_margin"
-        android:layout_marginTop="@dimen/epic_margin"
+        android:layout_marginTop="@dimen/xhuge_margin"
         android:layout_marginEnd="@dimen/smallest_margin"
         android:layout_marginBottom="@dimen/small_margin"
         android:adjustViewBounds="true"

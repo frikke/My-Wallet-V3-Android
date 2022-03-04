@@ -326,11 +326,16 @@ dependencies {
     // Views
     implementation Libraries.countryPicker
     implementation Libraries.circleIndicator
+    // TODO when we change the sparkline and coinview charts, we can remove the mpAndroidChart dependency
     implementation Libraries.charts
+    api(project(":charts"))
+
     implementation Libraries.sparkline
     implementation Libraries.cardForm
     implementation Libraries.zxing
     implementation Libraries.sift
+    implementation Libraries.markwon
+    implementation Libraries.markwonRecyclerView
 
     // Google core
     implementation Libraries.googlePlayCore

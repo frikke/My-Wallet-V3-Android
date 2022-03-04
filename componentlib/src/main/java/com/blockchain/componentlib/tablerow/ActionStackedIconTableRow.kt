@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
@@ -33,7 +34,7 @@ fun ActionStackedIconTableRow(
                 bottomImageResource = bottomImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = 16.dp)
+                    .padding(end = dimensionResource(R.dimen.medium_margin))
             )
         },
         content = {
@@ -60,8 +61,8 @@ fun ActionStackedIconTableRow(
             Image(
                 imageResource = endImageResource,
                 modifier = Modifier.requiredSizeIn(
-                    maxWidth = 24.dp,
-                    maxHeight = 24.dp,
+                    maxWidth = dimensionResource(R.dimen.standard_margin),
+                    maxHeight = dimensionResource(R.dimen.standard_margin),
                 ),
             )
         },

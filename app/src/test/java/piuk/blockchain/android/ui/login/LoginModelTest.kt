@@ -5,7 +5,6 @@ import android.net.Uri
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.network.PollResult
-import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -30,10 +29,6 @@ class LoginModelTest {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
 
-    private val ssoPollingFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
-
     private val interactor: LoginInteractor = mock()
 
     @get:Rule
@@ -50,8 +45,7 @@ class LoginModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             crashLogger = mock(),
-            interactor = interactor,
-            ssoPollingFlag = ssoPollingFlag
+            interactor = interactor
         )
     }
 
@@ -196,7 +190,7 @@ class LoginModelTest {
         val uri: Uri = mock()
         val action = Intent.ACTION_VIEW
 
-        whenever(interactor.checkSessionDetails(action, uri, true)).thenReturn(
+        whenever(interactor.checkSessionDetails(action, uri)).thenReturn(
             LoginIntents.UserLoggedInWithoutDeeplinkData
         )
 
@@ -214,7 +208,7 @@ class LoginModelTest {
     fun `check deeplink returns auth required intent`() {
         val uri: Uri = mock()
         val action = Intent.ACTION_VIEW
-        whenever(interactor.checkSessionDetails(action, uri, true)).thenReturn(
+        whenever(interactor.checkSessionDetails(action, uri)).thenReturn(
             LoginIntents.UserAuthenticationRequired(action, uri)
         )
 
@@ -233,7 +227,7 @@ class LoginModelTest {
         val uri: Uri = mock()
         val action = Intent.ACTION_VIEW
 
-        whenever(interactor.checkSessionDetails(action, uri, true)).thenReturn(
+        whenever(interactor.checkSessionDetails(action, uri)).thenReturn(
             LoginIntents.UnknownError
         )
 

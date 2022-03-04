@@ -19,6 +19,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.filterByAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.koin.payloadScope
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import info.blockchain.balance.AssetInfo
@@ -34,6 +35,8 @@ import io.reactivex.rxjava3.subjects.SingleSubject
 import java.security.KeyPair
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
+import piuk.blockchain.android.ui.scan.CameraAnalytics
+import piuk.blockchain.android.ui.scan.QrCodeType
 
 sealed class ScanResult(
     val isDeeplinked: Boolean
@@ -72,9 +75,10 @@ class QrScanResultProcessor(
     private val bitPayDataManager: BitPayDataManager,
     private val walletConnectUrlValidator: WalletConnectUrlValidator,
     private val featureFlag: IntegratedFeatureFlag,
+    private val analytics: Analytics
 ) {
 
-    fun processScan(scanResult: String, isDeeplinked: Boolean = false): Single<ScanResult> =
+    fun processScan(scanResult: String, isDeeplinked: Boolean = false): Single<out ScanResult> =
         when {
             scanResult.isHttpUri() -> Single.just(ScanResult.HttpUri(scanResult, isDeeplinked))
             scanResult.isBitpayUri() -> parseBitpayInvoice(scanResult)
@@ -100,6 +104,10 @@ class QrScanResultProcessor(
                         )
                     }
             }
+        }.doOnSuccess { scan ->
+            analytics.logEvent(CameraAnalytics.QrCodeScanned(scan.type()))
+        }.doOnError {
+            analytics.logEvent(CameraAnalytics.QrCodeScanned(QrCodeType.INVALID))
         }
 
     private fun parseBitpayInvoice(bitpayUri: String): Single<CryptoTarget> {
@@ -210,6 +218,16 @@ class QrScanResultProcessor(
                 R.string.select_send_source_title
             )
         )
+    }
+}
+
+private fun ScanResult.type(): QrCodeType {
+    return when (this) {
+        is ScanResult.HttpUri -> QrCodeType.DEEPLINK
+        is ScanResult.WalletConnectRequest -> QrCodeType.DAPP
+        is ScanResult.SecuredChannelLogin -> QrCodeType.LOG_IN
+        is ScanResult.TxTarget,
+        is ScanResult.ImportedWallet -> QrCodeType.CRYPTO_ADDRESS
     }
 }
 

@@ -3,43 +3,28 @@ package piuk.blockchain.android.ui.settings.v2.profile
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
-import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import org.koin.core.scope.Scope
-import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityProfileBinding
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO
 import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.USER_TIER
-import piuk.blockchain.android.ui.settings.v2.profileScope
-import timber.log.Timber
+import piuk.blockchain.android.ui.settings.v2.profile.email.UpdateEmailFragment
+import piuk.blockchain.android.ui.settings.v2.profile.phone.UpdatePhoneFragment
 
 class ProfileActivity :
-    MviActivity<ProfileModel,
-        ProfileIntent,
-        ProfileState,
-        ActivityProfileBinding>(),
+    BlockchainActivity(),
     ProfileNavigator {
 
-    private val scopeId: String by lazy {
-        "${TX_SCOPE_ID}_${this@ProfileActivity.hashCode()}"
-    }
-
-    val scope: Scope by lazy {
-        openScope()
-        KoinJavaComponent.getKoin().getScope(scopeId)
-    }
-
-    override val model: ProfileModel by scope.inject()
-
-    override fun initBinding(): ActivityProfileBinding =
+    private val binding: ActivityProfileBinding by lazy {
         ActivityProfileBinding.inflate(layoutInflater)
+    }
 
     override val alwaysDisableScreenshots: Boolean = true
 
@@ -70,8 +55,6 @@ class ProfileActivity :
 
     override fun hideLoading() = binding.progress.gone()
 
-    override fun render(newState: ProfileState) {}
-
     override fun goToUpdateEmailScreen(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
@@ -96,20 +79,7 @@ class ProfileActivity :
             .commitAllowingStateLoss()
     }
 
-    private fun openScope() =
-        try {
-            KoinJavaComponent.getKoin().getOrCreateScope(
-                scopeId,
-                profileScope
-            )
-        } catch (e: Throwable) {
-            Timber.wtf("Error opening scope for id $scopeId - $e")
-        }
-
     companion object {
-
-        private const val TX_SCOPE_ID = "PROFILE_SCOPE_ID"
-
         fun newIntent(context: Context, basicProfileInfo: BasicProfileInfo, tier: Tier) =
             Intent(context, ProfileActivity::class.java).apply {
                 putExtra(BASIC_INFO, basicProfileInfo)

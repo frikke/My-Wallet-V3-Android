@@ -28,7 +28,7 @@ class MetadataNodeFactory(
     }
 
     fun initNodes(remoteMetadataNodes: RemoteMetadataNodes): Boolean { // If not all nodes available fail.
-        if (!remoteMetadataNodes.isAllNodesAvailable) {
+        if (!remoteMetadataNodes.isAllNodesAvailable()) {
             return false
         }
         sharedMetadataNode = metadataDerivation.deserializeMetadataNode(remoteMetadataNodes.mdid)

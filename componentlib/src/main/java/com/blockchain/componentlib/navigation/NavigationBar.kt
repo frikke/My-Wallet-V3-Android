@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -66,7 +67,7 @@ fun NavigationBar(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(start = 24.dp)
+                .padding(start = dimensionResource(R.dimen.standard_margin))
         ) {
             startNavigationBarButton?.let { button ->
                 Box(
@@ -88,7 +89,7 @@ fun NavigationBar(
                         colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
                     )
                 }
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
             }
             Text(
                 text = title,
@@ -100,10 +101,10 @@ fun NavigationBar(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .padding(end = 24.dp)
+                .padding(end = dimensionResource(R.dimen.standard_margin))
         ) {
             endNavigationBarButtons.forEach {
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_margin)))
                 Box(
                     modifier = Modifier
                         .clickable {
