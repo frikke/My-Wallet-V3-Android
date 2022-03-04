@@ -7,8 +7,8 @@ import kotlinx.serialization.Serializable
 data class ProductsResponse(
     @SerialName("productCode")
     val productCode: String,
-    @SerialName("fee")
-    val fee: Long, // TODO should this be long?
+    @SerialName("price")
+    val price: Price,
     @SerialName("brand")
     val brand: String,
     @SerialName("type")
@@ -21,4 +21,12 @@ data class Availability(
     val available: Boolean,
     @SerialName("unavaibleReason")
     val unavailableReason: String? = ""
+)
+
+@Serializable
+data class Price(
+    @SerialName("symbol")
+    val symbol: String,
+    @SerialName("value")
+    val value: String,
 )

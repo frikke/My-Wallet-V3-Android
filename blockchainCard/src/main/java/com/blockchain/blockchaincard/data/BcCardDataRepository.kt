@@ -2,7 +2,10 @@ package com.blockchain.blockchaincard.data
 
 import com.blockchain.api.bccardapi.models.ProductsResponse
 import com.blockchain.nabu.Authenticator
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
 
 class BcCardDataRepository(
     val bcCardService: BcCardService,
@@ -24,14 +27,17 @@ class BcCardDataRepository(
 private fun ProductsResponse.toDomainModel(): BcCardProduct =
     BcCardProduct(
         productCode = productCode,
-        fee = fee,
+        price = FiatValue.fromMajor(
+            fiatCurrency = FiatCurrency.fromCurrencyCode(price.symbol),
+            major = BigDecimal(price.value)
+        ),
         brand = BcCardBrand.valueOf(brand),
         type = BcCardType.valueOf(type)
     )
 
 data class BcCardProduct(
     val productCode: String,
-    val fee: Long,
+    val price: FiatValue,
     val brand: BcCardBrand,
     val type: BcCardType
 )

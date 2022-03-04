@@ -7,14 +7,15 @@ data class AccountState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val accountInformation: AccountInformation? = null,
     val errorState: AccountError = AccountError.NONE,
-    val exchangeLinkingState: ExchangeLinkingState = ExchangeLinkingState.UNKNOWN
+    val exchangeLinkingState: ExchangeLinkingState = ExchangeLinkingState.UNKNOWN,
+    val bcCardOrderState: DebitCardOrderState = DebitCardOrderState.UNKNOWN
 ) : MviState
 
 sealed class ViewToLaunch {
     object None : ViewToLaunch()
     class CurrencySelection(val selectedCurrency: FiatCurrency, val currencyList: List<FiatCurrency>) : ViewToLaunch()
     class ExchangeLink(val exchangeLinkingState: ExchangeLinkingState) : ViewToLaunch()
-    class BcDebitCardState(val bcDebitCardState: DebitCardState) : ViewToLaunch()
+    class BcDebitCardState(val bcDebitCardOrderState: DebitCardOrderState) : ViewToLaunch()
 }
 
 enum class ExchangeLinkingState {
@@ -23,10 +24,10 @@ enum class ExchangeLinkingState {
     LINKED
 }
 
-enum class DebitCardState {
+enum class DebitCardOrderState {
     NOT_ELIGIBLE,
-    NOT_ORDERED,
-    ORDERED
+    ELIGIBLE,
+    UNKNOWN
 }
 
 data class AccountInformation(

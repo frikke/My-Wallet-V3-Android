@@ -21,7 +21,7 @@ sealed class AccountIntent : MviIntent<AccountState> {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    object LoadDebitCard : AccountIntent() {
+    object LoadBCDebitCardInformation : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
@@ -57,5 +57,11 @@ sealed class AccountIntent : MviIntent<AccountState> {
 
     class UpdateFiatCurrency(val updatedCurrency: FiatCurrency) : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
+    }
+
+    class UpdateBCCardOrderState(private val bcCardOrderState: DebitCardOrderState) : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState.copy(
+            bcCardOrderState = bcCardOrderState
+        )
     }
 }

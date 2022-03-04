@@ -44,12 +44,12 @@ class AccountInteractor internal constructor(
             }
         }
 
-    fun getDebitCardState(): Single<DebitCardState> =
+    fun getDebitCardState(): Single<DebitCardOrderState> =
         bcCardDataRepository.getProducts().flatMap {
             if (it.isNotEmpty())
-                Single.just(DebitCardState.ORDERED)
+                Single.just(DebitCardOrderState.ELIGIBLE)
             else
-                Single.just(DebitCardState.NOT_ORDERED)
+                Single.just(DebitCardOrderState.NOT_ELIGIBLE)
         }
 
 }

@@ -14,7 +14,7 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
-val bcCardGateway = StringQualifier("bc-card-gateway")
+val bcCardGateway = StringQualifier("card-issuing")
 
 private val json = Json {
     explicitNulls = false
@@ -28,7 +28,7 @@ val bcCardsApiModule = module {
 
     single(bcCardGateway) {
         Retrofit.Builder()
-            .baseUrl(getBaseUrl("bc-card-gateway"))
+            .baseUrl(getBaseUrl("card-issuing"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())

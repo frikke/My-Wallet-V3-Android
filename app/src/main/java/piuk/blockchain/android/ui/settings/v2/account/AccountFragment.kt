@@ -123,7 +123,7 @@ class AccountFragment :
             settingsDebitCard.apply {
                 primaryText = "Blockchain Debit Card"
                 onClick = {
-                    model.process(AccountIntent.LoadDebitCard)
+                    // TODO Navigate to order card screen
                 }
             }
 
@@ -159,6 +159,7 @@ class AccountFragment :
         super.onResume()
         model.process(AccountIntent.LoadAccountInformation)
         model.process(AccountIntent.LoadExchangeInformation)
+        model.process(AccountIntent.LoadBCDebitCardInformation)
     }
 
     override fun render(newState: AccountState) {
@@ -171,6 +172,7 @@ class AccountFragment :
         }
 
         renderExchangeInformation(newState.exchangeLinkingState)
+        renderDebitCardInformation(newState.bcCardOrderState)
         renderErrorState(newState.errorState)
     }
 
@@ -188,16 +190,16 @@ class AccountFragment :
             }
         }
 
-    private fun renderDebitCardInformation(debitCardOrderState: DebitCardState) =
+    private fun renderDebitCardInformation(debitCardOrderState: DebitCardOrderState) =
         when (debitCardOrderState) {
-            DebitCardState.NOT_ELIGIBLE -> {
+            DebitCardOrderState.UNKNOWN -> {
+                binding.settingsDebitCard.secondaryText = ""
+            }
+            DebitCardOrderState.NOT_ELIGIBLE -> {
                 binding.settingsDebitCard.secondaryText = "Not Eligible"
             }
-            DebitCardState.NOT_ORDERED -> {
+            DebitCardOrderState.ELIGIBLE -> {
                 binding.settingsDebitCard.secondaryText = "Order Card"
-            }
-            DebitCardState.ORDERED -> {
-                binding.settingsDebitCard.secondaryText = null
             }
         }
 
@@ -295,7 +297,7 @@ class AccountFragment :
                 }
             }
             is ViewToLaunch.BcDebitCardState -> {
-                renderDebitCardInformation(debitCardOrderState = view.bcDebitCardState)
+                renderDebitCardInformation(debitCardOrderState = view.bcDebitCardOrderState)
             }
             ViewToLaunch.None -> {
                 // do nothing

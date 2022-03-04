@@ -8,7 +8,7 @@ import retrofit2.http.Query
 
 interface BcCardApi {
 
-    @GET("bc-cards/products")
+    @GET("products")
     fun getProducts(
         @Header("authorization") authorization: String,
     ): Single<List<ProductsResponse>>
