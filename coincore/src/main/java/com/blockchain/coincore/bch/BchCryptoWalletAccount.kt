@@ -1,9 +1,11 @@
 package com.blockchain.coincore.bch
 
 import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -43,7 +45,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
-    identity: UserIdentity
+    identity: UserIdentity,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.BCH, custodialWalletManager, identity) {
 
     override val baseActions: Set<AssetAction> = defaultActions
@@ -98,14 +101,15 @@ import piuk.blockchain.androidcore.utils.extensions.then
                 appendTradeActivity(custodialWalletManager, currency, it)
             }.doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
-    override fun createTxEngine(): TxEngine =
+    override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         BchOnChainTxEngine(
             feeManager = feeDataManager,
             sendDataManager = sendDataManager,
             bchDataManager = bchManager,
             payloadDataManager = payloadDataManager,
             requireSecondPassword = payloadDataManager.isDoubleEncrypted,
-            walletPreferences = walletPreferences
+            walletPreferences = walletPreferences,
+            resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 
     override fun updateLabel(newLabel: String): Completable {
@@ -177,7 +181,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences: WalletStatus,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity
+            identity: UserIdentity,
+            addressResolver: AddressResolver
         ) = BchCryptoWalletAccount(
             payloadManager = payloadManager,
             bchManager = bchManager,
@@ -189,7 +194,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity
+            identity = identity,
+            addressResolver = addressResolver
         )
     }
 }

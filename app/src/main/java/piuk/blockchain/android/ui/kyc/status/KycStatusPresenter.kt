@@ -43,7 +43,7 @@ class KycStatusPresenter(
                         view.showNotificationsEnabledDialog()
                     },
                     onError = {
-                        view.showToast(R.string.kyc_status_button_notifications_error)
+                        view.showSnackbar(R.string.kyc_status_button_notifications_error)
                         Timber.e(it)
                     }
                 )

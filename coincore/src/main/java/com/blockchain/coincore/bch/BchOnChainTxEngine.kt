@@ -55,10 +55,12 @@ class BchOnChainTxEngine(
     private val sendDataManager: SendDataManager,
     private val feeManager: FeeDataManager,
     walletPreferences: WalletStatus,
-    requireSecondPassword: Boolean
+    requireSecondPassword: Boolean,
+    resolvedAddress: Single<String>
 ) : OnChainTxEngineBase(
     requireSecondPassword,
-    walletPreferences
+    walletPreferences,
+    resolvedAddress
 ),
     BitPayClientEngine {
 

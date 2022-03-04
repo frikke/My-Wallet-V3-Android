@@ -3,14 +3,19 @@ package piuk.blockchain.android.ui.dashboard
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AssetAction
@@ -22,10 +27,10 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.isVisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.dashboardOnboardingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -33,13 +38,13 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.remoteconfig.FeatureFlag
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -49,22 +54,28 @@ import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
-import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.simplebuy.SimpleBuyCancelOrderBottomSheet
+import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
+import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.dashboard.adapter.PortfolioDelegateAdapter
+import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementAnalyticsEvent
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
+import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
+import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
+import piuk.blockchain.android.ui.dashboard.announcements.rule.UkEntitySwitchAnnouncement
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
+import piuk.blockchain.android.ui.dashboard.assetdetails.FullScreenCoinViewFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
+import piuk.blockchain.android.ui.dashboard.fullscreen.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
@@ -129,8 +140,6 @@ class PortfolioFragment :
     private val currencyPrefs: CurrencyPrefs by inject()
     private var activeFiat = currencyPrefs.selectedFiatCurrency
 
-    private val onboardingFeatureFlag: FeatureFlag by inject(dashboardOnboardingFeatureFlag)
-
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
             prefs = get(),
@@ -163,10 +172,6 @@ class PortfolioFragment :
         arguments?.getString(FLOW_FIAT_CURRENCY)
     }
 
-    private val startOnboarding: Boolean by unsafeLazy {
-        arguments?.getBoolean(START_DASHBOARD_ONBOARDING_KEY, false) ?: false
-    }
-
     private var state: DashboardState? =
         null // Hold the 'current' display state, to enable optimising of state updates
 
@@ -191,17 +196,6 @@ class PortfolioFragment :
                 )
                 else -> throw IllegalStateException("Unsupported flow launch for action $flowToLaunch")
             }
-        } else if (startOnboarding) {
-            compositeDisposable += onboardingFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
-                onSuccess = { isEnabled ->
-                    if (isEnabled) {
-                        val steps = DashboardOnboardingStep.values().map { step ->
-                            CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.INCOMPLETE)
-                        }
-                        launchDashboardOnboarding(steps, showCloseButton = true)
-                    }
-                }
-            )
         }
     }
 
@@ -230,17 +224,24 @@ class PortfolioFragment :
             state?.activeFlow?.let { clearBottomSheet() }
 
             newState.activeFlow?.let {
-                if (it is TransactionFlow) {
-                    startActivity(
-                        TransactionFlowActivity.newInstance(
-                            context = requireActivity(),
-                            sourceAccount = it.txSource,
-                            target = it.txTarget,
-                            action = it.txAction
+                when (it) {
+                    is TransactionFlow -> {
+                        startActivity(
+                            TransactionFlowActivity.newInstance(
+                                context = requireActivity(),
+                                sourceAccount = it.txSource,
+                                target = it.txTarget,
+                                action = it.txAction
+                            )
                         )
-                    )
-                } else {
-                    it.startFlow(childFragmentManager, this)
+                    }
+                    is FullScreenCoinViewFlow -> {
+                        startActivity(CoinViewActivity.newIntent(requireContext()))
+                        model.process(DashboardIntent.ClearActiveFlow)
+                    }
+                    else -> {
+                        it.startFlow(childFragmentManager, this)
+                    }
                 }
             }
         }
@@ -313,17 +314,18 @@ class PortfolioFragment :
                 }
                 isLoading -> {
                     portfolioRecyclerView.gone()
-                    emptyPortfolioGroup.gone()
+                    emptyPortfolio.gone()
                     dashboardProgress.visible()
                 }
                 else -> {
                     portfolioRecyclerView.visibleIf { showPortfolio }
-                    emptyPortfolioGroup.visibleIf { !showPortfolio }
+                    emptyPortfolio.visibleIf { !showPortfolio }
                     setupCtaButtons(showDepositButton, showPortfolio)
                     dashboardProgress.gone()
                 }
             }
         }
+        updateUkEntitySwitchAnnouncementOnEmptyState()
     }
 
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
@@ -342,16 +344,15 @@ class PortfolioFragment :
         }
     }
 
-    private fun launchDashboardOnboarding(
-        initialSteps: List<CompletableDashboardOnboardingStep>,
-        showCloseButton: Boolean = false
-    ) {
-        activityResultDashboardOnboarding.launch(
-            DashboardOnboardingActivity.ActivityArgs(
-                initialSteps = initialSteps,
-                showCloseButton = showCloseButton
-            )
-        )
+    fun launchNewUserDashboardOnboarding() {
+        val steps = DashboardOnboardingStep.values().map { step ->
+            CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.INCOMPLETE)
+        }
+        launchDashboardOnboarding(steps)
+    }
+
+    private fun launchDashboardOnboarding(initialSteps: List<CompletableDashboardOnboardingStep>) {
+        activityResultDashboardOnboarding.launch(DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps))
     }
 
     private fun startBankLinking(action: DashboardNavigationAction.LinkBankWithPartner) {
@@ -433,12 +434,137 @@ class PortfolioFragment :
         )
     }
 
+    // TODO: Remove when we're no longer showing the UK Entity Switch announcement in Prod
+    private var ukEntitySwitchAnnouncement: StandardAnnouncementCard? = null
+    private fun updateUkEntitySwitchAnnouncementOnEmptyState() = with(binding.announcement) {
+        val announcement = ukEntitySwitchAnnouncement
+        if (announcement == null || !binding.emptyPortfolio.isVisible()) {
+            root.gone()
+            return
+        } else {
+            root.visible()
+        }
+        when {
+            announcement.titleText != 0 -> {
+                msgTitle.text = msgTitle.context.getString(
+                    announcement.titleText, *announcement.titleFormatParams
+                )
+            }
+            else -> {
+                msgTitle.gone()
+            }
+        }
+
+        if (announcement.background != 0) {
+            cardContainer.setBackgroundResource(announcement.background)
+        } else {
+            cardContainer.setBackgroundColor(Color.WHITE)
+        }
+
+        when {
+            announcement.bodyTextSpannable != null -> {
+                val text = announcement.bodyTextSpannable
+                msgBody.text = text
+                val hasClickableSpans = text.getSpans(0, text.length, ClickableSpan::class.java).isNotEmpty()
+                if (hasClickableSpans) msgBody.movementMethod = LinkMovementMethod.getInstance()
+            }
+            announcement.bodyText != 0 -> {
+                msgBody.text = msgBody.context.getString(
+                    announcement.bodyText, *announcement.bodyFormatParams
+                )
+                msgBody.visible()
+            }
+            else -> {
+                msgBody.gone()
+            }
+        }
+
+        when {
+            announcement.iconImage != 0 -> {
+                check(announcement.iconUrl.isEmpty()) { "Can't set both a drawable and a URL on an announcement" }
+
+                icon.setImageDrawable(ContextCompat.getDrawable(icon.context, announcement.iconImage))
+                if (announcement.shouldWrapIconWidth) {
+                    // This is only used to display the vector_aave_yfi_dot_announcement icon in the correct size
+                    icon.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+
+                icon.visible()
+            }
+            announcement.iconUrl.isNotEmpty() -> {
+                check(announcement.iconImage == 0) { "Can't set both a drawable and a URL on an announcement" }
+
+                Glide.with(icon.context)
+                    .load(announcement.iconUrl)
+                    .apply(RequestOptions().placeholder(R.drawable.ic_default_asset_logo))
+                    .into(icon)
+
+                icon.visible()
+            }
+            else -> {
+                icon.gone()
+            }
+        }
+
+        if (announcement.ctaText != 0) {
+            btnCta1.text = btnCta1.context.getString(announcement.ctaText, *announcement.ctaFormatParams)
+            btnCta1.setOnClickListener {
+                analytics.logEvent(AnnouncementAnalyticsEvent.CardActioned(announcement.name))
+                announcement.ctaClicked()
+            }
+            btnCta1.visible()
+        } else {
+            btnCta1.gone()
+        }
+
+        if (announcement.dismissText != 0) {
+            btnDismiss.setText(announcement.dismissText)
+            btnDismiss.setOnClickListener {
+                analytics.logEvent(AnnouncementAnalyticsEvent.CardDismissed(announcement.name))
+                announcement.dismissClicked()
+            }
+            btnDismiss.visible()
+            btnClose.gone()
+        } else {
+            btnDismiss.gone()
+        }
+
+        if (announcement.dismissRule != DismissRule.CardPersistent) {
+            btnClose.setOnClickListener {
+                analytics.logEvent(AnnouncementAnalyticsEvent.CardDismissed(announcement.name))
+                announcement.dismissClicked()
+            }
+            btnClose.visible()
+        } else {
+            btnClose.gone()
+            btnDismiss.gone()
+        }
+
+        val colour = ContextCompat.getColor(btnCta1.context, announcement.buttonColor)
+        if (btnCta1.isVisible()) {
+            btnCta1.setBackgroundColor(colour)
+        }
+
+        if (btnDismiss.isVisible()) {
+            val bgColour = ContextCompat.getColor(btnCta1.context, R.color.announce_background)
+            val gd = GradientDrawable()
+            gd.setColor(bgColour)
+            gd.setStroke(2, colour)
+            btnDismiss.background = gd
+            btnDismiss.setTextColor(colour)
+        }
+    }
+
     private fun showAnnouncement(card: AnnouncementCard?) {
         displayList[IDX_CARD_ANNOUNCE] = card ?: EmptyDashboardItem()
         theAdapter.notifyItemChanged(IDX_CARD_ANNOUNCE)
         card?.let {
             binding.portfolioRecyclerView.smoothScrollToPosition(IDX_CARD_ANNOUNCE)
         }
+        ukEntitySwitchAnnouncement =
+            if (card?.name == UkEntitySwitchAnnouncement.ANNOUNCEMENT_NAME) card as? StandardAnnouncementCard
+            else null
+        updateUkEntitySwitchAnnouncementOnEmptyState()
     }
 
     private fun updateAnalytics(oldState: DashboardState?, newState: DashboardState) {
@@ -647,6 +773,9 @@ class PortfolioFragment :
         override val disposables: CompositeDisposable
             get() = compositeDisposable
 
+        override val context: Context?
+            get() = this@PortfolioFragment.context
+
         override fun showAnnouncementCard(card: AnnouncementCard) {
             model.process(DashboardIntent.ShowAnnouncement(card))
         }
@@ -741,12 +870,12 @@ class PortfolioFragment :
 
     // DialogBottomSheet.Host
     override fun onSheetClosed() {
-        model.process(DashboardIntent.ClearBottomSheet)
+        model.process(DashboardIntent.ClearActiveFlow)
     }
 
     // DialogFlow.FlowHost
     override fun onFlowFinished() {
-        model.process(DashboardIntent.ClearBottomSheet)
+        model.process(DashboardIntent.ClearActiveFlow)
     }
 
     // BankLinkingHost
@@ -909,22 +1038,18 @@ class PortfolioFragment :
     companion object {
         fun newInstance(
             flowToLaunch: AssetAction? = null,
-            fiatCurrency: String? = null,
-            startOnboarding: Boolean = false
+            fiatCurrency: String? = null
         ) = PortfolioFragment().apply {
             arguments = Bundle().apply {
                 if (flowToLaunch != null && fiatCurrency != null) {
                     putSerializable(FLOW_TO_LAUNCH, flowToLaunch)
                     putString(FLOW_FIAT_CURRENCY, fiatCurrency)
-                } else {
-                    putBoolean(START_DASHBOARD_ONBOARDING_KEY, startOnboarding)
                 }
             }
         }
 
         internal const val FLOW_TO_LAUNCH = "FLOW_TO_LAUNCH"
         internal const val FLOW_FIAT_CURRENCY = "FLOW_FIAT_CURRENCY"
-        internal const val START_DASHBOARD_ONBOARDING_KEY = "START_DASHBOARD_ONBOARDING_KEY"
 
         private const val IDX_CARD_ANNOUNCE = 0
         private const val IDX_CARD_BALANCE = 1

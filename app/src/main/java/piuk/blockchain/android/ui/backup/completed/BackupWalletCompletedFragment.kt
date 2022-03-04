@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.koin.scopedInject
@@ -16,8 +17,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupCompleteBinding
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class BackupWalletCompletedFragment :
     BaseFragment<BackupWalletCompletedView, BackupWalletCompletedPresenter>(),
@@ -71,7 +71,11 @@ class BackupWalletCompletedFragment :
     }
 
     override fun showErrorToast() {
-        toast(R.string.common_error, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(R.string.common_error),
+            type = SnackbarType.Error
+        ).show()
     }
 
     override fun createPresenter() = presenter

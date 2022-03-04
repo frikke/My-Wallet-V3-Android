@@ -232,7 +232,6 @@ class CoinsWebSocketStrategyTest {
         verify(payloadDataManager).updateAllBalances()
         verify(payloadDataManager).updateAllTransactions()
         verify(rxBus).emitEvent(any(), any())
-        verify(messagesSocketHandler).showToast(R.string.wallet_updated)
     }
 
     private class FakeWebSocket(mock: WebSocket<String, String>) : WebSocket<String, String> by mock {

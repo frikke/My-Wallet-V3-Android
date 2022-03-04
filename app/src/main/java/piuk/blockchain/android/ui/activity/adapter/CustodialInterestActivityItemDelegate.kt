@@ -138,7 +138,7 @@ private fun TextView.setTxLabel(
 ) {
     text = when (type) {
         TransactionSummary.TransactionType.DEPOSIT -> context.resources.getString(
-            R.string.tx_title_transferred,
+            R.string.tx_title_added,
             asset.displayTicker
         )
         TransactionSummary.TransactionType.INTEREST_EARNED -> context.resources.getString(

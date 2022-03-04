@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import android.text.Spannable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -17,6 +18,7 @@ data class StandardAnnouncementCard(
     val dismissEntry: DismissRecorder.DismissEntry,
     @StringRes val titleText: Int = 0,
     @StringRes val bodyText: Int = 0,
+    val bodyTextSpannable: Spannable? = null,
     @StringRes val ctaText: Int = 0,
     @StringRes val dismissText: Int = 0,
     @DrawableRes val background: Int = 0,

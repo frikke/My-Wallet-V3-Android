@@ -1,11 +1,14 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.coincore.loader.AssetCatalogueImpl
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.ApiStatus
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.isCustodial
@@ -15,12 +18,12 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.RootUtil
 import timber.log.Timber
 
 interface LandingView : MvpView {
-    fun showToast(message: String, @ToastCustom.ToastType toastType: String)
+    fun showSnackbar(message: String, type: SnackbarType)
+    fun showLandingCta()
     fun showIsRootedWarning()
     fun showApiOutageMessage()
     fun onLoadPrices(assets: List<PriceView.Price>)
@@ -29,10 +32,12 @@ interface LandingView : MvpView {
 class LandingPresenter(
     private val environmentSettings: EnvironmentConfig,
     private val prefs: SecurityPrefs,
+    private val onboardingPrefs: OnboardingPrefs,
     private val rootUtil: RootUtil,
     private val apiStatus: ApiStatus,
     private val assetCatalogue: AssetCatalogueImpl,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
+    private val landingCtaFF: FeatureFlag
 ) : MvpPresenter<LandingView>() {
 
     override val alwaysDisableScreenshots = false
@@ -43,12 +48,22 @@ class LandingPresenter(
 
     override fun onViewAttached() {
         if (environmentSettings.isRunningInDebugMode()) {
-            view?.showToast(
+            view?.showSnackbar(
                 "Current environment: ${environmentSettings.environment.name}",
-                ToastCustom.TYPE_GENERAL
+                SnackbarType.Info
             )
         }
         checkApiStatus()
+    }
+
+    fun checkShouldShowLandingCta() {
+        if (onboardingPrefs.isLandingCtaDismissed) return
+        compositeDisposable += landingCtaFF.enabled
+            .onErrorReturnItem(false)
+            .filter { enabled -> enabled }
+            .subscribeBy {
+                view?.showLandingCta()
+            }
     }
 
     fun loadAssets() {

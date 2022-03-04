@@ -6,7 +6,7 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.logging.DigitalTrust
-import info.blockchain.wallet.payload.PayloadManagerWiper
+import info.blockchain.wallet.payload.PayloadScopeWiper
 import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -14,7 +14,7 @@ import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class AppUtil(
     private val context: Context,
-    private var payloadManager: PayloadManagerWiper,
+    private var payloadScopeWiper: PayloadScopeWiper,
     private val prefs: PersistentPrefs,
     private val trust: DigitalTrust,
     private val pinRepository: PinRepository
@@ -38,7 +38,7 @@ class AppUtil(
     override var activityIndicator: ActivityIndicator? = null
 
     fun clearCredentials() {
-        payloadManager.wipe()
+        payloadScopeWiper.wipe()
         prefs.clear()
     }
 

@@ -44,7 +44,8 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
         walletPreferences = walletPreferences,
         custodialWalletManager = custodialWalletManager,
         identity = mock(),
-        baseActions = CryptoAccountBase.defaultActions
+        baseActions = CryptoAccountBase.defaultActions,
+        addressResolver = mock()
     )
 
     @Before

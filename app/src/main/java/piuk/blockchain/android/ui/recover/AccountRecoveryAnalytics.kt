@@ -11,7 +11,10 @@ sealed class AccountRecoveryAnalytics(
 
     class PasswordReset(isCustodialAccount: Boolean) : AccountRecoveryAnalytics(
         event = AnalyticsNames.RECOVERY_PASSWORD_RESET.eventName,
-        params = createMap(isCustodialAccount)
+        params = createMap(isCustodialAccount).toMutableMap().apply {
+            // This is ALWAYS true, as users can only reset their password after providing the recovery phrase
+            put(WITH_RECOVERY_PHRASE, true)
+        }
     )
 
     class RecoveryFailed(isCustodialAccount: Boolean) : AccountRecoveryAnalytics(
@@ -56,6 +59,7 @@ sealed class AccountRecoveryAnalytics(
         private const val SITE_REDIRECT = "site_redirect"
         private const val ACCOUNT_TYPE_PRIVATE_KEY = "USERKEY"
         private const val ACCOUNT_TYPE_CUSTODIAL = "CUSTODIAL"
+        private const val WITH_RECOVERY_PHRASE = "with_recovery_phrase"
 
         private fun createMap(isCustodialAccount: Boolean): Map<String, Serializable> =
             mapOf(

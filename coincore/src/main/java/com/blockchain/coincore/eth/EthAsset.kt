@@ -8,6 +8,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -48,7 +49,8 @@ internal class EthAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    private val formatUtils: FormatUtilities
+    private val formatUtils: FormatUtilities,
+    addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -59,7 +61,8 @@ internal class EthAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity
+    identity,
+    addressResolver
 ),
     NonCustodialSupport {
     override val assetInfo: AssetInfo
@@ -86,7 +89,8 @@ internal class EthAsset(
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     identity = identity,
-                    assetCatalogue = assetCatalogue.value
+                    assetCatalogue = assetCatalogue.value,
+                    addressResolver = addressResolver
                 )
             }.doOnSuccess {
                 updateBackendNotificationAddresses(it)
@@ -118,13 +122,16 @@ internal class EthAsset(
 
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> {
         val normalisedAddress = address.removePrefix(FormatUtilities.ETHEREUM_PREFIX)
-        val segments = normalisedAddress.split("?")
-        val addressSegment = segments.getOrNull(0) ?: return Maybe.empty()
+        val segments = normalisedAddress.split(FormatUtilities.ETHEREUM_ADDRESS_DELIMITER)
+        val addressSegment = segments.getOrNull(0)
+            ?.split(FormatUtilities.ETHEREUM_CHAIN_ID_DELIMITER)
+            ?.getOrNull(0)
+            ?: return Maybe.empty()
 
         if (!isValidAddress(addressSegment)) return Maybe.empty()
 
         val params = if (segments.size > 1) {
-            segments[1].split("&")
+            segments[1].split(FormatUtilities.ETHEREUM_PARAMS_DELIMITER)
         } else {
             emptyList()
         }
@@ -141,7 +148,7 @@ internal class EthAsset(
             .map { isContract ->
                 EthAddress(
                     address = addressSegment,
-                    label = label ?: address,
+                    label = label ?: addressSegment,
                     amount = amountParam,
                     isContract = isContract
                 ) as ReceiveAddress

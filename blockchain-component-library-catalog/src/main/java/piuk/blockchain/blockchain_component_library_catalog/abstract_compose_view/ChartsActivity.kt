@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import com.blockchain.charts.ChartEntry
 import com.blockchain.charts.ChartView
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.BalanceView
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.charts.PercentageChangeState
@@ -51,6 +52,15 @@ class ChartsActivity : AppCompatActivity() {
             price = "$51423.00"
             percentageChangeData = PercentageChangeData("$50.00", 0.24, "Last Hour")
         }
+
+
+        findViewById<BalanceView>(R.id.balance_with_icon).apply {
+            title = "Current Balance"
+            price = "$51423.00"
+            percentageChangeData = PercentageChangeData("$50.00", 0.24, "Last Hour")
+            endIcon = ImageResource.Local(R.drawable.ic_blockchain)
+        }
+
 
         findViewById<BalanceView>(R.id.today_chart).apply {
             title = "Today"

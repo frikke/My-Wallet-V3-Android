@@ -34,14 +34,16 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 
-open class EthOnChainTxEngine(
+class EthOnChainTxEngine(
     private val ethDataManager: EthDataManager,
     private val feeManager: FeeDataManager,
     walletPreferences: WalletStatus,
-    requireSecondPassword: Boolean
+    requireSecondPassword: Boolean,
+    resolvedAddress: Single<String>
 ) : OnChainTxEngineBase(
     requireSecondPassword,
-    walletPreferences
+    walletPreferences,
+    resolvedAddress
 ) {
 
     override fun assertInputsValid() {
@@ -185,21 +187,31 @@ open class EthOnChainTxEngine(
             }
 
     private fun createTransaction(pendingTx: PendingTx): Single<RawTransaction> {
-        val targetAddress = txTarget as CryptoAddress
-
         return Singles.zip(
             ethDataManager.getNonce(),
-            feeOptions()
-        ).map { (nonce, fees) ->
+            feeOptions(),
+            resolvedHotWalletAddress
+        ).map { (nonce, fees, hotWalletAddress) ->
+            val useHotWallet = hotWalletAddress.isNotEmpty()
+
             ethDataManager.createEthTransaction(
                 nonce = nonce,
-                to = targetAddress.address,
+                to = if (useHotWallet) hotWalletAddress else
+                    (txTarget as CryptoAddress).address,
                 gasPriceWei = fees.gasPrice(pendingTx.feeSelection.selectedLevel),
-                gasLimitGwei = fees.getGasLimit(txTarget.isContract),
-                weiValue = pendingTx.amount.toBigInteger()
+                gasLimitGwei = fees.getGasLimit(txTarget.isContract) + extraGasLimitIfMemoAvailable(useHotWallet),
+                weiValue = pendingTx.amount.toBigInteger(),
+                data = if (useHotWallet) (txTarget as CryptoAddress).address else ""
             )
         }
     }
+
+    private fun extraGasLimitIfMemoAvailable(useHotWallet: Boolean): BigInteger =
+        if (useHotWallet) {
+            ethDataManager.extraGasLimitForMemo()
+        } else {
+            BigInteger.ZERO
+        }
 
     // TODO: Have FeeOptions deal with this conversion
     private fun FeeOptions.gasPrice(feeLevel: FeeLevel): BigInteger =

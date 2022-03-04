@@ -206,8 +206,11 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     @UiThread
-    fun showBottomSheet(bottomSheet: BottomSheetDialogFragment) =
-        bottomSheet.show(supportFragmentManager, BOTTOM_DIALOG)
+    fun showBottomSheet(bottomSheet: BottomSheetDialogFragment) {
+        if (!supportFragmentManager.isDestroyed) {
+            bottomSheet.show(supportFragmentManager, BOTTOM_DIALOG)
+        }
+    }
 
     @UiThread
     fun clearBottomSheet() {

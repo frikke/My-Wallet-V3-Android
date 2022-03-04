@@ -9,10 +9,10 @@ import android.text.Editable
 import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.text.method.LinkMovementMethod
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
@@ -29,9 +29,8 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.login.PayloadHandler
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
@@ -182,10 +181,11 @@ class LoginAuthActivity :
                 if (!isTwoFATimerRunning.get()) {
                     model.process(LoginAuthIntents.RequestNew2FaCode)
                 } else {
-                    ToastCustom.makeText(
-                        this@LoginAuthActivity, getString(R.string.two_factor_retries_exceeded),
-                        Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
-                    )
+                    BlockchainSnackbar.make(
+                        binding.root,
+                        getString(R.string.two_factor_retries_exceeded),
+                        type = SnackbarType.Error
+                    ).show()
                 }
             }
         }
@@ -220,7 +220,7 @@ class LoginAuthActivity :
                 analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
                 startActivity(Intent(this, PinEntryActivity::class.java))
             }
-            AuthStatus.PairingFailed -> showErrorToast(R.string.pairing_failed)
+            AuthStatus.PairingFailed -> showErrorSnackbar(R.string.pairing_failed)
             AuthStatus.InvalidPassword -> {
                 analytics.logEvent(LoginAnalytics.LoginPasswordDenied(analyticsInfo))
                 binding.progressBar.gone()
@@ -228,10 +228,10 @@ class LoginAuthActivity :
             }
             AuthStatus.AuthFailed -> {
                 analytics.logEvent(LoginAnalytics.LoginRequestDenied(analyticsInfo))
-                showErrorToast(R.string.auth_failed)
+                showErrorSnackbar(R.string.auth_failed)
             }
-            AuthStatus.InitialError -> showErrorToast(R.string.common_error)
-            AuthStatus.AuthRequired -> showToast(getString(R.string.auth_required))
+            AuthStatus.InitialError -> showErrorSnackbar(R.string.common_error)
+            AuthStatus.AuthRequired -> showSnackbar(getString(R.string.auth_required))
             AuthStatus.Invalid2FACode -> {
                 analytics.logEvent(LoginAnalytics.LoginTwoFaDenied(analyticsInfo))
                 binding.progressBar.gone()
@@ -346,10 +346,11 @@ class LoginAuthActivity :
             is TwoFaCodeState.TwoFaTimeLock -> {
                 if (!isTwoFATimerRunning.get()) {
                     twoFATimer.start()
-                    ToastCustom.makeText(
-                        this@LoginAuthActivity, getString(R.string.two_factor_retries_exceeded),
-                        Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
-                    )
+                    BlockchainSnackbar.make(
+                        binding.root,
+                        getString(R.string.two_factor_retries_exceeded),
+                        type = SnackbarType.Error
+                    ).show()
                 }
                 binding.twoFaResend.text = getString(R.string.two_factor_resend_sms, 0)
             }
@@ -437,16 +438,16 @@ class LoginAuthActivity :
         }
     }
 
-    private fun showErrorToast(@StringRes message: Int) {
+    private fun showErrorSnackbar(@StringRes message: Int) {
         binding.progressBar.gone()
         binding.passwordText.setText("")
-        toast(message, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(binding.root, getString(message), type = SnackbarType.Error).show()
     }
 
-    private fun showToast(message: String) {
+    private fun showSnackbar(message: String) {
         binding.progressBar.gone()
         binding.passwordText.setText("")
-        toast(message, ToastCustom.TYPE_GENERAL)
+        BlockchainSnackbar.make(binding.root, message).show()
     }
 
     private fun launchPasswordRecoveryFlow() {

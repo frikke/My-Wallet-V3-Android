@@ -3,7 +3,9 @@ package piuk.blockchain.androidcore.data.settings
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
+import retrofit2.Response
 
 class SettingsService(private val settingsApi: SettingsManager) {
 
@@ -44,6 +46,15 @@ class SettingsService(private val settingsApi: SettingsManager) {
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_EMAIL, email, context)
 
     /**
+     * Resend the user's email
+     *
+     * @param email The email to be stored
+     * @return A [ResponseBody] containing the response from the server
+     */
+    internal fun resendEmail(email: String): Observable<ResponseBody> =
+        settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_EMAIL, email)
+
+    /**
      * Update the user's phone number
      *
      * @param sms The phone number to be stored
@@ -51,6 +62,9 @@ class SettingsService(private val settingsApi: SettingsManager) {
      */
     internal fun updateSms(sms: String): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_SMS, sms)
+
+    internal fun updateSms(sms: String, forceJson: Boolean): Single<Response<ResponseBody>> =
+        settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_SMS, sms, forceJson)
 
     /**
      * Verify the user's phone number with a verification code

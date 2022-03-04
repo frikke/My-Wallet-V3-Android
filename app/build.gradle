@@ -374,7 +374,6 @@ dependencies {
     implementation Libraries.yearclass
     implementation Libraries.stetho
     implementation Libraries.stethoOkHttp
-    debugImplementation Libraries.leakCanary
 
     // Database
     implementation Libraries.sqlDelight

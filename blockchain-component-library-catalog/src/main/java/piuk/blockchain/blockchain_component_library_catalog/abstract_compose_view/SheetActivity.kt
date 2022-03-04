@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.LinearLayoutCompat
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.SheetHeaderActionType
 import com.blockchain.componentlib.sheets.SheetHeaderBackAndActionView
 import com.blockchain.componentlib.sheets.SheetHeaderBackAndCloseView
@@ -36,6 +36,12 @@ class SheetActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.icon).apply {
             setOnClickListener {
                 IconBottomSheetDialogFragment().show(supportFragmentManager, "icon")
+            }
+        }
+
+        findViewById<MaterialButton>(R.id.no_title).apply {
+            setOnClickListener {
+                NoTitleBottomSheetDialogFragment().show(supportFragmentManager, "no_title")
             }
         }
         findViewById<MaterialButton>(R.id.back).apply {
@@ -123,6 +129,28 @@ class IconBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                         id = R.drawable.ic_qr_code,
                         contentDescription = null,
                     )
+                },
+            context = requireContext(),
+        )
+    }
+
+    override fun getTheme(): Int {
+        return R.style.CustomBottomSheetDialog
+    }
+}
+
+class NoTitleBottomSheetDialogFragment : BottomSheetDialogFragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return BottomSheetDummyView(
+            bottomSheetHeaderView = SheetHeaderView(requireContext())
+                .apply {
+                   this.onClosePress = {
+                       dismiss()
+                   }
                 },
             context = requireContext(),
         )

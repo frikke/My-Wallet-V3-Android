@@ -32,6 +32,7 @@
     <string name="common_transfer">Transfer</string>
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_confirm">Confirm</string>
+    <string name="common_disconnect">Disconnect</string>
     <string name="common_parametrised_confirm">Confirm %1$s</string>
     <string name="common_linked_learn_more"><annotation link="learn_more_link">Learn more.</annotation></string>
     <string name="common_empty_title">Can’t load your Wallets</string>
@@ -45,6 +46,7 @@
     <string name="common_try_again">Try Again</string>
     <string name="common_oops">Oops! Something went wrong.</string>
     <string name="common_sell">Sell</string>
+    <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
     <string name="common_search">Search</string>
     <string name="common_approve">Approve</string>
@@ -120,9 +122,7 @@
     <string name="invalid_guid">Invalid Wallet ID</string>
 
     <string name="password_mismatch_error">Passwords do not match</string>
-    <string name="change_password_new_matches_current">You can’t use your current password as your
-        new password
-    </string>
+    <string name="change_password_new_matches_current">You can’t use your current password as your new password</string>
     <string name="no_private_key">Cannot produce private key.</string>
 
     <string name="pin_max_strikes">%1$d failed PIN attempts. Please provide password.</string>
@@ -242,10 +242,6 @@
     <string name="use_password">Use password</string>
 
     <string name="wipe_wallet">Forget wallet</string>
-
-    <string name="support_leaving_app_warning">This will leave the app and take you to your browser.
-        Continue?
-    </string>
     <string name="weak_password">The selected password is too weak to secure your funds. Please define a different password.</string>
 
     <string name="confirm_details">Confirm Payment</string>
@@ -624,7 +620,7 @@
     <string name="tx_title_sold">Sold %s</string>
     <string name="tx_title_buy">Buy %1s</string>
     <string name="tx_title_bought">Bought %1s</string>
-    <string name="tx_title_deposit">Deposit %s</string>
+    <string name="tx_title_deposit">Add %s</string>
     <string name="tx_title_deposited">Deposited %s</string>
     <string name="tx_title_withdrawn">Withdrawn %s</string>
     <string name="tx_title_withdraw">Withdraw %s</string>
@@ -633,6 +629,8 @@
     <string name="tx_title_transferred">Transferred %s</string>
     <string name="tx_title_fee">Fee %s</string>
     <string name="tx_title_rewards">%s Rewards Earned</string>
+    <string name="tx_title_add_with_ticker">Add %s</string>
+    <string name="tx_title_added">Added %s</string>
 
     <!-- TRANSACTION DETAILS -->
     <string name="transaction_detail_coinbase">No Inputs (Newly Generated Coins)</string>
@@ -794,7 +792,8 @@
     <string name="dashboard_asset_actions_send_dsc">Transfer %1$s to any Wallet</string>
     <string name="dashboard_asset_actions_receive_dsc">Accept or Share Your %1$s Address</string>
     <string name="dashboard_asset_actions_swap_dsc">Exchange %1$s for Another Crypto</string>
-    <string name="dashboard_asset_actions_deposit_dsc_1">Add %1$s to your Rewards Account</string>
+    <string name="dashboard_asset_actions_add_dsc">Add %1$s to your Rewards Account</string>
+    <string name="dashboard_asset_actions_add_title">Add</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Withdraw %1$s from your Rewards Account</string>
     <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Trading Account</string>
     <string name="dashboard_asset_actions_summary_title_1">Rewards Summary</string>
@@ -950,6 +949,11 @@
     <string name="rewards_announcement_title">Earn rewards on your crypto today!</string>
     <string name="rewards_announcement_description">Transfer Crypto and start earning Rewards on BTC, ETH and many more.</string>
     <string name="rewards_announcement_action">Learn More</string>
+
+    <!-- Uk bank change announcement -->
+    <string name="ukentityswitch_announcement_title">New legal entity</string>
+    <string name="ukentityswitch_announcement_description">Starting later this month, UK customers will be served by our European subsidiary, Blockchain (LT), UAB. You will not experience any changes in user experience or lose access to your funds during this transition. <annotation link="learn_more">Learn more ></annotation></string>
+    <string name="ukentityswitch_announcement_action">I understand</string>
 
     <!-- WDGLD announcement -->
     <string name="wdgld_available_card_title">Trade wDGLD Now</string>
@@ -1356,9 +1360,8 @@
     <string name="bank_wire_transfer_fee_default">Wire Fee</string>
     <string name="bank_wire_transfer_fee">%1$s Fee</string>
     <string name="bank_wire_transfer_min_withdrawal">%1$s Min Withdraw</string>
-    <string name="bank_wire_transfer">Bank Wire Transfer</string>
+    <string name="wire_transfer">Wire Transfer</string>
     <string name="bank_transfer">Bank Transfer</string>
-    <string name="payment_wire_transfer">Wire Transfer</string>
     <string name="payment_wire_transfer_subtitle">3 – 5 Business Days</string>
     <string name="payment_wire_transfer_blurb">Send funds directly from your bank account to your Blockchain.com Wallet. Bank fees may apply.</string>
     <string name="payment_deposit">Bank Deposit</string>
@@ -1438,6 +1441,7 @@
     <string name="select_account_sheet_empty">You have no eligible Wallets to perform this action.</string>
     <string name="select_send_sheet_title">Send from</string>
     <string name="select_deposit_source_title">Transfer from</string>
+    <string name="select_interest_deposit_source_title">Add from</string>
     <string name="select_withdraw_target_title">Withdraw to</string>
     <string name="select_send_source_title">Send from</string>
     <string name="activity_state_initialised">Initialised</string>
@@ -1695,6 +1699,7 @@
     <string name="enter_amount_not_enough_balance">Insufficient balance for fee</string>
     <string name="deposit_confirmation_progress_title">Depositing %1$s</string>
     <string name="deposit_confirmation_progress_message">We’re completing your deposit now.</string>
+    <string name="sign_confirmation_progress_message">We’re signing your transaction now.</string>
     <string name="deposit_confirmation_success_title">%1$s Deposited!</string>
     <string name="deposit_confirmation_success_message">While we wait for your bank to send the cash, here’s early access to %1$s in your %2$s Cash Account so you can buy crypto right away.\n\nYour funds will be available to withdraw once the bank transfer is complete on %3$s.</string>
     <string name="deposit_confirmation_pending_title">We’re waiting on your bank</string>
@@ -1998,6 +2003,8 @@
     <string name="add_a_deposit_method">Select a Deposit Method</string>
     <string name="link_a_bank_wire_transfer">Link a bank to your Wallet by sending any amount via wire transfer. Note: This is much slower and high bank fees may apply.</string>
     <string name="link_a_bank_bank_transfer">Securely link a bank to buy crypto, deposit cash and withdraw back to your bank at anytime.</string>
+    <string name="bank_transfer_blurb">Follow the instructions on the next screen to deposit funds from your bank account to your Blockchain.com account. Bank fees may apply.</string>
+    <string name="easy_bank_transfer_blurb">Link once and send cash to your Blockchain.com account at any time.</string>
 
     <!-- trading error messages -->
     <string name="trading_order_limit">You have too many pending %1$s transactions. Once those complete you can create a new one.</string>
@@ -2063,6 +2070,11 @@
     <string name="sb_checkout_yearly_limit_blurb">Oops, looks like you’ve used up your yearly transaction limit for Buys and Deposits.</string>
     <string name="sb_checkout_pending_order_title">Order in progress</string>
     <string name="sb_checkout_pending_order_blurb">Oops, looks like you’ve already got a Buy order in progress, please wait until it completes before buying again.</string>
+    <string name="sb_checkout_card_insufficient_funds_title">Insufficient funds</string>
+    <string name="sb_checkout_card_insufficient_funds_blurb">Your bank tells us you don’t have enough funds in your account, check and try again.</string>
+    <string name="sb_checkout_card_declined_title">Payment declined</string>
+    <string name="sb_checkout_card_declined_blurb">Your bank has declined this transaction, please try another bank or payment method.</string>
+    <string name="sb_checkout_contact_support">If you think the payment should have worked, please <annotation link="contact_support">contact support</annotation></string>
 
     <!-- Yapily -->
     <string name="yapily_empty_blurb">We couldn’t find your bank. Send funds from your bank to your Blockchain Wallet with a Manual Transfer.</string>
@@ -2150,7 +2162,7 @@
     <string name="bank_transfer_payment_failed_title">Payment Failed</string>
     <string name="bank_transfer_payment_failed_subtitle">There was an issue with your bank. Please try again or use a different payment method. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_declined_title">Payment Declined</string>
-    <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support</string>
+    <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support.\nIf you’ve already done this then please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_rejected_title">Payment Rejected</string>
     <string name="bank_transfer_payment_rejected_subtitle">We believe you have declined the payment from your bank account. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_expired_title">Payment Request Expired</string>
@@ -2446,8 +2458,8 @@
     <string name="select_a_display_currency">Select a Display Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
-    <string name="landing_cta_title">Buy Bitcoin. Own the Future.</string>
-    <string name="landing_cta_subtitle">Create a Blockchain.com Wallet and simply buy, sell and hold crypto. Go from zero to crypto in seconds not minutes.</string>
+    <string name="landing_cta_title">Your First Buy Is on Us.</string>
+    <string name="landing_cta_subtitle">Verify your ID and we\'ll cover the fees on your first trade. It\'s our way of saying welcome to Blockchain.com!</string>
     <string name="landing_cta_login">Log In</string>
 
     <!-- Pending buys -->
@@ -2516,7 +2528,7 @@
     <string name="swap_empty_state_sheet_subtitle">Link a bank or card and buy now or receive from a friend. Once you hold a balance, you can swap crypto at anytime.</string>
 
     <!-- Settings screen -->
-    <string name="settings_see_profile">See Profile</string>
+    <string name="settings_see_profile">Edit Profile</string>
     <string name="settings_label_payments">Payment Methods</string>
     <string name="settings_title_no_payments">No Payment Methods</string>
     <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
@@ -2524,16 +2536,17 @@
     <string name="settings_title_account">Account</string>
     <string name="settings_notifications_title">Notifications</string>
     <string name="settings_notifications_subtitle">Emails and push alerts</string>
-    <string name="settings_subtitle_account">Limits, Currency and more</string>
+    <string name="settings_subtitle_account">Limits, Currency, Airdrops and more</string>
     <string name="settings_title_security">Security</string>
     <string name="settings_subtitle_security">Login Methods, Backup Phrases and more</string>
     <string name="settings_title_about_app">About App</string>
-    <string name="settings_subtitle_about_app">Support, Airdrops and Policies</string>
+    <string name="settings_subtitle_about_app">Support, Policies and more</string>
     <string name="settings_sign_out">Sign Out</string>
     <string name="settings_initials">%1s%2s</string>
     <string name="settings_add_payment_method">Add Payment Method</string>
     <string name="settings_bank_transfer_blurb">Send funds directly from your bank to your Blockchain Wallet. Once we receive the wire transfer, we’ll complete your purchase.</string>
     <string name="settings_logout_error">There was an issue while logging you out, please try again!</string>
+    <string name="settings_contact_support_error">There was an error loading your information</string>
 
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>
@@ -2543,9 +2556,11 @@
     <string name="account_wallet_id_subtitle">Warning: Do Not Share Publicly</string>
     <string name="account_currency_title">Local Currency</string>
     <string name="account_exchange_title">Blockchain Exchange</string>
+    <string name="account_wallet_connect">WalletConnect</string>
     <string name="account_exchange_not_connected">Connect to your Exchange Account</string>
     <string name="account_exchange_connected">Connected</string>
     <string name="account_airdrops_title">Airdrops</string>
+    <string name="account_addresses_title">Addresses</string>
     <string name="account_wallet_id_copy_error">There was an error copying your Wallet ID, please try again.</string>
     <string name="account_exchange_connect_title">Connect to Exchange</string>
     <string name="account_exchange_connect_subtitle">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>
@@ -2571,11 +2586,12 @@
     <string name="profile_update_error_resend_sms">Resending SMS failed</string>
     <string name="profile_update_email">Email saved</string>
     <string name="profile_update_error_phone">Phone number failed to save</string>
+    <string name="profile_update_error_phone_invalid">Invalid phone number</string>
     <string name="profile_update_phone">Phone number saved</string>
     <string name="profile_update_success">Updates saved.</string>
     <string name="profile_label_support">Need to update your name? <annotation link="contact_support">Contact support</annotation></string>
     <string name="profile_verify_email_msg">Your verified email address is used to send payment alerts, ID reminders, and login codes.</string>
-    <string name="profile_verify_phone_msg">Your phone number can be used to enable 2FA.</string>
+    <string name="profile_verify_phone_msg">Your mobile phone can be used to enable 2FA or to receive alerts.</string>
     <string name="profile_disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
     <string name="profile_verify_email">Verify Email</string>
     <string name="profile_verify_phone">Verify Phone</string>
@@ -2593,7 +2609,7 @@
     <string name="code_verification_enter">Enter Verification Code</string>
     <string name="code_verification_re_send_text">Resend Text</string>
     <string name="code_verification_verify_code">Verify Code</string>
-    <string name="code_verification_placeholder">--- ---</string>
+    <string name="code_verification_placeholder">-----</string>
     <string name="code_verification_title">Verify Your Phone Number</string>
 
     <!-- Notifications screen -->
@@ -2636,6 +2652,19 @@
     <string name="security_error_biometrics_disable">There was an error disabling your Biometrics, please try again.</string>
     <string name="security_error_two_fa">There was an error updating Two Factor Authentication, please try again.</string>
     <string name="security_error_screenshots">There was an error updating Screenshots, please try again.</string>
+    <string name="security_backup_sheet_title">Recovery Phrase Not Backed Up</string>
+    <string name="security_backup_sheet_blurb">Before you change your password, back up your secret 12 word key. This allows you to recover your account if you forget your password.</string>
+    <string name="security_backup_sheet_cta">Back Up Now</string>
+    <string name="password_change_blurb">Enter your current password. Then enter and confirm your new password.</string>
+    <string name="password_change_cta">Update password</string>
+    <string name="change_password_title">Change Password</string>
+    <string name="change_password_error_old_new_match">You can’t use your current password as your new password</string>
+    <string name="change_password_error_old_incorrect">Your current password is not correct</string>
+    <string name="change_password_error_new_dont_match">The new passwords don\'t match</string>
+    <string name="change_password_error_new_length">Your new passwords length is too short, or too long (4–255)</string>
+    <string name="change_password_error_new_too_weak">Your new password is too weak, please use a stronger password</string>
+    <string name="change_password_error_general">There was an issue updating your password, please try again.</string>
+    <string name="change_password_success">Password successfully updated!</string>
 
     <!-- About app screen -->
     <string name="about_app_toolbar">About App</string>
@@ -2650,5 +2679,49 @@
     <string name="dapp_is_now_approved">%1s is Now Connected to Your Wallet</string>
     <string name="dapp_is_now_rejected">%1s Connection was Rejected</string>
     <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
+    <string name="dapp_confirmation_warning">This dapp is requesting an action, which could take money from your wallet. Make sure you trust this site.</string>
+    <string name="common_chain">Chain</string>
+    <string name="message_from_dapp">Message from %1s</string>
+    <string name="signing_confirmation_progress_title">Signing…</string>
+    <string name="signed">Signed</string>
+    <string name="message_signed">The message has been successfully signed. Go back to the dApp.</string>
+    <string name="password_current_hint">Enter current password</string>
+    <string name="password_new_hint">Enter new password</string>
+    <string name="password_confirm_hint">Re-enter new password</string>
+    <string name="signature_request">Signature Request</string>
+    <string name="no_dapps_connected">No Connected Dapps</string>
+    <string name="connect_with_wallet_connect">Connect to a dapp using WalletConnect.</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="you_are_about_disconnect">You\'re about to disconnect %1$s.</string>
+
+    <!-- Ui Tour -->
+    <string name="ui_tour_buy_and_sell_title">Buy &amp; Sell</string>
+    <string name="ui_tour_prices_title">Discover New Coins</string>
+    <string name="ui_tour_middle_button_title">Instantly Trade</string>
+    <string name="ui_tour_activity_title">See All Transactions</string>
+    <string name="ui_tour_buyer_handhold_title">Get Set Up to Buy</string>
+
+    <string name="ui_tour_buy_and_sell_subtitle">Use your card or link your bank to buy crypto in seconds. Quick, easy &amp; secure.</string>
+    <string name="ui_tour_prices_subtitle">Track the live price of over 1,200 coins and find new ones to add to your wallet.</string>
+    <string name="ui_tour_middle_button_subtitle">Whether you want to swap with speed or send to a friend - we’ve got you covered!</string>
+    <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
+    <string name="ui_tour_buyer_handhold_subtitle">Add a card or link a bank to start buying crypto in seconds.</string>
+
+    <!-- Pin screen -->
+    <string name="pin_title_create">Choose a Wallet PIN.</string>
+    <string name="pin_subtitle">This will be used for Biometric Unlock Backup.</string>
+    <string name="pin_title_confirm">Confirm Your PIN.</string>
+    <string name="pin_mismatch_error_msg">PINs do not match. Please try again.</string>
+    <string name="pin_num_digits">Pin must contain 4 digits.</string>
+    <string name="pin_toolbar_change">Change PIN</string>
+    <string name="scan_connect">Scan &amp; Connect</string>
+    <string name="allow_camera_access">Allow Camera Access</string>
+    <string name="scan_friends_qr">Scan a Friend’s QR Code</string>
+    <string name="scan_friends_qr_description">Point your phone at a friend’s QR code and we’ll paste the address.</string>
+    <string name="web_access">Access Your Wallet on the Web</string>
+    <string name="web_access_description">Logging in blockchain.com? Scan the code with your phone to log in.</string>
+    <string name="connect_to_dapps">Connect to Dapps</string>
+    <string name="connect_to_dapps_description">Securely connect your wallet to any web 3.0 application.</string>
+    <string name="beta" translatable="false">beta</string>
 
 </resources>

@@ -16,7 +16,6 @@ import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -30,8 +29,8 @@ import piuk.blockchain.android.databinding.ActivityDashboardOnboardingBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
-import piuk.blockchain.android.simplebuy.CurrencySelectionSheet
-import piuk.blockchain.android.simplebuy.PaymentMethodChooserBottomSheet
+import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
+import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -78,19 +77,7 @@ class DashboardOnboardingActivity :
             analytics.logEvent(DashboardOnboardingAnalytics.Viewed(it))
         }
 
-        if (intent.argShowCloseButton()) {
-            updateToolbar(
-                menuItems = listOf(
-                    NavigationBarButton.Icon(
-                        drawable = R.drawable.ic_close_circle_v2,
-                        color = null,
-                        onIconClick = { finish() }
-                    )
-                )
-            )
-        } else {
-            updateToolbar(backAction = { finish() })
-        }
+        updateToolbar(backAction = { finish() })
         binding.recyclerviewSteps.layoutManager = LinearLayoutManager(this)
         binding.recyclerviewSteps.adapter = adapter
     }
@@ -269,28 +256,22 @@ class DashboardOnboardingActivity :
         }
     }
 
-    private fun Intent.argShowCloseButton(): Boolean = getBooleanExtra(ARG_SHOW_CLOSE_BUTTON, false)
-
     companion object {
         private const val ARG_INITIAL_STEPS_STATES = "ARG_INITIAL_STEPS_STATES"
-        private const val ARG_SHOW_CLOSE_BUTTON = "ARG_SHOW_CLOSE_BUTTON"
         private const val RESULT_LAUNCH_BUY_FLOW = "RESULT_LAUNCH_BUY_FLOW"
 
         private fun newIntent(
             context: Context,
-            initialSteps: List<CompletableDashboardOnboardingStep>,
-            showCloseButton: Boolean = false
+            initialSteps: List<CompletableDashboardOnboardingStep>
         ): Intent = Intent(context, DashboardOnboardingActivity::class.java).apply {
             if (initialSteps.isNotEmpty()) {
                 putExtra(ARG_INITIAL_STEPS_STATES, initialSteps.map { it.state.name }.toTypedArray())
-                putExtra(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             }
         }
     }
 
     data class ActivityArgs(
-        val initialSteps: List<CompletableDashboardOnboardingStep>,
-        val showCloseButton: Boolean = false
+        val initialSteps: List<CompletableDashboardOnboardingStep>
     )
 
     sealed class ActivityResult {
@@ -300,8 +281,7 @@ class DashboardOnboardingActivity :
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {
         override fun createIntent(context: Context, input: ActivityArgs): Intent = newIntent(
             context = context,
-            initialSteps = input.initialSteps,
-            showCloseButton = input.showCloseButton
+            initialSteps = input.initialSteps
         )
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult? {

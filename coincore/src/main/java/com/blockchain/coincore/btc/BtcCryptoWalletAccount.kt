@@ -1,10 +1,12 @@
 package com.blockchain.coincore.btc
 
 import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -44,7 +46,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
-    identity: UserIdentity
+    identity: UserIdentity,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.BTC, custodialWalletManager, identity) {
     override val baseActions: Set<AssetAction> = defaultActions
     private val hasFunds = AtomicBoolean(false)
@@ -110,13 +113,14 @@ import piuk.blockchain.androidcore.utils.extensions.then
                 setHasTransactions(it.isNotEmpty())
             }
 
-    override fun createTxEngine(): TxEngine =
+    override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         BtcOnChainTxEngine(
             btcDataManager = payloadDataManager,
             sendDataManager = sendDataManager,
             feeManager = feeDataManager,
             requireSecondPassword = payloadDataManager.isDoubleEncrypted,
-            walletPreferences = walletPreferences
+            walletPreferences = walletPreferences,
+            resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 
     override val actions: Single<AvailableActions>
@@ -264,7 +268,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences: WalletStatus,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity
+            identity: UserIdentity,
+            addressResolver: AddressResolver
         ) = BtcCryptoWalletAccount(
             payloadManager = payloadManager,
             hdAccountIndex = hdAccountIndex,
@@ -276,7 +281,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity
+            identity = identity,
+            addressResolver = addressResolver
         )
 
         fun createImportedAccount(
@@ -288,7 +294,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences: WalletStatus,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity
+            identity: UserIdentity,
+            addressResolver: AddressResolver
         ) = BtcCryptoWalletAccount(
             payloadManager = payloadManager,
             hdAccountIndex = IMPORTED_ACCOUNT_NO_INDEX,
@@ -300,7 +307,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity
+            identity = identity,
+            addressResolver = addressResolver
         )
 
         private const val IMPORTED_ACCOUNT_NO_INDEX = -1

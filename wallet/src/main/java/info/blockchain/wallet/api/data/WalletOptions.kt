@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.HashMap
 
+typealias Product = String
+typealias Asset = String
+typealias WalletAddress = String
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class WalletOptions {
@@ -23,6 +27,9 @@ class WalletOptions {
 
     @JsonProperty("ethereum")
     val ethereum: EthereumOptions = EthereumOptions()
+
+    @JsonProperty("hotWalletAddresses")
+    val hotWalletAddresses: Map<Product, Map<Asset, WalletAddress>> = HashMap()
 
     @JsonProperty("android_update")
     val androidUpdate: AndroidUpgrade = AndroidUpgrade()

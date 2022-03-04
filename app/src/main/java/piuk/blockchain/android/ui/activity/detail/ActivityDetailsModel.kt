@@ -71,7 +71,8 @@ data class PaymentDetails(
     val paymentMethodId: String,
     val label: String? = null,
     val endDigits: String? = null,
-    val accountType: String? = null
+    val accountType: String? = null,
+    val paymentMethodType: PaymentMethodType? = null
 )
 
 enum class DescriptionState {

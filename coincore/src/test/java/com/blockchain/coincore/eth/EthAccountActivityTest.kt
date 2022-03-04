@@ -52,7 +52,8 @@ class EthAccountActivityTest : CoincoreTestBase() {
                 walletPreferences = walletPrefs,
                 custodialWalletManager = custodialWalletManager,
                 assetCatalogue = mock(),
-                identity = mock()
+                identity = mock(),
+                addressResolver = mock()
             )
         )
 

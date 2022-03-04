@@ -15,6 +15,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import com.blockchain.commonarch.presentation.base.updateTitleToolbar
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -33,9 +35,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.yodlee.FastLinkMessage
 import piuk.blockchain.android.simplebuy.yodlee.MessageData
 import piuk.blockchain.android.simplebuy.yodlee.SiteData
-import piuk.blockchain.android.ui.base.updateTitleToolbar
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
 import timber.log.Timber
 
@@ -183,7 +183,11 @@ class YodleeWebViewFragment :
             updateViewsVisibility(false)
         } catch (e: NullPointerException) {
             crashLogger.logException(e, "Underlying binding is null")
-            toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(R.string.common_error),
+                type = SnackbarType.Error
+            ).show()
             navigator().bankAuthCancelled()
         }
     }

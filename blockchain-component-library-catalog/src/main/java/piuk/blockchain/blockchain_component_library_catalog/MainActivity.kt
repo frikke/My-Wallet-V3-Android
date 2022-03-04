@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.airbnb.android.showkase.models.Showkase
+import com.blockchain.componentlib.basic.SimpleTextView
 import com.google.android.material.button.MaterialButton
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ActionTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AlertButtonActivity
@@ -31,9 +32,12 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SectionHeadersActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SheetActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleImageViewActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleTextViewActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallMinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallPrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SnackbarsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SplitButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TabLayoutActivity
@@ -54,6 +58,12 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.spacing).setOnClickListener {
             startActivity(Intent(this@MainActivity, SpacingActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.texts).setOnClickListener {
+            startActivity(Intent(this@MainActivity, SimpleTextViewActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.images).setOnClickListener {
+            startActivity(Intent(this@MainActivity, SimpleImageViewActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.tags).setOnClickListener {
             startActivity(Intent(this@MainActivity, TagsActivity::class.java))
@@ -150,6 +160,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.sheets).setOnClickListener {
             startActivity(Intent(this@MainActivity, SheetActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.snackbars).setOnClickListener {
+            startActivity(Intent(this@MainActivity, SnackbarsActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.showkase_button).setOnClickListener {
             startActivity(Showkase.getBrowserIntent(this@MainActivity))

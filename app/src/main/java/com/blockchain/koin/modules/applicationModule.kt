@@ -34,6 +34,11 @@ import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
 import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
+import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
+import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptorImpl
+import com.blockchain.payments.googlepay.interceptor.PaymentDataMapper
+import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
@@ -45,12 +50,13 @@ import com.squareup.sqldelight.db.SqlDriver
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.binds
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.auth.AppLogoutTimer
+import piuk.blockchain.android.auth.AppLockTimer
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
@@ -117,6 +123,7 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
+import piuk.blockchain.android.ui.launcher.GlobalEventHandler
 import piuk.blockchain.android.ui.launcher.LauncherPresenter
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.ui.linkbank.BankAuthModel
@@ -146,6 +153,8 @@ import piuk.blockchain.android.util.OSUtil
 import piuk.blockchain.android.util.ResourceDefaultLabels
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.wiper.DataWiper
+import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
@@ -161,7 +170,7 @@ val applicationModule = module {
     single {
         AppUtil(
             context = get(),
-            payloadManager = get(),
+            payloadScopeWiper = get(),
             prefs = get(),
             trust = get(),
             pinRepository = get()
@@ -169,7 +178,7 @@ val applicationModule = module {
     }.bind(AppUtilAPI::class)
 
     single {
-        AppLogoutTimer(
+        AppLockTimer(
             application = get()
         )
     }.bind(LogoutTimer::class)
@@ -225,7 +234,6 @@ val applicationModule = module {
 
         scoped {
             CredentialsWiper(
-                payloadManagerWiper = get(),
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
@@ -461,6 +469,7 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
                 ratingPrefs = get(),
+                onboardingPrefs = get(),
                 prefs = get(),
                 simpleBuyPrefs = get(),
                 serializer = get(),
@@ -687,11 +696,20 @@ val applicationModule = module {
                 coincore = get(),
                 exchangeRates = get(),
                 crashLogger = get(),
+                globalEventHandler = get(),
                 simpleBuySync = get(),
                 rxBus = get(),
                 walletConnectServiceAPI = get(),
                 flushables = getAll(AppStartUpFlushable::class),
                 walletCredentialsUpdater = get()
+            )
+        }
+
+        scoped {
+            GlobalEventHandler(
+                application = get(),
+                walletConnectServiceAPI = get(),
+                wcFeatureFlag = get(walletConnectFeatureFlag),
             )
         }
 
@@ -788,6 +806,19 @@ val applicationModule = module {
                 submitEveryPayCardService = get()
             )
         }.bind(CardActivator::class)
+
+        factory {
+            DataWiperImpl(
+                ethDataManager = get(),
+                bchDataManager = get(),
+                walletOptionsState = get(),
+                nabuDataManager = get(),
+                walletConnectServiceAPI = get(),
+                assetActivityRepository = get(),
+                walletPrefs = get(),
+                payloadScopeWiper = get()
+            )
+        }.bind(DataWiper::class)
     }
 
     factory {
@@ -889,6 +920,24 @@ val applicationModule = module {
             checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
+
+    single {
+        GooglePayManagerImpl(
+            environmentConfig = get(),
+            context = get()
+        )
+    }.bind(GooglePayManager::class)
+
+    single {
+        PaymentDataMapper()
+    }
+
+    factory {
+        GooglePayResponseInterceptorImpl(
+            paymentDataMapper = get(),
+            coroutineContext = Dispatchers.IO
+        )
+    }.bind(GooglePayResponseInterceptor::class)
 }
 
 fun getCardProcessors(): List<CardProcessor> {

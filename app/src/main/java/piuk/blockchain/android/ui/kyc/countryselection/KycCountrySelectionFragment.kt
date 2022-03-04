@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
@@ -22,8 +24,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycCountrySelectionBinding
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.countryselection.adapter.CountryCodeAdapter
 import piuk.blockchain.android.ui.kyc.countryselection.models.CountrySelectionState
@@ -138,7 +139,7 @@ internal class KycCountrySelectionFragment :
     override fun renderUiState(state: CountrySelectionState) {
         when (state) {
             CountrySelectionState.Loading -> showProgress()
-            is CountrySelectionState.Error -> showErrorToast(state.errorMessage)
+            is CountrySelectionState.Error -> showErrorSnackbar(state.errorMessage)
             is CountrySelectionState.Data -> renderCountriesList(state)
         }
     }
@@ -148,9 +149,13 @@ internal class KycCountrySelectionFragment :
         hideProgress()
     }
 
-    private fun showErrorToast(errorMessage: Int) {
+    private fun showErrorSnackbar(@StringRes errorMessage: Int) {
         hideProgress()
-        toast(errorMessage, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(errorMessage),
+            type = SnackbarType.Error
+        ).show()
     }
 
     private fun showProgress() {

@@ -6,11 +6,11 @@ import java.io.Serializable
 
 class WalletConnectSession(val url: String, val dAppInfo: DAppInfo, val walletInfo: WalletInfo) : Serializable {
     companion object {
-        fun fromWCSession(wcSession: WCSession, peerMeta: WCPeerMeta, peerId: String) =
+        fun fromWCSession(wcSession: WCSession, peerMeta: WCPeerMeta, remotePeerId: String, peerId: String) =
             WalletConnectSession(
                 url = wcSession.toUri(),
                 dAppInfo = DAppInfo(
-                    peerId = peerId,
+                    peerId = remotePeerId,
                     peerMeta = ClientMeta(
                         description = peerMeta.description.orEmpty(),
                         url = peerMeta.url,

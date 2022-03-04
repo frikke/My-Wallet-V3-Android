@@ -37,6 +37,7 @@ import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -95,6 +96,7 @@ sealed class TxExecutionStatus {
     object NotStarted : TxExecutionStatus()
     object InProgress : TxExecutionStatus()
     object Completed : TxExecutionStatus()
+    object Cancelled : TxExecutionStatus()
     class ApprovalRequired(val approvalData: BankPaymentApproval) : TxExecutionStatus()
     data class Error(val exception: Throwable) : TxExecutionStatus()
 }
@@ -184,15 +186,12 @@ data class TransactionState(
     // This is a hack to allow the enter amount screen to update to the initial amount, if one is specified,
     // without getting stuck in an update loop
     fun initialAmountToSet(): Money? {
-        return if (selectedTarget is CryptoAddress) {
-            val amount = selectedTarget.amount
-            if (amount != null && amount.isPositive && amount == pendingTx?.amount) {
-                selectedTarget.amount
+        return (selectedTarget as? CryptoAddress)?.amount?.let { amount ->
+            if (amount.isPositive) {
+                amount
             } else {
                 null
             }
-        } else {
-            null
         }
     }
 
@@ -253,6 +252,7 @@ class TransactionModel(
             is TransactionIntent.ExecuteTransaction -> processExecuteTransaction(previousState.secondPassword)
             is TransactionIntent.ValidateInputTargetAddress ->
                 processValidateAddress(intent.targetAddress, intent.expectedCrypto)
+            is TransactionIntent.CancelTransaction -> processCancelTransaction()
             is TransactionIntent.TargetAddressValidated -> null
             is TransactionIntent.TargetAddressInvalid -> null
             is TransactionIntent.InitialiseWithSourceAndTargetAccount -> {
@@ -290,6 +290,7 @@ class TransactionModel(
             is TransactionIntent.ValidateTransaction -> processValidateTransaction()
             is TransactionIntent.EnteredAddressReset -> null
             is TransactionIntent.AvailableAccountsListUpdated -> null
+            is TransactionIntent.UpdateTransactionCancelled -> null
             is TransactionIntent.ShowMoreAccounts -> null
             is TransactionIntent.UseMaxSpendable -> null
             is TransactionIntent.SetFeeLevel -> processSetFeeLevel(intent)
@@ -537,6 +538,16 @@ class TransactionModel(
                 }
             )
 
+    private fun processCancelTransaction(): Disposable =
+        interactor.cancelTransaction().subscribeBy(
+            onComplete = {
+                process(TransactionIntent.UpdateTransactionCancelled)
+            }, onError = {
+            Timber.d("!TRANSACTION!> Unable to cancel transaction: $it")
+            errorLogger.log(TxFlowLogError.ExecuteFail(it))
+        }
+        )
+
     private fun processModifyTxOptionRequest(newConfirmation: TxConfirmationValue): Disposable =
         interactor.modifyOptionValue(
             newConfirmation
@@ -563,17 +574,18 @@ class TransactionModel(
             )
 
     private fun processValidateTransaction(): Disposable? =
-        interactor.validateTransaction()
-            .subscribeBy(
-                onError = {
-                    Timber.e("!TRANSACTION!> Unable to validate transaction: $it")
-                    errorLogger.log(TxFlowLogError.ValidateFail(it))
-                    process(TransactionIntent.FatalTransactionError(it))
-                },
-                onComplete = {
-                    Timber.d("!TRANSACTION!> Tx validation complete")
-                }
-            )
+        Completable.defer {
+            interactor.validateTransaction()
+        }.subscribeBy(
+            onError = {
+                Timber.e("!TRANSACTION!> Unable to validate transaction: $it")
+                errorLogger.log(TxFlowLogError.ValidateFail(it))
+                process(TransactionIntent.FatalTransactionError(it))
+            },
+            onComplete = {
+                Timber.d("!TRANSACTION!> Tx validation complete")
+            }
+        )
 
     private fun processFiatDepositOptions(previousState: TransactionState) =
         interactor.updateFiatDepositOptions((previousState.selectedTarget as FiatCustodialAccount).currency)

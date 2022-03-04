@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,6 +10,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
@@ -18,6 +18,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -27,7 +28,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAssetActionsSheetBinding
 import piuk.blockchain.android.databinding.ItemAssetActionBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
@@ -105,11 +106,13 @@ class AssetActionsSheet :
 
     private fun showError(error: AssetDetailsError) =
         when (error) {
-            AssetDetailsError.TX_IN_FLIGHT -> ToastCustom.makeText(
-                requireContext(),
-                getString(R.string.dashboard_asset_actions_tx_in_progress), Toast.LENGTH_SHORT,
-                ToastCustom.TYPE_ERROR
-            )
+            AssetDetailsError.TX_IN_FLIGHT ->
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.dashboard_asset_actions_tx_in_progress),
+                    duration = Snackbar.LENGTH_SHORT,
+                    type = SnackbarType.Error
+                ).show()
             else -> {
                 // do nothing
             }
@@ -211,10 +214,10 @@ class AssetActionsSheet :
                 goToSummary()
             }
             AssetAction.InterestDeposit -> AssetActionItem(
-                title = getString(R.string.common_transfer),
+                title = getString(R.string.dashboard_asset_actions_add_title),
                 icon = R.drawable.ic_tx_deposit_arrow,
                 hasWarning = hasWarning,
-                description = getString(R.string.dashboard_asset_actions_deposit_dsc_1, asset.displayTicker),
+                description = getString(R.string.dashboard_asset_actions_add_dsc, asset.displayTicker),
                 asset = asset,
                 action = action
             ) {
@@ -265,6 +268,7 @@ class AssetActionsSheet :
             }
             AssetAction.Withdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
+            AssetAction.Sign -> throw IllegalStateException("Sign action is not supported")
         }
     }
 

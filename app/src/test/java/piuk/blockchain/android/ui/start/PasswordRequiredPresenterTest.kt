@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.logging.CrashLogger
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.Wallet
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyInt
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import piuk.blockchain.android.testutils.RxTest
@@ -55,7 +55,7 @@ class PasswordRequiredPresenterTest : RxTest() {
         subject.onContinueClicked("")
 
         // Assert
-        verify(view).showToast(anyInt(), anyString())
+        verify(view).showSnackbar(anyInt(), any())
     }
 
     @Test

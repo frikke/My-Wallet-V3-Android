@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
@@ -11,6 +12,8 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
+import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -23,7 +26,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentActivityBinding
-import piuk.blockchain.android.ui.base.addAnimationTransaction
+import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -47,6 +50,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     private val buyFlowNavigator: BuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
+    private val googlePayResponseInterceptor: GooglePayResponseInterceptor by inject()
 
     private val startedFromDashboard: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_NAVIGATION_KEY, false)
@@ -147,6 +151,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun onDestroy() {
         super.onDestroy()
         compositeDisposable.clear()
+        googlePayResponseInterceptor.clear()
     }
 
     override fun exitSimpleBuyFlow() {
@@ -279,6 +284,17 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
                 }
             }
             .commitAllowingStateLoss()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        supportFragmentManager.fragments.forEach {
+            (it as? OnGooglePayDataReceivedListener)?.let { listener ->
+                googlePayResponseInterceptor.setPaymentDataReceivedListener(listener)
+            }
+        }
+        googlePayResponseInterceptor.interceptActivityResult(requestCode, resultCode, data)
     }
 
     companion object {

@@ -93,6 +93,7 @@ class SimpleBuyModelTest {
         interactor = interactor,
         cardActivator = cardActivator,
         ratingPrefs = ratingPrefs,
+        onboardingPrefs = mock(),
         environmentConfig = environmentConfig,
         crashLogger = mock(),
         _activityIndicator = mock(),
@@ -439,5 +440,32 @@ class SimpleBuyModelTest {
                 it.paymentOptions.availablePaymentMethods.contains(undefinedCard) &&
                     it.paymentOptions.canAddCard
             }
+    }
+
+    @Test
+    fun `googlePay info requested should return googlePay info`() {
+        val tokenizationMap = emptyMap<String, String>()
+        val beneficiaryId = "beneficiaryId"
+        val countryCode = "merchantBankCountryCode"
+        whenever(interactor.getGooglePayInfo(USD))
+            .thenReturn(Single.just(SimpleBuyIntent.GooglePayInfoReceived(tokenizationMap, beneficiaryId, countryCode)))
+
+        val expectedState = defaultState.copy(
+            googlePayTokenizationInfo = tokenizationMap,
+            googlePayBeneficiaryId = beneficiaryId,
+            googlePayMerchantBankCountryCode = countryCode
+        )
+
+        model.process(SimpleBuyIntent.GooglePayInfoRequested)
+        model.state
+            .test()
+            .awaitCount(3)
+            .assertValueSequence(
+                listOf(
+                    defaultState,
+                    defaultState.copy(isLoading = true),
+                    expectedState
+                )
+            )
     }
 }

@@ -2,12 +2,12 @@ package piuk.blockchain.android.ui.dashboard.sheets
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -15,6 +15,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
@@ -22,7 +23,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetFiatFundsDetailBinding
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
 import piuk.blockchain.android.ui.transactionflow.analytics.DepositAnalytics
@@ -87,7 +88,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                     },
                     onError = {
                         Timber.e("Error getting fiat funds balances: $it")
-                        showErrorToast()
+                        showErrorSnackbar()
                     }
                 )
 
@@ -130,27 +131,27 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                         dismiss()
                         host.startBankTransferWithdrawal(fiatAccount = account)
                     } else {
-                        ToastCustom.makeText(
-                            requireContext(), getString(R.string.fiat_funds_detail_pending_withdrawal),
-                            Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
-                        )
+                        BlockchainSnackbar.make(
+                            binding.root,
+                            getString(R.string.fiat_funds_detail_pending_withdrawal),
+                            type = SnackbarType.Error
+                        ).show()
                     }
                 },
                 onError = {
                     Timber.e("Error getting transactions for withdrawal $it")
-                    ToastCustom.makeText(
-                        requireContext(), getString(R.string.common_error),
-                        Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
-                    )
+                    showErrorSnackbar()
                 }
             )
     }
 
-    private fun showErrorToast() {
-        ToastCustom.makeText(
-            requireContext(), getString(R.string.common_error), Toast.LENGTH_SHORT,
-            ToastCustom.TYPE_ERROR
-        )
+    private fun showErrorSnackbar() {
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(R.string.common_error),
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
     }
 
     companion object {

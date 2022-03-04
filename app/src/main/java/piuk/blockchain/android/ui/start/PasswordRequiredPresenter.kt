@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.start
 
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.logging.CrashLogger
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -28,7 +28,7 @@ class PasswordRequiredPresenter(
             verifyPassword(password, guid)
         } else {
             view?.apply {
-                showToast(R.string.invalid_password, ToastCustom.TYPE_ERROR)
+                showSnackbar(R.string.invalid_password, SnackbarType.Error)
                 restartPage()
             }
         }
@@ -48,6 +48,6 @@ class PasswordRequiredPresenter(
 
     override fun onAuthFailed() {
         super.onAuthFailed()
-        showErrorToastAndRestartApp(R.string.auth_failed)
+        showErrorSnackbarAndRestartApp(R.string.auth_failed)
     }
 }

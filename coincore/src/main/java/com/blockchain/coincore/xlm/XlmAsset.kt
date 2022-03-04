@@ -1,6 +1,7 @@
 package com.blockchain.coincore.xlm
 
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
@@ -47,7 +48,8 @@ internal class XlmAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     private val walletPreferences: WalletStatus,
-    identity: UserIdentity
+    identity: UserIdentity,
+    addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -58,7 +60,8 @@ internal class XlmAsset(
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity
+    identity,
+    addressResolver
 ) {
 
     override val assetInfo: AssetInfo
@@ -79,7 +82,8 @@ internal class XlmAsset(
                     walletOptionsDataManager = walletOptionsDataManager,
                     walletPreferences = walletPreferences,
                     custodialWalletManager = custodialManager,
-                    identity = identity
+                    identity = identity,
+                    addressResolver = addressResolver
                 )
             }.map {
                 listOf(it)

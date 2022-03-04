@@ -7,7 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
@@ -42,7 +43,8 @@ fun SecondaryButton(
                 state = state,
                 text = text,
                 textColor = textColor,
-                contentAlpha = textAlpha
+                contentAlpha = textAlpha,
+                icon = icon
             )
         },
     )
@@ -85,6 +87,21 @@ private fun SecondaryButtonLoadingPreview() {
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Loading
+            )
+        }
+    }
+}
+
+@Preview(name = "With Icon", group = "Secondary button")
+@Composable
+private fun SecondaryButtonWithIconPreview() {
+    AppTheme {
+        AppSurface {
+            SecondaryButton(
+                text = "Click me",
+                onClick = { },
+                state = ButtonState.Enabled,
+                icon = ImageResource.Local(R.drawable.ic_blockchain)
             )
         }
     }

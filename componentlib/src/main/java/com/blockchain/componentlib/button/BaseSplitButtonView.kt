@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 abstract class BaseSplitButtonView @JvmOverloads constructor(

@@ -178,19 +178,17 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     if (customiser.shouldShowMaxLimit(newState)) {
                         amountSheetInput.maxLimit = newState.availableBalance
                     }
-                    if (amountSheetInput.customInternalExchangeRate != newState.fiatRate) {
-                        amountSheetInput.customInternalExchangeRate = newState.fiatRate
+                    newState.fiatRate?.takeIf { it != amountSheetInput.customInternalExchangeRate }?.let {
+                        amountSheetInput.customInternalExchangeRate = it
                     }
                 }
 
                 if (newState.setMax) {
                     amountSheetInput.updateValue(newState.maxSpendable)
-                } else {
-                    if (!initialValueSet) {
-                        newState.initialAmountToSet()?.let {
-                            amountSheetInput.updateValue(it)
-                            initialValueSet = true
-                        }
+                } else if (!initialValueSet) {
+                    newState.initialAmountToSet()?.let {
+                        amountSheetInput.updateValue(it)
+                        initialValueSet = true
                     }
                 }
 
@@ -214,9 +212,8 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 if (it.feeSelection.selectedLevel == FeeLevel.None) {
                     frameLowerSlot.setOnClickListener(null)
                 } else {
-                    if (it.feeSelection.availableLevels.size > 1 && frameLowerSlot.getChildAt(
-                            0
-                        ) is BalanceAndFeeView
+                    if (it.feeSelection.availableLevels.size > 1 &&
+                        frameLowerSlot.getChildAt(0) is BalanceAndFeeView
                     ) {
                         root.setOnClickListener {
                             FeeSelectionBottomSheet.newInstance().show(childFragmentManager, BOTTOM_SHEET)

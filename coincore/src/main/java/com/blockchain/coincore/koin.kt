@@ -6,6 +6,8 @@ import com.blockchain.coincore.eth.EthAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
+import com.blockchain.coincore.impl.EthHotWalletAddressResolver
+import com.blockchain.coincore.impl.HotWalletService
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
@@ -13,6 +15,7 @@ import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
+import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import info.blockchain.balance.AssetCatalogue
@@ -40,7 +43,8 @@ val coincoreModule = module {
                 walletPreferences = get(),
                 notificationUpdater = get(),
                 coinsWebsocket = get(),
-                identity = get()
+                identity = get(),
+                addressResolver = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -60,7 +64,8 @@ val coincoreModule = module {
                 labels = get(),
                 walletPreferences = get(),
                 beNotifyUpdate = get(),
-                identity = get()
+                identity = get(),
+                addressResolver = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -79,7 +84,8 @@ val coincoreModule = module {
                 crashLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
-                identity = get()
+                identity = get(),
+                addressResolver = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -100,7 +106,8 @@ val coincoreModule = module {
                 notificationUpdater = get(),
                 identity = get(),
                 assetCatalogue = lazy { get() },
-                formatUtils = get()
+                formatUtils = get(),
+                addressResolver = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -149,9 +156,28 @@ val coincoreModule = module {
                 pitLinking = get(),
                 walletPreferences = get(),
                 identity = get(),
-                formatUtils = get()
+                formatUtils = get(),
+                identityAddressResolver = get(),
+                ethHotWalletAddressResolver = get()
             )
         }.bind(AssetLoader::class)
+
+        scoped {
+            HotWalletService(
+                walletApi = get(),
+                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
+            )
+        }
+
+        scoped {
+            IdentityAddressResolver()
+        }
+
+        scoped {
+            EthHotWalletAddressResolver(
+                hotWalletService = get()
+            )
+        }
 
         scoped {
             TxProcessorFactory(
@@ -160,10 +186,13 @@ val coincoreModule = module {
                 interestBalances = get(),
                 walletManager = get(),
                 paymentsDataManager = get(),
+                ethMessageSigner = get(),
                 limitsDataManager = get(),
                 walletPrefs = get(),
                 quotesEngine = get(),
                 analytics = get(),
+                fees = get(),
+                ethDataManager = get(),
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
                 withdrawLocksRepository = get()

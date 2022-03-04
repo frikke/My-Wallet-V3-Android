@@ -2,6 +2,7 @@ package com.blockchain.coincore.impl
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAccount
@@ -49,7 +50,8 @@ interface AccountRefreshTrigger {
     protected val tradingBalances: TradingBalanceDataManager,
     private val pitLinking: PitLinking,
     protected val crashLogger: CrashLogger,
-    protected val identity: UserIdentity
+    protected val identity: UserIdentity,
+    protected val addressResolver: AddressResolver
 ) : CryptoAsset, AccountRefreshTrigger {
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {

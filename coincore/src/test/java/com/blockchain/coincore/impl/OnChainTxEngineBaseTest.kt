@@ -33,13 +33,16 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
     private val walletPreferences: WalletStatus = mock()
     private val sourceAccount: CryptoAccount = mock()
     private val txTarget: TransactionTarget = mock()
+    private val resolvedAddress: Single<String> = mock()
 
     private class OnChainTxEngineTestSubject(
         requireSecondPassword: Boolean,
-        walletPreferences: WalletStatus
+        walletPreferences: WalletStatus,
+        resolvedAddress: Single<String>
     ) : OnChainTxEngineBase(
         requireSecondPassword,
-        walletPreferences
+        walletPreferences,
+        resolvedAddress
     ) {
         override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> {
             STUB_THIS()
@@ -69,7 +72,8 @@ class OnChainTxEngineBaseTest : CoincoreTestBase() {
     private val subject: OnChainTxEngineBase =
         OnChainTxEngineTestSubject(
             requireSecondPassword = false,
-            walletPreferences = walletPreferences
+            walletPreferences = walletPreferences,
+            resolvedAddress = resolvedAddress
         )
 
     @Before

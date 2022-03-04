@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.debug
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
@@ -11,11 +10,12 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.util.AppUtil
@@ -74,43 +74,47 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
             radioEur.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("EUR")
-                    showToast("Currency changed to EUR")
+                    showSnackbar("Currency changed to EUR")
                 }
             }
 
             radioUsd.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("USD")
-                    showToast("Currency changed to USD")
+                    showSnackbar("Currency changed to USD")
                 }
             }
 
             radioGbp.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("GBP")
-                    showToast("Currency changed to GBP")
+                    showSnackbar("Currency changed to GBP")
                 }
             }
         }
     }
 
-    private fun showToast(text: String) {
-        ToastCustom.makeText(this, text, Toast.LENGTH_SHORT, ToastCustom.TYPE_GENERAL)
+    private fun showSnackbar(text: String) {
+        BlockchainSnackbar.make(
+            binding.root,
+            text,
+            duration = Snackbar.LENGTH_SHORT,
+        ).show()
     }
 
     private fun clearSimpleBuyState() {
         simpleBuyPrefs.clearBuyState()
-        showToast("Local SB State cleared")
+        showSnackbar("Local SB State cleared")
     }
 
     private fun onRndDeviceId() {
         prefs.qaRandomiseDeviceId = true
-        showToast("Device ID randomisation enabled")
+        showSnackbar("Device ID randomisation enabled")
     }
 
     private fun onResetWallet() {
         appUtil.clearCredentialsAndRestart()
-        showToast("Wallet reset")
+        showSnackbar("Wallet reset")
     }
 
     private fun onResetAnnounce() {
@@ -119,7 +123,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
 
         dismissRecorder.undismissAll(announcementList)
 
-        showToast("Announcement reset")
+        showSnackbar("Announcement reset")
     }
 
     private fun onResetPrefs() {
@@ -128,7 +132,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
         crashLogger.logEvent("debug clear prefs. Pin reset")
         loginState.clearPin()
 
-        showToast("Prefs Reset")
+        showSnackbar("Prefs Reset")
     }
 
     private fun onComponentLib() {

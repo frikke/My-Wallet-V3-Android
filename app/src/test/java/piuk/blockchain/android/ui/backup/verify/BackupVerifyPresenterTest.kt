@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.backup.verify
 
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -14,7 +15,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -63,7 +63,7 @@ class BackupVerifyPresenterTest {
         subject.onVerifyClicked(pairOne.second, pairTwo.second, pairTwo.second)
         // Assert
         verify(view).getPageBundle()
-        verify(view).showToast(R.string.backup_word_mismatch, ToastCustom.TYPE_ERROR)
+        verify(view).showSnackbar(R.string.backup_word_mismatch, SnackbarType.Error)
         verifyNoMoreInteractions(view)
         verify(backupWalletUtil).getConfirmSequence(null)
         verifyNoMoreInteractions(backupWalletUtil)
@@ -90,7 +90,7 @@ class BackupVerifyPresenterTest {
         verify(view).getPageBundle()
         verify(view).showProgressDialog()
         verify(view).hideProgressDialog()
-        verify(view).showToast(any(), eq(ToastCustom.TYPE_OK))
+        verify(view).showSnackbar(any(), eq(SnackbarType.Success))
         verify(view).showCompletedFragment()
         verifyNoMoreInteractions(view)
         verify(walletStatus).lastBackupTime = any()
@@ -110,7 +110,7 @@ class BackupVerifyPresenterTest {
         verifyNoMoreInteractions(payloadDataManager)
         verify(view).showProgressDialog()
         verify(view).hideProgressDialog()
-        verify(view).showToast(any(), eq(ToastCustom.TYPE_OK))
+        verify(view).showSnackbar(any(), eq(SnackbarType.Success))
         verify(view).showCompletedFragment()
         verifyNoMoreInteractions(view)
         verify(walletStatus).lastBackupTime = any()
@@ -131,7 +131,7 @@ class BackupVerifyPresenterTest {
         verifyNoMoreInteractions(payloadDataManager)
         verify(view).showProgressDialog()
         verify(view).hideProgressDialog()
-        verify(view).showToast(any(), eq(ToastCustom.TYPE_ERROR))
+        verify(view).showSnackbar(any(), eq(SnackbarType.Error))
         verify(view).showStartingFragment()
         verifyNoMoreInteractions(view)
         verifyZeroInteractions(walletStatus)

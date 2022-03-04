@@ -7,7 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
@@ -19,7 +20,7 @@ import com.blockchain.componentlib.theme.Grey900
 fun PrimaryButton(
     text: String,
     onClick: () -> Unit,
-    state: ButtonState,
+    state: ButtonState = ButtonState.Enabled,
     modifier: Modifier = Modifier,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None
@@ -87,6 +88,21 @@ private fun PrimaryButtonLoadingPreview() {
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Loading
+            )
+        }
+    }
+}
+
+@Preview(name = "Button with image", group = "Primary button")
+@Composable
+private fun PrimaryButtonWithImagePreview() {
+    AppTheme {
+        AppSurface {
+            PrimaryButton(
+                text = "Click me",
+                onClick = { },
+                state = ButtonState.Enabled,
+                icon = ImageResource.Local(R.drawable.ic_blockchain)
             )
         }
     }

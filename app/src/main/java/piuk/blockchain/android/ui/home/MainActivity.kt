@@ -1,11 +1,14 @@
 package piuk.blockchain.android.ui.home
 
+import android.Manifest
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -16,6 +19,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.BottomNavigationState
 import com.blockchain.componentlib.navigation.NavigationBarButton
@@ -24,16 +28,20 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.uiTourFeatureFlag
+import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -45,9 +53,9 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
-import piuk.blockchain.android.simplebuy.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
+import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
@@ -55,14 +63,14 @@ import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
+import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.status.KycStatusActivity
@@ -75,6 +83,7 @@ import piuk.blockchain.android.ui.onboarding.OnboardingActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
+import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
@@ -97,7 +106,9 @@ class MainActivity :
     WCApproveSessionBottomSheet.Host,
     RedesignActionsBottomSheet.Host,
     SmallSimpleBuyNavigator,
-    BuyPendingOrdersBottomSheet.Host {
+    BuyPendingOrdersBottomSheet.Host,
+    ScanAndConnectBottomSheet.Host,
+    UiTourView.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -118,6 +129,9 @@ class MainActivity :
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
     private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
+
+    private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
+    private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -144,8 +158,7 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val startDashboardOnboarding = intent.getBooleanExtra(START_DASHBOARD_ONBOARDING_KEY, false)
-        launchPortfolio(startOnboarding = startDashboardOnboarding)
+        launchPortfolio()
 
         setupToolbar()
         setupNavigation()
@@ -158,6 +171,17 @@ class MainActivity :
 
         if (savedInstanceState == null) {
             model.process(MainIntent.CheckForPendingLinks(intent))
+        }
+
+        val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
+        if (startUiTour) {
+            intent.removeExtra(START_UI_TOUR_KEY)
+            compositeDisposable += uiTourFF.enabled.onErrorReturnItem(false)
+                .filter { enabled -> enabled }
+                .subscribeBy {
+                    binding.uiTour.host = this
+                    showUiTour()
+                }
         }
 
         if (intent.hasExtra(SHOW_SWAP) &&
@@ -192,6 +216,7 @@ class MainActivity :
         compositeDisposable.clear()
         // stopgap to be able to clear separate calls on Rx on the model
         model.clearDisposables()
+        // TODO consider invoking the DataWiper here
         super.onDestroy()
     }
 
@@ -215,7 +240,7 @@ class MainActivity :
         updateToolbarMenuItems(
             listOf(
                 NavigationBarButton.Icon(R.drawable.ic_qr_scan) {
-                    launchQrScan()
+                    tryToLaunchQrScan()
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
                     showLoading()
@@ -226,7 +251,12 @@ class MainActivity :
                             },
                             onError = {
                                 // this should never happen
-                                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                                BlockchainSnackbar.make(
+                                    binding.root,
+                                    getString(R.string.common_error),
+                                    duration = Snackbar.LENGTH_SHORT,
+                                    type = SnackbarType.Error
+                                ).show()
                             }
                         )
                 }
@@ -234,9 +264,27 @@ class MainActivity :
         )
     }
 
+    private fun tryToLaunchQrScan() {
+        compositeDisposable += walletConnectFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            if (
+                enabled &&
+                checkSelfPermission(Manifest.permission.CAMERA) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                showScanAndConnectBottomSheet()
+            } else {
+                launchQrScan()
+            }
+        }
+        analytics.logEvent(SendAnalytics.QRButtonClicked)
+    }
+
     private fun launchQrScan() {
         QrScanActivity.start(this, QrExpected.MAIN_ACTIVITY_QR)
-        analytics.logEvent(SendAnalytics.QRButtonClicked)
+    }
+
+    private fun showScanAndConnectBottomSheet() {
+        showBottomSheet(ScanAndConnectBottomSheet.newInstance())
     }
 
     private fun setupNavigation() {
@@ -384,11 +432,11 @@ class MainActivity :
                     },
                     onComplete = {
                         Timber.d("No source accounts available for scan target")
-                        showNoAccountFromScanToast(targetAddress.asset)
+                        showNoAccountFromScanSnackbar(targetAddress.asset)
                     },
                     onError = {
                         Timber.e("Unable to select source account for scan")
-                        showNoAccountFromScanToast(targetAddress.asset)
+                        showNoAccountFromScanSnackbar(targetAddress.asset)
                     }
                 )
         }
@@ -406,8 +454,10 @@ class MainActivity :
             )
     }
 
-    private fun showNoAccountFromScanToast(asset: AssetInfo) =
-        toast(getString(R.string.scan_no_available_account, asset.displayTicker))
+    private fun showNoAccountFromScanSnackbar(asset: AssetInfo) =
+        BlockchainSnackbar.make(
+            binding.root, getString(R.string.scan_no_available_account, asset.displayTicker)
+        ).show()
 
     override fun render(newState: MainState) {
         when (val view = newState.viewToLaunch) {
@@ -472,9 +522,11 @@ class MainActivity :
                 )
             }
             is ViewToLaunch.LaunchOpenBankingBuyApprovalError -> {
-                ToastCustom.makeText(
-                    this, getString(R.string.simple_buy_confirmation_error), Toast.LENGTH_LONG, ToastCustom.TYPE_ERROR
-                )
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.simple_buy_confirmation_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             is ViewToLaunch.LaunchOpenBankingError -> {
                 replaceBottomSheet(
@@ -516,12 +568,11 @@ class MainActivity :
             is ViewToLaunch.LaunchTwoFaSetup -> launchSetup2Fa()
             is ViewToLaunch.LaunchVerifyEmail -> launchVerifyEmail()
             is ViewToLaunch.ShowOpenBankingError ->
-                ToastCustom.makeText(
-                    context = this,
-                    msg = getString(R.string.open_banking_deeplink_error),
-                    duration = Toast.LENGTH_LONG,
-                    type = ToastCustom.TYPE_ERROR
-                )
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.open_banking_deeplink_error),
+                    type = SnackbarType.Error
+                ).show()
             is ViewToLaunch.CheckForAccountWalletLinkErrors -> showBottomSheet(
                 AccountWalletLinkAlertSheet.newInstance(view.walletIdHint)
             )
@@ -567,17 +618,16 @@ class MainActivity :
     }
 
     private fun showTargetScanError(error: QrScanError) {
-        ToastCustom.makeText(
-            this,
+        BlockchainSnackbar.make(
+            binding.root,
             getString(
                 when (error.errorCode) {
                     QrScanError.ErrorCode.ScanFailed -> R.string.error_scan_failed_general
                     QrScanError.ErrorCode.BitPayScanFailed -> R.string.error_scan_failed_bitpay
                 }
             ),
-            ToastCustom.LENGTH_LONG,
-            ToastCustom.TYPE_ERROR
-        )
+            type = SnackbarType.Error
+        ).show()
     }
 
     private fun launchAssetAction(
@@ -605,6 +655,50 @@ class MainActivity :
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
 
+    override fun startDashboardOnboarding() {
+        hideUiTour(onAnimationEnd = {
+            supportFragmentManager.findFragmentByTag(PortfolioFragment::class.java.simpleName)
+                ?.let {
+                    (it as PortfolioFragment).launchNewUserDashboardOnboarding()
+                }
+        })
+    }
+
+    override fun startBuy() {
+        hideUiTour(onAnimationEnd = {
+            launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+        })
+    }
+
+    override fun dismiss() {
+        hideUiTour()
+    }
+
+    private fun showUiTour() {
+        binding.uiTour.apply {
+            alpha = 0f
+            visible()
+            animate()
+                .alpha(1f)
+                .setStartDelay(500L)
+                .setDuration(resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
+        }
+    }
+
+    private fun hideUiTour(onAnimationEnd: (() -> Unit)? = null) {
+        binding.uiTour.apply {
+            animate()
+                .alpha(0f)
+                .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        gone()
+                        onAnimationEnd?.invoke()
+                    }
+                })
+        }
+    }
+
     override fun exitSimpleBuyFlow() {
         launchBuySell()
     }
@@ -625,6 +719,10 @@ class MainActivity :
         model.process(MainIntent.RejectWCSession(session))
     }
 
+    override fun onCameraAccessAllowed() {
+        launchQrScan()
+    }
+
     override fun onSheetClosed() {
         binding.bottomNavigation.bottomNavigationState = BottomNavigationState.Add
         Timber.d("On closed")
@@ -638,13 +736,12 @@ class MainActivity :
     private fun launchPortfolio(
         action: AssetAction? = null,
         fiatCurrency: String? = null,
-        startOnboarding: Boolean = false,
         reload: Boolean = false
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
-            fragment = PortfolioFragment.newInstance(action, fiatCurrency, startOnboarding),
+            fragment = PortfolioFragment.newInstance(action, fiatCurrency),
             reloadFragment = reload
         )
     }
@@ -829,7 +926,7 @@ class MainActivity :
     }
 
     companion object {
-        private const val START_DASHBOARD_ONBOARDING_KEY = "START_DASHBOARD_ONBOARDING_KEY"
+        private const val START_UI_TOUR_KEY = "START_UI_TOUR_KEY"
         private const val SHOW_SWAP = "SHOW_SWAP"
         private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
@@ -889,7 +986,7 @@ class MainActivity :
         fun newIntent(
             context: Context,
             intentData: String?,
-            shouldLaunchDashboardOnboarding: Boolean,
+            shouldLaunchUiTour: Boolean,
             shouldBeNewTask: Boolean
         ): Intent = Intent(context, MainActivity::class.java).apply {
             if (intentData != null) {
@@ -900,7 +997,7 @@ class MainActivity :
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
-            putExtra(START_DASHBOARD_ONBOARDING_KEY, shouldLaunchDashboardOnboarding)
+            putExtra(START_UI_TOUR_KEY, shouldLaunchUiTour)
         }
     }
 }

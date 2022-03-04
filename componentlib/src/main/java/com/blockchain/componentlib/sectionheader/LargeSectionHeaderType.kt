@@ -1,6 +1,6 @@
 package com.blockchain.componentlib.sectionheader
 
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 
 sealed class LargeSectionHeaderType(val title: String) {
 

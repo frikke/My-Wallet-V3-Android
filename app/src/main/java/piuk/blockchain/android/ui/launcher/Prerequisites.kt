@@ -29,6 +29,7 @@ class Prerequisites(
     private val simpleBuySync: SimpleBuySyncFactory,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val flushables: List<AppStartUpFlushable>,
+    private val globalEventHandler: GlobalEventHandler,
     private val walletCredentialsUpdater: WalletCredentialsMetadataUpdater,
     private val rxBus: RxBus
 ) {
@@ -55,11 +56,12 @@ class Prerequisites(
                     .logAndCompleteOnError(WALLET_CREDENTIALS)
             }.then {
                 Completable.fromCallable {
-                    walletConnectServiceAPI.connectToApprovedSessions()
+                    walletConnectServiceAPI.init()
                 }
             }
             .doOnComplete {
                 rxBus.emitEvent(MetadataEvent::class.java, MetadataEvent.SETUP_COMPLETE)
+                globalEventHandler.init()
             }
             .subscribeOn(Schedulers.io())
 

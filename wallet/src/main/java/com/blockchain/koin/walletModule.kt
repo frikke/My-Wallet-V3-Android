@@ -12,7 +12,7 @@ import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc
 import info.blockchain.wallet.payload.BalanceManagerBch
 import info.blockchain.wallet.payload.BalanceManagerBtc
 import info.blockchain.wallet.payload.PayloadManager
-import info.blockchain.wallet.payload.PayloadManagerWiper
+import info.blockchain.wallet.payload.PayloadScopeWiper
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -48,14 +48,14 @@ val walletModule = module {
     }.bind(DustService::class)
 
     single {
-        object : PayloadManagerWiper {
+        object : PayloadScopeWiper {
             override fun wipe() {
                 if (!payloadScope.closed) {
                     payloadScope.close()
                 }
             }
         }
-    }.bind(PayloadManagerWiper::class)
+    }.bind(PayloadScopeWiper::class)
 
     factory {
         EthAccountApi(

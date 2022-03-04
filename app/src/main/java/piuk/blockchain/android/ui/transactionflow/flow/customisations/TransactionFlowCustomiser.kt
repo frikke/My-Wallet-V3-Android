@@ -14,6 +14,7 @@ import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
 import com.blockchain.core.limits.TxLimit
@@ -43,6 +44,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.plugin.AccountLimitsView
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ConfirmSheetWidget
+import piuk.blockchain.android.ui.transactionflow.plugin.EmptyHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.FromAndToView
 import piuk.blockchain.android.ui.transactionflow.plugin.SimpleInfoHeaderView
@@ -192,7 +194,7 @@ class TransactionFlowCustomiserImpl(
                 (state.selectedTarget as CryptoAccount).currency.displayTicker
             )
             AssetAction.InterestDeposit -> resources.getString(
-                R.string.tx_title_deposit,
+                R.string.tx_title_add_with_ticker,
                 state.sendingAsset.displayTicker
             )
             AssetAction.Sell -> resources.getString(
@@ -308,25 +310,48 @@ class TransactionFlowCustomiserImpl(
         }
 
     override fun confirmTitle(state: TransactionState): String =
-        resources.getString(
-            R.string.common_parametrised_confirm,
-            when (state.action) {
-                AssetAction.Send -> resources.getString(R.string.send_confirmation_title)
-                AssetAction.Swap -> resources.getString(R.string.common_swap)
-                AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
-                AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)
-                AssetAction.Sell -> resources.getString(R.string.common_sell)
-                AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
-                AssetAction.Withdraw -> resources.getString(R.string.common_withdraw)
-                else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
-            }
-        )
+        when (state.action) {
+            AssetAction.Send -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.send_confirmation_title)
+            )
+            AssetAction.Swap -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.common_swap)
+            )
+            AssetAction.InterestDeposit -> resources.getString(
+                R.string.common_parametrised_confirm,
+                resources.getString(
+                    R.string.common_transfer
+                )
+            )
+            AssetAction.InterestWithdraw -> resources.getString(
+                R.string.common_parametrised_confirm,
+                resources.getString(
+                    R.string.common_withdraw
+                )
+            )
+            AssetAction.Sign -> resources.getString(R.string.signature_request)
+
+            AssetAction.Sell -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.common_sell)
+            )
+            AssetAction.FiatDeposit -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.common_deposit)
+            )
+            AssetAction.Withdraw -> resources.getString(
+                R.string.common_parametrised_confirm, resources.getString(R.string.common_withdraw)
+            )
+            AssetAction.ViewActivity,
+            AssetAction.ViewStatement,
+            AssetAction.Buy,
+            AssetAction.Receive -> throw IllegalArgumentException("Action not supported by Transaction Flow")
+        }
 
     override fun confirmCtaText(state: TransactionState): String {
         return when (state.action) {
             AssetAction.Send -> resources.getString(R.string.send_confirmation_cta_button)
             AssetAction.Swap -> resources.getString(R.string.swap_confirmation_cta_button)
             AssetAction.Sell -> resources.getString(R.string.sell_confirmation_cta_button)
+            AssetAction.Sign -> resources.getString(R.string.common_sign)
             AssetAction.InterestDeposit -> resources.getString(R.string.send_confirmation_deposit_cta_button)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_cta_button)
             AssetAction.Withdraw,
@@ -345,6 +370,12 @@ class TransactionFlowCustomiserImpl(
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
+
+    override fun cancelButtonText(action: AssetAction): String =
+        resources.getString(R.string.common_cancel)
+
+    override fun cancelButtonVisible(action: AssetAction): Boolean =
+        action == AssetAction.Sign
 
     override fun confirmDisclaimerBlurb(state: TransactionState, context: Context): CharSequence =
         when (state.action) {
@@ -420,6 +451,9 @@ class TransactionFlowCustomiserImpl(
                 R.string.withdraw_confirmation_progress_title,
                 amount
             )
+            AssetAction.Sign -> resources.getString(
+                R.string.signing_confirmation_progress_title
+            )
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -434,6 +468,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.sell_confirmation_progress_message)
             AssetAction.Swap -> resources.getString(R.string.swap_confirmation_progress_message)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_progress_message)
+            AssetAction.Sign -> resources.getString(R.string.sign_confirmation_progress_message)
             AssetAction.Withdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_progress_message)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
@@ -479,6 +514,7 @@ class TransactionFlowCustomiserImpl(
             )
             AssetAction.Withdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_success_title, amount)
+            AssetAction.Sign -> resources.getString(R.string.signed)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -504,6 +540,7 @@ class TransactionFlowCustomiserImpl(
             }
             AssetAction.FiatDeposit,
             AssetAction.Withdraw,
+            AssetAction.Sign,
             AssetAction.InterestWithdraw -> R.drawable.ic_check_circle
 
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
@@ -576,6 +613,9 @@ class TransactionFlowCustomiserImpl(
                 (state.sendingAccount as? FiatAccount)?.currency ?: "",
                 getEstimatedTransactionCompletionTime()
             )
+            AssetAction.Sign -> resources.getString(
+                R.string.message_signed
+            )
             AssetAction.Withdraw -> resources.getString(
                 R.string.withdraw_confirmation_success_message,
                 getEstimatedTransactionCompletionTime()
@@ -605,7 +645,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_source_select_title)
-            AssetAction.InterestDeposit -> resources.getString(R.string.select_deposit_source_title)
+            AssetAction.InterestDeposit -> resources.getString(R.string.select_interest_deposit_source_title)
             else -> resources.getString(R.string.select_a_wallet)
         }
 
@@ -781,6 +821,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> AccountInfoBank(ctx).also { frame.addView(it) }
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
+            AssetAction.Sign,
             AssetAction.Buy -> throw IllegalStateException("${state.action} is not supported in enter amount")
         }
 
@@ -924,6 +965,7 @@ class TransactionFlowCustomiserImpl(
                 AssetAction.InterestWithdraw -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell
+                AssetAction.Sign -> R.string.common_sign
                 AssetAction.InterestDeposit,
                 AssetAction.FiatDeposit -> R.string.common_deposit
                 AssetAction.ViewActivity -> R.string.common_activity
@@ -934,7 +976,7 @@ class TransactionFlowCustomiserImpl(
         )
 
     override fun amountHeaderConfirmationVisible(state: TransactionState): Boolean =
-        state.action != AssetAction.Swap
+        state.action != AssetAction.Swap && state.action != AssetAction.Sign
 
     override fun confirmInstallHeaderView(
         ctx: Context,
@@ -949,6 +991,7 @@ class TransactionFlowCustomiserImpl(
                     frame.addView(it)
                     it.shouldShowExchange = false
                 }
+            AssetAction.Sign -> EmptyHeaderView()
             else -> SimpleInfoHeaderView(ctx).also { frame.addView(it) }
         }
 
@@ -995,7 +1038,11 @@ class TransactionFlowCustomiserImpl(
         when (state.currentStep) {
             TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
             TransactionStep.ENTER_AMOUNT -> {
-                if (state.sendingAccount is LinkedBankAccount) {
+                if (state.sendingAccount is LinkedBankAccount || (
+                    state.selectedTarget is CryptoInterestAccount &&
+                        state.action == AssetAction.InterestDeposit
+                    )
+                ) {
                     BackNavigationState.ResetPendingTransactionKeepingTarget
                 } else {
                     BackNavigationState.ResetPendingTransaction

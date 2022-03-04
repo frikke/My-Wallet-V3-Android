@@ -134,7 +134,7 @@ class KycStatusPresenterTest {
         verify(notificationTokenManager).enableNotifications()
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).showToast(any())
+        verify(view).showSnackbar(any())
     }
 
     @Test

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:id="@+id/divider_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.blockchain.componentlib.tablerow.ToggleTableRowView
+        android:id="@+id/email_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.blockchain.componentlib.tablerow.ToggleTableRowView
+        android:id="@+id/push_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.blockchain.componentlib.divider.HorizontalDividerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</androidx.appcompat.widget.LinearLayoutCompat>
+

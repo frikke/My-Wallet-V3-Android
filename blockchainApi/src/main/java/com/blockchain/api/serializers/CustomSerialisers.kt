@@ -3,6 +3,8 @@ package com.blockchain.api.serializers
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -36,5 +38,19 @@ object BigDecimalSerializer : KSerializer<BigDecimal> {
     override fun deserialize(decoder: Decoder): BigDecimal {
         val string = decoder.decodeString()
         return BigDecimal(string)
+    }
+}
+
+object StringMapSerializer : KSerializer<Map<String, String>> {
+    private val mapSerializer = MapSerializer(String.serializer(), String.serializer())
+
+    override val descriptor: SerialDescriptor = mapSerializer.descriptor
+
+    override fun serialize(encoder: Encoder, value: Map<String, String>) {
+        mapSerializer.serialize(encoder, value.toSortedMap())
+    }
+
+    override fun deserialize(decoder: Decoder): Map<String, String> {
+        return mapSerializer.deserialize(decoder)
     }
 }

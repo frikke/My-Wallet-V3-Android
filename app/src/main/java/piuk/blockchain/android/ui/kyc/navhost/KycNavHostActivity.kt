@@ -10,6 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.koin.scopedInject
@@ -27,8 +28,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.complete.ApplicationCompleteFragment
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirections
@@ -104,8 +104,12 @@ class KycNavHostActivity :
         binding.progressBarLoadingUser.invisibleIf(!loading)
     }
 
-    override fun showErrorToastAndFinish(message: Int) {
-        toast(message, ToastCustom.TYPE_ERROR)
+    override fun showErrorSnackbarAndFinish(@StringRes message: Int) {
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = SnackbarType.Error
+        ).show()
         finish()
     }
 
@@ -150,7 +154,11 @@ class KycNavHostActivity :
                         )
                     },
                     onError = {
-                        toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                        BlockchainSnackbar.make(
+                            binding.root,
+                            getString(R.string.common_error),
+                            type = SnackbarType.Error
+                        ).show()
                     }
                 )
     }

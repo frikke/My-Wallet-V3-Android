@@ -15,6 +15,7 @@ import com.blockchain.coincore.TrendingPair
 import com.blockchain.coincore.TrendingPairsProvider
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -40,9 +41,9 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentSwapBinding
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -209,12 +210,9 @@ class SwapFragment :
                     onError = {
                         showErrorUi()
 
-                        ToastCustom.makeText(
-                            requireContext(),
-                            getString(R.string.transfer_wallets_load_error),
-                            ToastCustom.LENGTH_SHORT,
-                            ToastCustom.TYPE_ERROR
-                        )
+                        BlockchainSnackbar.make(
+                            binding.root, getString(R.string.transfer_wallets_load_error), type = SnackbarType.Error
+                        ).show()
 
                         Timber.e("Error loading swap kyc service $it")
                     }

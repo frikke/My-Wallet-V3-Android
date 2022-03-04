@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.settings.v2.security.pin.PinActivity">
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/keyboard"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:inputType="number"
+        android:maxLength="4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_general"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/pin_logout"
+        style="@style/Text.Blue.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/logout"
+        android:textAllCaps="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.blockchain.componentlib.basic.SimpleImageView
+        android:id="@+id/pin_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/xhuge_margin"
+        android:contentDescription="@string/app_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <TextView
+        android:id="@+id/titleBox"
+        style="@style/TextAppearance.Blockchain.Title2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/pin_icon"
+        tools:text="@string/pin_title_create" />
+
+    <TextView
+        android:id="@+id/subtitle"
+        style="@style/TextAppearance.Blockchain.Paragraph1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/titleBox"
+        tools:text="@string/pin_subtitle" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/pinBox0"
+        android:layout_width="@dimen/pin_box_size"
+        android:layout_height="@dimen/pin_box_size"
+        android:layout_marginStart="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/epic_margin"
+        android:layout_marginEnd="@dimen/smallest_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/pin_box_0"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toStartOf="@+id/pinBox1"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subtitle"
+        app:srcCompat="@drawable/pin_box_square_current" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/pinBox1"
+        android:layout_width="@dimen/pin_box_size"
+        android:layout_height="@dimen/pin_box_size"
+        android:layout_marginStart="@dimen/smallest_margin"
+        android:layout_marginEnd="@dimen/smallest_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/pin_box_1"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toStartOf="@+id/pinBox2"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/pinBox0"
+        app:layout_constraintTop_toTopOf="@id/pinBox0"
+        app:srcCompat="@drawable/pin_box_square_default_empty" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/pinBox2"
+        android:layout_width="@dimen/pin_box_size"
+        android:layout_height="@dimen/pin_box_size"
+        android:layout_marginStart="@dimen/smallest_margin"
+        android:layout_marginEnd="@dimen/smallest_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/pin_box_2"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="@+id/titleBox"
+        app:layout_constraintEnd_toStartOf="@+id/pinBox3"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/pinBox1"
+        app:layout_constraintTop_toTopOf="@id/pinBox0"
+        app:srcCompat="@drawable/pin_box_square_default_empty" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/pinBox3"
+        android:layout_width="@dimen/pin_box_size"
+        android:layout_height="@dimen/pin_box_size"
+        android:layout_marginStart="@dimen/smallest_margin"
+        android:layout_marginEnd="@dimen/tiny_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/pin_box_3"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/pinBox2"
+        app:layout_constraintTop_toTopOf="@id/pinBox0"
+        app:srcCompat="@drawable/pin_box_square_default_empty" />
+
+    <com.blockchain.componentlib.basic.SimpleImageView
+        android:id="@+id/fingerprint_logo"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="24dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/fingerprint_logo"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/text_view_version_code"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/primary_navy_dark"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/text_view_version_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingStart="@dimen/medium_margin"
+        android:paddingBottom="@dimen/tiny_margin"
+        android:textColor="@color/primary_navy_medium"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="6.15.4" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/debug_commit_hash"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="@dimen/smallest_margin"
+        android:paddingEnd="@dimen/smallest_margin"
+        android:paddingBottom="@dimen/tiny_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/text_view_version_code"
+        tools:text="213423jrb2f112312kf22313123edfdsfds" />
+
+    <include
+        android:id="@+id/layout_warning"
+        layout="@layout/warning_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/standard_margin"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pinBox0"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <ProgressBar
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/large_margin"
+            tools:visibility="visible" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

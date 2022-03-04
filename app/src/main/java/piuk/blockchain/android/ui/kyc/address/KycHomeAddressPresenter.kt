@@ -161,7 +161,7 @@ class KycHomeAddressPresenter(
                 onError = {
                     when ((it as? NabuApiException?)?.getErrorCode()) {
                         NabuErrorCodes.InvalidPostcode -> view.showInvalidPostcode()
-                        else -> view.showErrorToast(R.string.kyc_address_error_saving)
+                        else -> view.showErrorSnackbar(R.string.kyc_address_error_saving)
                     }
                 }
             )

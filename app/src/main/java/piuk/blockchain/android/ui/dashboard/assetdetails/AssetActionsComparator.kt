@@ -18,5 +18,6 @@ class AssetActionsComparator : Comparator<AssetAction> {
         AssetAction.Withdraw -> 8
         AssetAction.ViewStatement -> 9
         AssetAction.ViewActivity -> 10
+        AssetAction.Sign -> Int.MAX_VALUE
     }
 }

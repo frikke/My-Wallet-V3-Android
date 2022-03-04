@@ -5,31 +5,37 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
+import org.koin.core.component.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import timber.log.Timber
@@ -51,6 +57,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
         GoogleReCaptchaClient(this, environmentConfig)
     }
+
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     private lateinit var state: LoginState
 
@@ -160,22 +168,31 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         updateUI(newState)
         when (newState.currentStep) {
             LoginStep.SHOW_SCAN_ERROR -> {
-                toast(R.string.pairing_failed, ToastCustom.TYPE_ERROR)
+                showSnackbar(SnackbarType.Error, R.string.pairing_failed)
                 if (newState.shouldRestartApp) {
                     restartToLauncherActivity()
                 }
             }
             LoginStep.ENTER_PIN -> {
                 showLoginApprovalStatePrompt(newState.loginApprovalState)
-                startActivity(
-                    Intent(this, PinEntryActivity::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                // TODO remove ff
+                redesign.enabled.onErrorReturnItem(false).subscribeBy(
+                    onSuccess = { isEnabled ->
+                        if (isEnabled) {
+                            startActivity(PinActivity.newIntent(this))
+                        } else {
+                            startActivity(
+                                Intent(this, PinEntryActivity::class.java).apply {
+                                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            )
+                        }
                     }
                 )
             }
             LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice()
-            LoginStep.SHOW_SESSION_ERROR -> toast(R.string.login_failed_session_id_error, ToastCustom.TYPE_ERROR)
-            LoginStep.SHOW_EMAIL_ERROR -> toast(R.string.login_send_email_error, ToastCustom.TYPE_ERROR)
+            LoginStep.SHOW_SESSION_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_failed_session_id_error)
+            LoginStep.SHOW_EMAIL_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
             LoginStep.NAVIGATE_FROM_DEEPLINK -> {
                 newState.intentUri?.let { uri ->
                     startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))
@@ -188,7 +205,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             }
             LoginStep.UNKNOWN_ERROR -> {
                 model.process(LoginIntents.CheckShouldNavigateToOtherScreen)
-                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                showSnackbar(SnackbarType.Error, R.string.common_error)
             }
             LoginStep.POLLING_PAYLOAD_ERROR -> handlePollingError(newState.pollingState)
             LoginStep.ENTER_EMAIL -> returnToEmailInput()
@@ -211,13 +228,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             LoginApprovalState.NONE -> {
                 // do nothing
             }
-            LoginApprovalState.APPROVED ->
-                ToastCustom.makeText(
-                    this, getString(R.string.login_approved_toast), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK
-                )
-            LoginApprovalState.REJECTED -> ToastCustom.makeText(
-                this, getString(R.string.login_denied_toast), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR
-            )
+            LoginApprovalState.APPROVED -> showSnackbar(SnackbarType.Success, R.string.login_approved_toast)
+            LoginApprovalState.REJECTED -> showSnackbar(SnackbarType.Error, R.string.login_denied_toast)
         }
 
     private fun restartToLauncherActivity() {
@@ -247,26 +259,27 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private fun handlePollingError(state: AuthPollingState) =
         when (state) {
             AuthPollingState.TIMEOUT -> {
-                ToastCustom.makeText(
-                    this, getString(R.string.login_polling_timeout), ToastCustom.LENGTH_LONG,
-                    ToastCustom.TYPE_ERROR
-                )
+                showSnackbar(SnackbarType.Error, R.string.login_polling_timeout)
                 returnToEmailInput()
             }
             AuthPollingState.ERROR -> {
                 // fail silently? - maybe log analytics
             }
             AuthPollingState.DENIED -> {
-                ToastCustom.makeText(
-                    this, getString(R.string.login_polling_denied), ToastCustom.LENGTH_LONG,
-                    ToastCustom.TYPE_ERROR
-                )
+                showSnackbar(SnackbarType.Error, R.string.login_polling_denied)
                 returnToEmailInput()
             }
             else -> {
                 // no error, do nothing
             }
         }
+
+    private fun showSnackbar(type: SnackbarType, @StringRes message: Int) =
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = type
+        ).show()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -280,10 +293,10 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                 val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                 task.result.email?.let { email ->
                     verifyReCaptcha(email)
-                } ?: toast(R.string.login_google_email_not_found, ToastCustom.TYPE_GENERAL)
+                } ?: showSnackbar(SnackbarType.Info, R.string.login_google_email_not_found)
             } catch (apiException: ApiException) {
                 Timber.e(apiException)
-                toast(R.string.login_google_sign_in_failed, ToastCustom.TYPE_ERROR)
+                showSnackbar(SnackbarType.Error, R.string.login_google_sign_in_failed)
             }
         }
     }
@@ -339,7 +352,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     )
                 )
             },
-            onError = { toast(R.string.common_error, ToastCustom.TYPE_ERROR) }
+            onError = { showSnackbar(SnackbarType.Error, R.string.common_error) }
         )
     }
 

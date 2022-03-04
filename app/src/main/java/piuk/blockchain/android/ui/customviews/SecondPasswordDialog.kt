@@ -3,8 +3,11 @@ package piuk.blockchain.android.ui.customviews
 import android.annotation.SuppressLint
 import android.content.Context
 import android.text.InputType
+import android.view.View
+import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.ui.password.SecondPasswordHandler
@@ -38,14 +41,15 @@ class SecondPasswordDialog(
                 setHint(R.string.password)
             }
 
+            val view = ctx.getAlertDialogPaddedView(passwordField)
             AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.enter_double_encryption_pw)
-                .setView(ctx.getAlertDialogPaddedView(passwordField))
+                .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     val secondPassword = passwordField.text.toString()
-                    doValidatePassword(ctx, secondPassword, listener)
+                    doValidatePassword(secondPassword, listener, view)
                 }.setNegativeButton(android.R.string.cancel) { _, _ -> listener.onCancelled() }
                 .show()
         }
@@ -57,12 +61,12 @@ class SecondPasswordDialog(
 
     @SuppressLint("CheckResult")
     private fun doValidatePassword(
-        ctx: Context,
         inputPassword: String,
-        listener: SecondPasswordHandler.ResultListener
+        listener: SecondPasswordHandler.ResultListener,
+        view: FrameLayout
     ) {
         if (inputPassword.isNotEmpty()) {
-            showProgressDialog(ctx)
+            showProgressDialog(view.context)
             validateSecondPassword(inputPassword)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -75,28 +79,25 @@ class SecondPasswordDialog(
                             listener.onSecondPasswordValidated(inputPassword)
                         } else {
                             resetValidatedPassword()
-                            showErrorToast(ctx)
+                            showErrorSnackbar(view)
                             listener.onCancelled()
                         }
                     },
                     onError = {
                         resetValidatedPassword()
-                        showErrorToast(ctx)
+                        showErrorSnackbar(view)
                     }
                 )
         } else {
-            showErrorToast(ctx)
+            showErrorSnackbar(view)
             listener.onCancelled()
         }
     }
 
-    private fun showErrorToast(context: Context) {
-        ToastCustom.makeText(
-            context,
-            context.getString(R.string.double_encryption_password_error),
-            ToastCustom.LENGTH_SHORT,
-            ToastCustom.TYPE_ERROR
-        )
+    private fun showErrorSnackbar(view: View) {
+        BlockchainSnackbar.make(
+            view, view.context.getString(R.string.double_encryption_password_error), type = SnackbarType.Error
+        ).show()
     }
 
     private fun validateSecondPassword(password: String): Observable<Boolean> {
@@ -182,8 +183,14 @@ class SecondPasswordDialog(
         return Maybe.defer {
             validate(
                 object : SecondPasswordHandler.ResultListener {
-                    override fun onCancelled() { password.onComplete() }
-                    override fun onNoSecondPassword() { password.onComplete() }
+                    override fun onCancelled() {
+                        password.onComplete()
+                    }
+
+                    override fun onNoSecondPassword() {
+                        password.onComplete()
+                    }
+
                     override fun onSecondPasswordValidated(validatedSecondPassword: String) {
                         password.onNext(validatedSecondPassword)
                     }

@@ -2,13 +2,13 @@ package piuk.blockchain.android.simplebuy
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.payments.model.BankPartner
@@ -24,6 +24,7 @@ import com.blockchain.preferences.RatingPrefs
 import com.blockchain.utils.secondsToDays
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.stripe.android.PaymentAuthConfig
@@ -40,14 +41,14 @@ import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.simplebuy.sheets.UnlockHigherLimitsBottomSheet
+import piuk.blockchain.android.support.SupportCentreActivity
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
 
@@ -104,7 +105,7 @@ class SimpleBuyPaymentFragment :
         previousSelectedPaymentMethodId = newState.selectedPaymentMethod.id
         previousSelectedCryptoAsset = newState.selectedCryptoAsset
 
-        newState.selectedCryptoAsset?.let {
+        newState.selectedCryptoAsset.let {
             binding.transactionProgressView.setAssetIcon(it)
         }
 
@@ -114,7 +115,10 @@ class SimpleBuyPaymentFragment :
         }
 
         if (newState.recurringBuyState == RecurringBuyState.INACTIVE) {
-            toast(resources.getString(R.string.recurring_buy_creation_error), ToastCustom.TYPE_ERROR)
+            BlockchainSnackbar.make(
+                binding.root, getString(R.string.recurring_buy_creation_error), Snackbar.LENGTH_SHORT,
+                SnackbarType.Error
+            ).show()
         }
 
         if (newState.orderState == OrderState.AWAITING_FUNDS && isFirstLoad) {
@@ -125,8 +129,6 @@ class SimpleBuyPaymentFragment :
             }
             isFirstLoad = false
         }
-
-        require(newState.selectedPaymentMethod != null)
 
         binding.transactionProgressView.onCtaClick(getString(R.string.common_ok)) {
             when {
@@ -210,14 +212,14 @@ class SimpleBuyPaymentFragment :
     }
 
     private fun addLink(stringResource: Int): CharSequence {
-        val linksMap = mapOf<String, Uri>(
-            "contact_support" to Uri.parse(URL_CONTACT_SUPPORT)
-        )
         return StringUtils.getStringWithMappedAnnotations(
             requireContext(),
             stringResource,
-            linksMap
-        )
+            emptyMap()
+        ) {
+            startActivity(SupportCentreActivity.newIntent(requireContext(), SUPPORT_SB_SUBJECT))
+            requireActivity().finish()
+        }
     }
 
     private fun handleErrorStates(errorState: ErrorState) =
@@ -259,7 +261,7 @@ class SimpleBuyPaymentFragment :
                 resourceIcon = R.drawable.ic_cross_white_bckg
             )
             ErrorState.ApprovedGenericError -> showError(
-                getString(R.string.common_oops), addLink(R.string.common_error)
+                getString(R.string.common_oops), addLink(R.string.sb_checkout_contact_support)
             )
             else -> {
                 // do nothing - we only want to handle OB approval errors in this fragment
@@ -283,7 +285,11 @@ class SimpleBuyPaymentFragment :
                 onSecondaryCtaClicked(getString(R.string.bank_transfer_transfer_go_back)) {
                     navigator().exitSimpleBuyFlow()
                 }
-                showTxError(title, subtitle, resourceIcon)
+                showTxError(
+                    title = title,
+                    subtitle = subtitle,
+                    resourceIcon = resourceIcon
+                )
             }
         }
     }
@@ -408,7 +414,9 @@ class SimpleBuyPaymentFragment :
                     }
                 }
             }
-            newState.buyErrorState != null -> handleErrorStates(newState.buyErrorState)
+            newState.buyErrorState != null -> {
+                handleErrorStates(newState.buyErrorState)
+            }
         }
     }
 
@@ -503,6 +511,7 @@ class SimpleBuyPaymentFragment :
     companion object {
         private const val IS_PAYMENT_AUTHORISED = "IS_PAYMENT_AUTHORISED"
         private const val BANK_APPROVAL = 5123
+        private const val SUPPORT_SB_SUBJECT = "Issue with Payments"
 
         fun newInstance(isFromDeepLink: Boolean) =
             SimpleBuyPaymentFragment().apply {

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.profile
 
+import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
@@ -34,36 +35,27 @@ class ProfileModel(
         intent: ProfileIntent
     ): Disposable? =
         when (intent) {
-            is ProfileIntent.SaveEmail -> {
-                interactor.saveEmail(
-                    email = intent.email
-                ).trackProgress(activityIndicator)
-                    .subscribeBy(
-                        onSuccess = {
-                            process(ProfileIntent.SaveEmailSucceeded(it))
-                            process(ProfileIntent.ResendEmail)
-                        },
-                        onError = {
-                            Timber.e("SaveEmail failure " + it)
-                            process(ProfileIntent.SaveEmailFailed)
-                        }
-                    )
-            }
-            is ProfileIntent.SavePhoneNumber -> {
-                interactor.savePhoneNumber(
-                    mobileWithPrefix = intent.phoneNumber
-                ).trackProgress(activityIndicator)
-                    .subscribeBy(
-                        onSuccess = { userInfoSettings ->
-                            process(ProfileIntent.SavePhoneNumberSucceeded(userInfoSettings))
-                        },
-                        onError = {
-                            Timber.e("SavePhoneNumber failure " + it)
-                            process(ProfileIntent.SavePhoneNumberFailed)
-                        }
-                    )
-            }
             is ProfileIntent.LoadProfile -> {
+                interactor.cachedSettings
+                    .trackProgress(activityIndicator)
+                    .subscribeBy(
+                        onSuccess = { userInfo ->
+                            process(
+                                ProfileIntent.LoadProfileSucceeded(
+                                    userInfoSettings = WalletSettingsService.UserInfoSettings(
+                                        userInfo.email, emailVerified = userInfo.isEmailVerified,
+                                        mobileWithPrefix = userInfo.smsNumber, mobileVerified = userInfo.isSmsVerified,
+                                        authType = userInfo.authType, smsDialCode = userInfo.smsDialCode
+                                    )
+                                )
+                            )
+                        }, onError = {
+                        process(ProfileIntent.FetchProfile)
+                        Timber.e("ProfileIntent.LoadProfile failure " + it)
+                    }
+                    )
+            }
+            is ProfileIntent.FetchProfile -> {
                 interactor.fetchProfileSettings()
                     .trackProgress(activityIndicator)
                     .subscribeBy(
@@ -75,50 +67,11 @@ class ProfileModel(
                             )
                         }, onError = {
                         process(ProfileIntent.LoadProfileFailed)
-                        Timber.e("LoadProfile failure " + it)
+                        Timber.e("ProfileIntent.FetchProfile failure " + it)
                     }
                     )
             }
-            is ProfileIntent.ResendEmail -> {
-                interactor.resendEmail(
-                    email = previousState.userInfoSettings?.email.orEmpty()
-                ).trackProgress(activityIndicator)
-                    .subscribeBy(
-                        onSuccess = {
-                            process(ProfileIntent.ResendEmailSucceeded(it))
-                        },
-                        onError = {
-                            Timber.e("ResendEmail failure " + it)
-                            process(ProfileIntent.ResendEmailFailed)
-                        }
-                    )
-            }
-            is ProfileIntent.ResendCodeSMS -> {
-                interactor.resendCodeSMS(
-                    mobileWithPrefix = previousState.userInfoSettings?.mobileWithPrefix.orEmpty()
-                ).trackProgress(activityIndicator)
-                    .subscribeBy(
-                        onSuccess = {
-                            process(ProfileIntent.ResendCodeSMSSucceeded(it))
-                        },
-                        onError = {
-                            Timber.e("ResendCodeSMS failure " + it)
-                            process(ProfileIntent.ResendCodeSMSFailed)
-                        }
-                    )
-            }
-            is ProfileIntent.SaveEmailFailed,
-            is ProfileIntent.SaveEmailSucceeded,
-            is ProfileIntent.SavePhoneNumberSucceeded,
-            is ProfileIntent.SavePhoneNumberFailed,
-            is ProfileIntent.ResetEmailSentVerification,
-            is ProfileIntent.ResetCodeSentVerification,
-            is ProfileIntent.ResendEmailSucceeded,
-            is ProfileIntent.ResendEmailFailed,
-            is ProfileIntent.ResendCodeSMSSucceeded,
-            is ProfileIntent.ResendCodeSMSFailed,
             is ProfileIntent.LoadProfileSucceeded,
-            is ProfileIntent.LoadProfileFailed,
-            is ProfileIntent.ClearErrors -> null
+            is ProfileIntent.LoadProfileFailed -> null
         }
 }

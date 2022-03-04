@@ -26,6 +26,8 @@ class SettingsDataManager(
     fun getSettings(): Observable<Settings> =
         attemptFetchSettingsFromMemory()
 
+    fun clearSettingsCache() = clearSettingsFromMemory()
+
     /**
      * Updates the settings object by syncing it with the server. Must be called to set up the
      * [SettingsManager] class before a fetch is called.
@@ -71,9 +73,22 @@ class SettingsDataManager(
      * @param sms The phone number to be stored
      * @return An [Observable] object wrapping a [Settings] object
      */
+    // TODO DELETE WHEN REMOVING REDESIGN FF (and the rest of the methods linked)
     fun updateSms(sms: String): Observable<Settings> =
         settingsService.updateSms(sms)
             .flatMap { fetchSettings() }
+            .applySchedulers()
+
+    /**
+     * Update the user's phone number and fetches an updated [Settings] object.
+     *
+     * @param sms The phone number to be stored
+     * @return An [Observable] object wrapping a [Settings] object
+     */
+    fun updateSms(sms: String, forceJson: Boolean): Single<Settings> =
+        settingsService.updateSms(sms, forceJson)
+            .flatMap { it.handleError() }
+            .flatMap { fetchSettings().firstOrError() }
             .applySchedulers()
 
     /**
@@ -200,6 +215,8 @@ class SettingsDataManager(
 
     private fun fetchSettingsFromWeb(): Observable<Settings> =
         Observable.defer { settingsDataStore.fetchSettings() }
+
+    private fun clearSettingsFromMemory() = settingsDataStore.invalidateCacheSettings()
 
     private fun attemptFetchSettingsFromMemory(): Observable<Settings> =
         Observable.defer { settingsDataStore.getSettings() }

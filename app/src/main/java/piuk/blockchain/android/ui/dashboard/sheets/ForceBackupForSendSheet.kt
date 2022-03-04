@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.dashboard.sheets
 
-import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.coincore.AssetAction
@@ -37,7 +36,7 @@ class ForceBackupForSendSheet : SlidingModalBottomDialog<DialogBackupForSendBind
         binding.ctaButton.setOnClickListener { onCtaClick() }
 
         binding.ctaLater.setOnClickListener {
-            reduceAttemptsAndNavigate()
+            checkAttemptsAndNavigate()
         }
 
         val remainingSendsWithoutBackup = dashboardPrefs.remainingSendsWithoutBackup
@@ -55,18 +54,11 @@ class ForceBackupForSendSheet : SlidingModalBottomDialog<DialogBackupForSendBind
         }
     }
 
-    private fun reduceAttemptsAndNavigate() {
+    private fun checkAttemptsAndNavigate() {
         if (dashboardPrefs.remainingSendsWithoutBackup > 0) {
-            dashboardPrefs.remainingSendsWithoutBackup = dashboardPrefs.remainingSendsWithoutBackup - 1
             host.startTransferFunds(account, action)
-        } else {
-            dismiss()
         }
-    }
-
-    override fun onCancel(dialog: DialogInterface) {
-        super.onCancel(dialog)
-        reduceAttemptsAndNavigate()
+        dismiss()
     }
 
     override fun onSheetHidden() {

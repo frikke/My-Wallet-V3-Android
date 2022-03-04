@@ -1,8 +1,6 @@
 package piuk.blockchain.android.ui.sell
 
-import android.content.Intent
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -39,6 +37,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
@@ -47,7 +46,6 @@ import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountsSorting
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 
 class SellIntroFragment : ViewPagerFragment() {
     interface SellIntroHost {
@@ -173,7 +171,7 @@ class SellIntroFragment : ViewPagerFragment() {
                 description = getString(R.string.unable_to_verify_id_description),
                 icon = R.drawable.ic_cart,
                 secondaryButton = ButtonOptions(true, getString(R.string.contact_support)) {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_CONTACT_SUPPORT)))
+                    startActivity(SupportCentreActivity.newIntent(requireContext()))
                 },
                 primaryButton = ButtonOptions(false) {},
                 showSheetIndicator = false,

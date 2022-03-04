@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isErc20
@@ -19,6 +20,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
 import org.spongycastle.util.encoders.Hex
+import org.web3j.abi.TypeEncoder
+import org.web3j.abi.datatypes.Utf8String
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
@@ -32,8 +35,9 @@ class EthDataManager(
     private val ethAccountApi: EthAccountApi,
     private val ethDataStore: EthDataStore,
     private val metadataManager: MetadataManager,
-    private val lastTxUpdater: LastTxUpdater
-) {
+    private val lastTxUpdater: LastTxUpdater,
+    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag
+) : EthMessageSigner {
 
     private val internalAccountAddress: String?
         get() = ethDataStore.ethWallet?.account?.address
@@ -209,13 +213,15 @@ class EthDataManager(
         to: String,
         gasPriceWei: BigInteger,
         gasLimitGwei: BigInteger,
-        weiValue: BigInteger
-    ): RawTransaction? = RawTransaction.createEtherTransaction(
+        weiValue: BigInteger,
+        data: String = ""
+    ): RawTransaction = RawTransaction.createTransaction(
         nonce,
         gasPriceWei,
         gasLimitGwei,
         to,
-        weiValue
+        weiValue,
+        data
     )
 
     fun getTransaction(hash: String): Observable<EthTransaction> =
@@ -237,6 +243,34 @@ class EthDataManager(
             val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
             account.signTransaction(rawTransaction, payloadDataManager.masterKey)
         }
+
+    override fun signEthMessage(message: String, secondPassword: String): Single<ByteArray> =
+        Single.fromCallable {
+            val data = message.decodeHex()
+            if (payloadDataManager.isDoubleEncrypted) {
+                payloadDataManager.decryptHDWallet(secondPassword)
+            }
+            val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
+            account.signMessage(data, payloadDataManager.masterKey)
+        }
+
+    override fun signEthTypedMessage(message: String, secondPassword: String): Single<ByteArray> =
+        Single.fromCallable {
+            val data = TypeEncoder.encode(Utf8String(message)).decodeHex()
+            if (payloadDataManager.isDoubleEncrypted) {
+                payloadDataManager.decryptHDWallet(secondPassword)
+            }
+            val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
+            account.signMessage(data, payloadDataManager.masterKey)
+        }
+
+    private fun String.decodeHex(): ByteArray {
+        check(length % 2 == 0) { "Must have an even length" }
+        return removePrefix("0x")
+            .chunked(2)
+            .map { it.toInt(16).toByte() }
+            .toByteArray()
+    }
 
     fun pushEthTx(signedTxBytes: ByteArray): Observable<String> =
         ethAccountApi.pushTx("0x" + String(Hex.encode(signedTxBytes)))
@@ -299,4 +333,12 @@ class EthDataManager(
 
     val requireSecondPassword: Boolean
         get() = payloadDataManager.isDoubleEncrypted
+
+    // Exposing it for ERC20 and for testing
+    fun extraGasLimitForMemo() = extraGasLimitForMemo
+
+    companion object {
+        // To account for the extra data we want to send
+        private val extraGasLimitForMemo: BigInteger = 600.toBigInteger()
+    }
 }

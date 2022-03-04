@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -19,7 +19,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -30,6 +30,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.DepositOptionsState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.SourceSelectionCustomisations
+import piuk.blockchain.android.util.StringLocalizationUtil
 
 class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSelectorBinding>(), BankLinkingHost {
 
@@ -65,9 +66,9 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             updateSources(newState)
             binding.depositTooltip.root.apply {
                 visibleIf { customiser.selectSourceShouldShowDepositTooltip(newState) }
-                binding.depositTooltip.paymentMethodTitle.text =
-                    if (newState.receivingAsset.networkTicker == "USD") getString(R.string.payment_wire_transfer)
-                    else getString(R.string.bank_transfer)
+                binding.depositTooltip.paymentMethodTitle.text = binding.root.context.getString(
+                    StringLocalizationUtil.getBankDepositTitle(newState.receivingAsset.networkTicker)
+                )
                 setOnClickListener {
                     showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance())
                 }
@@ -96,15 +97,17 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             is DepositOptionsState.ShowBottomSheet -> {
                 binding.progress.gone()
                 LinkBankMethodChooserBottomSheet.newInstance(
-                    LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
+                    linkablePaymentMethodsForAction = LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         newState.depositOptionsState.linkablePaymentMethods
-                    )
+                    ),
+                    transactionTarget = newState.selectedTarget
                 ).show(childFragmentManager, BOTTOM_SHEET)
             }
             is DepositOptionsState.Error -> {
                 displayErrorMessage()
             }
-            DepositOptionsState.None -> {}
+            DepositOptionsState.None -> {
+            }
         }
 
         if (newState.depositOptionsState != DepositOptionsState.None) {
@@ -130,10 +133,9 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     }
 
     private fun displayErrorMessage() {
-        ToastCustom.makeText(
-            requireContext(), getString(R.string.common_error), Toast.LENGTH_SHORT,
-            ToastCustom.TYPE_ERROR
-        )
+        BlockchainSnackbar.make(
+            binding.root, getString(R.string.common_error), type = SnackbarType.Error
+        ).show()
     }
 
     private fun updateSources(newState: TransactionState) {
@@ -171,18 +173,23 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     private fun doOnListLoaded(isEmpty: Boolean) {
         with(binding) {
             accountListEmpty.visibleIf { isEmpty }
+            accountList.visibleIf { !isEmpty }
             progress.gone()
         }
     }
 
     private fun doOnLoadError(it: Throwable) {
-        binding.accountListEmpty.visible()
-        binding.progress.gone()
+        with(binding) {
+            accountListEmpty.visible()
+            progress.gone()
+        }
     }
 
     private fun doOnListLoading() {
-        binding.accountListEmpty.gone()
-        binding.progress.visible()
+        with(binding) {
+            accountListEmpty.gone()
+            progress.visible()
+        }
     }
 
     override fun onBankWireTransferSelected(currency: FiatCurrency) {

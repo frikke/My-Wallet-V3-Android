@@ -64,7 +64,8 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         sendDataManager = sendDataManager,
         feeManager = feeManager,
         requireSecondPassword = false,
-        walletPreferences = walletPreferences
+        walletPreferences = walletPreferences,
+        resolvedAddress = mock()
     )
 
     @Before

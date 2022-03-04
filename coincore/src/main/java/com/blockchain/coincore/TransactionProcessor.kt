@@ -130,10 +130,13 @@ enum class TxConfirmation {
     AGREEMENT_INTEREST_TRANSFER,
     SIMPLE_READ_ONLY,
     COMPLEX_READ_ONLY,
+    COMPLEX_ELLIPSIZED_READ_ONLY,
+    HEADER,
     EXPANDABLE_SIMPLE_READ_ONLY,
     EXPANDABLE_COMPLEX_READ_ONLY,
     COMPOUND_EXPANDABLE_READ_ONLY,
     MEMO,
+    EXPANDABLE_SINGLE_VALUE_READ_ONLY,
     LARGE_TRANSACTION_WARNING,
     ERROR_NOTICE,
     INVOICE_COUNTDOWN
@@ -278,6 +281,9 @@ abstract class TxEngine : KoinComponent {
     // Check the tx is complete, well formed and possible. If it is, set pendingTx to CAN_EXECUTE
     // Else set it to the appropriate error, and then return the updated PendingTx
     abstract fun doValidateAll(pendingTx: PendingTx): Single<PendingTx>
+
+    // Cancel the transaction
+    open fun cancel(pendingTx: PendingTx): Completable = Completable.complete()
 
     // Execute the transaction, it will have been validated before this is called, so the expectation
     // is that it will succeed.
@@ -425,6 +431,8 @@ class TransactionProcessor(
                 it.validationState.toErrorStateOrExecute(it, secondPassword)
             }
     }
+
+    fun cancel(): Completable = engine.cancel(getPendingTx()).onErrorComplete()
 
     private fun ValidationState.toErrorStateOrExecute(pendingTx: PendingTx, secondPassword: String): Completable =
         when (this) {

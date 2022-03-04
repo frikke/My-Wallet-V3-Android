@@ -7,11 +7,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -25,7 +27,7 @@ import piuk.blockchain.android.simplebuy.CopyFieldListener
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.linkBankFieldCopied
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.urllinks.MODULAR_TERMS_AND_CONDITIONS
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -122,7 +124,7 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
             )
             title.text = if (isForLink) getString(R.string.add_bank_with_currency, fiatCurrency) else
                 getString(R.string.deposit_currency, fiatCurrency)
-            subtitle.text = if (fiatCurrency == FiatCurrency.Dollars) getString(R.string.bank_wire_transfer) else
+            subtitle.text = if (fiatCurrency == FiatCurrency.Dollars) getString(R.string.wire_transfer) else
                 getString(R.string.bank_transfer)
 
             bankTransferOnly.visible()
@@ -138,12 +140,12 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
     private val copyListener = object : CopyFieldListener {
         override fun onFieldCopied(field: String) {
             analytics.logEvent(linkBankFieldCopied(field, fiatCurrency.networkTicker))
-            ToastCustom.makeText(
-                requireContext(),
-                resources.getString(R.string.simple_buy_copied_to_clipboard, field),
-                ToastCustom.LENGTH_SHORT,
-                ToastCustom.TYPE_OK
-            )
+            BlockchainSnackbar.make(
+                dialog?.window?.decorView ?: binding.root,
+                getString(R.string.simple_buy_copied_to_clipboard),
+                duration = Snackbar.LENGTH_SHORT,
+                type = SnackbarType.Success
+            ).show()
         }
     }
 

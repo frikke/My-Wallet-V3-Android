@@ -5,6 +5,7 @@ import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -41,11 +42,13 @@ class Erc20DataManagerTest {
 
     private val balanceCallCache: Erc20BalanceCallCache = mock()
     private val historyCallCache: Erc20HistoryCallCache = mock()
+    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag = mock()
 
     private val subject = Erc20DataManagerImpl(
         ethDataManager = ethDataManager,
         balanceCallCache = balanceCallCache,
-        historyCallCache = historyCallCache
+        historyCallCache = historyCallCache,
+        ethMemoForHotWalletFeatureFlag = ethMemoForHotWalletFeatureFlag
     )
 
     @Test
@@ -174,6 +177,7 @@ class Erc20DataManagerTest {
     fun `createErc20Transaction correctly constructs a transaction`() {
         val nonce = 1001.toBigInteger()
         whenever(ethDataManager.getNonce()).thenReturn(Single.just(nonce))
+        whenever(ethMemoForHotWalletFeatureFlag.enabled).thenReturn(Single.just(false))
 
         val destination = "0x2ca28ffadd20474ffe2705580279a1e67cd10a29"
         val amount = 200.toBigInteger()
@@ -188,7 +192,8 @@ class Erc20DataManagerTest {
             to = destination,
             amount = amount,
             gasPriceWei = gasPrice,
-            gasLimitGwei = gasLimit
+            gasLimitGwei = gasLimit,
+            hotWalletAddress = destination
         ).test()
             .assertValue { raw ->
                 raw.nonce == nonce &&
@@ -200,6 +205,49 @@ class Erc20DataManagerTest {
             }
 
         verify(ethDataManager).getNonce()
+
+        verifyNoMoreInteractions(ethDataManager)
+        verifyNoMoreInteractions(balanceCallCache)
+        verifyNoMoreInteractions(historyCallCache)
+    }
+
+    @Test
+    fun `createErc20Transaction correctly constructs a transaction using hot wallet`() {
+        val nonce = 1001.toBigInteger()
+        val extraGasLimit = 1.toBigInteger()
+        whenever(ethDataManager.getNonce()).thenReturn(Single.just(nonce))
+        whenever(ethDataManager.extraGasLimitForMemo()).thenReturn(extraGasLimit)
+        whenever(ethMemoForHotWalletFeatureFlag.enabled).thenReturn(Single.just(true))
+
+        val destination = "0x2ca28ffadd20474ffe2705580279a1e67cd10a29"
+        val hotWalletAddress = "0x2ca28ffadd20474ffe2705580279a1e67cd10a30"
+        val amount = 200.toBigInteger()
+        val gasPrice = 5.toBigInteger()
+        val gasLimit = 21.toBigInteger()
+
+        val expectedPayload = "a9059cbb0000000000000000000000002ca28ffadd20474ffe2705580279a1e67cd10a30" +
+            "00000000000000000000000000000000000000000000000000000000000000c8" +
+            "0000000000000000000000002ca28ffadd20474ffe2705580279a1e67cd10a29"
+
+        subject.createErc20Transaction(
+            asset = ERC20_TOKEN,
+            to = destination,
+            amount = amount,
+            gasPriceWei = gasPrice,
+            gasLimitGwei = gasLimit,
+            hotWalletAddress = hotWalletAddress
+        ).test()
+            .assertValue { raw ->
+                raw.nonce == nonce &&
+                    raw.gasPrice == gasPrice &&
+                    raw.gasLimit == (gasLimit + extraGasLimit) &&
+                    raw.to == CONTRACT_ADDRESS &&
+                    raw.value == BigInteger.ZERO &&
+                    raw.data == expectedPayload
+            }
+
+        verify(ethDataManager).getNonce()
+        verify(ethDataManager).extraGasLimitForMemo()
 
         verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)

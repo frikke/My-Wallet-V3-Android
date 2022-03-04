@@ -9,7 +9,7 @@ import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.wallet.Device
 import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.payload.PayloadManager
-import info.blockchain.wallet.payload.PayloadManagerWiper
+import info.blockchain.wallet.payload.PayloadScopeWiper
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should not be`
 import org.junit.After
@@ -48,7 +48,7 @@ class PayloadManagerWipingTest : KoinTest {
 
         firstPayloadManager `should be` secondPayloadManager
 
-        val wiper: PayloadManagerWiper = payloadScope.get()
+        val wiper: PayloadScopeWiper = payloadScope.get()
 
         wiper.wipe()
 

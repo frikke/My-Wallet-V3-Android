@@ -112,4 +112,12 @@ class PaymentMethodsService internal constructor(
         authorization = authorization,
         paymentId = paymentId
     )
+
+    fun getGooglePayInfo(
+        authorization: String,
+        currency: String
+    ) = api.getGooglePayInfo(
+        authorization = authorization,
+        currency = currency
+    )
 }

@@ -31,6 +31,8 @@ class WalletSettingsDto internal constructor(
     val email: String = "",
     @SerialName("sms_number")
     val smsNumber: String? = null,
+    @SerialName("sms_dial_code")
+    val smsDialCode: String? = null,
     @SerialName("sms_verified")
     val smsVerified: Int = 0,
     @SerialName("is_api_access_enabled")

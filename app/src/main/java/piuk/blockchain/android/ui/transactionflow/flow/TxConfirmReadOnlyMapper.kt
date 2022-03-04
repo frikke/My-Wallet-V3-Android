@@ -24,6 +24,8 @@ class TxConfirmReadOnlyMapperCheckout(
     fun map(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         return when (property) {
             is TxConfirmationValue.To -> formatters.first { it is ToPropertyFormatter }.format(property)
+            is TxConfirmationValue.ToWithNameAndAddress -> formatters.first { it is ToWithNameAndAddressFormatter }
+                .format(property)
             is TxConfirmationValue.From -> formatters.first { it is FromPropertyFormatter }.format(property)
             is TxConfirmationValue.ExchangePriceConfirmation ->
                 formatters.first { it is ExchangePriceFormatter }.format(property)
@@ -37,9 +39,15 @@ class TxConfirmReadOnlyMapperCheckout(
                     .format(property)
             is TxConfirmationValue.PaymentMethod ->
                 formatters.first { it is PaymentMethodPropertyFormatter }.format(property)
+            is TxConfirmationValue.DAppInfo ->
+                formatters.first { it is DAppInfoPropertyFormatter }.format(property)
+            is TxConfirmationValue.Chain ->
+                formatters.first { it is ChainPropertyFormatter }.format(property)
             is TxConfirmationValue.SwapExchange ->
                 formatters.first { it is SwapExchangeRateFormatter }.format(property)
             is TxConfirmationValue.CompoundNetworkFee -> formatters.first { it is CompoundNetworkFeeFormatter }
+                .format(property)
+            is TxConfirmationValue.SignEthMessage -> formatters.first { it is SignEthMessagePropertyFormatter }
                 .format(property)
             else -> throw IllegalStateException("No formatter found for property: $property")
         }
@@ -104,6 +112,19 @@ class ToPropertyFormatter(
     }
 }
 
+class ToWithNameAndAddressFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.ToWithNameAndAddress)
+        return mapOf(
+            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.common_to),
+            ConfirmationPropertyKey.TITLE to property.label,
+            ConfirmationPropertyKey.SUBTITLE to property.address
+        )
+    }
+}
+
 class EstimatedCompletionPropertyFormatter(
     private val context: Context
 ) : TxOptionsFormatterCheckout {
@@ -147,6 +168,43 @@ class PaymentMethodPropertyFormatter(
             } else {
                 ConfirmationPropertyKey.SUBTITLE to property.paymentSubtitle
             }
+        )
+    }
+}
+
+class DAppInfoPropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.DAppInfo)
+        return mapOf(
+            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.app),
+            ConfirmationPropertyKey.TITLE to property.name,
+            ConfirmationPropertyKey.SUBTITLE to property.url
+        )
+    }
+}
+
+class ChainPropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.Chain)
+        return mapOf(
+            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.common_chain),
+            ConfirmationPropertyKey.TITLE to property.assetInfo.name
+        )
+    }
+}
+
+class SignEthMessagePropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
+    override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
+        require(property is TxConfirmationValue.SignEthMessage)
+        return mapOf(
+            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.message_from_dapp, property.dAppName),
+            ConfirmationPropertyKey.TITLE to property.message
         )
     }
 }
@@ -407,6 +465,7 @@ class AmountFormatter(private val context: Context) : TxOptionsFormatterCheckout
         )
     }
 }
+
 fun getLabel(label: String, defaultLabel: String, displayTicker: String): String =
     if (label.isEmpty() || label == defaultLabel) {
         "$displayTicker $defaultLabel"

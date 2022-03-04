@@ -41,7 +41,7 @@ class WalletSettingsService internal constructor(
         mobileWithPrefix = this.smsNumber,
         mobileVerified = this.smsVerified != 0,
         authType = this.authType,
-        dialCode = this.dialCode
+        smsDialCode = this.smsDialCode.orEmpty()
     )
 
     data class UserInfoSettings(
@@ -50,9 +50,9 @@ class WalletSettingsService internal constructor(
         val mobileWithPrefix: String? = null,
         val mobileVerified: Boolean = false,
         val authType: Int = 0,
-        val dialCode: String = "+1"
+        val smsDialCode: String = ""
     ) {
         val mobileNoPrefix: String
-            get() = mobileWithPrefix?.drop(dialCode.length.plus(1))?.filterNot { it.isWhitespace() }.orEmpty()
+            get() = mobileWithPrefix?.drop(smsDialCode.length.plus(1))?.filterNot { it.isWhitespace() }.orEmpty()
     }
 }

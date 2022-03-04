@@ -3,9 +3,11 @@ package com.blockchain.coincore.loader
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
+import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -51,7 +53,9 @@ internal class DynamicAssetLoader(
     private val pitLinking: PitLinking,
     private val crashLogger: CrashLogger,
     private val identity: UserIdentity,
-    private val formatUtils: FormatUtilities
+    private val formatUtils: FormatUtilities,
+    private val identityAddressResolver: IdentityAddressResolver,
+    private val ethHotWalletAddressResolver: EthHotWalletAddressResolver
 ) : AssetLoader {
 
     private val activeAssetMap = mutableMapOf<Currency, CryptoAsset>()
@@ -181,7 +185,8 @@ internal class DynamicAssetLoader(
             crashLogger = crashLogger,
             identity = identity,
             addressValidation = defaultCustodialAddressValidation,
-            availableActions = assetActions
+            availableActions = assetActions,
+            addressResolver = identityAddressResolver
         )
     }
 
@@ -205,7 +210,8 @@ internal class DynamicAssetLoader(
             identity = identity,
             availableCustodialActions = assetActions,
             availableNonCustodialActions = assetActions,
-            formatUtils = formatUtils
+            formatUtils = formatUtils,
+            addressResolver = ethHotWalletAddressResolver
         )
     }
 

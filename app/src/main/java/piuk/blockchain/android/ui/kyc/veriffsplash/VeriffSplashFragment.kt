@@ -10,11 +10,14 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.blockchain.coincore.AssetAction
+import com.blockchain.commonarch.presentation.base.FlowFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
@@ -34,9 +37,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycVeriffSplashBinding
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.base.FlowFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
@@ -183,8 +184,12 @@ class VeriffSplashFragment :
         }
     }
 
-    override fun showError(message: Int) =
-        toast(message, ToastCustom.TYPE_ERROR)
+    override fun showError(@StringRes message: Int) =
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = SnackbarType.Error
+        ).show()
 
     override fun continueToCompletion() {
         val navOptions = NavOptions.Builder()

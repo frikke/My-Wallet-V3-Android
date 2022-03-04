@@ -6,6 +6,7 @@
     <dimen name="huge_margin">40dp</dimen>
     <dimen name="xlarge_margin">36dp</dimen>
     <dimen name="large_margin">32dp</dimen>
+    <dimen name="zero_margin">0dp</dimen>
     <dimen name="standard_margin">24dp</dimen>
     <dimen name="medium_margin">20dp</dimen>
     <dimen name="small_margin">16dp</dimen>
@@ -46,6 +47,7 @@
     <dimen name="pinentry_alpha_text_size">9sp</dimen>
     <dimen name="pinentry_padding">5dp</dimen>
     <dimen name="pinentry_hint_size">16sp</dimen>
+    <dimen name="pin_box_size">48dp</dimen>
 
     <dimen name="buy_sell_payment_button_text_size">16sp</dimen>
     <dimen name="buy_sell_payment_button_margin">16dp</dimen>

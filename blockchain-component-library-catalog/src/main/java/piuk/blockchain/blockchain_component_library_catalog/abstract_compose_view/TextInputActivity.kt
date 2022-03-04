@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.controls.TextInputView
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class TextInputActivity : AppCompatActivity() {

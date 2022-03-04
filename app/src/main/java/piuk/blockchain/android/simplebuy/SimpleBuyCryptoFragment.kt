@@ -40,10 +40,10 @@ import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.CardDetailsActivity.Companion.ADD_CARD_REQUEST_CODE
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
+import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.dashboard.showLoading
@@ -180,37 +180,32 @@ class SimpleBuyCryptoFragment :
 
     private fun startBuy() {
         lastState?.takeIf { canContinue(it) }?.let { state ->
-            if (state.selectedPaymentMethod?.paymentMethodType == PaymentMethodType.GOOGLE_PAY) {
-                // TODO
-                toast("GPAY")
-            } else {
-                model.process(SimpleBuyIntent.BuyButtonClicked)
-                model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
-                analytics.logEvent(
-                    buyConfirmClicked(
-                        state.amount.toBigInteger().toString(),
-                        state.fiatCurrency.networkTicker,
-                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
-                    )
+            model.process(SimpleBuyIntent.BuyButtonClicked)
+            model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
+            analytics.logEvent(
+                buyConfirmClicked(
+                    state.amount.toBigInteger().toString(),
+                    state.fiatCurrency.networkTicker,
+                    state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
                 )
+            )
 
-                val paymentMethodDetails = state.selectedPaymentMethodDetails
-                check(paymentMethodDetails != null)
+            val paymentMethodDetails = state.selectedPaymentMethodDetails
+            check(paymentMethodDetails != null)
 
-                analytics.logEvent(
-                    BuyAmountEntered(
-                        frequency = state.recurringBuyFrequency.name,
-                        inputAmount = state.amount,
-                        maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
-                            paymentMethodDetails.limits.max
-                            state.amount
-                        } else null,
-                        outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
-                        paymentMethod = state.selectedPaymentMethod?.paymentMethodType
-                            ?: return
-                    )
+            analytics.logEvent(
+                BuyAmountEntered(
+                    frequency = state.recurringBuyFrequency.name,
+                    inputAmount = state.amount,
+                    maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
+                        paymentMethodDetails.limits.max
+                        state.amount
+                    } else null,
+                    outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
+                    paymentMethod = state.selectedPaymentMethod?.paymentMethodType
+                        ?: return
                 )
-            }
+            )
         }
     }
 
@@ -363,6 +358,11 @@ class SimpleBuyCryptoFragment :
     private fun handlePostOrderCreationAction(newState: SimpleBuyState) {
         when {
             newState.selectedPaymentMethod?.isActive() == true -> {
+                navigator().goToCheckOutScreen()
+            }
+            newState.selectedPaymentMethod?.paymentMethodType == PaymentMethodType.GOOGLE_PAY &&
+                newState.kycVerificationState == KycState.VERIFIED_AND_ELIGIBLE -> {
+                // We need to ensure that only verified and eligible users can use Google Pay
                 navigator().goToCheckOutScreen()
             }
             newState.selectedPaymentMethod?.isEligible == true -> {
@@ -629,7 +629,8 @@ class SimpleBuyCryptoFragment :
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == ADD_CARD_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val preselectedId = (data?.extras?.getSerializable(CardDetailsActivity.CARD_KEY) as? PaymentMethod.Card)?.id
+            val preselectedId =
+                (data?.extras?.getSerializable(CardDetailsActivity.CARD_KEY) as? PaymentMethod.Card)?.id
             updatePaymentMethods(preselectedId)
         }
         if (requestCode == BankAuthActivity.LINK_BANK_REQUEST_CODE && resultCode == Activity.RESULT_OK) {

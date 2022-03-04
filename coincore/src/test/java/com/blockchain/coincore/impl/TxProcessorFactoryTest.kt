@@ -71,25 +71,29 @@ class TxProcessorFactoryTest {
             limitsDataManager = limitsDataManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
             quotesEngine = quotesEngine,
+            ethMessageSigner = mock(),
             analytics = analytics,
             userIdentity = userIdentity,
             withdrawLocksRepository = withdrawalLocksRepository,
-            paymentsDataManager = paymentsDataManager
+            paymentsDataManager = paymentsDataManager,
+            ethDataManager = mock(),
+            fees = mock()
         )
     }
 
     @Test
     fun onChainBitpayProcessor() {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
+
+        val target: BitPayInvoiceTarget = mock()
+        val action = AssetAction.Send
         val source: CryptoNonCustodialAccount = mock {
-            on { createTxEngine() }.thenReturn(mockBaseEngine)
+            on { createTxEngine(target, action) }.thenReturn(mockBaseEngine)
             // this Crypto instance needs to live here as Bitpay only accepts BTC and BCH
             on { currency }.thenReturn(CryptoCurrency.BTC)
         }
 
-        val target: BitPayInvoiceTarget = mock()
-
-        subject.createProcessor(source, target, AssetAction.Send)
+        subject.createProcessor(source, target, action)
             .test()
             .assertValue {
                 it.sourceAccount == source &&
@@ -108,17 +112,18 @@ class TxProcessorFactoryTest {
     @Test
     fun onChainInterestProcessor() {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
-        val source: CryptoNonCustodialAccount = mock {
-            on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { currency }.thenReturn(TEST_ASSET)
-        }
 
         val mockReceiveAddress: ReceiveAddress = mock()
         val target: CryptoInterestAccount = mock {
             on { receiveAddress }.thenReturn(Single.just(mockReceiveAddress))
         }
+        val action = AssetAction.Send
+        val source: CryptoNonCustodialAccount = mock {
+            on { createTxEngine(target, action) }.thenReturn(mockBaseEngine)
+            on { currency }.thenReturn(TEST_ASSET)
+        }
 
-        subject.createProcessor(source, target, AssetAction.Send)
+        subject.createProcessor(source, target, action)
             .test()
             .assertValue {
                 it.sourceAccount == source &&
@@ -136,14 +141,15 @@ class TxProcessorFactoryTest {
     @Test
     fun onChainAddressProcessor() {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
+
+        val target: CryptoAddress = mock()
+        val action = AssetAction.Send
         val source: CryptoNonCustodialAccount = mock {
-            on { createTxEngine() }.thenReturn(mockBaseEngine)
+            on { createTxEngine(target, action) }.thenReturn(mockBaseEngine)
             on { currency }.thenReturn(TEST_ASSET)
         }
 
-        val target: CryptoAddress = mock()
-
-        subject.createProcessor(source, target, AssetAction.Send)
+        subject.createProcessor(source, target, action)
             .test()
             .assertValue {
                 it.sourceAccount == source &&
@@ -156,16 +162,17 @@ class TxProcessorFactoryTest {
     @Test
     fun onChainCryptoAccountSwapActionProcessor() {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
-        val source: CryptoNonCustodialAccount = mock {
-            on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { currency }.thenReturn(TEST_ASSET)
-        }
 
         val target: CryptoNonCustodialAccount = mock {
             on { currency }.thenReturn(SECONDARY_TEST_ASSET)
         }
+        val action = AssetAction.Swap
+        val source: CryptoNonCustodialAccount = mock {
+            on { createTxEngine(target, action) }.thenReturn(mockBaseEngine)
+            on { currency }.thenReturn(TEST_ASSET)
+        }
 
-        subject.createProcessor(source, target, AssetAction.Swap)
+        subject.createProcessor(source, target, action)
             .test()
             .assertValue {
                 it.sourceAccount == source &&
@@ -183,17 +190,18 @@ class TxProcessorFactoryTest {
     @Test
     fun onChainCryptoAccountOtherActionProcessor() {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
-        val source: CryptoNonCustodialAccount = mock {
-            on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { currency }.thenReturn(TEST_ASSET)
-        }
 
         val mockReceiveAddress: ReceiveAddress = mock()
         val target: CryptoAccount = mock {
             on { receiveAddress }.thenReturn(Single.just(mockReceiveAddress))
         }
+        val action = AssetAction.Send
+        val source: CryptoNonCustodialAccount = mock {
+            on { createTxEngine(target, action) }.thenReturn(mockBaseEngine)
+            on { currency }.thenReturn(TEST_ASSET)
+        }
 
-        subject.createProcessor(source, target, AssetAction.Send)
+        subject.createProcessor(source, target, action)
             .test()
             .assertValue {
                 it.sourceAccount == source &&
@@ -206,16 +214,17 @@ class TxProcessorFactoryTest {
     @Test
     fun onChainFiatAccountProcessor() {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
-        val source: CryptoNonCustodialAccount = mock {
-            on { createTxEngine() }.thenReturn(mockBaseEngine)
-            on { currency }.thenReturn(TEST_ASSET)
-        }
 
         val target: FiatAccount = mock {
             on { currency }.thenReturn(EUR)
         }
+        val action = AssetAction.Send
+        val source: CryptoNonCustodialAccount = mock {
+            on { createTxEngine(target, action) }.thenReturn(mockBaseEngine)
+            on { currency }.thenReturn(TEST_ASSET)
+        }
 
-        subject.createProcessor(source, target, AssetAction.Send)
+        subject.createProcessor(source, target, action)
             .test()
             .assertValue {
                 it.sourceAccount == source &&

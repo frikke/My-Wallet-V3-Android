@@ -57,11 +57,12 @@ class DashboardActionAdapterTest {
             analytics = mock(),
             simpleBuyPrefs = mock(),
             currencyPrefs = currencyPrefs,
+            onboardingPrefs = mock(),
             userIdentity = userIdentity,
             getDashboardOnboardingStepsUseCase = mock(),
-            dashboardOnboardingFlag = mock(),
             exchangeRates = mock(),
-            paymentsDataManager = paymentsDataManager
+            paymentsDataManager = paymentsDataManager,
+            redesignCoinViewFlag = mock()
         )
     }
 

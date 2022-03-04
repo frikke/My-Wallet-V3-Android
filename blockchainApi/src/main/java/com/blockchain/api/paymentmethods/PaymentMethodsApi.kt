@@ -10,6 +10,7 @@ import com.blockchain.api.paymentmethods.models.BankTransferPaymentResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.CreateLinkBankRequestBody
 import com.blockchain.api.paymentmethods.models.CreateLinkBankResponse
+import com.blockchain.api.paymentmethods.models.GooglePayResponse
 import com.blockchain.api.paymentmethods.models.LinkedBankTransferResponse
 import com.blockchain.api.paymentmethods.models.OpenBankingTokenBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
@@ -122,4 +123,10 @@ interface PaymentMethodsApi {
         @Header("authorization") authorization: String,
         @Path("paymentId") paymentId: String
     ): Single<BankTransferChargeResponse>
+
+    @GET("payments/google-pay/info")
+    fun getGooglePayInfo(
+        @Header("authorization") authorization: String,
+        @Query("currency") currency: String
+    ): Single<GooglePayResponse>
 }

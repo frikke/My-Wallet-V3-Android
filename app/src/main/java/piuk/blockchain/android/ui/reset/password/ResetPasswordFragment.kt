@@ -10,18 +10,22 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviActivity.Companion.start
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentPasswordResetBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.urllinks.CONTACT_SUPPORT_FUNDS_RECOVERY
 import piuk.blockchain.android.urllinks.FUNDS_RECOVERY_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
@@ -66,6 +70,8 @@ class ResetPasswordFragment :
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPasswordResetBinding =
         FragmentPasswordResetBinding.inflate(inflater, container, false)
 
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initScreen()
@@ -82,12 +88,25 @@ class ResetPasswordFragment :
         when (newState.status) {
             ResetPasswordStatus.SHOW_ERROR -> {
                 binding.progressBar.gone()
-                toast(getString(R.string.common_error), ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.common_error),
+                    type = SnackbarType.Error
+                ).show()
             }
             ResetPasswordStatus.SHOW_SUCCESS -> {
                 analytics.logEvent(AccountRecoveryAnalytics.PasswordReset(shouldRecoverAccount))
                 binding.progressBar.gone()
-                start<PinEntryActivity>(requireContext())
+                // TODO remove ff
+                redesign.enabled.onErrorReturnItem(false).subscribeBy(
+                    onSuccess = { isEnabled ->
+                        if (isEnabled) {
+                            startActivity(PinActivity.newIntent(requireContext()))
+                        } else {
+                            start<PinEntryActivity>(requireContext())
+                        }
+                    }
+                )
             }
             ResetPasswordStatus.CREATE_WALLET,
             ResetPasswordStatus.RECOVER_ACCOUNT,
@@ -102,7 +121,11 @@ class ResetPasswordFragment :
                 showFundRecoveryFailureUI()
             }
             ResetPasswordStatus.SHOW_RESET_KYC_FAILED -> {
-                toast(getString(R.string.reset_password_kyc_reset_failed_message), ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.reset_password_kyc_reset_failed_message),
+                    type = SnackbarType.Error
+                ).show()
                 for (i in 0 until parentFragmentManager.backStackEntryCount) {
                     parentFragmentManager.popBackStack()
                 }

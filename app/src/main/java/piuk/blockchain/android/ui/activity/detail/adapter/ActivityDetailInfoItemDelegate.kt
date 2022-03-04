@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.time.ZoneId
@@ -183,8 +184,8 @@ private class InfoItemViewHolder(
             is BuyPaymentMethod -> {
                 with(infoType.paymentDetails) {
                     when {
-                        endDigits != null &&
-                            label != null -> {
+                        !endDigits.isNullOrEmpty() &&
+                            !label.isNullOrEmpty() -> {
                             with(context) {
                                 accountType?.let {
                                     val accType = getString(
@@ -204,6 +205,10 @@ private class InfoItemViewHolder(
                                     endDigits
                                 )
                             }
+                        }
+                        paymentMethodType == PaymentMethodType.PAYMENT_CARD &&
+                            endDigits.isNullOrEmpty() && label.isNullOrEmpty() -> {
+                            context.getString(R.string.credit_or_debit_card)
                         }
                         paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
                             context.getString(R.string.checkout_funds_label_1, label)

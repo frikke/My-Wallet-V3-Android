@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptorImpl
-import com.blockchain.payments.googlepay.interceptor.OnPaymentDataReceivedListener
+import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.payments.googlepay.interceptor.PaymentDataMapper
 import com.blockchain.payments.googlepay.interceptor.response.PaymentDataResponse
 import com.blockchain.testutils.CoroutineTestRule
@@ -43,7 +43,7 @@ class GooglePayResponseInterceptorImplTest {
     }
 
     @RelaxedMockK
-    lateinit var onPaymentDataReceivedListener: OnPaymentDataReceivedListener
+    lateinit var onPaymentDataReceivedListener: OnGooglePayDataReceivedListener
 
     @RelaxedMockK
     lateinit var paymentDataMapper: PaymentDataMapper
@@ -84,10 +84,10 @@ class GooglePayResponseInterceptorImplTest {
 
         // Assert
         coVerify {
-            onPaymentDataReceivedListener.onPaymentTokenReceived(PAYMENT_DATA_TOKEN)
+            onPaymentDataReceivedListener.onGooglePayTokenReceived(PAYMENT_DATA_TOKEN)
         }
         verify {
-            onPaymentDataReceivedListener.onPaymentSheetClosed()
+            onPaymentDataReceivedListener.onGooglePaySheetClosed()
         }
     }
 
@@ -109,8 +109,8 @@ class GooglePayResponseInterceptorImplTest {
 
         // Assert
         verify {
-            onPaymentDataReceivedListener.onPaymentCancelled()
-            onPaymentDataReceivedListener.onPaymentSheetClosed()
+            onPaymentDataReceivedListener.onGooglePayCancelled()
+            onPaymentDataReceivedListener.onGooglePaySheetClosed()
         }
     }
 }

@@ -54,7 +54,7 @@ class KycNavHostPresenter(
                             // No user, hide loading and start full KYC flow
                             view.displayLoading(false)
                         } else {
-                            view.showErrorToastAndFinish(R.string.kyc_status_error)
+                            view.showErrorSnackbarAndFinish(R.string.kyc_status_error)
                         }
                     }
                 )

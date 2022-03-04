@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
@@ -42,6 +43,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
+import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
@@ -59,6 +61,7 @@ class DashboardActionAdapter(
     private val payloadManager: PayloadDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
+    private val onboardingPrefs: OnboardingPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val paymentsDataManager: PaymentsDataManager,
     private val linkedBanksFactory: LinkedBanksFactory,
@@ -67,8 +70,12 @@ class DashboardActionAdapter(
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val dashboardOnboardingFlag: FeatureFlag
+    private val redesignCoinViewFlag: FeatureFlag
 ) {
+
+    fun isRedesignCoinViewFlagEnabled(): Single<Boolean> =
+        redesignCoinViewFlag.enabled
+
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         coincore.fiatAssets.accountGroup()
             .map { g -> g.accounts }
@@ -384,7 +391,7 @@ class DashboardActionAdapter(
                     LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         linkablePaymentMethods = LinkablePaymentMethods(
                             targetAccount.currency,
-                            paymentMethods
+                            paymentMethods.sortedBy { it.ordinal }
                         )
                     )
                 )
@@ -555,7 +562,7 @@ class DashboardActionAdapter(
                         LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw(
                             LinkablePaymentMethods(
                                 sourceAccount.currency,
-                                paymentMethods
+                                paymentMethods.sortedBy { it.ordinal }
                             )
                         )
                     )
@@ -599,10 +606,7 @@ class DashboardActionAdapter(
         )
 
     fun getOnboardingSteps(model: DashboardModel): Disposable =
-        dashboardOnboardingFlag.enabled.flatMapMaybe { isEnabled ->
-            if (isEnabled) getDashboardOnboardingStepsUseCase(Unit).toMaybe()
-            else Maybe.empty()
-        }.subscribeBy(
+        getDashboardOnboardingStepsUseCase(Unit).subscribeBy(
             onSuccess = { steps ->
                 val onboardingState = if (steps.any { !it.isCompleted }) {
                     DashboardOnboardingState.Visible(steps)
@@ -610,6 +614,8 @@ class DashboardActionAdapter(
                     DashboardOnboardingState.Hidden
                 }
                 model.process(DashboardIntent.FetchOnboardingStepsSuccess(onboardingState))
+                val hasBoughtCrypto = steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
+                if (hasBoughtCrypto) onboardingPrefs.isLandingCtaDismissed = true
             },
             onError = {
                 Timber.e(it)

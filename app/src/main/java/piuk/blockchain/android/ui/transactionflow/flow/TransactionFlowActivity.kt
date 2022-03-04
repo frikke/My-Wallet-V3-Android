@@ -11,14 +11,18 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.logging.CrashLogger
+import com.blockchain.preferences.DashboardPrefs
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -27,9 +31,7 @@ import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
-import piuk.blockchain.android.ui.base.addAnimationTransaction
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -68,6 +70,7 @@ class TransactionFlowActivity :
     private val analyticsHooks: TxFlowAnalytics by inject()
     private val customiser: TransactionFlowCustomisations by inject()
     private val crashLogger: CrashLogger by inject()
+    private val dashboardPrefs: DashboardPrefs by inject()
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
@@ -124,7 +127,9 @@ class TransactionFlowActivity :
                 },
                 onError = {
                     Timber.e("Unable to configure transaction flow, aborting. e == $it")
-                    toast(R.string.common_error, ToastCustom.TYPE_ERROR)
+                    BlockchainSnackbar.make(
+                        binding.root, getString(R.string.common_error), type = SnackbarType.Error
+                    ).show()
                     finish()
                 }
             )
@@ -195,6 +200,7 @@ class TransactionFlowActivity :
                 }
                 BackNavigationState.ResetPendingTransactionKeepingTarget -> {
                     hideKeyboard()
+                    binding.txProgress.visible()
                     model.process(TransactionIntent.InvalidateTransactionKeepingTarget)
                 }
                 BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)
@@ -211,7 +217,10 @@ class TransactionFlowActivity :
             TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
             TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance()
             TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()
-            TransactionStep.ENTER_AMOUNT -> EnterAmountFragment.newInstance()
+            TransactionStep.ENTER_AMOUNT -> {
+                checkRemainingSendAttemptsWithoutBackup()
+                EnterAmountFragment.newInstance()
+            }
             TransactionStep.SELECT_TARGET_ACCOUNT -> SelectTargetAccountFragment.newInstance()
             TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance()
             TransactionStep.IN_PROGRESS -> TransactionProgressFragment.newInstance()
@@ -227,6 +236,15 @@ class TransactionFlowActivity :
             }
 
             transaction.commit()
+        }
+    }
+
+    private fun checkRemainingSendAttemptsWithoutBackup() {
+        if (state.action == AssetAction.Send &&
+            state.sendingAccount is CustodialTradingAccount &&
+            dashboardPrefs.remainingSendsWithoutBackup > 0
+        ) {
+            dashboardPrefs.remainingSendsWithoutBackup = dashboardPrefs.remainingSendsWithoutBackup - 1
         }
     }
 

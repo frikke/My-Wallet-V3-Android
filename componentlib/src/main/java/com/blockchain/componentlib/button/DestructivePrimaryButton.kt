@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Red400
@@ -18,7 +18,7 @@ import com.blockchain.componentlib.theme.Red900
 fun DestructivePrimaryButton(
     text: String,
     onClick: () -> Unit,
-    state: ButtonState,
+    state: ButtonState = ButtonState.Enabled,
     modifier: Modifier = Modifier,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None

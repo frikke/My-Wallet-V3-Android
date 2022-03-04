@@ -95,4 +95,22 @@ sealed class SecurityIntent : MviIntent<SecurityState> {
             securityInfo = oldState.securityInfo?.copy(isTorFilteringEnabled = filteringEnabled)
         )
     }
+
+    object CheckCanChangePassword : SecurityIntent() {
+        override fun reduce(oldState: SecurityState): SecurityState = oldState
+    }
+
+    object ToggleCloudBackup : SecurityIntent() {
+        override fun reduce(oldState: SecurityState): SecurityState = oldState
+    }
+
+    class UpdateCloudBackup(private val backupEnabled: Boolean) : SecurityIntent() {
+        override fun reduce(oldState: SecurityState): SecurityState = oldState.copy(
+            securityInfo = oldState.securityInfo?.copy(isCloudBackupEnabled = backupEnabled)
+        )
+    }
+
+    object ClearPrefs : SecurityIntent() {
+        override fun reduce(oldState: SecurityState): SecurityState = oldState
+    }
 }

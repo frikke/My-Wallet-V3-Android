@@ -14,6 +14,8 @@ android {
 }
 
 dependencies {
+    implementation project(':common:interface')
+
     implementation Libraries.googleServicesWallet
 
     implementation Libraries.constraintLayout

@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.dashboard.announcements
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,10 +54,19 @@ class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
             }
 
             when {
+                announcement.bodyTextSpannable != null -> {
+                    val text = announcement.bodyTextSpannable
+                    body.text = text
+                    val hasClickableSpans = text.getSpans(0, text.length, ClickableSpan::class.java).isNotEmpty()
+                    body.movementMethod =
+                        if (hasClickableSpans) LinkMovementMethod.getInstance()
+                        else null
+                }
                 announcement.bodyText != 0 -> {
                     body.text = body.context.getString(
                         announcement.bodyText, *announcement.bodyFormatParams
                     )
+                    body.movementMethod = null
                     body.visible()
                 }
                 else -> {

@@ -45,6 +45,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.FeatureFlagOverridePrefs
 import com.blockchain.preferences.NotificationPrefs
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -65,6 +66,7 @@ import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
+import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
@@ -186,9 +188,10 @@ val coreModule = module {
                 ethAccountApi = get(),
                 ethDataStore = get(),
                 metadataManager = get(),
-                lastTxUpdater = get()
+                lastTxUpdater = get(),
+                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
             )
-        }
+        }.bind(EthMessageSigner::class)
 
         factory {
             Erc20BalanceCallCache(
@@ -208,7 +211,8 @@ val coreModule = module {
             Erc20DataManagerImpl(
                 ethDataManager = get(),
                 balanceCallCache = get(),
-                historyCallCache = get()
+                historyCallCache = get(),
+                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 
@@ -335,8 +339,8 @@ val coreModule = module {
                 tradingBalanceDataManager = get(),
                 simpleBuyPrefs = get(),
                 authenticator = get(),
-                stripeAndCheckoutFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
+                googlePayManager = get(),
                 assetCatalogue = get(),
                 cardsCache = get()
             )
@@ -393,6 +397,7 @@ val coreModule = module {
         .bind(BankLinkingPrefs::class)
         .bind(SecureChannelPrefs::class)
         .bind(FeatureFlagOverridePrefs::class)
+        .bind(OnboardingPrefs::class)
 
     factory {
         PaymentService(

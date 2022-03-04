@@ -73,3 +73,15 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
         binding.root.visibleIf { isVisible }
     }
 }
+
+class EmptyHeaderView : ConfirmSheetWidget {
+    override fun initControl(
+        model: TransactionModel,
+        customiser: TransactionConfirmationCustomisations,
+        analytics: TxFlowAnalytics
+    ) {}
+
+    override fun update(state: TransactionState) {}
+
+    override fun setVisible(isVisible: Boolean) {}
+}

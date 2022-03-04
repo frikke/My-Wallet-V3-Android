@@ -2,6 +2,7 @@ package com.blockchain.coincore.btc
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
@@ -53,6 +54,7 @@ import thepit.PitLinking
     private val walletPreferences: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
     identity: UserIdentity,
+    addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -63,7 +65,8 @@ import thepit.PitLinking
     tradingBalances,
     pitLinking,
     crashLogger,
-    identity
+    identity,
+    addressResolver
 ) {
 
     override val assetInfo: AssetInfo
@@ -126,14 +129,19 @@ import thepit.PitLinking
 
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
         Maybe.fromCallable {
-            val normalisedAddress = address.removePrefix(FormatsUtil.BTC_PREFIX)
+            // Remove any potential trailing white spaces
+            val normalisedAddress = address.removePrefix(FormatsUtil.BTC_PREFIX).trim()
             val parts = normalisedAddress.split("?")
             val addressPart = parts.getOrNull(0)
             val amountPart = parts.find {
                 it.startsWith(BTC_ADDRESS_AMOUNT_PART, true)
             }?.let {
                 val amountString = it.removePrefix(BTC_ADDRESS_AMOUNT_PART)
-                CryptoValue.fromMajor(CryptoCurrency.BTC, amountString.toBigDecimal())
+                if (amountString.isNotEmpty()) {
+                    CryptoValue.fromMajor(CryptoCurrency.BTC, amountString.toBigDecimal())
+                } else {
+                    null
+                }
             }
             if (addressPart != null && isValidAddress(addressPart)) {
                 BtcAddress(address = addressPart, label = label ?: address, amount = amountPart)
@@ -196,7 +204,8 @@ import thepit.PitLinking
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            identity = identity
+            identity = identity,
+            addressResolver = addressResolver
         )
 
     private fun btcAccountFromImportedAccount(payloadAccount: ImportedAddress): BtcCryptoWalletAccount =
@@ -209,7 +218,8 @@ import thepit.PitLinking
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            identity = identity
+            identity = identity,
+            addressResolver = addressResolver
         )
 
     companion object {

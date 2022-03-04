@@ -55,7 +55,8 @@ class XlmAssetUriParseTest {
         pitLinking = pitLinking,
         crashLogger = crashLogger,
         walletPreferences = walletPreferences,
-        identity = mock()
+        identity = mock(),
+        addressResolver = mock()
     )
 
     @Test

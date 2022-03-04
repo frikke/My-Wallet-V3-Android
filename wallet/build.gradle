@@ -1,5 +1,6 @@
 apply plugin: 'java-library'
 apply from: 'integrationTest.gradle'
+apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature.gradle')
 
 group = 'info.blockchain'
@@ -39,6 +40,7 @@ dependencies {
     implementation Libraries.jacksonCore
     implementation Libraries.jacksonKotlin
     implementation Libraries.moshi
+    implementation Libraries.kotlinJson
     implementation(Libraries.retrofit) { exclude module: 'okhttp' }
     implementation Libraries.retrofitJacksonConverter
     implementation Libraries.retrofitRxMoshiConverter

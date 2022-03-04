@@ -1,14 +1,16 @@
 package com.blockchain.koin.modules
 
-import com.blockchain.koin.dashboardOnboardingFeatureFlag
+import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.fabSheetOrderingFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.landingCtaFeatureFlag
-import com.blockchain.koin.payloadScope
 import com.blockchain.koin.pricingQuoteFeatureFlag
+import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.ssoSignInPolling
 import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
+import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.koin.unifiedSignInFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
@@ -17,6 +19,7 @@ import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
 
@@ -55,15 +58,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(dashboardOnboardingFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_dashboard_onboarding",
-                "Dashboard Onboarding"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(fabSheetOrderingFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -78,6 +72,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_redesign_pt2",
                 "Wallet Redesign Part 2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(redesignPart2CoinViewFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_redesign_pt2_coinview",
+                "Wallet Redesign Coinview"
             )
         )
     }.bind(FeatureFlag::class)
@@ -99,8 +102,35 @@ val featureFlagsModule = module {
             )
         )
     }.bind(FeatureFlag::class)
+
+    single(uiTourFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_ui_tour",
+                "Ui Tour"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(ethMemoHotWalletFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_eth_memo",
+                "ETH Memo for Hot Wallets"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(blockchainCardFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_blockchain_card",
+                "Blockchain Card"
+            )
+        )
+    }.bind(FeatureFlag::class)
 }
 
 fun getFeatureFlags(): List<FeatureFlag> {
-    return payloadScope.getAll()
+    return KoinJavaComponent.getKoin().getAll()
 }

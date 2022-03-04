@@ -104,6 +104,31 @@ class SecurityModel(
                         )
                 }
             }
+            is SecurityIntent.CheckCanChangePassword -> {
+                previousState.securityInfo?.isWalletBackedUp?.let { isBackedUp ->
+                    process(
+                        SecurityIntent.UpdateViewState(
+                            if (isBackedUp) {
+                                SecurityViewState.LaunchPasswordChange
+                            } else {
+                                SecurityViewState.ShowMustBackWalletUp
+                            }
+                        )
+                    )
+                    null
+                }
+            }
+            is SecurityIntent.ToggleCloudBackup -> {
+                previousState.securityInfo?.isCloudBackupEnabled?.let { isCloudBackupEnabled ->
+                    interactor.updateCloudBackup(!isCloudBackupEnabled)
+                    process(SecurityIntent.UpdateCloudBackup(!isCloudBackupEnabled))
+                    null
+                }
+            }
+            is SecurityIntent.ClearPrefs -> {
+                interactor.pinCodeValidatedForChange()
+                null
+            }
             is SecurityIntent.UpdateViewState,
             is SecurityIntent.UpdateSecurityInfo,
             is SecurityIntent.UpdateErrorState,
@@ -114,6 +139,7 @@ class SecurityModel(
             is SecurityIntent.TwoFactorDisabled,
             is SecurityIntent.ResetViewState,
             is SecurityIntent.UpdateTorFiltering,
-            is SecurityIntent.UpdateScreenshotsEnabled -> null
+            is SecurityIntent.UpdateScreenshotsEnabled,
+            is SecurityIntent.UpdateCloudBackup -> null
         }.exhaustive
 }

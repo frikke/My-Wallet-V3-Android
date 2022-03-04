@@ -1,6 +1,7 @@
 package com.blockchain.coincore.eth
 
 import com.blockchain.coincore.impl.BackendNotificationUpdater
+import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -38,6 +39,7 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val crashLogger: CrashLogger = mock()
     private val identity: UserIdentity = mock()
     private val formatUtils: FormatUtilities = mock()
+    private val addressResolver: EthHotWalletAddressResolver = mock()
 
     private val subject = EthAsset(
         payloadManager = payloadManager,
@@ -55,7 +57,8 @@ class EthAddressParserTest : CoincoreTestBase() {
         pitLinking = pitLinking,
         crashLogger = crashLogger,
         identity = identity,
-        formatUtils = formatUtils
+        formatUtils = formatUtils,
+        addressResolver = addressResolver
     )
 
     @Test

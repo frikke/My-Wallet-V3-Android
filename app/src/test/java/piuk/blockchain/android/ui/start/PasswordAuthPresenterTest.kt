@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.logging.CrashLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -24,7 +25,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -41,12 +41,12 @@ class TestAuthPresenter(
 ) : PasswordAuthPresenter<PasswordAuthView>() {
     override fun onAuthFailed() {
         super.onAuthFailed()
-        showErrorToast(1)
+        showErrorSnackbar(1)
     }
 
     override fun onAuthComplete() {
         super.onAuthComplete()
-        showErrorToast(2)
+        showErrorSnackbar(2)
     }
 }
 
@@ -111,7 +111,7 @@ class PasswordAuthPresenterTest {
     }
 
     /**
-     * AuthDataManager returns a [DecryptionException], should trigger [ ][ManualPairingActivity.showToast].
+     * AuthDataManager returns a [DecryptionException], should trigger [ ][ManualPairingActivity.showSnackbar].
      */
     @Test
     fun onContinueClickedDecryptionFailure() {
@@ -134,13 +134,13 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
     }
 
     /**
-     * AuthDataManager returns a [HDWalletException], should trigger [ ][ManualPairingActivity.showToast].
+     * AuthDataManager returns a [HDWalletException], should trigger [ ][ManualPairingActivity.showSnackbar].
      */
     @Test
     fun onContinueClickedHDWalletExceptionFailure() {
@@ -163,7 +163,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
     }
@@ -188,7 +188,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
         verify(appUtil).clearCredentialsAndRestart()
@@ -225,7 +225,7 @@ class PasswordAuthPresenterTest {
     }
 
     /**
-     * AuthDataManager returns a failure when getting encrypted payload, should trigger [ ][ManualPairingActivity.showToast]
+     * AuthDataManager returns a failure when getting encrypted payload, should trigger [ ][ManualPairingActivity.showSnackbar]
      */
     @Test
     fun onContinueClickedPairingFailure() {
@@ -240,7 +240,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
     }
@@ -258,7 +258,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
         // Assert
 
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
     }
@@ -274,7 +274,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
         // Assert
 
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
     }
@@ -299,7 +299,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
     }
 
@@ -352,7 +352,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
     }
 
@@ -370,7 +370,7 @@ class PasswordAuthPresenterTest {
 
         // Assert
         verify(crashLogger).logState("initial_error", "This is an error")
-        verify(view).showErrorToastWithParameter(R.string.common_replaceable_value, "This is an error")
+        verify(view).showErrorSnackbarWithParameter(R.string.common_replaceable_value, "This is an error")
     }
 
     @Test
@@ -387,7 +387,7 @@ class PasswordAuthPresenterTest {
 
         // Assert
         verify(crashLogger).logState(eq("initial_error"), any())
-        verify(view).showToast(R.string.common_error, ToastCustom.TYPE_ERROR)
+        verify(view).showSnackbar(R.string.common_error, SnackbarType.Error)
     }
 
     /**
@@ -412,7 +412,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
     }
 
@@ -435,7 +435,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(view).showToast(any(), any())
+        verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
     }
 
@@ -447,7 +447,7 @@ class PasswordAuthPresenterTest {
         // Act
         subject.submitTwoFactorCode(responseObject, sessionId, GUID, PASSWORD, null)
         // Assert
-        verify(view).showToast(R.string.two_factor_null_error, ToastCustom.TYPE_ERROR)
+        verify(view).showSnackbar(R.string.two_factor_null_error, SnackbarType.Error)
     }
 
     @Test
@@ -463,7 +463,7 @@ class PasswordAuthPresenterTest {
         // Assert
         verify(view).showProgressDialog(R.string.please_wait, null)
         verify(view, atLeastOnce()).dismissProgressDialog()
-        verify(view).showToast(R.string.two_factor_incorrect_error, ToastCustom.TYPE_ERROR)
+        verify(view).showSnackbar(R.string.two_factor_incorrect_error, SnackbarType.Error)
         verify(authDataManager).submitTwoFactorCode(sessionId, GUID, code)
     }
 

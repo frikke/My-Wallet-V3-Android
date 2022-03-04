@@ -180,7 +180,10 @@ class TransactionInteractor(
                 require(targetAccount is CryptoAccount)
                 coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter()).map {
                     it.filter { acc ->
-                        acc is CryptoAccount && acc.currency == targetAccount.currency && acc != targetAccount
+                        acc is CryptoAccount &&
+                            acc.currency == targetAccount.currency &&
+                            acc != targetAccount &&
+                            acc.isFunded
                     }
                 }
             }
@@ -192,6 +195,9 @@ class TransactionInteractor(
 
     fun verifyAndExecute(secondPassword: String): Completable =
         transactionProcessor?.execute(secondPassword) ?: throw IllegalStateException("TxProcessor not initialised")
+
+    fun cancelTransaction(): Completable =
+        transactionProcessor?.cancel() ?: throw IllegalStateException("TxProcessor not initialised")
 
     fun modifyOptionValue(newConfirmation: TxConfirmationValue): Completable =
         transactionProcessor?.setOption(newConfirmation) ?: throw IllegalStateException("TxProcessor not initialised")
@@ -252,7 +258,7 @@ class TransactionInteractor(
             val availableBankPaymentMethodTypes = available.filter {
                 it.type == PaymentMethodType.BANK_TRANSFER ||
                     it.type == PaymentMethodType.BANK_ACCOUNT
-            }.filter { it.currency == fiatCurrency }.map { it.type }
+            }.filter { it.currency == fiatCurrency }.map { it.type }.sortedBy { it.ordinal }
 
             when {
                 availableBankPaymentMethodTypes.size > 1 -> {

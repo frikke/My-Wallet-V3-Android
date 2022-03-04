@@ -10,11 +10,15 @@ import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.textfield.TextInputEditText
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
@@ -22,10 +26,11 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityManualPairingBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresenter>(), ManualPairingView {
@@ -41,6 +46,8 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     override val view: ManualPairingView = this
     override val presenter: ManualPairingPresenter by scopedInject()
     private val walletPrefs: WalletStatus by inject()
+
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -84,16 +91,25 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         }
     }
 
-    override fun showToast(@StringRes messageId: Int, @ToastCustom.ToastType toastType: String) {
-        ToastCustom.makeText(this, getString(messageId), ToastCustom.LENGTH_SHORT, toastType)
+    override fun showSnackbar(@StringRes messageId: Int, type: SnackbarType) {
+        BlockchainSnackbar.make(binding.root, getString(messageId), type = type).show()
     }
 
-    override fun showErrorToastWithParameter(@StringRes messageId: Int, message: String) {
-        ToastCustom.makeText(this, getString(messageId, message), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR)
+    override fun showErrorSnackbarWithParameter(@StringRes messageId: Int, message: String) {
+        BlockchainSnackbar.make(binding.root, getString(messageId, message), type = SnackbarType.Error).show()
     }
 
     override fun goToPinPage() {
-        startActivity(Intent(this, PinEntryActivity::class.java))
+        // TODO remove ff
+        redesign.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    startActivity(PinActivity.newIntent(this))
+                } else {
+                    startActivity(Intent(this, PinEntryActivity::class.java))
+                }
+            }
+        )
     }
 
     override fun updateWaitingForAuthDialog(secondsRemaining: Int) {
@@ -122,10 +138,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
             if (!limitReached) {
                 presenter.requestNew2FaCode(password, guid)
             } else {
-                ToastCustom.makeText(
-                    this, getString(R.string.two_factor_retries_exceeded),
-                    ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR
-                )
+                showSnackbar(R.string.two_factor_retries_exceeded, SnackbarType.Error)
                 if (!isTwoFATimerRunning) {
                     twoFATimer.start()
                 }

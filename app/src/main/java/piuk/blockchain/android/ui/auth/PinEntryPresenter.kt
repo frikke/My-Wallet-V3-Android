@@ -5,6 +5,7 @@ import android.view.View
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
@@ -30,7 +31,6 @@ import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.base.BasePresenter
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -159,7 +159,8 @@ class PinEntryPresenter(
 
             // Throw error on '0000' to avoid server-side type issue
             if (userEnteredPin == "0000") {
-                showErrorToast(R.string.zero_pin)
+                showErrorSnackbar(R.string.zero_pin) {
+                }
                 clearPinViewAndReset()
                 if (isCreatingNewPin) {
                     view.setTitleString(R.string.create_pin)
@@ -190,7 +191,7 @@ class PinEntryPresenter(
             } else if (isChangingPin && userEnteredConfirmationPin == null &&
                 pinRepository.pin == userEnteredPin
             ) {
-                showErrorToast(R.string.change_pin_new_matches_current)
+                showErrorSnackbar(R.string.change_pin_new_matches_current)
                 clearPinViewAndReset()
             } else {
                 validateAndConfirmPin()
@@ -218,7 +219,8 @@ class PinEntryPresenter(
             }
             else -> {
                 // End of Confirm - Pin Mismatch
-                showErrorToast(R.string.pin_mismatch_error)
+                showErrorSnackbar(R.string.pin_mismatch_error) {
+                }
                 view.setTitleString(R.string.create_pin)
                 clearPinViewAndReset()
             }
@@ -297,10 +299,14 @@ class PinEntryPresenter(
     }
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) {
-        if (isFromPinCreation && biometricsController.isBiometricAuthEnabled) {
-            view.askToUseBiometrics()
-        } else {
-            view.restartAppWithVerifiedPin()
+        when {
+            view.isSettingsOrigin -> {
+                view.closePinChangeScreen()
+            }
+            isFromPinCreation && biometricsController.isBiometricAuthEnabled -> {
+                view.askToUseBiometrics()
+            }
+            else -> view.restartAppWithVerifiedPin()
         }
     }
 
@@ -316,24 +322,24 @@ class PinEntryPresenter(
             is InvalidCredentialsException -> view.goToPasswordRequiredActivity()
             is ServerConnectionException,
             is SocketTimeoutException -> {
-                showFatalErrorToastAndRestart(R.string.server_unreachable_exit, t)
+                showFatalErrorSnackbarAndRestart(R.string.server_unreachable_exit, t)
             }
             is UnsupportedVersionException -> view.showWalletVersionNotSupportedDialog(t.message)
             is DecryptionException -> view.goToPasswordRequiredActivity()
             is HDWalletException -> {
                 // This shouldn't happen. HD fatal error - not safe to continue - don't clear credentials
-                showFatalErrorToastAndRestart(R.string.unexpected_error, t)
+                showFatalErrorSnackbarAndRestart(R.string.unexpected_error, t)
             }
             is InvalidCipherTextException -> {
                 // Password changed on web, needs re-pairing
                 crashLogger.logEvent("password changed elsewhere. Pin is reset")
                 pinRepository.clearPin()
                 appUtil.clearCredentials()
-                showFatalErrorToastAndRestart(R.string.password_changed_explanation, t)
+                showFatalErrorSnackbarAndRestart(R.string.password_changed_explanation, t)
             }
             is AccountLockedException -> view.showAccountLockedDialog()
             else -> {
-                showFatalErrorToastAndRestart(R.string.unexpected_error, t)
+                showFatalErrorSnackbarAndRestart(R.string.unexpected_error, t)
             }
         }
     }
@@ -352,27 +358,28 @@ class PinEntryPresenter(
     }
 
     private fun handlePasswordValidated() {
-        showMessageToast(R.string.pin_4_strikes_password_accepted)
+        showMessageSnackbar(R.string.pin_4_strikes_password_accepted) {
+            view?.restartPageAndClearTop()
+        }
         prefs.removeValue(PersistentPrefs.KEY_PIN_FAILS)
         prefs.pinId = ""
         crashLogger.logEvent("new password. pin reset")
         pinRepository.clearPin()
-        view.restartPageAndClearTop()
     }
 
     private fun handlePasswordValidatedError(t: Throwable) {
         when (t) {
             is ServerConnectionException,
             is SocketTimeoutException ->
-                showFatalErrorToastAndRestart(R.string.server_unreachable_exit, t)
+                showFatalErrorSnackbarAndRestart(R.string.server_unreachable_exit, t)
             is HDWalletException -> {
                 // This shouldn't happen. HD fatal error - not safe to continue - don't clear credentials
-                showFatalErrorToastAndRestart(R.string.unexpected_error, t)
+                showFatalErrorSnackbarAndRestart(R.string.unexpected_error, t)
             }
             is AccountLockedException -> view.showAccountLockedDialog()
             else -> {
                 crashLogger.logException(t)
-                showErrorToast(R.string.invalid_password)
+                showErrorSnackbar(R.string.invalid_password)
                 view.showValidationDialog()
             }
         }
@@ -381,9 +388,10 @@ class PinEntryPresenter(
     private fun createNewPin(pin: String) {
         val tempPassword = payloadDataManager.tempPassword
         if (tempPassword == null) {
-            showErrorToast(R.string.create_pin_failed)
+            showErrorSnackbar(R.string.create_pin_failed) {
+                appUtil.restartApp()
+            }
             prefs.clear()
-            appUtil.restartApp()
             return
         }
 
@@ -397,9 +405,10 @@ class PinEntryPresenter(
                     updatePayload(tempPassword, true)
                 },
                 onError = {
-                    showErrorToast(R.string.create_pin_failed)
+                    showErrorSnackbar(R.string.create_pin_failed) {
+                        appUtil.restartApp()
+                    }
                     prefs.clear()
-                    appUtil.restartApp()
                 }
             )
     }
@@ -434,8 +443,9 @@ class PinEntryPresenter(
                     if (throwable is InvalidCredentialsException) {
                         handleValidateFailure()
                     } else {
-                        showErrorToast(R.string.api_fail)
-                        view.restartPageAndClearTop()
+                        showErrorSnackbar(R.string.api_fail) {
+                            view?.restartPageAndClearTop()
+                        }
                     }
                 }
             )
@@ -452,7 +462,7 @@ class PinEntryPresenter(
     private fun incrementFailureCount() {
         var fails = prefs.pinFails
         prefs.pinFails = ++fails
-        showErrorToast(R.string.invalid_pin)
+        showErrorSnackbar(R.string.invalid_pin)
         userEnteredPin = ""
         view.clearPinBoxes()
         view.setTitleVisibility(View.VISIBLE)
@@ -462,8 +472,9 @@ class PinEntryPresenter(
     fun incrementFailureCountAndRestart() {
         var fails = prefs.pinFails
         prefs.pinFails = ++fails
-        showErrorToast(R.string.invalid_pin)
-        view.restartPageAndClearTop()
+        showErrorSnackbar(R.string.invalid_pin) {
+            view?.restartPageAndClearTop()
+        }
     }
 
     // Check user's password if PIN fails >= max
@@ -471,7 +482,7 @@ class PinEntryPresenter(
         val fails = prefs.pinFails
         getPinRetriesFromRemoteConfig { maxAttempts ->
             if (fails >= maxAttempts) {
-                showMaxAttemptsToast(maxAttempts)
+                showMaxAttemptsSnackbar(maxAttempts)
                 view.showMaxAttemptsDialog()
             }
         }
@@ -502,29 +513,30 @@ class PinEntryPresenter(
 
     @Suppress("SameParameterValue")
     @UiThread
-    private fun showMessageToast(@StringRes message: Int) {
-        view.showToast(message, ToastCustom.TYPE_OK)
+    private fun showMessageSnackbar(@StringRes message: Int, doOnDismiss: () -> Unit = {}) {
+        view?.showSnackbar(message, SnackbarType.Success, doOnDismiss)
     }
 
     @UiThread
-    private fun showErrorToast(@StringRes message: Int) {
-        view.dismissProgressDialog()
-        view.showToast(message, ToastCustom.TYPE_ERROR)
+    private fun showErrorSnackbar(@StringRes message: Int, doOnDismiss: () -> Unit = {}) {
+        view?.dismissProgressDialog()
+        view?.showSnackbar(message, SnackbarType.Error, doOnDismiss)
     }
 
     @UiThread
-    private fun showMaxAttemptsToast(maxAttempts: Int) {
-        view.dismissProgressDialog()
-        view.showParameteredToast(R.string.pin_max_strikes, ToastCustom.TYPE_ERROR, maxAttempts)
+    private fun showMaxAttemptsSnackbar(maxAttempts: Int) {
+        view?.dismissProgressDialog()
+        view?.showParameteredSnackbar(R.string.pin_max_strikes, SnackbarType.Error, maxAttempts) {}
     }
 
     private class PinEntryLogException(cause: Throwable) : Exception(cause)
 
     @UiThread
-    private fun showFatalErrorToastAndRestart(@StringRes message: Int, t: Throwable) {
-        view.showToast(message, ToastCustom.TYPE_ERROR)
+    private fun showFatalErrorSnackbarAndRestart(@StringRes message: Int, t: Throwable) {
+        view?.showSnackbar(message, SnackbarType.Error) {
+            appUtil.restartApp()
+        }
         crashLogger.logException(PinEntryLogException(t))
-        appUtil.restartApp()
     }
 
     internal fun clearLoginState() {

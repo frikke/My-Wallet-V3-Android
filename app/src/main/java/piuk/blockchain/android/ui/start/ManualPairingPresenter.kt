@@ -22,15 +22,15 @@ class ManualPairingPresenter(
 
     internal fun onContinueClicked(guid: String, password: String) {
         when {
-            guid.isEmpty() -> showErrorToast(R.string.invalid_guid)
-            password.isEmpty() -> showErrorToast(R.string.invalid_password)
+            guid.isEmpty() -> showErrorSnackbar(R.string.invalid_guid)
+            password.isEmpty() -> showErrorSnackbar(R.string.invalid_password)
             else -> verifyPassword(password, guid)
         }
     }
 
     override fun onAuthFailed() {
         super.onAuthFailed()
-        showErrorToast(R.string.auth_failed)
+        showErrorSnackbar(R.string.auth_failed)
     }
 
     override fun onAuthComplete() {

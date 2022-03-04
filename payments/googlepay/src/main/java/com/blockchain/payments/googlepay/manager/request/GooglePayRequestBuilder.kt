@@ -18,12 +18,10 @@ object GooglePayRequestBuilder {
     fun buildForPaymentRequest(
         allowedAuthMethods: List<String>,
         allowedCardNetworks: List<String>,
-        gateway: String,
-        gatewayMerchantId: String,
+        gatewayTokenizationParameters: Map<String, String>,
         totalPrice: String,
         countryCode: String,
-        currencyCode: String,
-        merchantName: String
+        currencyCode: String
     ): GooglePayRequest =
         GooglePayRequest(
             allowedPaymentMethods = listOf(
@@ -35,10 +33,7 @@ object GooglePayRequestBuilder {
                         billingAddressParameters = CardPaymentMethod.CardPaymentParameters.BillingAddressParameters()
                     ),
                     tokenizationSpecification = CardPaymentMethod.TokenizationSpecification(
-                        parameters = CardPaymentMethod.TokenizationSpecification.Parameters(
-                            gateway = gateway,
-                            gatewayMerchantId = gatewayMerchantId
-                        )
+                        parameters = gatewayTokenizationParameters
                     )
                 )
             ),
@@ -48,11 +43,11 @@ object GooglePayRequestBuilder {
                 currencyCode = currencyCode
             ),
             merchantInfo = MerchantInfo(
-                merchantName = merchantName
+                merchantName = "Blockchain.com"
             ),
             shippingAddressRequired = false
         )
 }
 
 val allowedAuthMethods: List<String> = listOf("PAN_ONLY", "CRYPTOGRAM_3DS")
-val allowedCardNetworks: List<String> = listOf("AMEX", "DISCOVER", "JCB", "MASTERCARD", "VISA")
+val allowedCardNetworks: List<String> = listOf("MASTERCARD", "VISA")

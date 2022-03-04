@@ -30,6 +30,7 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.Surface
+import android.view.View
 import android.view.WindowManager
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
@@ -41,6 +42,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -60,8 +62,7 @@ import kotlin.math.min
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -183,7 +184,11 @@ class QrScanActivity : BlockchainActivity() {
             try {
                 setUpCamera()
             } catch (e: java.lang.IllegalStateException) {
-                toast(resources.getString(R.string.camera_setup_failed), ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(R.string.camera_setup_failed),
+                    type = SnackbarType.Error
+                ).show()
                 setResult(RESULT_CAMERA_ERROR)
                 finish()
             }
@@ -458,7 +463,7 @@ class QrScanActivity : BlockchainActivity() {
             requestScanPermissions(
                 ctx,
                 { doStart(ctx, expect) },
-                { onPermissionDenied(ctx) }
+                { onPermissionDenied(ctx.window.decorView.findViewById(android.R.id.content)) }
             )
         }
 
@@ -467,7 +472,7 @@ class QrScanActivity : BlockchainActivity() {
             requestScanPermissions(
                 ctx,
                 { doStart(fragment, expect) },
-                { onPermissionDenied(ctx) }
+                { onPermissionDenied(fragment.requireView()) }
             )
         }
 
@@ -478,7 +483,11 @@ class QrScanActivity : BlockchainActivity() {
                     SCAN_URI_RESULT
                 )
             } else {
-                fragment.toast(R.string.camera_unavailable, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    fragment.requireView(),
+                    fragment.requireContext().getString(R.string.camera_unavailable),
+                    type = SnackbarType.Error
+                ).show()
             }
 
         private fun doStart(activity: Activity, expect: Set<QrExpected>) =
@@ -488,11 +497,18 @@ class QrScanActivity : BlockchainActivity() {
                     SCAN_URI_RESULT
                 )
             } else {
-                activity.toast(R.string.camera_unavailable, ToastCustom.TYPE_ERROR)
+                BlockchainSnackbar.make(
+                    activity.window.decorView.findViewById(android.R.id.content),
+                    activity.getString(R.string.camera_unavailable),
+                    type = SnackbarType.Error
+                ).show()
             }
 
-        private fun onPermissionDenied(ctx: Context) {
-            ctx.toast(R.string.request_camera_permission, ToastCustom.TYPE_ERROR)
+        private fun onPermissionDenied(view: View) {
+            BlockchainSnackbar.make(
+                view, view.context.getString(R.string.request_camera_permission),
+                type = SnackbarType.Error
+            ).show()
         }
 
         private fun prepIntent(ctx: Context, expect: Set<QrExpected>) =

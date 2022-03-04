@@ -308,8 +308,9 @@ class PayloadDataManager internal constructor(
     }
 
     private fun recoverMissingDerivations(): Completable {
+        val expectedNumberOfDerivations = 2
         val accountsWithMissingDerivations = payloadManager.payload?.walletBody?.accounts?.filter { account ->
-            account is AccountV4 && account.derivations.isEmpty()
+            account is AccountV4 && account.derivations.size < expectedNumberOfDerivations
         }
         return when {
             accountsWithMissingDerivations.isNullOrEmpty() || isDoubleEncrypted -> Completable.complete()

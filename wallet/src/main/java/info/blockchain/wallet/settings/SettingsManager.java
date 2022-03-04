@@ -3,9 +3,13 @@ package info.blockchain.wallet.settings;
 import info.blockchain.wallet.api.WalletApi;
 import info.blockchain.wallet.api.data.Settings;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 import okhttp3.ResponseBody;
+import retrofit2.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.web3j.abi.datatypes.Bool;
 
 public class SettingsManager {
 
@@ -24,7 +28,7 @@ public class SettingsManager {
     public static final String METHOD_UPDATE_PASSWORD_HINT_1 = "update-password-hint1";
     public static final String METHOD_UPDATE_AUTH_TYPE = "update-auth-type";
     public static final String METHOD_UPDATE_BLOCK_TOR_IPS = "update-block-tor-ips";
-    public static final String METHOD_UPDATE_LAST_TX_TIME= "update-last-tx-time";
+    public static final String METHOD_UPDATE_LAST_TX_TIME = "update-last-tx-time";
 
     //Unused API methods
     /*
@@ -63,11 +67,11 @@ public class SettingsManager {
     }
 
     public void initSettings(String guid, String sharedKey) {
-        this.guid = guid;
+        this.guid      = guid;
         this.sharedKey = sharedKey;
     }
 
-    public Observable<Settings> getInfo()  {
+    public Observable<Settings> getInfo() {
         log.info("Fetching settings details");
         return walletApi.fetchSettings(METHOD_GET_INFO, guid, sharedKey);
     }
@@ -77,6 +81,11 @@ public class SettingsManager {
         return walletApi.updateSettings(method, guid, sharedKey, payload, null);
     }
 
+    public Single<Response<ResponseBody>> updateSetting(String method, String payload, Boolean forceJson) {
+        log.info("Update settings");
+        return walletApi.updateSettings(method, guid, sharedKey, payload, null, forceJson);
+    }
+
     public Observable<ResponseBody> updateSetting(String method, String payload, String context) {
         log.info("Update settings");
         return walletApi.updateSettings(method, guid, sharedKey, payload, context);
@@ -84,6 +93,6 @@ public class SettingsManager {
 
     public Observable<ResponseBody> updateSetting(String method, int payload) {
         log.info("Update settings");
-        return walletApi.updateSettings(method, guid, sharedKey, payload+"", null);
+        return walletApi.updateSettings(method, guid, sharedKey, payload + "", null);
     }
 }

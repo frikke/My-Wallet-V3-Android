@@ -73,7 +73,7 @@ class KycNavHostPresenterTest {
         subject.onViewReady()
         // Assert
         verify(view).displayLoading(true)
-        verify(view).showErrorToastAndFinish(any())
+        verify(view).showErrorSnackbarAndFinish(any())
     }
 
     @Test

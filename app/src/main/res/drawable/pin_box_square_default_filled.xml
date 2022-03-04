@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+            <corners android:radius="@dimen/tiny_margin" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/grey_100" />
+            <size
+                android:width="@dimen/pin_box_size"
+                android:height="@dimen/pin_box_size" />
+        </shape>
+    </item>
+
+    <item
+        android:bottom="@dimen/medium_margin"
+        android:drawable="@drawable/ic_pin_mark"
+        android:left="@dimen/medium_margin"
+        android:right="@dimen/medium_margin"
+        android:top="@dimen/medium_margin" />
+</layer-list>

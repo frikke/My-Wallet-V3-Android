@@ -61,7 +61,10 @@ enum class AssetAction(
     InterestWithdraw(ActionOrigin.FROM_SOURCE),
 
     // External fiat to custodial fiat
-    FiatDeposit(ActionOrigin.FROM_SOURCE)
+    FiatDeposit(ActionOrigin.FROM_SOURCE),
+
+    // Receive crypto to crypto
+    Sign(ActionOrigin.FROM_SOURCE)
 }
 
 typealias AvailableActions = Set<AssetAction>

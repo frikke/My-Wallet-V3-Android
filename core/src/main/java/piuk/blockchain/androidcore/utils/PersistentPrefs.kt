@@ -6,6 +6,7 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.NotificationPrefs
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -26,12 +27,11 @@ interface PersistentPrefs :
     EncryptedPrefs,
     AuthPrefs,
     BankLinkingPrefs,
-    AppInfoPrefs {
+    AppInfoPrefs,
+    OnboardingPrefs {
 
     val deviceId: String // Pre-IDV device identifier
     var devicePreIDVCheckFailed: Boolean // Pre-IDV check has failed! Don't show 'gold' announce cards etc
-
-    var pinId: String
 
     var newSwapEnabled: Boolean
 

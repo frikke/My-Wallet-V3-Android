@@ -19,7 +19,8 @@ import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 abstract class OnChainTxEngineBase(
     override val requireSecondPassword: Boolean,
-    private val walletPreferences: WalletStatus
+    private val walletPreferences: WalletStatus,
+    protected val resolvedHotWalletAddress: Single<String>
 ) : TxEngine() {
 
     private val settingsDataManager: SettingsDataManager by scopedInject()

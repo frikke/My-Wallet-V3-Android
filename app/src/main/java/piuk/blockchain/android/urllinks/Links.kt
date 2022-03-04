@@ -1,8 +1,5 @@
 package piuk.blockchain.android.urllinks
 
-const val URL_BLOCKCHAIN_SUPPORT_PORTAL =
-    "https://support.blockchain.com/"
-
 const val URL_BLOCKCHAIN_SUPPORT_CLOUD_BACKUP_INFO =
     "https://support.blockchain.com/hc/en-us/articles/360046143432"
 
@@ -18,7 +15,6 @@ const val URL_THE_PIT_LAUNCH_SUPPORT = "https://exchange-support.blockchain.com/
 const val URL_TOS_POLICY = "https://blockchain.com/terms"
 const val URL_BACKUP_INFO = "https://support.blockchain.com/hc/en-us/articles/209564506-Make-a-Wallet-Backup"
 const val URL_PRIVACY_POLICY = "https://blockchain.com/privacy"
-const val URL_CONTACT_SUPPORT = "https://support.blockchain.com/hc/requests/new"
 const val URL_LEARN_MORE_REJECTED =
     "https://support.blockchain.com/hc/articles/360018080352-Why-has-my-ID-submission-been-rejected-"
 
@@ -57,6 +53,8 @@ const val NETWORK_ERC20_EXPLANATION = "https://support.blockchain.com/hc/en-us/a
 const val EXCHANGE_SWAP_RATE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651"
 const val CHECKOUT_PRICE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651"
 const val CHECKOUT_REFUND_POLICY = "https://support.blockchain.com/hc/en-us/articles/360061942111"
+
+const val UK_ENTITY_SWITCH = "https://support.blockchain.com/hc/en-us/articles/4418431131668"
 
 const val SECOND_PASSWORD_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360000882646"
 const val RESET_2FA = "https://login.blockchain.com/#/reset-2fa"

@@ -9,8 +9,7 @@ import androidx.annotation.StringRes
 import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewEmptyStateBinding
-import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
-import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.util.getResolvedDrawable
 
 class EmptyStateView @JvmOverloads constructor(
@@ -41,7 +40,7 @@ class EmptyStateView @JvmOverloads constructor(
                 contactSupportEnabled
             }
             viewEmptySupportCta.setOnClickListener {
-                calloutToExternalSupportLinkDlg(context, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                context.startActivity(SupportCentreActivity.newIntent(context))
             }
         }
     }

@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.eq
@@ -45,13 +46,15 @@ class EthDataManagerTest {
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val metadataManager: MetadataManager = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
+    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag = mock()
 
     private val subject = EthDataManager(
         payloadDataManager = payloadManager,
         ethAccountApi = ethAccountApi,
         ethDataStore = ethDataStore,
         metadataManager = metadataManager,
-        lastTxUpdater = lastTxUpdater
+        lastTxUpdater = lastTxUpdater,
+        ethMemoForHotWalletFeatureFlag = ethMemoForHotWalletFeatureFlag
     )
 
     @Test

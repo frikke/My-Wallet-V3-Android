@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.image.ImageResource
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sectionheader.LargeSectionHeader
 import com.blockchain.componentlib.sectionheader.LargeSectionHeaderType
 import com.blockchain.componentlib.sectionheader.BalanceSectionHeader

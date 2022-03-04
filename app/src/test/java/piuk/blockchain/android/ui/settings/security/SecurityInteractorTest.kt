@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.security
 
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
@@ -18,7 +19,9 @@ import piuk.blockchain.android.ui.settings.v2.security.SecurityIntent
 import piuk.blockchain.android.ui.settings.v2.security.SecurityInteractor
 import piuk.blockchain.android.ui.settings.v2.security.SecurityViewState
 import piuk.blockchain.androidcore.data.access.PinRepository
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class SecurityInteractorTest {
 
@@ -27,7 +30,10 @@ class SecurityInteractorTest {
     private val settingsDataManager: SettingsDataManager = mock()
     private val biometricsController: BiometricsController = mock()
     private val securityPrefs: SecurityPrefs = mock()
+    private val authPrefs: AuthPrefs = mock()
     private val pinRepository: PinRepository = mock()
+    private val payloadManager: PayloadDataManager = mock()
+    private val encryptedPrefs: EncryptedPrefs = mock()
 
     @Before
     fun setup() {
@@ -35,7 +41,10 @@ class SecurityInteractorTest {
             settingsDataManager = settingsDataManager,
             biometricsController = biometricsController,
             securityPrefs = securityPrefs,
-            pinRepository = pinRepository
+            pinRepository = pinRepository,
+            payloadManager = payloadManager,
+            backupPrefs = encryptedPrefs,
+            authPrefs = authPrefs
         )
     }
 
@@ -243,5 +252,14 @@ class SecurityInteractorTest {
 
         verify(biometricsController).setBiometricUnlockDisabled()
         verifyNoMoreInteractions(biometricsController)
+    }
+
+    @Test
+    fun `update cloud backup updates preferences`() {
+        doNothing().whenever(encryptedPrefs).backupEnabled = false
+        interactor.updateCloudBackup(false)
+
+        verify(encryptedPrefs).backupEnabled = false
+        verifyNoMoreInteractions(encryptedPrefs)
     }
 }

@@ -137,7 +137,7 @@ class KycProfilePresenterTest {
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).showErrorToast(any())
+        verify(view).showErrorSnackbar(any())
     }
 
     @Test
@@ -322,7 +322,7 @@ class KycProfilePresenterTest {
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).showErrorToast(any())
+        verify(view).showErrorSnackbar(any())
     }
 
     @Test

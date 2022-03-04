@@ -125,7 +125,10 @@ enum class NabuErrorCodes(val code: Int) {
     InvalidOrExpiredQuote(155),
     IneligibleForSwap(156),
     InvalidDestinationAmount(157),
-    InvalidPostcode(158);
+    InvalidPostcode(158),
+
+    InsufficientCardFunds(10000),
+    CardPaymentDeclined(10001);
 
     companion object {
 

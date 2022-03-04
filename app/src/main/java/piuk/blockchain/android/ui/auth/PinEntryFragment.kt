@@ -24,6 +24,7 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.Visibility
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
@@ -33,6 +34,8 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -54,9 +57,10 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.FragmentPinEntryBinding
+import piuk.blockchain.android.ui.auth.PinEntryActivity.Companion.KEY_ORIGIN_SETTINGS
 import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
@@ -144,12 +148,11 @@ class PinEntryFragment :
             })
 
         if (environmentConfig.isRunningInDebugMode()) {
-            ToastCustom.makeText(
-                activity,
+            BlockchainSnackbar.make(
+                binding.root,
                 "Current environment: " + environmentConfig.environment.name,
-                ToastCustom.LENGTH_SHORT,
-                ToastCustom.TYPE_GENERAL
-            )
+                duration = Snackbar.LENGTH_SHORT,
+            ).show()
         }
 
         binding.textViewVersionCode.text = getVersionText()
@@ -230,6 +233,9 @@ class PinEntryFragment :
     override val isForValidatingAndLoadingPayloadResult: Boolean
         get() = activity?.intent?.extras?.getBoolean(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD, false)
             ?: false
+
+    override val isSettingsOrigin: Boolean
+        get() = activity?.intent?.extras?.getBoolean(KEY_ORIGIN_SETTINGS, false) ?: false
 
     override fun enrollBiometrics() {
         biometricsController.authenticate(
@@ -480,19 +486,48 @@ class PinEntryFragment :
         return (a != null && !a.isFinishing)
     }
 
-    override fun showToast(@StringRes message: Int, @ToastCustom.ToastType toastType: String) {
+    override fun showSnackbar(@StringRes message: Int, type: SnackbarType, doOnDismiss: () -> Unit) {
         if (isNotFinishing()) {
-            ToastCustom.makeText(context, getString(message), ToastCustom.LENGTH_LONG, toastType)
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(message),
+                duration = Snackbar.LENGTH_SHORT,
+                type = type
+            ).addCallback(object : BaseTransientBottomBar.BaseCallback<BlockchainSnackbar>() {
+                override fun onShown(transientBottomBar: BlockchainSnackbar) {
+                    super.onShown(transientBottomBar)
+                }
+
+                override fun onDismissed(transientBottomBar: BlockchainSnackbar, event: Int) {
+                    super.onDismissed(transientBottomBar, event)
+                    doOnDismiss()
+                }
+            }).show()
         }
     }
 
-    override fun showParameteredToast(
+    override fun showParameteredSnackbar(
         @StringRes message: Int,
-        @ToastCustom.ToastType toastType: String,
-        parameter: Int
+        type: SnackbarType,
+        parameter: Int,
+        doOnDismiss: () -> Unit
     ) {
         if (isNotFinishing()) {
-            ToastCustom.makeText(context, getString(message, parameter), ToastCustom.LENGTH_LONG, toastType)
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(message, parameter),
+                duration = Snackbar.LENGTH_SHORT,
+                type = type
+            ).addCallback(object : BaseTransientBottomBar.BaseCallback<BlockchainSnackbar>() {
+                override fun onShown(transientBottomBar: BlockchainSnackbar) {
+                    super.onShown(transientBottomBar)
+                }
+
+                override fun onDismissed(transientBottomBar: BlockchainSnackbar, event: Int) {
+                    super.onDismissed(transientBottomBar, event)
+                    doOnDismiss()
+                }
+            }).show()
         }
     }
 
@@ -661,7 +696,7 @@ class PinEntryFragment :
         alertDialog.show()
         // Buttons are done this way to avoid dismissing the dialog
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val appPackageName = context?.packageName
+            val appPackageName = context?.packageName.orEmpty()
             try {
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(APP_STORE_URI + appPackageName)))
             } catch (e: ActivityNotFoundException) {
@@ -717,6 +752,10 @@ class PinEntryFragment :
 
     override fun restartAppWithVerifiedPin() {
         appUtil.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterWalletCreation)
+    }
+
+    override fun closePinChangeScreen() {
+        activity?.finish()
     }
 
     override fun createPresenter(): PinEntryPresenter = pinEntryPresenter

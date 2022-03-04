@@ -1,8 +1,10 @@
 package com.blockchain.coincore.eth
 
 import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -32,7 +34,8 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
     override val exchangeRates: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val assetCatalogue: AssetCatalogue,
-    identity: UserIdentity
+    identity: UserIdentity,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity) {
 
     override val baseActions: Set<AssetAction> = defaultActions
@@ -110,11 +113,12 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
             }
         }
 
-    override fun createTxEngine(): TxEngine =
+    override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         EthOnChainTxEngine(
             ethDataManager = ethDataManager,
             feeManager = fees,
             requireSecondPassword = ethDataManager.requireSecondPassword,
-            walletPreferences = walletPreferences
+            walletPreferences = walletPreferences,
+            resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 }

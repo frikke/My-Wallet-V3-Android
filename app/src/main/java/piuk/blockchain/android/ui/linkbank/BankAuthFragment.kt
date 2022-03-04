@@ -11,12 +11,12 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatButton
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.payments.model.BankPartner
@@ -30,8 +30,8 @@ import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
 import piuk.blockchain.android.simplebuy.ErrorState
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
+import piuk.blockchain.android.support.SupportCentreActivity
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.getResolvedDrawable
@@ -241,10 +241,11 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             model.process(BankAuthIntent.ClearBankLinkingUrl)
         } catch (e: ActivityNotFoundException) {
             model.process(BankAuthIntent.ErrorIntent())
-            ToastCustom.makeText(
-                requireContext(), getString(R.string.yapily_bank_link_no_apps), Toast.LENGTH_LONG,
-                ToastCustom.TYPE_ERROR
-            )
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(R.string.yapily_bank_link_no_apps),
+                type = SnackbarType.Error
+            ).show()
         }
     }
 
@@ -504,14 +505,13 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 with(binding) {
                     linkBankTitle.text = getString(R.string.bank_linking_rejected_title)
 
-                    val linksMap = mapOf<String, Uri>(
-                        "contact_support" to Uri.parse(URL_CONTACT_SUPPORT)
-                    )
-
                     val text = StringUtils.getStringWithMappedAnnotations(
                         requireContext(),
                         R.string.bank_linking_rejected_subtitle,
-                        linksMap
+                        emptyMap(),
+                        onClick = {
+                            requireActivity().startActivity(SupportCentreActivity.newIntent(requireContext()))
+                        }
                     )
 
                     linkBankSubtitle.text = text

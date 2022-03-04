@@ -18,16 +18,16 @@ class GooglePayResponseInterceptorImpl constructor(
     private val coroutineContext: CoroutineContext
 ) : GooglePayResponseInterceptor {
 
-    private var onPaymentDataReceived: OnPaymentDataReceivedListener? = null
+    private var onPaymentDataReceived: OnGooglePayDataReceivedListener? = null
 
     private var job: Job? = null
 
     private val exceptionHandler =
         CoroutineExceptionHandler { _: CoroutineContext, throwable: Throwable ->
-            onPaymentDataReceived?.onError(throwable)
+            onPaymentDataReceived?.onGooglePayError(throwable)
         }
 
-    override fun setPaymentDataReceivedListener(onPaymentDataReceivedListener: OnPaymentDataReceivedListener) {
+    override fun setPaymentDataReceivedListener(onPaymentDataReceivedListener: OnGooglePayDataReceivedListener) {
         this.onPaymentDataReceived = onPaymentDataReceivedListener
     }
 
@@ -40,7 +40,7 @@ class GooglePayResponseInterceptorImpl constructor(
                     }
                 Activity.RESULT_CANCELED -> {
                     // Nothing to do here normally - the user simply cancelled without selecting a payment method.
-                    onPaymentDataReceived?.onPaymentCancelled()
+                    onPaymentDataReceived?.onGooglePayCancelled()
                 }
 
                 AutoResolveHelper.RESULT_ERROR -> {
@@ -49,7 +49,7 @@ class GooglePayResponseInterceptorImpl constructor(
                     }
                 }
             }
-            onPaymentDataReceived?.onPaymentSheetClosed()
+            onPaymentDataReceived?.onGooglePaySheetClosed()
         }
     }
 
@@ -61,18 +61,11 @@ class GooglePayResponseInterceptorImpl constructor(
         job = CoroutineScope(coroutineContext + exceptionHandler).launch {
 
             val response = paymentDataMapper.getPaymentDataResponse(paymentData)
-            // If the gateway is set to "example", no payment information is returned - instead, the
-            // token will only consist of "examplePaymentMethodToken".
 
             withContext(Dispatchers.Main) {
-                if (
-                    response.paymentMethodData.type == "PAYMENT_GATEWAY" &&
-                    response.paymentMethodData.tokenizationData.token == "examplePaymentMethodToken"
-                ) {
-                    onPaymentDataReceived?.onError(Exception("Gateway name set to \\\"example\\\" - please modify."))
-                } else {
-                    onPaymentDataReceived?.onPaymentTokenReceived(response.paymentMethodData.tokenizationData.token)
-                }
+                onPaymentDataReceived?.onGooglePayTokenReceived(
+                    response.paymentMethodData.tokenizationData.token
+                )
             }
         }
     }
@@ -87,6 +80,6 @@ class GooglePayResponseInterceptorImpl constructor(
      * Wallet Constants Library](https://developers.google.com/android/reference/com/google/android/gms/wallet/WalletConstants.constant-summary)
      */
     private fun handleError(statusCode: Int) {
-        onPaymentDataReceived?.onError(Exception(String.format("Error code: %d", statusCode)))
+        onPaymentDataReceived?.onGooglePayError(Exception(String.format("Error code: %d", statusCode)))
     }
 }

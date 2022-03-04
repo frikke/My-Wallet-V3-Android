@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
+import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.payloadScope
@@ -28,10 +29,8 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBuySellBinding
-import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.ui.base.updateTitleToolbar
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.util.AppUtil
@@ -74,7 +73,9 @@ class BuySellFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentBuySellBinding.inflate(inflater, container, false)
+        _binding = FragmentBuySellBinding.inflate(inflater, container, false).apply {
+            this.redesignTabLayout.items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
+        }
         return binding.root
     }
 
@@ -85,7 +86,6 @@ class BuySellFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateTitleToolbar(getString(R.string.buy_and_sell))
-        analytics.logEvent(BuySellViewedEvent())
     }
 
     override fun onResume() {

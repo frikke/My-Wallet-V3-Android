@@ -15,6 +15,7 @@ import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.CreateLinkBankResponse
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
+import com.blockchain.api.paymentmethods.models.GooglePayResponse
 import com.blockchain.api.paymentmethods.models.Limits
 import com.blockchain.api.paymentmethods.models.LinkedBankTransferResponse
 import com.blockchain.api.paymentmethods.models.OpenBankingTokenBody
@@ -53,6 +54,10 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.toSupportedPartner
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.mapLeft
+import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
+import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
+import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.utils.toZonedDateTime
@@ -69,6 +74,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.rx3.await
+import kotlinx.coroutines.rx3.rxSingle
 
 interface PaymentsDataManager {
     suspend fun getPaymentMethodDetailsForId(
@@ -132,6 +138,8 @@ interface PaymentsDataManager {
     fun activateCard(cardId: String, attributes: SimpleBuyConfirmationAttributes): Single<PartnerCredentials>
 
     fun getCardDetails(cardId: String): Single<PaymentMethod.Card>
+
+    fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayResponse>
 }
 
 class PaymentsDataManagerImpl(
@@ -142,13 +150,9 @@ class PaymentsDataManagerImpl(
     private val assetCatalogue: AssetCatalogue,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val authenticator: AuthHeaderProvider,
-    private val stripeAndCheckoutFeatureFlag: FeatureFlag,
+    private val googlePayManager: GooglePayManager,
     private val googlePayFeatureFlag: FeatureFlag
 ) : PaymentsDataManager {
-
-    private val cardProvidersEnabled: Single<Boolean> by lazy {
-        stripeAndCheckoutFeatureFlag.enabled.cache()
-    }
 
     private val googlePayEnabled: Single<Boolean> by lazy {
         googlePayFeatureFlag.enabled.cache()
@@ -189,28 +193,42 @@ class PaymentsDataManagerImpl(
         fetchSddLimits: Boolean,
         onlyEligible: Boolean
     ): Single<List<PaymentMethodTypeWithEligibility>> = authenticator.getAuthHeader().flatMap { authToken ->
-        paymentMethodsService.getAvailablePaymentMethodsTypes(
-            authorization = authToken,
-            currency = fiatCurrency.networkTicker,
-            tier = if (fetchSddLimits) SDD_ELIGIBLE_TIER else null,
-            eligibleOnly = onlyEligible
-        ).zipWith(googlePayEnabled) { methods, isGooglePayFeatureFlagEnabled ->
-            if (isGooglePayFeatureFlagEnabled) {
-                // TODO remove this once the API is in place
-                return@zipWith methods.toMutableList().apply {
-                    add(
-                        PaymentMethodResponse(
-                            type = PaymentMethodResponse.GOOGLE_PAY,
-                            eligible = true,
-                            visible = true,
-                            limits = Limits(min = 500, max = 120000, daily = null),
-                            subTypes = null,
-                            currency = fiatCurrency.networkTicker
+        Single.zip(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authorization = authToken,
+                currency = fiatCurrency.networkTicker,
+                tier = if (fetchSddLimits) SDD_ELIGIBLE_TIER else null,
+                eligibleOnly = onlyEligible
+            ),
+            googlePayEnabled,
+            rxSingle {
+                googlePayManager.checkIfGooglePayIsAvailable(
+                    GooglePayRequestBuilder.buildForPaymentStatus(allowedAuthMethods, allowedCardNetworks)
+                )
+            }
+        ) { methods, isGooglePayFeatureFlagEnabled, isGooglePayAvailableOnDevice ->
+            if (isGooglePayFeatureFlagEnabled && isGooglePayAvailableOnDevice) {
+                return@zip methods.toMutableList().apply {
+                    val googlePayPaymentMethod = this.firstOrNull {
+                        it.mobilePayment?.any { payment ->
+                            payment.equals(PaymentMethodResponse.GOOGLE_PAY, true)
+                        } ?: false
+                    }
+                    googlePayPaymentMethod?.let {
+                        this.add(
+                            PaymentMethodResponse(
+                                type = PaymentMethodResponse.GOOGLE_PAY,
+                                eligible = it.eligible,
+                                visible = it.visible,
+                                limits = it.limits,
+                                subTypes = it.subTypes,
+                                currency = it.currency
+                            )
                         )
-                    )
+                    }
                 }
             } else {
-                return@zipWith methods.filter { it.type != PaymentMethodResponse.GOOGLE_PAY }
+                return@zip methods
             }
         }
     }.map { methods ->
@@ -345,6 +363,11 @@ class PaymentsDataManagerImpl(
                     FiatCurrency.fromCurrencyCode(cardsResponse.currency)
                 )
             )
+        }
+
+    override fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayResponse> =
+        authenticator.getAuthHeader().flatMap { authToken ->
+            paymentMethodsService.getGooglePayInfo(authToken, currency)
         }
 
     override fun deleteCard(cardId: String): Completable =

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.security
 
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Completable
@@ -7,14 +8,24 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.androidcore.data.access.PinRepository
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class SecurityInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val biometricsController: BiometricsController,
+    private val pinRepository: PinRepository,
+    private val payloadManager: PayloadDataManager,
     private val securityPrefs: SecurityPrefs,
-    private val pinRepository: PinRepository
+    private val authPrefs: AuthPrefs,
+    private val backupPrefs: EncryptedPrefs
 ) {
+
+    fun pinCodeValidatedForChange() {
+        authPrefs.pinFails = 0
+        authPrefs.pinId = ""
+    }
 
     fun loadInitialInformation(): Single<SecurityInfo> =
         Singles.zip(
@@ -27,7 +38,9 @@ class SecurityInteractor internal constructor(
                 isBiometricsEnabled = biometricsEnabled,
                 isTorFilteringEnabled = settings.isBlockTorIps,
                 areScreenshotsEnabled = securityPrefs.areScreenshotsEnabled,
-                isTwoFaEnabled = settings.authType != Settings.AUTH_TYPE_OFF
+                isTwoFaEnabled = settings.authType != Settings.AUTH_TYPE_OFF,
+                isWalletBackedUp = payloadManager.isBackedUp,
+                isCloudBackupEnabled = backupPrefs.backupEnabled
             )
         }
 
@@ -79,4 +92,8 @@ class SecurityInteractor internal constructor(
 
     fun disableBiometricLogin(): Completable =
         Completable.fromAction { biometricsController.setBiometricUnlockDisabled() }
+
+    fun updateCloudBackup(enabled: Boolean) {
+        backupPrefs.backupEnabled = enabled
+    }
 }

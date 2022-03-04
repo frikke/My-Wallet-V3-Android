@@ -25,7 +25,6 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
-import java.lang.IllegalStateException
 import java.math.BigInteger
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
@@ -57,6 +56,9 @@ data class SimpleBuyState constructor(
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
+    val googlePayTokenizationInfo: Map<String, String>? = null,
+    val googlePayBeneficiaryId: String? = null,
+    val googlePayMerchantBankCountryCode: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     @Transient val buyErrorState: ErrorState? = null,
@@ -215,6 +217,8 @@ sealed class ErrorState : Serializable {
     object WeeklyLimitExceeded : ErrorState()
     object YearlyLimitExceeded : ErrorState()
     object ExistingPendingOrder : ErrorState()
+    object InsufficientCardFunds : ErrorState()
+    object CardPaymentDeclined : ErrorState()
 }
 
 data class SimpleBuyOrder(
@@ -223,11 +227,18 @@ data class SimpleBuyOrder(
 )
 
 data class PaymentOptions(
-    val availablePaymentMethods: List<PaymentMethod> = emptyList(),
-    val canAddCard: Boolean = false,
-    val canLinkFunds: Boolean = false,
-    val canLinkBank: Boolean = false
-)
+    val availablePaymentMethods: List<PaymentMethod> = emptyList()
+) {
+    val canAddCard: Boolean
+        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedCard>()
+            .firstOrNull()?.isEligible ?: false
+    val canLinkFunds: Boolean
+        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>().firstOrNull()?.isEligible
+            ?: false
+    val canLinkBank: Boolean
+        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>().firstOrNull()?.isEligible
+            ?: false
+}
 
 data class BuyQuote(
     val id: String? = null,
@@ -297,5 +308,6 @@ data class SelectedPaymentMethod(
         id != PaymentMethod.UNDEFINED_BANK_TRANSFER_PAYMENT_ID
 
     fun isActive() =
-        concreteId() != null || (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID)
+        concreteId() != null ||
+            (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID)
 }

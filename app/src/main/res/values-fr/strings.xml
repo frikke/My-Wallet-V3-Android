@@ -112,8 +112,6 @@ Tous droits réservés.</string>
     <string name="merchant_download">Application Merchant gratuite</string>
     <string name="password_or_wipe">Accéder à l\'aide de votre mot de passe ou oublier ce portefeuille</string>
     <string name="use_password">Utiliser le mot de passe</string>
-    <string name="support_leaving_app_warning">Cela vous permet de quitter l\'application et vous conduit au navigateur. Continuer ?
-    </string>
     <string name="weak_password">Le mot de passe sélectionné est trop faible pour sécuriser vos fonds. Veuillez définir un autre mot de passe.</string>
     <string name="confirm_details">Confirmer le paiement</string>
     <string name="activity_details_fee">Commission</string>
@@ -735,7 +733,6 @@ En déposant des fonds sur ce compte, vous acceptez les <annotation link="modula
     <string name="pairing_wallet_instruction_2">Sélectionnez Connexion via mobile.</string>
     <string name="common_skip">Ignorer</string>
     <string name="add_card_title">Ajouter une carte</string>
-    <string name="bank_wire_transfer">Virement bancaire</string>
     <string name="add_card_address_title">Adresse de facturation</string>
     <string name="card_number">Numéro de carte</string>
     <string name="change_currency">Changer la devise</string>
@@ -854,7 +851,7 @@ Confirmations</string>
  sans la clé privée correspondante) n\'est pas pris en charge. Veuillez réessayer avec 
  une adresse et une clé privée. 
 </string>
-    <string name="tx_title_deposit">Dépôt en %s</string>
+    <string name="tx_title_deposit">Ajouter %s</string>
     <string name="tx_title_withdraw">Retirer %s</string>
     <string name="bank_transfer">Virement bancaire</string>
     <string name="send_funds_directly_from_your_bank">Envoyez des fonds directement de votre banque vers votre Blockchain Wallet. Une fois que nous recevons le transfert manuel, utilisez cet argent pour acheter de la crypto.</string>
@@ -1136,6 +1133,8 @@ Veuillez réessayer plus tard.</string>
     <string name="common_retry">Réessayer</string>
     <string name="strength_hint">Utilisez au moins 8 caractères, un mélange de lettres, de chiffres et de symboles.</string>
     <string name="content_desc_enter_amount">Entrer le montant</string>
+    <string name="min_with_value">%1$s Min</string>
+    <string name="max_with_value">%1$s Max</string>
     <string name="upgrade_now">Mettre à jour maintenant</string>
     <string name="swap_faster_cheaper">Échangez plus rapidement. À de meilleurs taux. Dans de meilleures conditions.</string>
     <string name="swap_better">Échangez mieux.</string>
@@ -1280,7 +1279,6 @@ Une fois que c\'est fait, veuillez réessayer.</string>
     <string name="preferences_rate_app">Évaluer l\'application</string>
     <string name="bank_account_info_default">Fin de compte</string>
     <string name="bank_wire_transfer_fee_default">Frais de virement</string>
-    <string name="payment_wire_transfer">Virement bancaire</string>
     <string name="payment_wire_transfer_subtitle">3 à 5 jours ouvrables</string>
     <string name="payment_wire_transfer_blurb">Envoyez des fonds directement de votre compte bancaire vers votre Blockchain.com Wallet. Des frais bancaires peuvent s\'appliquer.</string>
     <string name="payment_deposit">Dépôt bancaire</string>
@@ -1667,8 +1665,7 @@ Vous achèterez moins de crypto.</string>
 Au cours des cinq dernières années, l\'achat de bitcoins chaque semaine a donné de meilleurs résultats que les prévisions du marché.</string>
     <string name="recurring_buy_title_5_2">
 86 % du temps.</string>
-    <string name="recurring_buy_note">Le calcul est basé sur un achat de 30 dollars par semaine, indépendamment du jour d\'achat. «L\'anticipation du marché » se définit comme l\'achat de Bitcoin à chaque baisse de 6 %.
-<annotation link="learn_more">En savoir plus →</annotation></string>
+    <string name="recurring_buy_note">Le calcul est basé sur un achat de 30 dollars par semaine, indépendamment du jour d\'achat. «L\'anticipation du marché » se définit comme l\'achat de Bitcoin à chaque baisse de 6 %.<annotation link="learn_more">En savoir plus →</annotation></string>
     <string name="recurring_buy_daily_1">Tous les jours</string>
     <string name="recurring_buy_daily_selector">Par jour</string>
     <string name="recurring_buy_weekly_1">Une fois par semaine</string>
@@ -1770,7 +1767,6 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
     <string name="landing_value_prop_two_1">Gagnez des récompenses sur votre crypto.</string>
     <string name="tx_title_rewards">%s récompenses gagnées</string>
     <string name="dashboard_asset_balance_rewards">Gagnez %1$.1f %% par an</string>
-    <string name="dashboard_asset_actions_deposit_dsc_1">Ajoutez %1$s à votre Compte de récompenses</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Retirez %1$s de votre Compte de récompenses</string>
     <string name="dashboard_asset_actions_summary_title_1">Résumé des récompenses</string>
     <string name="dashboard_asset_actions_summary_dsc_1">Afficher vos récompenses %1$s</string>
@@ -1879,8 +1875,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="kyc_enter_address_manually">Entrer manuellement - &gt;</string>
     <string name="kyc_autocomplete_addresses_error">Échec de la récupération des adresses</string>
     <string name="kyc_autocomplete_selected_address_error">Échec de la récupération de l\'adresse</string>
-    <string name="min_with_value">%1$s Min</string>
-    <string name="max_with_value">%1$s Max</string>
     <string name="unification_sheet_title">Améliorer le compte</string>
     <string name="unification_sheet_later_cta">Je le ferai plus tard</string>
     <string name="unification_sheet_now_cta">Mettre à niveau mon compte</string>
@@ -2073,8 +2067,8 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="card_cvc">CVC</string>
     <string name="invalid_cvc">CVC invalide</string>
     <string name="common_unavailable">Indisponible</string>
-    <string name="landing_cta_title">Achetez des Bitcoins. Posséder l\'avenir.</string>
-    <string name="landing_cta_subtitle">Créez un Blockchain.com Wallet et achetez, vendez et conservez simplement des cryptos. Passez de zéro à crypto en quelques secondes et non en quelques minutes.</string>
+    <string name="landing_cta_title">Votre premier achat est offert.</string>
+    <string name="landing_cta_subtitle">Vérifiez votre identité et nous couvrirons les frais de votre première transaction. C\'est notre façon de vous souhaiter la bienvenue sur Blockchain.com !</string>
     <string name="landing_cta_login">Se connecter</string>
     <string name="settings_see_profile">Afficher le profil</string>
     <string name="profile_label_name">Nom</string>
@@ -2100,7 +2094,7 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="settings_subtitle_no_payments">Ajouter une carte de crédit/débit</string>
     <string name="settings_label_settings">Réglages</string>
     <string name="settings_title_account">Compte</string>
-    <string name="settings_subtitle_account">Limites, devise, notifications et plus</string>
+    <string name="settings_subtitle_account">Limites, devise, airdrops et plus</string>
     <string name="settings_title_security">Sécurité</string>
     <string name="settings_subtitle_security">Méthodes de connexion, phrases de sauvegarde et plus</string>
     <string name="settings_title_about_app">À propos de l\'application</string>
@@ -2115,7 +2109,7 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="about_app_privacy_policy">Politique de confidentialité</string>
     <string name="swap_empty_state_sheet_title">Vous aurez d\'abord besoin de crypto !</string>
     <string name="swap_empty_state_sheet_subtitle">Liez une banque ou une carte et achetez maintenant ou recevez d\'un ami. Une fois que vous détenez un solde, vous pouvez échanger des cryptos à tout moment.</string>
-    <string name="settings_initials">%1s %2s</string>
+    <string name="settings_initials">%1s%2s</string>
     <string name="settings_add_payment_method">Ajoutez un mode de paiement</string>
     <string name="settings_bank_transfer_blurb">Envoyez des fonds directement de votre banque vers votre Blockchain Wallet. Une fois que nous aurons reçu le virement, nous finaliserons votre achat.</string>
     <string name="settings_logout_error">Un problème est survenu lors de votre déconnexion, veuillez réessayer !</string>
@@ -2157,7 +2151,7 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="profile_update_success">Mises à jour enregistrées.</string>
     <string name="profile_label_support">Besoin de mettre à jour votre nom ? <annotation link="contact_support">Contacter l\'assistance</annotation></string>
     <string name="profile_verify_email_msg">Votre adresse électronique vérifiée est utilisée pour envoyer des alertes de paiement, des rappels d\'identification et des codes de connexion.</string>
-    <string name="profile_verify_phone_msg">Votre numéro de téléphone peut être utilisé pour activer la 2FA.</string>
+    <string name="profile_verify_phone_msg">Votre téléphone portable peut être utilisé pour activer l\'authentification à deux facteurs ou pour recevoir des alertes.</string>
     <string name="profile_disable_2fa_first">Veuillez d\'abord désactiver la vérification en 2 étapes par SMS dans les paramètres de sécurité.</string>
     <string name="profile_verify_email">Vérifier l’adresse e-mail</string>
     <string name="profile_verify_phone">Vérifier le téléphone</string>
@@ -2183,7 +2177,8 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="bank_transfer_payment_failed_title">Paiement échoué</string>
     <string name="bank_transfer_payment_failed_subtitle">Il y a eu un problème avec votre banque. Veuillez réessayer ou utiliser un autre mode de paiement. Si le problème persiste, veuillez <annotation link="contact_support">contacter l\'assistance.</annotation></string>
     <string name="bank_transfer_payment_declined_title">Paiement refusé</string>
-    <string name="bank_transfer_payment_declined_subtitle">Nous pensons que votre banque a refusé ce paiement. Veuillez contacter votre banque pour obtenir de l\'aide</string>
+    <string name="bank_transfer_payment_declined_subtitle">Il nous semble que votre banque a rejeté ce paiement. Veuillez contacter votre banque pour obtenir de l\'aide.
+Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contacter l\'assistance.</annotation></string>
     <string name="bank_transfer_payment_rejected_title">Paiement rejeté</string>
     <string name="bank_transfer_payment_rejected_subtitle">Nous pensons que vous avez refusé le paiement depuis votre compte bancaire. Si ce n\'est pas correct, veuillez <annotation link="contact_support">contacter l\'assistance</annotation></string>
     <string name="bank_transfer_payment_expired_title">Demande de paiement expirée</string>
@@ -2238,8 +2233,90 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="security_error_two_fa">Une erreur s\'est produite lors de la mise à jour de l\'Authentification à deux facteurs, veuillez réessayer.</string>
     <string name="security_error_screenshots">Une erreur s\'est produite lors de la mise à jour des Captures d\'écran, veuillez réessayer.</string>
     <string name="sb_checkout_card_insufficient_funds_title">Fonds insuffisants</string>
-    <string name="sb_checkout_card_insufficient_funds_blurb">Votre banque nous dit que vous n\'avez pas assez de fonds sur votre compte, vérifiez et réessayez.</string>
+    <string name="sb_checkout_card_insufficient_funds_blurb">Votre banque nous fait savoir que le solde sur votre compte est insuffisant, vérifiez et réessayez.</string>
     <string name="sb_checkout_card_declined_title">Paiement refusé</string>
-    <string name="sb_checkout_card_declined_blurb">Votre banque a refusé cette transaction, veuillez essayer une autre banque ou un autre mode de paiement.</string>
-    <string name="sb_checkout_contact_support">Si vous pensez que le paiement aurait dû fonctionner, veuillez <annotation link="contact_support"> contacter l\'assistance </annotation></string>
+    <string name="sb_checkout_card_declined_blurb">Votre banque a rejeté cette transaction, veuillez essayer une autre banque ou un autre mode de paiement.</string>
+    <string name="sb_checkout_contact_support">Si vous pensez que le paiement aurait dû fonctionner, veuillez <annotation link="contact_support">contacter l\'assistance</annotation></string>
+    <string name="profile_update_error_phone_invalid">Numéro de téléphone invalide</string>
+    <string name="tx_title_added">%s ajouté</string>
+    <string name="select_interest_deposit_source_title">Ajouter à partir de</string>
+    <string name="common_sign">Signer</string>
+    <string name="sign_confirmation_progress_message">Nous signons votre transaction maintenant.</string>
+    <string name="dapp_confirmation_warning">Cette appli demande une action qui pourrait prélever de l\'argent de votre portefeuille. Assurez-vous que ce site est digne de confiance.</string>
+    <string name="common_chain">Chaîne</string>
+    <string name="message_from_dapp">Message de %1s</string>
+    <string name="signing_confirmation_progress_title">Signature…</string>
+    <string name="signed">Signé</string>
+    <string name="message_signed">Le message a été signé avec succès. Retournez à la dApp.</string>
+    <string name="security_backup_sheet_title">Phrase de récupération non sauvegardée</string>
+    <string name="security_backup_sheet_blurb">Avant de changer votre mot de passe, sauvegardez votre clé secrète de 12 mots. Elle vous permettra de récupérer votre compte si vous oubliez votre mot de passe.</string>
+    <string name="security_backup_sheet_cta">Sauvegarder maintenant</string>
+    <string name="password_change_blurb">Entrer votre mot de passe actuel. Entrez ensuite et confirmez votre nouveau mot de passe.</string>
+    <string name="password_change_cta">Mettre à jour le mot de passe</string>
+    <string name="change_password_title">Changer le mot de passe</string>
+    <string name="change_password_error_old_new_match">Vous ne pouvez pas utiliser votre mot de passe actuel comme nouveau mot de passe</string>
+    <string name="change_password_error_old_incorrect">Votre mot de passe actuel est incorrect</string>
+    <string name="change_password_error_new_dont_match">Les nouveaux mots de passe ne sont pas identiques</string>
+    <string name="change_password_error_new_length">Vos nouveaux mots de passe sont trop courts ou trop longs (4–255)</string>
+    <string name="change_password_error_new_too_weak">Votre nouveau mot de passe est trop faible, veuillez utiliser un mot de passe plus fiable</string>
+    <string name="change_password_error_general">Un problème est survenu lors de la mise à jour de votre mot de passe, veuillez réessayer.</string>
+    <string name="change_password_success">Mot de passe mis à jour avec succès !</string>
+    <string name="password_current_hint">Entrer le mot de passe actuel</string>
+    <string name="password_new_hint">Entrez un nouveau mot de passe</string>
+    <string name="password_confirm_hint">Saisir à nouveau le nouveau mot de passe</string>
+    <string name="buy_large_amounts">Acheter de grandes quantités</string>
+    <string name="buy_small_amounts">Acheter de petites quantités</string>
+    <string name="easy_bank_transfer">Virement bancaire facile</string>
+    <string name="link_once_and_instantly_buy_crypto_anytime">Liez une fois et achetez instantanément la crypto à tout moment.</string>
+    <string name="signature_request">Demande de signature</string>
+    <string name="ui_tour_prices_title">Découvrez de nouveaux jetons</string>
+    <string name="ui_tour_middle_button_title">Tradez instantanément</string>
+    <string name="ui_tour_activity_title">Afficher toutes les transactions</string>
+    <string name="ui_tour_buyer_handhold_title">Préparez-vous à acheter</string>
+    <string name="ui_tour_prices_subtitle">Suivez le prix en direct de plus de 1 200 jetons et trouvez-en de nouveaux à ajouter à votre portefeuille.</string>
+    <string name="ui_tour_middle_button_subtitle">Que vous souhaitiez échanger rapidement ou envoyer à un ami, nous avons ce qu\'il vous faut !</string>
+    <string name="ui_tour_activity_subtitle">Sachez exactement quand vous avez acheté, vendu ou échangé et à quel prix.</string>
+    <string name="ui_tour_buyer_handhold_subtitle">Ajoutez une carte ou liez une banque pour commencer à acheter des cryptos en quelques secondes.</string>
+    <string name="ui_tour_buy_and_sell_title">Acheter &amp; vendre</string>
+    <string name="ui_tour_buy_and_sell_subtitle">Utilisez votre carte ou liez votre banque pour acheter des cryptos en quelques secondes. Rapide, facile et sécurisé.</string>
+    <string name="wire_transfer">Virement bancaire</string>
+    <string name="settings_contact_support_error">Une erreur s\'est produite lors du chargement de vos informations</string>
+    <string name="tx_title_add_with_ticker">Ajouter %s</string>
+    <string name="dashboard_asset_actions_add_dsc">Ajoutez %1$s à votre Compte de récompenses</string>
+    <string name="dashboard_asset_actions_add_title">Ajouter</string>
+    <string name="pin_title_create">Choisissez un code PIN de portefeuille.</string>
+    <string name="pin_subtitle">Cela sera utilisé pour la sauvegarde de déverrouillage biométrique.</string>
+    <string name="pin_title_confirm">Confirmez votre code PIN.</string>
+    <string name="pin_mismatch_error_msg">Les codes PIN ne correspondent pas. Veuillez réessayer.</string>
+    <string name="pin_num_digits">Le code PIN doit contenir 4 chiffres.</string>
+    <string name="pin_toolbar_change">Modifier le code PIN</string>
+    <string name="account_wallet_connect">WalletConnect</string>
+    <string name="bank_transfer_blurb">Suivez les instructions sur l\'écran suivant pour déposer des fonds de votre compte bancaire sur votre compte Blockchain.com. Des frais bancaires peuvent s\'appliquer.</string>
+    <string name="easy_bank_transfer_blurb">Connectez-vous une fois et envoyez de l\'argent sur votre compte Blockchain.com à tout moment.</string>
+    <string name="ukentityswitch_announcement_title">Nouvelle entité juridique</string>
+    <string name="ukentityswitch_announcement_description">À partir de ce mois-ci, les clients britanniques seront servis par notre filiale européenne, Blockchain (LT), UAB. Vous ne subirez aucun changement dans l\'expérience utilisateur ni ne perdrez l\'accès à vos fonds pendant cette transition. <annotation link="learn_more">En savoir plus &gt;</annotation></string>
+    <string name="ukentityswitch_announcement_action">Je comprends</string>
+    <string name="account_addresses_title">Adresses</string>
+    <string name="common_disconnect">Déconnecter</string>
+    <string name="no_dapps_connected">Aucune application connectée</string>
+    <string name="connect_with_wallet_connect">Connectez-vous à une application à l\'aide de WalletConnect.</string>
+    <string name="are_you_sure">Êtes-vous sûr ?</string>
+    <string name="you_are_about_disconnect">Vous êtes sur le point de déconnecter %1$s .</string>
+    <string name="scan_connect">Numériser et connecter</string>
+    <string name="allow_camera_access">Autoriser l\'accès à la caméra</string>
+    <string name="scan_friends_qr">Scannez le code QR d\'un ami</string>
+    <string name="scan_friends_qr_description">Dirigez votre téléphone vers le code QR d\'un ami et nous collerons l\'adresse.</string>
+    <string name="web_access">Accédez à votre Wallet sur le Web</string>
+    <string name="web_access_description">Connexion à blockchain.com ? Scannez le code avec votre téléphone pour vous connecter.</string>
+    <string name="connect_to_dapps">Connectez-vous aux Dapps</string>
+    <string name="connect_to_dapps_description">Connectez en toute sécurité votre portefeuille à n\'importe quelle application Web 3.0.</string>
+    <string name="coinview_interest_with_balance">Gagnez %1$s %%</string>
+    <string name="coinview_interest_no_balance">Gagnez %1$s %% APY</string>
+    <string name="coinview_nc_desc">Non privative de liberté</string>
+    <string name="coinview_c_unavailable_desc">Acheter et vendre %1$s</string>
+    <string name="coinview_c_available_desc">Dépositaire</string>
+    <plurals name="wallet_connect_connected_apps">
+        <item quantity="one">%d application connectée</item>
+        <item quantity="other">%d applications connectées</item>
+    </plurals>
 </resources>

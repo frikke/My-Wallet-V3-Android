@@ -36,6 +36,7 @@ dependencies {
     implementation project(':common-mp:utils')
     implementation project(':veriff')
     implementation project(':blockchainApi')
+    implementation project(':payments:googlepay')
 
     api project(':balance')
 

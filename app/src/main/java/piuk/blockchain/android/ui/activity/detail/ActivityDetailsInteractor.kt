@@ -357,7 +357,7 @@ class ActivityDetailsInteractor(
             list.add(
                 BuyPaymentMethod(
                     PaymentDetails(
-                        it.id, it.label(), it.endDigits(), it.accountType()
+                        it.id, it.label(), it.endDigits(), it.accountType(), it.type
                     )
                 )
             )
@@ -380,7 +380,7 @@ class ActivityDetailsInteractor(
             list.add(
                 BuyPaymentMethod(
                     PaymentDetails(
-                        it.id, it.label(), it.endDigits(), it.accountType()
+                        it.id, it.label(), it.endDigits(), it.accountType(), it.type
                     )
                 )
             )

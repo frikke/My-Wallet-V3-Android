@@ -6,6 +6,7 @@ import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
@@ -13,19 +14,23 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
 
 class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(), EmailEntryHost {
@@ -38,6 +43,8 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
 
     private var state: LoaderState? = null
     private val compositeDisposable = CompositeDisposable()
+
+    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +63,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
             is LoadingStep.Main -> {
-                onStartMainActivity(loaderStep.data, loaderStep.launchDashboardOnboarding)
+                onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             }
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.EmailVerification -> launchEmailVerification()
@@ -101,10 +108,16 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         }
 
         if (newState.toastType != null) {
-            when (newState.toastType) {
-                ToastType.INVALID_PASSWORD -> showToast(R.string.invalid_password, ToastCustom.TYPE_ERROR)
-                ToastType.UNEXPECTED_ERROR -> showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
-            }
+            BlockchainSnackbar.make(
+                binding.root,
+                getString(
+                    when (newState.toastType) {
+                        ToastType.INVALID_PASSWORD -> R.string.invalid_password
+                        ToastType.UNEXPECTED_ERROR -> R.string.unexpected_error
+                    }
+                ),
+                type = SnackbarType.Error
+            ).show()
         }
     }
 
@@ -139,18 +152,29 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
     }
 
     private fun onRequestPin() {
-        startSingleActivity(PinEntryActivity::class.java)
+        // TODO remove ff
+        redesign.enabled.onErrorReturnItem(false).subscribeBy(
+            onSuccess = { isEnabled ->
+                if (isEnabled) {
+                    startActivity(PinActivity.newIntent(this))
+                    finish()
+                } else {
+                    startSingleActivity(PinEntryActivity::class.java)
+                }
+            }
+        )
     }
 
-    private fun onStartMainActivity(mainData: String?, shouldLaunchDashboardOnboarding: Boolean) {
+    private fun onStartMainActivity(mainData: String?, shouldLaunchUiTour: Boolean) {
         startActivity(
             MainActivity.newIntent(
                 context = this,
                 intentData = mainData,
-                shouldLaunchDashboardOnboarding = shouldLaunchDashboardOnboarding,
+                shouldLaunchUiTour = shouldLaunchUiTour,
                 shouldBeNewTask = true
             )
         )
+        finish()
     }
 
     private fun launchEmailVerification() {
@@ -160,10 +184,6 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_frame, KycEmailEntryFragment(), KycEmailEntryFragment::class.simpleName)
             .commitAllowingStateLoss()
-    }
-
-    private fun showToast(message: Int, toastType: String) {
-        toast(message, toastType)
     }
 
     private fun showMetadataNodeFailure() {
@@ -221,6 +241,7 @@ class LoaderActivity : MviActivity<LoaderModel, LoaderIntents, LoaderState, Acti
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         startActivity(intent)
+        finish()
     }
 
     companion object {

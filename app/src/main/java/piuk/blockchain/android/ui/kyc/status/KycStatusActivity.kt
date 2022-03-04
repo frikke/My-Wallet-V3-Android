@@ -3,9 +3,11 @@ package piuk.blockchain.android.ui.kyc.status
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
 import com.blockchain.coincore.AssetAction
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
@@ -20,8 +22,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycStatusBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
@@ -180,8 +181,12 @@ class KycStatusActivity :
         }
     }
 
-    override fun showToast(message: Int) {
-        toast(message, ToastCustom.TYPE_OK)
+    override fun showSnackbar(@StringRes message: Int) {
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = SnackbarType.Success
+        ).show()
     }
 
     override fun showNotificationsEnabledDialog() {
@@ -202,7 +207,11 @@ class KycStatusActivity :
     }
 
     override fun finishPage() {
-        toast(R.string.kyc_status_error, ToastCustom.TYPE_ERROR)
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(R.string.kyc_status_error),
+            type = SnackbarType.Error
+        ).show()
         finish()
     }
 

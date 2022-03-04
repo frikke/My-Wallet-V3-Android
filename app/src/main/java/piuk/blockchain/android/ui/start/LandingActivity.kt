@@ -9,29 +9,25 @@ import android.os.Looper
 import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.koin.landingCtaFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.StringUtils
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
-
-    private val landingCtaFF: FeatureFlag by scopedInject(landingCtaFeatureFlag)
 
     override val presenter: LandingPresenter by scopedInject()
     override val view: LandingView = this
@@ -44,18 +40,9 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(binding.root)
 
-        compositeDisposable += landingCtaFF.enabled
-            .onErrorReturnItem(false)
-            .filter { enabled -> enabled }
-            .subscribeBy {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    startActivity(LandingCtaActivity.newIntent(this))
-                    overridePendingTransition(R.anim.slide_up_from_bottom, 0)
-                }, 500)
-            }
+        presenter.checkShouldShowLandingCta()
 
         with(binding) {
             if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
@@ -96,8 +83,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                     this@with.background.alpha = it
                 }
             }
-
-            presenter.loadAssets()
         }
     }
 
@@ -106,6 +91,11 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         setupSSOControls(
             binding.btnLoginRestore.rightButton, binding.btnLoginRestore.leftButton
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        presenter.loadAssets()
     }
 
     override fun onStop() {
@@ -153,6 +143,13 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 .create()
         )
 
+    override fun showLandingCta() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            startActivity(LandingCtaActivity.newIntent(this))
+            overridePendingTransition(R.anim.slide_up_from_bottom, 0)
+        }, 500)
+    }
+
     override fun showIsRootedWarning() =
         showAlert(
             AlertDialog.Builder(this, R.style.AlertDialogStyle)
@@ -174,7 +171,8 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         }
     }
 
-    override fun showToast(message: String, toastType: String) = toast(message, toastType)
+    override fun showSnackbar(message: String, type: SnackbarType) =
+        BlockchainSnackbar.make(binding.root, message, type = type).show()
 
     override fun onLoadPrices(prices: List<PriceView.Price>) {
         binding.carousel.onLoadPrices(prices)

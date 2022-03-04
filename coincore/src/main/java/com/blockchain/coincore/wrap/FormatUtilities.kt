@@ -15,5 +15,8 @@ class FormatUtilities {
         const val BTC_PREFIX = FormatsUtil.BTC_PREFIX
         const val BCH_PREFIX = FormatsUtil.BCH_PREFIX
         const val ETHEREUM_PREFIX = FormatsUtil.ETHEREUM_PREFIX
+        const val ETHEREUM_ADDRESS_DELIMITER = FormatsUtil.ETHEREUM_ADDRESS_DELIMITER
+        const val ETHEREUM_CHAIN_ID_DELIMITER = FormatsUtil.ETHEREUM_CHAIN_ID_DELIMITER
+        const val ETHEREUM_PARAMS_DELIMITER = FormatsUtil.ETHEREUM_PARAMS_DELIMITER
     }
 }

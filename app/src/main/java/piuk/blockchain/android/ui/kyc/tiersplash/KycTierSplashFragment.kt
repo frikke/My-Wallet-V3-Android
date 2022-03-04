@@ -13,6 +13,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavDirections
 import com.blockchain.coincore.AssetAction
+import com.blockchain.componentlib.alert.abstract.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
@@ -33,16 +34,15 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycTierSplashBinding
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.hyperlinks.renderSingleLink
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import piuk.blockchain.android.urllinks.URL_LEARN_MORE_REJECTED
 import piuk.blockchain.android.util.setImageDrawable
 import piuk.blockchain.android.util.throttledClicks
@@ -293,7 +293,7 @@ class KycTierSplashFragment :
         compositeDisposable += binding.textContactSupport
             .throttledClicks()
             .subscribeBy(
-                onNext = { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_CONTACT_SUPPORT))) },
+                onNext = { startActivity(SupportCentreActivity.newIntent(requireContext())) },
                 onError = { Timber.e(it) }
             )
     }
@@ -325,8 +325,12 @@ class KycTierSplashFragment :
         )
     }
 
-    override fun showError(message: Int) =
-        toast(message, ToastCustom.TYPE_ERROR)
+    override fun showError(@StringRes message: Int) =
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(message),
+            type = SnackbarType.Error
+        ).show()
 
     private inner class TierLayoutElements(
         val cardTier: CardView,

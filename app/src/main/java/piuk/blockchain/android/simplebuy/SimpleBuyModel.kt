@@ -33,6 +33,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.network.PollResult
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
@@ -59,6 +60,7 @@ class SimpleBuyModel(
     prefs: CurrencyPrefs,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val ratingPrefs: RatingPrefs,
+    private val onboardingPrefs: OnboardingPrefs,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
     private val serializer: SimpleBuyPrefsSerializer,
@@ -216,11 +218,12 @@ class SimpleBuyModel(
             }
             is SimpleBuyIntent.PaymentMethodsUpdated -> {
                 check(previousState.selectedCryptoAsset != null)
-                intent.selectedPaymentMethod?.paymentMethodType?.let {
+                intent.selectedPaymentMethod?.let { selectedPaymentMethod ->
                     onPaymentMethodsUpdated(
                         previousState.selectedCryptoAsset,
                         previousState.fiatCurrency,
-                        it
+                        selectedPaymentMethod,
+                        intent.paymentOptions.availablePaymentMethods
                     )
                 }
             }
@@ -285,6 +288,12 @@ class SimpleBuyModel(
                 previousState.id,
                 previousState.selectedPaymentMethod
             )
+            is SimpleBuyIntent.ConfirmGooglePayOrder -> processConfirmOrder(
+                previousState.id,
+                previousState.selectedPaymentMethod,
+                intent.googlePayPayload,
+                previousState.googlePayBeneficiaryId
+            )
             is SimpleBuyIntent.FinishedFirstBuy -> null
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
@@ -338,6 +347,18 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.ErrorIntent())
                 }
             )
+
+            is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
+                previousState.fiatCurrency
+            ).subscribeBy(
+                onSuccess = {
+                    process(it)
+                },
+                onError = {
+                    process(SimpleBuyIntent.ErrorIntent())
+                }
+            )
+
             else -> null
         }
 
@@ -370,12 +391,13 @@ class SimpleBuyModel(
     private fun onPaymentMethodsUpdated(
         asset: AssetInfo,
         fiatCurrency: FiatCurrency,
-        selectedPaymentMethodType: PaymentMethodType
+        selectedPaymentMethod: SelectedPaymentMethod,
+        availablePaymentMethods: List<PaymentMethod>
     ): Disposable {
         return interactor.fetchBuyLimits(
             fiat = fiatCurrency,
             asset = asset,
-            paymentMethodType = selectedPaymentMethodType
+            paymentMethodType = selectedPaymentMethod.paymentMethodType
         )
             .trackProgress(activityIndicator)
             .subscribeBy(
@@ -383,11 +405,63 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.ErrorIntent())
                 },
                 onSuccess = { limits ->
-                    process(
-                        SimpleBuyIntent.UpdatedBuyLimits(
-                            limits
+                    val paymentMethodsWithNotEnoughBalance = availablePaymentMethods.filter { paymentMethod ->
+                        paymentMethod.availableBalance?.let { balance ->
+                            balance < limits.minAmount
+                        } ?: false
+                    }
+
+                    val paymentMethodsWithEnoughBalance = availablePaymentMethods.filter { paymentMethod ->
+                        paymentMethod.availableBalance?.let { balance ->
+                            balance >= limits.minAmount
+                        } ?: true
+                    }
+
+                    // We are allowed to refresh the payment methods only when
+                    // 1. there is at least one with enough funds so making sure that in the end
+                    // something will be selected
+                    // 2. when at least one with not enought funds has been detected.
+
+                    val shouldRefreshPaymentMethods =
+                        paymentMethodsWithEnoughBalance.isNotEmpty() && paymentMethodsWithNotEnoughBalance.isNotEmpty()
+
+                    if (shouldRefreshPaymentMethods) {
+                        val newSelectedPaymentMethodId = selectedMethodId(
+                            preselectedId = null,
+                            previousSelectedId = null,
+                            availablePaymentMethods = paymentMethodsWithEnoughBalance
                         )
-                    )
+
+                        val updateSelectedPaymentMethod = paymentMethodsWithEnoughBalance.firstOrNull { paymentMethod ->
+                            newSelectedPaymentMethodId == paymentMethod.id
+                        }?.let { sPaymentMethod ->
+                            SelectedPaymentMethod(
+                                sPaymentMethod.id,
+                                (sPaymentMethod as? PaymentMethod.Card)?.partner,
+                                sPaymentMethod.detailedLabel(),
+                                sPaymentMethod.type,
+                                sPaymentMethod.isEligible
+                            )
+                        }
+
+                        process(
+                            SimpleBuyIntent.UpdatedBuyLimitsAndPaymentMethods(
+                                limits = limits,
+                                paymentOptions = PaymentOptions(
+                                    paymentMethodsWithEnoughBalance
+                                ),
+                                selectedPaymentMethod = updateSelectedPaymentMethod
+                            )
+                        )
+                    } else {
+                        process(
+                            SimpleBuyIntent.UpdatedBuyLimitsAndPaymentMethods(
+                                limits = limits,
+                                paymentOptions = PaymentOptions(availablePaymentMethods),
+                                selectedPaymentMethod = selectedPaymentMethod
+                            )
+                        )
+                    }
                 }
             )
     }
@@ -553,13 +627,7 @@ class SimpleBuyModel(
         availablePaymentMethods: List<PaymentMethod>
     ): SimpleBuyIntent.PaymentMethodsUpdated {
         val paymentOptions = PaymentOptions(
-            availablePaymentMethods = availablePaymentMethods,
-            canAddCard = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedCard>()
-                .firstOrNull()?.isEligible ?: false,
-            canLinkFunds = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>()
-                .firstOrNull()?.isEligible ?: false,
-            canLinkBank = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankTransfer>()
-                .firstOrNull()?.isEligible ?: false
+            availablePaymentMethods = availablePaymentMethods
         )
 
         val selectedPaymentMethodId = selectedMethodId(
@@ -687,13 +755,15 @@ class SimpleBuyModel(
 
     private fun confirmOrder(
         id: String?,
-        selectedPaymentMethod: SelectedPaymentMethod?
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        googlePayPayload: String?,
+        googlePayBeneficiaryId: String?
     ): Single<BuySellOrder> {
         require(id != null) { "Order Id not available" }
         require(selectedPaymentMethod != null) { "selectedPaymentMethod missing" }
         return interactor.confirmOrder(
             orderId = id,
-            paymentMethodId = selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
+            paymentMethodId = googlePayBeneficiaryId ?: selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
             attributes = if (selectedPaymentMethod.isBank()) {
                 // redirectURL is for card providers only.
                 SimpleBuyConfirmationAttributes(
@@ -701,7 +771,15 @@ class SimpleBuyModel(
                     redirectURL = null
                 )
             } else {
-                cardActivator.paymentAttributes()
+                googlePayPayload?.let { payload ->
+                    cardActivator.paymentAttributes().copy(
+                        disable3DS = false,
+                        isMitPayment = false,
+                        googlePayPayload = payload
+                    )
+                } ?: run {
+                    cardActivator.paymentAttributes()
+                }
             },
             isBankPartner = selectedPaymentMethod.isBank()
         )
@@ -709,9 +787,11 @@ class SimpleBuyModel(
 
     private fun processConfirmOrder(
         id: String?,
-        selectedPaymentMethod: SelectedPaymentMethod?
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        googlePayPayload: String? = null,
+        googlePayBeneficiaryId: String? = null
     ): Disposable {
-        return confirmOrder(id, selectedPaymentMethod).map { it }
+        return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
             .subscribeBy(
                 onSuccess = { buySellOrder ->
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
@@ -745,6 +825,12 @@ class SimpleBuyModel(
                 NabuErrorCodes.PendingOrdersLimitReached -> process(
                     SimpleBuyIntent.ErrorIntent(ErrorState.ExistingPendingOrder)
                 )
+                NabuErrorCodes.InsufficientCardFunds -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.InsufficientCardFunds)
+                )
+                NabuErrorCodes.CardPaymentDeclined -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDeclined)
+                )
                 else -> process(SimpleBuyIntent.ErrorIntent())
             }
         } else {
@@ -755,6 +841,7 @@ class SimpleBuyModel(
     private fun updatePersistingCountersForCompletedOrders() {
         ratingPrefs.preRatingActionCompletedTimes = ratingPrefs.preRatingActionCompletedTimes + 1
         simpleBuyPrefs.hasCompletedAtLeastOneBuy = true
+        onboardingPrefs.isLandingCtaDismissed = true
     }
 
     private fun shouldShowAppRating(orderCreatedSuccessFully: Boolean): Boolean =
@@ -841,6 +928,13 @@ class SimpleBuyModel(
                 process(SimpleBuyIntent.ErrorIntent())
             }
         )
+    }
+
+    private fun requestGooglePayInfo(
+        currency: FiatCurrency?
+    ): Single<SimpleBuyIntent.GooglePayInfoReceived> {
+        require(currency != null) { "Missing Currency" }
+        return interactor.getGooglePayInfo(currency)
     }
 
     override fun onStateUpdate(s: SimpleBuyState) {

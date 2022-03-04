@@ -46,6 +46,7 @@ import piuk.blockchain.androidcore.data.events.WalletAndTransactionsUpdatedEvent
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
 
 data class WebSocketReceiveEvent(
@@ -125,14 +126,7 @@ class CoinsWebSocketStrategy(
             compositeDisposable += downloadChangedPayload()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onComplete = {
-                        messagesSocketHandler?.showToast(R.string.wallet_updated)
-                    },
-                    onError = {
-                        Timber.e(it)
-                    }
-                )
+                .emptySubscribe()
         }
     }
 
@@ -147,7 +141,6 @@ class CoinsWebSocketStrategy(
             .doOnError { throwable ->
                 Timber.e(throwable)
                 if (throwable is DecryptionException) {
-                    messagesSocketHandler?.showToast(R.string.wallet_updated)
                     appUtil.unpairWallet()
                     appUtil.restartApp()
                 }
