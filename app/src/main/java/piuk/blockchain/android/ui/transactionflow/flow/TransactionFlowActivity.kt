@@ -284,7 +284,7 @@ class TransactionFlowActivity :
         private const val ACTION = "ASSET_ACTION"
         private const val TX_SCOPE_ID = "TRANSACTION_ACTIVITY_SCOPE_ID"
 
-        fun newInstance(
+        fun newIntent(
             context: Context,
             sourceAccount: BlockchainAccount = NullCryptoAccount(),
             target: TransactionTarget = NullCryptoAccount(),

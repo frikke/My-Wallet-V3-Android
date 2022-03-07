@@ -78,7 +78,7 @@ class KycStatusActivity :
 
     private fun startSwapFlow() =
         startActivity(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = this,
                 action = AssetAction.Swap
             )

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.api.services.AssetDiscoveryService
+import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
@@ -8,6 +10,9 @@ import com.blockchain.coincore.NullAccountGroup
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
@@ -21,7 +26,9 @@ import piuk.blockchain.android.domain.repositories.TradeDataManager
 class CoinViewInteractor(
     private val coincore: Coincore,
     private val tradeDataManager: TradeDataManager,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
+    private val assetDiscoveryService: AssetDiscoveryService,
+    private val identity: UserIdentity
 ) {
 
     fun loadAssetDetails(assetTicker: String): Pair<CryptoAsset?, FiatCurrency> =
@@ -36,6 +43,33 @@ class CoinViewInteractor(
 
     fun loadRecurringBuys(asset: AssetInfo): Single<List<RecurringBuy>> =
         tradeDataManager.getRecurringBuysForAsset(asset)
+
+    fun loadQuickActions(asset: AssetInfo, totalCryptoBalance: Money): Single<Pair<QuickActionCta, QuickActionCta>> =
+        Single.zip(
+            assetDiscoveryService.getCustodialAssets(),
+            identity.getHighestApprovedKycTier(),
+            identity.isEligibleFor(Feature.SimplifiedDueDiligence)
+        ) { list, tier, sddEligible ->
+            val assetWithCustodialWallet = list.firstOrNull { assetAccount ->
+                assetAccount.networkTicker == asset.networkTicker && assetAccount.products.contains(
+                    DynamicAssetProducts.CustodialWalletBalance
+                )
+            }
+
+            assetWithCustodialWallet?.let {
+                if (tier == Tier.GOLD || sddEligible) {
+                    if (totalCryptoBalance.isPositive) {
+                        Pair(QuickActionCta.Sell, QuickActionCta.Buy)
+                    } else {
+                        Pair(QuickActionCta.Receive, QuickActionCta.Buy)
+                    }
+                } else {
+                    Pair(QuickActionCta.Receive, QuickActionCta.Buy)
+                }
+            } ?: run {
+                Pair(QuickActionCta.Receive, QuickActionCta.Send)
+            }
+        }
 
     private fun load24hPriceDelta(asset: CryptoAsset) =
         asset.getPricesWith24hDelta()

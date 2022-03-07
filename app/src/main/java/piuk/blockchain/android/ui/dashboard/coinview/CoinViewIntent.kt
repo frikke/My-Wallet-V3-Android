@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 
 sealed class CoinViewIntent : MviIntent<CoinViewState> {
 
@@ -21,6 +23,16 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
     class LoadRecurringBuys(val asset: AssetInfo) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState.copy(
             viewState = CoinViewViewState.LoadingRecurringBuys
+        )
+    }
+
+    class LoadQuickActions(
+        val asset: AssetInfo,
+        val totalCryptoBalance: Money,
+        val actionableAccount: BlockchainAccount
+    ) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState = oldState.copy(
+            viewState = CoinViewViewState.LoadingQuickActions
         )
     }
 

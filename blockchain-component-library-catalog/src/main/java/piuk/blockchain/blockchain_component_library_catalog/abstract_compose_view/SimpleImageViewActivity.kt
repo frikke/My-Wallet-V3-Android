@@ -25,8 +25,8 @@ class SimpleImageViewActivity : AppCompatActivity() {
         findViewById<SimpleImageView>(R.id.local_image_w_bkgd_view).apply {
             image = ImageResource.LocalWithBackground(
                 id = R.drawable.ic_blockchain,
-                filterColorId = R.color.colorPrimary,
-                tintColorId = R.color.black,
+                iconTintColour = R.color.colorPrimary,
+                backgroundColour = R.color.black,
                 contentDescription = ""
             )
             imageSize = 24

@@ -200,7 +200,7 @@ class VeriffSplashFragment :
 
     override fun continueToSwap() =
         startActivity(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 action = AssetAction.Swap
             )

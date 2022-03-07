@@ -433,7 +433,7 @@ class MainActivity :
                 .subscribeBy(
                     onSuccess = { sourceAccount ->
                         startActivity(
-                            TransactionFlowActivity.newInstance(
+                            TransactionFlowActivity.newIntent(
                                 context = this,
                                 sourceAccount = sourceAccount,
                                 target = targetAddress,
@@ -781,7 +781,7 @@ class MainActivity :
             actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Swap))
         } else if (sourceAccount != null) {
             startActivity(
-                TransactionFlowActivity.newInstance(
+                TransactionFlowActivity.newIntent(
                     context = this,
                     sourceAccount = sourceAccount,
                     target = targetAccount ?: NullCryptoAccount(),

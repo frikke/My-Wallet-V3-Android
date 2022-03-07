@@ -29,6 +29,8 @@ sealed class CoinViewViewState {
     object LoadingWallets : CoinViewViewState()
     object LoadingChart : CoinViewViewState()
     object LoadingRecurringBuys : CoinViewViewState()
+
+    object LoadingQuickActions : CoinViewViewState()
     class ShowAccountInfo(val assetInfo: AssetInformation) : CoinViewViewState()
     class ShowAssetInfo(
         val entries: List<ChartEntry>,
@@ -37,6 +39,15 @@ sealed class CoinViewViewState {
         val selectedFiat: FiatCurrency
     ) : CoinViewViewState()
     class ShowRecurringBuys(val recurringBuys: List<RecurringBuy>) : CoinViewViewState()
+    class QuickActionsLoaded(
+        val startAction: QuickActionCta,
+        val endAction: QuickActionCta,
+        val actionableAccount: BlockchainAccount
+    ) : CoinViewViewState()
+}
+
+enum class QuickActionCta {
+    Buy, Sell, Send, Receive
 }
 
 enum class CoinViewError {
@@ -44,7 +55,8 @@ enum class CoinViewError {
     UnknownAsset,
     WalletLoadError,
     ChartLoadError,
-    RecurringBuysLoadError
+    RecurringBuysLoadError,
+    QuickActionsFailed
 }
 
 data class AssetInformation(

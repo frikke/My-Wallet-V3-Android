@@ -67,8 +67,8 @@ class RecurringBuyResponseToRecurringBuyMapper(
 
     private fun String.toRecurringBuyState() =
         when (this) {
-            com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse.ACTIVE -> RecurringBuyState.ACTIVE
-            com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse.INACTIVE -> RecurringBuyState.INACTIVE
+            RecurringBuyResponse.ACTIVE -> RecurringBuyState.ACTIVE
+            RecurringBuyResponse.INACTIVE -> RecurringBuyState.INACTIVE
             else -> throw IllegalStateException("Unsupported recurring state")
         }
 }

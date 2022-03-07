@@ -129,7 +129,9 @@ val dashboardModule = module {
             CoinViewInteractor(
                 coincore = get(),
                 tradeDataManager = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                assetDiscoveryService = get(),
+                identity = get()
             )
         }
 

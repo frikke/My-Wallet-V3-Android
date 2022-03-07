@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.charts.ChartEntry
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.enviroment.EnvironmentConfig
@@ -36,8 +37,17 @@ class CoinViewModel(
             is CoinViewIntent.LoadAccounts -> {
                 interactor.loadAccountDetails(intent.asset)
                     .subscribeBy(
-                        onSuccess = { assetInfo ->
-                            process(CoinViewIntent.UpdateAccountDetails(assetInfo, intent.asset))
+                        onSuccess = { accountInfo ->
+                            process(CoinViewIntent.UpdateAccountDetails(accountInfo, intent.asset))
+                            accountInfo.accountsList.firstOrNull {
+                                it.account is CustodialTradingAccount
+                            }?.let {
+                                process(
+                                    CoinViewIntent.LoadQuickActions(
+                                        intent.asset.assetInfo, accountInfo.totalCryptoBalance, it.account
+                                    )
+                                )
+                            }
                         },
                         onError = {
                             process(CoinViewIntent.UpdateErrorState(CoinViewError.WalletLoadError))
@@ -115,6 +125,25 @@ class CoinViewModel(
                             process(CoinViewIntent.UpdateErrorState(CoinViewError.RecurringBuysLoadError))
                         }
                     )
+            is CoinViewIntent.LoadQuickActions -> {
+                interactor.loadQuickActions(intent.asset, intent.totalCryptoBalance)
+                    .subscribeBy(
+                        onSuccess = { actions ->
+                            process(
+                                CoinViewIntent.UpdateViewState(
+                                    CoinViewViewState.QuickActionsLoaded(
+                                        startAction = actions.first,
+                                        endAction = actions.second,
+                                        actionableAccount = intent.actionableAccount
+                                    )
+                                )
+                            )
+                        },
+                        onError = {
+                            process(CoinViewIntent.UpdateErrorState(CoinViewError.QuickActionsFailed))
+                        }
+                    )
+            }
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
             is CoinViewIntent.UpdateErrorState,
