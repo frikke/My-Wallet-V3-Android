@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.koin.redesignPart2FeatureFlag
+import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -18,14 +19,18 @@ import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
+import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
 class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), LauncherView {
 
     private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
+    private val dataWiper: DataWiper by scopedInject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        dataWiper.clearData()
 
         if (intent.hasExtra(INTENT_FROM_NOTIFICATION) &&
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
