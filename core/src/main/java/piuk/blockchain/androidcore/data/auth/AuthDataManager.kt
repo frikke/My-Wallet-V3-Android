@@ -120,37 +120,6 @@ class AuthDataManager(
         .applySchedulers()
 
     /**
-     * Polls for the auth status of a user's account every 2 seconds until either the user checks
-     * their email and a valid Payload is returned, or the call fails.
-     *
-     * @param guid The user's unique GUID
-     * @param sessionId The current session ID
-     * @return An [Observable] wrapping a String which represents the user's Payload OR an
-     * auth required response from the API
-     */
-    fun startPollingAuthStatus(guid: String, sessionId: String): Observable<String> {
-        // Emit tick every 2 seconds
-        return Observable.interval(2, TimeUnit.SECONDS)
-            // For each emission from the timer, try to get the payload
-            .map { getEncryptedPayload(guid, sessionId, false).blockingFirst() }
-            // If auth not required, emit payload
-            .filter { s ->
-                s.errorBody() == null ||
-                    !s.errorBody()!!.string().contains(AUTHORIZATION_REQUIRED)
-            }
-            // Return message in response
-            .map { responseBodyResponse -> responseBodyResponse.body()!!.string() }
-            // If error called, emit Auth Required
-            .onErrorReturn { AUTHORIZATION_REQUIRED }
-            // Only emit the first object
-            .firstElement()
-            // As Observable rather than Maybe
-            .toObservable()
-            // Apply correct threading
-            .applySchedulers()
-    }
-
-    /**
      * Creates a timer which counts down for two minutes and emits the remaining time on each count.
      * This is used to show the user how long they have to check their email before the login
      * request expires.

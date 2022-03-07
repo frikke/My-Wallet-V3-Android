@@ -112,9 +112,19 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         )
     }
 
-    override fun updateWaitingForAuthDialog(secondsRemaining: Int) {
-        updateProgressDialog(getString(R.string.check_email_to_auth_login) + " " + secondsRemaining)
-    }
+    override fun updateWaitingForAuthDialog(secondsRemaining: Int) =
+        updateProgressDialog(
+            msg = getString(
+                R.string.common_spaced_strings,
+                getString(R.string.check_email_to_auth_login),
+                secondsRemaining.toString()
+            ),
+            onCancel = {
+                presenter.cancelAuthTimer()
+                presenter.cancelPollAuthStatus()
+            },
+            isCancelable = true
+        )
 
     override fun showTwoFactorCodeNeededDialog(
         responseObject: JSONObject,
@@ -163,13 +173,9 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         super.onDestroy()
     }
 
-    companion object {
-        private const val PREFILLED_GUID = "PREFILLED_GUID"
-        fun newInstance(activity: Activity, guid: String?): Intent {
-            val intent = Intent(activity, ManualPairingActivity::class.java)
-            intent.putExtra(PREFILLED_GUID, guid)
-            return intent
-        }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        presenter.cancelPollAuthStatus()
     }
 
     private fun TextInputEditText.disableInputForDemoAccount() {
@@ -179,5 +185,14 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
                     inputType = InputType.TYPE_NULL
             }
         })
+    }
+
+    companion object {
+        private const val PREFILLED_GUID = "PREFILLED_GUID"
+        fun newInstance(activity: Activity, guid: String?): Intent {
+            val intent = Intent(activity, ManualPairingActivity::class.java)
+            intent.putExtra(PREFILLED_GUID, guid)
+            return intent
+        }
     }
 }

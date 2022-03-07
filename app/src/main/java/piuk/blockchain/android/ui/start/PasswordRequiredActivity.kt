@@ -59,12 +59,10 @@ class PasswordRequiredActivity :
         setContentView(binding.root)
 
         with(binding) {
-
             walletIdentifier.apply {
                 labelText = getString(R.string.wallet_id)
                 state = TextInputState.Disabled()
             }
-
             buttonContinue.apply {
                 onClick = {
                     presenter.onContinueClicked(binding.fieldPassword.text.toString())
@@ -84,6 +82,12 @@ class PasswordRequiredActivity :
     override fun onResume() {
         super.onResume()
         presenter.loadWalletGuid()
+        presenter.checkEmailAuth(binding.fieldPassword.text.toString())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        presenter.cancelPollAuthStatus()
     }
 
     override fun showSnackbar(@StringRes messageId: Int, type: SnackbarType) {
@@ -122,7 +126,18 @@ class PasswordRequiredActivity :
     }
 
     override fun updateWaitingForAuthDialog(secondsRemaining: Int) =
-        updateProgressDialog(getString(R.string.check_email_to_auth_login) + " " + secondsRemaining)
+        updateProgressDialog(
+            msg = getString(
+                R.string.common_spaced_strings,
+                getString(R.string.check_email_to_auth_login),
+                secondsRemaining.toString()
+            ),
+            onCancel = {
+                presenter.cancelAuthTimer()
+                presenter.cancelPollAuthStatus()
+            },
+            isCancelable = true
+        )
 
     override fun showForgetWalletWarning() {
         showAlert(
@@ -133,6 +148,11 @@ class PasswordRequiredActivity :
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }
                 .create()
         )
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        presenter.cancelPollAuthStatus()
     }
 
     override fun showTwoFactorCodeNeededDialog(
