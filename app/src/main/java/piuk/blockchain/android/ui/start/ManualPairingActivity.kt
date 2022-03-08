@@ -104,7 +104,14 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         redesign.enabled.onErrorReturnItem(false).subscribeBy(
             onSuccess = { isEnabled ->
                 if (isEnabled) {
-                    startActivity(PinActivity.newIntent(this))
+                    startActivity(
+                        PinActivity.newIntent(
+                            context = this,
+                            startForResult = false,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.MANUAL_PAIRING_SCREEN,
+                            addFlagsToClear = true
+                        )
+                    )
                 } else {
                     startActivity(Intent(this, PinEntryActivity::class.java))
                 }
