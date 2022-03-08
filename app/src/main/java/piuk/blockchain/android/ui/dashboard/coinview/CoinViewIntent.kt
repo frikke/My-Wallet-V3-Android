@@ -56,12 +56,13 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
     }
 
     class UpdateAccountDetails(
+        val viewState: CoinViewViewState,
         val assetInformation: AssetInformation,
         val asset: CryptoAsset
     ) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(
-                viewState = CoinViewViewState.ShowAccountInfo(assetInformation), assetPrices = assetInformation.prices
+                viewState = viewState, assetPrices = assetInformation.prices
             )
     }
 

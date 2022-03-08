@@ -17,6 +17,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -192,6 +194,9 @@ class CoinViewActivity :
 
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
             }
+            is CoinViewViewState.NonTradeableAccount -> {
+                renderNonTradeableAsset(newState)
+            }
             CoinViewViewState.LoadingChart -> {
                 binding.assetChartViewSwitcher.displayedChild = CHART_LOADING
             }
@@ -215,6 +220,27 @@ class CoinViewActivity :
         }
 
         model.process(CoinViewIntent.ResetViewState)
+    }
+
+    private fun renderNonTradeableAsset(newState: CoinViewState) {
+        with(binding) {
+            assetAccountsViewSwitcher.gone()
+            ctasDivider.gone()
+            primaryCta.gone()
+            secondaryCta.gone()
+            nonTradeableCard.apply {
+                visible()
+                isDismissable = false
+                title = getString(R.string.coinview_not_tradeable_title, assetName, assetTicker)
+                subtitle = getString(R.string.coinview_not_tradeable_subtitle, assetName)
+            }
+
+            newState.asset?.assetInfo?.let { assetInfo ->
+                newState.selectedFiat?.let { selectedFiat ->
+                    renderBalanceInformation(CryptoValue.zero(assetInfo), FiatValue.zero(selectedFiat))
+                }
+            }
+        }
     }
 
     private fun showLoadingCtas() {
@@ -334,7 +360,7 @@ class CoinViewActivity :
         updateList()
     }
 
-    private fun renderBalanceInformation(totalCryptoBalance: CryptoValue, totalFiatBalance: FiatValue) {
+    private fun renderBalanceInformation(totalCryptoBalance: Money, totalFiatBalance: Money) {
         with(binding) {
             assetBalance.apply {
                 labelText = getString(R.string.coinview_balance_label, assetTicker)

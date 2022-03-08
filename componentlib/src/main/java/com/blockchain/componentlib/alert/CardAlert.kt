@@ -41,6 +41,7 @@ fun CardAlert(
     alertType: AlertType = AlertType.Default,
     isBordered: Boolean = true,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDismissable: Boolean = true,
     onClose: () -> Unit = {}
 ) {
 
@@ -92,7 +93,9 @@ fun CardAlert(
                         style = AppTheme.typography.body2,
                         color = typeColor
                     )
-                    CardCloseButton(onClick = onClose)
+                    if (isDismissable) {
+                        CardCloseButton(onClick = onClose)
+                    }
                 }
                 Text(
                     modifier = Modifier

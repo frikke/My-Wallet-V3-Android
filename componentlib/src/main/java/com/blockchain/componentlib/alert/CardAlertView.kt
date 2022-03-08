@@ -20,6 +20,7 @@ class CardAlertView @JvmOverloads constructor(
     var subtitle by mutableStateOf("")
     var isBordered by mutableStateOf(false)
     var alertType by mutableStateOf(AlertType.Default)
+    var isDismissable by mutableStateOf(true)
     var onClose by mutableStateOf({})
 
     @Composable
@@ -31,7 +32,8 @@ class CardAlertView @JvmOverloads constructor(
                     subtitle = subtitle,
                     alertType = alertType,
                     isBordered = isBordered,
-                    onClose = onClose
+                    onClose = onClose,
+                    isDismissable = isDismissable
                 )
             }
         }

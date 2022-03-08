@@ -38,15 +38,29 @@ class CoinViewModel(
                 interactor.loadAccountDetails(intent.asset)
                     .subscribeBy(
                         onSuccess = { accountInfo ->
-                            process(CoinViewIntent.UpdateAccountDetails(accountInfo, intent.asset))
-                            accountInfo.accountsList.firstOrNull {
-                                it.account is CustodialTradingAccount
-                            }?.let {
-                                process(
-                                    CoinViewIntent.LoadQuickActions(
-                                        intent.asset.assetInfo, accountInfo.totalCryptoBalance, it.account
-                                    )
+                            process(
+                                CoinViewIntent.UpdateAccountDetails(
+                                    viewState = when (accountInfo) {
+                                        is AssetInformation.AccountsInfo -> CoinViewViewState.ShowAccountInfo(
+                                            accountInfo
+                                        )
+                                        is AssetInformation.NonTradeable -> CoinViewViewState.NonTradeableAccount
+                                    },
+                                    assetInformation = accountInfo,
+                                    asset = intent.asset
                                 )
+                            )
+
+                            if (accountInfo is AssetInformation.AccountsInfo) {
+                                accountInfo.accountsList.firstOrNull {
+                                    it.account is CustodialTradingAccount
+                                }?.let {
+                                    process(
+                                        CoinViewIntent.LoadQuickActions(
+                                            intent.asset.assetInfo, accountInfo.totalCryptoBalance, it.account
+                                        )
+                                    )
+                                }
                             }
                         },
                         onError = {

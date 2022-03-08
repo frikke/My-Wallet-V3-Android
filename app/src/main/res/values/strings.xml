@@ -2757,6 +2757,8 @@
     <string name="coinview_balance_label">Your Total %1$s</string>
     <string name="coinview_rb_card_title">Don’t know when to buy?</string>
     <string name="coinview_rb_card_blurb">Timing the market is hard, which is why many investors use dollar cost averaging.</string>
+    <string name="coinview_not_tradeable_title">%1$s (%2$s) is not tradeable.</string>
+    <string name="coinview_not_tradeable_subtitle">Add to your Watchlist to be notified when %1$s becomes available to trade.</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
