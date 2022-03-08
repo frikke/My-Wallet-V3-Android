@@ -80,7 +80,10 @@ class TransactionFlowActivity :
     }
 
     private val transactionTarget: TransactionTarget by lazy {
-        intent.extras?.getTarget(TARGET) ?: throw IllegalStateException("No target specified")
+        intent.extras?.getTarget(TARGET) ?: kotlin.run {
+            crashLogger.logException(IllegalStateException(), "No target account specified for action $action")
+            NullCryptoAccount()
+        }
     }
 
     private val action: AssetAction by lazy {
