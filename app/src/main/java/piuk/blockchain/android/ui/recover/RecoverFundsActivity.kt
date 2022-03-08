@@ -77,8 +77,10 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
                 if (isEnabled) {
                     startActivity(
                         PinActivity.newIntent(
-                            this,
-                            originScreen = PinActivity.Companion.OriginScreenToPin.CREATE_WALLET
+                            context = this,
+                            startForResult = false,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.CREATE_WALLET,
+                            addFlagsToClear = true,
                         )
                     )
                 } else {

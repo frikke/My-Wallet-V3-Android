@@ -101,7 +101,14 @@ class ResetPasswordFragment :
                 redesign.enabled.onErrorReturnItem(false).subscribeBy(
                     onSuccess = { isEnabled ->
                         if (isEnabled) {
-                            startActivity(PinActivity.newIntent(requireContext()))
+                            startActivity(
+                                PinActivity.newIntent(
+                                    context = requireContext(),
+                                    startForResult = false,
+                                    originScreen = PinActivity.Companion.OriginScreenToPin.RESET_PASSWORD_SCREEN,
+                                    addFlagsToClear = true
+                                )
+                            )
                         } else {
                             start<PinEntryActivity>(requireContext())
                         }

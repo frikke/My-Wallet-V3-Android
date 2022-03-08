@@ -83,7 +83,9 @@ class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
         startActivity(
             PinActivity.newIntent(
                 context = this,
-                originScreen = PinActivity.Companion.OriginScreenToPin.CHANGE_PIN_SECURITY
+                startForResult = false,
+                originScreen = PinActivity.Companion.OriginScreenToPin.CHANGE_PIN_SECURITY,
+                addFlagsToClear = false
             )
         )
     }

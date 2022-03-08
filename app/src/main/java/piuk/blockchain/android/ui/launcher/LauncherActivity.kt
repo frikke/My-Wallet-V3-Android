@@ -59,7 +59,14 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         redesign.enabled.onErrorReturnItem(false).subscribeBy(
             onSuccess = { isEnabled ->
                 if (isEnabled) {
-                    startActivity(PinActivity.newIntent(this))
+                    startActivity(
+                        PinActivity.newIntent(
+                            context = this,
+                            startForResult = false,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.LAUNCHER_SCREEN,
+                            addFlagsToClear = true
+                        )
+                    )
                 } else {
                     startSingleActivity(PinEntryActivity::class.java, null)
                 }
