@@ -71,6 +71,7 @@ class PinModel(
                             onError = {
                                 process(PinIntent.UpdatePinErrorState(PinError.CREATE_PIN_FAILED))
                                 interactor.clearPrefs()
+                                interactor.clearPin()
                             }
                         )
                 }
