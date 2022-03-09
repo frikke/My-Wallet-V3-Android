@@ -265,6 +265,7 @@ class SimpleBuyPaymentFragment :
                 subtitle = addLink(R.string.bank_transfer_payment_insufficient_funds_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg
             )
+            ErrorState.CardPaymentFailed,
             ErrorState.ApprovedGenericError -> showError(
                 getString(R.string.common_oops), addLink(R.string.sb_checkout_contact_support)
             )
@@ -457,7 +458,7 @@ class SimpleBuyPaymentFragment :
                 model.process(SimpleBuyIntent.CheckOrderStatus)
                 analytics.logEvent(SimpleBuyAnalytics.CARD_3DS_COMPLETED)
             } else {
-                model.process(SimpleBuyIntent.ErrorIntent())
+                cancelAndGoBackToEnterAmountScreen()
             }
         }
         if (requestCode == SimpleBuyActivity.KYC_STARTED &&
@@ -467,12 +468,16 @@ class SimpleBuyPaymentFragment :
         }
 
         if (requestCode == BANK_APPROVAL && resultCode == Activity.RESULT_CANCELED) {
-            model.process(SimpleBuyIntent.CancelOrderAndResetAuthorisation)
-            navigator().popFragmentsInStackUntilFind(
-                fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
-                popInclusive = true
-            )
+            cancelAndGoBackToEnterAmountScreen()
         }
+    }
+
+    private fun cancelAndGoBackToEnterAmountScreen() {
+        model.process(SimpleBuyIntent.CancelOrderAndResetAuthorisation)
+        navigator().popFragmentsInStackUntilFind(
+            fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
+            popInclusive = true
+        )
     }
 
     override fun unlockHigherLimits() {

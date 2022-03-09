@@ -19,6 +19,7 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.network.PollResult
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -256,20 +257,22 @@ class SimpleBuyModelTest {
     fun `polling order status with approval error should propagate`() {
         whenever(interactor.pollForOrderStatus(any())).thenReturn(
             Single.just(
-                BuySellOrder(
-                    id = "testId",
-                    expires = Date(),
-                    state = OrderState.CANCELED,
-                    target = CryptoValue.zero(CryptoCurrency.BTC),
-                    orderValue = CryptoValue.zero(CryptoCurrency.BTC),
-                    paymentMethodId = "213",
-                    updated = Date(),
-                    paymentMethodType = PaymentMethodType.BANK_TRANSFER,
-                    source = FiatValue.zero(USD),
-                    pair = "USD-BTC",
-                    type = OrderType.BUY,
-                    depositPaymentId = "",
-                    approvalErrorStatus = ApprovalErrorStatus.REJECTED
+                PollResult.FinalResult(
+                    BuySellOrder(
+                        id = "testId",
+                        expires = Date(),
+                        state = OrderState.CANCELED,
+                        target = CryptoValue.zero(CryptoCurrency.BTC),
+                        orderValue = CryptoValue.zero(CryptoCurrency.BTC),
+                        paymentMethodId = "213",
+                        updated = Date(),
+                        paymentMethodType = PaymentMethodType.BANK_TRANSFER,
+                        source = FiatValue.zero(USD),
+                        pair = "USD-BTC",
+                        type = OrderType.BUY,
+                        depositPaymentId = "",
+                        approvalErrorStatus = ApprovalErrorStatus.REJECTED
+                    )
                 )
             )
         )

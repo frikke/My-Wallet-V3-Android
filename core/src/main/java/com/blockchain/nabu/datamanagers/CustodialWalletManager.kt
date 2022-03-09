@@ -330,6 +330,7 @@ data class BuySellOrder(
     val depositPaymentId: String,
     val approvalErrorStatus: ApprovalErrorStatus = ApprovalErrorStatus.NONE,
     val failureReason: RecurringBuyFailureReason? = null,
+    val paymentError: PaymentError? = null,
     val recurringBuyId: String? = null
 )
 
@@ -345,6 +346,10 @@ enum class ApprovalErrorStatus {
     INSUFFICIENT_FUNDS,
     UNKNOWN,
     NONE
+}
+
+enum class PaymentError {
+    CARD_PAYMENT_FAILED
 }
 
 typealias BuyOrderList = List<BuySellOrder>
