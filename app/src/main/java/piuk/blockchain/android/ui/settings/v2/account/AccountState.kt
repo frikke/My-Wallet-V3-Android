@@ -15,7 +15,6 @@ sealed class ViewToLaunch {
     object None : ViewToLaunch()
     class CurrencySelection(val selectedCurrency: FiatCurrency, val currencyList: List<FiatCurrency>) : ViewToLaunch()
     class ExchangeLink(val exchangeLinkingState: ExchangeLinkingState) : ViewToLaunch()
-    class BcDebitCardState(val bcDebitCardOrderState: DebitCardOrderState) : ViewToLaunch()
 }
 
 enum class ExchangeLinkingState {

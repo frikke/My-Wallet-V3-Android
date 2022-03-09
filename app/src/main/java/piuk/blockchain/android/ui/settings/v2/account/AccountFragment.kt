@@ -15,6 +15,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -53,6 +54,7 @@ class AccountFragment :
 
     override val model: AccountModel by scopedInject()
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
+    private val blockchainCardFF: FeatureFlag by scopedInject(blockchainCardFeatureFlag)
 
     private val compositeDisposable = CompositeDisposable()
     private lateinit var walletId: String
@@ -159,7 +161,11 @@ class AccountFragment :
         super.onResume()
         model.process(AccountIntent.LoadAccountInformation)
         model.process(AccountIntent.LoadExchangeInformation)
-        model.process(AccountIntent.LoadBCDebitCardInformation)
+
+        compositeDisposable += blockchainCardFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            binding.settingsDebitCard.visibleIf { enabled }
+            model.process(AccountIntent.LoadBCDebitCardInformation)
+        }
     }
 
     override fun render(newState: AccountState) {
@@ -201,7 +207,7 @@ class AccountFragment :
             DebitCardOrderState.ELIGIBLE -> {
                 with(binding.settingsDebitCard) {
                     secondaryText = null
-                    tags = listOf(TagViewState(getString(R.string.account_order_card), TagType.InfoAlt()))
+                    tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                 }
             }
         }
@@ -298,9 +304,6 @@ class AccountFragment :
                         )
                     }
                 }
-            }
-            is ViewToLaunch.BcDebitCardState -> {
-                renderDebitCardInformation(debitCardOrderState = view.bcDebitCardOrderState)
             }
             ViewToLaunch.None -> {
                 // do nothing
