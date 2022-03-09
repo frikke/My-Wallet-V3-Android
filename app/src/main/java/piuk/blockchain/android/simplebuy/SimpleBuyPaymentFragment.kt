@@ -109,6 +109,11 @@ class SimpleBuyPaymentFragment :
             binding.transactionProgressView.setAssetIcon(it)
         }
 
+        if (newState.buyErrorState != null) {
+            handleErrorStates(newState.buyErrorState)
+            return
+        }
+
         if (newState.orderState == OrderState.CANCELED) {
             navigator().exitSimpleBuyFlow()
             return
@@ -276,10 +281,9 @@ class SimpleBuyPaymentFragment :
         with(binding) {
             transactionProgressView.apply {
                 onCtaClick(text = getString(R.string.common_try_again)) {
-                    navigator().goToBuyCryptoScreen(
-                        addToBackStack = false,
-                        preselectedAsset = previousSelectedCryptoAsset,
-                        preselectedPaymentMethodId = previousSelectedPaymentMethodId
+                    navigator().popFragmentsInStackUntilFind(
+                        fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
+                        popInclusive = true
                     )
                 }
                 onSecondaryCtaClicked(getString(R.string.bank_transfer_transfer_go_back)) {
@@ -414,9 +418,6 @@ class SimpleBuyPaymentFragment :
                     }
                 }
             }
-            newState.buyErrorState != null -> {
-                handleErrorStates(newState.buyErrorState)
-            }
         }
     }
 
@@ -467,6 +468,10 @@ class SimpleBuyPaymentFragment :
 
         if (requestCode == BANK_APPROVAL && resultCode == Activity.RESULT_CANCELED) {
             model.process(SimpleBuyIntent.CancelOrderAndResetAuthorisation)
+            navigator().popFragmentsInStackUntilFind(
+                fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
+                popInclusive = true
+            )
         }
     }
 

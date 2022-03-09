@@ -692,6 +692,7 @@ class SimpleBuyModel(
         recurringBuyFrequency: RecurringBuyFrequency
     ): Single<SimpleBuyIntent.OrderCreated> {
         return isFirstTimeBuyer(recurringBuyFrequency)
+            .trackProgress(activityIndicator)
             .flatMap { isFirstTimeBuyer ->
                 createOrder(
                     selectedCryptoAsset,
@@ -750,7 +751,7 @@ class SimpleBuyModel(
             paymentMethod = selectedPaymentMethod.paymentMethodType,
             isPending = true,
             recurringBuyFrequency = recurringBuyFrequency
-        )
+        ).trackProgress(activityIndicator)
     }
 
     private fun confirmOrder(
@@ -792,6 +793,7 @@ class SimpleBuyModel(
         googlePayBeneficiaryId: String? = null
     ): Disposable {
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
+            .trackProgress(activityIndicator)
             .subscribeBy(
                 onSuccess = { buySellOrder ->
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED

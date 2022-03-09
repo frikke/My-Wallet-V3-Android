@@ -3,8 +3,10 @@ package piuk.blockchain.android.simplebuy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
@@ -113,7 +115,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             startedFromApprovalDeepLink,
             asset,
             failOnUnavailableCurrency
-        )
+        ).trackProgress(appUtil.activityIndicator)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
                 when (it) {
@@ -160,6 +162,13 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         } else {
             finish()
         }
+    }
+
+    override fun popFragmentsInStackUntilFind(fragmentName: String, popInclusive: Boolean) {
+        supportFragmentManager.popBackStack(
+            fragmentName,
+            if (popInclusive) POP_BACK_STACK_INCLUSIVE else 0
+        )
     }
 
     override fun goToBuyCryptoScreen(
@@ -288,7 +297,6 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         supportFragmentManager.fragments.forEach {
             (it as? OnGooglePayDataReceivedListener)?.let { listener ->
                 googlePayResponseInterceptor.setPaymentDataReceivedListener(listener)
