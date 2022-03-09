@@ -73,6 +73,9 @@ class NotificationsUtil(
 
     companion object {
         private const val NOTIFICATION_CHANNEL_ID = "group_01"
+        const val ID_BACKGROUND_NOTIFICATION = 1337
+        const val ID_FOREGROUND_NOTIFICATION = 1338
+        const val ID_BACKGROUND_NOTIFICATION_2FA = 1339
     }
 }
 

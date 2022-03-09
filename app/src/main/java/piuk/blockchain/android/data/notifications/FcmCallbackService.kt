@@ -3,11 +3,16 @@ package piuk.blockchain.android.data.notifications
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.net.Uri
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.koin.scopedInject
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationsUtil
+import com.blockchain.notifications.NotificationsUtil.Companion.ID_BACKGROUND_NOTIFICATION
+import com.blockchain.notifications.NotificationsUtil.Companion.ID_BACKGROUND_NOTIFICATION_2FA
+import com.blockchain.notifications.NotificationsUtil.Companion.ID_FOREGROUND_NOTIFICATION
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.WalletStatus
@@ -38,6 +43,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val compositeDisposable = CompositeDisposable()
     private val lifecycleObservable: LifecycleObservable by inject()
     private var isAppOnForegrounded = true
+    private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
 
     init {
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe {
@@ -55,7 +61,7 @@ class FcmCallbackService : FirebaseMessagingService() {
             rxBus.emitEvent(NotificationPayload::class.java, payload)
             sendNotification(
                 payload = payload,
-                foreground = isAppOnForegrounded && walletPrefs.isAppUnlocked
+                foreground = true
             )
         } else {
             // If there is no data field, provide this default behaviour
@@ -124,7 +130,13 @@ class FcmCallbackService : FirebaseMessagingService() {
                                 colorRes = R.color.primary_navy_medium
                             )
                         }
-                    } else {
+                    }
+
+                    else if (payload.deeplinkURL != null) {
+                        deeplinkRedirector.processDeeplinkURL(Uri.parse(payload.deeplinkURL), payload)
+                    }
+
+                    else {
                         triggerHeadsUpNotification(
                             payload,
                             intent,
@@ -153,6 +165,9 @@ class FcmCallbackService : FirebaseMessagingService() {
 
     private fun isSecureChannelMessage(payload: NotificationPayload) =
         payload.type == NotificationPayload.NotificationType.SECURE_CHANNEL_MESSAGE
+
+    private fun isDeeplinkMessage(payload: NotificationPayload) =
+        payload.type == NotificationPayload.NotificationType.DEEPLINK_CHANNEL_MESSAGE
 
     private fun createSecureChannelIntent(payload: MutableMap<String, String>, foreground: Boolean): Maybe<Intent> {
         val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH]
@@ -206,11 +221,5 @@ class FcmCallbackService : FirebaseMessagingService() {
             appName = R.string.app_name,
             colorRes = R.color.primary_navy_medium
         )
-    }
-
-    companion object {
-        const val ID_BACKGROUND_NOTIFICATION = 1337
-        const val ID_FOREGROUND_NOTIFICATION = 1338
-        const val ID_BACKGROUND_NOTIFICATION_2FA = 1339
     }
 }

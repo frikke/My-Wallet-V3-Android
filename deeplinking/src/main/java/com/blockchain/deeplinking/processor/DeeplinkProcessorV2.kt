@@ -2,12 +2,13 @@ package com.blockchain.deeplinking.processor
 
 import android.net.Uri
 import com.blockchain.deeplinking.navigation.Destination
+import com.blockchain.notifications.models.NotificationPayload
 import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
 class DeeplinkProcessorV2 {
 
-    fun process(deeplinkUri: Uri): Single<DeepLinkResult> {
+    fun process(deeplinkUri: Uri, payload: NotificationPayload? = null): Single<DeepLinkResult> {
 
         Timber.d("deeplink uri: %s", deeplinkUri.path)
 
@@ -21,7 +22,7 @@ class DeeplinkProcessorV2 {
                     Single.just(
                         DeepLinkResult.DeepLinkResultSuccess(
                             destination = destination,
-                            showNotification = true
+                            notificationPayload = payload
                         )
                     )
                 } else
@@ -38,7 +39,7 @@ class DeeplinkProcessorV2 {
                     Single.just(
                         DeepLinkResult.DeepLinkResultSuccess(
                             destination = destination,
-                            showNotification = true
+                            notificationPayload = payload
                         )
                     )
                 } else {
@@ -53,7 +54,7 @@ class DeeplinkProcessorV2 {
                 Timber.d("deeplink: Activity")
 
                 val destination = Destination.ActivityDestination()
-                Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, showNotification = true))
+                Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, payload))
             }
             else -> Single.just(DeepLinkResult.DeepLinkResultFailed)
         }
@@ -84,6 +85,6 @@ class DeeplinkProcessorV2 {
 }
 
 sealed class DeepLinkResult {
-    data class DeepLinkResultSuccess(val destination: Destination, val showNotification: Boolean) : DeepLinkResult()
+    data class DeepLinkResultSuccess(val destination: Destination, val notificationPayload: NotificationPayload?) : DeepLinkResult()
     object DeepLinkResultFailed : DeepLinkResult()
 }

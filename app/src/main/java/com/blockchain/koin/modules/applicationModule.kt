@@ -710,6 +710,11 @@ val applicationModule = module {
                 application = get(),
                 walletConnectServiceAPI = get(),
                 wcFeatureFlag = get(walletConnectFeatureFlag),
+                deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
+                deeplinkRedirector = get(),
+                assetCatalogue = get(),
+                notificationManager = get(),
+                analytics = get()
             )
         }
 

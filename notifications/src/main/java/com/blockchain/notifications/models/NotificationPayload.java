@@ -57,6 +57,11 @@ public class NotificationPayload {
         return data != null ? data.getMdid() : null;
     }
 
+    @Nullable
+    public String getDeeplinkURL() {
+        return data != null ? data.getDeeplinkURL() : null;
+    }
+
     public Map<String, String> getPayload() {
         return payload;
     }
@@ -72,6 +77,7 @@ public class NotificationPayload {
         private String mdid;
         private NotificationType type;
         private String address;
+        private String deeplinkURL;
 
         NotificationData(String data) {
             try {
@@ -86,6 +92,10 @@ public class NotificationPayload {
 
                 if (jsonObject.has("address")) {
                     address = jsonObject.getString("address");
+                }
+
+                if (jsonObject.has("deepLinkURL")) {
+                    deeplinkURL = jsonObject.getString("deepLinkURL");
                 }
             } catch (JSONException e) {
                 Timber.e(e);
@@ -106,11 +116,17 @@ public class NotificationPayload {
         public String getAddress() {
             return address;
         }
+
+        @Nullable
+        public String getDeeplinkURL() {
+            return deeplinkURL;
+        }
     }
 
     public enum NotificationType {
         PAYMENT("payment"),
-        SECURE_CHANNEL_MESSAGE("secure_channel");
+        SECURE_CHANNEL_MESSAGE("secure_channel"),
+        DEEPLINK_CHANNEL_MESSAGE("deeplink");
 
         private String name;
 
