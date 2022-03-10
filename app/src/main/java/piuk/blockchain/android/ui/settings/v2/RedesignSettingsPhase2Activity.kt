@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import com.blockchain.blockchaincard.ui.BlockchainCardFragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
@@ -134,6 +135,10 @@ class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
         replaceCurrentFragment(DappsListFragment.newInstance())
     }
 
+    override fun goToOrderCard() {
+        replaceCurrentFragment(BlockchainCardFragment.newInstance())
+    }
+
     private fun replaceCurrentFragment(newFragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
@@ -167,6 +172,7 @@ interface SettingsNavigator {
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
+    fun goToOrderCard()
 }
 
 interface SettingsScreen : FlowFragment {

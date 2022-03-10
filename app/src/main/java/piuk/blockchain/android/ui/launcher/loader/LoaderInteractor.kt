@@ -95,7 +95,7 @@ class LoaderInteractor(
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(
                 onSuccess = { terms ->
-                    onInitSettingsSuccess(terms, isAfterWalletCreation && shouldCheckForEmailVerification())
+                    onInitSettingsSuccess(null, isAfterWalletCreation && shouldCheckForEmailVerification())
                 },
                 onComplete = {
                     onInitSettingsSuccess(null, isAfterWalletCreation && shouldCheckForEmailVerification())

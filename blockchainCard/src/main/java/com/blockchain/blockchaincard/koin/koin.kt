@@ -5,8 +5,10 @@ import com.blockchain.api.getBaseUrl
 import com.blockchain.blockchaincard.data.BcCardDataRepository
 import com.blockchain.blockchaincard.data.BcCardService
 import com.blockchain.blockchaincard.domain.BcCardApi
+import com.blockchain.blockchaincard.ui.OrderCardModel
 import com.blockchain.koin.payloadScopeQualifier
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.core.qualifier.StringQualifier
@@ -50,5 +52,17 @@ val bcCardsApiModule = module {
                 authenticator = get()
             )
         }
+
+        factory {
+            OrderCardModel(
+                uiSchedulers = AndroidSchedulers.mainThread(),
+                enviromentConfig = get(),
+                crashLogger = get(),
+                bcCardDataRepository = get(),
+                bcCardService = get()
+            )
+        }
+
+
     }
 }

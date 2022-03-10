@@ -2,6 +2,15 @@ apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 
 android {
+    buildFeatures {
+        viewBinding true
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerVersion Versions.composeKotlinCompile
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -20,6 +29,7 @@ dependencies {
     implementation project(':blockchainApi')
 
     implementation Libraries.koin
+    implementation Libraries.koinCompose
     implementation Libraries.gson
     implementation Libraries.timber
     implementation Libraries.retrofit
@@ -30,5 +40,11 @@ dependencies {
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin
     implementation Libraries.rxAndroid
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeActivity
+    implementation Libraries.design
+    implementation Libraries.appCompat
+    implementation Libraries.androidXAnnotations
 
 }

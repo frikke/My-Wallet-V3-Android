@@ -125,7 +125,7 @@ class AccountFragment :
             settingsDebitCard.apply {
                 primaryText = getString(R.string.blockchain_debit_card)
                 onClick = {
-                    // TODO Navigate to order card screen
+                    navigator().goToOrderCard()
                 }
             }
 
