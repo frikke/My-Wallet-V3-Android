@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.fragment.app.FragmentManager
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
@@ -160,6 +161,13 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         } else {
             finish()
         }
+    }
+
+    override fun popFragmentsInStackUntilFind(fragmentName: String, popInclusive: Boolean) {
+        supportFragmentManager.popBackStack(
+            fragmentName,
+            if (popInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else 0
+        )
     }
 
     override fun goToBuyCryptoScreen(
