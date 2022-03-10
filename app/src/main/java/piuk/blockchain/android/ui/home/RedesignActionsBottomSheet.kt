@@ -65,8 +65,8 @@ class RedesignActionsBottomSheet :
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_swap,
-                    filterColorId = R.color.blue_600,
-                    tintColorId = R.color.blue_400,
+                    iconTintColour = R.color.blue_600,
+                    backgroundColour = R.color.blue_400,
                     contentDescription = null
                 )
             }
@@ -79,8 +79,8 @@ class RedesignActionsBottomSheet :
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_sent,
-                    filterColorId = R.color.blue_600,
-                    tintColorId = R.color.blue_400,
+                    iconTintColour = R.color.blue_600,
+                    backgroundColour = R.color.blue_400,
                     contentDescription = null
                 )
             }
@@ -93,8 +93,8 @@ class RedesignActionsBottomSheet :
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_receive,
-                    filterColorId = R.color.blue_600,
-                    tintColorId = R.color.blue_400,
+                    iconTintColour = R.color.blue_600,
+                    backgroundColour = R.color.blue_400,
                     contentDescription = null
                 )
             }
@@ -107,8 +107,8 @@ class RedesignActionsBottomSheet :
                 }
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_tx_interest,
-                    filterColorId = R.color.blue_600,
-                    tintColorId = R.color.blue_400,
+                    iconTintColour = R.color.blue_600,
+                    backgroundColour = R.color.blue_400,
                     contentDescription = null
                 )
             }

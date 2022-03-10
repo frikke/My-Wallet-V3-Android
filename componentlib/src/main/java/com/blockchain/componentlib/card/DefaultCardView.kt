@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.card.abstract
+package com.blockchain.componentlib.card
 
 import android.content.Context
 import android.util.AttributeSet
@@ -6,58 +6,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.card.CardButton
-import com.blockchain.componentlib.card.CtaAnnouncementCard
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
-class CtaAnnouncementCardView @JvmOverloads constructor(
+class DefaultCardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
-    var header by mutableStateOf("")
-    var subheader by mutableStateOf(
-        AnnotatedString("")
-    )
     var title by mutableStateOf("")
-    var body by mutableStateOf("")
+    var subtitle by mutableStateOf("")
     var iconResource: ImageResource by mutableStateOf(ImageResource.None)
-    var borderColor by mutableStateOf(null as? Color?)
-    var callToActionButton by mutableStateOf(CardButton(""))
+    var callToActionButton by mutableStateOf(null as? CardButton?)
     var onClose by mutableStateOf({})
+    var isDismissable by mutableStateOf(true)
 
     @Composable
     override fun Content() {
         AppTheme {
             AppSurface {
-                CtaAnnouncementCard(
-                    header = header,
-                    subheader = subheader,
+                DefaultCard(
                     title = title,
-                    body = body,
-                    borderColor = borderColor,
+                    subtitle = subtitle,
                     iconResource = iconResource,
                     callToActionButton = callToActionButton,
-                    onClose = onClose
+                    onClose = onClose,
+                    isDismissable = isDismissable
                 )
             }
         }
     }
 
     fun clearState() {
-        header = ""
-        subheader = AnnotatedString("")
         title = ""
-        body = ""
+        subtitle = ""
         iconResource = ImageResource.None
-        borderColor = null
-        callToActionButton = CardButton("")
+        callToActionButton = null
         onClose = {}
     }
 }

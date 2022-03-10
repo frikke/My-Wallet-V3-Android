@@ -29,8 +29,8 @@ class AccountsAdapterDelegate(
                     assetResources
                 )
             )
-//            addAdapterDelegate(RecurringBuyItemDelegate(onRecurringBuyClicked))
-//            addAdapterDelegate(RecurringBuyInfoItemDelegate(onCardClicked))
+            addAdapterDelegate(RecurringBuyItemDelegate(onRecurringBuyClicked))
+            addAdapterDelegate(RecurringBuyInfoItemDelegate(onCardClicked))
         }
     }
 }

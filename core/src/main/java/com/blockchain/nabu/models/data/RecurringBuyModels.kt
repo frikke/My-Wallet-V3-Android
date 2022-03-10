@@ -3,6 +3,7 @@ package com.blockchain.nabu.models.data
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import java.io.Serializable
 import java.util.Date
 
 enum class RecurringBuyState {
@@ -26,7 +27,7 @@ data class EligibleAndNextPaymentRecurringBuy(
     val eligibleMethods: List<PaymentMethodType>
 )
 
-interface RecurringBuyPaymentDetails {
+interface RecurringBuyPaymentDetails : Serializable {
     val paymentDetails: PaymentMethodType
 }
 
@@ -46,4 +47,4 @@ data class RecurringBuy(
     val asset: AssetInfo,
     val createDate: Date,
     val paymentDetails: RecurringBuyPaymentDetails? = null
-)
+) : Serializable

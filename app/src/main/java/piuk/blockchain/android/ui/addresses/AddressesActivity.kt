@@ -256,7 +256,7 @@ class AddressesActivity :
 
     private fun launchFlow(sourceAccount: CryptoAccount) {
         startActivityForResult(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = this,
                 sourceAccount = sourceAccount,
                 action = AssetAction.Send

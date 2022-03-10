@@ -323,49 +323,6 @@ class AuthDataManagerTest : RxTest() {
         observer.assertValue(walletOptions)
     }
 
-    /**
-     * Getting encrypted payload returns error, should be caught by Observable and transformed into
-     * [AuthDataManager.AUTHORIZATION_REQUIRED]
-     */
-    @Test
-    fun startPollingAuthStatusError() {
-        // Arrange
-        val sessionId = "SESSION_ID"
-        val guid = "GUID"
-        whenever(walletAuthService.getEncryptedPayload(guid, sessionId, false))
-            .thenReturn(Observable.error(Throwable()))
-        // Act
-        val testObserver = subject.startPollingAuthStatus(guid, sessionId).test()
-        testScheduler.advanceTimeBy(3, TimeUnit.SECONDS)
-        // Assert
-        verify(walletAuthService).getEncryptedPayload(guid, sessionId, false)
-        testObserver.assertComplete()
-        testObserver.assertValue(AuthDataManager.AUTHORIZATION_REQUIRED)
-        testObserver.assertNoErrors()
-    }
-
-    /**
-     * Getting encrypted payload returns Auth Required, should be filtered out and emit no values.
-     */
-    @Test
-    fun startPollingAuthStatusAccessRequired() {
-        // Arrange
-        val sessionId = "SESSION_ID"
-        val guid = "GUID"
-        val responseBody = ERROR_BODY.toResponseBody(("application/json").toMediaTypeOrNull())
-
-        whenever(walletAuthService.getEncryptedPayload(guid, sessionId, false))
-            .thenReturn(Observable.just(Response.error(500, responseBody)))
-        // Act
-        val testObserver = subject.startPollingAuthStatus(guid, sessionId).test()
-        testScheduler.advanceTimeBy(2, TimeUnit.SECONDS)
-        // Assert
-        verify(walletAuthService).getEncryptedPayload(guid, sessionId, false)
-        testObserver.assertNotComplete()
-        testObserver.assertNoValues()
-        testObserver.assertNoErrors()
-    }
-
     @Test
     fun createCheckEmailTimer() {
         // Arrange

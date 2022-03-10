@@ -176,7 +176,7 @@ class InterestDashboardFragment : Fragment() {
                 host.showInterestSummarySheet(interestAccount)
             } else {
                 startActivity(
-                    TransactionFlowActivity.newInstance(
+                    TransactionFlowActivity.newIntent(
                         context = requireContext(),
                         target = it.accounts.first(),
                         action = AssetAction.InterestDeposit

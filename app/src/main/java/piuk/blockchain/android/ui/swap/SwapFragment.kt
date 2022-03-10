@@ -136,7 +136,7 @@ class SwapFragment :
     }
 
     private fun startSwap() = startActivityForResult.launch(
-        TransactionFlowActivity.newInstance(
+        TransactionFlowActivity.newIntent(
             context = requireActivity(),
             action = AssetAction.Swap
         )
@@ -264,7 +264,7 @@ class SwapFragment :
         )
 
         startActivityForResult.launch(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = pair.sourceAccount,
                 target = pair.destinationAccount,

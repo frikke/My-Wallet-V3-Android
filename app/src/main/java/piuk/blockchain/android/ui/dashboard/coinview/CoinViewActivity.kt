@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.core.content.ContextCompat
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -12,8 +14,11 @@ import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -30,15 +35,23 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityCoinviewBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
+import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItemNew
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
+import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
+import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import timber.log.Timber
 
-class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>() {
+class CoinViewActivity :
+    MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>(),
+    RecurringBuyDetailsSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -131,21 +144,7 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 }
             }
 
-            // TODO update these in another story based on accounts logic
-            primaryCta.apply {
-                text = "Buy"
-                icon = ImageResource.Local(
-                    R.drawable.ic_bottom_nav_buy,
-                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
-                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
-                    )
-                )
-            }
-
-            secondaryCta.apply {
-                text = "Sell"
-                icon = ImageResource.Local(R.drawable.ic_fiat_notes)
-            }
+            showLoadingCtas()
 
             // TODO in upcoming stories
             assetWebsite.apply {
@@ -175,11 +174,18 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         if (newState.viewState != CoinViewViewState.None) {
             renderUiState(newState)
         }
+
+        if (newState.error != CoinViewError.None) {
+            Timber.e("---- error in coinview ${newState.error.name}")
+
+            model.process(CoinViewIntent.ResetErrorState)
+        }
     }
 
     private fun renderUiState(newState: CoinViewState) {
         when (val state = newState.viewState) {
-            CoinViewViewState.LoadingWallets -> {
+            CoinViewViewState.LoadingWallets,
+            CoinViewViewState.LoadingRecurringBuys -> {
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LOADING
             }
             is CoinViewViewState.ShowAccountInfo -> {
@@ -187,6 +193,9 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 renderBalanceInformation(state.assetInfo.totalCryptoBalance, state.assetInfo.totalFiatBalance)
 
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+            }
+            is CoinViewViewState.NonTradeableAccount -> {
+                renderNonTradeableAsset(newState)
             }
             CoinViewViewState.LoadingChart -> {
                 binding.assetChartViewSwitcher.displayedChild = CHART_LOADING
@@ -198,6 +207,13 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 }
                 renderPriceInformation(state.prices, state.historicalRateList, state.selectedFiat)
             }
+            is CoinViewViewState.ShowRecurringBuys -> renderRecurringBuys(state.recurringBuys)
+            CoinViewViewState.LoadingQuickActions -> showLoadingCtas()
+            is CoinViewViewState.QuickActionsLoaded -> {
+                newState.asset?.let { asset ->
+                    renderQuickActions(asset.assetInfo, state.actionableAccount, state.startAction, state.endAction)
+                }
+            }
             CoinViewViewState.None -> {
                 // do nothing
             }
@@ -206,7 +222,145 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         model.process(CoinViewIntent.ResetViewState)
     }
 
-    private fun renderBalanceInformation(totalCryptoBalance: CryptoValue, totalFiatBalance: FiatValue) {
+    private fun renderNonTradeableAsset(newState: CoinViewState) {
+        with(binding) {
+            assetAccountsViewSwitcher.gone()
+            ctasDivider.gone()
+            primaryCta.gone()
+            secondaryCta.gone()
+            nonTradeableCard.apply {
+                visible()
+                isDismissable = false
+                title = getString(R.string.coinview_not_tradeable_title, assetName, assetTicker)
+                subtitle = getString(R.string.coinview_not_tradeable_subtitle, assetName)
+            }
+
+            newState.asset?.assetInfo?.let { assetInfo ->
+                newState.selectedFiat?.let { selectedFiat ->
+                    renderBalanceInformation(CryptoValue.zero(assetInfo), FiatValue.zero(selectedFiat))
+                }
+            }
+        }
+    }
+
+    private fun showLoadingCtas() {
+        with(binding) {
+            primaryCta.buttonState = ButtonState.Loading
+            secondaryCta.buttonState = ButtonState.Loading
+        }
+    }
+
+    private fun renderQuickActions(
+        asset: AssetInfo,
+        highestBalanceWallet: BlockchainAccount,
+        startAction: QuickActionCta,
+        endAction: QuickActionCta
+    ) {
+        with(binding) {
+            val startButtonResources = getQuickActionUi(asset, highestBalanceWallet, startAction)
+            val endButtonResources = getQuickActionUi(asset, highestBalanceWallet, endAction)
+            primaryCta.apply {
+                buttonState = ButtonState.Enabled
+                text = endButtonResources.name
+                icon = endButtonResources.icon
+                onClick = {
+                    endButtonResources.onClick()
+                }
+            }
+
+            secondaryCta.apply {
+                buttonState = ButtonState.Enabled
+                text = startButtonResources.name
+                icon = startButtonResources.icon
+                onClick = {
+                    startButtonResources.onClick()
+                }
+            }
+        }
+    }
+
+    private fun getQuickActionUi(
+        asset: AssetInfo,
+        highestBalanceWallet: BlockchainAccount,
+        action: QuickActionCta
+    ): QuickAction =
+        when (action) {
+            QuickActionCta.Buy -> QuickAction(
+                getString(R.string.common_buy),
+                ImageResource.Local(
+                    R.drawable.ic_bottom_nav_buy,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                startActivity(
+                    SimpleBuyActivity.newIntent(
+                        context = this,
+                        asset = asset
+                    )
+                )
+            }
+            QuickActionCta.Sell -> QuickAction(
+                getString(R.string.common_sell),
+                ImageResource.Local(
+                    R.drawable.ic_fiat_notes,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Sell,
+                        sourceAccount = highestBalanceWallet
+                    )
+                )
+            }
+            QuickActionCta.Send -> QuickAction(
+                getString(R.string.common_send),
+                ImageResource.Local(
+                    R.drawable.ic_icon_send,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Send,
+                        sourceAccount = highestBalanceWallet
+                    )
+                )
+            }
+            QuickActionCta.Receive -> QuickAction(
+                getString(R.string.common_receive),
+                ImageResource.Local(
+                    R.drawable.ic_qr_scan,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                showBottomSheet(ReceiveDetailSheet.newInstance(highestBalanceWallet as CryptoAccount))
+            }
+        }
+
+    private fun renderRecurringBuys(recurringBuys: List<RecurringBuy>) {
+        if (recurringBuys.isNotEmpty()) {
+            val recurringBuysItems = recurringBuys.map {
+                AssetDetailsItemNew.RecurringBuyInfo(it)
+            }
+            listItems.addAll(recurringBuysItems)
+        } else {
+            listItems.add(AssetDetailsItemNew.RecurringBuyBanner)
+        }
+        updateList()
+    }
+
+    private fun renderBalanceInformation(totalCryptoBalance: Money, totalFiatBalance: Money) {
         with(binding) {
             assetBalance.apply {
                 labelText = getString(R.string.coinview_balance_label, assetTicker)
@@ -279,7 +433,7 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
     }
 
     private fun onAccountSelected(account: BlockchainAccount, assetFilter: AssetFilter) {
-        clearList()
+        // clearList()
 
         if (account is CryptoAccount && assetFilter == AssetFilter.Custodial) {
             analytics.logEvent(CustodialBalanceClicked(account.currency))
@@ -292,19 +446,16 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
 
     private fun openOnboardingForRecurringBuy() {
         analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
-        //        startActivity(
-        //            RecurringBuyOnboardingActivity.newInstance(
-        //                context = this,
-        //                fromCoinView = true,
-        //                asset = asset
-        //            )
-        //        )
-        //        dismiss()
+        startActivity(
+            RecurringBuyOnboardingActivity.newIntent(
+                context = this,
+                fromCoinView = true,
+                assetTicker = assetTicker
+            )
+        )
     }
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
-        clearList()
-
         recurringBuy.asset.let {
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
@@ -313,7 +464,12 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 )
             )
         }
-        //        model.process(ShowRecurringBuySheet(recurringBuy))
+
+        showBottomSheet(RecurringBuyDetailsSheet.newInstance(recurringBuy))
+    }
+
+    override fun onRecurringBuyDeleted(asset: AssetInfo) {
+        model.process(CoinViewIntent.LoadRecurringBuys(asset))
     }
 
     private fun clearList() {
@@ -324,6 +480,10 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
     private fun updateList() {
         adapterDelegate.items = listItems
         adapterDelegate.notifyDataSetChanged()
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
     }
 
     companion object {
@@ -345,3 +505,9 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
             }
     }
 }
+
+private data class QuickAction(
+    val name: String,
+    val icon: ImageResource,
+    val onClick: () -> Unit
+)

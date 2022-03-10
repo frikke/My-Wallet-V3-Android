@@ -274,9 +274,15 @@ class PinActivity :
                     backAction = { handleBackButton() }
                 )
             }
-            OriginScreenToPin.CREATE_WALLET -> {}
-            OriginScreenToPin.BACKUP_PHRASE -> {}
-            OriginScreenToPin.OTHER -> binding.pinLogout.visible()
+            OriginScreenToPin.CREATE_WALLET,
+            OriginScreenToPin.BACKUP_PHRASE,
+            OriginScreenToPin.LAUNCHER_SCREEN,
+            OriginScreenToPin.LOADER_SCREEN,
+            OriginScreenToPin.LOGIN_SCREEN,
+            OriginScreenToPin.RESET_PASSWORD_SCREEN,
+            OriginScreenToPin.PIN_SCREEN,
+            OriginScreenToPin.MANUAL_PAIRING_SCREEN,
+            OriginScreenToPin.PASSWORD_REQUIRED_SCREEN -> binding.pinLogout.visible()
         }
     }
 
@@ -630,7 +636,14 @@ class PinActivity :
 
     private fun handlePasswordValidated() {
         BlockchainSnackbar.make(binding.root, getString(R.string.pin_4_strikes_password_accepted))
-        startActivity(newIntent(this))
+        startActivity(
+            newIntent(
+                context = this,
+                startForResult = false,
+                originScreen = OriginScreenToPin.PIN_SCREEN,
+                addFlagsToClear = true
+            )
+        )
     }
 
     private fun onPadClicked() {
@@ -755,9 +768,15 @@ class PinActivity :
 
     private fun handleBackButton() {
         when {
-            isForValidatingPinForResult -> { finishWithResultCanceled() }
-            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> { super.onBackPressed() }
-            else -> { appUtil.logout() }
+            isForValidatingPinForResult -> {
+                finishWithResultCanceled()
+            }
+            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> {
+                super.onBackPressed()
+            }
+            else -> {
+                appUtil.logout()
+            }
         }
     }
 
@@ -1000,20 +1019,29 @@ class PinActivity :
 
         fun newIntent(
             context: Context,
-            startForResult: Boolean = false,
-            originScreen: OriginScreenToPin? = OriginScreenToPin.OTHER
+            startForResult: Boolean,
+            originScreen: OriginScreenToPin,
+            addFlagsToClear: Boolean,
         ) =
             Intent(context, PinActivity::class.java).apply {
                 putExtra(KEY_VALIDATING_PIN_FOR_RESULT, startForResult)
                 putExtra(ORIGIN_SCREEN, originScreen)
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                if (addFlagsToClear) {
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             }
 
         enum class OriginScreenToPin {
             CHANGE_PIN_SECURITY,
             CREATE_WALLET,
             BACKUP_PHRASE,
-            OTHER,
+            LAUNCHER_SCREEN,
+            LOADER_SCREEN,
+            LOGIN_SCREEN,
+            RESET_PASSWORD_SCREEN,
+            PIN_SCREEN,
+            MANUAL_PAIRING_SCREEN,
+            PASSWORD_REQUIRED_SCREEN
         }
     }
 }

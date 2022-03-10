@@ -88,18 +88,12 @@
             android:paddingBottom="@dimen/very_small_margin"
             app:layout_constraintTop_toBottomOf="@id/header_payments">
 
-            <!-- TODO(dserrano-bc): WCL-37 replace this with shimmer component -->
-            <com.airbnb.lottie.LottieAnimationView
+            <com.blockchain.componentlib.system.LoadingTableRowView
                 android:id="@+id/payments_progress"
-                android:layout_width="@dimen/xlarge_margin"
-                android:layout_height="@dimen/xlarge_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="gone"
-                app:lottie_autoPlay="true"
-                app:lottie_fileName="lottie/loader.json"
-                app:lottie_imageAssetsFolder="lottie/loader.json"
-                app:lottie_loop="true"
-                app:lottie_repeatMode="restart" />
+                android:visibility="gone" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

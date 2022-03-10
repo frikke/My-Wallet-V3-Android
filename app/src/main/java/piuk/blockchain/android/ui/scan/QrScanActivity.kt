@@ -177,6 +177,7 @@ class QrScanActivity : BlockchainActivity() {
             onClick = {
                 showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = false))
             }
+            visible()
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
