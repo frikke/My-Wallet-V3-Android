@@ -169,7 +169,7 @@ val redesignSettingsModule = module {
                 exchangeRates = get(),
                 bcCardDataRepository = get(),
                 currencyPrefs = get(),
-                exchangeLinkingState = get(),
+                exchangeLinkingState = get()
             )
         }
 

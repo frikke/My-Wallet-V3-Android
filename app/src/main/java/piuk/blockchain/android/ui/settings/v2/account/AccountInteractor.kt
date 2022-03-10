@@ -15,7 +15,7 @@ class AccountInteractor internal constructor(
     private val exchangeRates: ExchangeRatesDataManager,
     private val bcCardDataRepository: BcCardDataRepository,
     private val currencyPrefs: CurrencyPrefs,
-    private val exchangeLinkingState: PitLinking,
+    private val exchangeLinkingState: PitLinking
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
