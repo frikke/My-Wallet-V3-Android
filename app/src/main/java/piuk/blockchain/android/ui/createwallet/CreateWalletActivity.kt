@@ -227,11 +227,7 @@ class CreateWalletActivity :
             .setTitle(R.string.app_name)
             .setMessage(R.string.weak_password)
             .setPositiveButton(R.string.common_retry) { _, _ ->
-                binding.apply {
-                    walletPass.setText("")
-                    walletPassConfirm.setText("")
-                    walletPass.requestFocus()
-                }
+                binding.walletPass.requestFocus()
             }.show()
     }
 

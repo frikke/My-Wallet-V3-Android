@@ -85,7 +85,7 @@ class PinInteractorTest {
         whenever(payloadDataManager.initializeAndDecrypt(sharedKey, walletGuid, password))
             .thenReturn(Completable.complete())
 
-        val test = interactor.validatePassword(password).test()
+        interactor.validatePassword(password).test()
 
         verify(payloadDataManager).initializeAndDecrypt(sharedKey, walletGuid, password)
 
@@ -105,7 +105,7 @@ class PinInteractorTest {
             )
         ).thenReturn(Completable.complete())
 
-        val test = interactor.doUpgradeWallet(secondPassword, false).test()
+        interactor.doUpgradeWallet(secondPassword, false).test()
 
         verify(payloadDataManager).upgradeWalletPayload(
             secondPassword, defaultLabels.getDefaultNonCustodialWalletLabel()
@@ -120,7 +120,7 @@ class PinInteractorTest {
         whenever(walletOptionsDataManager.checkForceUpgrade(versionName))
             .thenReturn(Observable.just(mock()))
 
-        val test = interactor.checkForceUpgradeStatus(versionName).test()
+        interactor.checkForceUpgradeStatus(versionName).test()
 
         verify(walletOptionsDataManager).checkForceUpgrade(versionName)
 
@@ -136,7 +136,7 @@ class PinInteractorTest {
         whenever(authDataManager.verifyCloudBackup())
             .thenReturn(Completable.complete())
 
-        val test = interactor.createPin(tempPassword, pin).test()
+        interactor.createPin(tempPassword, pin).test()
 
         verify(authDataManager).createPin(tempPassword, pin)
         verify(authDataManager).verifyCloudBackup()
@@ -173,7 +173,7 @@ class PinInteractorTest {
         val pin = "1234"
         whenever(pinRepository.pin).thenReturn(pin)
 
-        val test = interactor.getCurrentPin()
+        interactor.getCurrentPin()
 
         verify(pinRepository).pin
 
@@ -203,7 +203,7 @@ class PinInteractorTest {
             .thenReturn(Completable.complete())
         whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
 
-        val test = interactor.updatePayload(password).test()
+        interactor.updatePayload(password).test()
 
         verify(payloadDataManager).initializeAndDecrypt(sharedKey, walletGuid, password)
         verify(authDataManager).verifyCloudBackup()
