@@ -1764,6 +1764,8 @@
     <string name="send_enter_insufficient_gas">You do not have enough ETH to process this transaction.</string>
     <string name="send_select_a_wallet_title">or Select a Wallet</string>
     <string name="send_transfer_accounts_title">Transfer between your accounts</string>
+    <string name="send_domain_alert_title">Send to a Crypto Domain</string>
+    <string name="send_domain_alert_description">You can now send crypto to domains like  satoshi.blockchain, satoshi.eth, and y.at/💎👐</string>
     <string name="send_internal_transfer_message_1_1">At this time you can transfer %1$s from your %2$s Trading Account to your %2$s Private Key Wallets or Rewards Account. If you want to transfer to external addresses you can do so from your Private Key Wallet.</string>
     <string name="send_to_exchange_xlm_title">Sending to an exchange?</string>
     <string name="send_to_exchange_xlm_blurb">&#160;Add a Memo to avoid losing funds.&#160;</string>

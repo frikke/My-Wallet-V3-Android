@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -193,7 +194,9 @@ val transactionModule = module {
                 identity = payloadScope.get(),
                 accountsSorting = payloadScope.get(),
                 linkedBanksFactory = payloadScope.get(),
-                bankLinkingPrefs = payloadScope.get()
+                bankLinkingPrefs = payloadScope.get(),
+                dismissRecorder = payloadScope.get(),
+                showSendToDomainsAnnouncementFeatureFlag = get(sendToDomainsAnnouncementFeatureFlag)
             )
         }
 
