@@ -45,10 +45,16 @@ class AccountInteractor internal constructor(
         }
 
     fun getDebitCardState(): Single<DebitCardOrderState> =
-        bcCardDataRepository.getProducts().flatMap {
-            if (it.isNotEmpty())
-                Single.just(DebitCardOrderState.ELIGIBLE)
-            else
-                Single.just(DebitCardOrderState.NOT_ELIGIBLE)
+        bcCardDataRepository.getCards().flatMap { cards ->
+            if (cards.isNotEmpty()) {
+                Single.just(DebitCardOrderState.ORDERED)
+            } else {
+                bcCardDataRepository.getProducts().map { products ->
+                    if (products.isNotEmpty())
+                        DebitCardOrderState.ELIGIBLE
+                    else
+                        DebitCardOrderState.NOT_ELIGIBLE
+                }
+            }
         }
 }

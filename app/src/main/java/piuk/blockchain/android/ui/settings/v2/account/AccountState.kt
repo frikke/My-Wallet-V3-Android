@@ -26,6 +26,7 @@ enum class ExchangeLinkingState {
 enum class DebitCardOrderState {
     NOT_ELIGIBLE,
     ELIGIBLE,
+    ORDERED,
     UNKNOWN
 }
 

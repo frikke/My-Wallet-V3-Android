@@ -210,6 +210,11 @@ class AccountFragment :
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                 }
             }
+            DebitCardOrderState.ORDERED -> {
+                with(binding.settingsDebitCard) {
+                    secondaryText = null
+                }
+            }
         }
 
     private fun renderErrorState(error: AccountError) =

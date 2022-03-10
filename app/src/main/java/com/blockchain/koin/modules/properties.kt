@@ -17,5 +17,5 @@ val urls = mapOf(
     "explorer-api" to BuildConfig.EXPLORER_URL,
     "blockchain-api" to BuildConfig.API_URL,
     "nabu-api" to "${BuildConfig.API_URL}nabu-gateway/",
-    "bc-card-gateway" to "${BuildConfig.API_URL}bc-card-gateway/"
+    "card-issuing" to "${BuildConfig.API_URL}nabu-gateway/card-issuing/"
 )

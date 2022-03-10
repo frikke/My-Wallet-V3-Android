@@ -1,10 +1,12 @@
 package com.blockchain.blockchaincard.data
 
+import com.blockchain.api.bccardapi.models.CardsResponse
 import com.blockchain.api.bccardapi.models.ProductsResponse
 import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.SerialName
 import java.math.BigDecimal
 
 class BcCardDataRepository(
@@ -15,6 +17,17 @@ class BcCardDataRepository(
     fun getProducts(): Single<List<BcCardProduct>> =
         authenticator.authenticate { tokenResponse ->
             bcCardService.getProducts(
+                tokenResponse.authHeader
+            ).map { response ->
+                response.map {
+                    it.toDomainModel()
+                }
+            }
+        }
+
+    fun getCards(): Single<List<BcCard>> =
+        authenticator.authenticate { tokenResponse ->
+            bcCardService.getCards(
                 tokenResponse.authHeader
             ).map { response ->
                 response.map {
@@ -35,6 +48,18 @@ private fun ProductsResponse.toDomainModel(): BcCardProduct =
         type = BcCardType.valueOf(type)
     )
 
+private fun CardsResponse.toDomainModel(): BcCard =
+    BcCard(
+        cardId = cardId,
+        type = BcCardType.valueOf(type),
+        last4 = last4,
+        expiry = expiry,
+        brand = BcCardBrand.valueOf(brand),
+        cardStatus = BcCardStatus.valueOf(cardStatus),
+        createdAt = createdAt
+    )
+
+
 data class BcCardProduct(
     val productCode: String,
     val price: FiatValue,
@@ -42,14 +67,30 @@ data class BcCardProduct(
     val type: BcCardType
 )
 
+data class BcCard(
+    val cardId: String,
+    val type: BcCardType,
+    val last4: String,
+    val expiry: String,
+    val brand: BcCardBrand,
+    val cardStatus: BcCardStatus,
+    val createdAt: String
+)
+
 enum class BcCardBrand {
     VISA,
     MASTERCARD,
-    UNKNOWN // TODO should we have this safe guard??
+    UNKNOWN
 }
 
 enum class BcCardType {
     VIRTUAL,
     PHYSICAL,
-    UNKNOWN // TODO should we have this safe guard??
+    UNKNOWN
+}
+
+enum class BcCardStatus {
+    CREATED,
+    ACTIVE,
+    TERMINATED
 }

@@ -238,6 +238,7 @@ object Libraries {
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
     const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
     const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
+    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
