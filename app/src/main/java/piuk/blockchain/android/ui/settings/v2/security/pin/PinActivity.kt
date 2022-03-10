@@ -117,7 +117,6 @@ class PinActivity :
         init()
 
         with(binding) {
-            keyboard.requestFocus()
             keyboard.addTextChangedListener(this@PinActivity)
             pinLogout.apply {
                 text = getString(R.string.logout)
@@ -133,6 +132,8 @@ class PinActivity :
     override fun render(newState: PinState) {
         lastState = newState
         setPinView(newState.action)
+
+        checkFingerprintStatus()
 
         if (newState.pinStatus.isPinValidated) {
             when {
@@ -209,8 +210,6 @@ class PinActivity :
             model.process(PinIntent.ClearStateAlreadyHandled)
         }
 
-        checkFingerprintStatus()
-
         newState.progressDialog?.let {
             if (it.hasToShow) {
                 showProgressDialog(it.messageToShow)
@@ -238,12 +237,8 @@ class PinActivity :
     override fun afterTextChanged(currentPin: Editable?) {
         currentPin?.let {
             when {
-                it.length > pinLastLength -> {
-                    onPadClicked()
-                }
-                it.length < pinLastLength -> {
-                    onDeleteClicked()
-                }
+                it.length > pinLastLength -> onPadClicked()
+                it.length < pinLastLength -> onDeleteClicked()
                 else -> {
                     // do nothing (enter key pressed)
                 }
@@ -311,7 +306,7 @@ class PinActivity :
     }
 
     private fun checkFingerprintStatus() {
-        if (lastState.biometricStatus.shouldShowFingerprint) {
+        if (lastState.biometricStatus.shouldShowFingerprint && !isChangingPin) {
             showFingerprintDialog()
         } else {
             binding.keyboard.requestFocus()
@@ -766,19 +761,12 @@ class PinActivity :
         finish()
     }
 
-    private fun handleBackButton() {
+    private fun handleBackButton() =
         when {
-            isForValidatingPinForResult -> {
-                finishWithResultCanceled()
-            }
-            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> {
-                super.onBackPressed()
-            }
-            else -> {
-                appUtil.logout()
-            }
+            isForValidatingPinForResult -> finishWithResultCanceled()
+            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> super.onBackPressed()
+            else -> appUtil.logout()
         }
-    }
 
     override fun onBackPressed() {
         handleBackButton()
@@ -893,19 +881,12 @@ class PinActivity :
         )
     }
 
-    private fun onUpdateFinished(isFromPinCreation: Boolean) {
+    private fun onUpdateFinished(isFromPinCreation: Boolean) =
         when {
-            isFromPinCreation && biometricsController.isBiometricAuthEnabled -> {
-                askToUseBiometrics()
-            }
-            isChangingPin -> {
-                finish()
-            }
-            else -> {
-                util.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterCreateWallet)
-            }
+            isFromPinCreation && biometricsController.isBiometricAuthEnabled -> askToUseBiometrics()
+            isChangingPin -> finish()
+            else -> finishSignupProcess()
         }
-    }
 
     private fun askToUseBiometrics() {
         BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BOTTOM_SHEET")
@@ -934,7 +915,12 @@ class PinActivity :
                     override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
                         correctPinBoxes()
                         model.process(PinIntent.SetCanShowFingerprint(false))
-                        model.process(PinIntent.ValidatePIN(unencryptedBiometricData.accessPin))
+                        model.process(
+                            PinIntent.ValidatePIN(
+                                pin = unencryptedBiometricData.accessPin,
+                                isForValidatingPinForResult = isForValidatingPinForResult
+                            )
+                        )
                     }
 
                     override fun onAuthFailed(error: BiometricAuthError) {
@@ -974,6 +960,7 @@ class PinActivity :
             this, BiometricsType.TYPE_REGISTER,
             object : BiometricsCallback<WalletBiometricData> {
                 override fun onAuthSuccess(data: WalletBiometricData) {
+                    model.process(PinIntent.CreatePINSucceeded)
                     finishSignupProcess()
                 }
 

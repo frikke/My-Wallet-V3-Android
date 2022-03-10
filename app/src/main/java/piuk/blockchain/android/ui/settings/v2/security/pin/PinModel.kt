@@ -168,7 +168,6 @@ class PinModel(
                             handlePayloadUpdateError(it)
                         }
                     )
-                null
             }
             is PinIntent.UpgradeWallet -> {
                 interactor.doUpgradeWallet(intent.secondPassword, intent.isFromPinCreation)
