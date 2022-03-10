@@ -5,6 +5,7 @@ import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
+import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
@@ -86,6 +87,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_terms_and_conditions",
                 "Terms and Conditions"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(sendToDomainsAnnouncementFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_send_to_domains_announcement",
+                "Show Send To Domains Banner"
             )
         )
     }.bind(FeatureFlag::class)

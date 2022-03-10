@@ -581,6 +581,20 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 locks = fundsLocks
             )
     }
+
+    data class LoadSendToDomainBannerPref(val prefsKey: String) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState) = oldState
+    }
+
+    data class DismissSendToDomainBanner(val prefsKey: String) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState) = oldState
+    }
+
+    data class SendToDomainPrefLoaded(private val shouldShowSendToDomain: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState) = oldState.copy(
+            shouldShowSendToDomainBanner = shouldShowSendToDomain
+        )
+    }
 }
 
 private fun ValidationState.mapToTransactionError() =
