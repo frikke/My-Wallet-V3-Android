@@ -6,7 +6,6 @@ import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
-import kotlinx.serialization.SerialName
 import java.math.BigDecimal
 
 class BcCardDataRepository(
@@ -58,7 +57,6 @@ private fun CardsResponse.toDomainModel(): BcCard =
         cardStatus = BcCardStatus.valueOf(cardStatus),
         createdAt = createdAt
     )
-
 
 data class BcCardProduct(
     val productCode: String,
