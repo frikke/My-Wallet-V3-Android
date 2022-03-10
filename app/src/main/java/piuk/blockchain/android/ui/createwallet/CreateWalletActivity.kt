@@ -243,8 +243,10 @@ class CreateWalletActivity :
                 if (isEnabled) {
                     startActivity(
                         PinActivity.newIntent(
-                            this,
-                            originScreen = PinActivity.Companion.OriginScreenToPin.CREATE_WALLET
+                            context = this,
+                            startForResult = false,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.CREATE_WALLET,
+                            addFlagsToClear = true,
                         )
                     )
                 } else {

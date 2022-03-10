@@ -42,7 +42,6 @@ class EmailModel(
                     .subscribeBy(
                         onSuccess = {
                             process(EmailIntent.SaveEmailSucceeded(it))
-                            process(EmailIntent.ResendEmail)
                         },
                         onError = {
                             Timber.e("SaveEmail failure " + it)

@@ -71,6 +71,7 @@ data class SimpleBuyState constructor(
     @Transient val shouldShowUnlockHigherFunds: Boolean = false,
     @Transient val linkBankTransfer: LinkBankTransfer? = null,
     @Transient val paymentPending: Boolean = false,
+    @Transient val paymentFailed: Boolean = false,
     @Transient private val transferLimits: TxLimits? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
     @Transient val confirmationActionRequested: Boolean = false,
@@ -219,6 +220,7 @@ sealed class ErrorState : Serializable {
     object ExistingPendingOrder : ErrorState()
     object InsufficientCardFunds : ErrorState()
     object CardPaymentDeclined : ErrorState()
+    object CardPaymentFailed : ErrorState()
 }
 
 data class SimpleBuyOrder(

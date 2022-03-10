@@ -177,6 +177,7 @@ class EmailModelTest {
             }.assertValueAt(2) {
                 it == EmailState(
                     isLoading = false,
+                    emailSent = true,
                     userInfoSettings = WalletSettingsService.UserInfoSettings(
                         email = settings.address,
                         emailVerified = settings.isVerified,

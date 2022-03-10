@@ -212,7 +212,7 @@ android {
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreStagingDemoWalletId']}\""
 
             versionNameSuffix '-staging'
-            applicationId "piuk.blockchain.android.staging"
+            applicationId "piuk.blockchain.android"
         }
     }
 

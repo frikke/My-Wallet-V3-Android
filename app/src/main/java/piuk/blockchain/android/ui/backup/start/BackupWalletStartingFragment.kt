@@ -126,7 +126,12 @@ class BackupWalletStartingFragment :
             onSuccess = { isEnabled ->
                 if (isEnabled) {
                     onChangePinResult.launch(
-                        PinActivity.newIntent(requireContext(), startForResult = true)
+                        PinActivity.newIntent(
+                            context = requireContext(),
+                            startForResult = true,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.BACKUP_PHRASE,
+                            addFlagsToClear = false
+                        )
                     )
                 } else {
                     val intent = Intent(activity, PinEntryActivity::class.java)
