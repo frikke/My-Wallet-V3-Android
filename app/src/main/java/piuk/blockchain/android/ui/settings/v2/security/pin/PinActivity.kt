@@ -883,6 +883,7 @@ class PinActivity :
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) =
         when {
+            isChangingPin && biometricsController.isBiometricUnlockEnabled -> enrollBiometrics()
             isFromPinCreation && biometricsController.isBiometricAuthEnabled -> askToUseBiometrics()
             isChangingPin -> finish()
             else -> finishSignupProcess()
@@ -987,6 +988,10 @@ class PinActivity :
                 }
 
                 override fun onAuthCancelled() {
+                    if (isChangingPin) {
+                        model.process(PinIntent.DisableBiometrics)
+                        finishSignupProcess()
+                    }
                     // do nothing, the sheet is not dismissed when the user starts the flow
                 }
             }

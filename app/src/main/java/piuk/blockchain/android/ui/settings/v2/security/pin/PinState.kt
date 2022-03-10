@@ -32,7 +32,6 @@ data class PinStatus(
 )
 
 data class BiometricStatus(
-    val isBiometricsEnabled: Boolean = false,
     val shouldShowFingerprint: Boolean = false,
     val canShowFingerprint: Boolean = true
 )
