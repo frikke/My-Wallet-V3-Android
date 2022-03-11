@@ -277,6 +277,7 @@ class PinActivity :
             OriginScreenToPin.RESET_PASSWORD_SCREEN,
             OriginScreenToPin.PIN_SCREEN,
             OriginScreenToPin.MANUAL_PAIRING_SCREEN,
+            OriginScreenToPin.LOGIN_AUTH_SCREEN,
             OriginScreenToPin.PASSWORD_REQUIRED_SCREEN -> binding.pinLogout.visible()
         }
     }
@@ -1033,6 +1034,7 @@ class PinActivity :
             RESET_PASSWORD_SCREEN,
             PIN_SCREEN,
             MANUAL_PAIRING_SCREEN,
+            LOGIN_AUTH_SCREEN,
             PASSWORD_REQUIRED_SCREEN
         }
     }
