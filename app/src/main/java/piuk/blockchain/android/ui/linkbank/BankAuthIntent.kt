@@ -81,7 +81,7 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
             )
     }
 
-    object StartBankApproval : BankAuthIntent() {
+    class StartBankApproval(val callbackPath: String) : BankAuthIntent() {
         override fun reduce(oldState: BankAuthState): BankAuthState =
             oldState.copy(
                 bankLinkingProcessState = BankLinkingProcessState.APPROVAL_WAIT
@@ -108,10 +108,11 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
             )
     }
 
-    data class UpdateForApproval(val authorisationUrl: String) : BankAuthIntent() {
+    data class UpdateForApproval(val authorisationUrl: String, val callbackPath: String) : BankAuthIntent() {
         override fun reduce(oldState: BankAuthState): BankAuthState =
             oldState.copy(
                 linkBankUrl = authorisationUrl,
+                callbackPathUrl = callbackPath,
                 bankLinkingProcessState = BankLinkingProcessState.APPROVAL
             )
     }
@@ -120,7 +121,7 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
         override fun reduce(oldState: BankAuthState): BankAuthState =
             oldState.copy(
                 linkedBank = null,
-                authorisePaymentUrl = null
+                callbackPathUrl = ""
             )
     }
 
@@ -132,7 +133,7 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
     object CancelOrderAndResetAuthorisation : BankAuthIntent() {
         override fun reduce(oldState: BankAuthState): BankAuthState =
             oldState.copy(
-                authorisePaymentUrl = null,
+                callbackPathUrl = "",
                 linkedBank = null
             )
     }
