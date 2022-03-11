@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.data.metadata
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -12,6 +13,7 @@ import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.metadata.data.RemoteMetadataNodes
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
 import org.bitcoinj.crypto.HDKeyDerivation
 import org.junit.Before
@@ -34,6 +36,10 @@ class MetadataManagerTest {
         on { toDeterministicKey() }.thenReturn(HDKeyDerivation.createMasterPrivateKey(seed.toByteArray()))
     }
 
+    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(true))
+    }
+
     private val fakeRemoteMetadata = RemoteMetadataNodes().apply {
         mdid =
             "xprv9vM7oGsyw3AdQdzPjRvPAHCC7hEzUhENoeq59qPxjxL5XsMos78qEd3P6dkPpNt8xgvQTiUXcTjbU" +
@@ -41,7 +47,7 @@ class MetadataManagerTest {
         metadata =
             "xprv9vM7oGsuM9zGW2tneNriS8NJF6DNrZEKvYMXSwP8SJNJRUuX6iXjZLQCCy52cXJKKb6XwWF3vr6mQCyy9d5msL9" +
             "TrycrBmbPibKd2LhzjDW"
-    }.toJson()
+    }.toJson(true)
 
     @Suppress("unused")
     @get:Rule
@@ -56,7 +62,8 @@ class MetadataManagerTest {
             payloadDataManager,
             metadataInteractor,
             metadataDerivation,
-            mock()
+            mock(),
+            kotlinSerializerFeatureFlag
         )
         whenever(payloadDataManager.metadataCredentials).thenReturn(
             MetadataCredentials(

@@ -8,6 +8,11 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.IOException
 import java.util.ArrayList
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
  * <p> Generic coin data that can be stored in blockchain.info KV store. </p>
@@ -21,14 +26,18 @@ import java.util.ArrayList
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
+@Serializable
 class GenericMetadataWallet(
     @field:JsonProperty("default_account_idx")
+    @SerialName("default_account_idx")
     var defaultAcccountIdx: Int = 0,
 
     @field:JsonProperty("has_seen")
+    @SerialName("has_seen")
     var isHasSeen: Boolean = false,
 
     @JsonProperty("accounts")
+    @SerialName("accounts")
     var accounts: MutableList<GenericMetadataAccount> = mutableListOf()
 ) {
 
@@ -37,8 +46,12 @@ class GenericMetadataWallet(
     }
 
     @Throws(JsonProcessingException::class)
-    fun toJson(): String {
-        return ObjectMapper().writeValueAsString(returnSafeClone())
+    fun toJson(withKotlinX: Boolean): String {
+        return if (withKotlinX) {
+            jsonBuilder.encodeToString(returnSafeClone())
+        } else {
+            ObjectMapper().writeValueAsString(returnSafeClone())
+        }
     }
 
     /**
@@ -57,9 +70,18 @@ class GenericMetadataWallet(
     }
 
     companion object {
+
+        private val jsonBuilder: Json = Json {
+            ignoreUnknownKeys = true
+        }
+
         @Throws(IOException::class)
-        fun fromJson(json: String): GenericMetadataWallet {
-            return ObjectMapper().readValue(json, GenericMetadataWallet::class.java)
+        fun fromJson(json: String, withKotlinX: Boolean): GenericMetadataWallet {
+            return if (withKotlinX) {
+                jsonBuilder.decodeFromString(json)
+            } else {
+                ObjectMapper().readValue(json, GenericMetadataWallet::class.java)
+            }
         }
     }
 }

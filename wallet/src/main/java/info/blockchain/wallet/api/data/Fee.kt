@@ -9,17 +9,18 @@ import kotlinx.serialization.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(
-    fieldVisibility = JsonAutoDetect.Visibility.ANY,
-    getterVisibility = JsonAutoDetect.Visibility.NONE,
-    setterVisibility = JsonAutoDetect.Visibility.NONE,
-    creatorVisibility = JsonAutoDetect.Visibility.NONE,
-    isGetterVisibility = JsonAutoDetect.Visibility.NONE
-)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
 @Serializable
-class XlmExchange {
+data class Fee(
+    @JsonProperty("fee")
+    @SerialName("fee")
+    var fee: Double = 0.0,
 
-    @JsonProperty("exchangeAddresses")
-    @SerialName("exchangeAddresses")
-    var exchangeAddresses: List<String> = emptyList()
-}
+    @JsonProperty("surge")
+    @SerialName("surge")
+    var surge: Boolean = false,
+
+    @JsonProperty("ok")
+    @SerialName("ok")
+    var ok: Boolean = false
+)

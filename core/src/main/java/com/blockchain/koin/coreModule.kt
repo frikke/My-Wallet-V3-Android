@@ -186,7 +186,7 @@ val coreModule = module {
                 ethDataStore = get(),
                 metadataManager = get(),
                 lastTxUpdater = get(),
-                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
+                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
             )
         }.bind(EthMessageSigner::class)
 
@@ -222,13 +222,15 @@ val coreModule = module {
                 bitcoinApi = get(),
                 defaultLabels = get(),
                 metadataManager = get(),
-                crashLogger = get()
+                crashLogger = get(),
+                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
             )
         }
 
         factory {
             PayloadService(
-                payloadManager = get()
+                payloadManager = get(),
+                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
             )
         }
 
@@ -238,7 +240,8 @@ val coreModule = module {
                 privateKeyFactory = get(),
                 bitcoinApi = get(),
                 payloadManager = get(),
-                crashLogger = get()
+                crashLogger = get(),
+                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
             )
         }
 
@@ -258,7 +261,8 @@ val coreModule = module {
                 payloadDataManager = get(),
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
-                crashLogger = get()
+                crashLogger = get(),
+                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
             )
         }
 

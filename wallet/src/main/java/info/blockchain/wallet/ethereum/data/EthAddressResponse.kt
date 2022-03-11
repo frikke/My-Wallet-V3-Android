@@ -1,5 +1,7 @@
+@file:UseSerializers(BigIntSerializer::class)
 package info.blockchain.wallet.ethereum.data
 
+import com.blockchain.api.serializers.BigIntSerializer
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -7,6 +9,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.math.BigInteger
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 
 @SuppressWarnings("unused")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,47 +23,62 @@ import java.math.BigInteger
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
+@Serializable
 class EthAddressResponse {
     @JsonProperty("id")
+    @SerialName("id")
     private val id: Int? = null
 
     @field:JsonProperty("txn_count")
+    @SerialName("txn_count")
     private val txnCount: Int? = null
 
     @JsonProperty("account")
+    @SerialName("account")
     private val account: String? = null
 
     @JsonProperty("accountType")
+    @SerialName("accountType")
     private val accountType: Int? = null
 
     @JsonProperty("balance")
+    @SerialName("balance")
     private var balance: BigInteger? = null
 
     @JsonProperty("nonce")
+    @SerialName("nonce")
     private val nonce: Int? = null
 
     @JsonProperty("firstTime")
+    @SerialName("firstTime")
     private val firstTime: Long? = null
 
     @JsonProperty("numNormalTxns")
+    @SerialName("numNormalTxns")
     private val numNormalTxns: Int? = null
 
     @JsonProperty("numInternalTxns")
+    @SerialName("numInternalTxns")
     private val numInternalTxns: Int? = null
 
     @JsonProperty("totalReceived")
+    @SerialName("totalReceived")
     private val totalReceived: BigInteger? = null
 
     @JsonProperty("totalSent")
+    @SerialName("totalSent")
     private val totalSent: BigInteger? = null
 
     @JsonProperty("totalFee")
+    @SerialName("totalFee")
     private val totalFee: BigInteger? = null
 
     @field:JsonProperty("txns")
-    val transactions: List<EthTransaction> = emptyList()
+    @SerialName("txns")
+    val transactions: List<EthTransaction> = ArrayList()
 
     @JsonProperty("txnOffset")
+    @SerialName("txnOffset")
     private val txnOffset: Int? = null
 
     fun getId(): Int? {

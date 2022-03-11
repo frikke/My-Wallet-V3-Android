@@ -13,6 +13,14 @@ import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
 import java.io.IOException
 import java.lang.Exception
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import org.json.JSONException
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -24,20 +32,33 @@ import org.json.JSONException
     creatorVisibility = JsonAutoDetect.Visibility.ANY,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
+@Serializable
 data class WalletWrapper(
     @field:JsonProperty("version")
+    @SerialName("version")
     var version: Int = 0,
 
     @field:JsonProperty("pbkdf2_iterations")
+    @SerialName("pbkdf2_iterations")
     var pbkdf2Iterations: Int = 0,
 
     @field:JsonProperty("payload")
+    @SerialName("payload")
     var payload: String? = null
 ) {
 
     @Throws(JsonProcessingException::class)
-    fun toJson(mapper: ObjectMapper): String {
-        return mapper.writeValueAsString(this)
+    fun toJson(version: Int, withKotlinX: Boolean): String {
+        return if (withKotlinX) {
+            val jsonBuilder = Json {
+                ignoreUnknownKeys = true
+                serializersModule = getSerializerForVersion(version)
+            }
+            jsonBuilder.encodeToString(this)
+        } else {
+            val mapper: ObjectMapper = WalletWrapper.getMapperForVersion(version)
+            mapper.writeValueAsString(this)
+        }
     }
 
     @Throws(UnsupportedVersionException::class)
@@ -61,7 +82,7 @@ data class WalletWrapper(
         IOException::class,
         DecryptionException::class,
         HDWalletException::class
-    ) fun decryptPayload(password: String?): Wallet {
+    ) fun decryptPayload(password: String?, withKotlinX: Boolean): Wallet {
         validateVersion()
         validatePbkdf2Iterations()
         val decryptedPayload: String = try {
@@ -71,8 +92,12 @@ data class WalletWrapper(
         } ?: throw DecryptionException("Decryption failed.")
 
         return try {
-            val mapper: ObjectMapper = getMapperForVersion(version)
-            val wallet: Wallet = Wallet.fromJson(decryptedPayload, mapper)
+            val wallet: Wallet = if (withKotlinX) {
+                Wallet.fromJson(decryptedPayload, getSerializerForVersion(version))
+            } else {
+                val mapper: ObjectMapper = getMapperForVersion(version)
+                Wallet.fromJson(decryptedPayload, mapper)
+            }
             wallet.wrapperVersion = version
             wallet
         } catch (e: JSONException) {
@@ -88,8 +113,15 @@ data class WalletWrapper(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun fromJson(json: String?): WalletWrapper {
-            return ObjectMapper().readValue(json, WalletWrapper::class.java)
+        fun fromJson(json: String?, withKotlinX: Boolean): WalletWrapper {
+            if (withKotlinX) {
+                val jsonBuilder = Json {
+                    ignoreUnknownKeys = true
+                }
+                return jsonBuilder.decodeFromString(json!!)
+            } else {
+                return ObjectMapper().readValue(json, WalletWrapper::class.java)
+            }
         }
 
         @JvmStatic
@@ -124,6 +156,25 @@ data class WalletWrapper(
             }
             mapper.registerModule(module)
             return mapper
+        }
+
+        @JvmStatic
+        fun getSerializerForVersion(version: Int): SerializersModule {
+            return if (version == V4) {
+                SerializersModule {
+                    polymorphic(Account::class) {
+                        subclass(AccountV4::class)
+                        defaultDeserializer { AccountV4.serializer() }
+                    }
+                }
+            } else {
+                SerializersModule {
+                    polymorphic(Account::class) {
+                        subclass(AccountV3::class)
+                        defaultDeserializer { AccountV3.serializer() }
+                    }
+                }
+            }
         }
     }
 }

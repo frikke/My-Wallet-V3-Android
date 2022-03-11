@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.enableKotlinSerializerFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
@@ -69,6 +70,14 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_eth_memo",
                 "ETH Memo for Hot Wallets"
+            )
+        )
+    }.bind(FeatureFlag::class)
+    single(enableKotlinSerializerFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_enable_kotlin_serializer",
+                "Use Kotlinx Serializer"
             )
         )
     }.bind(FeatureFlag::class)

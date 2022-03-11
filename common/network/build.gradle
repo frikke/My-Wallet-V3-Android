@@ -9,6 +9,8 @@ dependencies {
     implementation Libraries.okHttp
 
     // Network
+    implementation Libraries.kotlinJson
+    implementation Libraries.retrofitKotlinJsonConverter
     implementation Libraries.retrofitJacksonConverter
     implementation Libraries.retrofitRxJavaAdapter
     implementation Libraries.retrofitRxMoshiConverter

@@ -113,14 +113,6 @@ class WalletAuthService(private val walletApi: WalletApi) {
             }
 
     /**
-     * Returns a signed JWT for use with the buy/sell APIs.
-     *
-     * @return A [String] representing a signed JWT.
-     */
-    fun getSignedJwt(guid: String, sharedKey: String, partner: String): Single<String> =
-        walletApi.getSignedJsonToken(guid, sharedKey, partner)
-
-    /**
      * Create a session ID for the given email for authorization
      *
      * @param email The user's email

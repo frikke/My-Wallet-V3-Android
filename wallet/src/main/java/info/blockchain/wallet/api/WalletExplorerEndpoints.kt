@@ -2,7 +2,6 @@ package info.blockchain.wallet.api
 
 import info.blockchain.wallet.api.WalletApi.IPResponse
 import info.blockchain.wallet.api.data.Settings
-import info.blockchain.wallet.api.data.SignedToken
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
 import io.reactivex.rxjava3.core.Completable
@@ -168,15 +167,6 @@ interface WalletExplorerEndpoints {
     fun getWalletOptions(
         @Query("api_code") apiCode: String
     ): Observable<WalletOptions>
-
-    @GET("wallet/signed-token")
-    fun getSignedJsonToken(
-        @Query("guid") guid: String,
-        @Query("sharedKey") sharedKey: String,
-        @Query("fields") fields: String,
-        @Query("partner") partner: String?,
-        @Query("api_code") apiCode: String
-    ): Single<SignedToken>
 
     @GET("wallet/get-ip")
     fun getExternalIp(): Single<IPResponse>

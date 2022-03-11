@@ -25,9 +25,13 @@ val serviceModule = module {
 
     single { SettingsManager(get()) }
 
-    single { get<Retrofit>(explorerRetrofit).create(WalletExplorerEndpoints::class.java) }
+    single {
+        get<Retrofit>(explorerRetrofit).create(WalletExplorerEndpoints::class.java)
+    }
 
-    single { get<Retrofit>(apiRetrofit).create(FeeEndpoints::class.java) }
+    single {
+        get<Retrofit>(apiRetrofit).create(FeeEndpoints::class.java)
+    }
 
     single { get<Retrofit>(everypayRetrofit).create(EveryPayService::class.java) }
 

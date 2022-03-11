@@ -4,6 +4,7 @@ package com.blockchain.core.chains.bitcoincash
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.CrashLogger
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -24,6 +25,7 @@ import info.blockchain.wallet.payload.model.Balance
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import junit.framework.Assert
 import kotlin.test.assertFalse
@@ -51,6 +53,7 @@ class BchDataManagerTest {
     private val bitcoinApi: NonCustodialBitcoinService = mock()
     private val defaultLabels: DefaultLabels = mock()
     private val metadataManager: MetadataManager = mock()
+    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag = mock()
 
     @Before
     fun setUp() {
@@ -60,7 +63,8 @@ class BchDataManagerTest {
             bitcoinApi,
             defaultLabels,
             metadataManager,
-            crashLogger
+            crashLogger,
+            kotlinSerializerFeatureFlag
         )
     }
 
@@ -73,14 +77,15 @@ class BchDataManagerTest {
         val account = GenericMetadataAccount()
         account.label = "account label"
         metaData.addAccount(account)
+        val withKotlinX = true
 
         whenever(metadataManager.fetchMetadata(any())).thenReturn(
             Maybe.just(
-                metaData.toJson()
+                metaData.toJson(withKotlinX)
             )
         )
 
-        return metaData.toJson()
+        return metaData.toJson(withKotlinX)
     }
 
     private fun mockRestoringSingleBchWallet(xpub: String): GenericMetadataWallet {
@@ -117,9 +122,11 @@ class BchDataManagerTest {
         whenever(payloadDataManager.isDoubleEncrypted).thenReturn(false)
         mockAbsentMetadata()
         mockRestoringSingleBchWallet("xpub")
+        val withKotlinX = true
 
-        whenever(bchDataStore.bchMetadata!!.toJson()).thenReturn("{}")
+        whenever(bchDataStore.bchMetadata!!.toJson(withKotlinX)).thenReturn("{}")
         whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(Completable.complete())
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         val testObserver = subject.initBchWallet("Bitcoin cash account").test()
@@ -135,6 +142,7 @@ class BchDataManagerTest {
         mockSingleMetadata()
         mockRestoringSingleBchWallet("xpub")
         whenever(defaultLabels.getDefaultNonCustodialWalletLabel()).thenReturn("label")
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(true))
 
         // Act
         val testObserver = subject.initBchWallet("Bitcoin cash account").test()
@@ -151,9 +159,11 @@ class BchDataManagerTest {
         // Arrange
         mockAbsentMetadata()
         mockRestoringSingleBchWallet("xpub")
+        val withKotlinX = true
 
-        whenever(bchDataStore.bchMetadata!!.toJson()).thenReturn("{}")
+        whenever(bchDataStore.bchMetadata!!.toJson(withKotlinX)).thenReturn("{}")
         whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(Completable.complete())
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         val testObserver = subject.initBchWallet("Bitcoin cash account").test()
@@ -169,6 +179,7 @@ class BchDataManagerTest {
         mockSingleMetadata()
         mockRestoringSingleBchWallet("xpub")
         whenever(defaultLabels.getDefaultNonCustodialWalletLabel()).thenReturn("label")
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(true))
 
         // Act
         val testObserver = subject.initBchWallet("Bitcoin cash account").test()
@@ -182,6 +193,7 @@ class BchDataManagerTest {
 
         // Arrange
         mockAbsentMetadata()
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(true))
 
         // Act
         val testObserver = subject.fetchMetadata("label", 1).isEmpty.test()
@@ -196,13 +208,15 @@ class BchDataManagerTest {
 
         // Arrange
         val walletJson = mockSingleMetadata()
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         val testObserver = subject.fetchMetadata("label", 1).test()
 
         // Assert
         testObserver.assertComplete()
-        Assert.assertEquals(walletJson, testObserver.values()[0].toJson())
+        Assert.assertEquals(walletJson, testObserver.values()[0].toJson(withKotlinX))
     }
 
     @Test
@@ -474,7 +488,8 @@ class BchDataManagerTest {
             bitcoinApi = mock(),
             defaultLabels = mock(),
             metadataManager = mock(),
-            crashLogger = mock()
+            crashLogger = mock(),
+            kotlinSerializerFeatureFlag = mock()
         ).getBalance(xpubs)
             .test()
             .assertNoErrors()
@@ -493,7 +508,8 @@ class BchDataManagerTest {
             bitcoinApi = mock(),
             defaultLabels = mock(),
             metadataManager = mock(),
-            crashLogger = mock()
+            crashLogger = mock(),
+            kotlinSerializerFeatureFlag = mock()
         ).getBalance(xpubs)
             .test()
             .assertNoErrors()

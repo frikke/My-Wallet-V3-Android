@@ -11,6 +11,7 @@ import info.blockchain.wallet.exceptions.HDWalletException;
 import info.blockchain.wallet.exceptions.UnsupportedVersionException;
 import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto;
 import info.blockchain.wallet.util.FormatsUtil;
+import kotlinx.serialization.modules.SerializersModule;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -52,33 +53,33 @@ public class WalletBase {
         walletBaseDto.setGuid(guid);
     }
 
-    public void decryptPayload(@Nonnull String password)
+    public void decryptPayload(@Nonnull String password, boolean withKotlinX)
         throws DecryptionException,
         IOException,
         UnsupportedVersionException,
         HDWalletException {
 
         if (!isV1Wallet()) {
-            walletBody = decryptV3OrV4Wallet(password);
+            walletBody = decryptV3OrV4Wallet(password, withKotlinX);
         }
         else {
-            walletBody = decryptV1Wallet(password);
+            walletBody = decryptV1Wallet(password, withKotlinX);
         }
     }
 
-    private Wallet decryptV3OrV4Wallet(String password) throws IOException,
+    private Wallet decryptV3OrV4Wallet(String password, boolean withKotlinX) throws IOException,
         DecryptionException,
         UnsupportedVersionException,
         HDWalletException {
 
-        WalletWrapper walletWrapperBody = WalletWrapper.fromJson(walletBaseDto.getPayload());
-        return walletWrapperBody.decryptPayload(password);
+        WalletWrapper walletWrapperBody = WalletWrapper.fromJson(walletBaseDto.getPayload(), withKotlinX);
+        return walletWrapperBody.decryptPayload(password, withKotlinX);
     }
 
     /*
     No need to encrypt V1 wallet again. We will force user to upgrade to V3
      */
-    private Wallet decryptV1Wallet(String password)
+    private Wallet decryptV1Wallet(String password, boolean withKotlinX)
         throws DecryptionException, IOException, HDWalletException {
 
         String decrypted = null;
@@ -123,7 +124,7 @@ public class WalletBase {
         }
 
         String decryptedPayload = decrypted;
-        walletBody = Wallet.fromJson(decryptedPayload);
+        walletBody = Wallet.fromJson(decryptedPayload, withKotlinX);
         return walletBody;
     }
 
@@ -179,35 +180,46 @@ public class WalletBase {
         return !FormatsUtil.isValidJson(walletBaseDto.getPayload());
     }
 
-    public static WalletBase fromJson(String json) throws IOException {
+    public static WalletBase fromJson(String json, boolean withKotlinX) throws IOException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()
-                                 .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
-                                 .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
-                                 .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
-                                 .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
+        if (withKotlinX) {
+            return new WalletBase(WalletBaseDto.fromJson(json));
+        } else {
 
-        return new WalletBase(mapper.readValue(json, WalletBaseDto.class));
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()
+                                     .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                                     .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                                     .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+                                     .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
+
+            return new WalletBase(mapper.readValue(json, WalletBaseDto.class));
+        }
     }
 
     public String toJson(ObjectMapper mapper) throws JsonProcessingException {
         return mapper.writeValueAsString(this.walletBaseDto);
     }
 
-    public Pair encryptAndWrapPayload(String password)
+    public Pair encryptAndWrapPayload(String password, boolean withKotlinX)
         throws JsonProcessingException, UnsupportedEncodingException, EncryptionException, NoSuchAlgorithmException {
 
         int version = walletBody.getWrapperVersion();
         int iterations = walletBody.getOptions().getPbkdf2Iterations();
-        ObjectMapper mapper = WalletWrapper.getMapperForVersion(version);
-        String encryptedPayload = AESUtil.encrypt(walletBody.toJson(mapper), password, iterations);
+        String encryptedPayload;
+        if (withKotlinX) {
+            SerializersModule serializersModule = WalletWrapper.getSerializerForVersion(version);
+            encryptedPayload = AESUtil.encrypt(walletBody.toJson(serializersModule), password, iterations);
+        } else {
+            ObjectMapper mapper = WalletWrapper.getMapperForVersion(version);
+            encryptedPayload = AESUtil.encrypt(walletBody.toJson(mapper), password, iterations);
+        }
         WalletWrapper wrapperBody = WalletWrapper.wrap(encryptedPayload, version, iterations);
 
         String checkSum = new String(
             Hex.encode(
                 MessageDigest.getInstance("SHA-256")
-                    .digest(wrapperBody.toJson(mapper).getBytes(StandardCharsets.UTF_8))
+                    .digest(wrapperBody.toJson(version, withKotlinX).getBytes(StandardCharsets.UTF_8))
             )
         );
 

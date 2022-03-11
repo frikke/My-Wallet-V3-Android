@@ -10,6 +10,8 @@ import info.blockchain.wallet.ethereum.util.HashUtil
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.keys.SigningKeyImpl
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
@@ -29,18 +31,23 @@ import org.web3j.crypto.TransactionEncoder
     creatorVisibility = Visibility.NONE,
     isGetterVisibility = Visibility.NONE
 )
+@Serializable
 class EthereumAccount : JsonSerializableAccount {
 
     @JsonProperty("archived")
+    @SerialName("archived")
     private val archived: Boolean = false
 
     @JsonProperty("label")
+    @SerialName("label")
     override var label = ""
 
     @field:JsonProperty("correct")
+    @SerialName("correct")
     var isCorrect: Boolean = false
 
     @field:JsonProperty("addr")
+    @SerialName("addr")
     var address: String = ""
 
     constructor() {

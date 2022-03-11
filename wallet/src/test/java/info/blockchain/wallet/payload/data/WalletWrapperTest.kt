@@ -1,7 +1,6 @@
 package info.blockchain.wallet.payload.data
 
 import info.blockchain.wallet.MockedResponseTest
-import info.blockchain.wallet.payload.data.WalletWrapper.Companion.getMapperForVersion
 import org.junit.Assert
 import org.junit.Test
 
@@ -10,7 +9,7 @@ class WalletWrapperTest : MockedResponseTest() {
     @Test
     fun `Wallet wrapper should be parsed normally`() {
         val body: String = loadResourceContent("wallet_wrapper.txt")
-        val walletWrapper = WalletWrapper.fromJson(body)
+        val walletWrapper = WalletWrapper.fromJson(body, true)
 
         Assert.assertEquals("test_payload", walletWrapper.payload)
         Assert.assertEquals(
@@ -26,7 +25,7 @@ class WalletWrapperTest : MockedResponseTest() {
     @Test
     fun `Wallet wrapper with no payload should be parsed normally`() {
         val body: String = loadResourceContent("wallet_wrapper_2.txt")
-        val walletWrapper = WalletWrapper.fromJson(body)
+        val walletWrapper = WalletWrapper.fromJson(body, true)
 
         Assert.assertEquals(null, walletWrapper.payload)
         Assert.assertEquals(
@@ -42,22 +41,22 @@ class WalletWrapperTest : MockedResponseTest() {
     @Test
     fun `Wallet wrapper should be serialised normally with no payload`() {
         val body: String = loadResourceContent("wallet_wrapper_2.txt")
-        val walletWrapper = WalletWrapper.fromJson(body)
+        val walletWrapper = WalletWrapper.fromJson(body, true)
 
         Assert.assertEquals(
             "{\"version\":4,\"pbkdf2_iterations\":7}",
-            walletWrapper.toJson(getMapperForVersion(WalletWrapper.V4))
+            walletWrapper.toJson(WalletWrapper.V4, true)
         )
     }
 
     @Test
     fun `Wallet wrapper should be serialised normally`() {
         val body: String = loadResourceContent("wallet_wrapper.txt")
-        val walletWrapper = WalletWrapper.fromJson(body)
+        val walletWrapper = WalletWrapper.fromJson(body, true)
 
         Assert.assertEquals(
             "{\"version\":4,\"pbkdf2_iterations\":7,\"payload\":\"test_payload\"}",
-            walletWrapper.toJson(getMapperForVersion(WalletWrapper.V4))
+            walletWrapper.toJson(WalletWrapper.V4, true)
         )
     }
 }

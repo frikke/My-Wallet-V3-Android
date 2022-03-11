@@ -14,6 +14,7 @@ import info.blockchain.wallet.payment.OutputType;
 import info.blockchain.wallet.payment.Payment;
 import info.blockchain.wallet.payment.SpendableUnspentOutputs;
 import info.blockchain.wallet.util.LoaderUtilKt;
+import kotlinx.serialization.modules.SerializersModule;
 import retrofit2.Call;
 
 import org.bitcoinj.core.Base58;
@@ -36,13 +37,14 @@ import static org.mockito.Mockito.when;
 public class WalletBodyTest extends WalletApiMockedResponseTest {
 
     private final ObjectMapper mapperV3 = WalletWrapper.getMapperForVersion(WalletWrapper.V3);
+    private final SerializersModule moduleV3 = WalletWrapper.getSerializerForVersion(WalletWrapper.V3);
     private final NonCustodialBitcoinService bitcoinApi = mock(NonCustodialBitcoinService.class);
 
     @Test
     public void fromJson_1() throws Exception {
         String body = loadResourceContent("wallet_body_1.txt");
 
-        Wallet wallet = Wallet.fromJson(body);
+        Wallet wallet = Wallet.fromJson(body, true);
         WalletBody walletBody = wallet.getWalletBody();
 
         assertEquals(68, walletBody.getAccounts().size());
@@ -56,7 +58,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     public void fromJson_2() throws Exception {
         String body = loadResourceContent("wallet_body_2.txt");
 
-        Wallet wallet = Wallet.fromJson(body);
+        Wallet wallet = Wallet.fromJson(body, true);
         Assert.assertEquals(null, wallet.getWalletBodies());
     }
 
@@ -64,7 +66,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     public void fromJson_6() throws Exception {
         String body = loadResourceContent("wallet_body_6.txt");
 
-        Wallet wallet = Wallet.fromJson(body);
+        Wallet wallet = Wallet.fromJson(body, true);
         WalletBody walletBody = wallet.getWalletBody();
 
         assertEquals(1, walletBody.getAccounts().size());
@@ -80,9 +82,37 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
         //Ensure toJson doesn't write any unintended fields
         String body = loadResourceContent("wallet_body_1.txt");
 
-        Wallet wallet = Wallet.fromJson(body);
+        Wallet wallet = Wallet.fromJson(body, true);
+        WalletBody walletBody = wallet.getWalletBody();
+        String jsonString = walletBody.toJson(moduleV3);
+
+        JSONObject jsonObject = new JSONObject(jsonString);
+        assertEquals(5, jsonObject.keySet().size());
+    }
+
+    @Test
+    public void testKotlinXToJacksonJSON() throws Exception {
+
+        //Ensure toJson doesn't write any unintended fields
+        String body = loadResourceContent("wallet_body_1.txt");
+
+        Wallet wallet = Wallet.fromJson(body, true);
         WalletBody walletBody = wallet.getWalletBody();
         String jsonString = walletBody.toJson(mapperV3);
+
+        JSONObject jsonObject = new JSONObject(jsonString);
+        assertEquals(5, jsonObject.keySet().size());
+    }
+
+    @Test
+    public void testJackonToKotlinXJSON() throws Exception {
+
+        //Ensure toJson doesn't write any unintended fields
+        String body = loadResourceContent("wallet_body_1.txt");
+
+        Wallet wallet = Wallet.fromJson(body, false);
+        WalletBody walletBody = wallet.getWalletBody();
+        String jsonString = walletBody.toJson(moduleV3);
 
         JSONObject jsonObject = new JSONObject(jsonString);
         assertEquals(5, jsonObject.keySet().size());
@@ -143,7 +173,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test
     public void getHDKeysForSigning() throws Exception {
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, moduleV3);
 
         walletBody.decryptHDWallet(
             "hello",
@@ -184,7 +214,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
         String body = loadResourceContent("hd_wallet_body_2.txt");
 
         //HD seed is encrypted, only xpubs available
-        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, moduleV3);
 
         assertEquals("5F8YjqPVSq9HnXBrDxUmUoDKXsya8q5LGHnAopadTRYE",
                 Base58.encode(walletBody.getMasterKey().toDeterministicKey().getPrivKeyBytes()));
@@ -193,7 +223,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test(expected = HDWalletException.class)
     public void getMasterKey_DecryptionException() throws Exception {
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, moduleV3);
 
         walletBody.getMasterKey();
     }
@@ -201,7 +231,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test
     public void getMnemonic() throws Exception {
         String body = loadResourceContent("hd_wallet_body_2.txt");
-        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, moduleV3);
 
         assertEquals("[car, region, outdoor, punch, poverty, shadow, insane, claim, one, whisper, learn, alert]",
                      walletBody.getMnemonic().toString());
@@ -210,7 +240,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test(expected = HDWalletException.class)
     public void getMnemonic_DecryptionException() throws Exception {
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, moduleV3);
 
         walletBody.getMnemonic();
     }
@@ -218,7 +248,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     @Test
     public void getXpubToAccountIndexMap() throws Exception {
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, moduleV3);
 
         BiMap<String, Integer> map = walletBody.getXpubToAccountIndexMap();
 
@@ -233,7 +263,7 @@ public class WalletBodyTest extends WalletApiMockedResponseTest {
     public void getDerivationsAfterV4Upgrade() throws Exception {
         final int expectedDerivationsCount = 2;
         String body = loadResourceContent("hd_wallet_body_1.txt");
-        WalletBody walletBody = WalletBody.Companion.fromJson(body, mapperV3);
+        WalletBody walletBody = WalletBody.Companion.fromJson(body, moduleV3);
         walletBody.decryptHDWallet(
             "hello",
             "d14f3d2c-f883-40da-87e2-c8448521ee64",

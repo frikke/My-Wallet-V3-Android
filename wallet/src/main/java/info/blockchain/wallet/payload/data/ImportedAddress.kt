@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.IOException
 import java.lang.Exception
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bitcoinj.core.Base58
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.LegacyAddress
@@ -21,36 +23,45 @@ import org.bitcoinj.params.MainNetParams
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
+@Serializable
 data class ImportedAddress(
     @field:com.squareup.moshi.Json(name = "addr")
     @field:JsonProperty("addr")
+    @SerialName("addr")
     var address: String = "",
 
     @field:com.squareup.moshi.Json(name = "priv")
     @field:JsonProperty("priv")
+    @SerialName("priv")
     var privateKey: String? = null,
 
     @field:com.squareup.moshi.Json(name = "label")
     @field:JsonProperty("label")
+    @SerialName("label")
     private var labelField: String? = null,
 
     @field:com.squareup.moshi.Json(name = "created_time")
     @field:JsonProperty("created_time")
+    @SerialName("created_time")
     val createdTime: Long? = null,
 
     @field:com.squareup.moshi.Json(name = "tag")
     @field:JsonProperty("tag")
+    @SerialName("tag")
     var tag: Int = 0,
 
     @field:com.squareup.moshi.Json(name = "created_device_name")
     @field:JsonProperty("created_device_name")
+    @SerialName("created_device_name")
     val createdDeviceName: String? = null,
 
     @field:com.squareup.moshi.Json(name = "created_device_version")
     @field:JsonProperty("created_device_version")
+    @SerialName("created_device_version")
     val createdDeviceVersion: String? = null,
 ) : JsonSerializableAccount {
 
+    @kotlinx.serialization.Transient
     @Transient
     @JsonIgnore
     override var label: String = labelField ?: ""
