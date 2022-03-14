@@ -103,7 +103,12 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             when {
                 isForApproval -> {
                     approvalData?.let {
-                        model.process(BankAuthIntent.UpdateForApproval(it.authorisationUrl))
+                        model.process(
+                            BankAuthIntent.UpdateForApproval(
+                                authorisationUrl = it.authorisationUrl,
+                                callbackPath = it.linkedBank.callbackPath
+                            )
+                        )
                     }
                 }
                 isFromDeepLink -> {
@@ -190,7 +195,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     private fun startBankAuthentication() {
         if (isForApproval) {
             approvalData?.let {
-                model.process(BankAuthIntent.UpdateForApproval(it.authorisationUrl))
+                model.process(BankAuthIntent.UpdateForApproval(it.authorisationUrl, it.linkedBank.callbackPath))
             }
         } else {
             linkBankTransfer?.let {
@@ -222,7 +227,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             override fun onItemChosen() {
                 hasChosenExternalApp = true
                 if (isForApproval) {
-                    model.process(BankAuthIntent.StartBankApproval)
+                    model.process(BankAuthIntent.StartBankApproval(newState.callbackPathUrl))
                 } else {
                     model.process(BankAuthIntent.StartBankLinking)
                 }
