@@ -27,6 +27,10 @@ dependencies {
     implementation Libraries.rxRelay
     implementation Libraries.rxAndroid
     implementation Libraries.composeUi
+    implementation Libraries.lifecycleRuntime
+
+    implementation Libraries.lifecycleViewModel
+    implementation Libraries.lifecycleViewModelExtensions
     // Logging
     implementation Libraries.timber
 

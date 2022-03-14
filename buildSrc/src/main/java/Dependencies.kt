@@ -38,7 +38,7 @@ object Versions {
     const val desugaring = "1.1.5"
     const val installReferrer = "2.2"
     const val navigation = "2.3.5"
-    const val lifecycle = "2.3.1"
+    const val lifecycle = "2.4.1"
     const val camera = "1.0.0-rc04"
     const val cameraView = "1.0.0-alpha23"
 
