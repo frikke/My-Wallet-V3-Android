@@ -51,7 +51,7 @@ private class RecurringBuyViewHolder(
             recurringBuyDetails.apply {
                 startImageResource =
                     ImageResource.LocalWithBackgroundAndExternalResources(
-                        R.drawable.ic_tx_recurring_buy, "#FFFFFF", item.recurringBuy.asset.colour, 1f
+                        R.drawable.ic_tx_rb, item.recurringBuy.asset.colour, "#FFFFFF", 1f
                     )
 
                 primaryText = context.getString(

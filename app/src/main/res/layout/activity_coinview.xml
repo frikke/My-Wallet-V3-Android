@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:background="@color/white"
     android:orientation="vertical">
 
@@ -31,7 +32,9 @@
             <ViewSwitcher
                 android:id="@+id/asset_prices_switcher"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:inAnimation="@anim/fade_in"
+                android:outAnimation="@anim/fade_out">
 
                 <com.blockchain.componentlib.system.LoadingTableRowView
                     android:id="@+id/asset_prices_loading"
@@ -53,19 +56,14 @@
             <ViewSwitcher
                 android:id="@+id/asset_chart_view_switcher"
                 android:layout_width="match_parent"
-                android:layout_height="240dp">
+                android:layout_height="240dp"
+                android:inAnimation="@anim/fade_in"
+                android:outAnimation="@anim/fade_out">
 
-                <ProgressBar
+                <com.blockchain.componentlib.system.LoadingChartView
                     android:id="@+id/asset_chart_loading"
-                    style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/standard_margin"
-                    android:layout_marginEnd="@dimen/standard_margin"
-                    android:indeterminate="true"
-                    android:indeterminateTint="@color/blue_600"
-                    android:indeterminateTintMode="src_in" />
+                    android:layout_height="wrap_content" />
 
                 <com.blockchain.charts.ChartView
                     android:id="@+id/asset_chart"
@@ -82,7 +80,9 @@
             <ViewSwitcher
                 android:id="@+id/asset_balances_switcher"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:inAnimation="@anim/fade_in"
+                android:outAnimation="@anim/fade_out">
 
                 <com.blockchain.componentlib.system.LoadingTableRowView
                     android:id="@+id/asset_balances_loading"
@@ -113,7 +113,9 @@
             <ViewSwitcher
                 android:id="@+id/asset_accounts_view_switcher"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:inAnimation="@anim/fade_in"
+                android:outAnimation="@anim/fade_out">
 
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
@@ -165,7 +167,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginEnd="@dimen/standard_margin" />
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:visibility="gone" />
 
             <com.blockchain.componentlib.basic.SimpleTextView
                 android:id="@+id/asset_about_blurb"
@@ -173,7 +176,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
-                android:layout_marginEnd="@dimen/standard_margin" />
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:visibility="gone" />
 
             <com.blockchain.componentlib.basic.SimpleTextView
                 android:id="@+id/asset_website"
@@ -182,7 +186,8 @@
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
-                android:paddingBottom="@dimen/very_small_margin" />
+                android:paddingBottom="@dimen/very_small_margin"
+                android:visibility="gone" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.core.widget.NestedScrollView>
 

@@ -1,5 +1,9 @@
 package com.blockchain.componentlib.charts
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,6 +117,41 @@ fun DefaultBalance_Preview_With_Icon() {
                     interval = "Past Hour"
                 ),
                 endIcon = ImageResource.Local(R.drawable.ic_blockchain)
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultBalance_Preview_With_Bitmap() {
+    val width = 50
+    val height = 50
+    val bitmap: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+
+    val paint = Paint()
+    paint.color = Color.BLACK
+    paint.style = Paint.Style.FILL
+    canvas.drawPaint(paint)
+
+    paint.color = Color.WHITE
+    paint.isAntiAlias = true
+    paint.textSize = 14f
+    paint.textAlign = Paint.Align.CENTER
+    canvas.drawText("Hello Android!", width / 2f, height / 2f, paint)
+
+    AppTheme {
+        AppSurface {
+            Balance(
+                title = "Current Balance",
+                price = "$2574.37",
+                percentageChangeData = PercentageChangeData(
+                    priceChange = "$50.00",
+                    percentChange = 0.24,
+                    interval = "Past Hour"
+                ),
+                endIcon = ImageResource.LocalWithResolvedBitmap(bitmap)
             )
         }
     }

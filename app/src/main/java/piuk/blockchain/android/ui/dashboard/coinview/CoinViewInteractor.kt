@@ -93,17 +93,17 @@ class CoinViewInteractor(
             return@zip if (tradeableAsset == null) {
                 AssetInformation.NonTradeable(prices)
             } else {
-                val list = mapAccounts(
+                val accountsList = mapAccounts(
                     nonCustodialAccounts, prices.currentRate, custodialAccounts, interestAccounts, interestRate
                 )
                 var totalCryptoBalance = Money.zero(asset.assetInfo)
                 var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
-                list.forEach { account ->
+                accountsList.forEach { account ->
                     totalCryptoBalance = totalCryptoBalance.plus(account.amount)
                     totalFiatBalance = totalFiatBalance.plus(account.fiatValue)
                 }
                 AssetInformation.AccountsInfo(
-                    prices, list, totalCryptoBalance, totalFiatBalance
+                    prices, accountsList, totalCryptoBalance, totalFiatBalance
                 )
             }
         }

@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -10,7 +12,9 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
@@ -26,6 +30,11 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.wallet.DefaultLabels
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -72,6 +81,10 @@ class CoinViewActivity :
     private val labels: DefaultLabels by inject()
     private val assetResources: AssetResources by inject()
     private val listItems = mutableListOf<AssetDetailsItemNew>()
+    private lateinit var historicalGraphData: HistoricalRateList
+    private lateinit var prices24Hr: Prices24HrWithDelta
+    private lateinit var selectedFiat: FiatCurrency
+    private var hasLoadedIcon = false
 
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
@@ -98,13 +111,18 @@ class CoinViewActivity :
                 addItemDecoration(BlockchainListDividerDecor(this@CoinViewActivity))
             }
 
-            // TODO update these in relevant story - placeholder texts
+            assetChartLoading.loadingText = getString(R.string.coinview_chart_loading)
+            assetPricesLoading.showIconLoader = false
+
+            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
             assetAboutTitle.apply {
                 text = getString(R.string.coinview_about_asset, assetName)
                 textColor = ComposeColors.Title
                 style = ComposeTypographies.Body2
+                gone()
             }
 
+            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
             assetAboutBlurb.apply {
                 text =
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut" +
@@ -114,6 +132,7 @@ class CoinViewActivity :
                     "cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                 textColor = ComposeColors.Title
                 style = ComposeTypographies.Paragraph1
+                gone()
             }
 
             assetChartViewSwitcher.displayedChild = CHART_LOADING
@@ -121,7 +140,19 @@ class CoinViewActivity :
             assetPricesSwitcher.displayedChild = PRICES_LOADING
             assetBalancesSwitcher.displayedChild = BALANCES_LOADING
 
-            assetChart.isChartLive = false
+            assetChart.apply {
+                isChartLive = false
+                onEntryHighlighted = { entry ->
+                    updateScrubPriceInformation(entry)
+                }
+                onScrubRelease = {
+                    renderPriceInformation(
+                        prices24Hr,
+                        historicalGraphData,
+                        selectedFiat
+                    )
+                }
+            }
 
             chartControls.apply {
                 items = listOf(
@@ -139,6 +170,8 @@ class CoinViewActivity :
             }
 
             assetBalance.apply {
+                // TODO (dserrano-bc): AND-5669 - add asset to watchlist pending BE implementation
+                shouldShowIcon = false
                 onIconClick = {
                     // model.process(ToggleWatchlist)
                 }
@@ -146,8 +179,9 @@ class CoinViewActivity :
 
             showLoadingCtas()
 
-            // TODO in upcoming stories
+            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
             assetWebsite.apply {
+                gone()
                 text = "Visit Website ->"
                 textColor = ComposeColors.Primary
                 style = ComposeTypographies.Paragraph2
@@ -155,6 +189,28 @@ class CoinViewActivity :
                     BlockchainSnackbar.make(binding.root, "Website link clicked").show()
                 }
             }
+        }
+    }
+
+    private fun ActivityCoinviewBinding.updateScrubPriceInformation(entry: Entry) {
+        val dataForEntry = historicalGraphData.first {
+            it.timestamp.toFloat() == entry.x
+        }
+
+        val firstForPeriod = historicalGraphData.first()
+        val difference = dataForEntry.rate - firstForPeriod.rate
+
+        val percentChange = (difference / firstForPeriod.rate) * 100
+
+        val changeDifference = Money.fromMajor(selectedFiat, difference.toBigDecimal()).toStringWithSymbol()
+
+        assetPrice.apply {
+            price = Money.fromMajor(selectedFiat, dataForEntry.rate.toBigDecimal()).toStringWithSymbol()
+            percentageChangeData = PercentageChangeData(
+                priceChange = changeDifference,
+                percentChange = percentChange / 100,
+                interval = ""
+            )
         }
     }
 
@@ -167,7 +223,7 @@ class CoinViewActivity :
         newState.asset?.let {
             with(binding) {
                 assetAboutTitle.text = getString(R.string.coinview_about_asset, it.assetInfo.name)
-                assetPrice.endIcon = ImageResource.Remote(it.assetInfo.logo)
+                loadAssetIcon(it)
             }
         }
 
@@ -176,9 +232,54 @@ class CoinViewActivity :
         }
 
         if (newState.error != CoinViewError.None) {
-            Timber.e("---- error in coinview ${newState.error.name}")
+            // TODO (dserrano-bc): Placeholders - update these to real errors when design knows how we should show them
+            when (newState.error) {
+                CoinViewError.UnknownAsset -> BlockchainSnackbar.make(
+                    binding.root, "This asset is not known", type = SnackbarType.Error
+                ).show()
+                CoinViewError.WalletLoadError -> BlockchainSnackbar.make(
+                    binding.root, "There was an issue loading the wallet info", type = SnackbarType.Error
+                ).show()
+                CoinViewError.ChartLoadError -> BlockchainSnackbar.make(
+                    binding.root, "There was an issue loading the chart info", type = SnackbarType.Error
+                ).show()
+                CoinViewError.RecurringBuysLoadError -> BlockchainSnackbar.make(
+                    binding.root, "There was an issue loading recurring buys", type = SnackbarType.Error
+                ).show()
+                CoinViewError.QuickActionsFailed -> BlockchainSnackbar.make(
+                    binding.root, "There was an issue loading quick actions", type = SnackbarType.Error
+                ).show()
+                CoinViewError.None -> {
+                    // do nothing
+                }
+            }
 
             model.process(CoinViewIntent.ResetErrorState)
+        }
+    }
+
+    private fun ActivityCoinviewBinding.loadAssetIcon(asset: CryptoAsset) {
+        if (!hasLoadedIcon) {
+            Glide.with(this@CoinViewActivity)
+                .asBitmap()
+                .load(asset.assetInfo.logo)
+                .apply(RequestOptions().placeholder(R.drawable.ic_blockchain))
+                .into(object : CustomTarget<Bitmap>() {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        assetPrice.endIcon = ImageResource.LocalWithResolvedBitmap(resource)
+                        hasLoadedIcon = true
+                    }
+
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                        super.onLoadFailed(errorDrawable)
+                        Timber.e("Coinview - error loading asset icon")
+                        assetPrice.endIcon = ImageResource.Local(R.drawable.ic_blockchain)
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                        assetPrice.endIcon = ImageResource.Local(R.drawable.ic_blockchain)
+                    }
+                })
         }
     }
 
@@ -203,7 +304,18 @@ class CoinViewActivity :
             is CoinViewViewState.ShowAssetInfo -> {
                 with(binding) {
                     assetChartViewSwitcher.displayedChild = CHART_VIEW
-                    assetChart.setData(state.entries)
+                    assetChart.apply {
+                        datePattern = when (chartControls.selectedItemIndex) {
+                            HistoricalTimeSpan.DAY.ordinal -> "HH:mm"
+                            HistoricalTimeSpan.WEEK.ordinal -> "HH:mm, EEE"
+                            HistoricalTimeSpan.MONTH.ordinal -> "HH:mm d, MMM"
+                            HistoricalTimeSpan.YEAR.ordinal -> "d MMM YYYY"
+                            HistoricalTimeSpan.ALL_TIME.ordinal -> "d MMM YYYY"
+                            else -> "HH:mm"
+                        }
+                        fiatSymbol = state.selectedFiat.symbol
+                        setData(state.entries)
+                    }
                 }
                 renderPriceInformation(state.prices, state.historicalRateList, state.selectedFiat)
             }
@@ -376,6 +488,10 @@ class CoinViewActivity :
         historicalRateList: HistoricalRateList,
         selectedFiat: FiatCurrency
     ) {
+        prices24Hr = prices
+        historicalGraphData = historicalRateList
+        this.selectedFiat = selectedFiat
+
         val currentPrice = prices.currentRate.price.toStringWithSymbol()
         // We have filtered out nulls by here, so we can 'safely' default to zeros for the price
         val firstPrice: Double = historicalRateList.firstOrNull()?.rate ?: 0.0

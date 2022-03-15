@@ -3,8 +3,12 @@ package com.blockchain.charts
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
@@ -13,6 +17,7 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.YAxis
@@ -42,7 +47,7 @@ class ChartView : FrameLayout {
 
     private val lineChart: LineChart = LineChart(context)
 
-    var datePattern: String = "HH:mm aa"
+    var datePattern: String = "HH:mm"
         set(value) {
             field = value
             lineChart.setDrawMarkers(true)
@@ -56,6 +61,8 @@ class ChartView : FrameLayout {
         }
 
     var onEntryHighlighted: ((Entry) -> Unit)? = null
+    var onScrubRelease: (() -> Unit)? = null
+    var fiatSymbol: String = ""
 
     private var isBlockingScroll = false
     private var currentEvent: MotionEvent? = null
@@ -72,7 +79,7 @@ class ChartView : FrameLayout {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initialize() {
-        lineChart.setOnTouchListener { view, event ->
+        lineChart.setOnTouchListener { _, event ->
             currentEvent = event
 
             if (event?.action == ACTION_DOWN) {
@@ -87,6 +94,7 @@ class ChartView : FrameLayout {
                 isBlockingScroll = false
                 selectedEntry = null
                 setEntryData(entries)
+                onScrubRelease?.invoke()
             }
 
             if (event?.action == ACTION_MOVE && isBlockingScroll) {
@@ -107,6 +115,21 @@ class ChartView : FrameLayout {
             selectedEntry = entries.minByOrNull { abs(it.x - point.x) }
             selectedEntry?.let {
                 onEntryHighlighted?.invoke(it)
+
+                val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorManager =
+                        context.getSystemService(AppCompatActivity.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    vibratorManager.defaultVibrator
+                } else {
+                    context.getSystemService(AppCompatActivity.VIBRATOR_SERVICE) as Vibrator
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vib.vibrate(VibrationEffect.createOneShot(VIBRATION_DURATION, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    // deprecated in API 26
+                    vib.vibrate(VIBRATION_DURATION)
+                }
             }
             setEntryData(entries)
         }
@@ -169,6 +192,7 @@ class ChartView : FrameLayout {
             mode = LineDataSet.Mode.LINEAR
             val h = Highlight(it.x, it.y, 0)
             h.dataIndex = index
+
             lineChart.highlightValue(h)
             icon?.alpha = 40
         } ?: run {
@@ -176,13 +200,26 @@ class ChartView : FrameLayout {
             lineChart.highlightValue(0f, -1)
         }
 
-        val firstDataset = getLineDataSet(firstEntries, R.color.colorPrimary, mode)
-        val secondDataset = getLineDataSet(secondEntries, R.color.colorScrub, mode)
+        val firstDataset = getLineDataSet(firstEntries, R.color.colorPrimary, mode, selectedEntry)
+        val secondDataset = getLineDataSet(secondEntries, R.color.colorScrub, mode, selectedEntry)
 
         lineChart.data = LineData(
             firstDataset,
             secondDataset
         )
+
+        if (selectedEntry == null) {
+            val highestEntry = entries.maxByOrNull { it.y }
+            val lowestEntry = entries.minByOrNull { it.y }
+            if (lowestEntry != null && highestEntry != null) {
+                lineChart.highlightValues(
+                    arrayOf(
+                        PeakOrTroughHighlight(fiatSymbol, lowestEntry.x, 0, 0),
+                        PeakOrTroughHighlight(fiatSymbol, highestEntry.x, 0, 0)
+                    )
+                )
+            }
+        }
 
         if (isChartLive) {
             entries.forEach {
@@ -201,7 +238,12 @@ class ChartView : FrameLayout {
         invalidate()
     }
 
-    private fun getLineDataSet(entries: List<Entry>, @ColorRes colorRes: Int, mode: LineDataSet.Mode): LineDataSet {
+    private fun getLineDataSet(
+        entries: List<Entry>,
+        @ColorRes colorRes: Int,
+        mode: LineDataSet.Mode,
+        selectedEntry: Entry?
+    ): LineDataSet {
         return LineDataSet(entries, null).apply {
             color = ContextCompat.getColor(context, colorRes)
             lineWidth = 2f
@@ -212,7 +254,7 @@ class ChartView : FrameLayout {
             lineChart.isHighlightPerDragEnabled = false
             lineChart.isHighlightPerTapEnabled = false
             setDrawHorizontalHighlightIndicator(false)
-            setDrawVerticalHighlightIndicator(true)
+            setDrawVerticalHighlightIndicator(selectedEntry != null)
             highlightLineWidth = 1f
             highLightColor = ContextCompat.getColor(context, R.color.colorText)
             setDrawFilled(true)
@@ -221,6 +263,10 @@ class ChartView : FrameLayout {
     }
 
     companion object {
-        private const val LONG_PRESS_DURATION = 350L
+        private const val LONG_PRESS_DURATION = 200L
+        private const val VIBRATION_DURATION = 75L
     }
 }
+
+class PeakOrTroughHighlight(val fiatSymbol: String, x: Float, datasetIndex: Int, stackIndex: Int) :
+    Highlight(x, datasetIndex, stackIndex)
