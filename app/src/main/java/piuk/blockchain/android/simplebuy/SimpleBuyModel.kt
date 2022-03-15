@@ -429,7 +429,7 @@ class SimpleBuyModel(
                     // We are allowed to refresh the payment methods only when
                     // 1. there is at least one with enough funds so making sure that in the end
                     // something will be selected
-                    // 2. when at least one with not enought funds has been detected.
+                    // 2. when at least one with not enough funds has been detected.
 
                     val shouldRefreshPaymentMethods =
                         paymentMethodsWithEnoughBalance.isNotEmpty() && paymentMethodsWithNotEnoughBalance.isNotEmpty()

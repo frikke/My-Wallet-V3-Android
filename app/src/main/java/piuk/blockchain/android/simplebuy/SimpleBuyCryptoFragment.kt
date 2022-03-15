@@ -409,8 +409,12 @@ class SimpleBuyCryptoFragment :
         KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
     }
 
-    private fun canContinue(state: SimpleBuyState) =
-        state.errorState == TransactionErrorState.NONE && state.selectedPaymentMethod != null && !state.isLoading
+    private fun canContinue(state: SimpleBuyState): Boolean =
+        if (state.amount.isZero) false else {
+            state.errorState == TransactionErrorState.NONE &&
+                state.selectedPaymentMethod != null &&
+                !state.isLoading
+        }
 
     private fun renderDefinedPaymentMethod(state: SimpleBuyState, selectedPaymentMethod: PaymentMethod) {
         renderRecurringBuy(state)
