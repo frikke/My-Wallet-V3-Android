@@ -125,9 +125,7 @@ public class NotificationPayload {
 
     public enum NotificationType {
         PAYMENT("payment"),
-        SECURE_CHANNEL_MESSAGE("secure_channel"),
-        DEEPLINK_CHANNEL_MESSAGE("deeplink");
-
+        SECURE_CHANNEL_MESSAGE("secure_channel");
         private String name;
 
         NotificationType(String name) {

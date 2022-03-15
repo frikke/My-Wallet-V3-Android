@@ -221,6 +221,10 @@ class MainActivity :
                     )
                 )
             }
+        } else if (intent.hasExtra(PENDING_DESTINATION)) {
+            intent.getParcelableExtra<Destination>(PENDING_DESTINATION)?.let { destination ->
+                navigateToDeeplinkDestination(destination)
+            }
         }
         model.process(MainIntent.PerformInitialChecks)
     }
@@ -1018,6 +1022,7 @@ class MainActivity :
         private const val SHOW_SWAP = "SHOW_SWAP"
         private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
+        private const val PENDING_DESTINATION = "PENDING_DESTINATION"
         const val ACCOUNT_EDIT = 2008
         const val SETTINGS_EDIT = 2009
         const val KYC_STARTED = 2011
@@ -1064,6 +1069,11 @@ class MainActivity :
         fun newIntent(context: Context, intentFromNotification: Boolean): Intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
+            }
+
+        fun newIntent(context: Context, pendingDestination: Destination): Intent =
+            Intent(context, MainActivity::class.java).apply {
+                putExtra(PENDING_DESTINATION, pendingDestination)
             }
 
         fun newIntentAsNewTask(context: Context): Intent =
