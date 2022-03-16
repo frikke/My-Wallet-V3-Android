@@ -220,6 +220,17 @@ fun Activity.hideKeyboard() {
 }
 
 /**
+ * Shows the keyboard in a specified [AppCompatActivity]
+ */
+fun Activity.showKeyboard() {
+    val view = this.currentFocus
+    if (view != null) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    }
+}
+
+/**
  * Converts dp unit to equivalent pixels, depending on device density.
  *
  * @param dp A value in dp to convert to pixels

@@ -26,6 +26,7 @@ import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
@@ -121,6 +122,9 @@ class PinActivity :
             pinLogout.apply {
                 text = getString(R.string.logout)
                 setOnClickListener { model.process(PinIntent.PinLogout) }
+            }
+            root.setOnClickListener {
+                this@PinActivity.showKeyboard()
             }
         }
     }
