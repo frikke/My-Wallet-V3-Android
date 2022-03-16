@@ -69,8 +69,12 @@ class WalletConnectService(
         }
     }
 
-    private fun disconnectAllClients() {
-        disconnectAndClear()
+    private fun disconnectAllClientsTemporarily() {
+        wcClients.forEach { (_, client) ->
+            client.onDisconnect = { _, _ -> }
+            client.disconnect()
+        }
+        wcClients.clear()
     }
 
     override fun init() {
@@ -89,7 +93,7 @@ class WalletConnectService(
             when (state) {
                 null -> {
                 } // warning removal
-                AppState.BACKGROUNDED -> disconnectAllClients()
+                AppState.BACKGROUNDED -> disconnectAllClientsTemporarily() // Close sockets when app gets backgrounded.
                 AppState.FOREGROUNDED -> reconnectToPreviouslyApprovedSessions()
             }.exhaustive
         }
@@ -108,6 +112,7 @@ class WalletConnectService(
             peerMeta = dAppInfo.toWCPeerMeta()
         )
         wcClients[url] = wcClient
+        wcClient.configureDisconnect(this)
         wcClient.addSignEthHandler(this)
         wcClient.addEthSendTransactionHandler(this)
     }
@@ -123,7 +128,7 @@ class WalletConnectService(
             wcClient.onSessionRequest = { _, peerMeta ->
                 onNewSessionRequested(session, peerMeta, wcClient.remotePeerId.orEmpty(), peerId)
             }
-            wcClient.configureDisconnect(session)
+
             wcClients[session.toUri()] = wcClient
             wcClient.connect(
                 session = session,
@@ -139,6 +144,7 @@ class WalletConnectService(
         connectedSessions.add(session)
         wcClients[session.url]?.addSignEthHandler(session)
         wcClients[session.url]?.addEthSendTransactionHandler(session)
+        wcClients[session.url]?.configureDisconnect(session)
     }
 
     override fun acceptConnection(session: WalletConnectSession): Completable =
@@ -255,20 +261,20 @@ class WalletConnectService(
         }
     }
 
-    private fun WCClient.configureDisconnect(session: WCSession) {
+    private fun WCClient.configureDisconnect(session: WalletConnectSession) {
         onDisconnect = { code, _ ->
             if (code == WS_CLOSE_NORMAL) {
-                onSessionDisconnected(session)
+                removeSessionFromRepo(session)
                 killSession()
                 onDisconnect = { _, _ -> }
             }
         }
     }
 
-    private fun onSessionDisconnected(wcSession: WCSession) {
-        wcClients.remove(wcSession.toUri())
+    private fun removeSessionFromRepo(wcSession: WalletConnectSession) {
+        wcClients.remove(wcSession.url)
         compositeDisposable += sessionRepository.retrieve().flatMapCompletable { sessions ->
-            val session = sessions.firstOrNull { it.url == wcSession.toUri() }
+            val session = sessions.firstOrNull { it.url == wcSession.url }
             if (session == null) {
                 Completable.complete()
             } else {
