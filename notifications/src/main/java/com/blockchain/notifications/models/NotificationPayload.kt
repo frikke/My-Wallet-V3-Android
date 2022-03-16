@@ -1,6 +1,5 @@
 package com.blockchain.notifications.models
 
-import android.os.Bundle
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber

@@ -99,15 +99,15 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             .show()
     }
 
-   private fun startSingleActivity(clazz: Class<*>, extras: Bundle?, uri: Uri? = null) {
-       val intent = Intent(this, clazz).apply {
-           addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-           data = uri
-       }
-       Timber.d("DeepLink: Starting Activity $clazz with: $uri")
-       extras?.let { intent.putExtras(extras) }
-       startActivity(intent)
-   }
+    private fun startSingleActivity(clazz: Class<*>, extras: Bundle?, uri: Uri? = null) {
+        val intent = Intent(this, clazz).apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            data = uri
+        }
+        Timber.d("DeepLink: Starting Activity $clazz with: $uri")
+        extras?.let { intent.putExtras(extras) }
+        startActivity(intent)
+    }
 
     override val presenter: LauncherPresenter by inject()
     override val view: LauncherView
@@ -123,4 +123,3 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             }
     }
 }
-

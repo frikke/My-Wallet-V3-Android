@@ -66,7 +66,6 @@ class GlobalEventHandler(
                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }
-
     }
 
     private fun triggerNotificationFromDeeplink(destination: Destination, notificationPayload: NotificationPayload) {
@@ -122,7 +121,7 @@ class GlobalEventHandler(
                 ).triggerNotification(
                     title = notificationPayload?.title ?: "",
                     marquee = notificationPayload?.title ?: "",
-                    text =notificationPayload?.body ?: "",
+                    text = notificationPayload?.body ?: "",
                     pendingIntent = pendingIntent,
                     id = NotificationsUtil.ID_BACKGROUND_NOTIFICATION,
                     appName = R.string.app_name,

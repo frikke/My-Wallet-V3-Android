@@ -4,15 +4,11 @@ import android.content.Intent
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.SecurityPrefs
-import com.blockchain.remoteconfig.FeatureFlag
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
-import timber.log.Timber
 
 interface LauncherView : MvpView {
     fun onCorruptPayload()

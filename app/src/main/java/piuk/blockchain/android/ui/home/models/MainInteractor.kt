@@ -10,7 +10,6 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
-import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState

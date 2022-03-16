@@ -85,6 +85,9 @@ class DeeplinkProcessorV2 {
 }
 
 sealed class DeepLinkResult {
-    data class DeepLinkResultSuccess(val destination: Destination, val notificationPayload: NotificationPayload?) : DeepLinkResult()
+    data class DeepLinkResultSuccess(
+        val destination: Destination,
+        val notificationPayload: NotificationPayload?
+    ) : DeepLinkResult()
     object DeepLinkResultFailed : DeepLinkResult()
 }

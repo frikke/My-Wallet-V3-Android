@@ -130,13 +130,9 @@ class FcmCallbackService : FirebaseMessagingService() {
                                 colorRes = R.color.primary_navy_medium
                             )
                         }
-                    }
-
-                    else if (payload.deeplinkURL != null) {
+                    } else if (payload.deeplinkURL != null) {
                         deeplinkRedirector.processDeeplinkURL(Uri.parse(payload.deeplinkURL), payload)
-                    }
-
-                    else {
+                    } else {
                         triggerHeadsUpNotification(
                             payload,
                             intent,
