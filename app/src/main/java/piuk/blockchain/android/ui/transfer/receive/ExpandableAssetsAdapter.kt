@@ -47,11 +47,13 @@ class ExpandableAssetsAdapter(
         ExpandableAssetViewHolder(
             assetResources,
             compositeDisposable,
+            ExpandedAccountsAdapter(compositeDisposable),
             ItemAssetExpandableBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
-            )
+            ),
+            LinearLayoutManager(parent.context)
         )
 
     override fun onBindViewHolder(holder: ExpandableAssetViewHolder, position: Int) {
@@ -65,10 +67,10 @@ class ExpandableAssetsAdapter(
 class ExpandableAssetViewHolder(
     private val assetResources: AssetResources,
     private val compositeDisposable: CompositeDisposable,
-    private val binding: ItemAssetExpandableBinding
+    private val accountsAdapter: ExpandedAccountsAdapter,
+    private val binding: ItemAssetExpandableBinding,
+    private val walletLayoutManager: LinearLayoutManager
 ) : RecyclerView.ViewHolder(binding.root) {
-
-    private val accountsAdapter = ExpandedAccountsAdapter(compositeDisposable)
 
     fun bind(
         expandableItem: ExpandableCryptoItem,
@@ -85,9 +87,11 @@ class ExpandableAssetViewHolder(
                 updateExpandedState(expandableItem, assetInfo, uiScheduler)
             }
             walletList.apply {
-                layoutManager = LinearLayoutManager(context)
+                layoutManager = walletLayoutManager
                 adapter = accountsAdapter
-                addItemDecoration(BlockchainListDividerDecor(context))
+                if (itemDecorationCount <= 1) {
+                    addItemDecoration(BlockchainListDividerDecor(context))
+                }
             }
         }
     }
@@ -98,12 +102,12 @@ class ExpandableAssetViewHolder(
         uiScheduler: Scheduler
     ) {
         if (expandableItem.isExpanded) {
-            compositeDisposable.clear()
+            accountsAdapter.items = listOf(ExpandedCryptoItem.Loading)
             compositeDisposable += expandableItem.loadAccountsForAsset(assetInfo)
                 .observeOn(uiScheduler)
                 .subscribeBy { accounts ->
                     val items = accounts.map { cryptoAccount ->
-                        ExpandedCryptoItem(
+                        ExpandedCryptoItem.Loaded(
                             account = cryptoAccount,
                             onAccountClicked = expandableItem.onAccountClicked
                         )

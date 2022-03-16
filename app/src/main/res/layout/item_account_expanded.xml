@@ -4,7 +4,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content">
+
+    <com.blockchain.componentlib.system.LoadingTableRowView
+        android:id="@+id/account_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/account_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="icon, wallet_name, wallet_balance, expandable_chevron"
+        tools:visibility="visible" />
 
     <piuk.blockchain.android.ui.customviews.account.AssetWithAccountIcon
         android:id="@+id/icon"
@@ -14,9 +34,9 @@
         android:layout_marginTop="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/standard_margin"
         android:importantForAccessibility="no"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/wallet_name"
@@ -25,12 +45,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        tools:text="Private Key Wallet"
         android:ellipsize="end"
         android:singleLine="true"
-        app:layout_constraintStart_toEndOf="@id/icon"
         app:layout_constraintEnd_toStartOf="@+id/expandable_chevron"
-        app:layout_constraintTop_toTopOf="@id/icon" />
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toTopOf="@id/icon"
+        tools:text="Private Key Wallet" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/wallet_balance"
@@ -45,10 +65,10 @@
         android:id="@+id/expandable_chevron"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="@dimen/standard_margin"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:srcCompat="@drawable/ic_chevron_right"
-        android:layout_margin="@dimen/standard_margin"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_chevron_right" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
